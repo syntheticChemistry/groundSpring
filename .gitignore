@@ -1,0 +1,19 @@
+# Data (downloaded from APIs, computed — not tracked)
+data/
+*.csv.gz
+*.nc
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+
+# R
+.Rhistory
+.RData
+
+# OS
+.DS_Store
+Thumbs.db

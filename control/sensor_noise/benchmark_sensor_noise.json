@@ -1,0 +1,72 @@
+{
+  "_source": "Dong, Miller, Kelley (2020) Performance Evaluation of Soil Moisture Sensors in Coarse- and Fine-Textured Michigan Agricultural Soils. Agriculture 10(12), 598",
+  "_doi": "10.3390/agriculture10120598",
+  "_note": "Values reused from airSpring benchmark_dong2020.json — same data, groundSpring perspective",
+  "_groundspring_question": "How much of sensor RMSE is systematic bias (correctable) vs random noise (irreducible)?",
+
+  "sensors": ["cs616", "ec5"],
+  "soil_types": ["sand", "loamy_sand", "sandy_clay_loam"],
+
+  "soil_classification": {
+    "sand":            {"sand_pct": 96, "silt_pct": 2, "clay_pct": 2},
+    "loamy_sand":      {"sand_pct": 82, "silt_pct": 10, "clay_pct": 8},
+    "sandy_clay_loam": {"sand_pct": 52, "silt_pct": 20, "clay_pct": 28}
+  },
+
+  "factory_calibration_stats": {
+    "_description": "From airSpring benchmark Table 3: factory calibration error vs gravimetric reference",
+    "cs616": {
+      "sand":            {"mbe": -0.01, "rmse": 0.017, "ia": 0.96},
+      "loamy_sand":      {"mbe": -0.03, "rmse": 0.039, "ia": 0.88},
+      "sandy_clay_loam": {"mbe": -0.02, "rmse": 0.039, "ia": 0.84}
+    },
+    "ec5": {
+      "sand":            {"mbe":  0.03, "rmse": 0.038, "ia": 0.90},
+      "loamy_sand":      {"mbe": -0.03, "rmse": 0.035, "ia": 0.91},
+      "sandy_clay_loam": {"mbe": -0.05, "rmse": 0.057, "ia": 0.75}
+    }
+  },
+
+  "corrected_stats": {
+    "_description": "From airSpring benchmark field_validation_rmse: RMSE after soil-specific correction",
+    "cs616": {
+      "sand":            {"factory_rmse": 0.017, "corrected_rmse": 0.006},
+      "loamy_sand":      {"factory_rmse": 0.023, "corrected_rmse": 0.021},
+      "sandy_clay_loam": {"factory_rmse": 0.039, "corrected_rmse": 0.012}
+    },
+    "ec5": {
+      "sand":            {"factory_rmse": 0.018, "corrected_rmse": 0.004},
+      "loamy_sand":      {"factory_rmse": 0.026, "corrected_rmse": 0.006},
+      "sandy_clay_loam": {"factory_rmse": 0.047, "corrected_rmse": 0.020}
+    }
+  },
+
+  "analysis_targets": {
+    "_description": "What groundSpring aims to decompose",
+    "bias_variance_decomposition": {
+      "total_error_rmse": "sqrt(bias^2 + variance)",
+      "bias": "mean(predicted - observed) = MBE",
+      "variance": "RMSE^2 - MBE^2",
+      "random_noise_std": "sqrt(RMSE^2 - MBE^2)"
+    },
+    "noise_floor": {
+      "_description": "Corrected RMSE represents the irreducible noise floor for each sensor-soil combination",
+      "interpretation": "After removing systematic bias, remaining RMSE is random measurement noise"
+    }
+  },
+
+  "expected_results": {
+    "_description": "Derived from the factory_calibration_stats — bias^2 + var = RMSE^2",
+    "_formula": "random_std = sqrt(RMSE^2 - MBE^2)",
+    "cs616": {
+      "sand":            {"bias": -0.01, "random_std": 0.0137, "bias_fraction": 0.346},
+      "loamy_sand":      {"bias": -0.03, "random_std": 0.0253, "bias_fraction": 0.591},
+      "sandy_clay_loam": {"bias": -0.02, "random_std": 0.0334, "bias_fraction": 0.263}
+    },
+    "ec5": {
+      "sand":            {"bias":  0.03, "random_std": 0.0234, "bias_fraction": 0.623},
+      "loamy_sand":      {"bias": -0.03, "random_std": 0.0177, "bias_fraction": 0.735},
+      "sandy_clay_loam": {"bias": -0.05, "random_std": 0.0259, "bias_fraction": 0.770}
+    }
+  }
+}

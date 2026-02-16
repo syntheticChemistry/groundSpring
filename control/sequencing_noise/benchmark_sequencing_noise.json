@@ -1,0 +1,52 @@
+{
+  "_source": "groundSpring Experiment 004 — Sequencing Depth and Taxonomic Noise",
+  "_description": "Simulated rarefaction analysis to characterize the noise floor of 16S rRNA taxonomic assignment",
+  "_groundspring_question": "At what sequencing depth does taxonomy become stable? When does more sequencing stop helping?",
+  "_cross_spring": "wetSpring — microbiome pipeline (DADA2, 16S taxonomy)",
+
+  "reference_community": {
+    "_description": "Synthetic but ecologically realistic soil microbiome community from Michigan agricultural soil",
+    "_note": "Based on typical 16S profiles reported in agricultural soil studies. Genus-level abundances are log-normally distributed.",
+    "n_genera": 150,
+    "n_phyla": 8,
+    "dominant_phyla": [
+      {"name": "Proteobacteria", "relative_abundance": 0.30, "n_genera": 40},
+      {"name": "Actinobacteria", "relative_abundance": 0.20, "n_genera": 30},
+      {"name": "Firmicutes", "relative_abundance": 0.15, "n_genera": 25},
+      {"name": "Bacteroidetes", "relative_abundance": 0.12, "n_genera": 20},
+      {"name": "Acidobacteria", "relative_abundance": 0.08, "n_genera": 15},
+      {"name": "Verrucomicrobia", "relative_abundance": 0.06, "n_genera": 8},
+      {"name": "Planctomycetes", "relative_abundance": 0.05, "n_genera": 7},
+      {"name": "Chloroflexi", "relative_abundance": 0.04, "n_genera": 5}
+    ],
+    "shannon_diversity": 4.4,
+    "evenness": 0.88
+  },
+
+  "rarefaction_depths": [100, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000],
+
+  "analysis_targets": {
+    "phylum_stability": {
+      "description": "At what depth are all 8 phyla consistently detected?",
+      "expected_stable_depth": 100,
+      "tolerance_reads": 500
+    },
+    "genus_saturation": {
+      "description": "At what depth does genus count stop increasing meaningfully?",
+      "saturation_criterion": "< 5% new genera per doubling of depth",
+      "expected_saturation_depth": 10000
+    },
+    "shannon_convergence": {
+      "description": "At what depth does Shannon diversity stabilize within 5% of true value?",
+      "expected_convergence_depth": 1000,
+      "convergence_threshold_pct": 5.0
+    }
+  },
+
+  "expected_results": {
+    "at_100_reads":   {"genera_detected_range": [40, 70], "shannon_range": [3.5, 4.0]},
+    "at_1000_reads":  {"genera_detected_range": [110, 140], "shannon_range": [4.1, 4.5]},
+    "at_10000_reads": {"genera_detected_range": [145, 150], "shannon_range": [4.3, 4.5]},
+    "at_100000_reads":{"genera_detected_range": [148, 150], "shannon_range": [4.3, 4.5]}
+  }
+}
