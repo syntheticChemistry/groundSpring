@@ -137,6 +137,18 @@ The framework — decompose error, identify the dominant source, quantify the no
 - **Phase 1**: BarraCUDA Rust port — noise-aware statistical primitives for ToadStool
 - **neuralSpring bridge**: Export noise characterizations as labeled training data
 
+## 9. Next Phase: Faculty-Driven Paper Candidates
+
+The faculty network identifies three directions that extend groundSpring's noise-characterization framework into new domains:
+
+1. **Inverse problems at high precision** (Bazavov, CMSE/Physics MSU): Lattice QCD spectral reconstruction demands subpercent precision from noisy data — the same mathematical structure as seismic inversion (Exp 005) but at much higher fidelity. Reproducing Bazavov et al. (arXiv 2501.12259) would extend groundSpring's inverse problem toolkit to include regularized spectral methods and jackknife error estimation.
+
+2. **Biological signal specificity** (Waters, MMG MSU): Massie et al. (2012, PNAS) asks how cells resolve signal from noise when 60+ enzymes control a single diffusible molecule. This is the biological analog of Exp 001's sensor noise decomposition — but inside a living cell. Fernandez et al. (2020, PNAS) extends this to bifurcation analysis: at what noise level does a cell switch phenotype?
+
+3. **Resampling confidence methods** (Liu, CMSE MSU): Wang et al. (2021, ISMB/Bioinformatics) develops RAWR — modern weighted resampling that outperforms naive bootstrap for structured data. groundSpring's Monte Carlo (Exp 003) uses simple random draws; RAWR could improve both efficiency and accuracy of our error propagation framework.
+
+These extensions share the common theme: **how do you extract reliable conclusions from noisy measurements?** Whether the measurements are soil moisture readings, lattice QCD correlators, intracellular c-di-GMP concentrations, or phylogenetic tree topologies, the mathematical framework for confidence estimation is the same.
+
 ---
 
 *Study completed: February 16, 2026*

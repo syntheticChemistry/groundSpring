@@ -34,3 +34,77 @@ Phase 0 baselines completed: **71/71 quantitative checks passed** across 5 exper
 
 - [METHODOLOGY.md](METHODOLOGY.md) — Experimental design and validation approach
 - [STUDY.md](STUDY.md) — Detailed results and analysis
+
+---
+
+## Next Phase: Paper Review Candidates
+
+groundSpring asks "how confident are we in these numbers?" The faculty network reveals four professors whose work directly extends this question into new domains: **Alexei Bazavov** (inverse problems in lattice QCD), **Christopher Waters** (signal specificity in biological systems), **Kevin Liu** (statistical resampling for phylogenetic confidence), and **Ilya Kachkovskiy** (Anderson localization — the mathematical theory of when signal propagates vs. when noise wins).
+
+### Inverse Problems & Spectral Reconstruction (Bazavov)
+
+groundSpring Exp 005 (seismic inversion) is an inverse problem — inferring source location from noisy arrival times. Bazavov's lattice QCD work contains a rich set of related inverse problems at much higher precision requirements.
+
+| Priority | Paper | Why |
+|----------|-------|-----|
+| **Tier 1** | Bazavov et al. (2025) "Spectral reconstruction inverse problem in lattice QCD." arXiv 2501.12259 | Spectral reconstruction = signal recovery from incomplete/noisy data. Direct generalization of Exp 005's seismic inversion. The lattice QCD version demands subpercent precision |
+| **Tier 2** | Bazavov et al. (2025) "Hadronic vacuum polarization for the muon g-2." Phys Rev D 111, 094508 | Subpercent precision from noisy lattice data via jackknife/bootstrap error estimation. groundSpring's Monte Carlo error propagation (Exp 003) is a simplified version of the same methodology |
+| **Tier 2** | Bazavov et al. (2016) "Curvature of the freeze-out line in heavy ion collisions." Phys Rev D 93, 014512 | Inverse problem — inferring freeze-out conditions from experimental observables. Different physics, same mathematical structure as seismic inversion |
+
+### Signal vs Noise in Biological Systems (Waters)
+
+groundSpring Exp 001 decomposes sensor noise into bias + random. Waters' c-di-GMP work poses the same question inside a living cell: how does a bacterium resolve signal from noise when 60+ enzymes control a single diffusible molecule?
+
+| Priority | Paper | Why |
+|----------|-------|-----|
+| **Tier 1** | Massie et al. (2012) "Quantification of High Specificity Cyclic di-GMP Signaling." PNAS 109:12746-51 | Quantitative signal specificity in a noisy intracellular environment. How do cells achieve high-specificity signaling with a shared, diffusible molecule? This is the biological version of Exp 001's signal decomposition |
+| **Tier 2** | Fernandez et al. (2020) "V. cholerae adapts to sessile and motile lifestyles by c-di-GMP regulation of cell shape." PNAS 117:29046-29054 | Phenotypic switching as a bistable dynamical system. Bifurcation analysis — when does noise push a system across a threshold? groundSpring quantifies *how much* noise; this paper shows *what happens* when noise exceeds a critical level |
+| **Tier 2** | Srivastava et al. (2011) "Integration of Cyclic di-GMP and Quorum Sensing in the Control of vpsT and aphA." J Bacteriology 193:6331-41 | Multi-input regulatory network integration. How do cells combine multiple noisy signals? The biological analog of sensor fusion |
+
+### Statistical Confidence & Resampling (Liu)
+
+groundSpring's Monte Carlo error propagation (Exp 003) uses N=10,000 random draws. Liu's phylogenetic work develops much more sophisticated resampling methods for confidence estimation on noisy data.
+
+| Priority | Paper | Why |
+|----------|-------|-----|
+| **Tier 1** | Wang et al. (2021) "Build a better bootstrap and the RAWR shall beat a random path to your door." Bioinformatics (ISMB) 37:i111-i119 | RAWR resampling: modern bootstrap methods for confidence estimation on structured data. groundSpring's MC is naive bootstrap; RAWR is weighted resampling that's faster and more accurate |
+| **Tier 2** | Lee & Liu (2024) "A Statistical Optimization Technique to Inform Statistical Resampling Assessments." IEEE BIBM 2024 | Optimizing resampling strategy itself — meta-statistical methods. Could improve groundSpring's error propagation efficiency |
+
+### Eco-Evolutionary Noise (Dolson)
+
+| Priority | Paper | Why |
+|----------|-------|-----|
+| **Tier 2** | Dolson et al. (2023) "The ecology-evolution continuum and the origin of life." J R Soc Interface 20(208) | Emergence of organization from chemical noise — where does signal begin in a system that starts as pure noise? Philosophical extension of groundSpring's noise decomposition to the origin-of-life context |
+
+### Cross-Domain Connection: groundSpring's Five Pillars Extended
+
+| Pillar | Current Exp | Faculty Extension |
+|--------|-------------|-------------------|
+| Signal vs Noise | Exp 001 (sensors) | Waters: biological signal specificity in noisy cells |
+| Inverse Problems | Exp 005 (seismic) | Bazavov: spectral reconstruction in lattice QCD |
+| Sensing Systems | Exp 002 (ERA5 vs station) | Waters: quorum sensing = biological sensor network |
+| Temporal Dynamics | Exp 004 (sequencing depth) | Liu: phylogenetic confidence over evolutionary time |
+| Spatial Propagation | Exp 005 (wave propagation) | Bazavov: gauge field propagation on lattices |
+| ALL PILLARS | Exps 001-005 | Kachkovskiy: Anderson localization = mathematical theory of signal vs noise |
+
+### Anderson Localization & Spectral Theory (Kachkovskiy)
+
+Ilya Kachkovskiy (Math, MSU — previously IAS; co-author with Fields Medalist Jean Bourgain) provides the rigorous mathematical formalization of groundSpring's central question. His work on Anderson localization proves when waves propagate through disordered media vs. when noise traps them — the theorem behind all five pillars.
+
+| Priority | Paper | Why |
+|----------|-------|-----|
+| **Tier 1** | Bourgain & Kachkovskiy (2018) "Anderson localization for two interacting quasiperiodic particles." GAFA 29:3-43 | Two coupled noisy sensors: when does interaction help vs. hurt signal recovery? Direct extension of Exp 001 |
+| **Tier 1** | Jitomirskaya & Kachkovskiy (2018) "All couplings localization for quasiperiodic operators." JEMS 21:777-795 | Quasiperiodic disorder = structured noise (seasonal patterns, tidal drift). Localization at all coupling strengths |
+| **Tier 2** | Kachkovskiy (2016) "On transport properties of isotropic quasiperiodic XY spin chains." CMP 345:659-673 | When does a signal propagate through a disordered chain? Framework for Exp 005's seismic wave propagation |
+| **Tier 2** | Filonov & Kachkovskiy (2018) "On the structure of band edges of 2d periodic elliptic operators." Acta Math 221:59-80 | Band edges = the frequency boundary between signal propagation and noise domination |
+
+### BarraCUDA Kernel Needs for Extensions
+
+| Domain | Required Primitives | Status |
+|--------|-------------------|--------|
+| Spectral reconstruction | FFT, regularization, matrix inverse | **Gap**: FFT not yet in BarraCUDA |
+| Stochastic simulation | Gillespie algorithm, PRNG | Partial — PRNG exists |
+| Bifurcation analysis | Eigenvalue computation, continuation | `BatchedEighGpu` handles eigenvalues |
+| Bootstrap/resampling | Parallel resampling, weighted draws | Embarrassingly parallel — good GPU target |
+| Monte Carlo | Already validated in Exp 003 | Extend to jackknife, bootstrap-t |
+| Anderson localization | Lanczos eigensolve, SpMV, matrix exp | **Gap**: iterative sparse eigensolve (shared with hotSpring) |
