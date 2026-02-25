@@ -29,7 +29,7 @@ metalForge/
 
 | Phase | Count | Examples |
 |-------|------:|---------|
-| **Lean** (delegated to barracuda) | 6 | `pearson_r`, `spearman_r`, `sample_std_dev`, `bootstrap_mean`, `lyapunov_exponent`, `lyapunov_averaged` |
+| **Lean** (delegated to barracuda) | 11 | `pearson_r`, `spearman_r`, `sample_std_dev`, `covariance`, `norm_cdf`, `norm_ppf`, `chi2_statistic`, `bootstrap_mean`, `lyapunov_exponent`, `lyapunov_averaged`, `analytical_localization_length` |
 | **Ready** (GPU op exists, needs adapter) | 6 | `rmse`, `mbe`, `r_squared`, `ia`, `hit_rate`, `shannon_diversity` |
 | **Absorbed upstream** | 1 | `fao56_et0_batch` (ToadStool S49) |
 | **Write** (WGSL ready for absorption) | 2 | `batched_multinomial`, `mc_et0_propagate` |

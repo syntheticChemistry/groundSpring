@@ -11,7 +11,7 @@ groundSpring Phase 0 (Python), Phase 1 (Rust), and Phase 2a (barracuda CPU) are 
 
 - 119/119 validation checks across 8 binaries
 - 11 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, cast, validate
-- 108 unit tests + 1 doc test, 0 clippy warnings (pedantic + nursery)
+- 131 unit + 14 proptest + 8 integration + 1 doc (154 total), 0 clippy warnings (pedantic + nursery)
 - Two feature gates: `barracuda` (CPU stats/bootstrap) and `barracuda-gpu` (spectral/anderson)
 - 11 functions delegated to barracuda (stats, bootstrap, anderson, etc.)
 - 2 production WGSL shaders in `metalForge/shaders/` (261 combined lines)

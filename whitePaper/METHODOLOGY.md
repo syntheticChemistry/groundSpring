@@ -131,11 +131,11 @@ Phase 1 ports each experiment's core algorithm to idiomatic Rust in the
 
 | Gate | Requirement |
 |------|-------------|
-| `cargo test` | 108 unit + 1 doc test, all pass |
+| `cargo test` | 154 total tests (131 unit + 14 proptest + 8 integration + 1 doc), all pass |
 | `cargo clippy` | Zero warnings (pedantic + nursery) |
 | `cargo fmt` | Clean |
 | `cargo doc` | Clean, `missing_docs = "deny"` |
-| `cargo llvm-cov` | 99.7% line, 100% function |
+| `cargo llvm-cov` | 98.64% line coverage (cargo-llvm-cov) |
 | No `unsafe` | Enforced at workspace lint level |
 | Max file size | 1000 lines per file |
 | Provenance | Benchmark JSONs have real commit SHA |
@@ -173,5 +173,5 @@ Same as all ecoPrimals springs:
 ## Grand Total
 
 - **Phase 0 (Python)**: 102/102 quantitative checks passed across 8 experiments, 6 domains.
-- **Phase 1 (Rust)**: 119/119 checks passed across 8 validation binaries, 99.7% coverage.
+- **Phase 1 (Rust)**: 119/119 checks passed across 8 validation binaries.
 - **Phase 2a (Barracuda CPU)**: 11 functions delegated, 24× faster than Python.

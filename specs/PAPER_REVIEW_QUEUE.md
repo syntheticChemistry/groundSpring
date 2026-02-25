@@ -172,8 +172,6 @@ datasets, no proprietary software dependencies.
 | 20 | R. Anderson mBio | NCBI SRA metagenomes | SRA accession | **Yes** |
 | 21 | R. Anderson FEMS | NCBI SRA 16S amplicons | SRA accession | **Yes** |
 | 22-24 | Cross-spring sub-thesis 06 | Derived from Exp 001-004 | Internal | **Yes** |
-
-| 22-24 | Sub-thesis 06 (cross-spring) | Derived from Exp 001-004 | Internal | **Yes** |
 | 25-27 | Sub-thesis 07 (WDM GPU) | Simulation + analytical | Reproducible | **Yes** |
 
 **Status**: All 27 papers use open data or open systems. Zero proprietary dependencies.

@@ -13,9 +13,7 @@ from __future__ import annotations
 
 import json
 import math
-import os
 import subprocess
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -23,7 +21,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    pass
 
 
 # ---------------------------------------------------------------------------

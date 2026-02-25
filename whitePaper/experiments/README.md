@@ -5,7 +5,7 @@
 > (Phase 0), a Rust validation (Phase 1), and a barracuda delegation path
 > (Phase 2+).
 
-**Total**: 119/119 validation checks across 8 experiments, 6 domains.
+**Total**: 119/119 validation checks across 8 experiments, 6 domains. 154 Rust tests, 34 Python tests.
 **Rust vs Python**: 24× faster (Exp 006-008 benchmark).
 
 ## Experiment Index
@@ -30,5 +30,5 @@ Each experiment is validated at three levels:
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
 Current status: **CPU complete** (119/119), **11 barracuda delegations active**
-(7 stats + bootstrap_mean + 2 anderson lyapunov + analytical ξ).
+(7 stats + bootstrap_mean + 2 anderson lyapunov + analytical ξ). 98.64% line coverage.
 GPU reduce ops and metalForge pending.

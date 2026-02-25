@@ -41,7 +41,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 
 | Module | Purpose | GPU Tier |
 |--------|---------|----------|
-| `stats` | RMSE, MBE, R², IA, hit rate, Pearson/Spearman, std, covariance, norm_cdf/ppf, χ² | 7 CPU leaned, 6 GPU pending |
+| `stats` | RMSE, MBE, R², IA, hit rate, Pearson/Spearman, std, covariance, norm_cdf/ppf, χ² | 11 CPU leaned, 6 GPU pending adapter |
 | `decompose` | Bias-variance decomposition, noise floor | CPU-only (scalar) |
 | `fao56` | FAO-56 Penman-Monteith equation chain | **Absorbed** (barracuda `Op::Fao56Et0`) |
 | `prng` | Xorshift64 PRNG, Box-Muller normal | B (align to xoshiro) |
@@ -58,9 +58,9 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace          # 122 unit + 1 doc test
+cargo test --workspace          # 154 tests (131 unit + 14 proptest + 8 integration + 1 doc)
 cargo clippy --workspace        # zero warnings
-cargo fmt --all -- --check      # clean
+cargo fmt --check               # clean
 
 # Validation binaries (hotSpring pattern: exit 0 = pass, exit 1 = fail)
 cargo run --bin validate-decompose
@@ -76,16 +76,16 @@ cargo run --bin validate-anderson
 ### Python Phase 0
 
 ```bash
-pip install numpy scipy pandas requests
-python3 control/sensor_noise/sensor_noise_decomposition.py
-python3 control/sequencing_noise/sequencing_noise.py
-python3 control/seismic/seismic_inversion.py
+pip install -e ".[dev]"
+python3 -m pytest tests/ -v       # 34 tests
+ruff check control/ tests/        # zero errors
+mypy control/ tests/              # zero errors
 ```
 
 ### Test Coverage
 
 ```bash
-cargo llvm-cov --workspace --lib    # 99.7% library line coverage
+cargo llvm-cov --workspace          # 98.64% workspace line coverage
 ```
 
 ## Performance: Rust vs Python
@@ -104,7 +104,7 @@ Run benchmarks: `python3 scripts/bench_rust_vs_python.py`
 ```
 Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration (Phase 2)
    NumPy/SciPy                    Pure safe Rust                BarraCUDA / ToadStool
-     ✓ Complete                     ✓ 119/119 PASS               ◐ 11 CPU leaned, 2 WGSL ready
+     ✓ Complete                     ✓ 119/119 PASS               ◐ 11 CPU delegated, 2 WGSL ready
    24× slower than Rust             reference implementation       barracuda-gpu: anderson, gillespie
 
      Write locally              →  Hand off to barracuda      →  Lean on upstream
@@ -149,12 +149,16 @@ groundSpring/
 ├── metalForge/                      # Write → Absorb → Lean artifacts
 │   ├── ABSORPTION_MANIFEST.md       # Module-by-module absorption inventory
 │   └── shaders/                     # Production WGSL shaders for ToadStool absorption
+├── .github/workflows/ci.yml         # GitHub Actions CI
+├── wateringHole/                    # Handoff directory
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md       # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md    # GPU kernel gap analysis
 │   └── PAPER_REVIEW_QUEUE.md        # 27 papers, three-tier control matrix, open data audit
-├── whitePaper/                      # Study results and methodology
+├── whitePaper/                      # Study, methodology, baseCamp, experiments
 │   ├── baseCamp/                    # Per-faculty research briefings (5 faculty)
+│   ├── experiments/                 # Per-experiment summaries (001-008)
+├── tests/                           # Python test suite (34 tests)
 ├── Cargo.toml                       # Rust workspace (barracuda feature gate)
 ├── CONTRIBUTING.md
 ├── CHANGELOG.md

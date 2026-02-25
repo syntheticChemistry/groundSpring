@@ -21,8 +21,8 @@ control/             Python Phase 0 experiments (8 experiments across 5+ domains
   anderson_localization/ Exp 008: Anderson localization
 crates/
   groundspring/            Rust library (11 modules)
-    src/stats.rs           RMSE, MBE, R², IA, hit rate, Pearson/Spearman, covariance,
-                           norm_cdf/ppf, chi2_statistic, mean, std, percentile
+    src/stats/             RMSE, MBE, R², IA, hit rate, Pearson/Spearman, covariance,
+                           norm_cdf/ppf, chi2_statistic, mean, std, percentile (3 submodules)
     src/decompose.rs       Bias-variance decomposition, noise floor
     src/fao56.rs           FAO-56 Penman-Monteith equation chain
     src/prng.rs            Xorshift64 PRNG, Box-Muller normal sampling
@@ -60,10 +60,10 @@ scripts/             Automation (baselines, benchmarks)
 ### Rust
 
 ```bash
-cargo test --workspace          # 122 unit + 1 doc test
+cargo test --workspace          # 154 tests (131 unit + 14 proptest + 8 integration + 1 doc)
 cargo clippy --workspace        # zero warnings required
-cargo fmt --all -- --check      # clean
-cargo llvm-cov --workspace --lib  # 99.7% library line coverage
+cargo fmt --check               # clean
+cargo llvm-cov --workspace       # 98.64% workspace line coverage
 
 # With barracuda feature gates (requires toadstool checkout):
 cargo test --features barracuda     # CPU delegation (8 of 11: stats, bootstrap)

@@ -43,7 +43,6 @@ from common import (
     reset_counters,
 )
 
-
 # ---------------------------------------------------------------------------
 # Anderson model
 # ---------------------------------------------------------------------------
@@ -132,7 +131,7 @@ def main() -> int:
     print("=" * 72)
     print("groundSpring Exp 008: Anderson Localization")
     print(f"  Model: 1D tight-binding, {n_sites} sites, {n_real} realizations")
-    print(f"  Cross-spring: hotSpring (spectral theory, lattice physics)")
+    print("  Cross-spring: hotSpring (spectral theory, lattice physics)")
     print("=" * 72)
 
     # ------------------------------------------------------------------
@@ -208,7 +207,7 @@ def main() -> int:
     print("\n--- Part 4: Localization Length vs Disorder ---")
 
     xi_values = [localization_length(gammas[w]) for w in nonzero_disorders]
-    for w, xi in zip(nonzero_disorders, xi_values):
+    for w, xi in zip(nonzero_disorders, xi_values, strict=True):
         xi_str = f"{xi:.1f}" if xi < 1e6 else "∞"
         print(f"  W={w:.1f}: ξ={xi_str}")
 
@@ -242,11 +241,11 @@ def main() -> int:
     print("KEY FINDINGS:")
     print(f"{'=' * 72}")
     print(f"\n1. Clean system: γ = {gamma_clean:.6f} ≈ 0 (extended states)")
-    print(f"2. ANY disorder localizes: all γ > 0 for W > 0 (Anderson 1958)")
+    print("2. ANY disorder localizes: all γ > 0 for W > 0 (Anderson 1958)")
     print(f"3. Thouless scaling: ξ ≈ {thouless_ratio:.0f}/W² at band center")
     print(f"4. Strong disorder (W=8): ξ ≈ {localization_length(gammas[8.0]):.1f} sites")
-    print(f"5. This is the mathematical foundation of groundSpring's 5 pillars:")
-    print(f"   noise (disorder) traps signal (wave) in ALL dimensions for 1D")
+    print("5. This is the mathematical foundation of groundSpring's 5 pillars:")
+    print("   noise (disorder) traps signal (wave) in ALL dimensions for 1D")
 
     return print_summary("Exp 008: Anderson Localization")
 

@@ -6,7 +6,7 @@ name = "groundspring"
 version = "0.1.0"
 description = "The Dirty Differences — measurement noise characterization across scientific domains"
 license = "AGPL-3.0-or-later"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 dependencies = [
     "numpy>=1.24",
     "scipy>=1.10",
@@ -23,7 +23,7 @@ dev = [
 ]
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py310"
 line-length = 100
 
 [tool.ruff.lint]
@@ -41,16 +41,32 @@ select = [
 ]
 ignore = [
     "E501",   # line length handled by formatter
+    "RUF001", # Greek letters (α, β, σ, μ) are intentional in scientific code
+    "RUF002", # same, in docstrings
+    "RUF003", # same, in comments
+    "N806",   # uppercase variables (N, R2, S_star) follow scientific convention
 ]
 
 [tool.ruff.lint.isort]
 known-first-party = ["control"]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
+mypy_path = ["control"]
+explicit_package_bases = true
+
+[[tool.mypy.overrides]]
+module = [
+    "penman_monteith",
+    "sensor_noise.*",
+    "sequencing_noise.*",
+    "seismic.*",
+    "scipy.*",
+]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

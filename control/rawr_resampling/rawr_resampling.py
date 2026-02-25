@@ -39,7 +39,6 @@ from common import (
     reset_counters,
 )
 
-
 # ---------------------------------------------------------------------------
 # Bootstrap implementations
 # ---------------------------------------------------------------------------
@@ -290,7 +289,7 @@ def main() -> int:
     print(f"\n1. Gaussian: Both achieve ~{boot_cov:.0%} / {rawr_cov:.0%} coverage")
     print(f"2. Skewed: Bootstrap {boot_cov_s:.0%}, RAWR {rawr_cov_s:.0%}")
     print(f"3. Correlated: RAWR/Bootstrap RMSE ratio = {mse_ratio:.3f}")
-    print(f"4. RAWR is competitive or better across all test cases")
+    print("4. RAWR is competitive or better across all test cases")
 
     return print_summary("Exp 007: RAWR Resampling")
 

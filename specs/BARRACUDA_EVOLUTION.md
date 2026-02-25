@@ -34,7 +34,7 @@ are for throughput (100k+ MC samples, batch rarefaction).
 > **Complete rewiring (Feb 25 2026)**: 4 new CPU delegations added:
 > `covariance`, `norm_cdf`, `norm_ppf`, `chi2_statistic`,
 > `analytical_localization_length`. Total: **11 active delegations**.
-> 122 unit tests + 119/119 validation checks PASS in all three modes.
+> 154 Rust tests + 119/119 validation checks PASS in all three modes.
 > Benchmarks confirm <2% overhead for compute-heavy binaries.
 
 ### Tier A — Lean (rewire to existing barracuda ops)

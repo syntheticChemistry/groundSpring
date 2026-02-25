@@ -6,7 +6,7 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: February 25, 2026 (Phase 1c — paper queue buildout)
+**Last updated**: February 25, 2026 (Phase 2a — paper queue buildout)
 
 ## Absorption Status Summary
 

@@ -41,7 +41,6 @@ from common import (
     reset_counters,
 )
 
-
 # ---------------------------------------------------------------------------
 # Gillespie SSA for birth-death c-di-GMP model
 # ---------------------------------------------------------------------------
@@ -167,7 +166,7 @@ def main() -> int:
     print("=" * 72)
     print("groundSpring Exp 006: Enzymatic Signal Specificity (c-di-GMP)")
     print(f"  Enzyme network: {n_dgc} DGCs, {n_pde} PDEs")
-    print(f"  Cross-spring: wetSpring (biological signal-noise decomposition)")
+    print("  Cross-spring: wetSpring (biological signal-noise decomposition)")
     print("=" * 72)
 
     # ------------------------------------------------------------------
@@ -192,7 +191,6 @@ def main() -> int:
     # ------------------------------------------------------------------
     print("\n--- Part 2: Gillespie SSA Basal Steady State ---")
 
-    rng = np.random.default_rng(sim["seed"])
     basal_rates = [k_syn] * n_dgc
     t_max = sim["t_max"]
     t_burnin = sim["t_burnin"]
@@ -332,7 +330,7 @@ def main() -> int:
           f"(Poisson: {ss_std:.1f})")
     print(f"3. 10× activation SNR: {snr_values[10]:.2f}")
     print(f"4. 20× activation SNR: {snr_values[20]:.2f}")
-    print(f"5. Specificity requires α >> N_dgc for SNR >> 1")
+    print("5. Specificity requires α >> N_dgc for SNR >> 1")
 
     return print_summary("Exp 006: Enzymatic Signal Specificity")
 

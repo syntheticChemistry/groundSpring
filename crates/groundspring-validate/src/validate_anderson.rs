@@ -28,6 +28,21 @@ fn f64_field(v: &Value, key: &str) -> f64 {
         .unwrap_or_else(|| panic!("missing f64 field: {key}"))
 }
 
+#[expect(clippy::cast_possible_truncation)]
+fn usize_field(v: &Value, key: &str) -> usize {
+    v[key]
+        .as_u64()
+        .unwrap_or_else(|| panic!("missing u64 field: {key}")) as usize
+}
+
+fn f64_range(arr: &Value) -> (f64, f64) {
+    let a = arr.as_array().expect("expected JSON array for range");
+    (
+        a[0].as_f64().expect("range lower bound"),
+        a[1].as_f64().expect("range upper bound"),
+    )
+}
+
 /// Disorder sweep: compute Lyapunov exponents across disorder strengths.
 fn disorder_sweep(
     h: &mut ValidationHarness,
@@ -70,7 +85,7 @@ fn disorder_sweep(
     let gamma_8 = gammas
         .iter()
         .find(|(w, _)| (*w - 8.0).abs() < 0.01)
-        .unwrap()
+        .expect("disorder W=8.0 not in sweep")
         .1;
     h.check_min(
         "Strong disorder (W=8) γ",
@@ -88,18 +103,13 @@ fn thouless_and_localization(h: &mut ValidationHarness, gammas: &[(f64, f64)], e
     let gamma_1 = gammas
         .iter()
         .find(|(w, _)| (*w - 1.0).abs() < 0.01)
-        .unwrap()
+        .expect("disorder W=1.0 not in sweep")
         .1;
     let xi_1 = localization_length(gamma_1);
     println!("  At W=1: ξ={xi_1:.1}, C = ξ·W² = {xi_1:.1}");
 
-    let c_range = exp["thouless_ratio_range"].as_array().expect("C range");
-    h.check_range(
-        "Thouless coefficient C",
-        xi_1,
-        c_range[0].as_f64().unwrap(),
-        c_range[1].as_f64().unwrap(),
-    );
+    let (c_lo, c_hi) = f64_range(&exp["thouless_ratio_range"]);
+    h.check_range("Thouless coefficient C", xi_1, c_lo, c_hi);
 
     println!("\n--- Part 4: Localization Length vs Disorder ---");
 
@@ -123,8 +133,8 @@ fn thouless_and_localization(h: &mut ValidationHarness, gammas: &[(f64, f64)], e
     );
 }
 
-#[expect(clippy::cast_possible_truncation, clippy::float_cmp)]
-fn main() {
+#[expect(clippy::float_cmp)]
+fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Anderson Localization");
 
@@ -132,8 +142,8 @@ fn main() {
     let pred = &bench["analytical_predictions"];
     let exp = &bench["expected_results"];
 
-    let n_sites = model["n_sites"].as_u64().expect("n_sites") as usize;
-    let n_real = model["n_realizations"].as_u64().expect("n_realizations") as usize;
+    let n_sites = usize_field(model, "n_sites");
+    let n_real = usize_field(model, "n_realizations");
     let energy = f64_field(model, "energy");
 
     let disorders: Vec<f64> = model["disorder_strengths"]
@@ -175,6 +185,17 @@ fn main() {
     let g2 = lyapunov_exponent(&p2, 0.0);
     h.check_true("Lyapunov deterministic", g1 == g2);
 
-    let exit_code = h.summary();
-    std::process::exit(exit_code);
+    h.summary()
+}
+
+fn main() {
+    std::process::exit(run());
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn validation_passes() {
+        assert_eq!(super::run(), 0);
+    }
 }

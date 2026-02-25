@@ -15,7 +15,7 @@ use groundspring::decompose::decompose_error;
 use groundspring::stats;
 use groundspring::validate::ValidationHarness;
 
-fn main() {
+fn run() -> i32 {
     let mut h = ValidationHarness::stdout("Rust Validation: Weather Model-Observation Gap");
 
     println!("{}", "=".repeat(72));
@@ -124,6 +124,17 @@ fn main() {
         1e-12,
     );
 
-    let exit_code = h.summary();
-    std::process::exit(exit_code);
+    h.summary()
+}
+
+fn main() {
+    std::process::exit(run());
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn validation_passes() {
+        assert_eq!(super::run(), 0);
+    }
 }

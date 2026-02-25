@@ -22,7 +22,7 @@ fn f64_field(v: &Value, key: &str) -> f64 {
         .unwrap_or_else(|| panic!("missing f64 field: {key}"))
 }
 
-fn main() {
+fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Seismic Inversion");
 
@@ -71,6 +71,10 @@ fn main() {
     let grid = &bench["inversion_config"]["grid_search"];
 
     // ── Haversine ───────────────────────────────────────────────────
+    // Tol 1e-10: identity check (same point → 0 km), limited only by
+    // trig rounding; 1e-10 is ~6 orders above machine epsilon.
+    // Range 5520–5620: great-circle NY–London is 5570 km (WGS-84);
+    // ±50 km absorbs spherical vs ellipsoidal model difference.
     println!("\n--- Haversine Distance ---");
 
     h.check_approx(
@@ -108,8 +112,19 @@ fn main() {
         max_rms,
     );
 
-    let exit_code = h.summary();
-    std::process::exit(exit_code);
+    h.summary()
+}
+
+fn main() {
+    std::process::exit(run());
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn validation_passes() {
+        assert_eq!(super::run(), 0);
+    }
 }
 
 /// Forward-model checks: travel times are positive and monotonic.

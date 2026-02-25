@@ -174,8 +174,11 @@ Ports Exp 008 transfer-matrix Lyapunov to pure safe Rust.  Verifies:
 | `test_common.py` | 18 | Unit tests for shared statistical primitives |
 | `test_determinism.py` | 7 | Rerun-identical verification for stochastic ops |
 | `test_experiments.py` | 8 | Integration: each experiment returns exit code 0 |
-| Rust `#[test]` | 108 | Unit tests for Rust library modules (+ 1 doc test) |
-| **Total** | **141** | |
+| Rust `#[test]` | 131 | Unit tests for Rust library modules |
+| Rust proptest | 14 | Property-based invariant tests |
+| Rust integration | 8 | Validation binary integration tests |
+| Rust doc test | 1 | Documentation example test |
+| **Total** | **188** | (34 Python + 154 Rust) |
 
 ## Run Log
 
@@ -195,7 +198,7 @@ New delegations wired (5 new):
   stats::chi2_statistic      → barracuda::stats::chi2_decomposed
   anderson::analytical_ξ     → barracuda::special::anderson_transport::localization_length
 
-Unit tests: 122/122 PASS (+ 1 doc test)
+Rust tests: 154/154 PASS (131 unit + 14 proptest + 8 integration + 1 doc)
 Clippy: 0 warnings (pedantic + nursery)
 
 Benchmarks (best-of-3, release mode):
@@ -220,7 +223,7 @@ ToadStool baseline: S62 + DF64 expansion (Feb 24-25, 2026)
   Post-S62: DF64 core-streaming, ComputeDispatch builder
 
 Verified:
-  cargo test --features barracuda-gpu     108/108 PASS (+ 1 doc test)
+  cargo test --features barracuda-gpu     154/154 PASS (131 unit + 14 proptest + 8 integration + 1 doc)
   cargo clippy --features barracuda-gpu   0 warnings (pedantic + nursery)
   barracuda has bootstrap_mean_f64.wgsl   GPU path available
 ```
@@ -362,7 +365,7 @@ Each experiment is validated at three hardware tiers:
 - **Phase 1**: Rust CPU validation — **COMPLETE** (119/119 across 8 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
 - **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 006-008: biology, statistics, math)
-- **Phase 2a**: Tier A rewire — **3 CPU leaned** (`pearson_r`, `spearman_r`, `sample_std_dev`); 6 GPU ops pending adapter
+- **Phase 2a**: Tier A rewire — **11 CPU leaned** (stats, bootstrap, anderson); 6 GPU ops pending adapter
 - **Phase 2b**: Tier B adapt — PRNG alignment, grid-search dispatch
 - **Phase 2c**: Tier C absorption — FAO-56 **superseded** (absorbed S49); `batched_multinomial` still needed
 - **Phase 3**: Faculty extension kernels (FFT, Lanczos, Gillespie GPU)
@@ -376,12 +379,17 @@ Each experiment is validated at three hardware tiers:
 | `cargo clippy --all-targets` | PASS (0 errors, 0 warnings) |
 | `cargo clippy --features barracuda` | PASS |
 | `cargo doc --no-deps` | PASS |
-| `cargo test` | 108/108 PASS (+ 1 doc test) |
-| `cargo test --features barracuda` | 108/108 PASS |
-| Validation binaries | 119/119 PASS |
-| Library line coverage | 99.7% |
+| `cargo test` | 154/154 PASS (131 unit + 14 proptest + 8 integration + 1 doc) |
+| `cargo test --features barracuda` | 154/154 PASS |
+| `cargo test --features barracuda-gpu` | 154/154 PASS |
+| Validation binaries (local) | 119/119 PASS |
+| Validation binaries (barracuda-gpu) | 119/119 PASS |
+| `ruff check control/ tests/` | 0 errors |
+| `mypy control/ tests/` | 0 errors |
+| `python3 -m pytest tests/` | 34/34 PASS |
+| Workspace line coverage | 98.64% (cargo-llvm-cov) |
 | Unsafe code | Forbidden (workspace lint) |
-| Max file size | 397 lines (all < 1000) |
+| Max file size | 405 lines (all < 1000) |
 | SPDX headers | All `.rs` files |
 | License | AGPL-3.0-or-later |
 
@@ -389,9 +397,17 @@ Each experiment is validated at three hardware tiers:
 
 | Module | BarraCUDA Target | Status |
 |--------|-----------------|--------|
+| `stats::sample_std_dev` | `stats::correlation::std_dev` | **DONE** — `#[cfg(feature = "barracuda")]` |
+| `stats::pearson_r` | `stats::pearson_correlation` | **DONE** — `#[cfg(feature = "barracuda")]` |
+| `stats::spearman_r` | `stats::correlation::spearman_correlation` | **DONE** — `#[cfg(feature = "barracuda")]` |
+| `stats::covariance` | `stats::correlation::covariance` | **DONE** — `#[cfg(feature = "barracuda")]` |
+| `stats::norm_cdf` | `stats::norm_cdf` | **DONE** — `#[cfg(feature = "barracuda")]` |
+| `stats::norm_ppf` | `stats::norm_ppf` | **DONE** — `#[cfg(feature = "barracuda")]` |
+| `stats::chi2_statistic` | `stats::chi2_decomposed` | **DONE** — `#[cfg(feature = "barracuda")]` |
 | `bootstrap::bootstrap_mean` | `stats::bootstrap_mean` | **DONE** — `#[cfg(feature = "barracuda")]` |
 | `anderson::lyapunov_exponent` | `spectral::lyapunov_exponent` | **DONE** — `#[cfg(feature = "barracuda-gpu")]` |
 | `anderson::lyapunov_averaged` | `spectral::lyapunov_averaged` | **DONE** — `#[cfg(feature = "barracuda-gpu")]` |
+| `anderson::analytical_localization_length` | `special::anderson_transport::localization_length` | **DONE** — `#[cfg(feature = "barracuda")]` |
 | `gillespie::birth_death_ssa` | `ops::bio::GillespieGpu` | Pending — GPU-only, no CPU fallback |
 | `bootstrap::rawr_mean` | New kernel needed | Pending — no RAWR in barracuda |
 

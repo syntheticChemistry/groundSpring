@@ -23,9 +23,9 @@ Reference:
 
 from __future__ import annotations
 
-import importlib
 import json
 import math
+import os
 import sys
 from pathlib import Path
 
@@ -33,13 +33,11 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from common import (
-    check_min,
     check_range,
     check_true,
     print_summary,
     reset_counters,
 )
-
 
 # ---------------------------------------------------------------------------
 # Runtime discovery of airSpring FAO-56 module
@@ -48,19 +46,31 @@ from common import (
 def _discover_airspring_fao56() -> Path | None:
     """Discover airSpring FAO-56 module at runtime.
 
-    groundSpring does not hardcode sibling primal paths.  It searches
-    known locations and returns the first that contains the expected module.
+    Discovery strategy (first match wins):
+      1. ``AIRSPRING_ROOT`` environment variable (explicit override)
+      2. ``ECOPRIMALS_ROOT`` env var + ``airSpring/control/fao56``
+      3. Relative sibling: ``../../airSpring/control/fao56`` from this primal's root
     """
-    candidates = [
-        Path(__file__).resolve().parent.parent.parent.parent
-        / "airSpring"
-        / "control"
-        / "fao56",
-        Path.home() / "Development" / "ecoPrimals" / "airSpring" / "control" / "fao56",
-    ]
-    for p in candidates:
-        if (p / "penman_monteith.py").exists():
+    target = Path("control") / "fao56"
+    module_file = "penman_monteith.py"
+
+    env_air = os.environ.get("AIRSPRING_ROOT")
+    if env_air:
+        p = Path(env_air) / target
+        if (p / module_file).exists():
             return p
+
+    env_eco = os.environ.get("ECOPRIMALS_ROOT")
+    if env_eco:
+        p = Path(env_eco) / "airSpring" / target
+        if (p / module_file).exists():
+            return p
+
+    primal_root = Path(__file__).resolve().parent.parent.parent.parent
+    p = primal_root / "airSpring" / target
+    if (p / module_file).exists():
+        return p
+
     return None
 
 
@@ -72,7 +82,7 @@ if _fao56_path is None:
 
 sys.path.insert(0, str(_fao56_path))
 
-from penman_monteith import (  # type: ignore[import-not-found]
+from penman_monteith import (  # noqa: E402  # type: ignore[import-not-found]
     actual_vapour_pressure_rh,
     atmospheric_pressure,
     clear_sky_radiation,
@@ -87,7 +97,6 @@ from penman_monteith import (  # type: ignore[import-not-found]
     solar_radiation_from_sunshine,
     wind_speed_at_2m,
 )
-
 
 # ---------------------------------------------------------------------------
 # Full ET₀ computation with explicit perturbed inputs
@@ -129,7 +138,7 @@ def compute_et0_from_perturbed(
     Rn = Rns - Rnl
     G = 0.0
 
-    return fao56_penman_monteith(Rn, G, tmean, u2, vpd, delta, gamma)
+    return float(fao56_penman_monteith(Rn, G, tmean, u2, vpd, delta, gamma))
 
 
 # ---------------------------------------------------------------------------
@@ -289,8 +298,8 @@ def sensitivity_analysis(
     for var_name, var_config in variables.items():
         et0_values = np.zeros(n_samples)
         for i in range(n_samples):
-            pert = var_config["perturb"](rng)
-            perturbed = var_config["apply"](base_dict, pert)
+            pert = var_config["perturb"](rng)  # type: ignore[operator]
+            perturbed = var_config["apply"](base_dict, pert)  # type: ignore[operator]
             et0_values[i] = compute_et0_from_perturbed(
                 perturbed["tmax_c"],
                 perturbed["tmin_c"],
@@ -543,7 +552,7 @@ def main() -> int:
     print("KEY FINDINGS:")
     print(f"{'=' * 72}")
 
-    print(f"\n1. ET₀ Uncertainty Budget:")
+    print("\n1. ET₀ Uncertainty Budget:")
     print(f"   Mean ET₀:   {mc['mean']:.3f} ± {mc['std']:.3f} mm/day")
     print(f"   90% CI:     [{mc['p5']:.3f}, {mc['p95']:.3f}] mm/day")
     print(f"   CV:          {mc['cv_pct']:.1f}%")

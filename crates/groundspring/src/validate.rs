@@ -272,4 +272,31 @@ mod tests {
         assert!(output.contains("1/2 PASS"));
         assert!(output.contains("1/2 FAIL"));
     }
+
+    #[test]
+    fn debug_impl_shows_fields() {
+        let h = harness("debug_test");
+        let dbg = format!("{h:?}");
+        assert!(dbg.contains("debug_test"));
+        assert!(dbg.contains("passes"));
+        assert!(dbg.contains("fails"));
+    }
+
+    #[test]
+    fn check_range_fail_output() {
+        let mut h = harness("rng");
+        h.check_range("too_low", 0.5, 1.0, 2.0);
+        h.check_range("too_high", 3.0, 1.0, 2.0);
+        let output = String::from_utf8_lossy(&h.writer);
+        assert!(output.contains("[FAIL] too_low"));
+        assert!(output.contains("[FAIL] too_high"));
+    }
+
+    #[test]
+    fn check_min_fail_output() {
+        let mut h = harness("min_fail");
+        assert!(!h.check_min("below", 3.0, 5.0));
+        let output = String::from_utf8_lossy(&h.writer);
+        assert!(output.contains("[FAIL] below"));
+    }
 }

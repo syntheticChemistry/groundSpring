@@ -21,3 +21,4 @@ barracuda-gpu = ["barracuda", "barracuda/gpu"]
 barracuda = { path = "../../../phase1/toadstool/crates/barracuda", optional = true, default-features = false }
 
 [dev-dependencies]
+proptest = "1"

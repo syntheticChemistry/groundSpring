@@ -12,7 +12,7 @@
 |--------|-------|
 | Phase 0 (Python) | 8/8 experiments PASS across 6 scientific domains |
 | Phase 1 (Rust) | 119/119 PASS — 8 validation binaries |
-| Unit tests | 122 + 1 doc test |
+| Rust tests | 154 (131 unit + 14 proptest + 8 integration + 1 doc) |
 | metalForge | 2 production WGSL shaders (mc_et0_propagate, batched_multinomial) |
 | Exp 001 | Sensor noise decomposition — EC5 bias-dominated, CS616 mixed |
 | Exp 002 | Observation gap ERA5 vs station — methodology validated |

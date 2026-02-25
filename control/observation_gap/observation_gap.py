@@ -21,7 +21,6 @@ Data sources:
 from __future__ import annotations
 
 import json
-import math
 import os
 import sys
 from pathlib import Path
@@ -44,7 +43,6 @@ from common import (
     print_summary,
     reset_counters,
 )
-
 
 # ---------------------------------------------------------------------------
 # Configuration — discovered at runtime, not hardcoded primal knowledge
@@ -101,9 +99,9 @@ def fetch_open_meteo_daily(
     """Fetch daily weather from Open-Meteo Archive API."""
     import requests
 
-    params = {
-        "latitude": lat,
-        "longitude": lon,
+    params: dict[str, str] = {
+        "latitude": str(lat),
+        "longitude": str(lon),
         "start_date": start,
         "end_date": end,
         "daily": "temperature_2m_max,temperature_2m_min,precipitation_sum",
@@ -140,7 +138,7 @@ def fetch_noaa_cdo(
 
     offset = 1
     while True:
-        params = {
+        params: dict[str, str | int] = {
             "datasetid": "GHCND",
             "stationid": f"GHCND:{station_id}",
             "startdate": start,
@@ -253,8 +251,8 @@ def seasonal_analysis(df: pd.DataFrame, var: str) -> dict:
         if len(sub) < 10:
             continue
 
-        obs = sub[f"{var}_obs"].values
-        mod = sub[f"{var}_mod"].values
+        obs = np.asarray(sub[f"{var}_obs"].values)
+        mod = np.asarray(sub[f"{var}_mod"].values)
         results[name] = {
             "n_days": len(sub),
             "rmse": compute_rmse(obs, mod),
@@ -395,8 +393,8 @@ def main() -> int:
         print(f"\n  === {spec['description']} ({var}) ===")
 
         valid = df[[f"{var}_obs", f"{var}_mod"]].dropna()
-        obs = valid[f"{var}_obs"].values
-        mod = valid[f"{var}_mod"].values
+        obs = np.asarray(valid[f"{var}_obs"].values)
+        mod = np.asarray(valid[f"{var}_mod"].values)
 
         if len(obs) < 10:
             print(f"    Too few valid pairs ({len(obs)}), skipping")
@@ -420,11 +418,11 @@ def main() -> int:
         expected = spec["expected_characteristics"]
 
         if using_synthetic_noaa:
-            print(f"    [SKIP] Accuracy checks skipped (synthetic NOAA mode)")
+            print("    [SKIP] Accuracy checks skipped (synthetic NOAA mode)")
             if var == "precip_mm":
                 hr = precip_hit_rate(obs, mod)
                 print(f"    Rain/no-rain hit rate: {hr*100:.1f}%")
-                print(f"    [SKIP] Hit rate check skipped (synthetic mode)")
+                print("    [SKIP] Hit rate check skipped (synthetic mode)")
         else:
             if "r2_minimum" in expected:
                 check_min(f"{var} R²", r2, expected["r2_minimum"])

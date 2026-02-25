@@ -18,7 +18,7 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 - **Cross-spring evolution** documented in `specs/CROSS_SPRING_EVOLUTION.md`:
   traces provenance of every barracuda primitive groundSpring uses back to
   its origin spring (hotSpring precision, wetSpring bio, neuralSpring ML)
-- **122 unit tests** + 119/119 validation checks PASS across local,
+- **154 Rust tests** (131 unit + 14 proptest + 8 integration + 1 doc) + 119/119 validation checks PASS across local,
   barracuda, and barracuda-gpu modes
 - Added `scripts/bench_barracuda_modes.sh` for reproducible benchmarking
 
@@ -59,7 +59,7 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 - **RAWR citation**: `30.0` fallback in bootstrap.rs documented as `-ln(9.4e-14)` guard
 - `cargo fmt` clean (was failing in 6 files)
 - `cargo clippy --all-targets -W pedantic -W nursery` zero warnings
-- Library line coverage: 99.01% (100% functions)
+- Workspace line coverage: 98.64% (cargo-llvm-cov)
 
 ### Barracuda CPU Delegation & Performance Benchmarks (Phase 2a)
 - **Barracuda CPU delegation**: Wired 3 new functions to barracuda upstream:
@@ -97,7 +97,7 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 - Three new benchmark JSONs with full provenance and analytical predictions
 - `tests/test_experiments.py` — 3 new integration tests (Exp 006-008)
 - `scripts/run_all_baselines.sh` — 6 new entries (3 Python + 3 Rust)
-- **Total**: 119/119 validation checks across 8 binaries, 108 unit tests
+- **Total**: 119/119 validation checks across 8 binaries, 154 Rust tests (131 unit + 14 proptest + 8 integration + 1 doc)
 
 ### Added
 - `fao56` module — complete FAO-56 Penman-Monteith equation chain (Exp 003)
@@ -134,7 +134,7 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
   prototype to 149-line production WGSL with Box-Muller normal perturbation,
   full FAO-56 equation chain (noted as superseded by `Op::Fao56Et0` — MC
   wrapper remains valuable), and xoshiro PRNG matching barracuda
-- **ABSORPTION_MANIFEST.md**: Complete rewrite with post-S62 status — 3 CPU
+- **ABSORPTION_MANIFEST.md**: Complete rewrite with post-S62 status — 11 CPU
   leaned, 6 GPU pending adapter, 1 absorbed upstream, 2 WGSL production ready,
   full WGSL inventory with line counts and binding tables, and handoff checklist
 - **metalForge/README.md**: Updated with current status table, WGSL conventions
@@ -206,5 +206,5 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
   barracuda kernel requirements summary updated for ToadStool S62 status
 - `CONTROL_EXPERIMENT_STATUS.md` — three-tier control matrix,
   barracuda integration status updated post-S62, handoff V3 reference
-- All docs synchronized to 90 unit tests + 1 doc test
+- All docs synchronized to 154 Rust tests + 34 Python tests
 - Root README directory structure updated with baseCamp/ and paper queue details

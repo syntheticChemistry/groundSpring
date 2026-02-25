@@ -15,7 +15,7 @@ use serde_json::Value;
 const BENCHMARK: &str =
     include_str!("../../../control/sequencing_noise/benchmark_sequencing_noise.json");
 
-fn main() {
+fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Rarefaction");
 
@@ -120,6 +120,17 @@ fn main() {
         0.5,
     );
 
-    let exit_code = h.summary();
-    std::process::exit(exit_code);
+    h.summary()
+}
+
+fn main() {
+    std::process::exit(run());
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn validation_passes() {
+        assert_eq!(super::run(), 0);
+    }
 }

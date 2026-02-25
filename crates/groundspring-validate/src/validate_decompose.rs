@@ -21,7 +21,7 @@ fn f64_field(v: &Value, key: &str) -> f64 {
         .unwrap_or_else(|| panic!("missing f64 field: {key}"))
 }
 
-fn main() {
+fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Bias-Variance Decomposition");
 
@@ -125,6 +125,17 @@ fn main() {
         }
     }
 
-    let exit_code = h.summary();
-    std::process::exit(exit_code);
+    h.summary()
+}
+
+fn main() {
+    std::process::exit(run());
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn validation_passes() {
+        assert_eq!(super::run(), 0);
+    }
 }

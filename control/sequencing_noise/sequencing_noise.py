@@ -37,7 +37,6 @@ from common import (
     reset_counters,
 )
 
-
 # ---------------------------------------------------------------------------
 # Community generation
 # ---------------------------------------------------------------------------
@@ -172,7 +171,7 @@ def find_convergence_depth(
         obs_h = result["shannon"]["mean"]
         pct_diff = abs(obs_h - true_shannon) / true_shannon * 100
         if pct_diff <= threshold_pct:
-            return result["depth"]
+            return int(result["depth"])
     return -1
 
 
@@ -190,13 +189,10 @@ def find_genus_saturation_depth(rarefaction_results: list) -> int:
             )
             depth_ratio = curr["depth"] / prev["depth"]
 
-            if depth_ratio > 1:
-                pct_per_doubling = pct_increase / math.log2(depth_ratio)
-            else:
-                pct_per_doubling = 0
+            pct_per_doubling = pct_increase / math.log2(depth_ratio) if depth_ratio > 1 else 0
 
             if pct_per_doubling < 5.0:
-                return curr["depth"]
+                return int(curr["depth"])
 
     return -1
 
@@ -207,7 +203,7 @@ def find_phylum_completeness_depth(
     """Find depth where all phyla detected in >= completeness_pct of replicates."""
     for result in rarefaction_results:
         if result["phyla_detected"]["all_detected_pct"] >= completeness_pct:
-            return result["depth"]
+            return int(result["depth"])
     return -1
 
 
@@ -400,13 +396,13 @@ def main() -> int:
     print("KEY FINDINGS:")
     print(f"{'=' * 72}")
 
-    print(f"\n1. Sequencing Depth Thresholds:")
+    print("\n1. Sequencing Depth Thresholds:")
     print(f"   All phyla detected:       {phylum_depth:>7d} reads")
     print(f"   Genus saturation:         {saturation_depth:>7d} reads")
     print(f"   Shannon convergence (5%): {convergence_depth:>7d} reads")
 
     if high_depth_result:
-        print(f"\n2. Noise Floor at High Depth (100k reads):")
+        print("\n2. Noise Floor at High Depth (100k reads):")
         print(
             f"   Genus detection:  {high_depth_result['genera_detected']['std']:.1f} genera"
         )

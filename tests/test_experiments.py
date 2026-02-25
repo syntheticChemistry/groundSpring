@@ -19,6 +19,7 @@ def _run_experiment(script: Path) -> subprocess.CompletedProcess:
         capture_output=True,
         text=True,
         timeout=120,
+        check=False,
     )
 
 

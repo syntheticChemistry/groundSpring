@@ -33,13 +33,10 @@ from common import (
     check_approx,
     check_true,
     decompose_error,
-    fail_count,
     noise_floor_reduction,
-    pass_count,
     print_summary,
     reset_counters,
 )
-
 
 # ---------------------------------------------------------------------------
 # Synthetic noise distribution analysis

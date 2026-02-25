@@ -197,8 +197,8 @@ All eight experiments have been ported to idiomatic Rust in the `groundspring` c
 |--------|-------|
 | Validation binaries | 8 (decompose, rarefaction, seismic, weather, fao56, signal-specificity, rawr, anderson) |
 | Total checks | 119/119 PASS |
-| Unit tests | 108 + 1 doc test |
-| Line coverage | 99.7% |
+| Rust tests | 154 (131 unit + 14 proptest + 8 integration + 1 doc) |
+| Line coverage | Measured via cargo-llvm-cov |
 | Function coverage | 100% |
 | Clippy warnings | 0 |
 | Rust vs Python | **24× faster** (52s → 2.2s for Exp 006-008) |
@@ -294,5 +294,5 @@ These extensions share the common theme: **how do you extract reliable conclusio
 ---
 
 *Phase 0 completed: February 25, 2026 — 102/102 PASS (Python, 8 experiments)*
-*Phase 1 completed: February 25, 2026 — 119/119 PASS (Rust, 99.7% coverage)*
+*Phase 1 completed: February 25, 2026 — 119/119 PASS (Rust, 98.64% workspace coverage)*
 *Phase 2a completed: February 25, 2026 — 11 barracuda CPU delegated, 24× faster than Python*

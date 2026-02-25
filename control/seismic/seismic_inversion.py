@@ -42,7 +42,6 @@ from common import (
     reset_counters,
 )
 
-
 # ---------------------------------------------------------------------------
 # Travel-time computation
 # ---------------------------------------------------------------------------
@@ -281,7 +280,7 @@ def monte_carlo_source_uncertainty(
 
     horiz_errors = [
         haversine_km(lat, lon, mean_lat, mean_lon)
-        for lat, lon in zip(lats_arr, lons_arr)
+        for lat, lon in zip(lats_arr, lons_arr, strict=True)
     ]
 
     return {
@@ -345,7 +344,7 @@ def main() -> int:
         f"  Source: ({source['lat']}°N, {source['lon']}°E), "
         f"depth={source['depth_km']}km"
     )
-    print(f"\n  Station arrivals:")
+    print("\n  Station arrivals:")
     for a in true_arrivals:
         print(
             f"    {a['code']:>5s}: dist={a['distance_km']:>6.1f} km, "
@@ -534,11 +533,11 @@ def main() -> int:
     print("KEY FINDINGS:")
     print(f"{'=' * 72}")
 
-    print(f"\n1. Source Localization Accuracy:")
+    print("\n1. Source Localization Accuracy:")
     print(f"   Clean data:  {ref_loc_error:.2f} km error")
     print(f"   Noisy (±{noise_std}s): {noisy_loc_error:.1f} km error")
 
-    print(f"\n2. Uncertainty Budget:")
+    print("\n2. Uncertainty Budget:")
     print(
         f"   Horizontal:  ±{mc['horizontal_error_km']['mean']:.1f} km "
         f"(90th: {mc['horizontal_error_km']['p90']:.1f} km)"

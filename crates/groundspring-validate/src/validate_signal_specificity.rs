@@ -24,13 +24,28 @@ fn f64_field(v: &Value, key: &str) -> f64 {
         .unwrap_or_else(|| panic!("missing f64 field: {key}"))
 }
 
+#[expect(clippy::cast_possible_truncation)]
+fn usize_field(v: &Value, key: &str) -> usize {
+    v[key]
+        .as_u64()
+        .unwrap_or_else(|| panic!("missing u64 field: {key}")) as usize
+}
+
+fn f64_range(arr: &Value) -> (f64, f64) {
+    let a = arr.as_array().expect("expected JSON array for range");
+    (
+        a[0].as_f64().expect("range lower bound"),
+        a[1].as_f64().expect("range upper bound"),
+    )
+}
+
 #[expect(
     clippy::cast_precision_loss,
     clippy::cast_possible_truncation,
     clippy::cast_sign_loss,
     clippy::too_many_lines
 )]
-fn main() {
+fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Signal Specificity");
 
@@ -39,15 +54,15 @@ fn main() {
     let pred = &bench["analytical_predictions"];
     let exp = &bench["expected_results"];
 
-    let n_dgc = net["n_dgc"].as_u64().expect("n_dgc") as usize;
-    let n_pde = net["n_pde"].as_u64().expect("n_pde") as usize;
+    let n_dgc = usize_field(net, "n_dgc");
+    let n_pde = usize_field(net, "n_pde");
     let k_syn = f64_field(net, "k_syn_per_dgc");
     let k_deg = f64_field(net, "k_deg_per_pde");
     let total_deg = n_pde as f64 * k_deg;
 
     let t_max = f64_field(sim, "t_max");
     let t_burnin = f64_field(sim, "t_burnin");
-    let n_reps = sim["n_replicates"].as_u64().expect("n_replicates") as usize;
+    let n_reps = usize_field(sim, "n_replicates");
     let seed = sim["seed"].as_u64().expect("seed");
 
     println!("{}", "=".repeat(72));
@@ -148,30 +163,22 @@ fn main() {
         println!("  α={alpha}: mean={act_ensemble:.3}");
     }
 
-    let get_act_mean = |a: u64| activated_means.iter().find(|(al, _)| *al == a).unwrap().1;
+    let get_act_mean = |a: u64| {
+        activated_means
+            .iter()
+            .find(|(al, _)| *al == a)
+            .unwrap_or_else(|| panic!("no result for activation ratio α={a}"))
+            .1
+    };
 
     let rr10 = get_act_mean(10) / ensemble_mean;
     let rr20 = get_act_mean(20) / ensemble_mean;
 
-    let rr10_range = exp["response_ratio_alpha_10_range"]
-        .as_array()
-        .expect("rr10 range");
-    let rr20_range = exp["response_ratio_alpha_20_range"]
-        .as_array()
-        .expect("rr20 range");
+    let (rr10_lo, rr10_hi) = f64_range(&exp["response_ratio_alpha_10_range"]);
+    let (rr20_lo, rr20_hi) = f64_range(&exp["response_ratio_alpha_20_range"]);
 
-    h.check_range(
-        "Response ratio α=10",
-        rr10,
-        rr10_range[0].as_f64().unwrap(),
-        rr10_range[1].as_f64().unwrap(),
-    );
-    h.check_range(
-        "Response ratio α=20",
-        rr20,
-        rr20_range[0].as_f64().unwrap(),
-        rr20_range[1].as_f64().unwrap(),
-    );
+    h.check_range("Response ratio α=10", rr10, rr10_lo, rr10_hi);
+    h.check_range("Response ratio α=20", rr20, rr20_lo, rr20_hi);
 
     // ── Part 4: SNR ───────────────────────────────────────────────────
     println!("\n--- Part 4: Signal-to-Noise Ratio ---");
@@ -187,23 +194,19 @@ fn main() {
         println!("  SNR(α={alpha}): {snr:.3}");
     }
 
-    let get_snr = |a: u64| snr_values.iter().find(|(al, _)| *al == a).unwrap().1;
+    let get_snr = |a: u64| {
+        snr_values
+            .iter()
+            .find(|(al, _)| *al == a)
+            .unwrap_or_else(|| panic!("no SNR result for α={a}"))
+            .1
+    };
 
-    let snr10_range = exp["snr_alpha_10_range"].as_array().expect("snr10 range");
-    let snr20_range = exp["snr_alpha_20_range"].as_array().expect("snr20 range");
+    let (snr10_lo, snr10_hi) = f64_range(&exp["snr_alpha_10_range"]);
+    let (snr20_lo, snr20_hi) = f64_range(&exp["snr_alpha_20_range"]);
 
-    h.check_range(
-        "SNR α=10",
-        get_snr(10),
-        snr10_range[0].as_f64().unwrap(),
-        snr10_range[1].as_f64().unwrap(),
-    );
-    h.check_range(
-        "SNR α=20",
-        get_snr(20),
-        snr20_range[0].as_f64().unwrap(),
-        snr20_range[1].as_f64().unwrap(),
-    );
+    h.check_range("SNR α=10", get_snr(10), snr10_lo, snr10_hi);
+    h.check_range("SNR α=20", get_snr(20), snr20_lo, snr20_hi);
 
     h.check_true(
         "SNR monotonically increases with α",
@@ -221,6 +224,17 @@ fn main() {
     let t3 = birth_death_ssa(&basal_rates, total_deg, 18, 50.0, 99999);
     h.check_true("Differs (different seed)", t1.states != t3.states);
 
-    let exit_code = h.summary();
-    std::process::exit(exit_code);
+    h.summary()
+}
+
+fn main() {
+    std::process::exit(run());
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn validation_passes() {
+        assert_eq!(super::run(), 0);
+    }
 }

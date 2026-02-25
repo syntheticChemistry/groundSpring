@@ -180,7 +180,7 @@ fn sensitivity_analysis(
     variances
 }
 
-fn main() {
+fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: FAO-56 Error Propagation");
 
@@ -287,8 +287,19 @@ fn main() {
     );
     validate_sensitivity(&mut h, &base, uncertainties, n_mc, mc_seed, &ranking);
 
-    let exit_code = h.summary();
-    std::process::exit(exit_code);
+    h.summary()
+}
+
+fn main() {
+    std::process::exit(run());
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn validation_passes() {
+        assert_eq!(super::run(), 0);
+    }
 }
 
 /// Monte Carlo uncertainty propagation checks.
@@ -314,14 +325,14 @@ fn validate_monte_carlo(
     h.check_range(
         "MC ET₀ mean",
         mc.mean,
-        et0_mean_range[0].as_f64().unwrap_or(3.5),
-        et0_mean_range[1].as_f64().unwrap_or(4.3),
+        et0_mean_range[0].as_f64().expect("et0_mean_range[0]"),
+        et0_mean_range[1].as_f64().expect("et0_mean_range[1]"),
     );
     h.check_range(
         "MC ET₀ std",
         mc.std,
-        et0_std_range[0].as_f64().unwrap_or(0.05),
-        et0_std_range[1].as_f64().unwrap_or(0.8),
+        et0_std_range[0].as_f64().expect("et0_std_range[0]"),
+        et0_std_range[1].as_f64().expect("et0_std_range[1]"),
     );
 
     let cv = mc.std / mc.mean * 100.0;

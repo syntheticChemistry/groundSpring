@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: February 25, 2026
 
-**Validation Summary**: 119/119 checks, 11 barracuda delegations, 122 unit tests. Exps 006–008 DONE.
+**Validation Summary**: 119/119 checks, 11 barracuda delegations, 154 Rust tests (131 unit + 14 proptest + 8 integration + 1 doc). 98.64% coverage. Exps 006–008 DONE.
 
 ---
 

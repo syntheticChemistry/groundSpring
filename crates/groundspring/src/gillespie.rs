@@ -200,4 +200,56 @@ mod tests {
         let v = time_averaged_variance(&traj, 50.0, m);
         assert!(v > 0.0, "variance should be positive");
     }
+
+    #[test]
+    fn steady_state_zero_degradation() {
+        assert!((steady_state_mean(10.0, 0.0)).abs() < 1e-12);
+        assert!((steady_state_mean(10.0, -1.0)).abs() < 1e-12);
+    }
+
+    #[test]
+    fn zero_rate_terminates() {
+        let traj = birth_death_ssa(&[0.0], 0.0, 0, 10.0, 42);
+        assert_eq!(
+            traj.states.len(),
+            1,
+            "zero rates should terminate immediately"
+        );
+    }
+
+    #[test]
+    fn time_averaged_mean_beyond_burnin() {
+        let traj = Trajectory {
+            times: vec![0.0, 1.0],
+            states: vec![5, 5],
+        };
+        assert!((time_averaged_mean(&traj, 999.0)).abs() < 1e-12);
+    }
+
+    #[test]
+    fn time_averaged_mean_single_event() {
+        let traj = Trajectory {
+            times: vec![0.0],
+            states: vec![7],
+        };
+        assert!((time_averaged_mean(&traj, 0.0) - 7.0).abs() < 1e-12);
+    }
+
+    #[test]
+    fn time_averaged_variance_beyond_burnin() {
+        let traj = Trajectory {
+            times: vec![0.0, 1.0],
+            states: vec![5, 5],
+        };
+        assert!((time_averaged_variance(&traj, 999.0, 5.0)).abs() < 1e-12);
+    }
+
+    #[test]
+    fn time_averaged_variance_single_event() {
+        let traj = Trajectory {
+            times: vec![0.0],
+            states: vec![7],
+        };
+        assert!((time_averaged_variance(&traj, 0.0, 7.0)).abs() < 1e-12);
+    }
 }

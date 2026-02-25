@@ -10,9 +10,12 @@ __pycache__/
 .venv/
 *.egg-info/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 # Rust
 target/
+proptest-regressions/
 
 # R
 .Rhistory
