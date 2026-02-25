@@ -35,3 +35,15 @@ path = "src/validate_weather.rs"
 [[bin]]
 name = "validate-fao56"
 path = "src/validate_fao56.rs"
+
+[[bin]]
+name = "validate-signal-specificity"
+path = "src/validate_signal_specificity.rs"
+
+[[bin]]
+name = "validate-rawr"
+path = "src/validate_rawr.rs"
+
+[[bin]]
+name = "validate-anderson"
+path = "src/validate_anderson.rs"

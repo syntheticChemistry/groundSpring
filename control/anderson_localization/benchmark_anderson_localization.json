@@ -1,0 +1,46 @@
+{
+  "_source": "groundSpring Experiment 008 — Anderson Localization",
+  "_references": [
+    "Bourgain & Kachkovskiy (2018) Anderson localization for two interacting quasiperiodic particles. GAFA 29:3-43",
+    "Anderson (1958) Absence of diffusion in certain random lattices. Phys Rev 109:1492",
+    "Thouless (1972) A relation between the density of states and range of localization. J Phys C 5:77"
+  ],
+  "_provenance": {
+    "generated_by": "Transfer matrix Lyapunov exponent computation for 1D Anderson model",
+    "data_origin": "Analytical: 1D Anderson tight-binding model with uniform random potential. All results derivable from first principles.",
+    "real_data_accession": "N/A (analytical/simulation)",
+    "prng_algorithm": "xorshift64 (Marsaglia 2003), seed=42",
+    "baseline_date": "2026-02-25",
+    "baseline_commit": "f634ef0",
+    "validation_script": "control/anderson_localization/anderson_localization.py",
+    "command": "python3 control/anderson_localization/anderson_localization.py"
+  },
+  "_description": "Numerical verification of Anderson localization via Lyapunov exponents in 1D disordered systems",
+  "_groundspring_question": "When does a wave propagate through a disordered medium vs when does noise trap it?",
+  "_cross_spring": "hotSpring — spectral theory, lattice physics",
+
+  "model": {
+    "_description": "1D Anderson tight-binding: H psi(n) = psi(n+1) + psi(n-1) + V(n) psi(n), V(n) uniform in [-W/2, W/2]",
+    "n_sites": 100000,
+    "n_realizations": 50,
+    "energy": 0.0,
+    "disorder_strengths": [0.0, 0.5, 1.0, 2.0, 4.0, 8.0]
+  },
+
+  "analytical_predictions": {
+    "_description": "In 1D, ALL states are localized for any W > 0 (Anderson 1958). Localization length xi ~ 96/W^2 at E=0 for small W (Thouless/Derrida-Gardner).",
+    "thouless_coefficient": 96.0,
+    "clean_lyapunov": 0.0,
+    "weak_disorder_scaling": "xi ~ C / W^2",
+    "all_states_localized": true
+  },
+
+  "expected_results": {
+    "clean_lyapunov_tol": 0.001,
+    "lyapunov_monotonic_in_W": true,
+    "lyapunov_positive_for_any_disorder": true,
+    "thouless_ratio_range": [60.0, 140.0],
+    "strong_disorder_lyapunov_min": 0.3,
+    "localization_length_decreases_with_W": true
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "_source": "groundSpring Experiment 007 — RAWR Resampling",
+  "_references": [
+    "Wang et al. (2021) Build a better bootstrap and the RAWR shall beat a random path to your door. Bioinformatics (ISMB) 37:i111-i119",
+    "Efron (1979) Bootstrap methods: another look at the jackknife. Ann Statist 7:1-26"
+  ],
+  "_provenance": {
+    "generated_by": "Simulation comparing standard bootstrap vs RAWR resampling",
+    "data_origin": "Synthetic data drawn from known distributions. No external data.",
+    "real_data_accession": "N/A (pure simulation)",
+    "prng_algorithm": "xorshift64 (Marsaglia 2003), seed=42",
+    "baseline_date": "2026-02-25",
+    "baseline_commit": "f634ef0",
+    "validation_script": "control/rawr_resampling/rawr_resampling.py",
+    "command": "python3 control/rawr_resampling/rawr_resampling.py"
+  },
+  "_description": "Comparison of naive bootstrap vs RAWR (Resampled And Weighted Replicates) for confidence estimation",
+  "_groundspring_question": "Does weighted resampling outperform naive bootstrap for confidence estimation on structured data?",
+  "_cross_spring": "All springs — upgrades Monte Carlo methodology from Exp 003",
+
+  "test_cases": {
+    "gaussian": {
+      "n": 100,
+      "mu": 5.0,
+      "sigma": 2.0,
+      "n_bootstrap": 1000,
+      "confidence": 0.95,
+      "seed": 42
+    },
+    "skewed": {
+      "n": 100,
+      "lognormal_mu": 1.0,
+      "lognormal_sigma": 0.8,
+      "true_mean": 3.7434,
+      "n_bootstrap": 1000,
+      "confidence": 0.95,
+      "seed": 123
+    },
+    "correlated": {
+      "n": 100,
+      "mu": 10.0,
+      "sigma": 3.0,
+      "rho": 0.8,
+      "n_bootstrap": 1000,
+      "confidence": 0.95,
+      "seed": 456
+    }
+  },
+
+  "expected_results": {
+    "gaussian_coverage_range": [0.90, 1.0],
+    "gaussian_bootstrap_ci_width_range": [0.5, 1.2],
+    "skewed_coverage_range": [0.80, 1.0],
+    "correlated_rawr_mse_ratio_max": 1.5,
+    "bootstrap_deterministic": true,
+    "rawr_deterministic": true
+  }
+}

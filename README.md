@@ -31,8 +31,11 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | 003: Error Propagation | Agricultural | PASS | 15/15 PASS | How sensor noise becomes ET₀ uncertainty |
 | 004: Sequencing Noise | Biological | PASS | 15/15 PASS | Taxonomic reliability vs sequencing depth |
 | 005: Seismic Waves | Geological | PASS | 9/9 PASS | Source localization from noisy arrivals |
+| 006: Signal Specificity | Biological | 12/12 PASS | 12/12 PASS | c-di-GMP signal vs noise in enzyme network |
+| 007: RAWR Resampling | Statistics | 11/11 PASS | 11/11 PASS | Bayesian bootstrap vs naive bootstrap |
+| 008: Anderson Localization | Mathematics | 8/8 PASS | 8/8 PASS | Lyapunov exponents in disordered media |
 
-**Phase 1 total: 88/88 PASS across 5 validation binaries.**
+**Phase 1 total: 119/119 PASS across 8 validation binaries.**
 
 ## Library Modules
 
@@ -44,6 +47,9 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | `prng` | Xorshift64 PRNG, Box-Muller normal | B (align to xoshiro) |
 | `rarefaction` | Multinomial sampling, Shannon diversity, evenness | C (WGSL production ready) |
 | `seismic` | Haversine, travel time, grid-search inversion | B (adapt) |
+| `gillespie` | Gillespie SSA for stochastic chemical kinetics | GPU-ready (`GillespieGpu`) |
+| `bootstrap` | Bootstrap + RAWR confidence intervals | GPU-ready (`bootstrap_mean_f64.wgsl`) |
+| `anderson` | Anderson localization, Lyapunov exponents | GPU-ready (`spectral::anderson`) |
 | `validate` | Generic Write harness (hotSpring pattern) | N/A |
 
 ## Quick Start
@@ -51,7 +57,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace          # 90 unit + 1 doc test
+cargo test --workspace          # 108 unit + 1 doc test
 cargo clippy --workspace        # zero warnings
 cargo fmt --all -- --check      # clean
 
@@ -61,6 +67,9 @@ cargo run --bin validate-rarefaction
 cargo run --bin validate-seismic
 cargo run --bin validate-weather
 cargo run --bin validate-fao56
+cargo run --bin validate-signal-specificity
+cargo run --bin validate-rawr
+cargo run --bin validate-anderson
 ```
 
 ### Python Phase 0
@@ -78,18 +87,31 @@ python3 control/seismic/seismic_inversion.py
 cargo llvm-cov --workspace --lib    # 99.7% library line coverage
 ```
 
+## Performance: Rust vs Python
+
+| Experiment | Python (s) | Rust (s) | Speedup |
+|---|---|---|---|
+| Exp 006: Signal Specificity (Gillespie SSA) | 26.2 | 0.85 | **30.9×** |
+| Exp 007: RAWR Resampling (bootstrap) | 4.4 | 0.60 | **7.3×** |
+| Exp 008: Anderson Localization | 21.4 | 0.72 | **29.8×** |
+| **Total** | **52.0** | **2.17** | **24.0×** |
+
+Run benchmarks: `python3 scripts/bench_rust_vs_python.py`
+
 ## Evolution Path
 
 ```
 Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration (Phase 2)
    NumPy/SciPy                    Pure safe Rust                BarraCUDA / ToadStool
-     ✓ Complete                     ✓ 88/88 PASS                 ◐ 3 CPU leaned, 2 WGSL ready
+     ✓ Complete                     ✓ 119/119 PASS               ◐ 6 CPU leaned, 2 WGSL ready
+   24× slower than Rust             reference implementation       barracuda-gpu: anderson, gillespie
 
      Write locally              →  Hand off to barracuda      →  Lean on upstream
      (metalForge shaders)          (wateringHole/handoffs/)       (rewire to barracuda ops)
 ```
 
-**Lean progress**: `pearson_r`, `spearman_r`, `sample_std_dev` delegate to barracuda CPU.
+**Lean progress**: 6 functions delegate to barracuda CPU — `pearson_r`, `spearman_r`,
+`sample_std_dev`, `bootstrap_mean`, `lyapunov_exponent`, `lyapunov_averaged`.
 FAO-56 equation chain absorbed upstream (`BatchedElementwiseF64::fao56_et0_batch`).
 Two production WGSL shaders ready for ToadStool absorption.
 
@@ -115,10 +137,13 @@ groundSpring/
 │   ├── observation_gap/             # Exp 002: model vs station
 │   ├── error_propagation/           # Exp 003: Monte Carlo through FAO-56
 │   ├── sequencing_noise/            # Exp 004: taxonomic noise floor
-│   └── seismic/                     # Exp 005: wave propagation + source inversion
+│   ├── seismic/                     # Exp 005: wave propagation + source inversion
+│   ├── signal_specificity/          # Exp 006: c-di-GMP Gillespie SSA
+│   ├── rawr_resampling/             # Exp 007: RAWR vs bootstrap
+│   └── anderson_localization/       # Exp 008: Anderson localization Lyapunov
 ├── crates/
-│   ├── groundspring/                # Phase 1 Rust library (7 modules, 99.7% library line coverage)
-│   └── groundspring-validate/       # 5 validation binaries (hotSpring pattern)
+│   ├── groundspring/                # Phase 1 Rust library (10 modules)
+│   └── groundspring-validate/       # 8 validation binaries (hotSpring pattern)
 ├── metalForge/                      # Write → Absorb → Lean artifacts
 │   ├── ABSORPTION_MANIFEST.md       # Module-by-module absorption inventory
 │   └── shaders/                     # Production WGSL shaders for ToadStool absorption

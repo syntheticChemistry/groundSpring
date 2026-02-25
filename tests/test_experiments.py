@@ -61,3 +61,21 @@ class TestExperimentExitCodes:
             CONTROL_DIR / "seismic" / "seismic_inversion.py"
         )
         assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp006_signal_specificity(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "signal_specificity" / "signal_specificity.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp007_rawr_resampling(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "rawr_resampling" / "rawr_resampling.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp008_anderson_localization(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "anderson_localization" / "anderson_localization.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr

@@ -7,15 +7,15 @@
 
 ## Current Status
 
-groundSpring Phase 0 (Python) and Phase 1 (Rust) are **complete**.
+groundSpring Phase 0 (Python), Phase 1 (Rust), and Phase 2a (barracuda CPU) are **complete**.
 
-- 88/88 validation checks across 5 binaries
-- 7 library modules: stats, decompose, fao56, prng, rarefaction, seismic, validate
-- 99.7% line coverage, 0 clippy warnings, `missing_docs = "deny"`
-- `barracuda` feature gate wired in `Cargo.toml`
-- 3 CPU stats delegated to barracuda (`pearson_r`, `spearman_r`, `sample_std_dev`)
+- 119/119 validation checks across 8 binaries
+- 10 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, validate
+- 108 unit tests + 1 doc test, 99.7% line coverage, 0 clippy warnings
+- Two feature gates: `barracuda` (CPU stats/bootstrap) and `barracuda-gpu` (spectral/anderson)
+- 6 functions delegated to barracuda (3 stats + `bootstrap_mean` + 2 anderson)
 - 2 production WGSL shaders in `metalForge/shaders/` (261 combined lines)
-- Absorption manifest in `metalForge/ABSORPTION_MANIFEST.md`
+- Pure Rust is **24× faster** than Python (benchmarks in `data/bench_rust_vs_python.json`)
 
 See [BARRACUDA_EVOLUTION.md](BARRACUDA_EVOLUTION.md) for the module-by-module
 GPU promotion mapping.
@@ -73,30 +73,32 @@ GPU promotion mapping.
 ## BarraCUDA Evolution Path for groundSpring
 
 ```
-Phase 0 (DONE — Python)        Phase 1 (DONE — Rust CPU)
-────────────────────           ─────────────────────────
-NumPy MC (N=10k)    ────────→  prng::Xorshift64 + fao56::daily_et0 (88/88 PASS)
-NumPy stats         ────────→  stats::rmse/mbe/r_squared/ia/hit_rate
-NumPy rarefaction   ────────→  rarefaction::multinomial_sample + shannon_diversity
-SciPy minimize      ────────→  seismic::grid_search_inversion (optimized)
-N/A                 ────────→  fao56 module (FAO-56 Penman-Monteith chain)
+Phase 0 (DONE — Python)        Phase 1 (DONE — Rust CPU)       Phase 2a (DONE — Barracuda CPU)
+────────────────────           ─────────────────────────       ──────────────────────────────
+NumPy MC (N=10k)    ────────→  prng + fao56 (119/119 PASS) →  bootstrap_mean → barracuda
+NumPy stats         ────────→  stats (RMSE/MBE/R²/IA/hit) →   pearson_r, spearman_r, std_dev → barracuda
+NumPy Gillespie     ────────→  gillespie::birth_death_ssa  →  (GPU-only: GillespieGpu)
+NumPy bootstrap     ────────→  bootstrap::rawr_mean        →  (Gap: no RAWR kernel)
+NumPy Anderson      ────────→  anderson::lyapunov_*        →  lyapunov_exponent, lyapunov_averaged → barracuda
+                                                               24× faster than Python
 
-Phase 1 (DONE)                 Phase 2 (GPU — NEXT)
+Phase 2a (DONE)                Phase 2b (GPU — NEXT)
 ──────────────                 ────────────────────
-stats::rmse/mbe     ────────→  Tier A: rewire to barracuda reduce ops
+6 CPU delegated     ────────→  Tier A: 6 more GPU adapter wiring (rmse, mbe, etc.)
 prng::Xorshift64    ────────→  Tier B: align to barracuda xoshiro128**
 fao56::daily_et0    ────────→  Tier C: mc_et0_propagate.wgsl → barracuda
 rarefaction         ────────→  Tier C: batched_multinomial.wgsl → barracuda
+gillespie           ────────→  GillespieGpu dispatch (barracuda already has it)
 
-Phase 2 (GPU)                  Phase 3 (Faculty Extension)
+Phase 2b (GPU)                 Phase 3 (Faculty Extension)
 ─────────────                  ──────────────────────────
 GPU MC sampling     ────────→  Jackknife/bootstrap (Bazavov precision)
 GPU grid search     ────────→  Regularized inversion (spectral recon)
+GPU Gillespie       ────────→  Batched trajectory ensemble
+GPU Anderson        ────────→  BatchIprGpu for spectral statistics
 N/A                 ────────→  FFT (shared with hotSpring)
-N/A                 ────────→  Gillespie simulation (biological noise)
-N/A                 ────────→  RAWR resampling (Liu method)
+N/A                 ────────→  RAWR GPU kernel (new)
 N/A                 ────────→  Lanczos eigensolve (Kachkovskiy spectral)
-N/A                 ────────→  SpMV (shared with hotSpring lattice)
 ```
 
 ---

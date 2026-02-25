@@ -55,6 +55,9 @@ This decomposition is applied across all domains:
 - Input-to-output propagation (Exp 003)
 - Sampling noise (Exp 004)
 - Inverse problem uncertainty (Exp 005)
+- Stochastic biochemical noise (Exp 006)
+- Resampling confidence estimation (Exp 007)
+- Disorder-induced localization (Exp 008)
 
 ## Experiment Details
 
@@ -89,6 +92,24 @@ This decomposition is applied across all domains:
 **Method**: 1D travel-time forward model + grid-search + Nelder-Mead inversion + MC uncertainty
 **Validation**: 2 forward + 3 grid + 1 refinement + 1 noisy + 2 MC + 1 subset = 10 checks
 
+### Exp 006: Enzymatic Signal Specificity
+
+**Input**: Massie et al. (2012, PNAS) c-di-GMP birth-death kinetics
+**Method**: Gillespie SSA with analytical steady-state comparison + SNR sweep
+**Validation**: 2 analytical + 2 SSA + 4 SNR + 2 determinism = 12 checks (Python and Rust)
+
+### Exp 007: RAWR Resampling
+
+**Input**: Synthetic Gaussian, log-normal, and AR(1) correlated data
+**Method**: Standard percentile bootstrap vs RAWR weighted resampling (Wang et al. 2021)
+**Validation**: 2 estimates + 1 CI width + 4 coverage + 1 RMSE ratio + 2 determinism = 11 checks (Python and Rust)
+
+### Exp 008: Anderson Localization
+
+**Input**: 1D tight-binding Anderson model with varying disorder (Bourgain-Kachkovskiy 2018)
+**Method**: Transfer-matrix Lyapunov exponent computation + Thouless scaling
+**Validation**: 1 clean + 1 positivity + 1 monotonicity + 1 strong disorder + 1 Thouless + 1 ξ ordering + 2 determinism = 8 checks (Python and Rust)
+
 ### Phase 1: Rust / BarraCUDA Validation
 
 Phase 1 ports each experiment's core algorithm to idiomatic Rust in the
@@ -102,12 +123,15 @@ Phase 1 ports each experiment's core algorithm to idiomatic Rust in the
 | `validate-seismic` | Exp 005 | 9 | `seismic`, `stats` |
 | `validate-weather` | Exp 002 | 13 | `stats`, `decompose`, `prng` |
 | `validate-fao56` | Exp 003 | 15 | `fao56`, `prng`, `stats` |
+| `validate-signal-specificity` | Exp 006 | 12 | `gillespie`, `prng` |
+| `validate-rawr` | Exp 007 | 11 | `bootstrap`, `prng`, `stats` |
+| `validate-anderson` | Exp 008 | 8 | `anderson`, `prng` |
 
 ### Rust Quality Gates
 
 | Gate | Requirement |
 |------|-------------|
-| `cargo test` | 90 unit + 1 doc test, all pass |
+| `cargo test` | 108 unit + 1 doc test, all pass |
 | `cargo clippy` | Zero warnings (pedantic + nursery) |
 | `cargo fmt` | Clean |
 | `cargo doc` | Clean, `missing_docs = "deny"` |
@@ -121,7 +145,7 @@ Phase 1 ports each experiment's core algorithm to idiomatic Rust in the
 groundSpring follows the **Write → Absorb → Lean** cycle (hotSpring pattern):
 
 1. Write CPU implementations + production WGSL shaders (`metalForge/shaders/`)
-2. Validate CPU against Python baselines (88/88 checks)
+2. Validate CPU against Python baselines (119/119 checks)
 3. Hand off WGSL to ToadStool/BarraCUDA with binding layout documentation
 4. BarraCUDA absorbs as upstream op
 5. groundSpring rewires behind `#[cfg(feature = "barracuda")]`
@@ -148,5 +172,6 @@ Same as all ecoPrimals springs:
 
 ## Grand Total
 
-- **Phase 0 (Python)**: 71/71 quantitative checks passed across 5 experiments, 4 domains.
-- **Phase 1 (Rust)**: 88/88 checks passed across 5 validation binaries, 99.7% coverage.
+- **Phase 0 (Python)**: 102/102 quantitative checks passed across 8 experiments, 6 domains.
+- **Phase 1 (Rust)**: 119/119 checks passed across 8 validation binaries, 99.7% coverage.
+- **Phase 2a (Barracuda CPU)**: 6 functions delegated, 24× faster than Python.

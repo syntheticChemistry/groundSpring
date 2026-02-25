@@ -1,0 +1,63 @@
+{
+  "_source": "groundSpring Experiment 006 — Enzymatic Signal Specificity",
+  "_references": [
+    "Massie et al. (2012) Quantification of High Specificity Cyclic di-GMP Signaling. PNAS 109:12746-51",
+    "Gillespie (1977) Exact stochastic simulation of coupled chemical reactions. J Phys Chem 81:2340-2361"
+  ],
+  "_provenance": {
+    "generated_by": "Gillespie SSA simulation of c-di-GMP birth-death process",
+    "data_origin": "Enzyme counts from V. cholerae genome (Massie 2012 PNAS SI). Kinetic parameters from standard c-di-GMP literature.",
+    "real_data_accession": "PNAS open access: doi:10.1073/pnas.1115663109",
+    "prng_algorithm": "xorshift64 (Marsaglia 2003), seed=42",
+    "baseline_date": "2026-02-25",
+    "baseline_commit": "f634ef0",
+    "validation_script": "control/signal_specificity/signal_specificity.py",
+    "command": "python3 control/signal_specificity/signal_specificity.py"
+  },
+  "_description": "Stochastic simulation of enzymatic signal specificity in c-di-GMP signaling",
+  "_groundspring_question": "How does a cell resolve signal from noise when 40+ enzymes compete for a single diffusible molecule?",
+  "_cross_spring": "wetSpring — biological signal-noise decomposition",
+
+  "enzyme_network": {
+    "_description": "Simplified V. cholerae c-di-GMP enzyme network",
+    "n_dgc": 40,
+    "n_pde": 22,
+    "k_syn_per_dgc": 1.0,
+    "k_deg_per_pde": 0.1,
+    "activation_ratios": [2, 5, 10, 20]
+  },
+
+  "simulation": {
+    "t_max": 500.0,
+    "t_burnin": 100.0,
+    "n_replicates": 200,
+    "seed": 42,
+    "n_sites_lattice": 10000
+  },
+
+  "analytical_predictions": {
+    "_description": "Birth-death steady state: S* = total_syn / total_deg",
+    "total_synthesis_basal": 40.0,
+    "total_degradation_rate": 2.2,
+    "steady_state_mean": 18.182,
+    "steady_state_variance": 18.182,
+    "steady_state_std": 4.264,
+
+    "activated": {
+      "alpha_2":  { "total_syn": 41.0, "mean": 18.636, "response_ratio": 1.025 },
+      "alpha_5":  { "total_syn": 44.0, "mean": 20.0,   "response_ratio": 1.100 },
+      "alpha_10": { "total_syn": 49.0, "mean": 22.273, "response_ratio": 1.225 },
+      "alpha_20": { "total_syn": 59.0, "mean": 26.818, "response_ratio": 1.475 }
+    }
+  },
+
+  "expected_results": {
+    "steady_state_mean_tol": 1.0,
+    "steady_state_std_tol": 1.5,
+    "snr_alpha_10_range": [0.5, 2.0],
+    "snr_alpha_20_range": [1.0, 4.0],
+    "snr_monotonic": true,
+    "response_ratio_alpha_10_range": [1.1, 1.4],
+    "response_ratio_alpha_20_range": [1.3, 1.7]
+  }
+}

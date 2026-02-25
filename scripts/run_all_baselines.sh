@@ -76,6 +76,18 @@ run_experiment \
     "Exp 005: Seismic Inversion (Python)" \
     "python3 control/seismic/seismic_inversion.py"
 
+run_experiment \
+    "Exp 006: Signal Specificity (Python)" \
+    "python3 control/signal_specificity/signal_specificity.py"
+
+run_experiment \
+    "Exp 007: RAWR Resampling (Python)" \
+    "python3 control/rawr_resampling/rawr_resampling.py"
+
+run_experiment \
+    "Exp 008: Anderson Localization (Python)" \
+    "python3 control/anderson_localization/anderson_localization.py"
+
 echo ""
 echo "╔══════════════════════════════════════════════════════════════╗"
 echo "║  PHASE 1: Rust Validation Binaries                         ║"
@@ -103,6 +115,18 @@ if command -v cargo &> /dev/null; then
     run_experiment \
         "Rust: FAO-56 Error Propagation" \
         "cargo run --release --bin validate-fao56"
+
+    run_experiment \
+        "Rust: Signal Specificity" \
+        "cargo run --release --bin validate-signal-specificity"
+
+    run_experiment \
+        "Rust: RAWR Resampling" \
+        "cargo run --release --bin validate-rawr"
+
+    run_experiment \
+        "Rust: Anderson Localization" \
+        "cargo run --release --bin validate-anderson"
 else
     echo "  [SKIP] cargo not found — Rust validation skipped"
 fi

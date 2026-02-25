@@ -4,6 +4,44 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### Barracuda CPU Delegation & Performance Benchmarks (Phase 2a)
+- **Barracuda CPU delegation**: Wired 3 new functions to barracuda upstream:
+  - `bootstrap::bootstrap_mean` → `barracuda::stats::bootstrap_mean` (`#[cfg(feature = "barracuda")]`)
+  - `anderson::lyapunov_exponent` → `barracuda::spectral::anderson::lyapunov_exponent` (`#[cfg(feature = "barracuda-gpu")]`)
+  - `anderson::lyapunov_averaged` → `barracuda::spectral::anderson::lyapunov_averaged` (`#[cfg(feature = "barracuda-gpu")]`)
+- **New feature gate**: `barracuda-gpu` enables `barracuda/gpu` for spectral module access
+- **Performance benchmarks**: `scripts/bench_rust_vs_python.py` — times Python vs Rust
+  - Signal Specificity: **30.9×** faster
+  - RAWR Resampling: **7.3×** faster
+  - Anderson Localization: **29.8×** faster
+  - **Total: 24.0× faster** (52.0s Python → 2.17s Rust)
+- Updated `metalForge/ABSORPTION_MANIFEST.md` — 6 delegated (was 3)
+- Updated `specs/BARRACUDA_EVOLUTION.md` — performance section, new module mappings
+- Updated `CONTROL_EXPERIMENT_STATUS.md` — delegation and performance tables
+
+### Paper Queue Experiment Buildout (Phase 1c)
+- **Exp 006: Enzymatic Signal Specificity** — Gillespie SSA of c-di-GMP
+  birth-death process (Massie et al. 2012 PNAS). 12/12 Python, 12/12 Rust.
+  New `gillespie` module with `birth_death_ssa`, `steady_state_mean`,
+  time-averaged mean/variance.  5 unit tests.
+- **Exp 007: RAWR Resampling** — Standard bootstrap vs RAWR (Bayesian
+  bootstrap) on Gaussian, skewed, and correlated test cases (Wang et al. 2021
+  Bioinformatics/ISMB). 11/11 Python, 11/11 Rust.  New `bootstrap` module
+  with `bootstrap_mean`, `rawr_mean`.  6 unit tests.
+- **Exp 008: Anderson Localization** — Lyapunov exponents via transfer
+  matrix method for 1D Anderson tight-binding model (Anderson 1958,
+  Bourgain-Kachkovskiy 2018).  8/8 Python, 8/8 Rust.  New `anderson` module
+  with `anderson_potential`, `lyapunov_exponent`, `localization_length`,
+  `lyapunov_averaged`.  7 unit tests.
+- Three new Python baselines: `control/signal_specificity/`,
+  `control/rawr_resampling/`, `control/anderson_localization/`
+- Three new Rust validation binaries: `validate-signal-specificity`,
+  `validate-rawr`, `validate-anderson`
+- Three new benchmark JSONs with full provenance and analytical predictions
+- `tests/test_experiments.py` — 3 new integration tests (Exp 006-008)
+- `scripts/run_all_baselines.sh` — 6 new entries (3 Python + 3 Rust)
+- **Total**: 119/119 validation checks across 8 binaries, 108 unit tests
+
 ### Added
 - `fao56` module — complete FAO-56 Penman-Monteith equation chain (Exp 003)
 - `prng` module — deterministic Xorshift64 with Box-Muller normal sampling

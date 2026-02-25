@@ -25,14 +25,15 @@ metalForge/
     └── batched_multinomial.wgsl # Batched multinomial rarefaction (112 lines)
 ```
 
-## Current Status (post ToadStool S62)
+## Current Status (Phase 2a — barracuda CPU delegation)
 
 | Phase | Count | Examples |
 |-------|------:|---------|
-| **Lean** (CPU delegated) | 3 | `pearson_r`, `spearman_r`, `sample_std_dev` |
+| **Lean** (delegated to barracuda) | 6 | `pearson_r`, `spearman_r`, `sample_std_dev`, `bootstrap_mean`, `lyapunov_exponent`, `lyapunov_averaged` |
 | **Ready** (GPU op exists, needs adapter) | 6 | `rmse`, `mbe`, `r_squared`, `ia`, `hit_rate`, `shannon_diversity` |
 | **Absorbed upstream** | 1 | `fao56_et0_batch` (ToadStool S49) |
 | **Write** (WGSL ready for absorption) | 2 | `batched_multinomial`, `mc_et0_propagate` |
+| **Write** (local CPU, needs kernel) | 2 | `rawr_mean`, `birth_death_ssa` |
 | **Adapt** (needs alignment) | 2 | PRNG xoshiro, grid search |
 | **Stays local** | 5 | Scalar ops, harness |
 
@@ -83,6 +84,9 @@ Following hotSpring's pattern:
 | `stats::pearson_r` | `stats::pearson_correlation` | **Done** (CPU) |
 | `stats::spearman_r` | `stats::correlation::spearman_correlation` | **Done** (CPU) |
 | `stats::sample_std_dev` | `stats::correlation::std_dev` | **Done** (CPU) |
+| `bootstrap::bootstrap_mean` | `stats::bootstrap_mean` | **Done** (CPU) |
+| `anderson::lyapunov_exponent` | `spectral::anderson::lyapunov_exponent` | **Done** (barracuda-gpu) |
+| `anderson::lyapunov_averaged` | `spectral::anderson::lyapunov_averaged` | **Done** (barracuda-gpu) |
 | `stats::rmse` | `ops::NormReduceF64::l2` | Pending GPU adapter |
 | `stats::mbe` | `ops::SumReduceF64::mean` | Pending GPU adapter |
 | `rarefaction::shannon_diversity` | `ops::FusedMapReduceF64::shannon_entropy` | Pending GPU adapter |

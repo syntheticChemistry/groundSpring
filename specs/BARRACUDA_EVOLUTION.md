@@ -32,6 +32,9 @@ are for throughput (100k+ MC samples, batch rarefaction).
 | `stats::pearson_r` | `stats::pearson_correlation` | **DONE** (CPU delegated) | NaN-safe wrapper |
 | `stats::spearman_r` | `stats::correlation::spearman_correlation` | **DONE** (CPU delegated) | NaN-safe wrapper |
 | `stats::sample_std_dev` | `stats::correlation::std_dev` | **DONE** (CPU delegated) | Bessel-corrected |
+| `bootstrap::bootstrap_mean` | `stats::bootstrap_mean` | **DONE** (CPU delegated) | Result struct mapping |
+| `anderson::lyapunov_exponent` | `spectral::anderson::lyapunov_exponent` | **DONE** (barracuda-gpu) | Transfer matrix method |
+| `anderson::lyapunov_averaged` | `spectral::anderson::lyapunov_averaged` | **DONE** (barracuda-gpu) | Multi-realization average |
 | `stats::rmse` | `ops::NormReduceF64::l2` | Pending GPU adapter | RMSE = L2(obs−mod) / √n |
 | `stats::mbe` | `ops::SumReduceF64::mean` | Pending GPU adapter | MBE = mean(mod − obs) |
 | `stats::r_squared` | `ops::VarianceReduceF64` + reduce | Pending GPU adapter | R² = 1 − SS_res/SS_tot |
@@ -46,6 +49,9 @@ are for throughput (100k+ MC samples, batch rarefaction).
 | `prng::Xorshift64` | `ops::PrngXoshiro` (f64) | Different PRNG algorithm | Align to xoshiro; retain xorshift as CPU reference |
 | `seismic::grid_search_inversion` | Parallel grid dispatch | No existing grid-search op | Dispatch as 3D workgroup; reduce min RMS |
 | `rarefaction::multinomial_sample` | `ops::PrngXoshiro` + binary search | No batched multinomial | Production WGSL in metalForge |
+| `gillespie::birth_death_ssa` | `ops::bio::GillespieGpu` | GPU-only (no CPU fallback) | Write CPU → GPU dispatch when adapter ready |
+| `bootstrap::rawr_mean` | New: `ops::rawr_weighted_mean_f64` | No RAWR kernel in barracuda | Embarrassingly parallel — write metalForge shader |
+| `anderson::anderson_potential` | `spectral::anderson::anderson_potential` | Requires `barracuda-gpu` feature | Align PRNG seeds |
 
 ### Tier C — ~~New Kernel Required~~ → Partially Absorbed
 
@@ -84,14 +90,17 @@ are for throughput (100k+ MC samples, batch rarefaction).
 [features]
 default = []
 barracuda = ["dep:barracuda"]
+barracuda-gpu = ["barracuda", "barracuda/gpu"]
 
 [dependencies]
 barracuda = { path = "../../../phase1/toadstool/crates/barracuda", optional = true, default-features = false }
 ```
 
-When `barracuda` is enabled, Tier A modules add `#[cfg(feature = "barracuda")]`
-alternate implementations that delegate to barracuda ops.  The CPU implementation
-remains the default and the validation reference.
+Two feature gates:
+- `barracuda` — enables CPU delegation (`stats::bootstrap_mean`, `pearson_r`, etc.)
+- `barracuda-gpu` — enables GPU + spectral delegation (`anderson::lyapunov_*`, `GillespieGpu`)
+
+The CPU implementation remains the default and the validation reference.
 
 ## What NOT to Duplicate
 
@@ -153,7 +162,7 @@ GPU and CPU paths produce bitwise-identical streams.
    xoshiro128** implementation (e.g., a pure-Python xoshiro128** port).
 4. **Update benchmark JSONs** — new expected values, new `baseline_commit`,
    new `baseline_date`, xoshiro128** noted in `prng_algorithm` field.
-5. **Verify 88/88 checks** — run full validation suite.
+5. **Verify 119/119 checks** — run full validation suite.
 6. **Remove old baselines** — archive xorshift64 baselines in
    `control/archive/xorshift64/` for fossil record.
 
@@ -169,17 +178,34 @@ provides both:
 The `stats::pearson_r` function is already wired to
 `barracuda::stats::pearson_correlation` under `#[cfg(feature = "barracuda")]`.
 
+## Rust vs Python Performance (Phase 1c)
+
+Pure Rust CPU math vs interpreted Python (NumPy/SciPy), median of 3 trials:
+
+| Experiment | Python (s) | Rust (s) | Speedup |
+|---|---|---|---|
+| Exp 006: Signal Specificity (Gillespie SSA) | 26.2 | 0.85 | **30.9×** |
+| Exp 007: RAWR Resampling (bootstrap) | 4.4 | 0.60 | **7.3×** |
+| Exp 008: Anderson Localization (transfer matrix) | 21.4 | 0.72 | **29.8×** |
+| **Total** | **52.0** | **2.17** | **24.0×** |
+
+The 7.3× speedup for RAWR (vs 30× for others) reflects NumPy's vectorized
+array operations — RAWR's inner loop is a weighted dot product that NumPy
+handles efficiently.  Gillespie and Anderson involve per-step branching
+that Python cannot vectorize.
+
 ## Timeline
 
 | Phase | Milestone | Status |
 |---|---|---|
-| Phase 0 | Python baselines | **Done** (71/71 PASS) |
-| Phase 1a | Rust CPU validation | **Done** (88/88 PASS, 99.7% coverage) |
+| Phase 0 | Python baselines | **Done** (102/102 PASS across 8 experiments) |
+| Phase 1a | Rust CPU validation | **Done** (119/119 PASS across 8 binaries) |
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
-| Phase 2a | Tier A rewire (stats → barracuda CPU + GPU ops) | **3 CPU done** (`pearson_r`, `spearman_r`, `sample_std_dev`); 6 GPU pending adapter |
-| Phase 2b | Tier B adapt (PRNG alignment, grid dispatch) | After 2a |
-| Phase 2c | Tier C absorption (multinomial kernel only — FAO-56 superseded) | After 2b |
-| Phase 3 | Full GPU pipeline, performance benchmarks | After Phase 2 |
+| Phase 1c | Paper queue buildout (Exp 006-008) | **Done** (31 new checks, 18 unit tests, 24× faster than Python) |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson → barracuda) | **6 delegated** (3 stats + bootstrap_mean + 2 anderson); 6 GPU pending adapter |
+| Phase 2b | Tier B adapt (PRNG alignment, grid dispatch, gillespie GPU) | After 2a |
+| Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
+| Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |
 
 ## Cross-Reference
 

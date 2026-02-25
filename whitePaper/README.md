@@ -8,8 +8,8 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 ### Status
 
-- Phase 0 baselines: **71/71 quantitative checks passed** across 5 experiments, 4 domains.
-- Phase 1 Rust validation: **88/88 checks passed** across 5 validation binaries, 99.7% code coverage.
+- Phase 0 baselines: **102/102 quantitative checks passed** across 8 experiments, 6 domains.
+- Phase 1 Rust validation: **119/119 checks passed** across 8 validation binaries.
 
 ### Key Results
 
@@ -20,6 +20,9 @@ This white paper documents groundSpring's systematic approach to quantifying the
 | 003: Error Propagation | ET₀ uncertainty | 8/8 | 15/15 PASS | Humidity dominates ET₀ variance (65%); MC/analytical agree |
 | 004: Sequencing Noise | Microbiome | 16/16 | 15/15 PASS | Genus saturation at 5000 reads; Shannon converges by 500 |
 | 005: Seismic Inversion | Geophysics | 10/10 | 9/9 PASS | Grid-search recovers source exactly; Vec alloc hoisted |
+| 006: Signal Specificity | Biology (c-di-GMP) | 12/12 | 12/12 PASS | SNR ≈ 2 at 20× activation; Poisson variance confirmed |
+| 007: RAWR Resampling | Statistics | 11/11 | 11/11 PASS | RAWR competitive or better than bootstrap across all test cases |
+| 008: Anderson Localization | Math (spectral) | 8/8 | 8/8 PASS | Thouless scaling ξ ≈ 104/W²; all states localized for W > 0 |
 
 ### Key Research Questions Answered
 
@@ -35,13 +38,14 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 - [STUDY.md](STUDY.md) — Detailed results and analysis
 - [METHODOLOGY.md](METHODOLOGY.md) — Experimental design and validation approach
+- [experiments/](experiments/) — Per-experiment summaries (8 experiments, 6 domains)
 - [baseCamp/](baseCamp/) — Per-faculty research briefings (Bazavov, Waters, Liu, Kachkovskiy, R. Anderson)
 
 ---
 
 ## Phase 1 Rust Library
 
-The `groundspring` crate provides 7 modules of pure safe Rust:
+The `groundspring` crate provides 10 modules of pure safe Rust:
 
 | Module | Experiment | GPU Tier | Notes |
 |--------|-----------|----------|-------|
@@ -51,6 +55,9 @@ The `groundspring` crate provides 7 modules of pure safe Rust:
 | `prng` | Exp 003, 004 | B (adapt) | Xorshift64 + Box-Muller, aligning to barracuda xoshiro |
 | `rarefaction` | Exp 004 | C (WGSL ready) | Batched multinomial shader production-quality |
 | `seismic` | Exp 005 | B (adapt) | Haversine, travel time, grid-search inversion |
+| `gillespie` | Exp 006 | GPU-ready | Gillespie SSA birth-death process → `GillespieGpu` |
+| `bootstrap` | Exp 007 | GPU-ready | Bootstrap + RAWR CIs → `bootstrap_mean_f64.wgsl` |
+| `anderson` | Exp 008 | GPU-ready | Anderson localization, Lyapunov → `spectral::anderson` |
 | `validate` | All | N/A | Generic `Write` harness (hotSpring pattern) |
 
 ### GPU Evolution (metalForge)
@@ -133,8 +140,8 @@ Ilya Kachkovskiy (Math, MSU — previously IAS; co-author with Fields Medalist J
 | Domain | Required Primitives | Status |
 |--------|-------------------|--------|
 | Spectral reconstruction | FFT, regularization, matrix inverse | **Gap**: FFT not yet in BarraCUDA |
-| Stochastic simulation | Gillespie algorithm, PRNG | Partial — PRNG exists |
+| Stochastic simulation | Gillespie algorithm, PRNG | **CPU complete** (Exp 006); GPU via `GillespieGpu` |
 | Bifurcation analysis | Eigenvalue computation, continuation | `BatchedEighGpu` handles eigenvalues |
-| Bootstrap/resampling | Parallel resampling, weighted draws | Embarrassingly parallel — good GPU target |
+| Bootstrap/resampling | Parallel resampling, weighted draws | **CPU complete** (Exp 007); GPU embarrassingly parallel |
 | Monte Carlo | Already validated in Exp 003 | Extend to jackknife, bootstrap-t |
-| Anderson localization | Lanczos eigensolve, SpMV, matrix exp | **Gap**: iterative sparse eigensolve (shared with hotSpring) |
+| Anderson localization | Transfer matrix, Lyapunov exponents | **CPU complete** (Exp 008); GPU via `spectral::anderson` |

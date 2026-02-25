@@ -17,10 +17,16 @@
 //! - [`rarefaction`] — Multinomial rarefaction for sequencing noise analysis
 //! - [`seismic`] — Travel-time computation and source inversion
 //! - [`fao56`] — FAO-56 Penman-Monteith reference evapotranspiration
+//! - [`gillespie`] — Gillespie SSA for stochastic chemical kinetics
+//! - [`bootstrap`] — Bootstrap and RAWR resampling confidence intervals
+//! - [`anderson`] — Anderson localization / Lyapunov exponents
 //! - [`validate`] — Validation harness (pass/fail with counters)
 
+pub mod anderson;
+pub mod bootstrap;
 pub mod decompose;
 pub mod fao56;
+pub mod gillespie;
 pub mod prng;
 pub mod rarefaction;
 pub mod seismic;

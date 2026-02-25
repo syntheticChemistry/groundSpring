@@ -9,28 +9,35 @@ that proves Python baselines can be faithfully ported to Rust and eventually
 promoted to GPU acceleration via the Write → Absorb → Lean cycle.
 
 ```
-control/             Python Phase 0 experiments (5 pillars)
+control/             Python Phase 0 experiments (8 experiments across 5+ domains)
   common.py          Shared statistical primitives
   sensor_noise/      Exp 001: Bias-variance decomposition
   observation_gap/   Exp 002: Model-observation gap
   error_propagation/ Exp 003: FAO-56 Monte Carlo
   sequencing_noise/  Exp 004: Rarefaction analysis
   seismic/           Exp 005: Seismic inversion
+  signal_specificity/ Exp 006: c-di-GMP Gillespie SSA
+  rawr_resampling/   Exp 007: RAWR bootstrap
+  anderson_localization/ Exp 008: Anderson localization
 crates/
-  groundspring/            Rust library (7 modules, 99.7% library line coverage)
+  groundspring/            Rust library (10 modules, 99.7% library line coverage)
     src/stats.rs           RMSE, MBE, R², IA, hit rate, mean, std, percentile
     src/decompose.rs       Bias-variance decomposition, noise floor
     src/fao56.rs           FAO-56 Penman-Monteith equation chain
     src/prng.rs            Xorshift64 PRNG, Box-Muller normal sampling
     src/rarefaction.rs     Multinomial sampling, Shannon, evenness
     src/seismic.rs         Haversine, travel time, grid-search inversion
+    src/gillespie.rs       Gillespie SSA for stochastic kinetics
+    src/bootstrap.rs       Bootstrap + RAWR confidence intervals
+    src/anderson.rs        Anderson localization, Lyapunov exponents
     src/validate.rs        Struct-based ValidationHarness
-  groundspring-validate/   5 validation binaries (hotSpring pattern)
+  groundspring-validate/   8 validation binaries (hotSpring pattern)
 metalForge/          Write → Absorb → Lean artifacts
   ABSORPTION_MANIFEST.md  Module-by-module absorption inventory
   shaders/                 Production WGSL shaders for ToadStool absorption
 specs/               Specifications and evolution docs
 whitePaper/          Study documentation
+scripts/             Automation (baselines, benchmarks)
 ```
 
 ## Constraints
@@ -51,13 +58,14 @@ whitePaper/          Study documentation
 ### Rust
 
 ```bash
-cargo test --workspace          # 90 unit + 1 doc test
+cargo test --workspace          # 108 unit + 1 doc test
 cargo clippy --workspace        # zero warnings required
 cargo fmt --all -- --check      # clean
 cargo llvm-cov --workspace --lib  # 99.7% library line coverage
 
-# With barracuda feature gate (requires toadstool checkout):
-cargo test --features barracuda # verifies CPU delegation paths
+# With barracuda feature gates (requires toadstool checkout):
+cargo test --features barracuda     # CPU delegation (stats, bootstrap)
+cargo test --features barracuda-gpu # CPU + spectral (anderson)
 
 # Validation binaries (hotSpring pattern: exit 0 = pass, exit 1 = fail)
 cargo run --bin validate-decompose
@@ -65,6 +73,12 @@ cargo run --bin validate-rarefaction
 cargo run --bin validate-seismic
 cargo run --bin validate-weather
 cargo run --bin validate-fao56
+cargo run --bin validate-signal-specificity
+cargo run --bin validate-rawr
+cargo run --bin validate-anderson
+
+# Performance benchmarks (Rust vs Python)
+python3 scripts/bench_rust_vs_python.py
 ```
 
 ### Python

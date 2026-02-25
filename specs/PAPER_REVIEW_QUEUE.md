@@ -7,13 +7,18 @@
 
 ## Completed Reproductions
 
-| # | Experiment | Domain | Checks | Key Finding |
-|---|-----------|--------|--------|-------------|
-| 1 | Sensor noise decomposition | Agricultural sensors | 32/32 | EC5 bias-dominated (77%); CS616 mixed |
-| 2 | Observation gap (ERA5 vs station) | Meteorology | 5/5 | Representation noise dominated |
-| 3 | Error propagation FAO-56 | ET₀ uncertainty | 8/8 | Humidity dominates at 66% |
-| 4 | Sequencing depth & taxonomic noise | Microbiome | 16/16 | Genus saturation at 5,000 reads |
-| 5 | Seismic source inversion | Geophysics | 10/10 | ±2km horizontal, ±8.5km depth |
+| # | Experiment | Domain | Phase 0 | Phase 1 (Rust) | Key Finding |
+|---|-----------|--------|:-------:|:--------------:|-------------|
+| 1 | Sensor noise decomposition | Agricultural sensors | 32/32 | 36/36 | EC5 bias-dominated (77%); CS616 mixed |
+| 2 | Observation gap (ERA5 vs station) | Meteorology | PASS | 13/13 | Representation noise dominated |
+| 3 | Error propagation FAO-56 | ET₀ uncertainty | PASS | 15/15 | Humidity dominates at 66% |
+| 4 | Sequencing depth & taxonomic noise | Microbiome | PASS | 15/15 | Genus saturation at 5,000 reads |
+| 5 | Seismic source inversion | Geophysics | PASS | 9/9 | ±2km horizontal, ±8.5km depth |
+| 9 | Enzymatic signal specificity | Biology (c-di-GMP) | 12/12 | 12/12 | SNR ≈ 2 at 20× activation; 30.9× faster |
+| 12 | RAWR resampling | Statistics | 11/11 | 11/11 | Coverage comparable to bootstrap; 7.3× faster |
+| 15 | Anderson localization | Mathematics | 8/8 | 8/8 | All states localized; Thouless C ≈ 104; 29.8× faster |
+
+**Phase 0**: 102/102 PASS (Python). **Phase 1**: 119/119 PASS (Rust). **Speedup**: 24× total.
 
 ---
 
@@ -31,7 +36,7 @@
 
 | # | Paper | Journal | Year | Faculty | Why | Status |
 |---|-------|---------|------|---------|-----|--------|
-| 9 | Massie et al. "Quantification of High Specificity Cyclic di-GMP Signaling" | PNAS 109:12746-51 | 2012 | Waters | How cells resolve signal from noise with 60+ competing enzymes. Biological Exp 001 | Queued |
+| 9 | Massie et al. "Quantification of High Specificity Cyclic di-GMP Signaling" | PNAS 109:12746-51 | 2012 | Waters | How cells resolve signal from noise with 60+ competing enzymes. Biological Exp 001 | **Active** (Exp 006: 12/12 Py, 12/12 Rust) |
 | 10 | Fernandez et al. "V. cholerae adapts by c-di-GMP regulation of cell shape" | PNAS 117:29046-29054 | 2020 | Waters | Bistable switching — when does noise push a system across a threshold? Bifurcation analysis | Queued |
 | 11 | Srivastava et al. "Integration of Cyclic di-GMP and Quorum Sensing" | J Bacteriology 193:6331-41 | 2011 | Waters | Multi-input signal fusion in noisy environment. Biological analog of sensor fusion | Queued |
 
@@ -39,7 +44,7 @@
 
 | # | Paper | Journal | Year | Faculty | Why | Status |
 |---|-------|---------|------|---------|-----|--------|
-| 12 | Wang et al. "Build a better bootstrap and the RAWR shall beat a random path" | Bioinformatics (ISMB) 37:i111-i119 | 2021 | Liu | RAWR: modern weighted resampling that outperforms naive bootstrap for structured data. Upgrade for Exp 003 | Queued |
+| 12 | Wang et al. "Build a better bootstrap and the RAWR shall beat a random path" | Bioinformatics (ISMB) 37:i111-i119 | 2021 | Liu | RAWR: modern weighted resampling that outperforms naive bootstrap for structured data. Upgrade for Exp 003 | **Active** (Exp 007: 11/11 Py, 11/11 Rust) |
 | 13 | Lee & Liu "A Statistical Optimization Technique to Inform Statistical Resampling" | IEEE BIBM 2024 | 2024 | Liu | Meta-statistical optimization — improving the resampling strategy itself | Queued |
 
 ### Anderson Localization & Spectral Theory (Kachkovskiy)
@@ -52,7 +57,7 @@ does noise win?**
 
 | # | Paper | Journal | Year | Faculty | Why | Status |
 |---|-------|---------|------|---------|-----|--------|
-| 15 | Bourgain & Kachkovskiy "Anderson localization for two interacting quasiperiodic particles" | GAFA 29:3-43 | 2018 | Kachkovskiy | Anderson localization = signal trapped by disorder. Two-particle case models how coupled noisy sensors affect each other — directly extends Exp 001's correlated sensor noise decomposition | Queued |
+| 15 | Bourgain & Kachkovskiy "Anderson localization for two interacting quasiperiodic particles" | GAFA 29:3-43 | 2018 | Kachkovskiy | Anderson localization = signal trapped by disorder. Two-particle case models how coupled noisy sensors affect each other — directly extends Exp 001's correlated sensor noise decomposition | **Active** (Exp 008: 8/8 Py, 8/8 Rust) |
 | 16 | Jitomirskaya & Kachkovskiy "All couplings localization for quasiperiodic operators with Lipschitz monotone potentials" | JEMS 21:777-795 | 2018 | Kachkovskiy | Localization at ALL coupling strengths for monotone potentials. Quasiperiodic = "almost periodic" = structured noise (seasonal drift, tidal cycles, orbital harmonics). Math of Exp 002's ERA5 vs station gap | Queued |
 | 17 | Kachkovskiy "On transport properties of isotropic quasiperiodic XY spin chains" | CMP 345:659-673 | 2016 | Kachkovskiy | Energy transport through disordered chains — when does a signal reach the other end? Mathematical framework for Exp 005's seismic wave propagation through heterogeneous crust | Queued |
 | 18 | Filonov & Kachkovskiy "On the structure of band edges of 2d periodic elliptic operators" | Acta Math 221:59-80 | 2018 | Kachkovskiy | Band edges = frequencies where waves transition from propagating to evanescent. The mathematical boundary between "signal gets through" and "noise kills it" | Queued |
@@ -183,19 +188,23 @@ Write → Absorb → Lean cycle:
 | **GPU** | `barracuda` feature + GPU adapter | GPU matches CPU within tolerance | BarraCUDA GPU ops (reduce, map, fused) |
 | **metalForge** | Mixed hardware dispatch | Cross-substrate agreement | metalForge forge crate routes to best substrate |
 
-### Completed Experiments (Papers 1-5)
+### Completed Experiments (Papers 1-5, 9, 12, 15)
 
-| # | Experiment | CPU | GPU | metalForge |
-|---|-----------|:---:|:---:|:----------:|
-| 1 | Sensor noise decomposition | **88/88 PASS** | Tier A pending (reduce ops) | After GPU |
-| 2 | Observation gap (ERA5 vs station) | **88/88 PASS** | Tier A pending (reduce ops) | After GPU |
-| 3 | Error propagation FAO-56 | **88/88 PASS** | Tier C (`mc_et0_propagate.wgsl`) | After GPU |
-| 4 | Sequencing noise | **88/88 PASS** | Tier C (`batched_multinomial.wgsl`) | After GPU |
-| 5 | Seismic source inversion | **88/88 PASS** | Tier B (grid dispatch) | After GPU |
+| # | Experiment | CPU | GPU | metalForge | Barracuda delegation |
+|---|-----------|:---:|:---:|:----------:|---------------------|
+| 1 | Sensor noise decomposition | **36/36** | Tier A pending (reduce ops) | After GPU | 3 stats (CPU) |
+| 2 | Observation gap (ERA5 vs station) | **13/13** | Tier A pending (reduce ops) | After GPU | 3 stats (CPU) |
+| 3 | Error propagation FAO-56 | **15/15** | Tier C (`mc_et0_propagate.wgsl`) | After GPU | fao56 absorbed |
+| 4 | Sequencing noise | **15/15** | Tier C (`batched_multinomial.wgsl`) | After GPU | — |
+| 5 | Seismic source inversion | **9/9** | Tier B (grid dispatch) | After GPU | — |
+| 9 | Enzymatic signal specificity | **12/12** | `GillespieGpu` (ready) | After GPU | GPU-only (no CPU) |
+| 12 | RAWR resampling | **11/11** | Embarrassingly parallel | After GPU | `bootstrap_mean` (CPU) |
+| 15 | Anderson localization | **8/8** | `spectral::anderson` (ready) | After GPU | 2 lyapunov (barracuda-gpu) |
 
-**Note**: CPU tier is complete for all 5 experiments (88/88 total checks across
-5 validation binaries). GPU tier requires barracuda ops (Tier A) or new kernels
-(Tier B/C). metalForge tier follows GPU.
+**CPU tier**: 119/119 PASS across 8 validation binaries.
+**Barracuda CPU**: 6 functions delegated. **Performance**: 24× faster than Python.
+**GPU tier**: pending barracuda adapter (Tier A) or new kernels (Tier B/C).
+**metalForge tier**: after GPU.
 
 ### Queued Papers (updated after ToadStool S51-S62 absorption wave)
 
@@ -204,13 +213,13 @@ Write → Absorb → Lean cycle:
 | 6 | Bazavov spectral | Queued | Blocked | — | FFT gap in barracuda |
 | 7 | Bazavov g-2 | Queued | After CPU | — | Jackknife GPU kernel |
 | 8 | Bazavov freeze-out | Queued | After CPU | — | Grid search GPU |
-| 9 | Massie c-di-GMP | Queued | **Ready** | — | `GillespieGpu` + `BatchedOdeRK4` + 5 bio ODEs (S58) |
+| 9 | Massie c-di-GMP | **12/12 PASS** | **Ready** | — | `GillespieGpu` + `BatchedOdeRK4` + 5 bio ODEs (S58) |
 | 10 | Fernandez cell shape | Queued | **Ready** | — | `BatchedEighGpu` + `BistableOde` (S58) |
 | 11 | Srivastava QS | Queued | **Ready** | — | `CooperationOde` + `MultiSignalOde` (S58) |
-| 12 | Wang RAWR | Queued | Ready | — | Embarrassingly parallel |
+| 12 | Wang RAWR | **11/11 PASS** | Ready | — | Embarrassingly parallel |
 | 13 | Lee resampling | Queued | After 12 | — | Builds on #12 |
 | 14 | Dolson eco-evo | Queued | Ready | — | Simulation only |
-| 15 | Bourgain-Kachkovskiy | Queued | **Ready** | — | `spectral` + Anderson (S56) |
+| 15 | Bourgain-Kachkovskiy | **8/8 PASS** | **Ready** | — | `spectral` + Anderson (S56) |
 | 16 | Jitomirskaya-Kachkovskiy | Queued | **Ready** | — | Almost-Mathieu + `disordered_laplacian` (S56) |
 | 17 | Kachkovskiy transport | Queued | After 15 | — | Builds on #15 |
 | 18 | Filonov-Kachkovskiy | Queued | After 15 | — | Builds on #15 |
