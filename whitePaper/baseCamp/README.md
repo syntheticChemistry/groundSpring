@@ -5,6 +5,8 @@ reproductions and extensions.
 
 **Last Updated**: February 25, 2026
 
+**Validation Summary**: 119/119 checks, 11 barracuda delegations, 122 unit tests. Exps 006–008 DONE.
+
 ---
 
 ## Faculty Network

@@ -24,7 +24,12 @@ fn f64_field(v: &Value, key: &str) -> f64 {
         .unwrap_or_else(|| panic!("missing f64 field: {key}"))
 }
 
-#[expect(clippy::cast_precision_loss, clippy::cast_possible_truncation, clippy::cast_sign_loss, clippy::too_many_lines)]
+#[expect(
+    clippy::cast_precision_loss,
+    clippy::cast_possible_truncation,
+    clippy::cast_sign_loss,
+    clippy::too_many_lines
+)]
 fn main() {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Signal Specificity");
@@ -79,7 +84,13 @@ fn main() {
     let mut basal_vars = Vec::with_capacity(n_reps);
 
     for i in 0..n_reps {
-        let traj = birth_death_ssa(&basal_rates, total_deg, ss_mean as u64, t_max, seed + i as u64);
+        let traj = birth_death_ssa(
+            &basal_rates,
+            total_deg,
+            ss_mean as u64,
+            t_max,
+            seed + i as u64,
+        );
         let m = time_averaged_mean(&traj, t_burnin);
         let v = time_averaged_variance(&traj, t_burnin, m);
         basal_means.push(m);

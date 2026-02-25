@@ -10,10 +10,10 @@
 groundSpring Phase 0 (Python), Phase 1 (Rust), and Phase 2a (barracuda CPU) are **complete**.
 
 - 119/119 validation checks across 8 binaries
-- 10 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, validate
-- 108 unit tests + 1 doc test, 99.7% line coverage, 0 clippy warnings
+- 11 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, cast, validate
+- 108 unit tests + 1 doc test, 0 clippy warnings (pedantic + nursery)
 - Two feature gates: `barracuda` (CPU stats/bootstrap) and `barracuda-gpu` (spectral/anderson)
-- 6 functions delegated to barracuda (3 stats + `bootstrap_mean` + 2 anderson)
+- 11 functions delegated to barracuda (stats, bootstrap, anderson, etc.)
 - 2 production WGSL shaders in `metalForge/shaders/` (261 combined lines)
 - Pure Rust is **24× faster** than Python (benchmarks in `data/bench_rust_vs_python.json`)
 
@@ -84,7 +84,7 @@ NumPy Anderson      ────────→  anderson::lyapunov_*        →
 
 Phase 2a (DONE)                Phase 2b (GPU — NEXT)
 ──────────────                 ────────────────────
-6 CPU delegated     ────────→  Tier A: 6 more GPU adapter wiring (rmse, mbe, etc.)
+11 CPU delegated    ────────→  Tier A: 6 more GPU adapter wiring (rmse, mbe, etc.)
 prng::Xorshift64    ────────→  Tier B: align to barracuda xoshiro128**
 fao56::daily_et0    ────────→  Tier C: mc_et0_propagate.wgsl → barracuda
 rarefaction         ────────→  Tier C: batched_multinomial.wgsl → barracuda

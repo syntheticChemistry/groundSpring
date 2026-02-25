@@ -40,24 +40,26 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - [METHODOLOGY.md](METHODOLOGY.md) — Experimental design and validation approach
 - [experiments/](experiments/) — Per-experiment summaries (8 experiments, 6 domains)
 - [baseCamp/](baseCamp/) — Per-faculty research briefings (Bazavov, Waters, Liu, Kachkovskiy, R. Anderson)
+- [../specs/CROSS_SPRING_EVOLUTION.md](../specs/CROSS_SPRING_EVOLUTION.md) — Cross-spring shader provenance
+- [../specs/BARRACUDA_EVOLUTION.md](../specs/BARRACUDA_EVOLUTION.md) — Module → GPU promotion mapping
 
 ---
 
 ## Phase 1 Rust Library
 
-The `groundspring` crate provides 10 modules of pure safe Rust:
+The `groundspring` crate provides 11 modules of pure safe Rust:
 
 | Module | Experiment | GPU Tier | Notes |
 |--------|-----------|----------|-------|
-| `stats` | All | 3 CPU leaned, 6 GPU pending | Pearson/Spearman/sample_std_dev delegate to barracuda |
+| `stats` | All | 7 CPU leaned, 6 GPU pending | Pearson, Spearman, sample_std_dev, covariance, norm_cdf, norm_ppf, chi2 → barracuda |
 | `decompose` | Exp 001 | CPU-only | Bias-variance decomposition, scalar math |
 | `fao56` | Exp 003 | **Absorbed** upstream | Equation chain → barracuda `Op::Fao56Et0`; MC wrapper pending |
 | `prng` | Exp 003, 004 | B (adapt) | Xorshift64 + Box-Muller, aligning to barracuda xoshiro |
 | `rarefaction` | Exp 004 | C (WGSL ready) | Batched multinomial shader production-quality |
 | `seismic` | Exp 005 | B (adapt) | Haversine, travel time, grid-search inversion |
 | `gillespie` | Exp 006 | GPU-ready | Gillespie SSA birth-death process → `GillespieGpu` |
-| `bootstrap` | Exp 007 | GPU-ready | Bootstrap + RAWR CIs → `bootstrap_mean_f64.wgsl` |
-| `anderson` | Exp 008 | GPU-ready | Anderson localization, Lyapunov → `spectral::anderson` |
+| `bootstrap` | Exp 007 | A Lean | Bootstrap + RAWR CIs → `barracuda::stats::bootstrap_mean` |
+| `anderson` | Exp 008 | A Lean | Lyapunov → `barracuda::spectral`, analytical ξ → `barracuda::special` |
 | `validate` | All | N/A | Generic `Write` harness (hotSpring pattern) |
 
 ### GPU Evolution (metalForge)
@@ -144,4 +146,4 @@ Ilya Kachkovskiy (Math, MSU — previously IAS; co-author with Fields Medalist J
 | Bifurcation analysis | Eigenvalue computation, continuation | `BatchedEighGpu` handles eigenvalues |
 | Bootstrap/resampling | Parallel resampling, weighted draws | **CPU complete** (Exp 007); GPU embarrassingly parallel |
 | Monte Carlo | Already validated in Exp 003 | Extend to jackknife, bootstrap-t |
-| Anderson localization | Transfer matrix, Lyapunov exponents | **CPU complete** (Exp 008); GPU via `spectral::anderson` |
+| Anderson localization | Transfer matrix, Lyapunov exponents | **CPU complete** (Exp 008); GPU via `barracuda::spectral::lyapunov_*` |

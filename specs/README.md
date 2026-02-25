@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: February 25, 2026
-**Status**: Phase 0 + Phase 1 + Phase 2a complete — 119/119 PASS, 6 barracuda-delegated, 24× faster
+**Status**: Phase 0 + Phase 1 + Phase 2a complete — 119/119 PASS, 11 barracuda-delegated, 24× faster
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -12,7 +12,7 @@
 |--------|-------|
 | Phase 0 (Python) | 8/8 experiments PASS across 6 scientific domains |
 | Phase 1 (Rust) | 119/119 PASS — 8 validation binaries |
-| Unit tests | 108 + 1 doc test |
+| Unit tests | 122 + 1 doc test |
 | metalForge | 2 production WGSL shaders (mc_et0_propagate, batched_multinomial) |
 | Exp 001 | Sensor noise decomposition — EC5 bias-dominated, CS616 mixed |
 | Exp 002 | Observation gap ERA5 vs station — methodology validated |
@@ -22,7 +22,7 @@
 | Exp 006 | Signal specificity (c-di-GMP) — SNR scales with activation |
 | Exp 007 | RAWR resampling — competitive or better than naive bootstrap |
 | Exp 008 | Anderson localization — Thouless scaling verified |
-| Barracuda | 6 functions delegated (CPU + barracuda-gpu) |
+| Barracuda | 11 functions delegated (CPU + barracuda-gpu) |
 | Performance | Pure Rust 24× faster than Python (52s → 2.2s) |
 | Faculty | Bazavov (CMSE + Physics, MSU), Waters (MMG, MSU), Liu (CMSE, MSU), Kachkovskiy (Math, MSU) |
 

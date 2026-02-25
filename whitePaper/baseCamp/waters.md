@@ -2,7 +2,7 @@
 
 **Faculty**: Christopher Waters (MMG, Michigan State University)
 **Domain**: Quorum sensing, c-di-GMP signaling, biofilm formation
-**groundSpring Connection**: Exp 001 (sensor noise decomposition) applied to biological sensing
+**groundSpring Connection**: Exp 006 (signal specificity) — DONE. Exp 001 (sensor noise decomposition) applied to biological sensing.
 
 ---
 
@@ -26,8 +26,8 @@ di-GMP Signaling." PNAS 109:12746-51. DOI: 10.1073/pnas.1115663109
   available in supplementary figures
 - **Open Code**: ODE model parameters published; reimplementable from Methods
 - **groundSpring Modules**: `decompose` (signal vs noise in FRET data),
-  `stats` (R², correlation), new `ode_noise` module (stochastic ODE noise floor)
-- **BarraCUDA Needs**: `GillespieGpu` (exists in barracuda), ODE integrator
+  `stats` (R², correlation), `gillespie` module (stochastic SSA noise floor)
+- **BarraCUDA Needs**: `GillespieGpu` (exists in barracuda, not yet delegated — needs PRNG alignment), ODE integrator
   (exists: `BatchedOdeRK4`)
 - **Control Plan**: Python ODE → Rust CPU → barracuda GPU (Gillespie + ODE)
 
@@ -60,7 +60,7 @@ Quorum Sensing in the Control of vpsT and aphA." J Bacteriology 193:6331-41.
 
 | Tier | Validation | Status |
 |------|-----------|--------|
-| CPU | Python ODE baseline matches Rust | Queued |
+| CPU | Python ODE baseline matches Rust | **DONE** (12/12 PASS, 30.9× faster) |
 | GPU | Gillespie GPU matches CPU statistics | Requires PRNG alignment |
 | metalForge | Cross-substrate stochastic agreement | After GPU tier |
 

@@ -174,4 +174,4 @@ Same as all ecoPrimals springs:
 
 - **Phase 0 (Python)**: 102/102 quantitative checks passed across 8 experiments, 6 domains.
 - **Phase 1 (Rust)**: 119/119 checks passed across 8 validation binaries, 99.7% coverage.
-- **Phase 2a (Barracuda CPU)**: 6 functions delegated, 24× faster than Python.
+- **Phase 2a (Barracuda CPU)**: 11 functions delegated, 24× faster than Python.

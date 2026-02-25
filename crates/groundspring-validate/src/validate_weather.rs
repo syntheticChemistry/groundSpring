@@ -3,9 +3,13 @@
 
 //! Validation binary for weather model-observation gap analysis (Exp 002).
 //!
-//! Verifies statistical metrics and hit-rate computation on constructed
-//! paired datasets with analytical known values.  No external benchmark
-//! data — all expected values are derived from the input arrays.
+//! All checks use analytically constructed data with closed-form expected
+//! values — no benchmark JSON or Python baseline is required.  This is
+//! intentional: the goal is to verify stat primitives (hit rate, RMSE,
+//! MBE, R², IA, decompose) against exact mathematical identities.
+//!
+//! Provenance: expected values are derivable from the input arrays by
+//! inspection (e.g. constant +2 °C bias ⟹ MBE = 2.0, RMSE = 2.0).
 
 use groundspring::decompose::decompose_error;
 use groundspring::stats;
@@ -20,6 +24,8 @@ fn main() {
     println!("{}", "=".repeat(72));
 
     // ── Hit rate analytical cases ───────────────────────────────────
+    // Tol 1e-12: all checks are exact integer-ratio results (0.75 = 6/8,
+    // 1.0 = 8/8); 1e-12 handles IEEE 754 representation only.
     println!("\n--- Precipitation Hit Rate ---");
 
     let obs_rain = [0.0, 5.0, 0.0, 3.0, 0.0, 12.0, 0.0, 0.0];
@@ -48,6 +54,9 @@ fn main() {
     );
 
     // ── Temperature-like paired data (constant bias) ────────────────
+    // Tol 1e-10: RMSE/MBE pass through a sum of 365 terms; each
+    // f64 add has ≤ 0.5 ULP error, so accumulated error ≤ 365 × ε/2
+    // ≈ 4e-14 — 1e-10 provides ~2500× margin.
     println!("\n--- Temperature Stats (constant +2°C bias) ---");
 
     let obs_temp: Vec<f64> = (0..365)

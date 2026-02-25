@@ -85,8 +85,8 @@ Following hotSpring's pattern:
 | `stats::spearman_r` | `stats::correlation::spearman_correlation` | **Done** (CPU) |
 | `stats::sample_std_dev` | `stats::correlation::std_dev` | **Done** (CPU) |
 | `bootstrap::bootstrap_mean` | `stats::bootstrap_mean` | **Done** (CPU) |
-| `anderson::lyapunov_exponent` | `spectral::anderson::lyapunov_exponent` | **Done** (barracuda-gpu) |
-| `anderson::lyapunov_averaged` | `spectral::anderson::lyapunov_averaged` | **Done** (barracuda-gpu) |
+| `anderson::lyapunov_exponent` | `spectral::lyapunov_exponent` | **Done** (barracuda-gpu) |
+| `anderson::lyapunov_averaged` | `spectral::lyapunov_averaged` | **Done** (barracuda-gpu) |
 | `stats::rmse` | `ops::NormReduceF64::l2` | Pending GPU adapter |
 | `stats::mbe` | `ops::SumReduceF64::mean` | Pending GPU adapter |
 | `rarefaction::shannon_diversity` | `ops::FusedMapReduceF64::shannon_entropy` | Pending GPU adapter |

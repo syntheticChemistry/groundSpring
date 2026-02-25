@@ -9,9 +9,8 @@
 //!
 //! # barracuda delegation
 //!
-//! When the `barracuda` feature is enabled, `bootstrap_mean` can delegate to
-//! `barracuda::stats::bootstrap_ci()` for CPU or
-//! `bootstrap_mean_f64.wgsl` for GPU.
+//! When the `barracuda` feature is enabled, `bootstrap_mean` delegates to
+//! `barracuda::stats::bootstrap_mean()` for the core computation.
 
 use crate::prng::Xorshift64;
 
@@ -31,7 +30,7 @@ pub struct BootstrapResult {
 /// Standard percentile bootstrap confidence interval for the mean.
 ///
 /// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::bootstrap_mean` for the core computation.
+/// `barracuda::stats::bootstrap_mean`.
 ///
 /// # Panics
 ///
@@ -81,35 +80,17 @@ fn bootstrap_mean_local(
     for _ in 0..n_replicates {
         let mut sum = 0.0;
         for _ in 0..n {
-            #[expect(clippy::cast_possible_truncation, reason = "n fits in u64 on all targets")]
+            #[expect(
+                clippy::cast_possible_truncation,
+                reason = "n fits in u64 on all targets"
+            )]
             let idx = (rng.next_u64() % (n as u64)) as usize;
             sum += data[idx];
         }
         means.push(sum / crate::cast::usize_f64(n));
     }
 
-    means.sort_unstable_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
-
-    let alpha = 1.0 - confidence;
-    let lo_idx = crate::cast::f64_usize(alpha / 2.0 * crate::cast::usize_f64(n_replicates));
-    let hi_idx = crate::cast::f64_usize(
-        (1.0 - alpha / 2.0) * crate::cast::usize_f64(n_replicates),
-    );
-    let hi_idx = hi_idx.min(n_replicates - 1);
-
-    let estimate: f64 = means.iter().sum::<f64>() / crate::cast::usize_f64(n_replicates);
-    let variance: f64 = means
-        .iter()
-        .map(|&m| (m - estimate).powi(2))
-        .sum::<f64>()
-        / crate::cast::usize_f64(n_replicates);
-
-    BootstrapResult {
-        estimate,
-        ci_lower: means[lo_idx],
-        ci_upper: means[hi_idx],
-        std_error: variance.sqrt(),
-    }
+    percentile_ci(&means, n_replicates, confidence)
 }
 
 /// RAWR (Bayesian bootstrap) confidence interval for the mean.
@@ -121,12 +102,7 @@ fn bootstrap_mean_local(
 ///
 /// Panics if `data` is empty or `confidence` is outside (0, 1).
 #[must_use]
-pub fn rawr_mean(
-    data: &[f64],
-    n_replicates: usize,
-    confidence: f64,
-    seed: u64,
-) -> BootstrapResult {
+pub fn rawr_mean(data: &[f64], n_replicates: usize, confidence: f64, seed: u64) -> BootstrapResult {
     assert!(!data.is_empty(), "data must not be empty");
     assert!(
         (0.0..1.0).contains(&(1.0 - confidence)),
@@ -142,6 +118,8 @@ pub fn rawr_mean(
         let mut wsum = 0.0;
         for _ in 0..n {
             let u = rng.next_f64();
+            // Exp(1) variate via inverse CDF; guard u=0 since -ln(0)=∞.
+            // Cap at 30 ≈ -ln(9.4e-14), well beyond practical Dirichlet range.
             let w = if u > 0.0 { -u.ln() } else { 30.0 };
             weights.push(w);
             wsum += w;
@@ -154,26 +132,27 @@ pub fn rawr_mean(
         means.push(weighted_mean);
     }
 
-    means.sort_unstable_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    percentile_ci(&means, n_replicates, confidence)
+}
+
+/// Compute the percentile confidence interval from a pre-filled
+/// replicate distribution.  Shared by both bootstrap and RAWR.
+fn percentile_ci(means: &[f64], n_replicates: usize, confidence: f64) -> BootstrapResult {
+    let mut sorted: Vec<f64> = means.to_vec();
+    sorted.sort_unstable_by(f64::total_cmp);
 
     let alpha = 1.0 - confidence;
-    let lo_idx = crate::cast::f64_usize(alpha / 2.0 * crate::cast::usize_f64(n_replicates));
-    let hi_idx = crate::cast::f64_usize(
-        (1.0 - alpha / 2.0) * crate::cast::usize_f64(n_replicates),
-    );
-    let hi_idx = hi_idx.min(n_replicates - 1);
+    let n_f = crate::cast::usize_f64(n_replicates);
+    let lo_idx = crate::cast::f64_usize(alpha / 2.0 * n_f);
+    let hi_idx = crate::cast::f64_usize((1.0 - alpha / 2.0) * n_f).min(n_replicates - 1);
 
-    let estimate: f64 = means.iter().sum::<f64>() / crate::cast::usize_f64(n_replicates);
-    let variance: f64 = means
-        .iter()
-        .map(|&m| (m - estimate).powi(2))
-        .sum::<f64>()
-        / crate::cast::usize_f64(n_replicates);
+    let estimate: f64 = sorted.iter().sum::<f64>() / n_f;
+    let variance: f64 = sorted.iter().map(|&m| (m - estimate).powi(2)).sum::<f64>() / n_f;
 
     BootstrapResult {
         estimate,
-        ci_lower: means[lo_idx],
-        ci_upper: means[hi_idx],
+        ci_lower: sorted[lo_idx],
+        ci_upper: sorted[hi_idx],
         std_error: variance.sqrt(),
     }
 }
@@ -235,7 +214,10 @@ mod tests {
         let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
         let b = bootstrap_mean(&data, 500, 0.95, 42);
         let r = rawr_mean(&data, 500, 0.95, 42);
-        assert_ne!(b.estimate, r.estimate, "methods should produce different estimates");
+        assert_ne!(
+            b.estimate, r.estimate,
+            "methods should produce different estimates"
+        );
     }
 
     #[test]

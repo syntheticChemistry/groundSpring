@@ -41,15 +41,16 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 
 | Module | Purpose | GPU Tier |
 |--------|---------|----------|
-| `stats` | RMSE, MBE, R², IA, hit rate, Pearson/Spearman, std | 3 CPU leaned, 6 GPU pending |
+| `stats` | RMSE, MBE, R², IA, hit rate, Pearson/Spearman, std, covariance, norm_cdf/ppf, χ² | 7 CPU leaned, 6 GPU pending |
 | `decompose` | Bias-variance decomposition, noise floor | CPU-only (scalar) |
 | `fao56` | FAO-56 Penman-Monteith equation chain | **Absorbed** (barracuda `Op::Fao56Et0`) |
 | `prng` | Xorshift64 PRNG, Box-Muller normal | B (align to xoshiro) |
 | `rarefaction` | Multinomial sampling, Shannon diversity, evenness | C (WGSL production ready) |
 | `seismic` | Haversine, travel time, grid-search inversion | B (adapt) |
 | `gillespie` | Gillespie SSA for stochastic chemical kinetics | GPU-ready (`GillespieGpu`) |
-| `bootstrap` | Bootstrap + RAWR confidence intervals | GPU-ready (`bootstrap_mean_f64.wgsl`) |
-| `anderson` | Anderson localization, Lyapunov exponents | GPU-ready (`spectral::anderson`) |
+| `bootstrap` | Bootstrap + RAWR confidence intervals | A Lean (`barracuda::stats`) |
+| `anderson` | Anderson localization, Lyapunov exponents, analytical ξ(W,E) | A Lean (`barracuda::spectral` + `special`) |
+| `cast` | Centralized numeric casts with documented safety | N/A |
 | `validate` | Generic Write harness (hotSpring pattern) | N/A |
 
 ## Quick Start
@@ -57,7 +58,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace          # 108 unit + 1 doc test
+cargo test --workspace          # 122 unit + 1 doc test
 cargo clippy --workspace        # zero warnings
 cargo fmt --all -- --check      # clean
 
@@ -103,16 +104,17 @@ Run benchmarks: `python3 scripts/bench_rust_vs_python.py`
 ```
 Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration (Phase 2)
    NumPy/SciPy                    Pure safe Rust                BarraCUDA / ToadStool
-     ✓ Complete                     ✓ 119/119 PASS               ◐ 6 CPU leaned, 2 WGSL ready
+     ✓ Complete                     ✓ 119/119 PASS               ◐ 11 CPU leaned, 2 WGSL ready
    24× slower than Rust             reference implementation       barracuda-gpu: anderson, gillespie
 
      Write locally              →  Hand off to barracuda      →  Lean on upstream
      (metalForge shaders)          (wateringHole/handoffs/)       (rewire to barracuda ops)
 ```
 
-**Lean progress**: 6 functions delegate to barracuda CPU — `pearson_r`, `spearman_r`,
-`sample_std_dev`, `bootstrap_mean`, `lyapunov_exponent`, `lyapunov_averaged`.
-FAO-56 equation chain absorbed upstream (`BatchedElementwiseF64::fao56_et0_batch`).
+**Lean progress**: 11 functions delegate to barracuda — `pearson_r`, `spearman_r`,
+`sample_std_dev`, `covariance`, `norm_cdf`, `norm_ppf`, `chi2_statistic`,
+`bootstrap_mean`, `lyapunov_exponent`, `lyapunov_averaged`,
+`analytical_localization_length`. FAO-56 equation chain absorbed upstream.
 Two production WGSL shaders ready for ToadStool absorption.
 
 See `specs/BARRACUDA_EVOLUTION.md` for the full GPU promotion mapping.
@@ -142,7 +144,7 @@ groundSpring/
 │   ├── rawr_resampling/             # Exp 007: RAWR vs bootstrap
 │   └── anderson_localization/       # Exp 008: Anderson localization Lyapunov
 ├── crates/
-│   ├── groundspring/                # Phase 1 Rust library (10 modules)
+│   ├── groundspring/                # Phase 1 Rust library (11 modules)
 │   └── groundspring-validate/       # 8 validation binaries (hotSpring pattern)
 ├── metalForge/                      # Write → Absorb → Lean artifacts
 │   ├── ABSORPTION_MANIFEST.md       # Module-by-module absorption inventory
@@ -150,7 +152,7 @@ groundSpring/
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md       # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md    # GPU kernel gap analysis
-│   └── PAPER_REVIEW_QUEUE.md        # 19 papers, three-tier control matrix, open data audit
+│   └── PAPER_REVIEW_QUEUE.md        # 27 papers, three-tier control matrix, open data audit
 ├── whitePaper/                      # Study results and methodology
 │   ├── baseCamp/                    # Per-faculty research briefings (5 faculty)
 ├── Cargo.toml                       # Rust workspace (barracuda feature gate)

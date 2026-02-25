@@ -4,7 +4,7 @@
 **Previously**: Institute for Advanced Study, UC Irvine
 **Co-author**: Jean Bourgain (Fields Medal, 1994)
 **Domain**: Anderson localization, quasiperiodic operators, spectral theory
-**groundSpring Connection**: Mathematical foundation for ALL five pillars
+**groundSpring Connection**: Exp 008 (Anderson localization) — DONE. Mathematical foundation for ALL five pillars.
 
 ---
 
@@ -36,8 +36,8 @@ DOI: 10.1007/s00039-019-00478-4
 
 - **Open Data**: Fully analytical — parameters specified in theorems
 - **Open Code**: Numerical verification reimplementable from paper
-- **groundSpring Modules**: `seismic` (wave propagation), new `anderson` module
-  (localization length, transport coefficient computation)
+- **groundSpring Modules**: `seismic` (wave propagation), `anderson` module
+  (`lyapunov_exponent`, `lyapunov_averaged`, `analytical_localization_length` delegated to barracuda)
 - **BarraCUDA Needs**: Sparse eigensolve (Lanczos — exists in barracuda),
   transfer matrix computation, Anderson model solver
 - **Control Plan**: Python numerical verification → Rust CPU → barracuda GPU
@@ -70,7 +70,7 @@ of 2d periodic elliptic operators." Acta Math 221:59-80.
 |-----------|--------|-------|
 | Lanczos eigensolve | Exists in barracuda `spectral` | For Anderson model |
 | Almost-Mathieu operator | Exists in barracuda `spectral` | For quasiperiodic models |
-| Anderson 1D/2D/3D | Exists in barracuda `spectral` | Direct GPU compute |
+| Anderson 1D/2D/3D | Exists in barracuda `spectral` | `anderson_3d_correlated`, `anderson_sweep_averaged`, `find_w_c` (S59) |
 | Transfer matrix | Partial | SpMV exists; chain multiplication needed |
 | Level statistics | Exists in barracuda `spectral` | Wigner-Dyson vs Poisson |
 
@@ -78,8 +78,8 @@ of 2d periodic elliptic operators." Acta Math 221:59-80.
 
 | Tier | Validation | Status |
 |------|-----------|--------|
-| CPU | Python Anderson model matches Rust | Queued |
-| GPU | barracuda `spectral` matches CPU | Kernels exist (Lanczos, Anderson) |
+| CPU | Python Anderson model matches Rust | **DONE** (8/8 PASS, 29.8× faster) |
+| GPU | barracuda `spectral` matches CPU | `lyapunov_exponent`, `lyapunov_averaged` delegated; `analytical_localization_length` → `barracuda::special::anderson_transport::localization_length` |
 | metalForge | Cross-substrate for large lattice | After GPU tier |
 
 ## Cross-Spring

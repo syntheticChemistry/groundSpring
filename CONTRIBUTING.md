@@ -20,16 +20,18 @@ control/             Python Phase 0 experiments (8 experiments across 5+ domains
   rawr_resampling/   Exp 007: RAWR bootstrap
   anderson_localization/ Exp 008: Anderson localization
 crates/
-  groundspring/            Rust library (10 modules, 99.7% library line coverage)
-    src/stats.rs           RMSE, MBE, R², IA, hit rate, mean, std, percentile
+  groundspring/            Rust library (11 modules)
+    src/stats.rs           RMSE, MBE, R², IA, hit rate, Pearson/Spearman, covariance,
+                           norm_cdf/ppf, chi2_statistic, mean, std, percentile
     src/decompose.rs       Bias-variance decomposition, noise floor
     src/fao56.rs           FAO-56 Penman-Monteith equation chain
     src/prng.rs            Xorshift64 PRNG, Box-Muller normal sampling
     src/rarefaction.rs     Multinomial sampling, Shannon, evenness
     src/seismic.rs         Haversine, travel time, grid-search inversion
     src/gillespie.rs       Gillespie SSA for stochastic kinetics
-    src/bootstrap.rs       Bootstrap + RAWR confidence intervals
-    src/anderson.rs        Anderson localization, Lyapunov exponents
+    src/bootstrap.rs       Bootstrap + RAWR confidence intervals (bootstrap_mean delegated)
+    src/anderson.rs        Anderson localization, Lyapunov exponents, analytical ξ(W,E)
+    src/cast.rs            Centralized numeric casts (usize_f64, f64_usize, u64_f64)
     src/validate.rs        Struct-based ValidationHarness
   groundspring-validate/   8 validation binaries (hotSpring pattern)
 metalForge/          Write → Absorb → Lean artifacts
@@ -58,14 +60,17 @@ scripts/             Automation (baselines, benchmarks)
 ### Rust
 
 ```bash
-cargo test --workspace          # 108 unit + 1 doc test
+cargo test --workspace          # 122 unit + 1 doc test
 cargo clippy --workspace        # zero warnings required
 cargo fmt --all -- --check      # clean
 cargo llvm-cov --workspace --lib  # 99.7% library line coverage
 
 # With barracuda feature gates (requires toadstool checkout):
-cargo test --features barracuda     # CPU delegation (stats, bootstrap)
-cargo test --features barracuda-gpu # CPU + spectral (anderson)
+cargo test --features barracuda     # CPU delegation (8 of 11: stats, bootstrap)
+cargo test --features barracuda-gpu # CPU + spectral (11 of 11: + anderson lyapunov)
+
+# Three-mode benchmark (local vs barracuda-gpu)
+bash scripts/bench_barracuda_modes.sh
 
 # Validation binaries (hotSpring pattern: exit 0 = pass, exit 1 = fail)
 cargo run --bin validate-decompose

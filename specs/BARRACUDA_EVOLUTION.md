@@ -20,10 +20,22 @@ are for throughput (100k+ MC samples, batch rarefaction).
 
 ## Module Mapping
 
-> **ToadStool catch-up (S51-S62, Feb 24 2026)**: Major absorption wave.
+> **ToadStool catch-up (S51–S62 + DF64, Feb 24–25 2026)**: Major absorption wave.
 > FAO-56 ET₀ is now a GPU op (`BatchedElementwiseF64::fao56_et0_batch`).
 > Shannon entropy has a GPU convenience method. Population variance resolved.
 > 5 biological ODE systems absorbed. Spearman correlation added to CPU stats.
+> S59: `anderson_3d_correlated`, `anderson_sweep_averaged`, `find_w_c`,
+> `ridge_regression`, `ValidationHarness` absorbed.
+> S60-61: `cpu-math` feature gate (wgpu optional under `gpu` feature).
+> S62: `BandwidthTier`, `PeakDetectF64`.
+> Post-S62: DF64 core-streaming, `ComputeDispatch` builder.
+> barracuda also has `bootstrap_mean_f64.wgsl` GPU shader (65 lines).
+>
+> **Complete rewiring (Feb 25 2026)**: 4 new CPU delegations added:
+> `covariance`, `norm_cdf`, `norm_ppf`, `chi2_statistic`,
+> `analytical_localization_length`. Total: **11 active delegations**.
+> 122 unit tests + 119/119 validation checks PASS in all three modes.
+> Benchmarks confirm <2% overhead for compute-heavy binaries.
 
 ### Tier A — Lean (rewire to existing barracuda ops)
 
@@ -32,9 +44,14 @@ are for throughput (100k+ MC samples, batch rarefaction).
 | `stats::pearson_r` | `stats::pearson_correlation` | **DONE** (CPU delegated) | NaN-safe wrapper |
 | `stats::spearman_r` | `stats::correlation::spearman_correlation` | **DONE** (CPU delegated) | NaN-safe wrapper |
 | `stats::sample_std_dev` | `stats::correlation::std_dev` | **DONE** (CPU delegated) | Bessel-corrected |
+| `stats::covariance` | `stats::correlation::covariance` | **DONE** (CPU delegated) | Sample covariance |
+| `stats::norm_cdf` | `stats::norm_cdf` | **DONE** (CPU delegated) | Standard normal Φ(x) |
+| `stats::norm_ppf` | `stats::norm_ppf` | **DONE** (CPU delegated) | Inverse Φ⁻¹(p) (Acklam) |
+| `stats::chi2_statistic` | `stats::chi2_decomposed` | **DONE** (CPU delegated) | Goodness-of-fit |
 | `bootstrap::bootstrap_mean` | `stats::bootstrap_mean` | **DONE** (CPU delegated) | Result struct mapping |
-| `anderson::lyapunov_exponent` | `spectral::anderson::lyapunov_exponent` | **DONE** (barracuda-gpu) | Transfer matrix method |
-| `anderson::lyapunov_averaged` | `spectral::anderson::lyapunov_averaged` | **DONE** (barracuda-gpu) | Multi-realization average |
+| `anderson::lyapunov_exponent` | `spectral::lyapunov_exponent` | **DONE** (barracuda-gpu) | Transfer matrix method |
+| `anderson::lyapunov_averaged` | `spectral::lyapunov_averaged` | **DONE** (barracuda-gpu) | Multi-realization average |
+| `anderson::analytical_localization_length` | `special::anderson_transport::localization_length` | **DONE** (CPU delegated) | Perturbative ξ(W,E) |
 | `stats::rmse` | `ops::NormReduceF64::l2` | Pending GPU adapter | RMSE = L2(obs−mod) / √n |
 | `stats::mbe` | `ops::SumReduceF64::mean` | Pending GPU adapter | MBE = mean(mod − obs) |
 | `stats::r_squared` | `ops::VarianceReduceF64` + reduce | Pending GPU adapter | R² = 1 − SS_res/SS_tot |
@@ -51,7 +68,7 @@ are for throughput (100k+ MC samples, batch rarefaction).
 | `rarefaction::multinomial_sample` | `ops::PrngXoshiro` + binary search | No batched multinomial | Production WGSL in metalForge |
 | `gillespie::birth_death_ssa` | `ops::bio::GillespieGpu` | GPU-only (no CPU fallback) | Write CPU → GPU dispatch when adapter ready |
 | `bootstrap::rawr_mean` | New: `ops::rawr_weighted_mean_f64` | No RAWR kernel in barracuda | Embarrassingly parallel — write metalForge shader |
-| `anderson::anderson_potential` | `spectral::anderson::anderson_potential` | Requires `barracuda-gpu` feature | Align PRNG seeds |
+| `anderson::anderson_potential` | `spectral::anderson_potential` | Requires `barracuda-gpu` feature | Align PRNG seeds |
 
 ### Tier C — ~~New Kernel Required~~ → Partially Absorbed
 
@@ -70,7 +87,7 @@ are for throughput (100k+ MC samples, batch rarefaction).
 | `seismic::haversine_km` | Single scalar trig |
 | `seismic::travel_time_1d` | One sqrt + division |
 
-### New barracuda ops relevant to groundSpring (discovered S51-S62)
+### New barracuda ops relevant to groundSpring (discovered S51–S62+)
 
 | Op | Module | groundSpring Use |
 |---|---|---|
@@ -82,6 +99,12 @@ are for throughput (100k+ MC samples, batch rarefaction).
 | `spearman_correlation` | `stats::correlation` | **DONE** — groundSpring delegates |
 | `CapacitorOde`, `CooperationOde`, etc. | `numerical::ode_bio` | Waters paper-ready ODE systems |
 | `NmfResult` | `linalg::nmf` | NMF for R. Anderson metagenomics |
+| `anderson_3d_correlated` | `spectral` | S59 — correlated disorder (Méndez-Bermúdez) |
+| `anderson_sweep_averaged` | `spectral` | S59 — disorder sweep ⟨r⟩(W) with stderr |
+| `find_w_c` | `spectral` | S59 — critical disorder interpolation |
+| `ridge_regression` | `linalg` | S59 — Tikhonov regression from ESN readout |
+| `PeakDetectF64` | `ops` | S62 — GPU local-maxima with prominence |
+| `BandwidthTier` | `dispatch` | S62 — PCIe/NvLink bandwidth-aware routing |
 
 ## Feature Gate
 
@@ -178,6 +201,25 @@ provides both:
 The `stats::pearson_r` function is already wired to
 `barracuda::stats::pearson_correlation` under `#[cfg(feature = "barracuda")]`.
 
+## Local vs BarraCUDA CPU Delegation Performance
+
+Three-trial best-of benchmark (release mode, Feb 25 2026):
+
+| Binary | Local (ms) | Barracuda-GPU (ms) | Overhead |
+|--------|-----------|-------------------|----------|
+| validate-decompose | 60 | 82 | +37% (startup) |
+| validate-rarefaction | 80 | 101 | +26% (startup) |
+| validate-seismic | 111 | 136 | +23% (startup) |
+| validate-weather | 56 | 82 | +46% (startup) |
+| validate-fao56 | 72 | 96 | +33% (startup) |
+| validate-signal-specificity | 861 | 870 | **+1%** |
+| validate-rawr | 613 | 626 | **+2%** |
+| validate-anderson | 720 | 728 | **+1%** |
+| **TOTAL** | **2573** | **2721** | **+6%** |
+
+Overhead in short binaries (<200ms) is barracuda link/init cost.
+For compute-heavy binaries (>500ms), delegation adds <2% overhead.
+
 ## Rust vs Python Performance (Phase 1c)
 
 Pure Rust CPU math vs interpreted Python (NumPy/SciPy), median of 3 trials:
@@ -202,7 +244,7 @@ that Python cannot vectorize.
 | Phase 1a | Rust CPU validation | **Done** (119/119 PASS across 8 binaries) |
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-008) | **Done** (31 new checks, 18 unit tests, 24× faster than Python) |
-| Phase 2a | Tier A rewire (stats + bootstrap + anderson → barracuda) | **6 delegated** (3 stats + bootstrap_mean + 2 anderson); 6 GPU pending adapter |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson → barracuda) | **11 delegated** (7 stats + bootstrap_mean + 2 anderson + analytical ξ); 6 GPU pending adapter |
 | Phase 2b | Tier B adapt (PRNG alignment, grid dispatch, gillespie GPU) | After 2a |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |

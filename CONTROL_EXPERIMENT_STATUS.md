@@ -179,6 +179,79 @@ Ports Exp 008 transfer-matrix Lyapunov to pure safe Rust.  Verifies:
 
 ## Run Log
 
+### Run 6 — February 25, 2026 (Complete rewiring + benchmarks)
+
+```
+Phase 1 (Rust) — local mode:
+  8/8 binaries, 119/119 PASS
+
+Phase 1 (Rust) — barracuda-gpu mode (11 delegated):
+  8/8 binaries, 119/119 PASS
+
+New delegations wired (5 new):
+  stats::covariance          → barracuda::stats::correlation::covariance
+  stats::norm_cdf            → barracuda::stats::norm_cdf
+  stats::norm_ppf            → barracuda::stats::norm_ppf
+  stats::chi2_statistic      → barracuda::stats::chi2_decomposed
+  anderson::analytical_ξ     → barracuda::special::anderson_transport::localization_length
+
+Unit tests: 122/122 PASS (+ 1 doc test)
+Clippy: 0 warnings (pedantic + nursery)
+
+Benchmarks (best-of-3, release mode):
+  Local total:          2573 ms
+  Barracuda-GPU total:  2721 ms (+6%)
+  Compute-heavy delta:  <2% overhead (signal-specificity, RAWR, anderson)
+```
+
+### Run 5 — February 25, 2026 (ToadStool catch-up revalidation)
+
+```
+Phase 1 (Rust) — local mode:
+  8/8 binaries, 119/119 PASS
+
+Phase 1 (Rust) — barracuda-gpu mode:
+  8/8 binaries, 119/119 PASS (11 delegated functions, all correct)
+
+ToadStool baseline: S62 + DF64 expansion (Feb 24-25, 2026)
+  S59: anderson_3d_correlated, sweep_averaged, find_w_c, ridge_regression
+  S60-61: cpu-math feature gate, SpMM, TransE
+  S62: BandwidthTier, PeakDetectF64
+  Post-S62: DF64 core-streaming, ComputeDispatch builder
+
+Verified:
+  cargo test --features barracuda-gpu     108/108 PASS (+ 1 doc test)
+  cargo clippy --features barracuda-gpu   0 warnings (pedantic + nursery)
+  barracuda has bootstrap_mean_f64.wgsl   GPU path available
+```
+
+### Run 4 — February 25, 2026 (Code audit & deep debt resolution)
+
+```
+Phase 1 (Rust):
+  validate-decompose                 36/36 PASS
+  validate-rarefaction               15/15 PASS
+  validate-seismic                    9/9  PASS
+  validate-weather                   13/13 PASS
+  validate-fao56                     15/15 PASS
+  validate-signal-specificity        12/12 PASS
+  validate-rawr                      11/11 PASS
+  validate-anderson                   8/8  PASS
+
+Fixes:
+  barracuda::spectral::anderson::*  → barracuda::spectral::* (E0603 fix)
+  cargo fmt                          6 files reformatted
+  cargo clippy (pedantic + nursery)  0 warnings (was 3: too_many_lines × 3)
+  bootstrap sort                     partial_cmp().unwrap_or() → f64::total_cmp
+  validate_rawr generate_normal      duplicate Box-Muller → library Xorshift64::normal()
+  bootstrap percentile_ci            extracted shared helper (DRY)
+  validate_anderson main()           extracted disorder_sweep() + thouless_and_localization()
+  validate_fao56 main()              extracted validate_monte_carlo() + validate_sensitivity()
+  validate_seismic main()            extracted validate_forward_model() + validate_inversion()
+  control/common.py                  added provenance_metadata() + write_benchmark()
+  phantom bootstrap_mean_f64.wgsl    removed from README + whitePaper
+```
+
 ### Run 3 — February 25, 2026 (Paper queue experiment buildout)
 
 ```
@@ -258,7 +331,7 @@ Each experiment is validated at three hardware tiers:
 | 5 | Seismic inversion | **9/9 PASS** | Pending | — | Grid search dispatch kernel |
 | 6 | Signal specificity | **12/12 PASS** | Pending | — | `GillespieGpu` (exists) |
 | 7 | RAWR resampling | **11/11 PASS** | Pending | — | Embarrassingly parallel |
-| 8 | Anderson localization | **8/8 PASS** | Pending | — | `spectral::anderson` (exists) |
+| 8 | Anderson localization | **8/8 PASS** | Pending | — | `spectral::*` (lyapunov re-exported) |
 
 **CPU tier**: 119/119 PASS (complete)
 **GPU tier**: 0/119 (pending ToadStool absorption of Tier A ops and Tier C kernels)
@@ -317,8 +390,8 @@ Each experiment is validated at three hardware tiers:
 | Module | BarraCUDA Target | Status |
 |--------|-----------------|--------|
 | `bootstrap::bootstrap_mean` | `stats::bootstrap_mean` | **DONE** — `#[cfg(feature = "barracuda")]` |
-| `anderson::lyapunov_exponent` | `spectral::anderson::lyapunov_exponent` | **DONE** — `#[cfg(feature = "barracuda-gpu")]` |
-| `anderson::lyapunov_averaged` | `spectral::anderson::lyapunov_averaged` | **DONE** — `#[cfg(feature = "barracuda-gpu")]` |
+| `anderson::lyapunov_exponent` | `spectral::lyapunov_exponent` | **DONE** — `#[cfg(feature = "barracuda-gpu")]` |
+| `anderson::lyapunov_averaged` | `spectral::lyapunov_averaged` | **DONE** — `#[cfg(feature = "barracuda-gpu")]` |
 | `gillespie::birth_death_ssa` | `ops::bio::GillespieGpu` | Pending — GPU-only, no CPU fallback |
 | `bootstrap::rawr_mean` | New kernel needed | Pending — no RAWR in barracuda |
 
@@ -338,7 +411,9 @@ Each experiment is validated at three hardware tiers:
 | V1: Initial Barracuda Evolution | `wateringHole/handoffs/archive/GROUNDSPRING_TOADSTOOL_V1_FEB25_2026.md` | Archived |
 | V2: Comprehensive Absorption | `wateringHole/handoffs/archive/GROUNDSPRING_TOADSTOOL_V2_FEB25_2026.md` | Archived |
 | V3: ToadStool Catch-Up | `wateringHole/handoffs/archive/GROUNDSPRING_TOADSTOOL_V3_FEB25_2026.md` | Archived |
-| V4: Phase 2a + Benchmarks | `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V4_FEB25_2026.md` | **Current** |
+| V4: Phase 2a + Benchmarks | `wateringHole/handoffs/archive/GROUNDSPRING_TOADSTOOL_V4_FEB25_2026.md` | Archived |
+| V5: Code Audit + Catch-Up | `wateringHole/handoffs/archive/GROUNDSPRING_TOADSTOOL_V5_FEB25_2026.md` | Archived |
+| V6: Complete Rewiring + Evolution | `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V6_EVOLUTION_FEB25_2026.md` | **Current** |
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.
 See `specs/PAPER_REVIEW_QUEUE.md` for per-paper three-tier control plan.

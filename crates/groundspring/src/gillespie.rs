@@ -42,7 +42,10 @@ pub fn birth_death_ssa(
     t_max: f64,
     seed: u64,
 ) -> Trajectory {
-    assert!(!synthesis_rates.is_empty(), "need at least one synthesis rate");
+    assert!(
+        !synthesis_rates.is_empty(),
+        "need at least one synthesis rate"
+    );
 
     let total_syn: f64 = synthesis_rates.iter().sum();
     let mut rng = Xorshift64::new(seed);
@@ -51,7 +54,10 @@ pub fn birth_death_ssa(
     let mut times = vec![0.0];
     let mut states = vec![s];
 
-    #[expect(clippy::while_float, reason = "SSA termination by continuous time is intentional")]
+    #[expect(
+        clippy::while_float,
+        reason = "SSA termination by continuous time is intentional"
+    )]
     while t < t_max {
         let deg = total_deg_rate * crate::cast::u64_f64(s);
         let total_rate = total_syn + deg;
@@ -93,11 +99,7 @@ pub fn steady_state_mean(total_synthesis: f64, total_degradation_rate: f64) -> f
 #[must_use]
 pub fn time_averaged_mean(traj: &Trajectory, t_start: f64) -> f64 {
     let n = traj.times.len();
-    let start_idx = traj
-        .times
-        .iter()
-        .position(|&t| t >= t_start)
-        .unwrap_or(n);
+    let start_idx = traj.times.iter().position(|&t| t >= t_start).unwrap_or(n);
 
     if start_idx >= n {
         return 0.0;
@@ -128,11 +130,7 @@ pub fn time_averaged_mean(traj: &Trajectory, t_start: f64) -> f64 {
 #[must_use]
 pub fn time_averaged_variance(traj: &Trajectory, t_start: f64, mean: f64) -> f64 {
     let n = traj.times.len();
-    let start_idx = traj
-        .times
-        .iter()
-        .position(|&t| t >= t_start)
-        .unwrap_or(n);
+    let start_idx = traj.times.iter().position(|&t| t >= t_start).unwrap_or(n);
 
     if start_idx >= n {
         return 0.0;

@@ -173,7 +173,10 @@ datasets, no proprietary software dependencies.
 | 21 | R. Anderson FEMS | NCBI SRA 16S amplicons | SRA accession | **Yes** |
 | 22-24 | Cross-spring sub-thesis 06 | Derived from Exp 001-004 | Internal | **Yes** |
 
-**Status**: All 24 papers use open data or open systems. Zero proprietary dependencies.
+| 22-24 | Sub-thesis 06 (cross-spring) | Derived from Exp 001-004 | Internal | **Yes** |
+| 25-27 | Sub-thesis 07 (WDM GPU) | Simulation + analytical | Reproducible | **Yes** |
+
+**Status**: All 27 papers use open data or open systems. Zero proprietary dependencies.
 
 ---
 
@@ -199,10 +202,10 @@ Write → Absorb → Lean cycle:
 | 5 | Seismic source inversion | **9/9** | Tier B (grid dispatch) | After GPU | — |
 | 9 | Enzymatic signal specificity | **12/12** | `GillespieGpu` (ready) | After GPU | GPU-only (no CPU) |
 | 12 | RAWR resampling | **11/11** | Embarrassingly parallel | After GPU | `bootstrap_mean` (CPU) |
-| 15 | Anderson localization | **8/8** | `spectral::anderson` (ready) | After GPU | 2 lyapunov (barracuda-gpu) |
+| 15 | Anderson localization | **8/8** | `spectral::*` (ready) | After GPU | 2 lyapunov (barracuda-gpu) |
 
 **CPU tier**: 119/119 PASS across 8 validation binaries.
-**Barracuda CPU**: 6 functions delegated. **Performance**: 24× faster than Python.
+**Barracuda CPU**: 11 functions delegated. **Performance**: 24× faster than Python.
 **GPU tier**: pending barracuda adapter (Tier A) or new kernels (Tier B/C).
 **metalForge tier**: after GPU.
 
@@ -272,6 +275,44 @@ Papers 9, 10, 12, 14, 15, 16 — can proceed to GPU tier once CPU tier completes
 
 ---
 
+## Hardware Evolution: CPU → GPU → metalForge
+
+### Tier 1: BarraCUDA CPU (current — 119/119 PASS)
+
+Pure safe Rust with optional `barracuda` feature gate delegation.
+11 functions delegated to barracuda CPU ops. 24× faster than Python.
+All 8 experiments validated.
+
+### Tier 2: BarraCUDA GPU (next)
+
+GPU adapter wiring for existing barracuda ops + Tier C shader absorption.
+
+| Category | Papers | Barracuda Op | Action |
+|----------|--------|-------------|--------|
+| Tier A adapt | 1-5 | `FusedMapReduceF64`, `NormReduceF64` | Wire `gpu` feature + adapter |
+| Tier B align | 5, all | `PrngXoshiro`, grid dispatch | Regenerate baselines with xoshiro |
+| Tier C absorb | 4, 20-21 | `batched_multinomial` (new) | ToadStool absorbs metalForge WGSL |
+| Tier C absorb | 12-13 | `rawr_weighted_mean` (new) | ToadStool writes from groundSpring spec |
+| GPU-ready | 9, 15 | `GillespieGpu`, `spectral::*` | Dispatch wiring only |
+
+### Tier 3: metalForge Cross-Substrate (future)
+
+Mixed hardware dispatch using metalForge forge crate. Each experiment
+validated across CPU, GPU, and potentially NPU substrates.
+
+| Validation | Description |
+|-----------|-------------|
+| CPU ↔ GPU parity | GPU output matches CPU within documented tolerance |
+| Cross-vendor parity | RTX 4070 vs other GPUs produce identical physics |
+| Mixed dispatch | metalForge routes to best substrate per operation |
+| f32 ↔ f64 drift | Sub-thesis 07: quantify precision loss on consumer GPU |
+
+metalForge tier depends on GPU tier completing first. groundSpring's
+metalForge focus is statistical kernels; hardware discovery and substrate
+dispatch use hotSpring's shared metalForge infrastructure.
+
+---
+
 ## Notes
 
 - Papers 6-8 (Bazavov) connect groundSpring to hotSpring via inverse problem methodology
@@ -281,4 +322,4 @@ Papers 9, 10, 12, 14, 15, 16 — can proceed to GPU tier once CPU tier completes
 - Papers 15-18 (Kachkovskiy) are the mathematical foundation — all use barracuda `spectral`
 - Papers 20-21 (R. Anderson) share barracuda bio ops with wetSpring
 - The common thread: **extracting reliable conclusions from noisy measurements**
-- **All 24 papers use open data and open systems. Zero proprietary dependencies.**
+- **All 27 papers use open data and open systems. Zero proprietary dependencies.**

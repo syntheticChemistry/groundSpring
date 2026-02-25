@@ -22,7 +22,6 @@ fn f64_field(v: &Value, key: &str) -> f64 {
         .unwrap_or_else(|| panic!("missing f64 field: {key}"))
 }
 
-#[allow(clippy::too_many_lines)]
 fn main() {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Seismic Inversion");
@@ -94,7 +93,34 @@ fn main() {
     let t2 = travel_time_1d(200.0, 10.0, vp);
     h.check_true("Travel time increases with distance", t2 > t1);
 
-    // ── Forward model ───────────────────────────────────────────────
+    let observed = validate_forward_model(&mut h, &stations, true_lat, true_lon, true_depth, vp);
+    validate_inversion(
+        &mut h,
+        &observed,
+        &stations,
+        grid,
+        vp,
+        true_lat,
+        true_lon,
+        true_depth,
+        max_loc_error,
+        max_depth_error,
+        max_rms,
+    );
+
+    let exit_code = h.summary();
+    std::process::exit(exit_code);
+}
+
+/// Forward-model checks: travel times are positive and monotonic.
+fn validate_forward_model(
+    h: &mut ValidationHarness,
+    stations: &[Station],
+    true_lat: f64,
+    true_lon: f64,
+    true_depth: f64,
+    vp: f64,
+) -> Vec<(String, f64)> {
     println!("\n--- Forward Model ---");
 
     let observed: Vec<(String, f64)> = stations
@@ -122,7 +148,24 @@ fn main() {
         by_dist.windows(2).all(|w| w[0].1 <= w[1].1),
     );
 
-    // ── Grid-search inversion ───────────────────────────────────────
+    observed
+}
+
+/// Grid-search inversion and error checks.
+#[expect(clippy::too_many_arguments)]
+fn validate_inversion(
+    h: &mut ValidationHarness,
+    observed: &[(String, f64)],
+    stations: &[Station],
+    grid: &Value,
+    vp: f64,
+    true_lat: f64,
+    true_lon: f64,
+    true_depth: f64,
+    max_loc_error: f64,
+    max_depth_error: f64,
+    max_rms: f64,
+) {
     println!("\n--- Grid-Search Inversion (no noise) ---");
 
     let lat_range = grid["lat_range"].as_array().expect("lat_range");
@@ -146,7 +189,7 @@ fn main() {
         depth_spacing_km: f64_field(grid, "depth_spacing_km"),
         vp,
     };
-    let result = grid_search_inversion(&observed, &stations, &config);
+    let result = grid_search_inversion(observed, stations, &config);
 
     let loc_error = haversine_km(result.lat, result.lon, true_lat, true_lon);
     let depth_error = (result.depth_km - true_depth).abs();
@@ -162,7 +205,4 @@ fn main() {
     h.check_max("Location error (km)", loc_error, max_loc_error);
     h.check_max("Depth error (km)", depth_error, max_depth_error);
     h.check_max("RMS residual (s)", result.rms_residual_s, max_rms);
-
-    let exit_code = h.summary();
-    std::process::exit(exit_code);
 }

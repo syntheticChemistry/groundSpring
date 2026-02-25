@@ -2,7 +2,7 @@
 
 **Faculty**: Kevin Liu (CMSE, Michigan State University)
 **Domain**: Phylogenetics, statistical resampling, bioinformatics algorithms
-**groundSpring Connection**: Exp 003 (Monte Carlo error propagation) upgrade to modern resampling
+**groundSpring Connection**: Exp 007 (RAWR bootstrap) — DONE. Exp 003 (Monte Carlo error propagation) upgrade to modern resampling.
 
 ---
 
@@ -27,7 +27,7 @@ DOI: 10.1093/bioinformatics/btab263
   test datasets available from TreeBASE and Dryad
 - **Open Code**: RAWR implementation available as open-source (C++ / Python)
 - **groundSpring Modules**: `stats` (percentile, bootstrap extension),
-  `prng` (weighted sampling), new `rawr` module
+  `prng` (weighted sampling), `bootstrap` module (RAWR in `bootstrap.rs`)
 - **BarraCUDA Needs**: Parallel resampling (embarrassingly parallel — good GPU target),
   weighted sampling kernel
 - **Control Plan**: Python RAWR baseline → Rust CPU → barracuda GPU
@@ -45,7 +45,7 @@ Statistical Resampling Assessments." IEEE BIBM 2024.
 
 | Primitive | Status | Notes |
 |-----------|--------|-------|
-| Bootstrap resampling | `stats::bootstrap_*` (CPU) | Extend to RAWR weighted |
+| Bootstrap resampling | `bootstrap_mean` delegated | RAWR in `bootstrap.rs`; `rawr_mean` no kernel yet |
 | Parallel weighted draws | PRNG + rejection sampling | GPU embarrassingly parallel |
 | Percentile computation | CPU in groundSpring | GPU reduce for large samples |
 | Tree topology scoring | Partial (via wetSpring) | For phylogenetic application |
@@ -54,8 +54,8 @@ Statistical Resampling Assessments." IEEE BIBM 2024.
 
 | Tier | Validation | Status |
 |------|-----------|--------|
-| CPU | Python RAWR matches Rust RAWR | Queued |
-| GPU | barracuda parallel RAWR matches CPU | After CPU tier |
+| CPU | Python RAWR matches Rust RAWR | **DONE** (11/11 PASS, 7.3× faster) |
+| GPU | barracuda parallel RAWR matches CPU | `bootstrap_mean` delegated; `rawr_mean` no kernel yet |
 | metalForge | Cross-substrate for large-N resampling | After GPU tier |
 
 ## Cross-Spring

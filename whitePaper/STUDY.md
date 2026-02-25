@@ -214,7 +214,7 @@ All eight experiments have been ported to idiomatic Rust in the `groundspring` c
   `rawr_mean` is local (no barracuda RAWR kernel yet).
 
 - **`anderson`** — Anderson localization via transfer-matrix method. `lyapunov_exponent`
-  and `lyapunov_averaged` delegate to `barracuda::spectral::anderson` under
+  and `lyapunov_averaged` delegate to `barracuda::spectral` under
   `#[cfg(feature = "barracuda-gpu")]`. `anderson_potential` and `localization_length`
   stay local.
 
@@ -273,7 +273,7 @@ and the full module-by-module absorption inventory.
 ## 12. Evolution Path
 
 - **Phase 0+**: Wire real NOAA CDO data for Exp 002; download IRIS waveforms for Exp 005
-- **Phase 2a (DONE)**: Tier A rewire — **6 functions delegated** (3 stats + `bootstrap_mean` + 2 anderson); 6 GPU ops pending adapter. FAO-56 ET₀ absorbed upstream (ToadStool S49). Rust is **24× faster** than Python.
+- **Phase 2a (DONE)**: Tier A rewire — **11 functions delegated** (stats, bootstrap, anderson, etc.); 6 GPU ops pending adapter. FAO-56 ET₀ absorbed upstream (ToadStool S49). Rust is **24× faster** than Python.
 - **Phase 2b**: Tier B adapt — PRNG alignment, grid-search dispatch, Gillespie GPU
 - **Phase 2c**: Tier C absorption — MC and multinomial kernels → barracuda; RAWR kernel
 - **Phase 3**: Full GPU pipeline, metalForge cross-substrate validation
@@ -295,4 +295,4 @@ These extensions share the common theme: **how do you extract reliable conclusio
 
 *Phase 0 completed: February 25, 2026 — 102/102 PASS (Python, 8 experiments)*
 *Phase 1 completed: February 25, 2026 — 119/119 PASS (Rust, 99.7% coverage)*
-*Phase 2a completed: February 25, 2026 — 6 barracuda CPU delegated, 24× faster than Python*
+*Phase 2a completed: February 25, 2026 — 11 barracuda CPU delegated, 24× faster than Python*

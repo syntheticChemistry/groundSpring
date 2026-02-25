@@ -24,23 +24,7 @@ fn f64_field(v: &Value, key: &str) -> f64 {
 
 fn generate_normal(n: usize, mu: f64, sigma: f64, seed: u64) -> Vec<f64> {
     let mut rng = Xorshift64::new(seed);
-    let mut data = Vec::with_capacity(n);
-    for _ in 0..n / 2 {
-        let u1 = rng.next_f64().max(f64::MIN_POSITIVE);
-        let u2 = rng.next_f64();
-        let r = (-2.0 * u1.ln()).sqrt();
-        let theta = 2.0 * std::f64::consts::PI * u2;
-        data.push((sigma * r).mul_add(theta.cos(), mu));
-        data.push((sigma * r).mul_add(theta.sin(), mu));
-    }
-    if n % 2 == 1 {
-        let u1 = rng.next_f64().max(f64::MIN_POSITIVE);
-        let u2 = rng.next_f64();
-        let r = (-2.0 * u1.ln()).sqrt();
-        let theta = 2.0 * std::f64::consts::PI * u2;
-        data.push((sigma * r).mul_add(theta.cos(), mu));
-    }
-    data
+    (0..n).map(|_| rng.normal(mu, sigma)).collect()
 }
 
 fn generate_lognormal(n: usize, mu_ln: f64, sigma_ln: f64, seed: u64) -> Vec<f64> {
@@ -73,7 +57,12 @@ fn coverage_test(
     let mut covers = 0usize;
     for trial in 0..n_trials {
         let data = data_gen(base_seed + trial as u64);
-        let result = method(&data, n_bootstrap, confidence, base_seed + 100_000 + trial as u64);
+        let result = method(
+            &data,
+            n_bootstrap,
+            confidence,
+            base_seed + 100_000 + trial as u64,
+        );
         if result.ci_lower <= true_param && true_param <= result.ci_upper {
             covers += 1;
         }
@@ -85,7 +74,7 @@ fn coverage_test(
     clippy::cast_precision_loss,
     clippy::cast_possible_truncation,
     clippy::float_cmp,
-    clippy::too_many_lines,
+    clippy::too_many_lines
 )]
 fn main() {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
@@ -114,12 +103,16 @@ fn main() {
 
     println!(
         "  Bootstrap: {:.3} [{:.3}, {:.3}] w={:.3}",
-        boot_r.estimate, boot_r.ci_lower, boot_r.ci_upper,
+        boot_r.estimate,
+        boot_r.ci_lower,
+        boot_r.ci_upper,
         boot_r.ci_upper - boot_r.ci_lower
     );
     println!(
         "  RAWR:      {:.3} [{:.3}, {:.3}] w={:.3}",
-        rawr_r.estimate, rawr_r.ci_lower, rawr_r.ci_upper,
+        rawr_r.estimate,
+        rawr_r.ci_lower,
+        rawr_r.ci_upper,
         rawr_r.ci_upper - rawr_r.ci_lower
     );
 
@@ -143,15 +136,27 @@ fn main() {
     );
 
     let n_cov_trials = 200;
-    let cov_range = exp["gaussian_coverage_range"].as_array().expect("cov range");
+    let cov_range = exp["gaussian_coverage_range"]
+        .as_array()
+        .expect("cov range");
 
     let boot_cov = coverage_test(
         |s| generate_normal(n, mu, sigma, s),
-        mu, bootstrap_mean, n_cov_trials, n_boot, conf, seed + 5000,
+        mu,
+        bootstrap_mean,
+        n_cov_trials,
+        n_boot,
+        conf,
+        seed + 5000,
     );
     let rawr_cov = coverage_test(
         |s| generate_normal(n, mu, sigma, s),
-        mu, rawr_mean, n_cov_trials, n_boot, conf, seed + 6000,
+        mu,
+        rawr_mean,
+        n_cov_trials,
+        n_boot,
+        conf,
+        seed + 6000,
     );
 
     println!("  Bootstrap coverage: {boot_cov:.3}");
@@ -186,11 +191,21 @@ fn main() {
 
     let boot_cov_s = coverage_test(
         |s| generate_lognormal(n_s, mu_ln, sigma_ln, s),
-        true_mean_s, bootstrap_mean, n_cov_trials, n_boot_s, conf_s, seed_s + 5000,
+        true_mean_s,
+        bootstrap_mean,
+        n_cov_trials,
+        n_boot_s,
+        conf_s,
+        seed_s + 5000,
     );
     let rawr_cov_s = coverage_test(
         |s| generate_lognormal(n_s, mu_ln, sigma_ln, s),
-        true_mean_s, rawr_mean, n_cov_trials, n_boot_s, conf_s, seed_s + 6000,
+        true_mean_s,
+        rawr_mean,
+        n_cov_trials,
+        n_boot_s,
+        conf_s,
+        seed_s + 6000,
     );
 
     println!("  True mean: {true_mean_s:.4}");

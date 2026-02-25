@@ -39,8 +39,13 @@ disordered media exponentially attenuate coherent signals.
 ## Barracuda Path
 
 `lyapunov_exponent` and `lyapunov_averaged` **delegated** to
-`barracuda::spectral::anderson` (requires `barracuda-gpu` feature).
+`barracuda::spectral::lyapunov_*` (requires `barracuda-gpu` feature;
+`anderson` submodule is private, items re-exported at `spectral` level).
+`analytical_localization_length` **delegated** to
+`barracuda::special::anderson_transport::localization_length` (CPU, perturbative ξ(W,E)).
 `BatchIprGpu` available for GPU spectral statistics.
+S59 additions: `anderson_3d_correlated`, `anderson_sweep_averaged`, `find_w_c`
+available for future Kachkovskiy extension experiments.
 
 ## Modules
 

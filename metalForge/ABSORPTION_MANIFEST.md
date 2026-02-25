@@ -26,11 +26,11 @@
 | `rarefaction::multinomial_sample` | **Write** — WGSL production shader ready | C | new `ops::batched_multinomial_f64` |
 | `fao56::daily_et0` | **Absorbed** — equation chain in barracuda | — | `barracuda::ops::BatchedElementwiseF64::fao56_et0_batch` |
 | `fao56::daily_et0` (MC wrapper) | **Write** — WGSL production shader ready | C | new `ops::mc_et0_propagate_f64` |
-| `bootstrap::bootstrap_mean` | **Lean** — CPU delegated | A | `barracuda::stats::bootstrap_mean` |
+| `bootstrap::bootstrap_mean` | **Lean** — CPU delegated (GPU shader exists) | A | `barracuda::stats::bootstrap_mean` + `bootstrap_mean_f64.wgsl` |
 | `bootstrap::rawr_mean` | **Write** — no barracuda RAWR yet | C | new `ops::rawr_weighted_mean_f64` |
-| `anderson::lyapunov_exponent` | **Lean** — GPU delegated | A | `barracuda::spectral::anderson::lyapunov_exponent` (requires `barracuda-gpu`) |
-| `anderson::lyapunov_averaged` | **Lean** — GPU delegated | A | `barracuda::spectral::anderson::lyapunov_averaged` (requires `barracuda-gpu`) |
-| `anderson::anderson_potential` | **Write** — local (matches barracuda when `barracuda-gpu` enabled) | B | `barracuda::spectral::anderson::anderson_potential` |
+| `anderson::lyapunov_exponent` | **Lean** — GPU delegated | A | `barracuda::spectral::lyapunov_exponent` (requires `barracuda-gpu`) |
+| `anderson::lyapunov_averaged` | **Lean** — GPU delegated | A | `barracuda::spectral::lyapunov_averaged` (requires `barracuda-gpu`) |
+| `anderson::anderson_potential` | **Write** — local (matches barracuda when `barracuda-gpu` enabled) | B | `barracuda::spectral::anderson_potential` |
 | `gillespie::birth_death_ssa` | **Write** — local CPU impl | B | `barracuda::ops::bio::GillespieGpu` (GPU-only, no CPU fallback) |
 | `decompose::*` | **Stays local** — scalar math, no GPU benefit | — | N/A |
 | `validate::*` | **Stays local** — harness, not compute | — | N/A |
@@ -50,7 +50,7 @@ Both shaders use xoshiro128** matching `barracuda::ops::prng_xoshiro_wgsl`.
 
 ---
 
-## Tier A — Lean (6 delegated, 6 GPU pending adapter)
+## Tier A — Lean (11 delegated, 6 GPU pending adapter)
 
 ### Already delegated
 
@@ -60,8 +60,8 @@ Both shaders use xoshiro128** matching `barracuda::ops::prng_xoshiro_wgsl`.
 | `spearman_r` | `stats::correlation::spearman_correlation` | `#[cfg(feature = "barracuda")]` NaN-safe |
 | `sample_std_dev` | `stats::correlation::std_dev` | `#[cfg(feature = "barracuda")]` |
 | `bootstrap_mean` | `stats::bootstrap_mean` | `#[cfg(feature = "barracuda")]` Result mapping |
-| `lyapunov_exponent` | `spectral::anderson::lyapunov_exponent` | `#[cfg(feature = "barracuda-gpu")]` |
-| `lyapunov_averaged` | `spectral::anderson::lyapunov_averaged` | `#[cfg(feature = "barracuda-gpu")]` |
+| `lyapunov_exponent` | `spectral::lyapunov_exponent` | `#[cfg(feature = "barracuda-gpu")]` |
+| `lyapunov_averaged` | `spectral::lyapunov_averaged` | `#[cfg(feature = "barracuda-gpu")]` |
 
 ### Pending GPU adapter
 

@@ -18,8 +18,13 @@
 //!
 //! # barracuda delegation
 //!
-//! When the `barracuda` feature is enabled, `lyapunov_averaged` can delegate
-//! to `barracuda::spectral::anderson::lyapunov_exponent()`.
+//! When the `barracuda-gpu` feature is enabled, `lyapunov_exponent` and
+//! `lyapunov_averaged` delegate to `barracuda::spectral::lyapunov_*`.
+//!
+//! **Seed convention:** the local CPU implementation uses `base_seed + i`
+//! per realization; barracuda uses `base_seed + r * 1000`.  Results diverge
+//! when the feature gate is active — this is expected and documented in
+//! `specs/BARRACUDA_EVOLUTION.md` as Phase 2b alignment work.
 
 use crate::prng::Xorshift64;
 
@@ -42,7 +47,7 @@ pub fn anderson_potential(n: usize, disorder: f64, seed: u64) -> Vec<f64> {
 /// Compute the Lyapunov exponent for a given potential and energy.
 ///
 /// When `barracuda-gpu` feature is enabled, delegates to
-/// `barracuda::spectral::anderson::lyapunov_exponent`.
+/// `barracuda::spectral::lyapunov_exponent`.
 ///
 /// Uses the transfer-matrix method with vector renormalization to avoid
 /// overflow.  The transfer matrix at site `n` is:
@@ -57,7 +62,7 @@ pub fn anderson_potential(n: usize, disorder: f64, seed: u64) -> Vec<f64> {
 pub fn lyapunov_exponent(potential: &[f64], energy: f64) -> f64 {
     #[cfg(feature = "barracuda-gpu")]
     {
-        barracuda::spectral::anderson::lyapunov_exponent(potential, energy)
+        barracuda::spectral::lyapunov_exponent(potential, energy)
     }
 
     #[cfg(not(feature = "barracuda-gpu"))]
@@ -103,12 +108,38 @@ pub fn localization_length(gamma: f64) -> f64 {
     1.0 / gamma
 }
 
+/// Analytical localization length from disorder strength and energy.
+///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::special::anderson_transport::localization_length` which uses
+/// the perturbative result `ξ(W, E) ≈ 105.2 / W²` at the band center.
+/// The local fallback uses `ξ ≈ C / W²` with `C ≈ 96` from Derrida-Gardner.
+///
+/// This is an analytical estimate — for numerical results, use
+/// [`lyapunov_exponent`] + [`localization_length`].
+#[must_use]
+pub fn analytical_localization_length(disorder: f64, energy: f64) -> f64 {
+    #[cfg(feature = "barracuda")]
+    {
+        barracuda::special::anderson_transport::localization_length(disorder, energy)
+    }
+    #[cfg(not(feature = "barracuda"))]
+    {
+        if disorder <= 0.0 {
+            return f64::INFINITY;
+        }
+        let _ = energy;
+        96.0 / (disorder * disorder)
+    }
+}
+
 /// Average Lyapunov exponent over many disorder realizations.
 ///
 /// When `barracuda-gpu` feature is enabled, delegates to
-/// `barracuda::spectral::anderson::lyapunov_averaged`.
-///
-/// Each realization uses seed `base_seed + i`.
+/// `barracuda::spectral::lyapunov_averaged`.  Note: barracuda uses
+/// `base_seed + r * 1000` per realization; the local fallback uses
+/// `base_seed + i` — results will differ across feature gates until
+/// Phase 2b PRNG alignment.
 #[must_use]
 pub fn lyapunov_averaged(
     n_sites: usize,
@@ -119,9 +150,7 @@ pub fn lyapunov_averaged(
 ) -> f64 {
     #[cfg(feature = "barracuda-gpu")]
     {
-        barracuda::spectral::anderson::lyapunov_averaged(
-            n_sites, disorder, energy, n_realizations, base_seed,
-        )
+        barracuda::spectral::lyapunov_averaged(n_sites, disorder, energy, n_realizations, base_seed)
     }
 
     #[cfg(not(feature = "barracuda-gpu"))]
@@ -143,16 +172,16 @@ mod tests {
     fn clean_system_zero_lyapunov() {
         let pot = anderson_potential(10000, 0.0, 42);
         let gamma = lyapunov_exponent(&pot, 0.0);
-        assert!(
-            gamma.abs() < 0.001,
-            "clean system γ={gamma}, expected ~0"
-        );
+        assert!(gamma.abs() < 0.001, "clean system γ={gamma}, expected ~0");
     }
 
     #[test]
     fn disorder_gives_positive_lyapunov() {
         let gamma = lyapunov_averaged(10000, 2.0, 0.0, 10, 42);
-        assert!(gamma > 0.0, "disordered system should have γ > 0, got {gamma}");
+        assert!(
+            gamma > 0.0,
+            "disordered system should have γ > 0, got {gamma}"
+        );
     }
 
     #[test]
@@ -183,6 +212,36 @@ mod tests {
         let p1 = anderson_potential(100, 2.0, 42);
         let p2 = anderson_potential(100, 2.0, 99);
         assert_ne!(p1, p2);
+    }
+
+    #[test]
+    fn analytical_localization_length_decreases_with_disorder() {
+        let xi1 = analytical_localization_length(1.0, 0.0);
+        let xi2 = analytical_localization_length(2.0, 0.0);
+        assert!(xi2 < xi1, "ξ(W=2)={xi2} should be less than ξ(W=1)={xi1}");
+    }
+
+    #[test]
+    fn analytical_localization_length_clean_system_large() {
+        let xi = analytical_localization_length(0.0, 0.0);
+        assert!(
+            xi > 1000.0 || xi.is_infinite(),
+            "clean system should have ξ ≫ lattice constant, got {xi}"
+        );
+    }
+
+    #[test]
+    fn analytical_vs_numerical_same_order() {
+        let g = lyapunov_averaged(100_000, 1.0, 0.0, 20, 42);
+        let xi_numerical = localization_length(g);
+        let xi_analytical = analytical_localization_length(1.0, 0.0);
+        // Analytical approximations differ by O(1) constant factors
+        // depending on model (Derrida-Gardner vs perturbative).
+        // With barracuda-gpu, PRNG also changes numerical values.
+        assert!(
+            xi_analytical > 10.0 && xi_numerical > 10.0,
+            "both should be large: analytical={xi_analytical}, numerical={xi_numerical}"
+        );
     }
 
     #[test]

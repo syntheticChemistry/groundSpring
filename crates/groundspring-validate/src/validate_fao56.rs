@@ -28,11 +28,15 @@ fn u64_field(v: &Value, key: &str) -> u64 {
         .unwrap_or_else(|| panic!("missing u64 field: {key}"))
 }
 
-/// Monte Carlo result summary.
+/// Monte Carlo result summary for uncertainty propagation.
 struct McResult {
+    /// Ensemble mean of ET₀ samples.
     mean: f64,
+    /// Population standard deviation of ET₀ samples.
     std: f64,
+    /// 5th percentile of ET₀ distribution.
     pct_05: f64,
+    /// 95th percentile of ET₀ distribution.
     pct_95: f64,
 }
 
@@ -176,7 +180,6 @@ fn sensitivity_analysis(
     variances
 }
 
-#[allow(clippy::too_many_lines)]
 fn main() {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: FAO-56 Error Propagation");
@@ -219,10 +222,6 @@ fn main() {
     let n_mc = u64_field(mc_cfg, "n_samples") as usize;
     let mc_seed = u64_field(mc_cfg, "seed");
 
-    let mc_expected = &bench["expected_results"];
-    let et0_mean_range = mc_expected["et0_mean_range"].as_array().expect("range");
-    let et0_std_range = mc_expected["et0_std_range"].as_array().expect("range");
-
     let uncertainties = &bench["input_uncertainties"];
 
     let ranking: Vec<&str> = bench["sensitivity_analysis"]["expected_ranking"]
@@ -247,6 +246,9 @@ fn main() {
     );
 
     // ── Intermediate verification ───────────────────────────────────
+    // Wide ranges (e.g. e_s 1.8–2.2) are sanity bounds, not precision
+    // checks — they verify the equation chain produces physically
+    // plausible intermediates, not bit-exact results.
     println!("\n--- Part 2: Intermediate Values ---");
 
     let tmean = f64::midpoint(base.tmax_c, base.tmin_c);
@@ -274,10 +276,36 @@ fn main() {
     let et0_b = fao56::daily_et0(&base);
     h.check_true("ET₀ is deterministic", (et0 - et0_b).abs() < f64::EPSILON);
 
-    // ── Monte Carlo ─────────────────────────────────────────────────
+    validate_monte_carlo(
+        &mut h,
+        &base,
+        uncertainties,
+        n_mc,
+        mc_seed,
+        expected_et0,
+        &bench["expected_results"],
+    );
+    validate_sensitivity(&mut h, &base, uncertainties, n_mc, mc_seed, &ranking);
+
+    let exit_code = h.summary();
+    std::process::exit(exit_code);
+}
+
+/// Monte Carlo uncertainty propagation checks.
+fn validate_monte_carlo(
+    h: &mut ValidationHarness,
+    base: &DailyWeatherInputs,
+    uncertainties: &Value,
+    n_mc: usize,
+    mc_seed: u64,
+    expected_et0: f64,
+    mc_expected: &Value,
+) {
+    let et0_mean_range = mc_expected["et0_mean_range"].as_array().expect("range");
+    let et0_std_range = mc_expected["et0_std_range"].as_array().expect("range");
     println!("\n--- Part 4: Monte Carlo (N={n_mc}) ---");
 
-    let mc = monte_carlo_et0(&base, uncertainties, n_mc, mc_seed);
+    let mc = monte_carlo_et0(base, uncertainties, n_mc, mc_seed);
 
     println!("  ET₀ mean: {:.4} mm/day", mc.mean);
     println!("  ET₀ std:  {:.4} mm/day", mc.std);
@@ -303,16 +331,25 @@ fn main() {
         mc.pct_05 < expected_et0 && mc.pct_95 > expected_et0,
     );
 
-    let mc2 = monte_carlo_et0(&base, uncertainties, n_mc, mc_seed);
+    let mc2 = monte_carlo_et0(base, uncertainties, n_mc, mc_seed);
     h.check_true(
         "MC is deterministic",
         (mc.mean - mc2.mean).abs() < f64::EPSILON,
     );
+}
 
-    // ── Sensitivity analysis ────────────────────────────────────────
+/// One-at-a-time sensitivity analysis checks.
+fn validate_sensitivity(
+    h: &mut ValidationHarness,
+    base: &DailyWeatherInputs,
+    uncertainties: &Value,
+    n_mc: usize,
+    mc_seed: u64,
+    ranking: &[&str],
+) {
     println!("\n--- Part 5: Sensitivity Analysis ---");
 
-    let fracs = sensitivity_analysis(&base, uncertainties, n_mc / 2, mc_seed);
+    let fracs = sensitivity_analysis(base, uncertainties, n_mc / 2, mc_seed);
     let labels = ["temperature", "humidity", "wind", "radiation"];
 
     for (label, &frac) in labels.iter().zip(&fracs) {
@@ -332,7 +369,4 @@ fn main() {
         &format!("Top contributor ({top_contributor}) matches expected ranking"),
         ranking.iter().take(2).any(|&r| r == top_contributor),
     );
-
-    let exit_code = h.summary();
-    std::process::exit(exit_code);
 }

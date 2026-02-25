@@ -4,11 +4,68 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### Complete BarraCUDA Rewiring (Phase 2a complete)
+- **4 new CPU delegations**: `covariance`, `norm_cdf`, `norm_ppf`,
+  `chi2_statistic`, `analytical_localization_length` — total **11 active**
+- **New library functions**: `stats::covariance` (sample covariance),
+  `stats::norm_cdf` (Φ(x) via A&S 7.1.26 erf), `stats::norm_ppf`
+  (Φ⁻¹(p) via Acklam rational approximation), `stats::chi2_statistic`
+  (Σ(O−E)²/E goodness-of-fit), `anderson::analytical_localization_length`
+  (perturbative ξ(W,E) from hotSpring transport theory)
+- **All have local implementations** + barracuda feature-gated delegation
+- **Benchmarks**: 3-trial release-mode timing confirms <2% overhead for
+  compute-heavy binaries (signal-specificity, RAWR, anderson)
+- **Cross-spring evolution** documented in `specs/CROSS_SPRING_EVOLUTION.md`:
+  traces provenance of every barracuda primitive groundSpring uses back to
+  its origin spring (hotSpring precision, wetSpring bio, neuralSpring ML)
+- **122 unit tests** + 119/119 validation checks PASS across local,
+  barracuda, and barracuda-gpu modes
+- Added `scripts/bench_barracuda_modes.sh` for reproducible benchmarking
+
+### ToadStool Catch-Up Revalidation (Phase 2a++)
+- **ToadStool baseline**: Verified against S62 + post-S62 DF64 expansion (Feb 25, 2026)
+- **All 6 (later expanded to 11) barracuda delegations verified**: 119/119 PASS with `--features barracuda-gpu`
+  - `pearson_r`, `spearman_r`, `sample_std_dev` via `barracuda::stats`
+  - `bootstrap_mean` via `barracuda::stats::bootstrap_mean`
+  - `lyapunov_exponent`, `lyapunov_averaged` via `barracuda::spectral`
+- **New barracuda ops cataloged** (S59–S62): `anderson_3d_correlated`,
+  `anderson_sweep_averaged`, `find_w_c`, `ridge_regression`, `PeakDetectF64`,
+  `BandwidthTier` — available for future Kachkovskiy extension experiments
+- **Noted**: barracuda has `bootstrap_mean_f64.wgsl` GPU shader (65 lines,
+  xorshift32 PRNG, workgroup_size(256)) — GPU path for bootstrap exists
+- Updated `specs/BARRACUDA_EVOLUTION.md` with S59–S62+ new ops table
+- Updated V5 handoff with ToadStool catch-up section
+- Updated `CONTROL_EXPERIMENT_STATUS.md` with Run 5 revalidation log
+
+### Code Audit & Deep Debt Resolution (Phase 2a+)
+- **CRITICAL FIX**: `barracuda::spectral::anderson::lyapunov_*` → `barracuda::spectral::lyapunov_*`
+  (anderson submodule is private in barracuda; items re-exported at spectral level)
+- **Idiomatic Rust**: `partial_cmp().unwrap_or()` → `f64::total_cmp` in bootstrap sort
+- **DRY**: Extracted shared `percentile_ci()` helper in bootstrap module — both
+  `bootstrap_mean_local` and `rawr_mean` delegate to it (was duplicated sort + CI code)
+- **DRY**: `validate_rawr` `generate_normal` replaced with `Xorshift64::normal()` from library
+  (was duplicate Box-Muller implementation)
+- **Refactored**: validate_anderson, validate_fao56, validate_seismic — extracted helper
+  functions from long `main()`, removed all `#[allow(clippy::too_many_lines)]`
+- **Documentation**: Fixed phantom `bootstrap_mean_f64.wgsl` references in README and
+  whitePaper (shader never existed; bootstrap delegates to barracuda CPU)
+- **Documentation**: Added tolerance justification comments across validation binaries
+- **Documentation**: Anderson seed divergence documented (barracuda `base_seed + r * 1000`
+  vs local `base_seed + i` — Phase 2b alignment work)
+- **Documentation**: validate_weather module doc clarified as analytical-only validator
+- **Documentation**: `McResult` struct fields now documented in validate_fao56
+- **Provenance**: Added `provenance_metadata()` and `write_benchmark()` to `control/common.py`
+  for reproducible benchmark JSON generation with git commit + date
+- **RAWR citation**: `30.0` fallback in bootstrap.rs documented as `-ln(9.4e-14)` guard
+- `cargo fmt` clean (was failing in 6 files)
+- `cargo clippy --all-targets -W pedantic -W nursery` zero warnings
+- Library line coverage: 99.01% (100% functions)
+
 ### Barracuda CPU Delegation & Performance Benchmarks (Phase 2a)
 - **Barracuda CPU delegation**: Wired 3 new functions to barracuda upstream:
   - `bootstrap::bootstrap_mean` → `barracuda::stats::bootstrap_mean` (`#[cfg(feature = "barracuda")]`)
-  - `anderson::lyapunov_exponent` → `barracuda::spectral::anderson::lyapunov_exponent` (`#[cfg(feature = "barracuda-gpu")]`)
-  - `anderson::lyapunov_averaged` → `barracuda::spectral::anderson::lyapunov_averaged` (`#[cfg(feature = "barracuda-gpu")]`)
+  - `anderson::lyapunov_exponent` → `barracuda::spectral::lyapunov_exponent` (`#[cfg(feature = "barracuda-gpu")]`)
+  - `anderson::lyapunov_averaged` → `barracuda::spectral::lyapunov_averaged` (`#[cfg(feature = "barracuda-gpu")]`)
 - **New feature gate**: `barracuda-gpu` enables `barracuda/gpu` for spectral module access
 - **Performance benchmarks**: `scripts/bench_rust_vs_python.py` — times Python vs Rust
   - Signal Specificity: **30.9×** faster

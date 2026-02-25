@@ -2,7 +2,7 @@
 
 **Faculty**: Rika Anderson (Biology, Carleton College)
 **Domain**: Deep subsurface microbiology, microbial evolution, rare biosphere
-**groundSpring Connection**: Stochastic vs deterministic evolution (Exp 001 biological analog)
+**groundSpring Connection**: Stochastic vs deterministic evolution (Exp 001 biological analog). *Note: The groundSpring `anderson` module (Anderson localization, Exp 008) is DONE (8/8 PASS, 29.8× faster) — that module is for Kachkovskiy's spectral theory work, not this briefing.*
 
 ---
 
