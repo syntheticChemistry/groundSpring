@@ -131,13 +131,84 @@ The five experiments share a common structure:
 
 The framework — decompose error, identify the dominant source, quantify the noise floor — is universal.
 
-## 8. Evolution Path
+## 8. Phase 1: Rust Validation
+
+All five experiments have been ported to idiomatic Rust in the `groundspring` crate.
+
+### 8.1 Coverage
+
+| Metric | Value |
+|--------|-------|
+| Validation binaries | 5 (decompose, rarefaction, seismic, weather, fao56) |
+| Total checks | 88/88 PASS |
+| Unit tests | 90 + 1 doc test |
+| Line coverage | 99.7% |
+| Function coverage | 100% |
+| Clippy warnings | 0 |
+
+### 8.2 New Modules
+
+- **`fao56`** — Pure-Rust port of the FAO-56 Penman-Monteith equation chain
+  (originally from airSpring Python). 17 sub-functions + `daily_et0` wrapper.
+  Validates against FAO Irrigation & Drainage Paper 56 Example 18
+  (ET₀ = 3.88 mm/day for Uccle, Belgium).
+
+- **`prng`** — Xorshift64 PRNG with Box-Muller normal sampling. Extracted
+  from rarefaction for reuse in Monte Carlo simulations. Will align to
+  barracuda's xoshiro128** when GPU feature is enabled.
+
+- **`stats::pearson_r`** — Pearson correlation coefficient. Delegates to
+  `barracuda::stats::pearson_correlation` under `#[cfg(feature = "barracuda")]`.
+
+- **`stats::spearman_r`** — Spearman rank correlation coefficient. Delegates to
+  `barracuda::stats::correlation::spearman_correlation` under `#[cfg(feature = "barracuda")]`.
+
+- **`stats::sample_std_dev`** — Bessel-corrected (÷ N−1) sample standard
+  deviation. Delegates to `barracuda::stats::correlation::std_dev` under
+  `#[cfg(feature = "barracuda")]`.
+
+- **`validate`** — Replaced global `AtomicU32` counters with a struct-based
+  `ValidationHarness`. Enables independent, concurrent, and nested validation
+  scopes without shared state.
+
+### 8.3 Key Improvements
+
+- **Hot-loop optimization**: `seismic::grid_search_inversion` Vec allocations
+  hoisted outside triple loop (lat × lon × depth).
+- **Modern Rust idioms**: `f64::total_cmp` replaces `partial_cmp().unwrap_or(Equal)`
+  (5 sites); `f64::midpoint`, `.hypot()`, `.mul_add()`, `f64::from()` used throughout.
+- **Data-driven validation**: All 5 binaries load expected values from benchmark
+  JSONs via `include_str!` + `serde_json` — single source of truth.
+- **Barracuda feature gate**: `pearson_r` delegates to `barracuda::stats::pearson_correlation`
+  under `#[cfg(feature = "barracuda")]`. Builds and tests clean with and without the feature.
+- **Provenance**: All benchmark JSONs include DOI/references, `data_origin`,
+  `prng_algorithm`, and `real_data_accession` fields.
+- **`missing_docs`** promoted from `warn` to `deny`.
+
+### 8.4 GPU Evolution
+
+Two production WGSL shaders in `metalForge/shaders/` following hotSpring
+conventions (documented bindings, xoshiro128** PRNG, f64, workgroup_size(64)):
+
+1. **`mc_et0_propagate.wgsl`** (149 lines) — Monte Carlo FAO-56 propagation.
+   Equation chain superseded by barracuda `Op::Fao56Et0`; the MC noise wrapper
+   (Box-Muller perturbation + dispatch) is the absorption target.
+
+2. **`batched_multinomial.wgsl`** (112 lines) — Batched multinomial sampling.
+   Binary search over cumulative probabilities, per-replicate xoshiro state.
+
+See `metalForge/ABSORPTION_MANIFEST.md` for binding layouts, dispatch geometry,
+and the full module-by-module absorption inventory.
+
+## 9. Evolution Path
 
 - **Phase 0+**: Wire real NOAA CDO data for Exp 002; download IRIS waveforms for Exp 005
-- **Phase 1**: BarraCUDA Rust port — noise-aware statistical primitives for ToadStool
+- **Phase 2a**: Tier A rewire — **3 CPU leaned** (`pearson_r`, `spearman_r`, `sample_std_dev`); 6 GPU ops pending adapter. FAO-56 ET₀ absorbed upstream (ToadStool S49).
+- **Phase 2b**: Tier B adapt — PRNG alignment, grid-search dispatch
+- **Phase 2c**: Tier C absorption — MC and multinomial kernels → barracuda
 - **neuralSpring bridge**: Export noise characterizations as labeled training data
 
-## 9. Next Phase: Faculty-Driven Paper Candidates
+## 10. Next Phase: Faculty-Driven Paper Candidates
 
 The faculty network identifies three directions that extend groundSpring's noise-characterization framework into new domains:
 
@@ -151,5 +222,5 @@ These extensions share the common theme: **how do you extract reliable conclusio
 
 ---
 
-*Study completed: February 16, 2026*
-*71/71 quantitative checks passed across 5 experiments, 4 scientific domains*
+*Phase 0 completed: February 16, 2026 — 71/71 PASS (Python)*
+*Phase 1 completed: February 25, 2026 — 88/88 PASS (Rust, 99.7% coverage)*

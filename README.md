@@ -27,36 +27,55 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | Experiment | Domain | Phase 0 (Python) | Phase 1 (Rust) | Key Question |
 |------------|--------|:-----------------:|:--------------:|--------------|
 | 001: Sensor Noise | Agricultural | 32/32 PASS | 36/36 PASS | Bias vs variance in soil moisture sensors |
-| 002: Observation Gap | Meteorological | PASS/SKIP | — | Reanalysis model vs station readings |
-| 003: Error Propagation | Agricultural | PASS | — | How sensor noise becomes ET₀ uncertainty |
+| 002: Observation Gap | Meteorological | PASS/SKIP | 13/13 PASS | Reanalysis model vs station readings |
+| 003: Error Propagation | Agricultural | PASS | 15/15 PASS | How sensor noise becomes ET₀ uncertainty |
 | 004: Sequencing Noise | Biological | PASS | 15/15 PASS | Taxonomic reliability vs sequencing depth |
 | 005: Seismic Waves | Geological | PASS | 9/9 PASS | Source localization from noisy arrivals |
 
+**Phase 1 total: 88/88 PASS across 5 validation binaries.**
+
+## Library Modules
+
+| Module | Purpose | GPU Tier |
+|--------|---------|----------|
+| `stats` | RMSE, MBE, R², IA, hit rate, Pearson/Spearman, std | 3 CPU leaned, 6 GPU pending |
+| `decompose` | Bias-variance decomposition, noise floor | CPU-only (scalar) |
+| `fao56` | FAO-56 Penman-Monteith equation chain | **Absorbed** (barracuda `Op::Fao56Et0`) |
+| `prng` | Xorshift64 PRNG, Box-Muller normal | B (align to xoshiro) |
+| `rarefaction` | Multinomial sampling, Shannon diversity, evenness | C (WGSL production ready) |
+| `seismic` | Haversine, travel time, grid-search inversion | B (adapt) |
+| `validate` | Generic Write harness (hotSpring pattern) | N/A |
+
 ## Quick Start
-
-### Python Phase 0
-
-```bash
-pip install numpy scipy pandas requests
-bash scripts/run_all_baselines.sh
-```
 
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace
-cargo clippy --workspace   # zero warnings required
+cargo test --workspace          # 90 unit + 1 doc test
+cargo clippy --workspace        # zero warnings
+cargo fmt --all -- --check      # clean
 
 # Validation binaries (hotSpring pattern: exit 0 = pass, exit 1 = fail)
 cargo run --bin validate-decompose
 cargo run --bin validate-rarefaction
 cargo run --bin validate-seismic
+cargo run --bin validate-weather
+cargo run --bin validate-fao56
 ```
 
-### Full Suite (Python + Rust + pytest)
+### Python Phase 0
 
 ```bash
-bash scripts/run_all_baselines.sh
+pip install numpy scipy pandas requests
+python3 control/sensor_noise/sensor_noise_decomposition.py
+python3 control/sequencing_noise/sequencing_noise.py
+python3 control/seismic/seismic_inversion.py
+```
+
+### Test Coverage
+
+```bash
+cargo llvm-cov --workspace --lib    # 99.7% library line coverage
 ```
 
 ## Evolution Path
@@ -64,10 +83,18 @@ bash scripts/run_all_baselines.sh
 ```
 Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration (Phase 2)
    NumPy/SciPy                    Pure safe Rust                BarraCUDA / ToadStool
-   ✓ Complete                     ✓ Core algorithms             ◻ Feature-gated
+     ✓ Complete                     ✓ 88/88 PASS                 ◐ 3 CPU leaned, 2 WGSL ready
+
+     Write locally              →  Hand off to barracuda      →  Lean on upstream
+     (metalForge shaders)          (wateringHole/handoffs/)       (rewire to barracuda ops)
 ```
 
-See `specs/BARRACUDA_EVOLUTION.md` for the module-by-module GPU promotion mapping.
+**Lean progress**: `pearson_r`, `spearman_r`, `sample_std_dev` delegate to barracuda CPU.
+FAO-56 equation chain absorbed upstream (`BatchedElementwiseF64::fao56_et0_batch`).
+Two production WGSL shaders ready for ToadStool absorption.
+
+See `specs/BARRACUDA_EVOLUTION.md` for the full GPU promotion mapping.
+See `metalForge/` for absorption-ready shaders and the manifest.
 
 ## How groundSpring Relates to Other Springs
 
@@ -90,20 +117,20 @@ groundSpring/
 │   ├── sequencing_noise/            # Exp 004: taxonomic noise floor
 │   └── seismic/                     # Exp 005: wave propagation + source inversion
 ├── crates/
-│   ├── groundspring/                # Phase 1 Rust library (zero deps, safe)
-│   └── groundspring-validate/       # Validation binaries (hotSpring pattern)
-├── tests/                           # pytest suite (unit, determinism, integration)
-├── scripts/
-│   ├── run_all_baselines.sh         # Full validation (Python + Rust + pytest)
-│   └── download_iris.py             # IRIS seismic data (free, public)
+│   ├── groundspring/                # Phase 1 Rust library (7 modules, 99.7% library line coverage)
+│   └── groundspring-validate/       # 5 validation binaries (hotSpring pattern)
+├── metalForge/                      # Write → Absorb → Lean artifacts
+│   ├── ABSORPTION_MANIFEST.md       # Module-by-module absorption inventory
+│   └── shaders/                     # Production WGSL shaders for ToadStool absorption
 ├── specs/
-│   ├── BARRACUDA_REQUIREMENTS.md    # GPU kernel requirements
-│   ├── BARRACUDA_EVOLUTION.md       # Module → GPU promotion mapping
-│   └── PAPER_REVIEW_QUEUE.md        # Future experiment candidates
-├── whitePaper/
-├── pyproject.toml                   # Python tooling (ruff, mypy, pytest)
-├── Cargo.toml                       # Rust workspace
+│   ├── BARRACUDA_EVOLUTION.md       # Module → GPU promotion mapping + PRNG roadmap
+│   ├── BARRACUDA_REQUIREMENTS.md    # GPU kernel gap analysis
+│   └── PAPER_REVIEW_QUEUE.md        # 19 papers, three-tier control matrix, open data audit
+├── whitePaper/                      # Study results and methodology
+│   ├── baseCamp/                    # Per-faculty research briefings (5 faculty)
+├── Cargo.toml                       # Rust workspace (barracuda feature gate)
 ├── CONTRIBUTING.md
+├── CHANGELOG.md
 └── LICENSE                          # AGPL-3.0-or-later
 ```
 
@@ -125,4 +152,4 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026 | Phase 1 (Rust): February 25, 2026*
+*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026*

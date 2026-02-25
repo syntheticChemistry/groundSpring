@@ -1,12 +1,18 @@
 {
   "_source": "groundSpring Experiment 005 \u2014 Seismic Wave Propagation",
+  "_doi": "10.1111/j.1365-246X.1991.tb06724.x",
+  "_references": [
+    "Kennett & Engdahl (1991) Traveltimes for global earthquake location and phase identification. Geophys.J.Int. 105(2):429-465",
+    "IRIS DMC FDSN Station Web Service: https://service.iris.edu/fdsnws/station/1/ (public, no key)"
+  ],
   "_provenance": {
     "generated_by": "Synthetic NMSZ scenario with IASP91 velocity model",
+    "data_origin": "Station coordinates from IRIS FDSN metadata (NM network, New Madrid Seismic Zone). Velocity model from IASP91 Table 1 upper crust. Synthetic scenario, not a real event.",
+    "real_data_accession": "IRIS FDSN: network=NM (pending real waveform download for Phase 0+)",
     "baseline_date": "2026-02-16",
-    "baseline_commit": "initial",
+    "baseline_commit": "ab6e3d463f4a6c7f512d74aec2bcb08491b5e05b",
     "validation_script": "control/seismic/seismic_inversion.py",
     "command": "python3 control/seismic/seismic_inversion.py",
-    "reference": "Kennett & Engdahl (1991) Geophysical Journal International",
     "notes": "Station coordinates from real IRIS FDSN metadata. Vp=5.8 km/s from IASP91 upper crust layer. Acceptance criteria based on typical regional network performance."
   },
   "_description": "P-wave travel time inversion for earthquake source localization from public seismic data",

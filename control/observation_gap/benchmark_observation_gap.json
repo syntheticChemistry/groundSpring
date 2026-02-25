@@ -1,12 +1,22 @@
 {
   "_source": "groundSpring Experiment 002 \u2014 Weather Model vs Observation",
+  "_doi_era5": "10.1002/qj.3803",
+  "_doi_ghcnd": "10.1175/JTECH-D-11-00103.1",
+  "_references": [
+    "Hersbach et al. (2020) The ERA5 global reanalysis. Q.J.R.Meteorol.Soc. 146(730):1999-2049",
+    "Menne et al. (2012) An Overview of the GHCN-Daily Database. J.Atmos.Oceanic Technol. 29:897-910",
+    "Open-Meteo API: free weather data, no key required (https://open-meteo.com)",
+    "NOAA CDO: Climate Data Online (https://www.ncei.noaa.gov/cdo-web/) — GHCND station USW00014836 (Lansing Capital City Airport)"
+  ],
   "_provenance": {
     "generated_by": "Literature ranges for ERA5 vs GHCND agreement",
+    "data_origin": "Currently synthetic. Real data pending: NOAA CDO GHCND station USW00014836 and Open-Meteo ERA5 for same period.",
+    "real_data_accession": "GHCND:USW00014836 (pending download via NOAA CDO token)",
     "baseline_date": "2026-02-16",
-    "baseline_commit": "initial",
+    "baseline_commit": "ab6e3d463f4a6c7f512d74aec2bcb08491b5e05b",
     "validation_script": "control/observation_gap/observation_gap.py",
     "command": "python3 control/observation_gap/observation_gap.py",
-    "notes": "Expected ranges based on published ERA5 validation studies. Temperature R2>0.9 and RMSE 1-4C are well-established for mid-latitude stations. Precip hit rate >0.6 is conservative."
+    "notes": "Expected ranges based on published ERA5 validation studies. Temperature R2>0.9 and RMSE 1-4C are well-established for mid-latitude stations. Precip hit rate >0.6 is conservative. Current validation uses synthetic data matching published statistics."
   },
   "_description": "Quantify the gap between ERA5 reanalysis (Open-Meteo) and GHCND station observations (NOAA CDO) for Lansing, MI",
   "_groundspring_question": "How does a 10km gridded reanalysis differ from a point station measurement?",

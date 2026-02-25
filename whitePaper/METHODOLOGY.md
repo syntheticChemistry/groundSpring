@@ -89,6 +89,52 @@ This decomposition is applied across all domains:
 **Method**: 1D travel-time forward model + grid-search + Nelder-Mead inversion + MC uncertainty
 **Validation**: 2 forward + 3 grid + 1 refinement + 1 noisy + 2 MC + 1 subset = 10 checks
 
+### Phase 1: Rust / BarraCUDA Validation
+
+Phase 1 ports each experiment's core algorithm to idiomatic Rust in the
+`groundspring` crate, validated by binaries that follow the hotSpring pattern
+(exit 0 = all pass, exit 1 = any fail).
+
+| Binary | Experiment | Checks | Modules Exercised |
+|--------|-----------|--------|-------------------|
+| `validate-decompose` | Exp 001 | 36 | `stats`, `decompose` |
+| `validate-rarefaction` | Exp 004 | 15 | `rarefaction`, `prng` |
+| `validate-seismic` | Exp 005 | 9 | `seismic`, `stats` |
+| `validate-weather` | Exp 002 | 13 | `stats`, `decompose`, `prng` |
+| `validate-fao56` | Exp 003 | 15 | `fao56`, `prng`, `stats` |
+
+### Rust Quality Gates
+
+| Gate | Requirement |
+|------|-------------|
+| `cargo test` | 90 unit + 1 doc test, all pass |
+| `cargo clippy` | Zero warnings (pedantic + nursery) |
+| `cargo fmt` | Clean |
+| `cargo doc` | Clean, `missing_docs = "deny"` |
+| `cargo llvm-cov` | 99.7% line, 100% function |
+| No `unsafe` | Enforced at workspace lint level |
+| Max file size | 1000 lines per file |
+| Provenance | Benchmark JSONs have real commit SHA |
+
+### GPU Evolution Methodology
+
+groundSpring follows the **Write → Absorb → Lean** cycle (hotSpring pattern):
+
+1. Write CPU implementations + production WGSL shaders (`metalForge/shaders/`)
+2. Validate CPU against Python baselines (88/88 checks)
+3. Hand off WGSL to ToadStool/BarraCUDA with binding layout documentation
+4. BarraCUDA absorbs as upstream op
+5. groundSpring rewires behind `#[cfg(feature = "barracuda")]`
+6. Re-run validation binaries to confirm GPU-CPU agreement within tolerance
+
+WGSL conventions (matching hotSpring):
+- `struct Params` for uniforms (u32-aligned with padding)
+- `@group(0) @binding(N)` sequential bindings
+- `@compute @workgroup_size(64, 1, 1)` standard workgroup
+- xoshiro128** PRNG matching `barracuda::ops::prng_xoshiro_wgsl`
+- f64 precision throughout
+- Documented binding layouts and dispatch geometry in shader headers
+
 ## Hardware Gate
 
 Same as all ecoPrimals springs:
@@ -102,4 +148,5 @@ Same as all ecoPrimals springs:
 
 ## Grand Total
 
-**71 / 71 quantitative checks passed** across 5 experiments, 4 scientific domains.
+- **Phase 0 (Python)**: 71/71 quantitative checks passed across 5 experiments, 4 domains.
+- **Phase 1 (Rust)**: 88/88 checks passed across 5 validation binaries, 99.7% coverage.

@@ -6,6 +6,8 @@
 //! Provides travel-time computation and grid-search earthquake location
 //! using the IASP91 simplified velocity model.
 
+use crate::cast::{f64_usize, usize_f64};
+
 /// Earth's mean radius in kilometers.
 const EARTH_RADIUS_KM: f64 = 6371.0;
 
@@ -101,20 +103,25 @@ pub fn grid_search_inversion(
         .collect();
 
     let n_lat =
-        1 + ((config.lat_range.1 - config.lat_range.0) / config.grid_spacing_deg).ceil() as usize;
+        1 + f64_usize(((config.lat_range.1 - config.lat_range.0) / config.grid_spacing_deg).ceil());
     let n_lon =
-        1 + ((config.lon_range.1 - config.lon_range.0) / config.grid_spacing_deg).ceil() as usize;
-    let n_depth = 1
-        + ((config.depth_range.1 - config.depth_range.0) / config.depth_spacing_km).ceil() as usize;
+        1 + f64_usize(((config.lon_range.1 - config.lon_range.0) / config.grid_spacing_deg).ceil());
+    let n_depth = 1 + f64_usize(
+        ((config.depth_range.1 - config.depth_range.0) / config.depth_spacing_km).ceil(),
+    );
+
+    let mut pred_tt = Vec::with_capacity(stations.len());
+    let mut obs_times = Vec::with_capacity(stations.len());
 
     for i_lat in 0..n_lat {
-        let lat = (i_lat as f64).mul_add(config.grid_spacing_deg, config.lat_range.0);
+        let lat = usize_f64(i_lat).mul_add(config.grid_spacing_deg, config.lat_range.0);
         for i_lon in 0..n_lon {
-            let lon = (i_lon as f64).mul_add(config.grid_spacing_deg, config.lon_range.0);
+            let lon = usize_f64(i_lon).mul_add(config.grid_spacing_deg, config.lon_range.0);
             for i_depth in 0..n_depth {
-                let depth = (i_depth as f64).mul_add(config.depth_spacing_km, config.depth_range.0);
-                let mut pred_tt = Vec::with_capacity(stations.len());
-                let mut obs_times = Vec::with_capacity(stations.len());
+                let depth =
+                    usize_f64(i_depth).mul_add(config.depth_spacing_km, config.depth_range.0);
+                pred_tt.clear();
+                obs_times.clear();
 
                 for sta in stations {
                     if let Some(&obs_t) = obs_map.get(sta.code.as_str()) {
@@ -129,7 +136,7 @@ pub fn grid_search_inversion(
                     continue;
                 }
 
-                let n = obs_times.len() as f64;
+                let n = usize_f64(obs_times.len());
                 let t0: f64 = obs_times
                     .iter()
                     .zip(&pred_tt)

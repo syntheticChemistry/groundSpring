@@ -15,12 +15,9 @@ repository = "https://github.com/ecoPrimals/groundSpring"
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
-missing_docs = "warn"
+missing_docs = "deny"
 
 [workspace.lints.clippy]
 pedantic = { level = "warn", priority = -1 }
 nursery = { level = "warn", priority = -1 }
-cast_possible_truncation = "allow"
-cast_precision_loss = "allow"
-cast_sign_loss = "allow"
 module_name_repetitions = "allow"

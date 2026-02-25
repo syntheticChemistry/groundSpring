@@ -7,9 +7,17 @@
 
 ## Current Status
 
-groundSpring Phase 0 (Python) and Phase 1a (Rust CPU) are complete. The `groundspring`
-crate provides pure safe Rust implementations of core algorithms (decompose, rarefaction,
-seismic). See [BARRACUDA_EVOLUTION.md](BARRACUDA_EVOLUTION.md) for the module-by-module
+groundSpring Phase 0 (Python) and Phase 1 (Rust) are **complete**.
+
+- 88/88 validation checks across 5 binaries
+- 7 library modules: stats, decompose, fao56, prng, rarefaction, seismic, validate
+- 99.7% line coverage, 0 clippy warnings, `missing_docs = "deny"`
+- `barracuda` feature gate wired in `Cargo.toml`
+- 3 CPU stats delegated to barracuda (`pearson_r`, `spearman_r`, `sample_std_dev`)
+- 2 production WGSL shaders in `metalForge/shaders/` (261 combined lines)
+- Absorption manifest in `metalForge/ABSORPTION_MANIFEST.md`
+
+See [BARRACUDA_EVOLUTION.md](BARRACUDA_EVOLUTION.md) for the module-by-module
 GPU promotion mapping.
 
 ---
@@ -65,23 +73,30 @@ GPU promotion mapping.
 ## BarraCUDA Evolution Path for groundSpring
 
 ```
-Phase 0 (DONE — Python)       Phase 1 (Rust — NEXT)
-────────────────────          ─────────────────────
-NumPy MC (N=10k)   ────────→  GPU MC (N=100k+) via FusedMapReduce
-SciPy minimize     ────────→  GPU Levenberg-Marquardt
-NumPy stats        ────────→  FusedMapReduce + Variance
-ObsPy travel times ────────→  Sovereign Rust 1D ray tracer
-Manual Sobol       ────────→  GPU Sobol indices
+Phase 0 (DONE — Python)        Phase 1 (DONE — Rust CPU)
+────────────────────           ─────────────────────────
+NumPy MC (N=10k)    ────────→  prng::Xorshift64 + fao56::daily_et0 (88/88 PASS)
+NumPy stats         ────────→  stats::rmse/mbe/r_squared/ia/hit_rate
+NumPy rarefaction   ────────→  rarefaction::multinomial_sample + shannon_diversity
+SciPy minimize      ────────→  seismic::grid_search_inversion (optimized)
+N/A                 ────────→  fao56 module (FAO-56 Penman-Monteith chain)
 
-Phase 1 (Rust)                Phase 2 (Faculty Extension)
-──────────────                ──────────────────────────
-GPU MC sampling    ────────→  Jackknife/bootstrap (Bazavov precision)
-GPU least squares  ────────→  Regularized inversion (spectral recon)
-N/A                ────────→  FFT (shared with hotSpring)
-N/A                ────────→  Gillespie simulation (biological noise)
-N/A                ────────→  RAWR resampling (Liu method)
-N/A                ────────→  Lanczos eigensolve (Kachkovskiy spectral)
-N/A                ────────→  SpMV (shared with hotSpring lattice)
+Phase 1 (DONE)                 Phase 2 (GPU — NEXT)
+──────────────                 ────────────────────
+stats::rmse/mbe     ────────→  Tier A: rewire to barracuda reduce ops
+prng::Xorshift64    ────────→  Tier B: align to barracuda xoshiro128**
+fao56::daily_et0    ────────→  Tier C: mc_et0_propagate.wgsl → barracuda
+rarefaction         ────────→  Tier C: batched_multinomial.wgsl → barracuda
+
+Phase 2 (GPU)                  Phase 3 (Faculty Extension)
+─────────────                  ──────────────────────────
+GPU MC sampling     ────────→  Jackknife/bootstrap (Bazavov precision)
+GPU grid search     ────────→  Regularized inversion (spectral recon)
+N/A                 ────────→  FFT (shared with hotSpring)
+N/A                 ────────→  Gillespie simulation (biological noise)
+N/A                 ────────→  RAWR resampling (Liu method)
+N/A                 ────────→  Lanczos eigensolve (Kachkovskiy spectral)
+N/A                 ────────→  SpMV (shared with hotSpring lattice)
 ```
 
 ---

@@ -8,17 +8,18 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 ### Status
 
-Phase 0 baselines completed: **71/71 quantitative checks passed** across 5 experiments spanning 4 scientific domains.
+- Phase 0 baselines: **71/71 quantitative checks passed** across 5 experiments, 4 domains.
+- Phase 1 Rust validation: **88/88 checks passed** across 5 validation binaries, 99.7% code coverage.
 
 ### Key Results
 
-| Experiment | Domain | Tests | Key Finding |
-|------------|--------|-------|-------------|
-| 001: Sensor Noise | Agricultural sensors | 32/32 | EC5 bias-dominated (77%); CS616 mixed noise structure |
-| 002: Observation Gap | Meteorology | 5/5 | ERA5 vs station: methodology validated (real NOAA data pending) |
-| 003: Error Propagation | ET0 uncertainty | 8/8 | Humidity dominates ET0 variance (66%); MC/analytical agree to 1% |
-| 004: Sequencing Noise | Microbiome | 16/16 | Genus saturation at 5000 reads; Shannon converges by 500 reads |
-| 005: Seismic Inversion | Geophysics | 10/10 | ±0.5s noise → 2km location uncertainty; depth poorly constrained |
+| Experiment | Domain | Phase 0 | Phase 1 (Rust) | Key Finding |
+|------------|--------|---------|----------------|-------------|
+| 001: Sensor Noise | Agricultural | 32/32 | 36/36 PASS | EC5 bias-dominated (77%); CS616 mixed noise structure |
+| 002: Observation Gap | Meteorology | 5/5 | 13/13 PASS | Stats + hit rate validated on weather-domain data |
+| 003: Error Propagation | ET₀ uncertainty | 8/8 | 15/15 PASS | Humidity dominates ET₀ variance (65%); MC/analytical agree |
+| 004: Sequencing Noise | Microbiome | 16/16 | 15/15 PASS | Genus saturation at 5000 reads; Shannon converges by 500 |
+| 005: Seismic Inversion | Geophysics | 10/10 | 9/9 PASS | Grid-search recovers source exactly; Vec alloc hoisted |
 
 ### Key Research Questions Answered
 
@@ -32,10 +33,39 @@ Phase 0 baselines completed: **71/71 quantitative checks passed** across 5 exper
 
 ### Documents
 
-- [METHODOLOGY.md](METHODOLOGY.md) — Experimental design and validation approach
 - [STUDY.md](STUDY.md) — Detailed results and analysis
+- [METHODOLOGY.md](METHODOLOGY.md) — Experimental design and validation approach
+- [baseCamp/](baseCamp/) — Per-faculty research briefings (Bazavov, Waters, Liu, Kachkovskiy, R. Anderson)
 
 ---
+
+## Phase 1 Rust Library
+
+The `groundspring` crate provides 7 modules of pure safe Rust:
+
+| Module | Experiment | GPU Tier | Notes |
+|--------|-----------|----------|-------|
+| `stats` | All | 3 CPU leaned, 6 GPU pending | Pearson/Spearman/sample_std_dev delegate to barracuda |
+| `decompose` | Exp 001 | CPU-only | Bias-variance decomposition, scalar math |
+| `fao56` | Exp 003 | **Absorbed** upstream | Equation chain → barracuda `Op::Fao56Et0`; MC wrapper pending |
+| `prng` | Exp 003, 004 | B (adapt) | Xorshift64 + Box-Muller, aligning to barracuda xoshiro |
+| `rarefaction` | Exp 004 | C (WGSL ready) | Batched multinomial shader production-quality |
+| `seismic` | Exp 005 | B (adapt) | Haversine, travel time, grid-search inversion |
+| `validate` | All | N/A | Generic `Write` harness (hotSpring pattern) |
+
+### GPU Evolution (metalForge)
+
+Two production WGSL shaders in `metalForge/shaders/` following hotSpring conventions
+(documented bindings, xoshiro128** PRNG, f64 precision, workgroup_size(64)):
+
+1. **`mc_et0_propagate.wgsl`** (149 lines) — Monte Carlo uncertainty propagation
+   through FAO-56. Equation chain superseded by barracuda `Op::Fao56Et0`; the
+   MC noise wrapper (Box-Muller perturbation + dispatch) is the absorption target.
+
+2. **`batched_multinomial.wgsl`** (112 lines) — Batched multinomial sampling for
+   rarefaction. Binary search over cumulative probabilities, per-replicate PRNG state.
+
+See `metalForge/ABSORPTION_MANIFEST.md` for binding layouts and dispatch geometry.
 
 ## Next Phase: Paper Review Candidates
 

@@ -95,6 +95,14 @@ if command -v cargo &> /dev/null; then
     run_experiment \
         "Rust: Seismic Inversion" \
         "cargo run --release --bin validate-seismic"
+
+    run_experiment \
+        "Rust: Weather Model-Observation Gap" \
+        "cargo run --release --bin validate-weather"
+
+    run_experiment \
+        "Rust: FAO-56 Error Propagation" \
+        "cargo run --release --bin validate-fao56"
 else
     echo "  [SKIP] cargo not found — Rust validation skipped"
 fi

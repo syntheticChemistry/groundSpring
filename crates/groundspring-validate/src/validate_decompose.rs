@@ -3,182 +3,128 @@
 
 //! Validation binary for bias-variance decomposition.
 //!
-//! Hardcoded expected values from Dong et al. (2020), analytically derived.
-//! Provenance: `random_std` = sqrt(RMSE² − MBE²), `bias_fraction` = MBE²/RMSE².
-//! Source: Agriculture 10(12), 598. DOI: 10.3390/agriculture10120598
+//! Expected values loaded at compile time from the benchmark JSON —
+//! single source of truth with full provenance (script, commit, date).
+//!
+//! Source: Dong et al. (2020) Agriculture 10(12), 598.
+//! DOI: 10.3390/agriculture10120598
 
 use groundspring::decompose::{decompose_error, noise_floor_reduction};
-use groundspring::validate;
+use groundspring::validate::ValidationHarness;
+use serde_json::Value;
 
-/// Sensor-soil configuration for validation.
-struct Case {
-    sensor: &'static str,
-    soil: &'static str,
-    mbe: f64,
-    rmse: f64,
-    expected_random_std: f64,
-    expected_bias_fraction: f64,
+const BENCHMARK: &str = include_str!("../../../control/sensor_noise/benchmark_sensor_noise.json");
+
+fn f64_field(v: &Value, key: &str) -> f64 {
+    v[key]
+        .as_f64()
+        .unwrap_or_else(|| panic!("missing f64 field: {key}"))
 }
 
-/// Noise floor cases.
-struct NoiseFloorCase {
-    sensor: &'static str,
-    soil: &'static str,
-    factory_rmse: f64,
-    corrected_rmse: f64,
-}
-
-#[allow(clippy::too_many_lines)]
 fn main() {
-    validate::reset();
+    let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
+    let mut h = ValidationHarness::stdout("Rust Validation: Bias-Variance Decomposition");
 
     println!("{}", "=".repeat(72));
     println!("groundSpring Rust Validation: Bias-Variance Decomposition");
-    println!("  Source: Dong et al. (2020) — analytically derived expected values");
+    println!(
+        "  Source: {}",
+        bench["_source"].as_str().unwrap_or("Dong et al. (2020)")
+    );
+    println!(
+        "  Provenance: commit {}, {}",
+        bench["_provenance"]["baseline_commit"]
+            .as_str()
+            .unwrap_or("unknown"),
+        bench["_provenance"]["baseline_date"]
+            .as_str()
+            .unwrap_or("unknown"),
+    );
     println!("{}", "=".repeat(72));
 
-    // Hardcoded from benchmark_sensor_noise.json _provenance
-    let cases = [
-        Case {
-            sensor: "CS616",
-            soil: "sand",
-            mbe: -0.01,
-            rmse: 0.017,
-            expected_random_std: 0.0137,
-            expected_bias_fraction: 0.346,
-        },
-        Case {
-            sensor: "CS616",
-            soil: "loamy_sand",
-            mbe: -0.03,
-            rmse: 0.039,
-            expected_random_std: 0.0249,
-            expected_bias_fraction: 0.5917,
-        },
-        Case {
-            sensor: "CS616",
-            soil: "sandy_clay_loam",
-            mbe: -0.02,
-            rmse: 0.039,
-            expected_random_std: 0.0334,
-            expected_bias_fraction: 0.263,
-        },
-        Case {
-            sensor: "EC5",
-            soil: "sand",
-            mbe: 0.03,
-            rmse: 0.038,
-            expected_random_std: 0.0233,
-            expected_bias_fraction: 0.6233,
-        },
-        Case {
-            sensor: "EC5",
-            soil: "loamy_sand",
-            mbe: -0.03,
-            rmse: 0.035,
-            expected_random_std: 0.0180,
-            expected_bias_fraction: 0.7347,
-        },
-        Case {
-            sensor: "EC5",
-            soil: "sandy_clay_loam",
-            mbe: -0.05,
-            rmse: 0.057,
-            expected_random_std: 0.0274,
-            expected_bias_fraction: 0.7695,
-        },
-    ];
+    let sensors: Vec<&str> = bench["sensors"]
+        .as_array()
+        .expect("sensors array")
+        .iter()
+        .map(|v| v.as_str().expect("sensor string"))
+        .collect();
+
+    let soils: Vec<&str> = bench["soil_types"]
+        .as_array()
+        .expect("soil_types array")
+        .iter()
+        .map(|v| v.as_str().expect("soil string"))
+        .collect();
+
+    // ── Bias-Variance Decomposition ─────────────────────────────────
+    //
+    // Tol 0.001: random_std = sqrt(RMSE² - MBE²) with 3-decimal inputs
+    // introduces ≤ 0.0005 rounding; 0.001 gives ~2× margin.
+    // Tol 0.005: bias_fraction = MBE²/RMSE² is a ratio of small numbers;
+    // 0.005 absorbs rounding at the 3rd decimal of both inputs.
 
     println!("\n--- Bias-Variance Decomposition ---");
-    for c in &cases {
-        let d = decompose_error(c.mbe, c.rmse);
+    for &sensor in &sensors {
+        for &soil in &soils {
+            let cal = &bench["factory_calibration_stats"][sensor][soil];
+            let mbe = f64_field(cal, "mbe");
+            let rmse = f64_field(cal, "rmse");
 
-        let _ = validate::check_approx(
-            &format!("{} {} bias", c.sensor, c.soil),
-            d.bias,
-            c.mbe,
-            0.001,
-        );
-        let _ = validate::check_approx(
-            &format!("{} {} random_std", c.sensor, c.soil),
-            d.random_std,
-            c.expected_random_std,
-            0.001,
-        );
-        let _ = validate::check_approx(
-            &format!("{} {} bias_fraction", c.sensor, c.soil),
-            d.bias_fraction,
-            c.expected_bias_fraction,
-            0.005,
-        );
+            let expected = &bench["expected_results"][sensor][soil];
+            let exp_random_std = f64_field(expected, "random_std");
+            let exp_bias_fraction = f64_field(expected, "bias_fraction");
 
-        // Pythagorean identity: RMSE² = MBE² + σ²
-        let reconstructed = (d.bias_sq + d.variance).sqrt();
-        let _ = validate::check_approx(
-            &format!("{} {} pythagorean", c.sensor, c.soil),
-            reconstructed,
-            c.rmse,
-            1e-10,
-        );
+            let d = decompose_error(mbe, rmse);
+
+            h.check_approx(&format!("{sensor} {soil} bias"), d.bias, mbe, 0.001);
+            h.check_approx(
+                &format!("{sensor} {soil} random_std"),
+                d.random_std,
+                exp_random_std,
+                0.001,
+            );
+            h.check_approx(
+                &format!("{sensor} {soil} bias_fraction"),
+                d.bias_fraction,
+                exp_bias_fraction,
+                0.005,
+            );
+
+            let reconstructed = (d.bias_sq + d.variance).sqrt();
+            h.check_approx(
+                &format!("{sensor} {soil} pythagorean"),
+                reconstructed,
+                rmse,
+                1e-10,
+            );
+        }
     }
 
-    let nf_cases = [
-        NoiseFloorCase {
-            sensor: "CS616",
-            soil: "sand",
-            factory_rmse: 0.017,
-            corrected_rmse: 0.006,
-        },
-        NoiseFloorCase {
-            sensor: "CS616",
-            soil: "loamy_sand",
-            factory_rmse: 0.023,
-            corrected_rmse: 0.021,
-        },
-        NoiseFloorCase {
-            sensor: "CS616",
-            soil: "sandy_clay_loam",
-            factory_rmse: 0.039,
-            corrected_rmse: 0.012,
-        },
-        NoiseFloorCase {
-            sensor: "EC5",
-            soil: "sand",
-            factory_rmse: 0.018,
-            corrected_rmse: 0.004,
-        },
-        NoiseFloorCase {
-            sensor: "EC5",
-            soil: "loamy_sand",
-            factory_rmse: 0.026,
-            corrected_rmse: 0.006,
-        },
-        NoiseFloorCase {
-            sensor: "EC5",
-            soil: "sandy_clay_loam",
-            factory_rmse: 0.047,
-            corrected_rmse: 0.020,
-        },
-    ];
+    // ── Noise Floor ─────────────────────────────────────────────────
 
     println!("\n--- Noise Floor ---");
-    for c in &nf_cases {
-        let nf = noise_floor_reduction(c.factory_rmse, c.corrected_rmse);
-        let _ = validate::check_true(
-            &format!("{} {} corrected <= factory", c.sensor, c.soil),
-            nf.corrected_rmse <= nf.factory_rmse,
-        );
+    for &sensor in &sensors {
+        for &soil in &soils {
+            let cs = &bench["corrected_stats"][sensor][soil];
+            let factory_rmse = f64_field(cs, "factory_rmse");
+            let corrected_rmse = f64_field(cs, "corrected_rmse");
 
-        // Pythagorean: factory² = removed² + corrected²
-        let reconstructed = nf.removed_error.hypot(nf.noise_floor);
-        let _ = validate::check_approx(
-            &format!("{} {} nf pythagorean", c.sensor, c.soil),
-            reconstructed,
-            c.factory_rmse,
-            1e-10,
-        );
+            let nf = noise_floor_reduction(factory_rmse, corrected_rmse);
+            h.check_true(
+                &format!("{sensor} {soil} corrected <= factory"),
+                nf.corrected_rmse <= nf.factory_rmse,
+            );
+
+            let reconstructed = nf.removed_error.hypot(nf.noise_floor);
+            h.check_approx(
+                &format!("{sensor} {soil} nf pythagorean"),
+                reconstructed,
+                factory_rmse,
+                1e-10,
+            );
+        }
     }
 
-    let exit_code = validate::summary("Rust Validation: Bias-Variance Decomposition");
+    let exit_code = h.summary();
     std::process::exit(exit_code);
 }

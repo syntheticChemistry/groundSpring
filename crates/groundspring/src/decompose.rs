@@ -154,7 +154,7 @@ mod tests {
         assert!(nf.removed_error > 0.0);
         assert!(nf.reduction_pct > 0.0);
         assert!((nf.noise_floor - 0.012).abs() < 1e-12);
-        let reconstructed = (nf.removed_error.powi(2) + nf.noise_floor.powi(2)).sqrt();
+        let reconstructed = nf.removed_error.hypot(nf.noise_floor);
         assert!((reconstructed - 0.039).abs() < 1e-10);
     }
 }

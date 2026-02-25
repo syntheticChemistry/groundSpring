@@ -2,74 +2,100 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
+**Last updated**: February 25, 2026
+
 ## Philosophy
 
-groundSpring's Rust crate provides **pure-Rust CPU implementations** of all
-algorithms.  When the `barracuda` feature is enabled, operations delegate to
-BarraCUDA's hardware-agnostic tensor compute layer, which runs the same WGSL
-shaders on GPU, CPU, NPU, or TPU via wgpu backend selection.
+groundSpring follows the **Write → Absorb → Lean** cycle established by hotSpring:
 
-The integration follows the **capability discovery** pattern: groundSpring
-does not hardcode knowledge of BarraCUDA's location.  It exposes an optional
-Cargo feature that, when enabled, brings in the dependency.
+1. **Write** — Pure-Rust CPU implementations in `crates/groundspring/`.
+   Production WGSL shaders in `metalForge/shaders/`.
+2. **Absorb** — ToadStool/BarraCUDA absorbs shaders as upstream ops.
+   Handoff via `wateringHole/handoffs/`.
+3. **Lean** — groundSpring rewires to `barracuda::ops::*` behind `#[cfg(feature = "barracuda")]`.
+
+The CPU implementations are **validation references** — they must produce
+identical results within documented tolerances.  The GPU implementations
+are for throughput (100k+ MC samples, batch rarefaction).
 
 ## Module Mapping
 
-### Tier A — Direct Rewire (ready now)
+> **ToadStool catch-up (S51-S62, Feb 24 2026)**: Major absorption wave.
+> FAO-56 ET₀ is now a GPU op (`BatchedElementwiseF64::fao56_et0_batch`).
+> Shannon entropy has a GPU convenience method. Population variance resolved.
+> 5 biological ODE systems absorbed. Spearman correlation added to CPU stats.
 
-These modules map 1:1 to existing BarraCUDA operations.
+### Tier A — Lean (rewire to existing barracuda ops)
 
-| groundSpring Module | BarraCUDA Primitive | WGSL Shader | Status |
+| groundSpring Module | BarraCUDA Op | Status | How |
 |---|---|---|---|
-| `stats::rmse` | `ops::norm_reduce_f64` | `norm_reduce_f64.wgsl` | Ready |
-| `stats::mbe` | `ops::mean` | `mean.wgsl` | Ready |
-| `stats::r_squared` | `ops::variance_f64_wgsl` + reduce | `variance_f64.wgsl` | Ready |
-| `stats::index_of_agreement` | `ops::fused_map_reduce_f64` | `fused_map_reduce_f64.wgsl` | Ready |
-| `decompose::decompose_error` | Scalar math, no GPU needed | N/A | CPU-only |
-| `decompose::noise_floor_reduction` | Scalar math, no GPU needed | N/A | CPU-only |
+| `stats::pearson_r` | `stats::pearson_correlation` | **DONE** (CPU delegated) | NaN-safe wrapper |
+| `stats::spearman_r` | `stats::correlation::spearman_correlation` | **DONE** (CPU delegated) | NaN-safe wrapper |
+| `stats::sample_std_dev` | `stats::correlation::std_dev` | **DONE** (CPU delegated) | Bessel-corrected |
+| `stats::rmse` | `ops::NormReduceF64::l2` | Pending GPU adapter | RMSE = L2(obs−mod) / √n |
+| `stats::mbe` | `ops::SumReduceF64::mean` | Pending GPU adapter | MBE = mean(mod − obs) |
+| `stats::r_squared` | `ops::VarianceReduceF64` + reduce | Pending GPU adapter | R² = 1 − SS_res/SS_tot |
+| `stats::index_of_agreement` | `ops::FusedMapReduceF64` | Pending GPU adapter | Map: abs diffs, Reduce: sum |
+| `stats::hit_rate` | `ops::FusedMapReduceF64` | Pending GPU adapter | Map: binary agree, Reduce: mean |
+| `rarefaction::shannon_diversity` | `ops::FusedMapReduceF64::shannon_entropy` | Pending GPU adapter | H' = −Σ(p·ln p) — **convenience method exists** |
 
-### Tier B — Adapt (needs wrapper)
+### Tier B — Adapt (needs alignment or wrapper)
 
-| groundSpring Module | BarraCUDA Target | Notes |
+| groundSpring Module | BarraCUDA Target | Blocker | Action |
+|---|---|---|---|
+| `prng::Xorshift64` | `ops::PrngXoshiro` (f64) | Different PRNG algorithm | Align to xoshiro; retain xorshift as CPU reference |
+| `seismic::grid_search_inversion` | Parallel grid dispatch | No existing grid-search op | Dispatch as 3D workgroup; reduce min RMS |
+| `rarefaction::multinomial_sample` | `ops::PrngXoshiro` + binary search | No batched multinomial | Production WGSL in metalForge |
+
+### Tier C — ~~New Kernel Required~~ → Partially Absorbed
+
+| Proposed Kernel | Status | Notes |
 |---|---|---|
-| `rarefaction::multinomial_sample` | `ops::prng_xoshiro_wgsl` + `sample::*` | GPU PRNG + cumulative sum + binary search. Needs custom kernel for batched multinomial. |
-| `rarefaction::shannon_diversity` | `ops::fused_map_reduce_f64` | Map p→ -p·ln(p), then reduce-sum. |
-| `seismic::haversine_km` | `ops::spherical_harmonics_f64_wgsl` (partial) | Could use trig WGSL, but scalar haversine is fast enough on CPU. |
-| `seismic::grid_search_inversion` | `optimize::nelder_mead_gpu` | After grid search, Nelder-Mead refinement maps directly. Grid search itself is embarrassingly parallel → GPU. |
+| `ops::mc_et0_propagate_f64` | **SUPERSEDED** — `BatchedElementwiseF64::fao56_et0_batch()` already in barracuda | ToadStool absorbed FAO-56 as `Op::Fao56Et0` with 9-input batch (tmax, tmin, rh_max, rh_min, wind, Rs, elev, lat, doy). GPU + CPU reference. groundSpring's `mc_et0_propagate.wgsl` MC wrapper remains valuable for uncertainty propagation. |
+| `ops::batched_multinomial_f64` | **Still needed** — not in barracuda | Production WGSL in `metalForge/shaders/batched_multinomial.wgsl` |
 
-### Tier C — New Kernel Required
+### Stays Local (no GPU benefit)
 
-| groundSpring Module | Proposed BarraCUDA Kernel | Notes |
+| Module | Reason |
+|---|---|
+| `decompose::decompose_error` | Two scalar ops: bias² = MBE², var = RMSE² - MBE² |
+| `decompose::noise_floor_reduction` | Three scalar ops |
+| `validate::ValidationHarness` | Harness, not compute. Equivalent to `barracuda::validation::ValidationHarness` but with groundSpring-specific method names |
+| `seismic::haversine_km` | Single scalar trig |
+| `seismic::travel_time_1d` | One sqrt + division |
+
+### New barracuda ops relevant to groundSpring (discovered S51-S62)
+
+| Op | Module | groundSpring Use |
 |---|---|---|
-| Monte Carlo ET₀ propagation | `ops::mc_propagate_f64` | Batched: generate N perturbed input sets, run equation chain, collect statistics. Classic GPU workload. |
-| Batch rarefaction (many depths × many replicates) | `ops::batched_multinomial_f64` | Each workgroup handles one replicate at one depth. |
+| `BatchedElementwiseF64::fao56_et0_batch` | `ops::batched_elementwise_f64` | FAO-56 ET₀ batch compute — **supersedes our Tier C shader** |
+| `FusedMapReduceF64::shannon_entropy` | `ops::fused_map_reduce_f64` | Shannon diversity — **convenience method, GPU-ready** |
+| `FusedMapReduceF64::simpson_index` | `ops::fused_map_reduce_f64` | Simpson diversity — bonus |
+| `VarianceReduceF64::population_variance` | `ops::variance_reduce_f64` | Population variance — **resolves semantics mismatch** |
+| `VarianceReduceF64::population_std` | `ops::variance_reduce_f64` | Population std dev |
+| `spearman_correlation` | `stats::correlation` | **DONE** — groundSpring delegates |
+| `CapacitorOde`, `CooperationOde`, etc. | `numerical::ode_bio` | Waters paper-ready ODE systems |
+| `NmfResult` | `linalg::nmf` | NMF for R. Anderson metagenomics |
 
 ## Feature Gate
 
-In `Cargo.toml`:
 ```toml
+# Cargo.toml
 [features]
 default = []
 barracuda = ["dep:barracuda"]
 
 [dependencies]
-barracuda = { path = "../../phase1/toadstool/crates/barracuda", optional = true }
+barracuda = { path = "../../../phase1/toadstool/crates/barracuda", optional = true, default-features = false }
 ```
 
-In code:
-```rust
-#[cfg(feature = "barracuda")]
-pub mod gpu;
-
-// GPU-accelerated stats when available
-#[cfg(feature = "barracuda")]
-pub use gpu::stats_gpu;
-```
+When `barracuda` is enabled, Tier A modules add `#[cfg(feature = "barracuda")]`
+alternate implementations that delegate to barracuda ops.  The CPU implementation
+remains the default and the validation reference.
 
 ## What NOT to Duplicate
 
-The following BarraCUDA primitives already exist and MUST NOT be reimplemented
-in groundSpring:
+BarraCUDA primitives that already exist and MUST NOT be reimplemented:
 
 - Variance computation (`ops::variance_f64_wgsl`)
 - Covariance (`ops::covariance_f64_wgsl`)
@@ -78,23 +104,85 @@ in groundSpring:
 - Nelder-Mead optimization (`optimize::nelder_mead_gpu`)
 - PRNG (`ops::prng_xoshiro_wgsl`)
 - Shannon/Bray-Curtis diversity (`ops::bray_curtis_f64`)
+- Norm reduce (`ops::norm_reduce_f64`)
+- Sum reduce (`ops::sum_reduce_f64`)
+- Bootstrap mean/std (`stats::bootstrap_mean`, `stats::bootstrap_std`)
 
-groundSpring's CPU implementations serve as **validation references** for these
-GPU kernels — they must produce identical results within documented tolerances.
+groundSpring's CPU implementations serve as **validation references** for
+these GPU kernels.
 
 ## GPU Promotion Blockers
 
-1. **No wgpu in groundSpring yet** — needs `barracuda` feature gate
-2. **Multinomial sampling kernel** — does not exist in BarraCUDA, needs Tier C development
-3. **Monte Carlo equation chain** — FAO-56 is complex; need to verify numerical stability in f32 on GPU
-4. **f64 precision** — some WGSL shaders use f32; groundSpring requires f64 for statistical validity
+1. **f64 precision** — groundSpring requires f64 for statistical validity.
+   All WGSL shaders must use f64 or df64 (double-float f32-pair per
+   hotSpring's `df64_core.wgsl` pattern).
+2. **Multinomial sampling kernel** — does not exist in BarraCUDA.
+   Production WGSL in `metalForge/shaders/batched_multinomial.wgsl`.
+3. **FAO-56 MC wrapper kernel** — equation chain absorbed upstream as
+   `Op::Fao56Et0`; MC noise wrapper (Box-Muller perturbation + dispatch) in
+   `metalForge/shaders/mc_et0_propagate.wgsl`.
+4. **PRNG alignment** — xorshift64 ↔ xoshiro128** produces different
+   streams. Need to regenerate baselines after alignment.
+
+## PRNG Alignment Roadmap
+
+groundSpring currently uses `prng::Xorshift64` (Marsaglia 2003) — simple
+and deterministic, but not the same generator as BarraCUDA's `PrngXoshiro`
+(xoshiro128**).  Alignment is required before Tier B GPU promotion to ensure
+GPU and CPU paths produce bitwise-identical streams.
+
+### Semantic Mismatch
+
+| Property | groundSpring `Xorshift64` | BarraCUDA `PrngXoshiro` |
+|----------|--------------------------|------------------------|
+| State size | 64 bits | 256 bits |
+| Period | 2⁶⁴ − 1 | 2²⁵⁶ − 1 |
+| Output bits | 64 | 64 |
+| Quality | Fails BigCrush | Passes BigCrush |
+| GPU kernel | None | `prng_xoshiro_wgsl` |
+
+### Migration Steps (Phase 2b)
+
+1. **Feature-gate the PRNG** — add `#[cfg(feature = "barracuda")]` path
+   that delegates to `barracuda::ops::PrngXoshiro` for stream generation.
+   Keep `Xorshift64` as the default (CPU reference).
+2. **Create `prng::Xoshiro128` wrapper** — thin CPU-side wrapper around
+   barracuda's generator with `next_u64()` and `next_normal()` matching
+   the existing API surface.
+3. **Regenerate all baselines** — rerun Python baselines with a compatible
+   xoshiro128** implementation (e.g., a pure-Python xoshiro128** port).
+4. **Update benchmark JSONs** — new expected values, new `baseline_commit`,
+   new `baseline_date`, xoshiro128** noted in `prng_algorithm` field.
+5. **Verify 88/88 checks** — run full validation suite.
+6. **Remove old baselines** — archive xorshift64 baselines in
+   `control/archive/xorshift64/` for fossil record.
+
+### Variance Semantics
+
+groundSpring `std_dev` uses **population variance** (÷ N); BarraCUDA
+`stats::std_dev` uses **sample variance** (÷ N−1).  groundSpring now
+provides both:
+
+- `stats::std_dev` — population (canonical for RMSE decomposition)
+- `stats::sample_std_dev` — Bessel-corrected (compatible with BarraCUDA)
+
+The `stats::pearson_r` function is already wired to
+`barracuda::stats::pearson_correlation` under `#[cfg(feature = "barracuda")]`.
 
 ## Timeline
 
-| Phase | Milestone | Target |
+| Phase | Milestone | Status |
 |---|---|---|
-| Phase 0 | Python baselines (current) | Done |
-| Phase 1a | Rust CPU validation (current) | In progress |
-| Phase 1b | Feature-gate barracuda, Tier A rewire | Next |
-| Phase 2 | Tier B adapters, Tier C kernels | After Phase 1b |
+| Phase 0 | Python baselines | **Done** (71/71 PASS) |
+| Phase 1a | Rust CPU validation | **Done** (88/88 PASS, 99.7% coverage) |
+| Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
+| Phase 2a | Tier A rewire (stats → barracuda CPU + GPU ops) | **3 CPU done** (`pearson_r`, `spearman_r`, `sample_std_dev`); 6 GPU pending adapter |
+| Phase 2b | Tier B adapt (PRNG alignment, grid dispatch) | After 2a |
+| Phase 2c | Tier C absorption (multinomial kernel only — FAO-56 superseded) | After 2b |
 | Phase 3 | Full GPU pipeline, performance benchmarks | After Phase 2 |
+
+## Cross-Reference
+
+- `metalForge/ABSORPTION_MANIFEST.md` — Detailed absorption inventory
+- `metalForge/shaders/` — Production WGSL shaders
+- `specs/BARRACUDA_REQUIREMENTS.md` — GPU kernel gap analysis

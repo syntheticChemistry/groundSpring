@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: February 25, 2026
-**Status**: Phase 0 (Python) + Phase 1a (Rust) complete
+**Status**: Phase 0 (Python) + Phase 1 (Rust) complete — 88/88 PASS
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -11,8 +11,9 @@
 | Metric | Value |
 |--------|-------|
 | Phase 0 (Python) | 5/5 experiments PASS across 4 scientific domains |
-| Phase 1a (Rust) | 60/60 PASS — 3 validation binaries (decompose, rarefaction, seismic) |
-| pytest | 31/31 PASS — unit, determinism, integration tests |
+| Phase 1 (Rust) | 88/88 PASS — 5 validation binaries (decompose, rarefaction, seismic, weather, fao56) |
+| Unit tests | 90 + 1 doc test, 99.7% line coverage |
+| metalForge | 2 production WGSL shaders (mc_et0_propagate, batched_multinomial) |
 | Exp 001 | Sensor noise decomposition — EC5 bias-dominated, CS616 mixed |
 | Exp 002 | Observation gap ERA5 vs station — methodology validated |
 | Exp 003 | Error propagation FAO-56 — humidity dominates |
@@ -32,11 +33,19 @@
 | [BARRACUDA_REQUIREMENTS.md](BARRACUDA_REQUIREMENTS.md) | Active | GPU kernel requirements and gap analysis |
 | [BARRACUDA_EVOLUTION.md](BARRACUDA_EVOLUTION.md) | Active | Module → GPU promotion mapping (Tier A/B/C) |
 
+### GPU Evolution
+
+| Spec | Status | Description |
+|------|--------|-------------|
+| metalForge/ABSORPTION_MANIFEST.md | Active | Write → Absorb → Lean inventory |
+| metalForge/shaders/ | Active | Production WGSL shaders for Tier C absorption |
+
 ### Existing Documentation (in parent directories)
 
 | Document | Location | Description |
 |----------|----------|-------------|
 | CONTROL_EXPERIMENT_STATUS.md | `../` | Detailed experiment logs and check counts |
+| CHANGELOG.md | `../` | Release history and notable changes |
 | whitePaper/STUDY.md | `../whitePaper/` | Full study with cross-domain synthesis |
 | whitePaper/METHODOLOGY.md | `../whitePaper/` | Experimental design and acceptance criteria |
 
@@ -54,7 +63,7 @@
 ### groundSpring IS NOT:
 - Machine learning (neuralSpring)
 - Domain-specific pipelines (airSpring, wetSpring, hotSpring)
-- GPU computation (ToadStool/BarraCUDA)
+- GPU computation (ToadStool/BarraCUDA) — but writes production shaders for absorption
 
 ### groundSpring EXTENDS TO (via faculty):
 - **Bazavov**: Spectral reconstruction, lattice QCD inverse problems, subpercent precision
@@ -78,7 +87,7 @@
 3. PAPER_REVIEW_QUEUE.md — what's next (5 min)
 
 **Deep dive** (1 hour):
-`../whitePaper/STUDY.md` → BARRACUDA_REQUIREMENTS.md → cross-spring connections in whitePaper
+`../whitePaper/STUDY.md` → BARRACUDA_EVOLUTION.md → `../metalForge/ABSORPTION_MANIFEST.md`
 
 ---
 

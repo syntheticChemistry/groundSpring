@@ -7,6 +7,8 @@
 //! A known reference community is sampled at varying depths to determine
 //! convergence thresholds for diversity metrics.
 
+use crate::cast::{u64_f64, usize_f64};
+
 /// Shannon diversity index H' = −Σ(pᵢ ln pᵢ).
 ///
 /// Operates on a count vector.  Returns `0.0` if the total count is zero.
@@ -16,12 +18,12 @@ pub fn shannon_diversity(counts: &[u64]) -> f64 {
     if total == 0 {
         return 0.0;
     }
-    let total_f = total as f64;
+    let total_f = u64_f64(total);
     counts
         .iter()
         .filter(|&&c| c > 0)
         .map(|&c| {
-            let p = c as f64 / total_f;
+            let p = u64_f64(c) / total_f;
             -p * p.ln()
         })
         .sum()
@@ -37,7 +39,7 @@ pub fn evenness(counts: &[u64]) -> f64 {
         return 1.0;
     }
     let h = shannon_diversity(counts);
-    h / (s as f64).ln()
+    h / usize_f64(s).ln()
 }
 
 /// Number of taxa detected (count > 0).
@@ -46,8 +48,7 @@ pub fn taxa_detected(counts: &[u64]) -> usize {
     counts.iter().filter(|&&c| c > 0).count()
 }
 
-/// Simple deterministic multinomial sampling using a linear congruential
-/// generator seeded by `seed`.
+/// Deterministic multinomial sampling using [`Xorshift64`](crate::prng::Xorshift64).
 ///
 /// For each of `depth` reads, assigns to a taxon proportional to
 /// `abundances` (which must sum to ~1.0).
@@ -55,6 +56,8 @@ pub fn taxa_detected(counts: &[u64]) -> usize {
 /// This is a pure-Rust replacement for `NumPy`'s `rng.multinomial()`.
 #[must_use]
 pub fn multinomial_sample(abundances: &[f64], depth: u64, seed: u64) -> Vec<u64> {
+    use crate::prng::Xorshift64;
+
     let n = abundances.len();
     let mut counts = vec![0u64; n];
     if n == 0 || depth == 0 {
@@ -68,25 +71,16 @@ pub fn multinomial_sample(abundances: &[f64], depth: u64, seed: u64) -> Vec<u64>
             acc += a;
             cum.push(acc);
         }
-        // Ensure the last element is exactly 1.0 for robustness
         if let Some(last) = cum.last_mut() {
             *last = 1.0;
         }
         cum
     };
 
-    let mut state = seed;
+    let mut rng = Xorshift64::new(seed);
     for _ in 0..depth {
-        // Xorshift64 PRNG — fast, deterministic, adequate for sampling
-        state ^= state << 13;
-        state ^= state >> 7;
-        state ^= state << 17;
-        let u = (state as f64) / (u64::MAX as f64);
-
-        // Binary search for the taxon
-        let idx = match cumulative
-            .binary_search_by(|probe| probe.partial_cmp(&u).unwrap_or(std::cmp::Ordering::Equal))
-        {
+        let u = rng.next_f64();
+        let idx = match cumulative.binary_search_by(|probe| probe.total_cmp(&u)) {
             Ok(i) | Err(i) => i.min(n - 1),
         };
         counts[idx] += 1;
@@ -126,7 +120,7 @@ pub fn rarefaction_at_depth(
     for rep in 0..n_replicates {
         let seed = base_seed.wrapping_add(depth).wrapping_add(rep as u64);
         let counts = multinomial_sample(abundances, depth, seed);
-        genera_counts.push(taxa_detected(&counts) as f64);
+        genera_counts.push(usize_f64(taxa_detected(&counts)));
         shannon_values.push(shannon_diversity(&counts));
     }
 
@@ -202,5 +196,68 @@ mod tests {
     fn evenness_uniform() {
         let counts = [100, 100, 100, 100];
         assert!((evenness(&counts) - 1.0).abs() < 1e-10);
+    }
+
+    #[test]
+    fn evenness_single_species() {
+        let counts = [100, 0, 0];
+        assert!(
+            (evenness(&counts) - 1.0).abs() < 1e-10,
+            "s≤1 → evenness=1.0 by convention"
+        );
+    }
+
+    #[test]
+    fn evenness_empty() {
+        let counts: [u64; 0] = [];
+        assert!(
+            (evenness(&counts) - 1.0).abs() < 1e-10,
+            "s≤1 → evenness=1.0 by convention"
+        );
+    }
+
+    #[test]
+    fn multinomial_empty_abundances() {
+        let counts = multinomial_sample(&[], 100, 42);
+        assert!(counts.is_empty());
+    }
+
+    #[test]
+    fn multinomial_zero_depth() {
+        let counts = multinomial_sample(&[0.5, 0.5], 0, 42);
+        assert_eq!(counts, vec![0, 0]);
+    }
+
+    #[test]
+    fn rarefaction_at_depth_convergence() {
+        let community = vec![0.5, 0.3, 0.15, 0.05];
+        let low = rarefaction_at_depth(&community, 10, 5, 42);
+        let high = rarefaction_at_depth(&community, 10_000, 5, 42);
+
+        assert!(high.genera_mean >= low.genera_mean);
+        assert!(high.shannon_mean >= low.shannon_mean);
+        assert!((high.genera_mean - 4.0).abs() < 0.5);
+    }
+
+    #[test]
+    fn rarefaction_at_depth_deterministic() {
+        let community = vec![0.5, 0.3, 0.2];
+        let a = rarefaction_at_depth(&community, 100, 10, 42);
+        let b = rarefaction_at_depth(&community, 100, 10, 42);
+
+        assert!((a.shannon_mean - b.shannon_mean).abs() < f64::EPSILON);
+        assert!((a.genera_mean - b.genera_mean).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn taxa_detected_empty() {
+        let counts: [u64; 0] = [];
+        assert_eq!(taxa_detected(&counts), 0);
+    }
+
+    #[test]
+    fn taxa_detected_all_present() {
+        let counts = [1, 2, 3];
+        assert_eq!(taxa_detected(&counts), 3);
     }
 }

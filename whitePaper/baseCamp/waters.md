@@ -1,0 +1,71 @@
+# Waters — Biological Signal Specificity
+
+**Faculty**: Christopher Waters (MMG, Michigan State University)
+**Domain**: Quorum sensing, c-di-GMP signaling, biofilm formation
+**groundSpring Connection**: Exp 001 (sensor noise decomposition) applied to biological sensing
+
+---
+
+## Why This Matters for groundSpring
+
+groundSpring Exp 001 decomposes soil moisture sensor error into correctable bias
+and irreducible noise. Waters' c-di-GMP research asks the same question inside
+a living cell: when 60+ enzymes control a single diffusible signaling molecule,
+how does the cell achieve high-specificity signaling? The answer — spatial
+sequestration and kinetic partitioning — is the biological equivalent of
+site-specific sensor calibration.
+
+## Papers for Reproduction
+
+### Tier 1 (Priority)
+
+**Paper #9**: Massie et al. (2012) "Quantification of High Specificity Cyclic
+di-GMP Signaling." PNAS 109:12746-51. DOI: 10.1073/pnas.1115663109
+
+- **Open Data**: Supplementary data tables in PNAS SI; FRET quantification
+  available in supplementary figures
+- **Open Code**: ODE model parameters published; reimplementable from Methods
+- **groundSpring Modules**: `decompose` (signal vs noise in FRET data),
+  `stats` (R², correlation), new `ode_noise` module (stochastic ODE noise floor)
+- **BarraCUDA Needs**: `GillespieGpu` (exists in barracuda), ODE integrator
+  (exists: `BatchedOdeRK4`)
+- **Control Plan**: Python ODE → Rust CPU → barracuda GPU (Gillespie + ODE)
+
+### Tier 2
+
+**Paper #10**: Fernandez et al. (2020) "V. cholerae adapts to sessile and
+motile lifestyles by c-di-GMP regulation of cell shape." PNAS 117:29046-29054.
+
+- **Open Data**: Flow cytometry data in PNAS SI
+- **Method**: Bistable switching — bifurcation analysis of phenotype transitions
+- **groundSpring Modules**: `decompose` (noise threshold for phenotype switching)
+
+**Paper #11**: Srivastava et al. (2011) "Integration of Cyclic di-GMP and
+Quorum Sensing in the Control of vpsT and aphA." J Bacteriology 193:6331-41.
+
+- **Open Data**: qRT-PCR fold-change data in supplementary tables
+- **Method**: Multi-input signal integration — how cells fuse noisy signals
+- **groundSpring Modules**: `stats` (multi-input correlation), `decompose`
+
+## BarraCUDA Kernel Requirements
+
+| Primitive | Status | Notes |
+|-----------|--------|-------|
+| Gillespie SSA | Exists (`GillespieGpu`) | Stochastic simulation algorithm |
+| Batched ODE | Exists (`BatchedOdeRK4`) | For deterministic sweeps |
+| PRNG streams | Exists (`PrngXoshiro`) | For stochastic runs |
+| Bifurcation | Partial | Eigenvalue analysis via `BatchedEighGpu` |
+
+## Three-Tier Control Plan
+
+| Tier | Validation | Status |
+|------|-----------|--------|
+| CPU | Python ODE baseline matches Rust | Queued |
+| GPU | Gillespie GPU matches CPU statistics | Requires PRNG alignment |
+| metalForge | Cross-substrate stochastic agreement | After GPU tier |
+
+## Cross-Spring
+
+- **wetSpring**: Waters is a primary wetSpring faculty member (QS, ODE,
+  cooperation game theory). groundSpring adds the noise quantification layer.
+- **Shared with wetSpring**: Experiments 020, 022, 032-037 (Waters ODE/QS work)

@@ -225,7 +225,7 @@ Write → Absorb → Lean cycle:
 |--------|--------|--------|----------|
 | `fused_map_reduce_f64` (GPU) | 1-5 (stats Tier A) | Exists — needs GPU adapter | **HIGH** |
 | `norm_reduce_f64` (GPU) | 1-5 (RMSE) | Exists — needs GPU adapter | **HIGH** |
-| `batched_multinomial` | 4, 20-21, 22-24 | **Tier C**: WGSL prototype in metalForge | HIGH |
+| `batched_multinomial` | 4, 20-21, 22-24 | **Tier C**: production WGSL in metalForge | HIGH |
 | `BatchedElementwiseF64::fao56_et0_batch` | 3, 22 | **ABSORBED** — exists in barracuda (S49) | ~~HIGH~~ Done |
 | `FusedMapReduceF64::shannon_entropy` | 4, 20-21 | **ABSORBED** — convenience method exists | ~~HIGH~~ Done |
 | FFT (real, complex) | 6, 7 | **Gap** — not in barracuda | MEDIUM |

@@ -1,9 +1,13 @@
 {
   "_source": "groundSpring Experiment 003 \u2014 Error Propagation Through FAO-56",
+  "_doi": "10.13140/2.1.1945.2161",
+  "_reference": "Allen, Pereira, Raes, Smith (1998) Crop evapotranspiration: Guidelines for computing crop water requirements. FAO Irrigation and Drainage Paper 56. Rome: FAO.",
   "_provenance": {
     "generated_by": "FAO-56 Example 18 reference value + WMO sensor specs",
+    "data_origin": "FAO-56 Example 18 (Uccle, Belgium, 6 July), Table 18. WMO Guide No. 8 (2018) sensor accuracy classes.",
+    "prng_algorithm": "xorshift64 (Marsaglia 2003), seed=42",
     "baseline_date": "2026-02-16",
-    "baseline_commit": "initial",
+    "baseline_commit": "ab6e3d463f4a6c7f512d74aec2bcb08491b5e05b",
     "validation_script": "control/error_propagation/error_propagation_fao56.py",
     "command": "python3 control/error_propagation/error_propagation_fao56.py",
     "notes": "ET0=3.88 from FAO-56 Example 18. Uncertainty ranges from WMO instrument accuracy specs. Sensitivity ranking from first-principles analysis of Penman-Monteith equation."
