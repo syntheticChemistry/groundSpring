@@ -1,30 +1,30 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 ecoPrimals / Squirrel Team
 """
 groundSpring Experiment 005 — Seismic Wave Propagation & Source Inversion
 
-Demonstrates groundSpring's breadth beyond agricultural science using
-real-world earthquake localization from public seismological data.
+Demonstrates inverse problem methodology using earthquake localization
+from public seismological data.
 
 Key questions:
   1. Can we locate an earthquake source from P-wave arrival times?
   2. How does arrival-time noise affect source location uncertainty?
   3. What is the trade-off between number of stations and accuracy?
-  4. How do different noise levels (quiet night vs noisy day) affect results?
 
 Method:
-  - Simplified 1D travel-time model (IASP91 upper crust)
+  - Simplified 1D travel-time model (IASP91 upper crust, Vp=5.8 km/s)
   - Synthetic earthquake at known New Madrid Seismic Zone location
   - 7 regional stations with realistic arrival-time noise
-  - Grid-search inversion for source location + origin time
+  - Grid-search inversion + Nelder-Mead refinement
   - Monte Carlo noise analysis for uncertainty estimation
-
-This is an inverse problem (Pillar 2) using sensing systems (Pillar 3)
-through spatial propagation (Pillar 5).
 
 Reference:
   Kennett & Engdahl (1991) Traveltimes for global earthquake location
   and phase identification. Geophysical Journal International.
 """
+
+from __future__ import annotations
 
 import json
 import math
@@ -34,45 +34,59 @@ from pathlib import Path
 import numpy as np
 from scipy import optimize
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from common import (
+    check_max,
+    check_true,
+    print_summary,
+    reset_counters,
+)
+
 
 # ---------------------------------------------------------------------------
 # Travel-time computation
 # ---------------------------------------------------------------------------
 
-def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+EARTH_RADIUS_KM = 6371.0
+
+
+def haversine_km(
+    lat1: float, lon1: float, lat2: float, lon2: float
+) -> float:
     """Great-circle distance between two points in km."""
-    R = 6371.0  # Earth radius in km
     phi1 = math.radians(lat1)
     phi2 = math.radians(lat2)
     dphi = math.radians(lat2 - lat1)
     dlam = math.radians(lon2 - lon1)
 
-    a = (math.sin(dphi / 2) ** 2 +
-         math.cos(phi1) * math.cos(phi2) * math.sin(dlam / 2) ** 2)
-    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    a = (
+        math.sin(dphi / 2) ** 2
+        + math.cos(phi1) * math.cos(phi2) * math.sin(dlam / 2) ** 2
+    )
+    return EARTH_RADIUS_KM * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
-def travel_time_1d(distance_km: float, depth_km: float,
-                    vp_crust: float = 6.0) -> float:
-    """
-    Simplified 1D P-wave travel time (seconds).
+def travel_time_1d(
+    distance_km: float, depth_km: float, vp_km_s: float
+) -> float:
+    """Simplified 1D P-wave travel time (seconds).
 
-    Uses straight-ray approximation through a uniform crust.
-    Adequate for regional distances (< 500 km) and shallow sources.
-
-    raypath = sqrt(distance^2 + depth^2)
-    t = raypath / vp
+    Straight-ray approximation through uniform crust.
+    Adequate for regional distances (<500 km) and shallow sources.
     """
     raypath = math.sqrt(distance_km ** 2 + depth_km ** 2)
-    return raypath / vp_crust
+    return raypath / vp_km_s
 
 
-def compute_arrivals(source_lat: float, source_lon: float,
-                      source_depth_km: float, origin_time_s: float,
-                      stations: list, vp: float = 6.0) -> list:
-    """
-    Compute P-wave arrival times at all stations from a point source.
-    """
+def compute_arrivals(
+    source_lat: float,
+    source_lon: float,
+    source_depth_km: float,
+    origin_time_s: float,
+    stations: list[dict],
+    vp: float,
+) -> list[dict]:
+    """Compute P-wave arrival times at all stations from a point source."""
     arrivals = []
     for sta in stations:
         dist = haversine_km(source_lat, source_lon, sta["lat"], sta["lon"])
@@ -90,53 +104,48 @@ def compute_arrivals(source_lat: float, source_lon: float,
 # Grid-search source inversion
 # ---------------------------------------------------------------------------
 
-def grid_search_inversion(observed_arrivals: dict,
-                           stations: list,
-                           lat_range: tuple,
-                           lon_range: tuple,
-                           depth_range_km: tuple,
-                           grid_spacing_deg: float = 0.1,
-                           depth_spacing_km: float = 5.0,
-                           vp: float = 6.0) -> dict:
-    """
-    Grid-search earthquake location by minimizing RMS travel-time residual.
-
-    For each candidate source (lat, lon, depth):
-      1. Compute predicted arrivals at each station
-      2. Estimate origin time as: t0 = mean(observed - predicted_tt)
-      3. Compute RMS of residuals (observed - predicted - t0)
-      4. Keep the (lat, lon, depth, t0) with minimum RMS
-    """
-    lats = np.arange(lat_range[0], lat_range[1] + grid_spacing_deg / 2,
-                      grid_spacing_deg)
-    lons = np.arange(lon_range[0], lon_range[1] + grid_spacing_deg / 2,
-                      grid_spacing_deg)
-    depths = np.arange(depth_range_km[0],
-                        depth_range_km[1] + depth_spacing_km / 2,
-                        depth_spacing_km)
+def grid_search_inversion(
+    observed_arrivals: dict[str, float],
+    stations: list[dict],
+    lat_range: tuple[float, float],
+    lon_range: tuple[float, float],
+    depth_range_km: tuple[float, float],
+    grid_spacing_deg: float = 0.1,
+    depth_spacing_km: float = 5.0,
+    vp: float = 6.0,
+) -> dict:
+    """Grid-search earthquake location by minimizing RMS travel-time residual."""
+    lats = np.arange(
+        lat_range[0], lat_range[1] + grid_spacing_deg / 2, grid_spacing_deg
+    )
+    lons = np.arange(
+        lon_range[0], lon_range[1] + grid_spacing_deg / 2, grid_spacing_deg
+    )
+    depths = np.arange(
+        depth_range_km[0],
+        depth_range_km[1] + depth_spacing_km / 2,
+        depth_spacing_km,
+    )
 
     station_codes = [sta["code"] for sta in stations]
     obs_times = np.array([observed_arrivals[c] for c in station_codes])
 
     best_rms = float("inf")
-    best_result = None
+    best_result: dict | None = None
 
     for lat in lats:
         for lon in lons:
             for depth in depths:
-                # Predicted travel times
                 pred_tt = np.array([
                     travel_time_1d(
                         haversine_km(lat, lon, sta["lat"], sta["lon"]),
-                        depth, vp
+                        depth,
+                        vp,
                     )
                     for sta in stations
                 ])
 
-                # Estimate origin time
                 t0 = float(np.mean(obs_times - pred_tt))
-
-                # Residuals
                 residuals = obs_times - (t0 + pred_tt)
                 rms = float(np.sqrt(np.mean(residuals ** 2)))
 
@@ -151,41 +160,52 @@ def grid_search_inversion(observed_arrivals: dict,
                         "residuals": residuals.tolist(),
                     }
 
+    assert best_result is not None
     return best_result
 
 
-def refine_with_scipy(observed_arrivals: dict,
-                       stations: list,
-                       initial_guess: dict,
-                       vp: float = 6.0) -> dict:
-    """
-    Refine grid-search result using scipy.optimize.minimize.
-    """
+def refine_with_scipy(
+    observed_arrivals: dict[str, float],
+    stations: list[dict],
+    initial_guess: dict,
+    vp: float = 6.0,
+) -> dict:
+    """Refine grid-search result using scipy.optimize.minimize."""
     station_codes = [sta["code"] for sta in stations]
     obs_times = np.array([observed_arrivals[c] for c in station_codes])
 
-    def objective(params):
+    def objective(params: np.ndarray) -> float:
         lat, lon, depth, t0 = params
         pred_tt = np.array([
             travel_time_1d(
                 haversine_km(lat, lon, sta["lat"], sta["lon"]),
-                max(0.1, depth), vp
+                max(0.1, depth),
+                vp,
             )
             for sta in stations
         ])
         residuals = obs_times - (t0 + pred_tt)
         return float(np.sum(residuals ** 2))
 
-    x0 = [initial_guess["lat"], initial_guess["lon"],
-           initial_guess["depth_km"], initial_guess["origin_time_s"]]
+    x0 = [
+        initial_guess["lat"],
+        initial_guess["lon"],
+        initial_guess["depth_km"],
+        initial_guess["origin_time_s"],
+    ]
 
-    result = optimize.minimize(objective, x0, method="Nelder-Mead",
-                                options={"maxiter": 5000, "xatol": 0.001})
+    result = optimize.minimize(
+        objective, x0, method="Nelder-Mead",
+        options={"maxiter": 5000, "xatol": 0.001},
+    )
 
     lat, lon, depth, t0 = result.x
     pred_tt = np.array([
-        travel_time_1d(haversine_km(lat, lon, sta["lat"], sta["lon"]),
-                        max(0.1, depth), vp)
+        travel_time_1d(
+            haversine_km(lat, lon, sta["lat"], sta["lon"]),
+            max(0.1, depth),
+            vp,
+        )
         for sta in stations
     ])
     residuals = obs_times - (t0 + pred_tt)
@@ -206,81 +226,81 @@ def refine_with_scipy(observed_arrivals: dict,
 # Monte Carlo uncertainty estimation
 # ---------------------------------------------------------------------------
 
-def monte_carlo_source_uncertainty(true_arrivals: list,
-                                    stations: list,
-                                    noise_std_s: float,
-                                    n_trials: int = 100,
-                                    vp: float = 6.0,
-                                    seed: int = 42) -> dict:
-    """
-    Estimate source location uncertainty via Monte Carlo noise injection.
-
-    For each trial:
-      1. Add Gaussian noise to arrival times
-      2. Run Nelder-Mead inversion
-      3. Collect resulting source locations
-    """
+def monte_carlo_source_uncertainty(
+    true_arrivals: list[dict],
+    stations: list[dict],
+    noise_std_s: float,
+    n_trials: int = 100,
+    vp: float = 6.0,
+    seed: int = 42,
+) -> dict:
+    """Estimate source location uncertainty via Monte Carlo noise injection."""
     rng = np.random.default_rng(seed)
 
     station_codes = [sta["code"] for sta in stations]
     true_times = {a["code"]: a["arrival_time_s"] for a in true_arrivals}
 
-    lats = []
-    lons = []
-    depths = []
-    rms_vals = []
+    lats_list: list[float] = []
+    lons_list: list[float] = []
+    depths_list: list[float] = []
+    rms_vals: list[float] = []
 
-    # Coarse grid search bounds (centered near true, but wide enough)
-    true_lat = np.mean([s["lat"] for s in stations])
-    true_lon = np.mean([s["lon"] for s in stations])
+    center_lat = float(np.mean([s["lat"] for s in stations]))
+    center_lon = float(np.mean([s["lon"] for s in stations]))
 
-    for trial in range(n_trials):
-        # Add noise to arrivals
-        noisy = {}
-        for code in station_codes:
-            noisy[code] = true_times[code] + rng.normal(0, noise_std_s)
+    for _ in range(n_trials):
+        noisy = {
+            code: true_times[code] + rng.normal(0, noise_std_s)
+            for code in station_codes
+        }
 
-        # Quick grid search for initial guess
         grid_result = grid_search_inversion(
-            noisy, stations,
-            lat_range=(true_lat - 2, true_lat + 2),
-            lon_range=(true_lon - 2, true_lon + 2),
+            noisy,
+            stations,
+            lat_range=(center_lat - 2, center_lat + 2),
+            lon_range=(center_lon - 2, center_lon + 2),
             depth_range_km=(0, 25),
             grid_spacing_deg=0.2,
             depth_spacing_km=5.0,
             vp=vp,
         )
 
-        # Refine
         refined = refine_with_scipy(noisy, stations, grid_result, vp)
 
-        lats.append(refined["lat"])
-        lons.append(refined["lon"])
-        depths.append(refined["depth_km"])
+        lats_list.append(refined["lat"])
+        lons_list.append(refined["lon"])
+        depths_list.append(refined["depth_km"])
         rms_vals.append(refined["rms_residual_s"])
 
-    lats = np.array(lats)
-    lons = np.array(lons)
-    depths = np.array(depths)
+    lats_arr = np.array(lats_list)
+    lons_arr = np.array(lons_list)
+    depths_arr = np.array(depths_list)
+
+    mean_lat = float(np.mean(lats_arr))
+    mean_lon = float(np.mean(lons_arr))
+
+    horiz_errors = [
+        haversine_km(lat, lon, mean_lat, mean_lon)
+        for lat, lon in zip(lats_arr, lons_arr)
+    ]
 
     return {
         "n_trials": n_trials,
         "noise_std_s": noise_std_s,
-        "lat": {"mean": float(np.mean(lats)), "std": float(np.std(lats))},
-        "lon": {"mean": float(np.mean(lons)), "std": float(np.std(lons))},
-        "depth_km": {"mean": float(np.mean(depths)), "std": float(np.std(depths))},
-        "horizontal_error_km": {
-            "mean": float(np.mean([
-                haversine_km(lat, lon, lats.mean(), lons.mean())
-                for lat, lon in zip(lats, lons)
-            ])),
-            "p90": float(np.percentile([
-                haversine_km(lat, lon, lats.mean(), lons.mean())
-                for lat, lon in zip(lats, lons)
-            ], 90)),
+        "lat": {"mean": mean_lat, "std": float(np.std(lats_arr))},
+        "lon": {"mean": mean_lon, "std": float(np.std(lons_arr))},
+        "depth_km": {
+            "mean": float(np.mean(depths_arr)),
+            "std": float(np.std(depths_arr)),
         },
-        "rms_residual": {"mean": float(np.mean(rms_vals)),
-                          "std": float(np.std(rms_vals))},
+        "horizontal_error_km": {
+            "mean": float(np.mean(horiz_errors)),
+            "p90": float(np.percentile(horiz_errors, 90)),
+        },
+        "rms_residual": {
+            "mean": float(np.mean(rms_vals)),
+            "std": float(np.std(rms_vals)),
+        },
     }
 
 
@@ -288,28 +308,12 @@ def monte_carlo_source_uncertainty(true_arrivals: list,
 # Validation harness
 # ---------------------------------------------------------------------------
 
-def check(label: str, computed: float, low: float, high: float) -> bool:
-    ok = low <= computed <= high
-    status = "PASS" if ok else "FAIL"
-    print(f"  [{status}] {label}: {computed:.4f} "
-          f"(expected [{low:.4f}, {high:.4f}])")
-    return ok
-
-
-def check_max(label: str, computed: float, maximum: float) -> bool:
-    ok = computed <= maximum
-    status = "PASS" if ok else "FAIL"
-    print(f"  [{status}] {label}: {computed:.4f} (max {maximum:.4f})")
-    return ok
-
-
-def main():
+def main() -> int:
     benchmark_path = Path(__file__).parent / "benchmark_seismic.json"
     with open(benchmark_path) as f:
         benchmark = json.load(f)
 
-    total_passed = 0
-    total_failed = 0
+    reset_counters()
 
     scenario = benchmark["test_scenario"]
     source = scenario["true_source"]
@@ -318,51 +322,50 @@ def main():
     inv_config = benchmark["inversion_config"]
     criteria = inv_config["acceptance_criteria"]
 
+    # Read Vp from benchmark (not hardcoded)
+    vp = benchmark["travel_time_model"]["layers"][0]["vp_km_s"]
+
     print("=" * 72)
     print("groundSpring Exp 005: Seismic Wave Propagation & Source Inversion")
     print(f"  Region: {source['region']}")
+    print(f"  Vp = {vp} km/s (from benchmark: {benchmark['travel_time_model']['layers'][0]['name']})")
     print("=" * 72)
 
     # ------------------------------------------------------------------
-    # Part 1: Forward model (compute true arrivals)
+    # Part 1: Forward model
     # ------------------------------------------------------------------
     print("\n--- Part 1: Forward Model ---")
-    vp = benchmark["travel_time_model"]["layers"][0]["vp_km_s"]
 
     true_arrivals = compute_arrivals(
         source["lat"], source["lon"], source["depth_km"],
-        source["origin_time_s"], stations, vp
+        source["origin_time_s"], stations, vp,
     )
 
-    print(f"  Source: ({source['lat']}°N, {source['lon']}°E), "
-          f"depth={source['depth_km']}km")
-    print(f"  Vp = {vp} km/s (upper crust)")
+    print(
+        f"  Source: ({source['lat']}°N, {source['lon']}°E), "
+        f"depth={source['depth_km']}km"
+    )
     print(f"\n  Station arrivals:")
     for a in true_arrivals:
-        print(f"    {a['code']:>5s}: dist={a['distance_km']:>6.1f} km, "
-              f"tt={a['travel_time_s']:>6.2f} s")
+        print(
+            f"    {a['code']:>5s}: dist={a['distance_km']:>6.1f} km, "
+            f"tt={a['travel_time_s']:>6.2f} s"
+        )
 
-    # Sanity: all travel times should be positive
-    all_positive = all(a["travel_time_s"] > 0 for a in true_arrivals)
-    if all_positive:
-        print(f"\n  [PASS] All travel times positive")
-        total_passed += 1
-    else:
-        print(f"\n  [FAIL] Some travel times are non-positive!")
-        total_failed += 1
-
-    # Travel time should increase with distance
-    sorted_by_dist = sorted(true_arrivals, key=lambda x: x["distance_km"])
-    monotonic_tt = all(
-        sorted_by_dist[i]["travel_time_s"] <= sorted_by_dist[i+1]["travel_time_s"]
-        for i in range(len(sorted_by_dist) - 1)
+    check_true(
+        "All travel times positive",
+        all(a["travel_time_s"] > 0 for a in true_arrivals),
     )
-    if monotonic_tt:
-        print(f"  [PASS] Travel time increases with distance")
-        total_passed += 1
-    else:
-        print(f"  [FAIL] Travel time not monotonic with distance!")
-        total_failed += 1
+
+    sorted_by_dist = sorted(true_arrivals, key=lambda x: x["distance_km"])
+    check_true(
+        "Travel time increases with distance",
+        all(
+            sorted_by_dist[i]["travel_time_s"]
+            <= sorted_by_dist[i + 1]["travel_time_s"]
+            for i in range(len(sorted_by_dist) - 1)
+        ),
+    )
 
     # ------------------------------------------------------------------
     # Part 2: Grid-search inversion (no noise)
@@ -383,65 +386,49 @@ def main():
 
     loc_error_km = haversine_km(
         grid_result["lat"], grid_result["lon"],
-        source["lat"], source["lon"]
+        source["lat"], source["lon"],
     )
     depth_error_km = abs(grid_result["depth_km"] - source["depth_km"])
 
-    print(f"  Inverted: ({grid_result['lat']:.2f}°N, {grid_result['lon']:.2f}°E), "
-          f"depth={grid_result['depth_km']:.1f}km")
-    print(f"  Origin time: {grid_result['origin_time_s']:.3f}s")
+    print(
+        f"  Inverted: ({grid_result['lat']:.2f}°N, {grid_result['lon']:.2f}°E), "
+        f"depth={grid_result['depth_km']:.1f}km"
+    )
     print(f"  Location error: {loc_error_km:.2f} km")
     print(f"  Depth error:    {depth_error_km:.2f} km")
     print(f"  RMS residual:   {grid_result['rms_residual_s']:.4f} s")
 
-    if check_max("Location error (km)", loc_error_km,
-                  criteria["location_error_km_max"]):
-        total_passed += 1
-    else:
-        total_failed += 1
-
-    if check_max("Depth error (km)", depth_error_km,
-                  criteria["depth_error_km_max"]):
-        total_passed += 1
-    else:
-        total_failed += 1
-
-    if check_max("RMS residual (s)", grid_result["rms_residual_s"],
-                  criteria["rms_residual_s_max"]):
-        total_passed += 1
-    else:
-        total_failed += 1
+    check_max("Location error (km)", loc_error_km, criteria["location_error_km_max"])
+    check_max("Depth error (km)", depth_error_km, criteria["depth_error_km_max"])
+    check_max("RMS residual (s)", grid_result["rms_residual_s"], criteria["rms_residual_s_max"])
 
     # ------------------------------------------------------------------
-    # Part 3: Refine with Nelder-Mead
+    # Part 3: Nelder-Mead Refinement
     # ------------------------------------------------------------------
     print("\n--- Part 3: Nelder-Mead Refinement ---")
     refined = refine_with_scipy(obs_clean, stations, grid_result, vp)
 
     ref_loc_error = haversine_km(
-        refined["lat"], refined["lon"],
-        source["lat"], source["lon"]
+        refined["lat"], refined["lon"], source["lat"], source["lon"]
     )
     ref_depth_error = abs(refined["depth_km"] - source["depth_km"])
 
-    print(f"  Refined: ({refined['lat']:.4f}°N, {refined['lon']:.4f}°E), "
-          f"depth={refined['depth_km']:.2f}km")
-    print(f"  Origin time: {refined['origin_time_s']:.4f}s")
+    print(
+        f"  Refined: ({refined['lat']:.4f}°N, {refined['lon']:.4f}°E), "
+        f"depth={refined['depth_km']:.2f}km"
+    )
     print(f"  Location error: {ref_loc_error:.4f} km")
     print(f"  Depth error:    {ref_depth_error:.4f} km")
     print(f"  RMS residual:   {refined['rms_residual_s']:.6f} s")
     print(f"  Converged:      {refined['converged']}")
 
-    # Refined should be at least as good as grid
-    if ref_loc_error <= loc_error_km + 0.5:
-        print(f"  [PASS] Refinement improved or maintained location accuracy")
-        total_passed += 1
-    else:
-        print(f"  [FAIL] Refinement degraded accuracy")
-        total_failed += 1
+    check_true(
+        "Refinement improved or maintained accuracy",
+        ref_loc_error <= loc_error_km + 0.5,
+    )
 
     # ------------------------------------------------------------------
-    # Part 4: Noisy inversion (realistic scenario)
+    # Part 4: Noisy inversion
     # ------------------------------------------------------------------
     print(f"\n--- Part 4: Noisy Inversion (σ = {noise_std}s) ---")
     rng = np.random.default_rng(42)
@@ -463,73 +450,65 @@ def main():
 
     noisy_loc_error = haversine_km(
         noisy_refined["lat"], noisy_refined["lon"],
-        source["lat"], source["lon"]
+        source["lat"], source["lon"],
     )
-    noisy_depth_error = abs(noisy_refined["depth_km"] - source["depth_km"])
 
-    print(f"  Inverted: ({noisy_refined['lat']:.3f}°N, "
-          f"{noisy_refined['lon']:.3f}°E), "
-          f"depth={noisy_refined['depth_km']:.1f}km")
+    print(
+        f"  Inverted: ({noisy_refined['lat']:.3f}°N, "
+        f"{noisy_refined['lon']:.3f}°E), "
+        f"depth={noisy_refined['depth_km']:.1f}km"
+    )
     print(f"  Location error: {noisy_loc_error:.2f} km")
-    print(f"  Depth error:    {noisy_depth_error:.2f} km")
     print(f"  RMS residual:   {noisy_refined['rms_residual_s']:.4f} s")
 
-    if check_max("Noisy location error (km)", noisy_loc_error,
-                  criteria["location_error_km_max"]):
-        total_passed += 1
-    else:
-        total_failed += 1
+    check_max("Noisy location error (km)", noisy_loc_error, criteria["location_error_km_max"])
 
     # ------------------------------------------------------------------
-    # Part 5: Monte Carlo uncertainty estimation
+    # Part 5: Monte Carlo uncertainty
     # ------------------------------------------------------------------
-    print(f"\n--- Part 5: Monte Carlo Uncertainty (N=50) ---")
+    print("\n--- Part 5: Monte Carlo Uncertainty (N=50) ---")
     mc = monte_carlo_source_uncertainty(
-        true_arrivals, stations, noise_std,
-        n_trials=50, vp=vp, seed=42
+        true_arrivals, stations, noise_std, n_trials=50, vp=vp, seed=42
     )
 
     print(f"  Lat:   {mc['lat']['mean']:.3f} ± {mc['lat']['std']:.3f}°")
     print(f"  Lon:   {mc['lon']['mean']:.3f} ± {mc['lon']['std']:.3f}°")
-    print(f"  Depth: {mc['depth_km']['mean']:.1f} ± "
-          f"{mc['depth_km']['std']:.1f} km")
-    print(f"  Horizontal error: mean={mc['horizontal_error_km']['mean']:.1f} km, "
-          f"90th={mc['horizontal_error_km']['p90']:.1f} km")
-    print(f"  RMS residual: {mc['rms_residual']['mean']:.3f} ± "
-          f"{mc['rms_residual']['std']:.3f} s")
+    print(
+        f"  Depth: {mc['depth_km']['mean']:.1f} ± "
+        f"{mc['depth_km']['std']:.1f} km"
+    )
+    print(
+        f"  Horizontal error: mean={mc['horizontal_error_km']['mean']:.1f} km, "
+        f"90th={mc['horizontal_error_km']['p90']:.1f} km"
+    )
 
-    # MC mean should be close to true source
     mc_loc_error = haversine_km(
         mc["lat"]["mean"], mc["lon"]["mean"],
-        source["lat"], source["lon"]
+        source["lat"], source["lon"],
     )
-    if check_max("MC mean location error (km)", mc_loc_error,
-                  criteria["location_error_km_max"]):
-        total_passed += 1
-    else:
-        total_failed += 1
-
-    # Uncertainty should be non-zero (noise is real)
-    if mc["lat"]["std"] > 0.001:
-        print(f"  [PASS] Non-zero location uncertainty (noise propagated)")
-        total_passed += 1
-    else:
-        print(f"  [FAIL] No uncertainty — noise not propagating!")
-        total_failed += 1
+    check_max("MC mean location error (km)", mc_loc_error, criteria["location_error_km_max"])
+    check_true(
+        "Non-zero location uncertainty (noise propagated)",
+        mc["lat"]["std"] > 0.001,
+    )
 
     # ------------------------------------------------------------------
     # Part 6: Station subset analysis
     # ------------------------------------------------------------------
-    print(f"\n--- Part 6: Station Subset (fewer stations) ---")
+    print("\n--- Part 6: Station Subset (fewer stations) ---")
 
     for n_sta in [3, 5, 7]:
         subset_stations = stations[:n_sta]
-        subset_arrivals = {a["code"]: a["arrival_time_s"] + rng.normal(0, noise_std)
-                           for a in true_arrivals if a["code"] in
-                           [s["code"] for s in subset_stations]}
+        subset_codes = {s["code"] for s in subset_stations}
+        subset_arrivals = {
+            a["code"]: a["arrival_time_s"] + rng.normal(0, noise_std)
+            for a in true_arrivals
+            if a["code"] in subset_codes
+        }
 
         sub_grid = grid_search_inversion(
-            subset_arrivals, subset_stations,
+            subset_arrivals,
+            subset_stations,
             lat_range=tuple(gs["lat_range"]),
             lon_range=tuple(gs["lon_range"]),
             depth_range_km=tuple(gs["depth_range_km"]),
@@ -539,50 +518,34 @@ def main():
         )
         sub_error = haversine_km(
             sub_grid["lat"], sub_grid["lon"],
-            source["lat"], source["lon"]
+            source["lat"], source["lon"],
         )
-        print(f"  {n_sta} stations: error = {sub_error:.1f} km, "
-              f"RMS = {sub_grid['rms_residual_s']:.3f} s")
+        print(
+            f"  {n_sta} stations: error = {sub_error:.1f} km, "
+            f"RMS = {sub_grid['rms_residual_s']:.3f} s"
+        )
 
-    # More stations should generally help (7 > 3)
-    print(f"  [PASS] Station subset analysis completed")
-    total_passed += 1
+    check_true("Station subset analysis completed", True)
 
     # ------------------------------------------------------------------
-    # Part 7: Key Findings
+    # Key Findings
     # ------------------------------------------------------------------
     print(f"\n{'=' * 72}")
     print("KEY FINDINGS:")
     print(f"{'=' * 72}")
 
     print(f"\n1. Source Localization Accuracy:")
-    print(f"   Clean data:  {ref_loc_error:.2f} km error "
-          f"(grid + Nelder-Mead)")
+    print(f"   Clean data:  {ref_loc_error:.2f} km error")
     print(f"   Noisy (±{noise_std}s): {noisy_loc_error:.1f} km error")
-    print(f"   MC mean:     {mc_loc_error:.1f} km error")
 
     print(f"\n2. Uncertainty Budget:")
-    print(f"   Horizontal:  ±{mc['horizontal_error_km']['mean']:.1f} km "
-          f"(90th: {mc['horizontal_error_km']['p90']:.1f} km)")
+    print(
+        f"   Horizontal:  ±{mc['horizontal_error_km']['mean']:.1f} km "
+        f"(90th: {mc['horizontal_error_km']['p90']:.1f} km)"
+    )
     print(f"   Depth:       ±{mc['depth_km']['std']:.1f} km")
-    print(f"   Origin time: ±{mc['rms_residual']['std']:.3f} s")
 
-    print(f"\n3. groundSpring Insights:")
-    print(f"   - Arrival-time noise of ±{noise_std}s → location uncertainty "
-          f"of ~{mc['horizontal_error_km']['mean']:.0f} km")
-    print(f"   - Depth is poorly constrained with only surface stations")
-    print(f"   - More stations reduce error but with diminishing returns")
-    print(f"   - Same error propagation framework as ET₀ (Exp 003)")
-
-    # ------------------------------------------------------------------
-    # Summary
-    # ------------------------------------------------------------------
-    total = total_passed + total_failed
-    print(f"\n{'=' * 72}")
-    print(f"TOTAL: {total_passed}/{total} PASS, {total_failed}/{total} FAIL")
-    print(f"{'=' * 72}")
-
-    return 0 if total_failed == 0 else 1
+    return print_summary("Exp 005: Seismic Wave Propagation")
 
 
 if __name__ == "__main__":

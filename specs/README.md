@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
-**Last Updated**: February 12, 2026
-**Status**: Phase 0 complete — 71/71 quantitative checks
+**Last Updated**: February 25, 2026
+**Status**: Phase 0 (Python) + Phase 1a (Rust) complete
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -10,12 +10,14 @@
 
 | Metric | Value |
 |--------|-------|
-| Phase 0 (Python) | 71/71 PASS — 5 experiments across 4 scientific domains |
-| Exp 001 | Sensor noise decomposition (32/32) — EC5 bias-dominated, CS616 mixed |
-| Exp 002 | Observation gap ERA5 vs station (5/5) — methodology validated |
-| Exp 003 | Error propagation FAO-56 (8/8) — humidity dominates at 66% |
-| Exp 004 | Sequencing depth noise (16/16) — genus saturation at 5,000 reads |
-| Exp 005 | Seismic source inversion (10/10) — ±2km horizontal, ±8.5km depth |
+| Phase 0 (Python) | 5/5 experiments PASS across 4 scientific domains |
+| Phase 1a (Rust) | 60/60 PASS — 3 validation binaries (decompose, rarefaction, seismic) |
+| pytest | 31/31 PASS — unit, determinism, integration tests |
+| Exp 001 | Sensor noise decomposition — EC5 bias-dominated, CS616 mixed |
+| Exp 002 | Observation gap ERA5 vs station — methodology validated |
+| Exp 003 | Error propagation FAO-56 — humidity dominates |
+| Exp 004 | Sequencing depth noise — genus saturation at 5,000 reads |
+| Exp 005 | Seismic source inversion — regional accuracy demonstrated |
 | Faculty | Bazavov (CMSE + Physics, MSU), Waters (MMG, MSU), Liu (CMSE, MSU) |
 
 ---
@@ -28,6 +30,7 @@
 |------|--------|-------------|
 | [PAPER_REVIEW_QUEUE.md](PAPER_REVIEW_QUEUE.md) | Active | Papers to review/reproduce, prioritized by tier |
 | [BARRACUDA_REQUIREMENTS.md](BARRACUDA_REQUIREMENTS.md) | Active | GPU kernel requirements and gap analysis |
+| [BARRACUDA_EVOLUTION.md](BARRACUDA_EVOLUTION.md) | Active | Module → GPU promotion mapping (Tier A/B/C) |
 
 ### Existing Documentation (in parent directories)
 

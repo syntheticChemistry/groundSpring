@@ -1,13 +1,16 @@
 # groundSpring — BarraCUDA Requirements
 
-**Last Updated**: February 12, 2026
+**Last Updated**: February 25, 2026
 **Purpose**: GPU kernel requirements, gap analysis, and evolution priorities
 
 ---
 
 ## Current Status
 
-groundSpring Phase 0 is Python-only (NumPy, SciPy, ObsPy). No Rust or GPU code yet. The experiments establish noise characterization baselines that inform all other springs.
+groundSpring Phase 0 (Python) and Phase 1a (Rust CPU) are complete. The `groundspring`
+crate provides pure safe Rust implementations of core algorithms (decompose, rarefaction,
+seismic). See [BARRACUDA_EVOLUTION.md](BARRACUDA_EVOLUTION.md) for the module-by-module
+GPU promotion mapping.
 
 ---
 

@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 ecoPrimals / Squirrel Team
+
+[package]
+name = "groundspring-validate"
+version = "0.1.0"
+description = "Validation binaries for groundSpring — hotSpring-pattern pass/fail with hardcoded expected values"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+groundspring = { path = "../groundspring" }
+
+[[bin]]
+name = "validate-decompose"
+path = "src/validate_decompose.rs"
+
+[[bin]]
+name = "validate-rarefaction"
+path = "src/validate_rarefaction.rs"
+
+[[bin]]
+name = "validate-seismic"
+path = "src/validate_seismic.rs"

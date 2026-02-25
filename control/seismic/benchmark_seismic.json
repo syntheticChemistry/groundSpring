@@ -1,19 +1,38 @@
 {
-  "_source": "groundSpring Experiment 005 — Seismic Wave Propagation",
+  "_source": "groundSpring Experiment 005 \u2014 Seismic Wave Propagation",
+  "_provenance": {
+    "generated_by": "Synthetic NMSZ scenario with IASP91 velocity model",
+    "baseline_date": "2026-02-16",
+    "baseline_commit": "initial",
+    "validation_script": "control/seismic/seismic_inversion.py",
+    "command": "python3 control/seismic/seismic_inversion.py",
+    "reference": "Kennett & Engdahl (1991) Geophysical Journal International",
+    "notes": "Station coordinates from real IRIS FDSN metadata. Vp=5.8 km/s from IASP91 upper crust layer. Acceptance criteria based on typical regional network performance."
+  },
   "_description": "P-wave travel time inversion for earthquake source localization from public seismic data",
   "_groundspring_question": "Can we locate an earthquake source from noisy arrival-time observations?",
-  "_data_source": "IRIS Web Services (free, public, no key) — https://service.iris.edu/",
-
+  "_data_source": "IRIS Web Services (free, public, no key) \u2014 https://service.iris.edu/",
   "travel_time_model": {
     "_description": "1D layered velocity model for continental crust (IASP91-simplified)",
     "layers": [
-      {"depth_top_km": 0.0, "vp_km_s": 5.8, "name": "upper_crust"},
-      {"depth_top_km": 20.0, "vp_km_s": 6.5, "name": "lower_crust"},
-      {"depth_top_km": 35.0, "vp_km_s": 8.04, "name": "upper_mantle"}
+      {
+        "depth_top_km": 0.0,
+        "vp_km_s": 5.8,
+        "name": "upper_crust"
+      },
+      {
+        "depth_top_km": 20.0,
+        "vp_km_s": 6.5,
+        "name": "lower_crust"
+      },
+      {
+        "depth_top_km": 35.0,
+        "vp_km_s": 8.04,
+        "name": "upper_mantle"
+      }
     ],
     "_reference": "Kennett & Engdahl (1991) IASP91, Geophysical Journal International"
   },
-
   "test_scenario": {
     "_description": "Synthetic earthquake with known location, for validation of inversion",
     "true_source": {
@@ -24,23 +43,66 @@
       "region": "New Madrid Seismic Zone, Missouri"
     },
     "stations": [
-      {"code": "WVT",  "lat": 36.13, "lon": -87.83, "dist_km": 170},
-      {"code": "CCM",  "lat": 38.06, "lon": -91.24, "dist_km": 210},
-      {"code": "SIUC", "lat": 37.71, "lon": -89.22, "dist_km": 30},
-      {"code": "SLM",  "lat": 38.63, "lon": -90.24, "dist_km": 160},
-      {"code": "USIN", "lat": 37.97, "lon": -87.35, "dist_km": 160},
-      {"code": "PLAL", "lat": 34.98, "lon": -88.08, "dist_km": 290},
-      {"code": "WCI",  "lat": 38.23, "lon": -86.29, "dist_km": 250}
+      {
+        "code": "WVT",
+        "lat": 36.13,
+        "lon": -87.83,
+        "dist_km": 170
+      },
+      {
+        "code": "CCM",
+        "lat": 38.06,
+        "lon": -91.24,
+        "dist_km": 210
+      },
+      {
+        "code": "SIUC",
+        "lat": 37.71,
+        "lon": -89.22,
+        "dist_km": 30
+      },
+      {
+        "code": "SLM",
+        "lat": 38.63,
+        "lon": -90.24,
+        "dist_km": 160
+      },
+      {
+        "code": "USIN",
+        "lat": 37.97,
+        "lon": -87.35,
+        "dist_km": 160
+      },
+      {
+        "code": "PLAL",
+        "lat": 34.98,
+        "lon": -88.08,
+        "dist_km": 290
+      },
+      {
+        "code": "WCI",
+        "lat": 38.23,
+        "lon": -86.29,
+        "dist_km": 250
+      }
     ],
     "arrival_noise_std_s": 0.5,
-    "_note": "Arrival time noise of ±0.5s is realistic for automated P-wave picks"
+    "_note": "Arrival time noise of \u00b10.5s is realistic for automated P-wave picks"
   },
-
   "inversion_config": {
     "grid_search": {
-      "lat_range": [35.0, 40.0],
-      "lon_range": [-92.0, -86.0],
-      "depth_range_km": [0.0, 30.0],
+      "lat_range": [
+        35.0,
+        40.0
+      ],
+      "lon_range": [
+        -92.0,
+        -86.0
+      ],
+      "depth_range_km": [
+        0.0,
+        30.0
+      ],
       "grid_spacing_deg": 0.05,
       "depth_spacing_km": 2.0
     },
@@ -50,22 +112,30 @@
       "rms_residual_s_max": 2.0
     }
   },
-
   "noise_characterization": {
     "_description": "Types of noise in seismic data",
     "cultural_noise": {
-      "description": "Human activity — traffic, machinery, construction",
-      "frequency_hz": [1, 30],
+      "description": "Human activity \u2014 traffic, machinery, construction",
+      "frequency_hz": [
+        1,
+        30
+      ],
       "diurnal_pattern": true
     },
     "ocean_microseism": {
       "description": "Continuous ground motion from ocean waves",
-      "frequency_hz": [0.05, 0.3],
+      "frequency_hz": [
+        0.05,
+        0.3
+      ],
       "seasonal_pattern": true
     },
     "instrument_noise": {
       "description": "Sensor self-noise (thermal, electronic)",
-      "frequency_hz": [0.01, 50],
+      "frequency_hz": [
+        0.01,
+        50
+      ],
       "level": "varies by instrument class"
     }
   }

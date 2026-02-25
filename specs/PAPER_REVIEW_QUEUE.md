@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: February 12, 2026
+**Last Updated**: February 25, 2026
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---
@@ -69,6 +69,36 @@ the theorems; groundSpring runs the experiments.
 | Sensing Systems | Bourgain-Kachkovskiy 2018 | Two interacting particles = two coupled sensors |
 | Temporal Dynamics | Jitomirskaya-Kachkovskiy 2018 | Quasiperiodic potentials = structured temporal noise |
 | Spatial Propagation | Kachkovskiy 2016 | Transport in disordered chains = wave propagation through heterogeneous media |
+
+### Stochastic vs Deterministic Evolution in Extreme Environments (R. Anderson)
+
+Rika Anderson (Carleton College) studies when evolutionary forces in extreme
+environments are governed by natural selection (deterministic signal) vs. genetic
+drift (stochastic noise). Her 2021 mSystems paper explicitly frames this as the
+central question of subsurface microbiology — and it maps directly to groundSpring's
+founding question: **when does signal propagate and when does noise win?**
+
+| # | Paper | Journal | Year | Faculty | Why | Status |
+|---|-------|---------|------|---------|-----|--------|
+| 19 | Anderson (2021) "Tracking Microbial Evolution in the Subseafloor Biosphere" | mSystems 6:e00731-21 | 2021 | R. Anderson | Formalizes when stochastic forces dominate over deterministic selection in low-biomass environments. Cites Lenski LTEE (§1.2 of CONSTRAINED_EVOLUTION_FORMAL.md). Introduces Muller's ratchet as consequence of extreme energy limitation. Directly maps to groundSpring's signal vs noise framework | Reference |
+| 20 | Anderson et al. (2022) "Microbial population dynamics are dominated by stochastic forces in a low biomass subseafloor habitat" | mBio 13:e00354-22 | 2022 | R. Anderson | **Empirical proof** that drift dominates selection in energy-limited subsurface. Quantitative genomic evidence for stochastic > deterministic evolution. The biological equivalent of groundSpring Exp 001's finding that noise dominates signal in some sensor configurations | Queued |
+| 21 | Anderson, Sogin, Baross (2015) "Biogeography and ecology of the rare and abundant microbial lineages" | FEMS Microbiol Ecol 91:fiu016 | 2015 | R. Anderson | Rare biosphere problem — when does a detected microbial lineage represent real biological signal vs. sequencing noise? Directly extends groundSpring Exp 004's genus saturation analysis | Queued |
+
+**Why this is groundSpring's evolutionary validation**: groundSpring decomposes
+measurement error into bias and noise across physics, agriculture, meteorology,
+biology, and geophysics. Anderson does the same decomposition in evolutionary
+biology: selection = signal, drift = noise, and the environment determines which
+dominates. Her 2022 mBio paper proves drift dominance empirically — exactly as
+groundSpring Exp 001 proves bias dominance in EC5 sensors and Exp 005 shows
+depth is poorly constrained by surface noise.
+
+| groundSpring Pillar | R. Anderson Paper | Connection |
+|--------------------|--------------------|------------|
+| Signal vs Noise | Anderson (2022) mBio | Selection (signal) vs drift (noise) in low-biomass systems |
+| Inverse Problems | Anderson et al. (2017) Nat Comm | Inferring evolutionary history from metagenomic snapshots |
+| Sensing Systems | Anderson (2015) FEMS | Rare biosphere — is a detected lineage signal or sampling artifact? |
+| Temporal Dynamics | Anderson (2021) mSystems | How quickly does evolution proceed under extreme energy limitation? |
+| Spatial Propagation | Anderson (2021) mSystems | Gene flow via fluid highways — dispersal vs isolation in the deep sea |
 
 ### Eco-Evolutionary Noise (Dolson)
 

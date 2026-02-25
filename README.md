@@ -24,80 +24,87 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 
 ## Current Status
 
-| Experiment | Domain | Status | Key Question |
-|------------|--------|--------|--------------|
-| 001: Sensor Noise | Agricultural | Phase 0 | Bias vs variance in soil moisture sensors |
-| 002: Observation Gap | Meteorological | Phase 0 | Reanalysis model vs station readings |
-| 003: Error Propagation | Agricultural | Phase 0 | How sensor noise becomes ET0 uncertainty |
-| 004: Sequencing Noise | Biological | Phase 0 | Taxonomic reliability vs sequencing depth |
-| 005: Seismic Waves | Geological | Phase 0 | Source localization from noisy arrivals |
+| Experiment | Domain | Phase 0 (Python) | Phase 1 (Rust) | Key Question |
+|------------|--------|:-----------------:|:--------------:|--------------|
+| 001: Sensor Noise | Agricultural | 32/32 PASS | 36/36 PASS | Bias vs variance in soil moisture sensors |
+| 002: Observation Gap | Meteorological | PASS/SKIP | — | Reanalysis model vs station readings |
+| 003: Error Propagation | Agricultural | PASS | — | How sensor noise becomes ET₀ uncertainty |
+| 004: Sequencing Noise | Biological | PASS | 15/15 PASS | Taxonomic reliability vs sequencing depth |
+| 005: Seismic Waves | Geological | PASS | 9/9 PASS | Source localization from noisy arrivals |
 
 ## Quick Start
 
-```bash
-# Install dependencies
-pip install -r control/requirements.txt
+### Python Phase 0
 
-# Run all Phase 0 baselines
+```bash
+pip install numpy scipy pandas requests
 bash scripts/run_all_baselines.sh
 ```
+
+### Rust Phase 1
+
+```bash
+cargo test --workspace
+cargo clippy --workspace   # zero warnings required
+
+# Validation binaries (hotSpring pattern: exit 0 = pass, exit 1 = fail)
+cargo run --bin validate-decompose
+cargo run --bin validate-rarefaction
+cargo run --bin validate-seismic
+```
+
+### Full Suite (Python + Rust + pytest)
+
+```bash
+bash scripts/run_all_baselines.sh
+```
+
+## Evolution Path
+
+```
+Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration (Phase 2)
+   NumPy/SciPy                    Pure safe Rust                BarraCUDA / ToadStool
+   ✓ Complete                     ✓ Core algorithms             ◻ Feature-gated
+```
+
+See `specs/BARRACUDA_EVOLUTION.md` for the module-by-module GPU promotion mapping.
 
 ## How groundSpring Relates to Other Springs
 
 | Spring | What It Validates | What groundSpring Adds |
 |--------|-------------------|------------------------|
 | hotSpring | Clean nuclear math (f64, GPU) | How AME2020 mass uncertainties propagate to model predictions |
-| airSpring | FAO-56 ET0, soil calibration | The REAL sensor noise — quantifying factory vs field calibration |
+| airSpring | FAO-56 ET₀, soil calibration | The REAL sensor noise — quantifying factory vs field calibration |
 | wetSpring | Microbiome taxonomy, PFAS detection | Sequencing error rates, mass spec noise floors |
 | neuralSpring (future) | ML surrogates, transfer learning | groundSpring provides labeled dirty data neuralSpring learns from |
-
-**Key distinction**: airSpring asks "what is ET0 for this field?" groundSpring asks "how confident are we in that number given what the sensors actually reported?" neuralSpring asks "can we learn a model that adapts this answer to a new field we've never seen?"
-
-## Research Context
-
-groundSpring draws on research from all existing spring PIs:
-
-- **Dr. Younsuk Dong (airSpring, MSU BAE)** — Dong et al. (2020) is a groundSpring study: comparing factory calibrations to field reality across soil types. The RMSE/IA/MBE framework is groundSpring's statistical language.
-
-- **Dr. A. Daniel Jones (wetSpring, MSU Biochem)** — Non-targeted PFAS screening is an inverse/detection problem in noisy mass spec data. His ML work for PFAS in Michigan drinking water is groundSpring methodology.
-
-- **Dr. Michael Murillo (hotSpring, MSU Physics)** — Langevin thermostat = stochastic noise modeling. AME2020 uncertainty quantification is error propagation. SparsitySampler learns where noise matters most.
-
-- **Smallwood & Cahill (wetSpring, Sandia)** — Pond crash forensics = anomaly detection in biological time series. When does normal variation become a crash signal?
-
-### New Directions (No PI Yet)
-
-- **Seismology / Geophysics** — Earthquake source inversion, ambient noise tomography
-- **Astronomical Observation** — Stellar classification from noisy spectra, atmospheric correction
-- **Remote Sensing** — Satellite calibration, the gap between what a sensor sees and ground truth
-- **Instrument Characterization** — Cross-calibration across sensor types
-
-## Cross-Spring Use Cases
-
-- **New Mexico pistachios / California almonds**: airSpring has Michigan models. groundSpring quantifies how different NM/CA conditions are from Michigan. neuralSpring adapts. groundSpring says "here's how much to distrust the prediction outside Michigan."
-
-- **Fruit blight / white fungus in bat caves**: wetSpring identifies microbes. airSpring models environment. groundSpring asks "how reliable is this signal? Is the blight signature real or a sequencing artifact?"
-
-- **Soil microbiome health**: wetSpring (microbial ID) + airSpring (soil-plant-atmosphere) + groundSpring (measurement uncertainty, spatial heterogeneity, temporal variability). groundSpring says "this sample represents a 10m radius, not the whole field."
 
 ## Directory Structure
 
 ```
 groundSpring/
-├── control/                      # Phase 0 baselines
-│   ├── sensor_noise/             # Exp 001: bias-variance decomposition
-│   ├── observation_gap/          # Exp 002: model vs station
-│   ├── error_propagation/        # Exp 003: Monte Carlo through FAO-56
-│   ├── sequencing_noise/         # Exp 004: taxonomic noise floor
-│   └── seismic/                  # Exp 005: wave propagation + source inversion
+├── control/                         # Phase 0 Python experiments
+│   ├── common.py                    # Shared statistical primitives
+│   ├── sensor_noise/                # Exp 001: bias-variance decomposition
+│   ├── observation_gap/             # Exp 002: model vs station
+│   ├── error_propagation/           # Exp 003: Monte Carlo through FAO-56
+│   ├── sequencing_noise/            # Exp 004: taxonomic noise floor
+│   └── seismic/                     # Exp 005: wave propagation + source inversion
+├── crates/
+│   ├── groundspring/                # Phase 1 Rust library (zero deps, safe)
+│   └── groundspring-validate/       # Validation binaries (hotSpring pattern)
+├── tests/                           # pytest suite (unit, determinism, integration)
 ├── scripts/
-│   ├── run_all_baselines.sh
-│   └── download_iris.py          # IRIS seismic data (free, public)
+│   ├── run_all_baselines.sh         # Full validation (Python + Rust + pytest)
+│   └── download_iris.py             # IRIS seismic data (free, public)
+├── specs/
+│   ├── BARRACUDA_REQUIREMENTS.md    # GPU kernel requirements
+│   ├── BARRACUDA_EVOLUTION.md       # Module → GPU promotion mapping
+│   └── PAPER_REVIEW_QUEUE.md        # Future experiment candidates
 ├── whitePaper/
-├── data/                         # Downloaded data (not committed)
-├── CONTROL_EXPERIMENT_STATUS.md
-├── README.md
-└── LICENSE
+├── pyproject.toml                   # Python tooling (ruff, mypy, pytest)
+├── Cargo.toml                       # Rust workspace
+├── CONTRIBUTING.md
+└── LICENSE                          # AGPL-3.0-or-later
 ```
 
 ## Hardware Gate
@@ -114,8 +121,8 @@ Same as all ecoPrimals springs:
 
 ## License
 
-AGPL-3.0-or-later
+AGPL-3.0-or-later — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026*
+*Initialized: February 16, 2026 | Phase 1 (Rust): February 25, 2026*

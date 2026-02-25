@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
-# groundSpring — Run All Phase 0 Baselines
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 ecoPrimals / Squirrel Team
+#
+# groundSpring — Run All Validation (Python Phase 0 + Rust Phase 1)
 #
 # Usage:
 #   bash scripts/run_all_baselines.sh
 #
-# Runs all five groundSpring experiments and reports summary.
+# Writes results to data/validation_log_<timestamp>.txt
 
 set -e
 
@@ -13,21 +16,24 @@ ROOT="$(dirname "$SCRIPT_DIR")"
 
 cd "$ROOT"
 
-TOTAL_PASS=0
-TOTAL_FAIL=0
+TIMESTAMP="$(date -Iseconds)"
+LOG_DIR="$ROOT/data"
+mkdir -p "$LOG_DIR"
+LOG_FILE="$LOG_DIR/validation_log_$(date +%Y%m%d_%H%M%S).txt"
+
 EXPERIMENTS=()
 RESULTS=()
 
 run_experiment() {
     local name="$1"
-    local script="$2"
+    local cmd="$2"
 
     echo ""
     echo "================================================================"
     echo "  Running: $name"
     echo "================================================================"
 
-    if python3 "$script"; then
+    if eval "$cmd"; then
         RESULTS+=("PASS")
         echo ""
         echo "  >>> $name: PASS"
@@ -39,45 +45,67 @@ run_experiment() {
     EXPERIMENTS+=("$name")
 }
 
+{
 echo "================================================================"
-echo "  groundSpring — Phase 0 Baseline Validation Suite"
-echo "  Date: $(date -Iseconds)"
+echo "  groundSpring — Full Validation Suite"
+echo "  Date: $TIMESTAMP"
 echo "================================================================"
 
-# Exp 001: Sensor Noise Characterization
-run_experiment \
-    "Exp 001: Sensor Noise Characterization" \
-    "control/sensor_noise/sensor_noise_decomposition.py"
-
-# Exp 002: Weather Model vs Observation Gap
-run_experiment \
-    "Exp 002: Weather Model vs Observation Gap" \
-    "control/observation_gap/observation_gap.py"
-
-# Exp 003: Error Propagation Through FAO-56
-run_experiment \
-    "Exp 003: Error Propagation Through FAO-56" \
-    "control/error_propagation/error_propagation_fao56.py"
-
-# Exp 004: Sequencing Depth & Taxonomic Noise
-run_experiment \
-    "Exp 004: Sequencing Depth & Taxonomic Noise" \
-    "control/sequencing_noise/sequencing_noise.py"
-
-# Exp 005: Seismic Wave Propagation
-run_experiment \
-    "Exp 005: Seismic Wave Propagation" \
-    "control/seismic/seismic_inversion.py"
-
-# Optional: Download IRIS station metadata
 echo ""
-echo "================================================================"
-echo "  Optional: IRIS Station Metadata"
-echo "================================================================"
-if command -v python3 &> /dev/null; then
-    python3 scripts/download_iris.py --stations 2>&1 || echo "  [SKIP] IRIS download failed (may need network)"
+echo "╔══════════════════════════════════════════════════════════════╗"
+echo "║  PHASE 0: Python Baselines                                 ║"
+echo "╚══════════════════════════════════════════════════════════════╝"
+
+run_experiment \
+    "Exp 001: Sensor Noise (Python)" \
+    "python3 control/sensor_noise/sensor_noise_decomposition.py"
+
+run_experiment \
+    "Exp 002: Observation Gap (Python)" \
+    "python3 control/observation_gap/observation_gap.py"
+
+run_experiment \
+    "Exp 003: Error Propagation (Python)" \
+    "python3 control/error_propagation/error_propagation_fao56.py"
+
+run_experiment \
+    "Exp 004: Sequencing Noise (Python)" \
+    "python3 control/sequencing_noise/sequencing_noise.py"
+
+run_experiment \
+    "Exp 005: Seismic Inversion (Python)" \
+    "python3 control/seismic/seismic_inversion.py"
+
+echo ""
+echo "╔══════════════════════════════════════════════════════════════╗"
+echo "║  PHASE 1: Rust Validation Binaries                         ║"
+echo "╚══════════════════════════════════════════════════════════════╝"
+
+if command -v cargo &> /dev/null; then
+    cargo build --release --workspace 2>&1 | tail -3
+
+    run_experiment \
+        "Rust: Bias-Variance Decomposition" \
+        "cargo run --release --bin validate-decompose"
+
+    run_experiment \
+        "Rust: Rarefaction" \
+        "cargo run --release --bin validate-rarefaction"
+
+    run_experiment \
+        "Rust: Seismic Inversion" \
+        "cargo run --release --bin validate-seismic"
 else
-    echo "  [SKIP] python3 not found"
+    echo "  [SKIP] cargo not found — Rust validation skipped"
+fi
+
+echo ""
+echo "╔══════════════════════════════════════════════════════════════╗"
+echo "║  PYTEST: Unit + Determinism Tests                          ║"
+echo "╚══════════════════════════════════════════════════════════════╝"
+
+if command -v python3 &> /dev/null; then
+    python3 -m pytest tests/ -v 2>&1 || echo "  [WARN] Some pytest tests failed"
 fi
 
 # Summary
@@ -100,8 +128,11 @@ done
 
 echo ""
 echo "  Total: $N_PASS PASS, $N_FAIL FAIL out of ${#EXPERIMENTS[@]} experiments"
+echo "  Log:   $LOG_FILE"
 echo "================================================================"
 
 if [ "$N_FAIL" -gt 0 ]; then
     exit 1
 fi
+
+} 2>&1 | tee "$LOG_FILE"

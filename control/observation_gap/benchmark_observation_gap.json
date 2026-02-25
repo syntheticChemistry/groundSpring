@@ -1,8 +1,15 @@
 {
-  "_source": "groundSpring Experiment 002 — Weather Model vs Observation",
+  "_source": "groundSpring Experiment 002 \u2014 Weather Model vs Observation",
+  "_provenance": {
+    "generated_by": "Literature ranges for ERA5 vs GHCND agreement",
+    "baseline_date": "2026-02-16",
+    "baseline_commit": "initial",
+    "validation_script": "control/observation_gap/observation_gap.py",
+    "command": "python3 control/observation_gap/observation_gap.py",
+    "notes": "Expected ranges based on published ERA5 validation studies. Temperature R2>0.9 and RMSE 1-4C are well-established for mid-latitude stations. Precip hit rate >0.6 is conservative."
+  },
   "_description": "Quantify the gap between ERA5 reanalysis (Open-Meteo) and GHCND station observations (NOAA CDO) for Lansing, MI",
   "_groundspring_question": "How does a 10km gridded reanalysis differ from a point station measurement?",
-
   "location": {
     "name": "Lansing, MI",
     "open_meteo": {
@@ -17,38 +24,48 @@
       "name": "Lansing Capital City Airport",
       "lat": 42.779,
       "lon": -84.587,
-      "description": "GHCND station — point measurement at airport"
+      "description": "GHCND station \u2014 point measurement at airport"
     },
     "distance_km": 10.3,
     "_note": "The stations are ~10km apart: MSU campus vs airport. ERA5 grid cell is ~10km, so they may fall in same or adjacent cells."
   },
-
   "comparison_period": {
     "start": "2023-01-01",
     "end": "2023-12-31",
-    "description": "Full year 2023 — captures all seasons"
+    "description": "Full year 2023 \u2014 captures all seasons"
   },
-
   "variables_compared": {
     "tmax_c": {
-      "description": "Daily maximum temperature (°C)",
+      "description": "Daily maximum temperature (\u00b0C)",
       "open_meteo_field": "temperature_2m_max",
       "noaa_field": "TMAX",
       "expected_characteristics": {
-        "mbe_range": [-2.0, 2.0],
-        "rmse_range": [1.0, 4.0],
-        "r2_minimum": 0.90,
+        "mbe_range": [
+          -2.0,
+          2.0
+        ],
+        "rmse_range": [
+          1.0,
+          4.0
+        ],
+        "r2_minimum": 0.9,
         "_note": "ERA5 tends to smooth extremes slightly"
       }
     },
     "tmin_c": {
-      "description": "Daily minimum temperature (°C)",
+      "description": "Daily minimum temperature (\u00b0C)",
       "open_meteo_field": "temperature_2m_min",
       "noaa_field": "TMIN",
       "expected_characteristics": {
-        "mbe_range": [-2.0, 2.0],
-        "rmse_range": [1.0, 4.0],
-        "r2_minimum": 0.90
+        "mbe_range": [
+          -2.0,
+          2.0
+        ],
+        "rmse_range": [
+          1.0,
+          4.0
+        ],
+        "r2_minimum": 0.9
       }
     },
     "precip_mm": {
@@ -56,13 +73,15 @@
       "open_meteo_field": "precipitation_sum",
       "noaa_field": "PRCP",
       "expected_characteristics": {
-        "rmse_range": [2.0, 10.0],
-        "r2_minimum": 0.40,
+        "rmse_range": [
+          2.0,
+          10.0
+        ],
+        "r2_minimum": 0.4,
         "_note": "Precipitation is inherently more spatially variable than temperature"
       }
     }
   },
-
   "error_sources": {
     "spatial_representation": "ERA5 averages over ~10km cell; station is a point",
     "temporal_aggregation": "Observation hours may differ (local midnight vs UTC)",
@@ -70,10 +89,9 @@
     "microclimate": "Airport vs campus have different land use (concrete vs grass)",
     "elevation_difference": "3-5m potential elevation difference between grid cell and station"
   },
-
   "acceptance_criteria": {
-    "temperature_r2_min": 0.90,
-    "precip_hit_rate_min": 0.60,
+    "temperature_r2_min": 0.9,
+    "precip_hit_rate_min": 0.6,
     "_note": "These are conservative thresholds for model-observation agreement"
   }
 }

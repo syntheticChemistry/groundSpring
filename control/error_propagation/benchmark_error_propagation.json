@@ -1,20 +1,56 @@
 {
-  "_source": "groundSpring Experiment 003 — Error Propagation Through FAO-56",
+  "_source": "groundSpring Experiment 003 \u2014 Error Propagation Through FAO-56",
+  "_provenance": {
+    "generated_by": "FAO-56 Example 18 reference value + WMO sensor specs",
+    "baseline_date": "2026-02-16",
+    "baseline_commit": "initial",
+    "validation_script": "control/error_propagation/error_propagation_fao56.py",
+    "command": "python3 control/error_propagation/error_propagation_fao56.py",
+    "notes": "ET0=3.88 from FAO-56 Example 18. Uncertainty ranges from WMO instrument accuracy specs. Sensitivity ranking from first-principles analysis of Penman-Monteith equation."
+  },
   "_description": "Monte Carlo propagation of sensor uncertainties through the Penman-Monteith equation chain",
   "_groundspring_question": "Given known sensor errors, how uncertain is the ET0 output?",
-
   "input_uncertainties": {
     "_description": "Realistic sensor measurement uncertainties for field instruments",
-    "tmax_c":     {"std": 0.5, "distribution": "normal", "unit": "°C", "source": "WMO-specified accuracy for operational thermometers"},
-    "tmin_c":     {"std": 0.5, "distribution": "normal", "unit": "°C", "source": "WMO-specified accuracy"},
-    "rhmax_pct":  {"std": 5.0, "distribution": "normal", "unit": "%",  "source": "Typical capacitive humidity sensor"},
-    "rhmin_pct":  {"std": 5.0, "distribution": "normal", "unit": "%",  "source": "Typical capacitive humidity sensor"},
-    "wind_m_s":   {"std_fraction": 0.10, "distribution": "normal", "unit": "m/s", "source": "Cup anemometer ±10%"},
-    "Rs_mj_m2":   {"std_fraction": 0.05, "distribution": "normal", "unit": "MJ/m²/d", "source": "Pyranometer ±5%"}
+    "tmax_c": {
+      "std": 0.5,
+      "distribution": "normal",
+      "unit": "\u00b0C",
+      "source": "WMO-specified accuracy for operational thermometers"
+    },
+    "tmin_c": {
+      "std": 0.5,
+      "distribution": "normal",
+      "unit": "\u00b0C",
+      "source": "WMO-specified accuracy"
+    },
+    "rhmax_pct": {
+      "std": 5.0,
+      "distribution": "normal",
+      "unit": "%",
+      "source": "Typical capacitive humidity sensor"
+    },
+    "rhmin_pct": {
+      "std": 5.0,
+      "distribution": "normal",
+      "unit": "%",
+      "source": "Typical capacitive humidity sensor"
+    },
+    "wind_m_s": {
+      "std_fraction": 0.1,
+      "distribution": "normal",
+      "unit": "m/s",
+      "source": "Cup anemometer \u00b110%"
+    },
+    "Rs_mj_m2": {
+      "std_fraction": 0.05,
+      "distribution": "normal",
+      "unit": "MJ/m\u00b2/d",
+      "source": "Pyranometer \u00b15%"
+    }
   },
-
   "reference_day": {
-    "_description": "FAO-56 Example 18 — Uccle, Belgium, 6 July (same as airSpring benchmark)",
+    "_description": "FAO-56 Example 18 \u2014 Uccle, Belgium, 6 July (same as airSpring benchmark)",
     "inputs": {
       "tmax_c": 21.5,
       "tmin_c": 12.3,
@@ -22,30 +58,38 @@
       "rhmin_pct": 63,
       "wind_speed_10m_km_h": 10,
       "sunshine_hours": 9.25,
-      "latitude_deg_n": 50.80,
+      "latitude_deg_n": 50.8,
       "altitude_m": 100,
       "day_of_year": 187
     },
     "expected_et0_mm_day": 3.88,
-    "_note": "airSpring validated this at ±0.1 mm/day"
+    "_note": "airSpring validated this at \u00b10.1 mm/day"
   },
-
   "monte_carlo_config": {
     "n_samples": 10000,
     "seed": 42
   },
-
   "expected_results": {
     "_description": "Expected characteristics of the ET0 uncertainty distribution",
-    "et0_mean_range": [3.7, 4.1],
-    "et0_std_range": [0.10, 0.60],
+    "et0_mean_range": [
+      3.7,
+      4.1
+    ],
+    "et0_std_range": [
+      0.1,
+      0.6
+    ],
     "_note": "ET0 uncertainty typically 5-15% of the mean for standard sensors"
   },
-
   "sensitivity_analysis": {
     "_description": "Which input variables contribute most to ET0 uncertainty",
     "_method": "Compute partial derivatives or correlation of perturbations with ET0 output",
-    "expected_ranking": ["humidity", "radiation", "temperature", "wind"],
-    "_note": "Humidity dominates when sensor uncertainty is ±5% absolute; radiation and temperature follow"
+    "expected_ranking": [
+      "humidity",
+      "radiation",
+      "temperature",
+      "wind"
+    ],
+    "_note": "Humidity dominates when sensor uncertainty is \u00b15% absolute; radiation and temperature follow"
   }
 }
