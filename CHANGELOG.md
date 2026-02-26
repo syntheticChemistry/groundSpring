@@ -4,6 +4,19 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V15 Experiment Buildout (Feb 26, 2026)
+- **3 new experiments built**: Exp 012 (Spin Chain Transport, 18/18 PASS),
+  Exp 013 (Resampling Convergence, 8/8 PASS), Exp 014 (Drift vs Selection,
+  7/7 PASS). Total: **14 experiments, 177 validation checks, 205 Rust tests**.
+- **New module `transport`**: Tridiagonal eigenvector solver (implicit QL),
+  wavepacket MSD computation, transport exponent extraction via log-log fit.
+- **New module `drift`**: Wright-Fisher fixation simulation, Kimura analytical
+  fixation probability, neutral diversity trajectory under genetic drift.
+- **`prng::binomial`**: Added binomial sampling to Xorshift64 for Wright-Fisher.
+- **Paper queue progress**: Papers #13 (Lee & Liu), #17 (Kachkovskiy), #20
+  (R. Anderson) moved from Queued to Active.
+- **Mathematical parity**: 14/14 PROVEN (Python ⇌ Rust).
+
 ### V14 S65 Revalidation + Cross-Spring Documentation (Feb 26, 2026)
 - **New delegation #25**: `evenness` → `barracuda::stats::pielou_evenness`.
   S≤1 semantic adapter (groundSpring returns 1.0, barracuda returns 0.0).

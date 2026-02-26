@@ -13,6 +13,7 @@
 //!
 //! - [`stats`] — Core statistical metrics (RMSE, MBE, R², IA, hit rate)
 //! - [`decompose`] — Bias-variance error decomposition
+//! - [`drift`] — Drift vs selection in finite populations (Wright-Fisher)
 //! - [`prng`] — Deterministic pseudo-random number generation
 //! - [`rarefaction`] — Multinomial rarefaction for sequencing noise analysis
 //! - [`seismic`] — Travel-time computation and source inversion
@@ -23,6 +24,7 @@
 //! - [`almost_mathieu`] — Almost-Mathieu quasiperiodic localization / level spacing
 //! - [`bistable`] — Bistable phenotypic switching (c-di-GMP circuit)
 //! - [`multisignal`] — Multi-signal QS integration (CAI-1 + AI-2)
+//! - [`transport`] — Wavepacket transport in tight-binding chains
 //! - [`validate`] — Validation harness (pass/fail with counters)
 
 pub mod almost_mathieu;
@@ -30,6 +32,7 @@ pub mod anderson;
 pub mod bistable;
 pub mod bootstrap;
 pub mod decompose;
+pub mod drift;
 pub mod fao56;
 pub mod gillespie;
 pub mod multisignal;
@@ -37,6 +40,7 @@ pub mod prng;
 pub mod rarefaction;
 pub mod seismic;
 pub mod stats;
+pub mod transport;
 pub mod validate;
 
 /// Centralized numeric cast helpers.

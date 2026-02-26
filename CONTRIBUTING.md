@@ -9,7 +9,7 @@ that proves Python baselines can be faithfully ported to Rust and eventually
 promoted to GPU acceleration via the Write → Absorb → Lean cycle.
 
 ```
-control/             Python Phase 0 experiments (11 experiments across 6 domains)
+control/             Python Phase 0 experiments (14 experiments across 6 domains)
   common.py          Shared statistical primitives
   sensor_noise/      Exp 001: Bias-variance decomposition
   observation_gap/   Exp 002: Model-observation gap
@@ -22,13 +22,16 @@ control/             Python Phase 0 experiments (11 experiments across 6 domains
   quasiperiodic/       Exp 009: Almost-Mathieu quasiperiodic
   bistable_switching/  Exp 010: Bistable phenotypic switching
   multisignal_qs/      Exp 011: Multi-signal QS integration
+  spin_transport/      Exp 012: Spin chain transport (Kachkovskiy 2016)
+  resampling_convergence/ Exp 013: Resampling convergence (Lee & Liu 2024)
+  drift_selection/    Exp 014: Drift vs selection (R. Anderson 2022)
 crates/
-  groundspring/            Rust library (14 modules)
+  groundspring/            Rust library (17 modules)
     src/stats/             RMSE, MBE, R², IA, hit rate, Pearson/Spearman, covariance,
                            norm_cdf/ppf, chi2_statistic, mean, std, percentile (3 submodules)
     src/decompose.rs       Bias-variance decomposition, noise floor
     src/fao56.rs           FAO-56 Penman-Monteith equation chain
-    src/prng.rs            Xorshift64 PRNG, Box-Muller normal sampling
+    src/prng.rs            Xorshift64 PRNG, Box-Muller normal sampling, binomial
     src/rarefaction.rs     Multinomial sampling, Shannon, evenness
     src/seismic.rs         Haversine, travel time, grid-search inversion
     src/gillespie.rs       Gillespie SSA for stochastic kinetics
@@ -37,9 +40,11 @@ crates/
     src/almost_mathieu.rs  Almost-Mathieu quasiperiodic localization, level spacing
     src/bistable.rs        Bistable ODE (RK4, Euler-Maruyama, BistableOde delegation)
     src/multisignal.rs     Multi-signal QS ODE (dual-signal integration, ODE delegation)
+    src/transport.rs       Spin chain transport, tridiag_eigh eigenvector primitive
+    src/drift.rs           Wright-Fisher fixation, Kimura fixation probability
     src/cast.rs            Centralized numeric casts (usize_f64, f64_usize, u64_f64)
     src/validate.rs        Struct-based ValidationHarness
-  groundspring-validate/   11 validation binaries (hotSpring pattern)
+  groundspring-validate/   14 validation binaries (hotSpring pattern)
 metalForge/          Write → Absorb → Lean artifacts
   ABSORPTION_MANIFEST.md  Module-by-module absorption inventory
   shaders/                 Production WGSL shaders for ToadStool absorption
@@ -70,14 +75,14 @@ scripts/             Automation (baselines, benchmarks)
 ### Rust
 
 ```bash
-cargo test --workspace          # 190 tests (153 unit + 9 validate-lib + 14 proptest + 11 validation + 1 doc + 2 empty)
+cargo test --workspace          # 205 tests (167 unit + 9 validate-lib + 14 proptest + 14 validation + 1 doc + 2 empty)
 cargo clippy --workspace        # zero warnings required
 cargo fmt --check               # clean
 cargo llvm-cov --workspace       # 99.11% workspace line coverage
 
 # With barracuda feature gates (requires toadstool checkout):
-cargo test --features barracuda     # 190 tests, CPU delegation (20 CPU)
-cargo test --features barracuda-gpu # 190 tests, CPU + spectral (20 CPU + 5 GPU)
+cargo test --features barracuda     # 205 tests, CPU delegation (20 CPU)
+cargo test --features barracuda-gpu # 205 tests, CPU + spectral (20 CPU + 5 GPU)
 
 # Three-mode benchmark (local vs barracuda-gpu)
 bash scripts/bench_barracuda_modes.sh
@@ -95,6 +100,9 @@ cargo run --bin validate-anderson
 cargo run --bin validate-quasiperiodic
 cargo run --bin validate-bistable
 cargo run --bin validate-multisignal
+cargo run --bin validate-transport
+cargo run --bin validate-resampling-conv
+cargo run --bin validate-drift
 
 # Performance benchmarks (Rust vs Python)
 python3 scripts/bench_rust_vs_python.py

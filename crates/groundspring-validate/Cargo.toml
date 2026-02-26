@@ -59,3 +59,15 @@ path = "src/validate_bistable.rs"
 [[bin]]
 name = "validate-multisignal"
 path = "src/validate_multisignal.rs"
+
+[[bin]]
+name = "validate-transport"
+path = "src/validate_transport.rs"
+
+[[bin]]
+name = "validate-resampling-conv"
+path = "src/validate_resampling_conv.rs"
+
+[[bin]]
+name = "validate-drift"
+path = "src/validate_drift.rs"

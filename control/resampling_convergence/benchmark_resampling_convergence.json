@@ -1,0 +1,42 @@
+{
+  "_source": "groundSpring Experiment 013 — Resampling Convergence",
+  "_references": [
+    "Lee & Liu (2024) A Statistical Optimization Technique to Inform Statistical Resampling. IEEE BIBM 2024",
+    "Wang et al. (2021) Build a better bootstrap and the RAWR shall beat a random path to your door. Bioinformatics (ISMB) 37:i111-i119",
+    "Efron (1979) Bootstrap methods: another look at the jackknife. Ann Statist 7:1-26"
+  ],
+  "_provenance": {
+    "generated_by": "Convergence analysis of bootstrap and RAWR CI width as n_replicates increases",
+    "data_origin": "Synthetic data drawn from known distributions. No external data.",
+    "real_data_accession": "N/A (pure simulation)",
+    "prng_algorithm": "xorshift64 (Marsaglia 2003)",
+    "baseline_date": "2026-02-26",
+    "baseline_commit": "pending",
+    "validation_script": "control/resampling_convergence/resampling_convergence.py",
+    "command": "python3 control/resampling_convergence/resampling_convergence.py"
+  },
+  "_description": "How quickly do bootstrap and RAWR confidence intervals converge as the number of replicates increases? Determines the optimal replicate count for a given accuracy target.",
+  "_groundspring_question": "How many resampling replicates are enough? Wasting compute on excess replicates wastes energy; too few give unreliable intervals. The convergence rate quantifies resampling efficiency.",
+  "_cross_spring": "All springs — MC methodology optimization from Exp 007",
+  "model": {
+    "_description": "Run bootstrap and RAWR at geometrically increasing replicate counts (100, 200, 500, 1000, 2000, 5000, 10000) on Gaussian, log-normal, and heavy-tailed (t-distribution) data. Track CI width convergence.",
+    "data_n": 200,
+    "gaussian": {"mu": 5.0, "sigma": 2.0, "seed": 42},
+    "lognormal": {"mu_ln": 1.0, "sigma_ln": 0.8, "seed": 123},
+    "heavy_tail": {"df": 3, "loc": 10.0, "scale": 2.0, "seed": 456},
+    "replicate_counts": [100, 200, 500, 1000, 2000, 5000, 10000],
+    "confidence": 0.95,
+    "n_trials_coverage": 100
+  },
+  "expected_results": {
+    "convergence_ratio_max": 1.15,
+    "bootstrap_coverage_min": 0.85,
+    "rawr_coverage_min": 0.82,
+    "width_decreasing": true,
+    "width_at_10k_narrower_than_100": true,
+    "relative_width_change_5k_to_10k_max": 0.15,
+    "bootstrap_deterministic": true,
+    "rawr_deterministic": true,
+    "heavy_tail_wider_than_gaussian": true
+  }
+}

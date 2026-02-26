@@ -17,15 +17,18 @@
 | 009 | Almost-Mathieu Quasiperiodic Localization | Mathematics (quasiperiodic operators) | 8/8 PASS | 8/8 PASS |
 | 010 | Bistable Phenotypic Switching | Biological (c-di-GMP) | 10/10 PASS | 9/9 PASS |
 | 011 | Multi-Signal QS Integration | Biological (quorum sensing) | 9/9 PASS | 8/8 PASS |
+| 012 | Spin Chain Transport | Mathematics (spectral theory) | 18/18 PASS | 18/18 PASS |
+| 013 | Resampling Convergence | Statistics (bootstrap) | 8/8 PASS | 8/8 PASS |
+| 014 | Drift vs Selection | Biological (population genetics) | 7/7 PASS | 7/7 PASS |
 
-**Python Phase 0**: All 11 experiments passing
-**Rust Phase 1**: 144/144 PASS across 11 validation binaries
-**Rust tests**: 190/190 PASS (153 unit + 14 proptest + 9 validate-lib + 11 validation + 1 doc + 2 empty)
+**Python Phase 0**: All 14 experiments passing
+**Rust Phase 1**: 177/177 PASS across 14 validation binaries
+**Rust tests**: 205/205 PASS (167 unit + 14 proptest + 9 validate-lib + 14 integration + 1 doc)
 **pytest**: 37/37 PASS (unit tests, determinism tests, integration tests)
 **BarraCUDA delegations**: 25 active (20 CPU + 5 GPU) — ToadStool S65
 **Handoff**: V14 (S65 revalidation)
 
-**Python checks**: ~129 across 11 experiments. **Rust validation checks**: 144.
+**Python checks**: ~129 across 14 experiments. **Rust validation checks**: 177.
 
 ## Phase 0 — Python/NumPy/SciPy Baselines
 
@@ -214,6 +217,21 @@ Ports Exp 010 bistable phenotypic switching to pure safe Rust.  Verifies:
 Ports Exp 011 multi-signal QS integration to pure safe Rust.  Verifies:
 - MultiSignalOde::cpu_derivative barracuda delegation
 
+### validate-transport (18/18 PASS)
+
+Ports Exp 012 spin chain transport to pure safe Rust.  Verifies:
+- Tridiagonal eigenvector solver (implicit QL), wavepacket MSD, transport exponent
+
+### validate-resampling-convergence (8/8 PASS)
+
+Ports Exp 013 resampling convergence to pure safe Rust.  Verifies:
+- Bootstrap convergence (Lee & Liu 2024); uses bootstrap module
+
+### validate-drift (7/7 PASS)
+
+Ports Exp 014 drift vs selection to pure safe Rust.  Verifies:
+- Wright-Fisher fixation, Kimura fixation probability, neutral diversity trajectory
+
 ## Test Infrastructure
 
 | Suite | Tests | Type |
@@ -224,11 +242,34 @@ Ports Exp 011 multi-signal QS integration to pure safe Rust.  Verifies:
 | Rust `#[test]` (lib) | 153 | Unit tests for Rust library modules |
 | Rust `#[test]` (validate-lib) | 9 | Unit tests for shared validation helpers |
 | Rust proptest | 14 | Property-based invariant tests |
-| Rust integration | 11 | Validation binary integration tests |
+| Rust integration | 14 | Validation binary integration tests |
 | Rust doc test | 1 | Documentation example test |
-| **Total** | **225** | (37 Python + 188 Rust) |
+| **Total** | **228** | (37 Python + 191 Rust) |
 
 ## Run Log
+
+### Run 15 — February 26, 2026 (V15 Experiment Buildout: Exp 012–014)
+
+```
+3 new experiments built:
+  Exp 012: Spin Chain Transport (Kachkovskiy 2016)    18/18 PASS  transport.rs
+  Exp 013: Resampling Convergence (Lee & Liu 2024)    8/8  PASS  bootstrap
+  Exp 014: Drift vs Selection (R. Anderson 2022)       7/7  PASS  drift.rs
+
+New modules:
+  transport   tridiag_eigh, wavepacket_msd, transport_exponent
+  drift       wright_fisher_fixation, kimura_fixation_prob, neutral_diversity_trajectory
+
+prng::binomial   Added for Wright-Fisher sampling
+
+Totals:
+  14 experiments, 177/177 validation checks
+  205 Rust tests (167 unit + 14 proptest + 9 validate-lib + 14 integration + 1 doc)
+  14 validation binaries
+  Mathematical parity: 14/14 PROVEN (Python ⇌ Rust)
+
+Paper queue: Papers #13, #17, #20 moved Queued → Active
+```
 
 ### Run 14 — February 26, 2026 (V14 S65 revalidation + cross-spring documentation)
 
@@ -571,10 +612,13 @@ Each experiment is validated at three hardware tiers:
 | 9 | Almost-Mathieu quasiperiodic | **8/8 PASS** | Pending | — | `almost_mathieu_hamiltonian` (barracuda-gpu) |
 | 10 | Bistable phenotypic switching | **9/9 PASS** | Pending | — | `BistableOde::cpu_derivative` |
 | 11 | Multi-signal QS integration | **8/8 PASS** | Pending | — | `MultiSignalOde::cpu_derivative` |
+| 12 | Spin chain transport | **18/18 PASS** | Pending | — | transport module |
+| 13 | Resampling convergence | **8/8 PASS** | Pending | — | bootstrap module |
+| 14 | Drift vs selection | **7/7 PASS** | Pending | — | drift module |
 
-**CPU tier**: 144/144 PASS (complete)
-**GPU tier**: 0/144 (pending ToadStool absorption of Tier A ops and Tier C kernels)
-**metalForge tier**: 0/144 (after GPU tier)
+**CPU tier**: 177/177 PASS (complete)
+**GPU tier**: 0/177 (pending ToadStool absorption of Tier A ops and Tier C kernels)
+**metalForge tier**: 0/177 (after GPU tier)
 
 ### BarraCUDA Integration Status (post ToadStool S62)
 
@@ -596,11 +640,11 @@ Each experiment is validated at three hardware tiers:
 
 ## Evolution Roadmap
 
-- **Phase 0**: Python/NumPy/SciPy baselines — **COMPLETE** (129/129 across 11 experiments)
+- **Phase 0**: Python/NumPy/SciPy baselines — **COMPLETE** (129/129 across 14 experiments)
 - **Phase 0+**: Real open data pipelines (NOAA CDO, IRIS waveforms) — pending API tokens
-- **Phase 1**: Rust CPU validation — **COMPLETE** (144/144 across 11 binaries)
+- **Phase 1**: Rust CPU validation — **COMPLETE** (177/177 across 14 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
-- **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 006-011: biology, statistics, math, quasiperiodic, bistable, multisignal)
+- **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 006-014: biology, statistics, math, quasiperiodic, bistable, multisignal, transport, resampling, drift)
 - **Phase 2a**: Tier A rewire — **24 delegated** (19 CPU + 5 GPU; stats, metrics, diversity, bootstrap, anderson, ODE, eigenvalues)
 - **Phase 2b**: Tier B adapt — PRNG alignment, grid-search dispatch
 - **Phase 2c**: Tier C absorption — FAO-56 **superseded** (absorbed S49); `batched_multinomial` still needed
@@ -615,11 +659,11 @@ Each experiment is validated at three hardware tiers:
 | `cargo clippy --all-targets` | PASS (0 errors, 0 warnings) |
 | `cargo clippy --features barracuda` | PASS |
 | `cargo doc --no-deps` | PASS |
-| `cargo test` | 177/177 PASS (153 unit + 9 validate-lib + 14 proptest + 11 integration + 1 doc) |
-| `cargo test --features barracuda` | 177/177 PASS |
-| `cargo test --features barracuda-gpu` | 177/177 PASS |
-| Validation binaries (local) | 144/144 PASS |
-| Validation binaries (barracuda-gpu) | 144/144 PASS |
+| `cargo test` | 205/205 PASS (167 unit + 9 validate-lib + 14 proptest + 14 integration + 1 doc) |
+| `cargo test --features barracuda` | 205/205 PASS |
+| `cargo test --features barracuda-gpu` | 205/205 PASS |
+| Validation binaries (local) | 177/177 PASS |
+| Validation binaries (barracuda-gpu) | 177/177 PASS |
 | `ruff check control/ tests/` | 0 errors |
 | `mypy control/ tests/` | 0 errors |
 | `python3 -m pytest tests/` | 34/34 PASS |
@@ -671,7 +715,7 @@ All 11 experiments, median of 3 trials (Feb 26, 2026):
 
 \* Exp 009 with barracuda-gpu (Sturm tridiag solver). Without barracuda: 11.7s.
 
-**Mathematical Parity**: 11/11 experiments PROVEN. See `data/parity_report.json`.
+**Mathematical Parity**: 14/14 experiments PROVEN. See `data/parity_report.json`.
 
 ## Handoff Documents
 

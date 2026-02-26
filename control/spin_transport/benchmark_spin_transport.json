@@ -1,0 +1,49 @@
+{
+  "_source": "groundSpring Experiment 012 — Spin Chain Transport",
+  "_references": [
+    "Kachkovskiy (2016) On transport properties of isotropic quasiperiodic XY spin chains. Comm Math Phys 345:659-673",
+    "Jitomirskaya & Kachkovskiy (2018) All couplings localization for quasiperiodic operators with Lipschitz monotone potentials. JEMS 21:777-795",
+    "Aubry & André (1980) Analyticity breaking and Anderson localization in incommensurate lattices. Ann Israel Phys Soc 3:133"
+  ],
+  "_provenance": {
+    "generated_by": "Wavepacket dynamics in 1D Almost-Mathieu tight-binding model via eigendecomposition",
+    "data_origin": "Analytical: quasiperiodic Hamiltonian with golden-ratio frequency. Transport exponents from spectral theory.",
+    "real_data_accession": "N/A (analytical)",
+    "prng_algorithm": "deterministic quasiperiodic potential (no randomness)",
+    "baseline_date": "2026-02-26",
+    "baseline_commit": "pending",
+    "validation_script": "control/spin_transport/spin_chain_transport.py",
+    "command": "python3 control/spin_transport/spin_chain_transport.py"
+  },
+  "_description": "Wavepacket transport in 1D quasiperiodic (Almost-Mathieu) chain: ballistic for λ<2, localized for λ>2, anomalous at λ=2",
+  "_groundspring_question": "When energy is injected at a single point in a noisy medium, does it propagate or stay trapped? The transport exponent β quantifies whether signal reaches the detector.",
+  "_cross_spring": "hotSpring — spectral theory; wetSpring — nutrient transport in porous media (Anderson localization analog)",
+  "model": {
+    "_description": "1D tight-binding with quasiperiodic potential: H_{ij} = δ_{i,j±1} + λ cos(2παi + θ) δ_{ij}. Wavepacket ψ(0)=δ_{N/2} evolved under Schrödinger dynamics. MSD σ²(t) ~ t^{2β} extracts transport exponent β.",
+    "n_sites": 201,
+    "alpha": 0.6180339887498949,
+    "theta": 0.0,
+    "init_site": 100,
+    "coupling_strengths": [0.5, 1.0, 2.0, 3.0, 4.0],
+    "times": [1.0, 2.0, 5.0, 10.0, 20.0, 40.0],
+    "lyapunov_n_sites": 100000,
+    "lyapunov_energy": 0.0
+  },
+  "analytical_predictions": {
+    "_description": "From spectral theory: purely AC spectrum for λ<2 → ballistic (β=1); purely PP spectrum for λ>2 → localized (β=0). At critical λ=2: singular continuous spectrum → anomalous transport (0<β<1).",
+    "ballistic_beta": 1.0,
+    "localized_beta": 0.0,
+    "critical_coupling": 2.0,
+    "herman_formula": "γ = ln(λ/2) for λ > 2"
+  },
+  "expected_results": {
+    "ballistic_beta_range": [0.75, 1.0],
+    "localized_beta_max": 0.15,
+    "critical_beta_range": [0.05, 0.85],
+    "msd_localized_bounded_max": 25.0,
+    "normalization_tolerance": 1e-10,
+    "lyapunov_extended_max": 0.01,
+    "lyapunov_localized_min": 0.2,
+    "transport_monotonicity": true
+  }
+}

@@ -64,6 +64,21 @@ impl Xorshift64 {
     pub fn normal(&mut self, mean: f64, std_dev: f64) -> f64 {
         std_dev.mul_add(self.next_normal(), mean)
     }
+
+    /// Binomial variate: number of successes in `n` trials with probability `p`.
+    ///
+    /// Uses direct simulation (n Bernoulli trials). Adequate for n ≤ `10_000`;
+    /// for larger n, consider a normal approximation.
+    #[must_use]
+    pub fn binomial(&mut self, n: usize, p: f64) -> u64 {
+        let mut successes = 0u64;
+        for _ in 0..n {
+            if self.next_f64() < p {
+                successes += 1;
+            }
+        }
+        successes
+    }
 }
 
 #[cfg(test)]

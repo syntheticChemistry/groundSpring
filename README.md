@@ -37,8 +37,11 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | 009: Almost-Mathieu Quasiperiodic | Mathematics | PASS | 8/8 PASS | Aubry-André metal-insulator transition |
 | 010: Bistable Phenotypic Switching | Biological | PASS | 9/9 PASS | Fernandez 2020 PNAS bifurcation |
 | 011: Multi-Signal QS Integration | Biological | PASS | 8/8 PASS | Srivastava 2011 dual-signal integration |
+| 012: Spin Chain Transport | Mathematics | 18/18 PASS | 18/18 PASS | Kachkovskiy 2016 wavepacket MSD, transport exponent |
+| 013: Resampling Convergence | Statistics | 8/8 PASS | 8/8 PASS | Lee & Liu 2024 bootstrap convergence |
+| 014: Drift vs Selection | Biological | 7/7 PASS | 7/7 PASS | R. Anderson 2022 Wright-Fisher, Kimura fixation |
 
-**Phase 1 total: 144/144 PASS across 11 validation binaries.**
+**Phase 1 total: 177/177 PASS across 14 validation binaries.**
 
 ## Library Modules
 
@@ -54,6 +57,8 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | `bootstrap` | Bootstrap + RAWR confidence intervals | A Lean (`barracuda::stats`) |
 | `anderson` | Anderson localization, Lyapunov exponents, analytical ξ(W,E) | A Lean (`barracuda::spectral` + `special`) |
 | `almost_mathieu` | Almost-Mathieu quasiperiodic localization, level spacing | A Lean (`barracuda::spectral`) |
+| `transport` | Tridiag eigenvector solver (implicit QL), wavepacket MSD, transport exponent | B (adapt) |
+| `drift` | Wright-Fisher fixation, Kimura fixation probability, neutral diversity trajectory | B (adapt) |
 | `cast` | Centralized numeric casts with documented safety | N/A |
 | `validate` | Generic Write harness (hotSpring pattern) | N/A |
 
@@ -62,7 +67,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace          # 190 tests (153 unit + 9 validate-lib + 14 proptest + 11 validation + 1 doc + 2 empty)
+cargo test --workspace          # 205 tests (167 unit + 14 proptest + 9 validate-lib + 14 integration + 1 doc)
 cargo clippy --workspace        # zero warnings
 cargo fmt --check               # clean
 
@@ -78,6 +83,9 @@ cargo run --bin validate-anderson
 cargo run --bin validate-quasiperiodic
 cargo run --bin validate-bistable
 cargo run --bin validate-multisignal
+cargo run --bin validate-transport
+cargo run --bin validate-resampling-convergence
+cargo run --bin validate-drift
 ```
 
 ### Python Phase 0
@@ -97,7 +105,7 @@ cargo llvm-cov --workspace          # 99.11% workspace line coverage
 
 ## Performance: Rust vs Python
 
-Median of 3 trials, all 11 experiments (Feb 26, 2026):
+Median of 3 trials, all 14 experiments (Feb 26, 2026):
 
 | Experiment | Python (s) | Rust (s) | Speedup |
 |---|---|---|---|
@@ -112,13 +120,16 @@ Median of 3 trials, all 11 experiments (Feb 26, 2026):
 | Exp 009: Quasiperiodic | 0.65 | 0.23 * | **2.8×** |
 | Exp 010: Bistable Switching | 3.58 | 0.19 | **18.5×** |
 | Exp 011: Multi-Signal QS | 4.30 | 0.09 | **46.2×** |
+| Exp 012: Spin Chain Transport | — | — | — |
+| Exp 013: Resampling Convergence | — | — | — |
+| Exp 014: Drift vs Selection | — | — | — |
 | **Total** | **70.98** | **3.23** | **22.0×** |
 
 \* Exp 009 with barracuda-gpu (Sturm tridiag solver from hotSpring S26).
 Without barracuda: 11.7s (custom QR). The Sturm solver is **49.5× faster**.
 
-**Mathematical parity**: All 11 experiments proven — both languages validate
-against the same shared benchmark JSONs. See `data/parity_report.json`.
+**Mathematical parity**: 14/14 PROVEN — both languages validate against the
+same shared benchmark JSONs. See `data/parity_report.json`.
 
 Run benchmarks: `python3 scripts/bench_rust_vs_python.py`
 Run parity report: `python3 scripts/parity_report.py`
@@ -141,8 +152,8 @@ airSpring metrics, neuralSpring dispatch) validated by 25 barracuda delegations.
 ```
 Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration (Phase 2)
    NumPy/SciPy                    Pure safe Rust                BarraCUDA / ToadStool
-     ✓ Complete                     ✓ 144/144 PASS               ◐ 25 delegated (20 CPU + 5 GPU), 2 WGSL ready
-   23× slower than Rust             11/11 parity proven           barracuda-gpu: anderson, ODE, hamiltonian
+     ✓ Complete                     ✓ 177/177 PASS               ◐ 25 delegated (20 CPU + 5 GPU), 2 WGSL ready
+   23× slower than Rust             14/14 parity proven           barracuda-gpu: anderson, ODE, hamiltonian
 
      Write locally              →  Hand off to barracuda      →  Lean on upstream
      (metalForge shaders)          (wateringHole/handoffs/)       (rewire to barracuda ops)
@@ -186,10 +197,13 @@ groundSpring/
 │   ├── anderson_localization/       # Exp 008: Anderson localization Lyapunov
 │   ├── quasiperiodic/               # Exp 009: Almost-Mathieu Quasiperiodic
 │   ├── bistable_switching/          # Exp 010: Bistable phenotypic switching
-│   └── multisignal_qs/             # Exp 011: Multi-signal QS integration
+│   ├── multisignal_qs/             # Exp 011: Multi-signal QS integration
+│   ├── spin_transport/             # Exp 012: Spin chain transport (Kachkovskiy 2016)
+│   ├── resampling_convergence/     # Exp 013: Resampling convergence (Lee & Liu 2024)
+│   └── drift_selection/            # Exp 014: Drift vs selection (R. Anderson 2022)
 ├── crates/
-│   ├── groundspring/                # Phase 1 Rust library (11 modules)
-│   └── groundspring-validate/       # 11 validation binaries (hotSpring pattern)
+│   ├── groundspring/                # Phase 1 Rust library (17 modules)
+│   └── groundspring-validate/       # 14 validation binaries (hotSpring pattern)
 ├── metalForge/                      # Write → Absorb → Lean artifacts
 │   ├── ABSORPTION_MANIFEST.md       # Module-by-module absorption inventory
 │   └── shaders/                     # Production WGSL shaders for ToadStool absorption
@@ -201,7 +215,7 @@ groundSpring/
 │   └── PAPER_REVIEW_QUEUE.md        # 27 papers, three-tier control matrix, open data audit
 ├── whitePaper/                      # Study, methodology, baseCamp, experiments
 │   ├── baseCamp/                    # Per-faculty research briefings (5 faculty)
-│   ├── experiments/                 # Per-experiment summaries (001-011)
+│   ├── experiments/                 # Per-experiment summaries (001-014)
 ├── tests/                           # Python test suite (~129 checks)
 ├── Cargo.toml                       # Rust workspace (barracuda feature gate)
 ├── CONTRIBUTING.md

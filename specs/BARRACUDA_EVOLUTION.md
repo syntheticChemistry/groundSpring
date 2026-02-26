@@ -34,7 +34,7 @@ are for throughput (100k+ MC samples, batch rarefaction).
 > **Complete rewiring (Feb 25 2026)**: 4 new CPU delegations added:
 > `covariance`, `norm_cdf`, `norm_ppf`, `chi2_statistic`,
 > `analytical_localization_length`. Total: **11 active delegations**.
-> 163 Rust tests + 119/119 validation checks PASS in all three modes.
+> 205 Rust tests + 177/177 validation checks PASS in all three modes.
 > All 11 delegations use `if let Ok` with always-compiled CPU fallback.
 > Benchmarks confirm <2% overhead for compute-heavy binaries.
 >
@@ -42,7 +42,7 @@ are for throughput (100k+ MC samples, batch rarefaction).
 > (14,200+ tests, 650+ shaders). No new CPU stats primitives to wire.
 > Our 11 delegations remain current. Fixed 3 `needless_return` clippy
 > warnings in barracuda feature paths. Revalidated all three modes:
-> 163/163 PASS × 3 modes, 0 clippy warnings × 3 modes.
+> 205/205 PASS × 3 modes, 0 clippy warnings × 3 modes.
 >
 > **ToadStool S64 catch-up (Feb 26 2026)**: Session 64 absorbed
 > `stats::metrics` (rmse, mbe, nash_sutcliffe, r_squared, index_of_agreement,
@@ -123,6 +123,14 @@ are for throughput (100k+ MC samples, batch rarefaction).
 | `validate::ValidationHarness` | Harness, not compute. Equivalent to `barracuda::validation::ValidationHarness` but with groundSpring-specific method names |
 | `seismic::haversine_km` | Single scalar trig |
 | `seismic::travel_time_1d` | One sqrt + division |
+
+### New Modules (Exp 012, 013, 014) — Future BarraCUDA Candidates
+
+| Module | Key Functions | BarraCUDA Potential |
+|---|---|---|
+| `transport` | `tridiag_eigh` | New eigenvector primitive for spin chain transport — future barracuda candidate |
+| `drift` | `wright_fisher_fixation`, `kimura_fixation_prob` | Wright-Fisher and Kimura fixation probabilities — future barracuda candidates |
+| `prng` | `binomial()` | Added for drift/selection experiments; complements existing normal sampling |
 
 ### New barracuda ops relevant to groundSpring (discovered S51–S62+)
 
@@ -222,7 +230,7 @@ GPU and CPU paths produce bitwise-identical streams.
    xoshiro128** implementation (e.g., a pure-Python xoshiro128** port).
 4. **Update benchmark JSONs** — new expected values, new `baseline_commit`,
    new `baseline_date`, xoshiro128** noted in `prng_algorithm` field.
-5. **Verify 144/144 checks** — run full validation suite.
+5. **Verify 177/177 checks** — run full validation suite.
 6. **Remove old baselines** — archive xorshift64 baselines in
    `control/archive/xorshift64/` for fossil record.
 
@@ -262,7 +270,7 @@ behavior in `spectral::lyapunov_averaged`.
 ## Rust vs Python Performance (Phase 1c — Full Suite)
 
 Pure Rust CPU math vs interpreted Python (NumPy/SciPy), median of 3 trials
-across all 11 experiments:
+across all 14 experiments:
 
 | Experiment | Python (s) | Rust (s) | Speedup |
 |---|---|---|---|
@@ -295,7 +303,7 @@ Speedup varies with algorithm type:
 
 ### Mathematical Parity Certificate
 
-All 11 experiments: **PARITY PROVEN**.  Both Python baselines and Rust
+All 14 experiments: **PARITY PROVEN**.  Both Python baselines and Rust
 validation binaries check against the same shared benchmark JSON files.
 If both pass, the math is identical within stated tolerances.
 
@@ -305,11 +313,11 @@ See `data/parity_report.json` for the machine-readable certificate.
 
 | Phase | Milestone | Status |
 |---|---|---|
-| Phase 0 | Python baselines | **Done** (~129 checks across 11 experiments) |
-| Phase 1a | Rust CPU validation | **Done** (144/144 PASS across 11 binaries) |
+| Phase 0 | Python baselines | **Done** (~129 checks across 14 experiments) |
+| Phase 1a | Rust CPU validation | **Done** (177/177 PASS across 14 binaries) |
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
-| Phase 1c | Paper queue buildout (Exp 006-011) | **Done** (56 new checks, 23.4× faster than Python) |
-| Phase 1d | Full-suite parity + benchmarks | **Done** (11/11 parity proven, timing data for all experiments) |
+| Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
+| Phase 1d | Full-suite parity + benchmarks | **Done** (14/14 parity proven, timing data for all experiments) |
 | Phase 2a | Tier A rewire (stats + bootstrap + anderson → barracuda) | **25 delegated** (15 stats + bootstrap_mean + 5 anderson + analytical ξ + hamiltonian + 2 ODE + shannon + eigenvalues) |
 | Phase 2b | Tier B adapt (PRNG alignment, grid dispatch, gillespie GPU) | After 2a |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
