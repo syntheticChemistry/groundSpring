@@ -127,6 +127,36 @@ EXPERIMENTS = [
         "python": [sys.executable, "control/uncertainty_bridge/uncertainty_bridge.py"],
         "rust_bin": "validate-uncertainty-bridge",
     },
+    {
+        "name": "Exp 016: Rare Biosphere",
+        "python": [sys.executable, "control/rare_biosphere/rare_biosphere.py"],
+        "rust_bin": "validate-rare-biosphere",
+    },
+    {
+        "name": "Exp 017: Quasispecies Threshold",
+        "python": [sys.executable, "control/quasispecies_threshold/quasispecies_threshold.py"],
+        "rust_bin": "validate-quasispecies",
+    },
+    {
+        "name": "Exp 018: Band Edge",
+        "python": [sys.executable, "control/band_edge/band_edge.py"],
+        "rust_bin": "validate-band-edge",
+    },
+    {
+        "name": "Exp 019: Jackknife Estimation",
+        "python": [sys.executable, "control/jackknife_estimation/jackknife_estimation.py"],
+        "rust_bin": "validate-jackknife",
+    },
+    {
+        "name": "Exp 020: Freeze Out Inverse",
+        "python": [sys.executable, "control/freeze_out_inverse/freeze_out_inverse.py"],
+        "rust_bin": "validate-freeze-out",
+    },
+    {
+        "name": "Exp 021: Spectral Recon",
+        "python": [sys.executable, "control/spectral_recon/spectral_recon.py"],
+        "rust_bin": "validate-spectral-recon",
+    },
 ]
 
 

@@ -1,0 +1,58 @@
+{
+  "_source": "Exp 021: Spectral Function Reconstruction",
+  "_doi": "10.48550/arXiv.2501.12259",
+  "_references": [
+    "Bazavov et al. (2025) arXiv 2501.12259",
+    "Tikhonov & Arsenin (1977) Solution of Ill-Posed Problems",
+    "Backus & Gilbert (1968) Geophys J R Astr Soc 16:169-205"
+  ],
+  "_provenance": {
+    "generated_by": "analytical + synthetic noise",
+    "data_origin": "Gaussian spectral peak with Laplace-transform kernel, noise added to correlator",
+    "prng_algorithm": "Xorshift64 (Rust) / PCG64 (Python)",
+    "baseline_date": "2026-02-26",
+    "baseline_commit": "",
+    "validation_script": "control/spectral_recon/spectral_recon.py",
+    "command": "python3 control/spectral_recon/spectral_recon.py"
+  },
+  "_description": "Spectral function reconstruction from noisy Euclidean correlator via Tikhonov regularization. Validates kernel construction, forward model, Cholesky solver, peak recovery, and regularization parameter scan.",
+  "_groundspring_question": "Can Tikhonov regularization recover the location and shape of a spectral peak from a noisy integral transform?",
+  "_cross_spring": ["Exp 005 seismic inversion", "Exp 020 freeze-out chi-squared"],
+
+  "spectral_function": {
+    "type": "gaussian_peak",
+    "omega_center": 3.0,
+    "omega_width": 0.5,
+    "amplitude": 1.0
+  },
+  "grid": {
+    "n_tau": 30,
+    "tau_max": 2.0,
+    "n_omega": 60,
+    "omega_max": 8.0
+  },
+  "noise": {
+    "correlator_noise_std": 0.001,
+    "seed": 2025
+  },
+  "regularization": {
+    "lambda_values": [1e-8, 1e-6, 1e-4, 1e-2, 1.0],
+    "optimal_lambda": 1e-4
+  },
+  "analytical_predictions": {
+    "kernel_formula": "K(tau, omega) = exp(-tau * omega)",
+    "tikhonov_formula": "rho = (K^T K + lambda I)^{-1} K^T G",
+    "noiseless_forward_exact": true,
+    "peak_at_omega_center": 3.0
+  },
+  "expected_results": {
+    "forward_rmse_noiseless_max": 1e-6,
+    "cholesky_residual_max": 1e-6,
+    "peak_location_tol": 1.0,
+    "peak_positive": true,
+    "small_lambda_amplifies_noise": true,
+    "large_lambda_over_smooths": true,
+    "optimal_lambda_rmse_range": [0.0, 0.5],
+    "determinism": true
+  }
+}

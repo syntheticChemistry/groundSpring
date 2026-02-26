@@ -15,32 +15,46 @@
 //! - [`decompose`] — Bias-variance error decomposition
 //! - [`drift`] — Drift vs selection in finite populations (Wright-Fisher)
 //! - [`prng`] — Deterministic pseudo-random number generation
+//! - [`rare_biosphere`] — Rare biosphere detection (Chao1, detection power)
 //! - [`rarefaction`] — Multinomial rarefaction for sequencing noise analysis
 //! - [`seismic`] — Travel-time computation and source inversion
+//! - [`spectral_recon`] — Spectral function reconstruction (Tikhonov regularization)
 //! - [`fao56`] — FAO-56 Penman-Monteith reference evapotranspiration
+//! - [`freeze_out`] — Freeze-out curve chi-squared fitting (2D grid search)
 //! - [`kinetics`] — Hill-function kinetics (shared by bistable + multi-signal)
+//! - [`ode`] — Generic RK4 integrator for fixed-size ODE systems
 //! - [`gillespie`] — Gillespie SSA for stochastic chemical kinetics
+//! - [`jackknife`] — Delete-one and block jackknife resampling
 //! - [`bootstrap`] — Bootstrap and RAWR resampling confidence intervals
 //! - [`anderson`] — Anderson localization / Lyapunov exponents
 //! - [`almost_mathieu`] — Almost-Mathieu quasiperiodic localization / level spacing
+//! - [`band_structure`] — Band structure of periodic tight-binding chains
 //! - [`bistable`] — Bistable phenotypic switching (c-di-GMP circuit)
 //! - [`multisignal`] — Multi-signal QS integration (CAI-1 + AI-2)
+//! - [`quasispecies`] — Eigen quasispecies model and error threshold
 //! - [`transport`] — Wavepacket transport in tight-binding chains
 //! - [`validate`] — Validation harness (pass/fail with counters)
 
 pub mod almost_mathieu;
 pub mod anderson;
+pub mod band_structure;
 pub mod bistable;
 pub mod bootstrap;
 pub mod decompose;
 pub mod drift;
 pub mod fao56;
+pub mod freeze_out;
 pub mod gillespie;
+pub mod jackknife;
 pub mod kinetics;
 pub mod multisignal;
+pub mod ode;
 pub mod prng;
+pub mod quasispecies;
+pub mod rare_biosphere;
 pub mod rarefaction;
 pub mod seismic;
+pub mod spectral_recon;
 pub mod stats;
 pub mod transport;
 pub mod validate;

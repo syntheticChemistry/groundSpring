@@ -23,6 +23,7 @@
 //! Aubry-André transition sits at `λ = 2`.
 
 /// Maximum QR iterations for eigenvalue extraction (sufficient for n ≤ 500).
+#[cfg(not(feature = "barracuda-gpu"))]
 const QR_MAX_ITERATIONS: usize = 100;
 
 /// Generate the quasiperiodic Almost-Mathieu potential.
@@ -52,13 +53,14 @@ pub fn potential(n: usize, coupling: f64, alpha: f64, theta: f64) -> Vec<f64> {
 /// higher (~0.9) due to quasi-integrable dynamics.
 #[must_use]
 pub fn level_spacing_ratio(eigenvalues: &mut [f64]) -> f64 {
-    eigenvalues.sort_unstable_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    eigenvalues.sort_unstable_by(f64::total_cmp);
     #[cfg(feature = "barracuda-gpu")]
     return barracuda::spectral::level_spacing_ratio(eigenvalues);
     #[cfg(not(feature = "barracuda-gpu"))]
     level_spacing_ratio_cpu(eigenvalues)
 }
 
+#[cfg(not(feature = "barracuda-gpu"))]
 fn level_spacing_ratio_cpu(eigenvalues: &[f64]) -> f64 {
     let n = eigenvalues.len();
     if n < 3 {
@@ -106,12 +108,13 @@ pub fn hamiltonian(n: usize, coupling: f64, alpha: f64, theta: f64) -> Vec<f64> 
             h[i * n + (i + 1)] = o;
             h[(i + 1) * n + i] = o;
         }
-        return h;
+        h
     }
     #[cfg(not(feature = "barracuda-gpu"))]
     hamiltonian_cpu(n, coupling, alpha, theta)
 }
 
+#[cfg(not(feature = "barracuda-gpu"))]
 fn hamiltonian_cpu(n: usize, coupling: f64, alpha: f64, theta: f64) -> Vec<f64> {
     let pot = potential(n, coupling, alpha, theta);
     let mut h = vec![0.0; n * n];
@@ -140,12 +143,13 @@ pub fn eigenvalues(n: usize, coupling: f64, alpha: f64, theta: f64) -> Vec<f64> 
         let barracuda_lambda = coupling / 2.0;
         let (diag, off) =
             barracuda::spectral::almost_mathieu_hamiltonian(n, barracuda_lambda, alpha, theta);
-        return barracuda::spectral::find_all_eigenvalues(&diag, &off);
+        barracuda::spectral::find_all_eigenvalues(&diag, &off)
     }
     #[cfg(not(feature = "barracuda-gpu"))]
     eigenvalues_cpu(n, coupling, alpha, theta)
 }
 
+#[cfg(not(feature = "barracuda-gpu"))]
 fn eigenvalues_cpu(n: usize, coupling: f64, alpha: f64, theta: f64) -> Vec<f64> {
     let ham = hamiltonian(n, coupling, alpha, theta);
     eigenvalues_qr_dense(n, &ham)
@@ -155,6 +159,7 @@ fn eigenvalues_cpu(n: usize, coupling: f64, alpha: f64, theta: f64) -> Vec<f64> 
 /// buffer. Iterates `QR_MAX_ITERATIONS` QR steps. Sufficient for small
 /// validation matrices (n ≤ 500). The barracuda-gpu path uses
 /// `find_all_eigenvalues` (Sturm bisection) which is O(n²) for tridiag.
+#[cfg(not(feature = "barracuda-gpu"))]
 fn eigenvalues_qr_dense(n: usize, matrix: &[f64]) -> Vec<f64> {
     let mut mat = matrix.to_vec();
 
@@ -168,6 +173,7 @@ fn eigenvalues_qr_dense(n: usize, matrix: &[f64]) -> Vec<f64> {
 }
 
 /// In-place Givens QR decomposition on flat row-major buffers.
+#[cfg(not(feature = "barracuda-gpu"))]
 fn givens_qr_flat(q: &mut [f64], r: &mut [f64], n: usize) {
     for col in 0..n.saturating_sub(1) {
         for row in (col + 1)..n {
@@ -189,6 +195,7 @@ fn givens_qr_flat(q: &mut [f64], r: &mut [f64], n: usize) {
     }
 }
 
+#[cfg(not(feature = "barracuda-gpu"))]
 fn givens_rotate_rows_flat(m: &mut [f64], r1: usize, r2: usize, cos: f64, sin: f64, n: usize) {
     for j in 0..n {
         let a = m[r1 * n + j];
@@ -198,6 +205,7 @@ fn givens_rotate_rows_flat(m: &mut [f64], r1: usize, r2: usize, cos: f64, sin: f
     }
 }
 
+#[cfg(not(feature = "barracuda-gpu"))]
 fn givens_rotate_cols_flat(m: &mut [f64], c1: usize, c2: usize, cos: f64, sin: f64, n: usize) {
     for i in 0..n {
         let a = m[i * n + c1];
@@ -208,6 +216,7 @@ fn givens_rotate_cols_flat(m: &mut [f64], c1: usize, c2: usize, cos: f64, sin: f
 }
 
 /// Flat row-major matrix multiplication: `out = a × b` (both `n × n`).
+#[cfg(not(feature = "barracuda-gpu"))]
 fn dense_mul_flat(a: &[f64], b: &[f64], out: &mut [f64], n: usize) {
     for i in 0..n {
         for j in 0..n {
@@ -216,6 +225,7 @@ fn dense_mul_flat(a: &[f64], b: &[f64], out: &mut [f64], n: usize) {
     }
 }
 
+#[cfg(not(feature = "barracuda-gpu"))]
 fn flat_identity(n: usize) -> Vec<f64> {
     let mut m = vec![0.0; n * n];
     for i in 0..n {

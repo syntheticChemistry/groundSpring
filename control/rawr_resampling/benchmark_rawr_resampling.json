@@ -48,6 +48,16 @@
     }
   },
 
+  "test_config": {
+    "n_coverage_trials": 200,
+    "coverage_seed_offset": 5000,
+    "correlated_seed_offset": 200000,
+    "determinism_bootstrap_seed": 9999,
+    "determinism_rawr_seed": 8888,
+    "determinism_n_bootstrap": 500,
+    "determinism_confidence": 0.95
+  },
+
   "expected_results": {
     "gaussian_coverage_range": [0.90, 1.0],
     "gaussian_bootstrap_ci_width_range": [0.5, 1.2],

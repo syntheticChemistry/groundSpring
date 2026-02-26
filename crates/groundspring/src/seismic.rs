@@ -106,9 +106,12 @@ fn origin_time_and_rms(obs_times: &[f64], pred_tt: &[f64]) -> (f64, f64) {
 ///
 /// For each candidate source position, estimates origin time as the mean
 /// of (observed − predicted travel time), then computes RMS of residuals.
+///
+/// The `observed` slice pairs station codes (any type implementing
+/// `AsRef<str>`) with arrival times, avoiding forced `String` ownership.
 #[must_use]
-pub fn grid_search_inversion(
-    observed: &[(String, f64)],
+pub fn grid_search_inversion<S: AsRef<str>>(
+    observed: &[(S, f64)],
     stations: &[Station],
     config: &GridSearchConfig,
 ) -> InversionResult {
@@ -122,7 +125,7 @@ pub fn grid_search_inversion(
 
     let obs_map: std::collections::HashMap<&str, f64> = observed
         .iter()
-        .map(|(code, t)| (code.as_str(), *t))
+        .map(|(code, t)| (code.as_ref(), *t))
         .collect();
 
     let n_lat =
@@ -230,12 +233,12 @@ mod tests {
         let true_depth = 10.0;
         let vp = 5.8;
 
-        let observed: Vec<(String, f64)> = stations
+        let observed: Vec<(&str, f64)> = stations
             .iter()
             .map(|s| {
                 let dist = haversine_km(true_lat, true_lon, s.lat, s.lon);
                 let tt = travel_time_1d(dist, true_depth, vp);
-                (s.code.clone(), tt)
+                (s.code.as_str(), tt)
             })
             .collect();
 

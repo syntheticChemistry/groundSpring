@@ -59,7 +59,8 @@ fn run() -> i32 {
 
         let potential = almost_mathieu::potential(n_sites, lam, alpha, theta);
         let offdiag = vec![1.0; n_sites - 1];
-        let (eigenvalues, eigenvectors) = tridiag_eigh(&potential, &offdiag);
+        let (eigenvalues, eigenvectors) =
+            tridiag_eigh(&potential, &offdiag).expect("eigendecomposition converged");
 
         let mut msds_at_t = Vec::with_capacity(times.len());
         for (ti, &t) in times.iter().enumerate() {
@@ -105,7 +106,8 @@ fn run() -> i32 {
     if let Some(idx) = couplings.iter().position(|&c| (c - 4.0).abs() < 0.01) {
         let potential = almost_mathieu::potential(n_sites, 4.0, alpha, theta);
         let offdiag = vec![1.0; n_sites - 1];
-        let (evals, evecs) = tridiag_eigh(&potential, &offdiag);
+        let (evals, evecs) =
+            tridiag_eigh(&potential, &offdiag).expect("eigendecomposition converged");
         let t_final = *times.last().unwrap_or(&1.0);
         let (msd_final, _) = wavepacket_msd(&evals, &evecs, init_site, t_final);
         h.check_max("Localized MSD bounded (λ=4.0)", msd_final, msd_bound);

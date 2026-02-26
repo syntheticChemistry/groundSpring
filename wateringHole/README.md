@@ -9,7 +9,7 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V21 | [GROUNDSPRING_TOADSTOOL_V21_COMPLETE_REWIRING_HANDOFF_FEB26_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V21_COMPLETE_REWIRING_HANDOFF_FEB26_2026.md) | Feb 26, 2026 | Complete barracuda rewiring: dual-mode CI, 225/225 pass both modes, +1.7% CPU overhead, cross-spring benchmark |
+| V23 | [GROUNDSPRING_TOADSTOOL_V23_BAZAVOV_BUILDOUT_HANDOFF_FEB26_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V23_BAZAVOV_BUILDOUT_HANDOFF_FEB26_2026.md) | Feb 26, 2026 | Exp 019-021 buildout (jackknife, freeze-out, spectral recon), 3 new modules, Bazavov paper queue complete, full inverse-problem GPU tier plan |
 
 ## Cross-Spring Documentation
 
@@ -36,6 +36,8 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V22 | Exp 016-018 buildout (rare biosphere, quasispecies, band edge), 3 new modules, absorption candidates (superseded by V23) |
+| V21 | Complete barracuda rewiring: dual-mode CI, 225/225 pass both modes, 27 delegations (superseded by V22) |
 | V20 | S68 catch-up: hill delegation #27, pin f0feb226, 27 delegations (superseded by V21) |
 | V19 | Uncertainty bridge: Exp 015, 225 tests, 185/185 checks (superseded by V21) |
 | V18 | Idiomatic Rust evolution: kinetics module, flat buffers, 225 tests (superseded by V20) |

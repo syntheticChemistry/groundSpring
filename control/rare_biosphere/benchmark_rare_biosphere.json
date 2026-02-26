@@ -1,0 +1,72 @@
+{
+  "_source": "groundSpring Experiment 016 — Rare Biosphere Signal Detection",
+  "_doi": "10.1111/1574-6941.12016",
+  "_references": [
+    "Anderson, Sogin, Baross (2015) Biogeography and ecology of the rare and abundant microbial lineages in deep-sea hydrothermal vent fluids. FEMS Microbiol Ecol 91:fiv016",
+    "Chao (1984) Non-parametric estimation of the number of classes in a population. Scand J Stat 11:265-270",
+    "Sogin et al. (2006) Microbial diversity in the deep sea and the underexplored 'rare biosphere'. PNAS 103:12115-12120"
+  ],
+  "_provenance": {
+    "generated_by": "Synthetic community with known rare/abundant lineages, multinomial sampling",
+    "data_origin": "Analytical: detection power 1-(1-p)^D and Chao1 S_obs + f1^2/(2f2). Synthetic community with 50 species across 5 abundance tiers.",
+    "real_data_accession": "N/A (analytical + simulation; methodology from Anderson 2015 FEMS)",
+    "prng_algorithm": "xorshift64 (Marsaglia 2003), reproducible seeds",
+    "baseline_date": "2026-02-26",
+    "baseline_commit": "pending",
+    "validation_script": "control/rare_biosphere/rare_biosphere.py",
+    "command": "python3 control/rare_biosphere/rare_biosphere.py"
+  },
+  "_description": "Tests when a detected rare microbial lineage represents real biological signal vs sequencing artifact. Extends Exp 004 (genus saturation at 5000 reads) to the rare end of the abundance distribution using Chao1 richness estimation and detection power analysis.",
+  "_groundspring_question": "When does noise (finite sequencing depth) prevent detection of signal (rare biological lineages)? The answer depends on abundance x depth — the ecological analog of signal-to-noise ratio.",
+  "_cross_spring": "wetSpring — microbial diversity and rare biosphere; Exp 004 (sequencing depth and genus saturation)",
+  "model": {
+    "_description": "Synthetic community: 50 species across 5 abundance tiers (dominant, common, moderate, rare, very rare). Multinomial sampling simulates sequencing. Detection = count > 0 at a given depth.",
+    "n_species": 50,
+    "community": [
+      0.150, 0.120, 0.100, 0.080, 0.060,
+      0.030, 0.030, 0.030, 0.030, 0.030,
+      0.030, 0.030, 0.030, 0.030, 0.030,
+      0.008, 0.008, 0.008, 0.008, 0.008,
+      0.008, 0.008, 0.008, 0.008, 0.008,
+      0.008, 0.008, 0.008, 0.008, 0.008,
+      0.004, 0.004, 0.004, 0.004, 0.004,
+      0.004, 0.004, 0.004, 0.004, 0.004,
+      0.003, 0.003, 0.003, 0.003, 0.003,
+      0.003, 0.003, 0.003, 0.003, 0.003
+    ],
+    "tier_boundaries": {
+      "dominant": [0, 5],
+      "common": [5, 15],
+      "moderate": [15, 30],
+      "rare": [30, 40],
+      "very_rare": [40, 50]
+    },
+    "depths": [100, 500, 1000, 5000, 10000, 50000],
+    "n_replicates": 100,
+    "n_samples_occupancy": 50,
+    "occupancy_depth": 300,
+    "base_seed": 42,
+    "target_detection_power": 0.95
+  },
+  "analytical_predictions": {
+    "_description": "Detection power P = 1 - (1-p)^D. Detection threshold D* = ceil(ln(1-P_target)/ln(1-p)). Chao1 = S_obs + f1^2/(2f2).",
+    "detection_threshold_formula": "D* = ceil(ln(0.05) / ln(1-p))",
+    "chao1_formula": "S_chao1 = S_obs + f1^2/(2*f2); f2=0: S_obs + f1*(f1-1)/2",
+    "detection_threshold_very_rare_p003": 998,
+    "detection_threshold_rare_p004": 748,
+    "detection_threshold_moderate_p008": 373,
+    "detection_threshold_common_p030": 99
+  },
+  "expected_results": {
+    "chao1_at_depth_50000_range": [48.0, 55.0],
+    "chao1_exceeds_sobs_at_low_depth": true,
+    "sobs_at_depth_50000": 50,
+    "detection_rate_dominant_at_100_min": 0.95,
+    "detection_rate_very_rare_at_100_max": 0.50,
+    "detection_rate_very_rare_at_5000_min": 0.99,
+    "all_detected_at_50000": true,
+    "occupancy_correlated_with_abundance": true,
+    "singleton_fraction_decreases_with_depth": true,
+    "deterministic_reproducible": true
+  }
+}

@@ -27,6 +27,51 @@ const MSD_MIN_THRESHOLD: f64 = 1e-20;
 /// Denominator epsilon for regression singularity check.
 const REGRESSION_EPSILON: f64 = 1e-30;
 
+/// Error type for eigendecomposition failures.
+#[derive(Debug)]
+pub enum EighError {
+    /// The matrix was empty.
+    EmptyMatrix,
+    /// Off-diagonal length did not match `diag.len() - 1`.
+    DimensionMismatch {
+        /// Length of diagonal.
+        diag_len: usize,
+        /// Length of off-diagonal.
+        offdiag_len: usize,
+    },
+    /// QL algorithm failed to converge within the iteration budget.
+    ConvergenceFailure {
+        /// Index of the sub-diagonal element that did not converge.
+        index: usize,
+        /// Maximum iterations attempted.
+        max_iterations: usize,
+    },
+}
+
+impl std::fmt::Display for EighError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::EmptyMatrix => write!(f, "matrix must be non-empty"),
+            Self::DimensionMismatch {
+                diag_len,
+                offdiag_len,
+            } => write!(
+                f,
+                "offdiag length {offdiag_len} must equal diag length {diag_len} minus 1"
+            ),
+            Self::ConvergenceFailure {
+                index,
+                max_iterations,
+            } => write!(
+                f,
+                "QL algorithm failed to converge at index {index} after {max_iterations} iterations"
+            ),
+        }
+    }
+}
+
+impl std::error::Error for EighError {}
+
 /// Eigendecomposition of a symmetric tridiagonal matrix via implicit QL
 /// algorithm with Wilkinson shifts.
 ///
@@ -34,17 +79,24 @@ const REGRESSION_EPSILON: f64 = 1e-30;
 /// an `n × n` row-major flat buffer. Row `i` of the matrix holds `U[i][:]`,
 /// so the j-th component of eigenvector `k` is at `eigenvectors_flat[j * n + k]`.
 ///
-/// # Panics
+/// # Errors
 ///
-/// Panics if `diag` is empty or `offdiag.len() != diag.len() - 1`.
-#[must_use]
-pub fn tridiag_eigh(diag: &[f64], offdiag: &[f64]) -> (Vec<f64>, Vec<f64>) {
+/// Returns [`EighError`] if the matrix is empty, dimensions mismatch, or the
+/// QL algorithm fails to converge.
+pub fn tridiag_eigh(diag: &[f64], offdiag: &[f64]) -> Result<(Vec<f64>, Vec<f64>), EighError> {
     let n = diag.len();
-    assert!(n > 0, "matrix must be non-empty");
-    assert_eq!(offdiag.len(), n - 1, "offdiag must have n-1 elements");
+    if n == 0 {
+        return Err(EighError::EmptyMatrix);
+    }
+    if offdiag.len() != n - 1 {
+        return Err(EighError::DimensionMismatch {
+            diag_len: n,
+            offdiag_len: offdiag.len(),
+        });
+    }
 
     if n == 1 {
-        return (vec![diag[0]], vec![1.0]);
+        return Ok((vec![diag[0]], vec![1.0]));
     }
 
     let mut d = diag.to_vec();
@@ -58,11 +110,11 @@ pub fn tridiag_eigh(diag: &[f64], offdiag: &[f64]) -> (Vec<f64>, Vec<f64>) {
         z[i * n + i] = 1.0;
     }
 
-    implicit_ql(&mut d, &mut e, &mut z, n);
+    implicit_ql(&mut d, &mut e, &mut z, n)?;
 
     sort_eigenpairs(&mut d, &mut z, n);
 
-    (d, z)
+    Ok((d, z))
 }
 
 /// Implicit QL algorithm for symmetric tridiagonal eigenvalue/eigenvector
@@ -72,7 +124,7 @@ pub fn tridiag_eigh(diag: &[f64], offdiag: &[f64]) -> (Vec<f64>, Vec<f64>) {
     clippy::many_single_char_names,
     reason = "standard QL algorithm notation (LAPACK dsteqr convention)"
 )]
-fn implicit_ql(d: &mut [f64], e: &mut [f64], z: &mut [f64], n: usize) {
+fn implicit_ql(d: &mut [f64], e: &mut [f64], z: &mut [f64], n: usize) -> Result<(), EighError> {
     let eps = f64::EPSILON;
 
     for l in 0..n {
@@ -91,10 +143,12 @@ fn implicit_ql(d: &mut [f64], e: &mut [f64], z: &mut [f64], n: usize) {
                 break;
             }
 
-            assert!(
-                iter_count < QL_MAX_ITERATIONS,
-                "QL algorithm failed to converge after {QL_MAX_ITERATIONS} iterations"
-            );
+            if iter_count >= QL_MAX_ITERATIONS {
+                return Err(EighError::ConvergenceFailure {
+                    index: l,
+                    max_iterations: QL_MAX_ITERATIONS,
+                });
+            }
             iter_count += 1;
 
             let g0 = (d[l + 1] - d[l]) / (2.0 * e[l]);
@@ -142,6 +196,7 @@ fn implicit_ql(d: &mut [f64], e: &mut [f64], z: &mut [f64], n: usize) {
             e[m] = 0.0;
         }
     }
+    Ok(())
 }
 
 /// Sort eigenvalues in ascending order and permute eigenvectors accordingly.
@@ -261,7 +316,12 @@ mod tests {
         theta: f64,
     ) -> (Vec<f64>, Vec<f64>) {
         let diag: Vec<f64> = (0..n)
-            .map(|i| coupling * (2.0 * std::f64::consts::PI * alpha * usize_f64(i) + theta).cos())
+            .map(|i| {
+                coupling
+                    * (2.0 * std::f64::consts::PI * alpha)
+                        .mul_add(usize_f64(i), theta)
+                        .cos()
+            })
             .collect();
         let offdiag = vec![1.0; n - 1];
         (diag, offdiag)
@@ -269,7 +329,7 @@ mod tests {
 
     #[test]
     fn trivial_eigh() {
-        let (vals, vecs) = tridiag_eigh(&[3.0], &[]);
+        let (vals, vecs) = tridiag_eigh(&[3.0], &[]).expect("trivial 1x1");
         assert!((vals[0] - 3.0).abs() < 1e-14);
         assert!((vecs[0] - 1.0).abs() < 1e-14);
     }
@@ -277,7 +337,7 @@ mod tests {
     #[test]
     fn two_by_two_eigh() {
         let n = 2;
-        let (vals, vecs) = tridiag_eigh(&[0.0, 0.0], &[1.0]);
+        let (vals, vecs) = tridiag_eigh(&[0.0, 0.0], &[1.0]).expect("2x2");
         assert!((vals[0] - (-1.0)).abs() < 1e-12);
         assert!((vals[1] - 1.0).abs() < 1e-12);
 
@@ -286,10 +346,20 @@ mod tests {
     }
 
     #[test]
+    fn empty_matrix_returns_error() {
+        assert!(tridiag_eigh(&[], &[]).is_err());
+    }
+
+    #[test]
+    fn dimension_mismatch_returns_error() {
+        assert!(tridiag_eigh(&[1.0, 2.0], &[]).is_err());
+    }
+
+    #[test]
     fn orthogonality() {
         let n = 20;
         let (diag, offdiag) = almost_mathieu_diag_offdiag(n, 1.0, 0.618_033_988_749_894_9, 0.0);
-        let (_, vecs) = tridiag_eigh(&diag, &offdiag);
+        let (_, vecs) = tridiag_eigh(&diag, &offdiag).expect("20x20");
 
         for i in 0..n {
             for j in 0..n {
@@ -307,7 +377,7 @@ mod tests {
     fn ballistic_transport() {
         let n = 101;
         let (diag, offdiag) = almost_mathieu_diag_offdiag(n, 0.5, 0.618_033_988_749_894_9, 0.0);
-        let (evals, evecs) = tridiag_eigh(&diag, &offdiag);
+        let (evals, evecs) = tridiag_eigh(&diag, &offdiag).expect("ballistic");
 
         let times = [1.0, 2.0, 5.0, 10.0, 20.0];
         let msds: Vec<f64> = times
@@ -324,7 +394,7 @@ mod tests {
     fn localized_transport() {
         let n = 101;
         let (diag, offdiag) = almost_mathieu_diag_offdiag(n, 4.0, 0.618_033_988_749_894_9, 0.0);
-        let (evals, evecs) = tridiag_eigh(&diag, &offdiag);
+        let (evals, evecs) = tridiag_eigh(&diag, &offdiag).expect("localized");
 
         let times = [1.0, 5.0, 10.0, 20.0, 40.0];
         let msds: Vec<f64> = times
@@ -341,7 +411,7 @@ mod tests {
     fn normalization_preserved() {
         let n = 51;
         let (diag, offdiag) = almost_mathieu_diag_offdiag(n, 1.0, 0.618_033_988_749_894_9, 0.0);
-        let (evals, evecs) = tridiag_eigh(&diag, &offdiag);
+        let (evals, evecs) = tridiag_eigh(&diag, &offdiag).expect("normalization");
 
         for &t in &[0.0, 1.0, 5.0, 20.0] {
             let (_, norm) = wavepacket_msd(&evals, &evecs, 25, t);

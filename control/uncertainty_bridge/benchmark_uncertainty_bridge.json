@@ -9,7 +9,7 @@
   "_provenance": {
     "generated_by": "groundSpring Exp 015 cross-domain uncertainty bridge",
     "baseline_date": "2026-02-26",
-    "baseline_commit": "pending",
+    "baseline_commit": "81b243bb088447c1b4b03b0e4912d9eded0822ad",
     "validation_script": "control/uncertainty_bridge/uncertainty_bridge.py",
     "command": "python3 control/uncertainty_bridge/uncertainty_bridge.py",
     "notes": "Propagates Exp 001 sensor noise through Anderson localization (Exp 008) to predict QS regime confidence intervals. Combines three validated modules: decompose, anderson, rarefaction.",
@@ -43,6 +43,7 @@
   "propagation": {
     "description": "Monte Carlo uncertainty propagation: sensor noise → θ → W_eff → γ → ξ",
     "n_mc_samples": 200,
+    "mc_seed": 2026,
     "theta_to_disorder_slope": 15.0,
     "theta_to_disorder_intercept": 0.5,
     "theta_nominal": 0.30

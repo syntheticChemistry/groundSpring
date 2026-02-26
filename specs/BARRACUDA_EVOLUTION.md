@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: February 26, 2026 (V21 complete barracuda rewiring + dual-mode CI)
+**Last updated**: February 26, 2026 (V22 experiment buildout: Exp 016-021 + linting cleanup)
 
 ## Philosophy
 
@@ -158,13 +158,19 @@ are for throughput (100k+ MC samples, batch rarefaction).
 | `seismic::haversine_km` | Single scalar trig |
 | `seismic::travel_time_1d` | One sqrt + division |
 
-### New Modules (Exp 012, 013, 014) — Future BarraCUDA Candidates
+### New Modules (Exp 012-021) — Future BarraCUDA Candidates
 
 | Module | Key Functions | BarraCUDA Potential |
 |---|---|---|
 | `transport` | `tridiag_eigh` | New eigenvector primitive for spin chain transport — future barracuda candidate |
 | `drift` | `wright_fisher_fixation`, `kimura_fixation_prob` | Wright-Fisher and Kimura fixation probabilities — future barracuda candidates |
 | `prng` | `binomial()` | Added for drift/selection experiments; complements existing normal sampling |
+| `rare_biosphere` | `chao1`, `detection_power`, `abundance_occupancy`, `tier_detection_rate` | `abundance_occupancy` and `tier_detection_rate` are embarrassingly parallel across replicates; uses `batched_multinomial` |
+| `quasispecies` | `error_threshold`, `master_frequency_analytical`, `quasispecies_simulation` | Wright-Fisher + per-locus mutation — population × loci parallel; mutation sweep trivially parallel |
+| `band_structure` | `transfer_matrix_half_trace`, `find_band_edges`, `count_bands`, `periodic_hamiltonian` | Energy scan (10,001 points) is embarrassingly parallel; one thread per energy, L sequential 2×2 multiplies |
+| `jackknife` | Leave-one-out error estimation | Embarrassingly parallel (N leave-one-out subsets independent). GPU candidate for large N. |
+| `freeze_out` | Freeze-out inverse problem (T0, kappa2 grid search) | Grid search is embarrassingly parallel (each (T0, kappa2) point independent). High GPU potential. |
+| `spectral_recon` | Kernel construction, Cholesky decomposition, matrix-vector products | Dense linear algebra. Highest GPU potential of the three Bazavov modules. |
 
 ### New barracuda ops relevant to groundSpring (discovered S51–S62+)
 
@@ -312,7 +318,7 @@ behavior in `spectral::lyapunov_averaged`.
 ## Rust vs Python Performance (Phase 1c — Full Suite)
 
 Pure Rust CPU math vs interpreted Python (NumPy/SciPy), median of 3 trials
-across all 15 experiments:
+across all 21 experiments:
 
 | Experiment | Python (s) | Rust (s) | Speedup |
 |---|---|---|---|
@@ -345,7 +351,7 @@ Speedup varies with algorithm type:
 
 ### Mathematical Parity Certificate
 
-All 15 experiments: **PARITY PROVEN**.  Both Python baselines and Rust
+All 21 experiments: **PARITY PROVEN**.  Both Python baselines and Rust
 validation binaries check against the same shared benchmark JSON files.
 If both pass, the math is identical within stated tolerances.
 
@@ -355,11 +361,11 @@ See `data/parity_report.json` for the machine-readable certificate.
 
 | Phase | Milestone | Status |
 |---|---|---|
-| Phase 0 | Python baselines | **Done** (~137 checks across 15 experiments) |
-| Phase 1a | Rust CPU validation | **Done** (185/185 PASS across 15 binaries) |
+| Phase 0 | Python baselines | **Done** (~137 checks across 21 experiments) |
+| Phase 1a | Rust CPU validation | **Done** (236/236 PASS across 21 binaries) |
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
-| Phase 1d | Full-suite parity + benchmarks | **Done** (15/15 parity proven, timing data for all experiments) |
+| Phase 1d | Full-suite parity + benchmarks | **Done** (21/21 parity proven, timing data for all experiments) |
 | Phase 2a | Tier A rewire (stats + bootstrap + anderson → barracuda) | **27 delegated** (15 stats + bootstrap_mean + rawr_mean + hill + 5 anderson + analytical ξ + hamiltonian + 2 ODE + shannon + eigenvalues) |
 | Phase 2b | Tier B adapt (PRNG alignment, grid dispatch, gillespie GPU) | After 2a |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |

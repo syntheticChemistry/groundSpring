@@ -48,6 +48,12 @@ jobs:
       - run: cargo run --bin validate-resampling-conv
       - run: cargo run --bin validate-drift
       - run: cargo run --bin validate-uncertainty-bridge
+      - run: cargo run --bin validate-rare-biosphere
+      - run: cargo run --bin validate-quasispecies
+      - run: cargo run --bin validate-band-edge
+      - run: cargo run --bin validate-jackknife
+      - run: cargo run --bin validate-freeze-out
+      - run: cargo run --bin validate-spectral-recon
 
   python:
     name: Python baselines

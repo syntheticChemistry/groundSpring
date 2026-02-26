@@ -1,0 +1,60 @@
+{
+  "_source": "Exp 019: Jackknife Error Estimation",
+  "_doi": "10.1103/PhysRevD.111.094508",
+  "_references": [
+    "Bazavov et al. (2025) Phys Rev D 111, 094508",
+    "Efron (1982) The Jackknife, the Bootstrap, and Other Resampling Plans",
+    "Quenouille (1956) Biometrika 43:353-360"
+  ],
+  "_provenance": {
+    "generated_by": "analytical + synthetic",
+    "data_origin": "Gaussian and exponential distributions with known moments",
+    "prng_algorithm": "Xorshift64 (Rust) / PCG64 (Python)",
+    "baseline_date": "2026-02-26",
+    "baseline_commit": "",
+    "validation_script": "control/jackknife_estimation/jackknife_estimation.py",
+    "command": "python3 control/jackknife_estimation/jackknife_estimation.py"
+  },
+  "_description": "Jackknife resampling for variance estimation, bias correction, and comparison with bootstrap. Validates the delete-one jackknife against analytical variance of the mean, tests bias correction on a biased estimator, and compares block jackknife variance with bootstrap on correlated data.",
+  "_groundspring_question": "Does jackknife error estimation achieve subpercent accuracy for variance of smooth statistics on known distributions?",
+  "_cross_spring": ["Exp 007 RAWR bootstrap", "Exp 003 FAO-56 MC propagation"],
+
+  "gaussian": {
+    "n_samples": 200,
+    "true_mean": 5.0,
+    "true_std": 2.0,
+    "seed": 42
+  },
+  "exponential": {
+    "n_samples": 200,
+    "rate": 0.5,
+    "seed": 99
+  },
+  "correlated": {
+    "n_samples": 400,
+    "true_mean": 10.0,
+    "true_std": 3.0,
+    "ar1_phi": 0.8,
+    "block_sizes": [1, 5, 10, 20, 40],
+    "seed": 77
+  },
+  "analytical_predictions": {
+    "gaussian_var_of_mean": "sigma^2 / N = 4.0 / 200 = 0.02",
+    "exponential_mean": "1/rate = 2.0",
+    "exponential_var_of_mean": "1/(rate^2 * N) = 4.0 / 200 = 0.02",
+    "jackknife_variance_formula": "var_JK = (N-1)/N * sum((theta_i - theta_bar)^2)",
+    "jackknife_bias_formula": "bias_JK = (N-1) * (theta_bar_JK - theta_full)",
+    "block_jackknife_effective_n": "N / block_size"
+  },
+  "expected_results": {
+    "gaussian_jk_mean_tol": 0.5,
+    "gaussian_jk_var_range": [0.005, 0.08],
+    "exponential_jk_mean_tol": 0.5,
+    "exponential_jk_var_range": [0.005, 0.08],
+    "bias_correction_reduces_bias": true,
+    "block_jk_var_increases_with_block_size": true,
+    "block_jk_large_block_var_range": [0.02, 0.40],
+    "jk_bootstrap_ratio_range": [0.5, 2.0],
+    "determinism": true
+  }
+}

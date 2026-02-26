@@ -5,6 +5,8 @@
 //! results across reruns. Any failure here indicates non-deterministic
 //! floating-point paths (thread scheduling, unordered reductions, etc.).
 
+#![allow(clippy::float_cmp)]
+
 use groundspring::almost_mathieu::{eigenvalues, level_spacing_ratio, potential};
 use groundspring::anderson::lyapunov_exponent;
 use groundspring::bistable::{integrate as bistable_integrate, BistableParams};
@@ -19,7 +21,6 @@ use groundspring::transport::{tridiag_eigh, wavepacket_msd};
 const GOLDEN: f64 = 0.618_033_988_749_894_9;
 
 #[test]
-#[expect(clippy::float_cmp)]
 fn prng_deterministic() {
     let mut a = Xorshift64::new(42);
     let mut b = Xorshift64::new(42);
@@ -29,7 +30,6 @@ fn prng_deterministic() {
 }
 
 #[test]
-#[expect(clippy::float_cmp)]
 fn bootstrap_deterministic() {
     let data = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
     let r1 = bootstrap_mean(&data, 500, 0.95, 42);
@@ -40,7 +40,6 @@ fn bootstrap_deterministic() {
 }
 
 #[test]
-#[expect(clippy::float_cmp)]
 fn rawr_deterministic() {
     let data = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
     let r1 = rawr_mean(&data, 500, 0.95, 42);
@@ -51,7 +50,6 @@ fn rawr_deterministic() {
 }
 
 #[test]
-#[expect(clippy::float_cmp)]
 fn multinomial_deterministic() {
     let probs = [0.5, 0.3, 0.15, 0.05];
     let r1 = multinomial_sample(&probs, 10_000, 42);
@@ -60,7 +58,6 @@ fn multinomial_deterministic() {
 }
 
 #[test]
-#[expect(clippy::float_cmp)]
 fn rarefaction_deterministic() {
     let community: Vec<f64> = (1..=10).rev().map(|x| f64::from(x) / 55.0).collect();
     let r1 = rarefaction_at_depth(&community, 5000, 30, 42);
@@ -70,7 +67,6 @@ fn rarefaction_deterministic() {
 }
 
 #[test]
-#[expect(clippy::float_cmp)]
 fn anderson_lyapunov_deterministic() {
     let pot1 = potential(100_000, 3.0, GOLDEN, 0.0);
     let pot2 = potential(100_000, 3.0, GOLDEN, 0.0);
@@ -81,7 +77,6 @@ fn anderson_lyapunov_deterministic() {
 }
 
 #[test]
-#[expect(clippy::float_cmp)]
 fn eigenvalue_deterministic() {
     let e1 = eigenvalues(50, 2.0, GOLDEN, 0.0);
     let e2 = eigenvalues(50, 2.0, GOLDEN, 0.0);
@@ -89,7 +84,6 @@ fn eigenvalue_deterministic() {
 }
 
 #[test]
-#[expect(clippy::float_cmp)]
 fn level_spacing_deterministic() {
     let mut e1 = eigenvalues(50, 1.0, GOLDEN, 0.0);
     let mut e2 = e1.clone();
@@ -97,7 +91,6 @@ fn level_spacing_deterministic() {
 }
 
 #[test]
-#[expect(clippy::float_cmp)]
 fn bistable_ode_deterministic() {
     let p = BistableParams::default();
     let ic = [0.95, 4.5, 1.9, 0.3, 0.02];
@@ -107,7 +100,6 @@ fn bistable_ode_deterministic() {
 }
 
 #[test]
-#[expect(clippy::float_cmp)]
 fn multisignal_ode_deterministic() {
     let p = MultiSignalParams::default();
     let ic = [0.1, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0];
@@ -117,7 +109,6 @@ fn multisignal_ode_deterministic() {
 }
 
 #[test]
-#[expect(clippy::float_cmp)]
 fn gillespie_deterministic() {
     let rates = [1.0; 10];
     let r1 = birth_death_ssa(&rates, 0.5, 10, 50.0, 42);
@@ -127,7 +118,6 @@ fn gillespie_deterministic() {
 }
 
 #[test]
-#[expect(clippy::float_cmp)]
 fn wright_fisher_deterministic() {
     let r1 = wright_fisher_fixation(100, 0.5, 0.0, 42);
     let r2 = wright_fisher_fixation(100, 0.5, 0.0, 42);
@@ -135,12 +125,11 @@ fn wright_fisher_deterministic() {
 }
 
 #[test]
-#[expect(clippy::float_cmp)]
 fn transport_deterministic() {
     let pot = potential(51, 1.0, GOLDEN, 0.0);
     let offdiag = vec![1.0; 50];
-    let (evals1, evecs1) = tridiag_eigh(&pot, &offdiag);
-    let (evals2, evecs2) = tridiag_eigh(&pot, &offdiag);
+    let (evals1, evecs1) = tridiag_eigh(&pot, &offdiag).expect("eigh run 1");
+    let (evals2, evecs2) = tridiag_eigh(&pot, &offdiag).expect("eigh run 2");
     assert_eq!(evals1, evals2);
     assert_eq!(evecs1, evecs2);
     let (msd1, norm1) = wavepacket_msd(&evals1, &evecs1, 25, 5.0);

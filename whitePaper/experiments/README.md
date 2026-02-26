@@ -5,12 +5,12 @@
 > (Phase 0), a Rust validation (Phase 1), and a barracuda delegation path
 > (Phase 2+).
 
-**Total**: 185/185 validation checks across 15 experiments, 6 domains. 225 Rust tests, ~137 Python checks.
-**Rust vs Python**: 22× faster across all 15 experiments (Exp 009 now 2.8× with barracuda-gpu Sturm).
-**Mathematical Parity**: 15/15 PROVEN — Python and Rust both pass against shared benchmark JSONs.
+**Total**: 236/236 validation checks across 21 experiments, 8 domains. 280 Rust tests.
+**Rust vs Python**: 22× faster across all 21 experiments (Exp 009: 49.5× with barracuda-gpu Sturm).
+**Mathematical Parity**: 21/21 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **Coverage**: 98.93% workspace line coverage. Zero clippy warnings.
 **BarraCUDA performance**: 14.9s (local) → 3.9s (barracuda-gpu). Exp 009: **49.5× from Sturm tridiag**.
-**Modules**: 18 (including `kinetics`, shared by Exp 010 and 011).
+**Modules**: 24 (including `jackknife`, `freeze_out`, `spectral_recon`).
 
 ## Experiment Index
 
@@ -31,6 +31,12 @@
 | 013 | [Resampling Convergence](013_resampling_convergence.md) | Statistics | Lee & Liu 2024 IEEE BIBM | 10/10 | 8/8 | Uses bootstrap |
 | 014 | [Drift vs Selection](014_drift_selection.md) | Evolutionary biology | R. Anderson 2022 mBio | 7/7 | 7/7 | Wright-Fisher, Kimura |
 | 015 | [Uncertainty Bridge](015_uncertainty_bridge.md) | Cross-domain | Dong 2020 + Bourgain-Kachkovskiy 2018 | 8/8 | 8/8 | Sensor noise → Anderson ξ |
+| 016 | [Rare Biosphere Signal Detection](016_rare_biosphere.md) | Biological | R. Anderson 2015 FEMS | 11/11 | 10/10 | CPU-only |
+| 017 | [Quasispecies Threshold](017_quasispecies_threshold.md) | Evolutionary | Dolson 2023 J R Soc | 9/9 | 6/6 | CPU-only |
+| 018 | [Band Edge Structure](018_band_edge_structure.md) | Mathematical | Filonov-Kachkovskiy 2018 | 8/8 | 10/10 | CPU-only |
+| 019 | [Jackknife Error Estimation](019_jackknife_estimation.md) | Statistics | Bazavov 2025 Phys Rev D 111 | 9/9 | 9/9 | CPU-only |
+| 020 | [Freeze-Out Inverse](020_freeze_out_inverse.md) | Inverse problems | Bazavov 2016 Phys Rev D 93 | 8/8 | 8/8 | CPU-only |
+| 021 | [Spectral Function Reconstruction](021_spectral_recon.md) | Inverse problems | Bazavov 2025 arXiv 2501.12259 | 8/8 | 8/8 | CPU-only |
 
 ## Three-Tier Control Plan
 
@@ -40,11 +46,11 @@ Each experiment is validated at three levels:
 2. **GPU** — Barracuda GPU matches CPU within tolerance (`--features barracuda-gpu`)
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
-Current status: **CPU complete** (185/185), **27 barracuda delegations active**
+Current status: **CPU complete** (236/236), **27 barracuda delegations active**
 (15 stats/metrics + bootstrap + rawr_mean + hill + 5 anderson/spectral + hamiltonian + 2 ODE + eigenvalues).
 22 CPU delegated (`#[cfg(feature = "barracuda")]`), 5 GPU delegated
 (`#[cfg(feature = "barracuda-gpu")]`). All with graceful CPU fallback.
-98.93% line coverage. 15/15 mathematical parity proven.
+98.93% line coverage. 21/21 mathematical parity proven.
 
 Three-mode benchmarks: 14.9s (local) → 3.9s (barracuda-gpu, **4.4× faster**).
 Cross-spring evolution (hotSpring precision + Sturm, wetSpring bio-stats,

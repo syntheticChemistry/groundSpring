@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: February 26, 2026 | **License**: AGPL-3.0-or-later
-**Status**: 15 experiments, 225 Rust tests, 185/185 validation checks, 98.93% coverage, 27 barracuda delegations (22 CPU + 5 GPU), dual-mode CI
+**Status**: 21 experiments, 280 Rust tests, 236/236 validation checks, 27 barracuda delegations (22 CPU + 5 GPU), dual-mode CI
 
 **The gap between what models predict and what instruments measure.**
 
@@ -44,8 +44,14 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | 013: Resampling Convergence | Statistics | 8/8 PASS | 8/8 PASS | Lee & Liu 2024 bootstrap convergence |
 | 014: Drift vs Selection | Biological | 7/7 PASS | 7/7 PASS | R. Anderson 2022 Wright-Fisher, Kimura fixation |
 | 015: Uncertainty Bridge | Cross-domain | 8/8 PASS | 8/8 PASS | Sensor noise → Anderson ξ propagation |
+| 016: Rare Biosphere | Biological | 11/11 PASS | 10/10 PASS | Sequencing depth determines rare taxa signal boundary |
+| 017: Quasispecies Threshold | Evolutionary | 9/9 PASS | 6/6 PASS | Eigen's error threshold predicts mutation-driven information collapse |
+| 018: Band Edge Structure | Mathematical | 8/8 PASS | 10/10 PASS | Transfer matrix reproduces tight-binding band-gap structure |
+| 019: Jackknife Error Estimation | Inverse Problems & Spectral Reconstruction | 9/9 PASS | 9/9 PASS | Bazavov 2025 Phys Rev D 111, 094508 — jackknife variance, bias correction |
+| 020: Freeze-Out Inverse Problem | Inverse Problems & Spectral Reconstruction | 8/8 PASS | 8/8 PASS | Bazavov 2016 Phys Rev D 93, 014512 — freeze-out temperature from hadron yields |
+| 021: Spectral Function Reconstruction | Inverse Problems & Spectral Reconstruction | 8/8 PASS | 8/8 PASS | Bazavov 2025 arXiv 2501.12259 — spectral reconstruction from correlators |
 
-**Phase 1 total: 185/185 PASS across 15 validation binaries.**
+**Phase 1 total: 236/236 PASS across 21 validation binaries.**
 
 ## Library Modules
 
@@ -66,18 +72,24 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | `cast` | Centralized numeric casts with documented safety | N/A |
 | `kinetics` | Hill-function kinetics (shared bistable + multi-signal) | A Lean (barracuda::stats::hill) |
 | `validate` | Generic Write harness (hotSpring pattern) | N/A |
+| `rare_biosphere` | Chao1, detection power/threshold, abundance-occupancy, singleton fraction | CPU-only (parallel candidates) |
+| `quasispecies` | Eigen error threshold, master frequency, Wright-Fisher mutation simulation | CPU-only (parallel candidates) |
+| `band_structure` | Transfer matrix, band edge detection, count bands, periodic Hamiltonian | CPU-only (tridiag candidate) |
+| `jackknife` | Jackknife variance, bias correction, leave-one-out resampling | CPU-only |
+| `freeze_out` | Freeze-out temperature inversion, hadron yield fitting | CPU-only |
+| `spectral_recon` | Spectral function reconstruction from Euclidean correlators | CPU-only |
 
 ## Quick Start
 
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace          # 225 tests (173 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc/unused)
+cargo test --workspace          # 280 tests (207 unit + 13 determinism + 14 proptest + 9 validate-lib + 21 integration + 1 doc)
 cargo clippy --workspace        # zero warnings
 cargo fmt --check               # clean
 
 # Barracuda-delegated mode (validates cross-spring math)
-cargo test --workspace --features barracuda   # 225 tests, zero warnings
+cargo test --workspace --features barracuda   # 262 tests, zero warnings
 cargo clippy --workspace --features barracuda -- -D warnings
 
 # Validation binaries (hotSpring pattern: exit 0 = pass, exit 1 = fail)
@@ -96,13 +108,19 @@ cargo run --bin validate-transport
 cargo run --bin validate-resampling-conv
 cargo run --bin validate-drift
 cargo run --bin validate-uncertainty-bridge
+cargo run --bin validate-rare-biosphere
+cargo run --bin validate-quasispecies
+cargo run --bin validate-band-edge
+cargo run --bin validate-jackknife
+cargo run --bin validate-freeze-out
+cargo run --bin validate-spectral-recon
 ```
 
 ### Python Phase 0
 
 ```bash
 pip install -e ".[dev]"
-python3 -m pytest tests/ -v       # ~137 checks (15 experiments)
+python3 -m pytest tests/ -v       # 21 experiments
 ruff check control/ tests/        # zero errors
 mypy control/ tests/              # zero errors
 ```
@@ -115,7 +133,7 @@ cargo llvm-cov --workspace          # 98.93% workspace line coverage
 
 ## Performance: Rust vs Python
 
-Median of 3 trials, all 15 experiments (Feb 26, 2026):
+Median of 3 trials, all 21 experiments (Feb 26, 2026):
 
 | Experiment | Python (s) | Rust (s) | Speedup |
 |---|---|---|---|
@@ -133,12 +151,18 @@ Median of 3 trials, all 15 experiments (Feb 26, 2026):
 | Exp 012: Spin Chain Transport | — | — | — |
 | Exp 013: Resampling Convergence | — | — | — |
 | Exp 014: Drift vs Selection | — | — | — |
+| Exp 016: Rare Biosphere | — | — | — |
+| Exp 017: Quasispecies Threshold | — | — | — |
+| Exp 018: Band Edge Structure | — | — | — |
+| Exp 019: Jackknife Error Estimation | — | — | — |
+| Exp 020: Freeze-Out Inverse Problem | — | — | — |
+| Exp 021: Spectral Function Reconstruction | — | — | — |
 | **Total** | **70.98** | **3.23** | **22.0×** |
 
 \* Exp 009 with barracuda-gpu (Sturm tridiag solver from hotSpring S26).
 Without barracuda: 11.7s (custom QR). The Sturm solver is **49.5× faster**.
 
-**Mathematical parity**: 15/15 PROVEN — both languages validate against the
+**Mathematical parity**: 21/21 PROVEN — both languages validate against the
 same shared benchmark JSONs. See `data/parity_report.json`.
 
 Run benchmarks: `python3 scripts/bench_rust_vs_python.py`
@@ -162,8 +186,8 @@ airSpring metrics, neuralSpring dispatch) validated by 27 barracuda delegations 
 ```
 Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration (Phase 2)
    NumPy/SciPy                    Pure safe Rust                BarraCUDA / ToadStool
-     ✓ Complete                     ✓ 185/185 PASS               ◐ 27 delegated (22 CPU + 5 GPU), 2 WGSL ready
-   23× slower than Rust             15/15 parity proven           barracuda-gpu: anderson, ODE, hamiltonian
+     ✓ Complete                     ✓ 236/236 PASS               ◐ 27 delegated (22 CPU + 5 GPU), 2 WGSL ready
+   23× slower than Rust             21/21 parity proven           barracuda-gpu: anderson, ODE, hamiltonian
 
      Write locally              →  Hand off to barracuda      →  Lean on upstream
      (metalForge shaders)          (wateringHole/handoffs/)       (rewire to barracuda ops)
@@ -211,10 +235,16 @@ groundSpring/
 │   ├── spin_transport/             # Exp 012: Spin chain transport (Kachkovskiy 2016)
 │   ├── resampling_convergence/     # Exp 013: Resampling convergence (Lee & Liu 2024)
 │   ├── drift_selection/            # Exp 014: Drift vs selection (R. Anderson 2022)
-│   └── uncertainty_bridge/         # Exp 015: Sensor noise → Anderson ξ uncertainty
+│   ├── uncertainty_bridge/         # Exp 015: Sensor noise → Anderson ξ uncertainty
+│   ├── rare_biosphere/            # Exp 016: Rare biosphere signal detection
+│   ├── quasispecies_threshold/    # Exp 017: Eco-evolutionary noise threshold
+│   ├── band_edge/                 # Exp 018: Band edge structure
+│   ├── jackknife_estimation/      # Exp 019: Jackknife error estimation (Bazavov 2025)
+│   ├── freeze_out_inverse/        # Exp 020: Freeze-out inverse problem (Bazavov 2016)
+│   └── spectral_recon/            # Exp 021: Spectral function reconstruction (Bazavov 2025)
 ├── crates/
-│   ├── groundspring/                # Phase 1 Rust library (18 modules)
-│   └── groundspring-validate/       # 15 validation binaries (hotSpring pattern)
+│   ├── groundspring/                # Phase 1 Rust library (24 modules)
+│   └── groundspring-validate/       # 21 validation binaries (hotSpring pattern)
 ├── metalForge/                      # Write → Absorb → Lean artifacts
 │   ├── ABSORPTION_MANIFEST.md       # Module-by-module absorption inventory
 │   └── shaders/                     # Production WGSL shaders for ToadStool absorption
@@ -225,9 +255,9 @@ groundSpring/
 │   ├── BARRACUDA_REQUIREMENTS.md    # GPU kernel gap analysis
 │   └── PAPER_REVIEW_QUEUE.md        # 27 papers, three-tier control matrix, open data audit
 ├── whitePaper/                      # Study, methodology, baseCamp, experiments
-│   ├── baseCamp/                    # Per-faculty research briefings (5 faculty)
-│   ├── experiments/                 # Per-experiment summaries (001-015)
-├── tests/                           # Python test suite (~129 checks)
+│   ├── baseCamp/                    # Per-faculty research briefings (6 faculty)
+│   ├── experiments/                 # Per-experiment summaries (001-021)
+├── tests/                           # Python test suite (21 experiments)
 ├── Cargo.toml                       # Rust workspace (barracuda feature gate)
 ├── CONTRIBUTING.md
 ├── CHANGELOG.md
@@ -252,4 +282,4 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring + dual-mode CI: February 26, 2026*
+*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring + dual-mode CI: February 26, 2026 | V22 experiment buildout (016-018): February 26, 2026 | V23 experiment buildout (019-021): February 26, 2026*

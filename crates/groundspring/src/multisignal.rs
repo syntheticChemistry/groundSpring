@@ -202,34 +202,10 @@ fn multisignal_derivative_cpu(state: &[f64; 7], p: &MultiSignalParams) -> [f64; 
     [d_cell, d_cai1, d_ai2, d_luxo_p, d_hapr, d_cdg, d_bio]
 }
 
-/// RK4 integration step.
+/// RK4 integration step (delegates to [`crate::ode::rk4_step`]).
 #[must_use]
 pub fn rk4_step(state: &[f64; 7], params: &MultiSignalParams, dt: f64) -> [f64; 7] {
-    let half_dt = 0.5 * dt;
-    let sixth_dt = dt / 6.0;
-
-    let k1 = multisignal_derivative(state, params);
-    let mut s1 = [0.0; 7];
-    for i in 0..7 {
-        s1[i] = half_dt.mul_add(k1[i], state[i]);
-    }
-    let k2 = multisignal_derivative(&s1, params);
-    let mut s2 = [0.0; 7];
-    for i in 0..7 {
-        s2[i] = half_dt.mul_add(k2[i], state[i]);
-    }
-    let k3 = multisignal_derivative(&s2, params);
-    let mut s3 = [0.0; 7];
-    for i in 0..7 {
-        s3[i] = dt.mul_add(k3[i], state[i]);
-    }
-    let k4 = multisignal_derivative(&s3, params);
-    let mut result = [0.0; 7];
-    for i in 0..7 {
-        let slope = 2.0f64.mul_add(k2[i] + k3[i], k1[i] + k4[i]);
-        result[i] = sixth_dt.mul_add(slope, state[i]);
-    }
-    result
+    crate::ode::rk4_step(state, dt, |s| multisignal_derivative(s, params))
 }
 
 /// Integrate the ODE from `state0` for `n_steps` of size `dt`.
@@ -240,11 +216,7 @@ pub fn integrate(
     dt: f64,
     n_steps: usize,
 ) -> [f64; 7] {
-    let mut state = *state0;
-    for _ in 0..n_steps {
-        state = rk4_step(&state, params, dt);
-    }
-    state
+    crate::ode::integrate(state0, dt, n_steps, |s| multisignal_derivative(s, params))
 }
 
 /// Euler-Maruyama integration with additive noise on c-di-GMP (index 5).
@@ -320,6 +292,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::float_cmp)]
     fn rk4_deterministic() {
         let p = default_params();
         let state = [0.5, 1.0, 1.0, 0.5, 0.3, 0.5, 0.2];

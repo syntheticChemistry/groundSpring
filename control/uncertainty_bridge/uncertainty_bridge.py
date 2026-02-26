@@ -164,7 +164,7 @@ def main() -> int:
     intercept = prop["theta_to_disorder_intercept"]
     theta_nom = prop["theta_nominal"]
 
-    rng = np.random.default_rng(2026)
+    rng = np.random.default_rng(prop.get("mc_seed", 2026))
 
     # --- Step 1: Verify Anderson model baseline ---
     print("\n--- Step 1: Anderson model sanity checks ---")

@@ -9,7 +9,7 @@ that proves Python baselines can be faithfully ported to Rust and eventually
 promoted to GPU acceleration via the Write → Absorb → Lean cycle.
 
 ```
-control/             Python Phase 0 experiments (15 experiments across 6 domains)
+control/             Python Phase 0 experiments (21 experiments across 6 domains)
   common.py          Shared statistical primitives
   sensor_noise/      Exp 001: Bias-variance decomposition
   observation_gap/   Exp 002: Model-observation gap
@@ -26,8 +26,14 @@ control/             Python Phase 0 experiments (15 experiments across 6 domains
   resampling_convergence/ Exp 013: Resampling convergence (Lee & Liu 2024)
   drift_selection/    Exp 014: Drift vs selection (R. Anderson 2022)
   uncertainty_bridge/ Exp 015: Uncertainty bridge (sensor noise → Anderson → QS)
+  rare_biosphere/     Exp 016: Rare biosphere signal detection (R. Anderson 2015)
+  quasispecies_threshold/ Exp 017: Eigen error threshold (quasispecies)
+  band_edge/          Exp 018: Band edge structure (transfer matrix)
+  jackknife_estimation/ Exp 019: Jackknife variance (Bazavov 2025)
+  freeze_out_inverse/ Exp 020: Freeze-out inverse (Bazavov 2016)
+  spectral_recon/     Exp 021: Spectral reconstruction (Bazavov 2025)
 crates/
-  groundspring/            Rust library (18 modules)
+  groundspring/            Rust library (24 modules)
     src/stats/             RMSE, MBE, R², IA, hit rate, Pearson/Spearman, covariance,
                            norm_cdf/ppf, chi2_statistic, mean, std, percentile (3 submodules)
     src/decompose.rs       Bias-variance decomposition, noise floor
@@ -46,7 +52,13 @@ crates/
     src/drift.rs           Wright-Fisher fixation, Kimura fixation probability
     src/cast.rs            Centralized numeric casts (usize_f64, f64_usize, u64_f64)
     src/validate.rs        Struct-based ValidationHarness
-  groundspring-validate/   15 validation binaries (hotSpring pattern)
+    src/rare_biosphere.rs  Chao1, detection power, abundance-occupancy, singleton fraction
+    src/quasispecies.rs    Eigen error threshold, master frequency, Wright-Fisher mutation
+    src/band_structure.rs  Transfer matrix, band edge detection, periodic Hamiltonian
+    src/jackknife.rs       Jackknife variance, bias correction, leave-one-out resampling
+    src/freeze_out.rs     Freeze-out temperature inversion, hadron yield fitting
+    src/spectral_recon.rs  Spectral reconstruction from Euclidean correlators
+  groundspring-validate/   21 validation binaries (hotSpring pattern)
 metalForge/          Write → Absorb → Lean artifacts
   ABSORPTION_MANIFEST.md  Module-by-module absorption inventory
   shaders/                 Production WGSL shaders for ToadStool absorption
@@ -77,7 +89,7 @@ scripts/             Automation (baselines, benchmarks)
 ### Rust
 
 ```bash
-cargo test --workspace          # 225 tests (173 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc/unused)
+cargo test --workspace          # 280 tests (207 unit + 13 determinism + 14 proptest + 9 validate-lib + 21 integration + 1 doc/unused)
 cargo clippy --workspace        # zero warnings required
 cargo fmt --check               # clean
 cargo llvm-cov --workspace       # 98.93% workspace line coverage
@@ -89,8 +101,8 @@ cargo clippy --workspace --features barracuda -- -D warnings
 cargo test --workspace --features barracuda
 
 # With barracuda feature gates (requires toadstool checkout):
-cargo test --features barracuda     # 225 tests, CPU delegation (22 CPU)
-cargo test --features barracuda-gpu # 225 tests, CPU + spectral (22 CPU + 5 GPU)
+cargo test --features barracuda     # 280 tests, CPU delegation (22 CPU)
+cargo test --features barracuda-gpu # 280 tests, CPU + spectral (22 CPU + 5 GPU)
 
 # Three-mode benchmark (local vs barracuda vs barracuda-gpu)
 bash scripts/three_mode_benchmark.sh
@@ -111,6 +123,12 @@ cargo run --bin validate-transport
 cargo run --bin validate-resampling-conv
 cargo run --bin validate-drift
 cargo run --bin validate-uncertainty-bridge
+cargo run --bin validate-rare-biosphere
+cargo run --bin validate-quasispecies
+cargo run --bin validate-band-edge
+cargo run --bin validate-jackknife
+cargo run --bin validate-freeze-out
+cargo run --bin validate-spectral-recon
 
 # Performance benchmarks (Rust vs Python)
 python3 scripts/bench_rust_vs_python.py

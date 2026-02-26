@@ -116,6 +116,30 @@ run_experiment \
     "Exp 015: Uncertainty Bridge (Python)" \
     "python3 control/uncertainty_bridge/uncertainty_bridge.py"
 
+run_experiment \
+    "Exp 016: Rare Biosphere (Python)" \
+    "python3 control/rare_biosphere/rare_biosphere.py"
+
+run_experiment \
+    "Exp 017: Quasispecies Threshold (Python)" \
+    "python3 control/quasispecies_threshold/quasispecies_threshold.py"
+
+run_experiment \
+    "Exp 018: Band Edge (Python)" \
+    "python3 control/band_edge/band_edge.py"
+
+run_experiment \
+    "Exp 019: Jackknife Estimation (Python)" \
+    "python3 control/jackknife_estimation/jackknife_estimation.py"
+
+run_experiment \
+    "Exp 020: Freeze Out Inverse (Python)" \
+    "python3 control/freeze_out_inverse/freeze_out_inverse.py"
+
+run_experiment \
+    "Exp 021: Spectral Recon (Python)" \
+    "python3 control/spectral_recon/spectral_recon.py"
+
 echo ""
 echo "╔══════════════════════════════════════════════════════════════╗"
 echo "║  PHASE 1: Rust Validation Binaries                         ║"
@@ -183,6 +207,30 @@ if command -v cargo &> /dev/null; then
     run_experiment \
         "Rust: Uncertainty Bridge" \
         "cargo run --release --bin validate-uncertainty-bridge"
+
+    run_experiment \
+        "Rust: Rare Biosphere" \
+        "cargo run --release --bin validate-rare-biosphere"
+
+    run_experiment \
+        "Rust: Quasispecies Threshold" \
+        "cargo run --release --bin validate-quasispecies"
+
+    run_experiment \
+        "Rust: Band Edge" \
+        "cargo run --release --bin validate-band-edge"
+
+    run_experiment \
+        "Rust: Jackknife Estimation" \
+        "cargo run --release --bin validate-jackknife"
+
+    run_experiment \
+        "Rust: Freeze Out Inverse" \
+        "cargo run --release --bin validate-freeze-out"
+
+    run_experiment \
+        "Rust: Spectral Recon" \
+        "cargo run --release --bin validate-spectral-recon"
 else
     echo "  [SKIP] cargo not found — Rust validation skipped"
 fi

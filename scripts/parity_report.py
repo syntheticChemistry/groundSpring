@@ -157,6 +157,42 @@ EXPERIMENTS = [
         "python": [sys.executable, "control/uncertainty_bridge/uncertainty_bridge.py"],
         "rust_bin": "validate-uncertainty-bridge",
     },
+    {
+        "name": "Exp 016: Rare Biosphere",
+        "benchmark": "control/rare_biosphere/benchmark_rare_biosphere.json",
+        "python": [sys.executable, "control/rare_biosphere/rare_biosphere.py"],
+        "rust_bin": "validate-rare-biosphere",
+    },
+    {
+        "name": "Exp 017: Quasispecies Threshold",
+        "benchmark": "control/quasispecies_threshold/benchmark_quasispecies.json",
+        "python": [sys.executable, "control/quasispecies_threshold/quasispecies_threshold.py"],
+        "rust_bin": "validate-quasispecies",
+    },
+    {
+        "name": "Exp 018: Band Edge",
+        "benchmark": "control/band_edge/benchmark_band_edge.json",
+        "python": [sys.executable, "control/band_edge/band_edge.py"],
+        "rust_bin": "validate-band-edge",
+    },
+    {
+        "name": "Exp 019: Jackknife Estimation",
+        "benchmark": "control/jackknife_estimation/benchmark_jackknife.json",
+        "python": [sys.executable, "control/jackknife_estimation/jackknife_estimation.py"],
+        "rust_bin": "validate-jackknife",
+    },
+    {
+        "name": "Exp 020: Freeze Out Inverse",
+        "benchmark": "control/freeze_out_inverse/benchmark_freeze_out.json",
+        "python": [sys.executable, "control/freeze_out_inverse/freeze_out_inverse.py"],
+        "rust_bin": "validate-freeze-out",
+    },
+    {
+        "name": "Exp 021: Spectral Recon",
+        "benchmark": "control/spectral_recon/benchmark_spectral_recon.json",
+        "python": [sys.executable, "control/spectral_recon/spectral_recon.py"],
+        "rust_bin": "validate-spectral-recon",
+    },
 ]
 
 

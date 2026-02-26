@@ -4,6 +4,53 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V23 Experiment Buildout: Exp 019-021 — Inverse Problems & Spectral Reconstruction (Feb 26, 2026)
+
+#### Added
+- **Experiment 019: Jackknife Error Estimation** — Bazavov 2025 Phys Rev D 111, 094508; jackknife variance, bias correction, leave-one-out resampling; module: `jackknife`; 9/9 Rust checks
+- **Experiment 020: Freeze-Out Inverse Problem** — Bazavov 2016 Phys Rev D 93, 014512; freeze-out temperature inversion from hadron yields; module: `freeze_out`; 8/8 Rust checks
+- **Experiment 021: Spectral Function Reconstruction** — Bazavov 2025 arXiv 2501.12259; spectral reconstruction from Euclidean correlators; module: `spectral_recon`; 8/8 Rust checks
+- 3 new Rust library modules: `jackknife`, `freeze_out`, `spectral_recon`
+- 3 new validation binaries: `validate-jackknife` (9/9), `validate-freeze-out` (8/8), `validate-spectral-recon` (8/8)
+- New scientific domain: **Inverse Problems & Spectral Reconstruction** (formal domain from Bazavov papers)
+
+#### Metrics
+- 21 experiments (was 18)
+- 280 Rust tests (was 262)
+- 236 Rust validation checks (was 211)
+- 21/21 mathematical parity (was 18/18)
+- 47 pytest tests (was ~44)
+- 8 scientific domains (was 7)
+- 24 library modules (was 21)
+
+### V22 Experiment Buildout: Exp 016-018 + Full Linting Cleanup (Feb 26, 2026)
+
+#### Added
+- **Experiment 016: Rare Biosphere Signal Detection** — R. Anderson 2015 FEMS Microbiol Ecol; Chao1 richness, detection power/threshold, abundance-occupancy, singleton fraction
+- **Experiment 017: Eco-Evolutionary Noise Threshold** — Dolson 2023 J R Soc Interface; Eigen's quasispecies model, error threshold, master frequency, Wright-Fisher mutation simulation
+- **Experiment 018: Band Edge Structure** — Filonov & Kachkovskiy 2018 Acta Math; transfer matrix method, band-gap detection, periodic Hamiltonian, eigenvalue band fraction
+- 3 new Rust library modules: `rare_biosphere`, `quasispecies`, `band_structure`
+- 3 new validation binaries: `validate-rare-biosphere` (10/10), `validate-quasispecies` (6/6), `validate-band-edge` (10/10)
+- 3 new Python control scripts with benchmark JSONs
+- WhitePaper experiment docs (016, 017, 018) and Dolson faculty briefing
+
+#### Fixed
+- Pre-existing clippy warnings in `almost_mathieu.rs`: 9 CPU-fallback functions/constants gated with `#[cfg(not(feature = "barracuda-gpu"))]` to eliminate dead-code warnings in all-features mode
+- Pre-existing clippy warnings in `anderson.rs`: 2 CPU-fallback functions gated similarly
+- `needless_return` in `almost_mathieu.rs` barracuda-gpu blocks (expression position instead of `return`)
+- `float_cmp` in `bistable.rs`, `multisignal.rs`, `ode.rs` determinism tests (added `#[allow(clippy::float_cmp)]`)
+- `unfulfilled_lint_expectations` in `tests/determinism.rs`: replaced per-function `#[expect]` with module-level `#![allow(clippy::float_cmp)]`
+- `suboptimal_flops` in `transport.rs` test helper (mul_add)
+- Python ruff: `F541` (f-string), `F401` (unused import), `I001` (import sort), `F841` (unused vars) across 3 new control scripts
+
+#### Metrics
+- 262 Rust tests (207 unit + 13 determinism + 14 proptest + 9 validate-lib + 18 integration + 1 doc)
+- 211/211 validation checks across 18 binaries
+- 18/18 mathematical parity proven (Python ⇌ Rust)
+- 18/18 pytest PASS
+- `cargo clippy --all-targets --all-features -- -D warnings`: 0 warnings
+- `ruff check control/ tests/`: All checks passed
+
 ### V21 Complete Barracuda Rewiring + Dual-Mode CI (Feb 26, 2026)
 
 #### Changed

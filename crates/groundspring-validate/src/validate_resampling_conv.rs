@@ -91,6 +91,8 @@ fn run() -> i32 {
         println!("  n={n_boot:5}: bootstrap={bw:.4}  RAWR={rw:.4}");
     }
 
+    // 1.1× bound: a well-behaved CI estimator's width should not increase
+    // with more replicates; 10% headroom absorbs seed-dependent fluctuations.
     h.check_true(
         "Bootstrap width converges (Gaussian)",
         *boot_widths.last().unwrap_or(&f64::MAX) <= boot_widths[0] * 1.1,
@@ -133,6 +135,8 @@ fn run() -> i32 {
         );
         boot_widths_ln.push(bw);
     }
+    // 1.2× bound (wider than Gaussian's 1.1×): lognormal skew causes
+    // higher variance in bootstrap CI width across seed runs.
     h.check_true(
         "Log-normal width converges",
         *boot_widths_ln.last().unwrap_or(&f64::MAX) <= boot_widths_ln[0] * 1.2,
@@ -166,6 +170,9 @@ fn run() -> i32 {
     let bw_g = *boot_widths.last().unwrap_or(&1.0);
     println!("  Heavy-tail width at n=10k: {bw_ht:.4} (Gaussian: {bw_g:.4})");
 
+    // 0.8× factor: heavy-tailed data should produce wider CIs than Gaussian.
+    // The 20% discount guards against the rare seed where heavy-tail data
+    // happens to be well-concentrated in a finite sample.
     h.check_true("Heavy-tail wider than Gaussian", bw_ht > bw_g * 0.8);
 
     // Part 4: Determinism

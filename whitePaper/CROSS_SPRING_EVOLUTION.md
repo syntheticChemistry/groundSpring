@@ -118,7 +118,7 @@ the backbone of model-observation comparison across all Springs.
 ### Who benefits from airSpring
 
 - **groundSpring**: 7 error metric delegations (RMSE, MBE, R², IoA, hit_rate,
-  mean, percentile) used across all 15 experiments.
+  mean, percentile) used across all 21 experiments.
 - **wetSpring**: Moving window for time-series diversity.
 - **hotSpring**: IoA for lattice QCD convergence monitoring.
 
@@ -208,7 +208,7 @@ architecture was designed to enable.
 
 ## 8. Benchmark Results (Feb 26, 2026)
 
-Three-mode timing for all 15 validation binaries:
+Three-mode timing for all 21 validation binaries:
 
 | Binary | Default (ms) | Barracuda CPU (ms) | Barracuda-GPU (ms) | Speedup | Checks |
 |--------|-------------|-------------------|-------------------|---------|--------|

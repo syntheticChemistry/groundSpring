@@ -70,8 +70,8 @@ def _load_config(benchmark: dict) -> dict:
 # Data loading — real data only in production
 # ---------------------------------------------------------------------------
 
-def _secrets_path() -> Path:
-    """Discover secrets path at runtime."""
+def _secrets_path() -> Path | None:
+    """Discover secrets path at runtime (capability-based, platform-agnostic)."""
     candidates = [
         GROUNDSPRING_ROOT.parent / "testing-secrets" / "api-keys.toml",
         Path.home() / ".config" / "ecoprimals" / "api-keys.toml",
@@ -79,13 +79,13 @@ def _secrets_path() -> Path:
     for p in candidates:
         if p.exists():
             return p
-    return Path("/dev/null")
+    return None
 
 
 def load_noaa_token() -> str:
     """Load NOAA CDO token from discovered secrets or environment."""
     sp = _secrets_path()
-    if sp.exists() and sp.name != "null":
+    if sp is not None and sp.exists():
         with open(sp) as f:
             for line in f:
                 if "noaa_cdo_token" in line and "=" in line:

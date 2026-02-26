@@ -121,7 +121,9 @@ fn validate_gaussian(h: &mut ValidationHarness, bench: &Value) {
         ci_hi,
     );
 
-    let n_cov_trials = 200;
+    let tc_cfg = &bench["test_config"];
+    let n_cov_trials = usize_field(tc_cfg, "n_coverage_trials");
+    let cov_offset = u64_field(tc_cfg, "coverage_seed_offset");
     let (cov_lo, cov_hi) = f64_range(&exp["gaussian_coverage_range"]);
 
     let boot_cov = coverage_test(
@@ -131,7 +133,7 @@ fn validate_gaussian(h: &mut ValidationHarness, bench: &Value) {
         n_cov_trials,
         n_boot,
         conf,
-        seed + 5000,
+        seed + cov_offset,
     );
     let rawr_cov = coverage_test(
         |s| generate_normal(n, mu, sigma, s),
@@ -140,7 +142,7 @@ fn validate_gaussian(h: &mut ValidationHarness, bench: &Value) {
         n_cov_trials,
         n_boot,
         conf,
-        seed + 6000,
+        seed + cov_offset + 1000,
     );
 
     println!("  Bootstrap coverage: {boot_cov:.3}");
@@ -169,7 +171,9 @@ fn validate_skewed(h: &mut ValidationHarness, bench: &Value) {
     let seed_s = u64_field(tc_s, "seed");
 
     let (skew_lo, skew_hi) = f64_range(&exp["skewed_coverage_range"]);
-    let n_cov_trials = 200;
+    let tc_cfg = &bench["test_config"];
+    let n_cov_trials = usize_field(tc_cfg, "n_coverage_trials");
+    let cov_offset = u64_field(tc_cfg, "coverage_seed_offset");
 
     let boot_cov_s = coverage_test(
         |s| generate_lognormal(n_s, mu_ln, sigma_ln, s),
@@ -178,7 +182,7 @@ fn validate_skewed(h: &mut ValidationHarness, bench: &Value) {
         n_cov_trials,
         n_boot_s,
         conf_s,
-        seed_s + 5000,
+        seed_s + cov_offset,
     );
     let rawr_cov_s = coverage_test(
         |s| generate_lognormal(n_s, mu_ln, sigma_ln, s),
@@ -187,7 +191,7 @@ fn validate_skewed(h: &mut ValidationHarness, bench: &Value) {
         n_cov_trials,
         n_boot_s,
         conf_s,
-        seed_s + 6000,
+        seed_s + cov_offset + 1000,
     );
 
     println!("  True mean: {true_mean_s:.4}");
@@ -202,7 +206,7 @@ fn validate_skewed(h: &mut ValidationHarness, bench: &Value) {
 ///
 /// RMSE ratio tolerance: max 1.5 from benchmark JSON — RAWR should not
 /// be dramatically worse than bootstrap for correlated data.
-#[expect(clippy::cast_sign_loss, clippy::cast_lossless)]
+#[expect(clippy::cast_precision_loss)]
 fn validate_correlated(h: &mut ValidationHarness, bench: &Value) {
     println!("\n--- Part 3: Correlated ---");
 
@@ -215,14 +219,26 @@ fn validate_correlated(h: &mut ValidationHarness, bench: &Value) {
     let n_boot_c = usize_field(tc_c, "n_bootstrap");
     let conf_c = f64_field(tc_c, "confidence");
     let seed_c = u64_field(tc_c, "seed");
-    let n_cov_trials = 200;
+    let tc_cfg = &bench["test_config"];
+    let n_cov_trials = usize_field(tc_cfg, "n_coverage_trials");
+    let corr_offset = u64_field(tc_cfg, "correlated_seed_offset");
 
     let mut boot_mses = Vec::new();
     let mut rawr_mses = Vec::new();
     for trial in 0..n_cov_trials {
         let data_ar = generate_ar1(n_c, mu_c, sigma_c, rho, seed_c + trial as u64);
-        let br = bootstrap_mean(&data_ar, n_boot_c, conf_c, seed_c + 200_000 + trial as u64);
-        let rr = rawr_mean(&data_ar, n_boot_c, conf_c, seed_c + 300_000 + trial as u64);
+        let br = bootstrap_mean(
+            &data_ar,
+            n_boot_c,
+            conf_c,
+            seed_c + corr_offset + trial as u64,
+        );
+        let rr = rawr_mean(
+            &data_ar,
+            n_boot_c,
+            conf_c,
+            seed_c + corr_offset + 100_000 + trial as u64,
+        );
         boot_mses.push((br.estimate - mu_c).powi(2));
         rawr_mses.push((rr.estimate - mu_c).powi(2));
     }
@@ -248,16 +264,22 @@ fn validate_correlated(h: &mut ValidationHarness, bench: &Value) {
 
 /// Validate that both methods are deterministic (same seed → same result).
 #[expect(clippy::float_cmp)]
-fn validate_determinism(h: &mut ValidationHarness) {
+fn validate_determinism(h: &mut ValidationHarness, bench: &Value) {
     println!("\n--- Part 4: Determinism ---");
 
+    let tc_cfg = &bench["test_config"];
+    let det_boot_seed = u64_field(tc_cfg, "determinism_bootstrap_seed");
+    let det_rawr_seed = u64_field(tc_cfg, "determinism_rawr_seed");
+    let det_n_boot = usize_field(tc_cfg, "determinism_n_bootstrap");
+    let det_conf = f64_field(tc_cfg, "determinism_confidence");
+
     let det_data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
-    let b1 = bootstrap_mean(&det_data, 500, 0.95, 9999);
-    let b2 = bootstrap_mean(&det_data, 500, 0.95, 9999);
+    let b1 = bootstrap_mean(&det_data, det_n_boot, det_conf, det_boot_seed);
+    let b2 = bootstrap_mean(&det_data, det_n_boot, det_conf, det_boot_seed);
     h.check_true("Bootstrap deterministic", b1.estimate == b2.estimate);
 
-    let r1 = rawr_mean(&det_data, 500, 0.95, 8888);
-    let r2 = rawr_mean(&det_data, 500, 0.95, 8888);
+    let r1 = rawr_mean(&det_data, det_n_boot, det_conf, det_rawr_seed);
+    let r2 = rawr_mean(&det_data, det_n_boot, det_conf, det_rawr_seed);
     h.check_true("RAWR deterministic", r1.estimate == r2.estimate);
 
     let b_width = b1.ci_upper - b1.ci_lower;
@@ -277,7 +299,7 @@ fn run() -> i32 {
     validate_gaussian(&mut h, &bench);
     validate_skewed(&mut h, &bench);
     validate_correlated(&mut h, &bench);
-    validate_determinism(&mut h);
+    validate_determinism(&mut h, &bench);
 
     h.summary()
 }

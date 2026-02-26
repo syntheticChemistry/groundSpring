@@ -54,6 +54,12 @@ BENCHMARKS=(
     "control/resampling_convergence/benchmark_resampling_convergence.json"
     "control/drift_selection/benchmark_drift_selection.json"
     "control/uncertainty_bridge/benchmark_uncertainty_bridge.json"
+    "control/rare_biosphere/benchmark_rare_biosphere.json"
+    "control/quasispecies_threshold/benchmark_quasispecies.json"
+    "control/band_edge/benchmark_band_edge.json"
+    "control/jackknife_estimation/benchmark_jackknife.json"
+    "control/freeze_out_inverse/benchmark_freeze_out.json"
+    "control/spectral_recon/benchmark_spectral_recon.json"
 )
 
 BASELINES=(
@@ -72,6 +78,12 @@ BASELINES=(
     "python3 control/resampling_convergence/resampling_convergence.py"
     "python3 control/drift_selection/drift_selection.py"
     "python3 control/uncertainty_bridge/uncertainty_bridge.py"
+    "python3 control/rare_biosphere/rare_biosphere.py"
+    "python3 control/quasispecies_threshold/quasispecies_threshold.py"
+    "python3 control/band_edge/band_edge.py"
+    "python3 control/jackknife_estimation/jackknife_estimation.py"
+    "python3 control/freeze_out_inverse/freeze_out_inverse.py"
+    "python3 control/spectral_recon/spectral_recon.py"
 )
 
 echo "--- Phase 1: Re-run all Python baselines ---"

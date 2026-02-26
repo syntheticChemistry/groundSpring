@@ -1,0 +1,51 @@
+{
+  "_source": "Exp 020: Freeze-Out Inverse Problem",
+  "_doi": "10.1103/PhysRevD.93.014512",
+  "_references": [
+    "Bazavov et al. (2016) Phys Rev D 93, 014512",
+    "Bazavov et al. (2012) Phys Rev D 86, 034509"
+  ],
+  "_provenance": {
+    "generated_by": "analytical + synthetic noise",
+    "data_origin": "Freeze-out curve T_f(mu_B) = T0*(1 - kappa2*(mu_B/T0)^2) with Gaussian noise",
+    "prng_algorithm": "Xorshift64 (Rust) / PCG64 (Python)",
+    "baseline_date": "2026-02-26",
+    "baseline_commit": "",
+    "validation_script": "control/freeze_out_inverse/freeze_out_inverse.py",
+    "command": "python3 control/freeze_out_inverse/freeze_out_inverse.py"
+  },
+  "_description": "Chi-squared fitting inverse problem: recover freeze-out curve parameters from noisy observables using grid search. Validates polynomial forward model, chi-squared statistic, 2D grid search recovery, and noise degradation.",
+  "_groundspring_question": "Can grid-search chi-squared fitting recover known parameters from noisy polynomial observables at subpercent precision?",
+  "_cross_spring": ["Exp 005 seismic grid-search inversion", "Exp 003 FAO-56 error propagation"],
+
+  "model": {
+    "true_t0": 155.0,
+    "true_kappa2": 0.013,
+    "mu_b_values": [0.0, 50.0, 100.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0],
+    "noise_std": 1.5,
+    "seed": 314,
+    "n_replicates": 50
+  },
+  "grid": {
+    "t0_range": [145.0, 165.0],
+    "t0_step": 0.5,
+    "kappa2_range": [0.005, 0.025],
+    "kappa2_step": 0.001
+  },
+  "analytical_predictions": {
+    "freeze_out_formula": "T_f(mu_B) = T0 * (1 - kappa2 * (mu_B / T0)^2)",
+    "chi_squared_formula": "chi2 = sum((obs - pred)^2 / sigma^2)",
+    "chi2_per_dof_at_truth": "approximately 1.0 for well-specified model",
+    "t0_at_mu0": 155.0
+  },
+  "expected_results": {
+    "t0_recovery_tol": 3.0,
+    "kappa2_recovery_tol": 0.005,
+    "chi2_per_dof_max": 6.0,
+    "poly_eval_exact": true,
+    "noise_degrades_precision": true,
+    "grid_finds_minimum": true,
+    "replicate_coverage_min": 0.70,
+    "determinism": true
+  }
+}

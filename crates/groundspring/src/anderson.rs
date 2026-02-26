@@ -66,6 +66,7 @@ pub fn lyapunov_exponent(potential: &[f64], energy: f64) -> f64 {
     lyapunov_exponent_cpu(potential, energy)
 }
 
+#[cfg(not(feature = "barracuda-gpu"))]
 fn lyapunov_exponent_cpu(potential: &[f64], energy: f64) -> f64 {
     let n = potential.len();
     if n == 0 {
@@ -155,6 +156,7 @@ pub fn lyapunov_averaged(
     lyapunov_averaged_cpu(n_sites, disorder, energy, n_realizations, base_seed)
 }
 
+#[cfg(not(feature = "barracuda-gpu"))]
 fn lyapunov_averaged_cpu(
     n_sites: usize,
     disorder: f64,

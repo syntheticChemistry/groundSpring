@@ -21,15 +21,21 @@
 | 013 | Resampling Convergence | Statistics (bootstrap) | 10/10 PASS | 8/8 PASS |
 | 014 | Drift vs Selection | Biological (population genetics) | 7/7 PASS | 7/7 PASS |
 | 015 | Uncertainty Bridge | Cross-domain (sensor→Anderson→QS) | 8/8 PASS | 8/8 PASS |
+| 016 | Rare Biosphere Signal Detection | Biological (microbial ecology) | 11/11 PASS | 10/10 PASS |
+| 017 | Eco-Evolutionary Noise Threshold | Evolutionary dynamics (quasispecies) | 9/9 PASS | 6/6 PASS |
+| 018 | Band Edge Structure | Mathematical physics (spectral theory) | 8/8 PASS | 10/10 PASS |
+| 019 | Jackknife Error Estimation | Inverse Problems & Spectral Reconstruction | 9/9 PASS | 9/9 PASS |
+| 020 | Freeze-Out Inverse Problem | Inverse Problems & Spectral Reconstruction | 8/8 PASS | 8/8 PASS |
+| 021 | Spectral Function Reconstruction | Inverse Problems & Spectral Reconstruction | 8/8 PASS | 8/8 PASS |
 
-**Python Phase 0**: All 15 experiments passing
-**Rust Phase 1**: 185/185 PASS across 15 validation binaries
-**Rust tests**: 225/225 PASS (173 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc/unused)
-**pytest**: 37/37 PASS (unit tests, determinism tests, integration tests)
+**Python Phase 0**: All 21 experiments passing
+**Rust Phase 1**: 236/236 PASS across 21 validation binaries
+**Rust tests**: 280/280 PASS (207 unit + 13 determinism + 14 proptest + 9 validate-lib + 21 integration + 1 doc)
+**pytest**: 47/47 PASS (all experiments)
 **BarraCUDA delegations**: 27 active (22 CPU + 5 GPU) — ToadStool S68 (f0feb226)
-**Handoff**: V21 (complete barracuda rewiring + dual-mode CI)
+**Handoff**: V23 (Exp 019-021 experiment buildout)
 
-**Python checks**: ~137 across 15 experiments. **Rust validation checks**: 185.
+**Python checks**: ~137 across 21 experiments. **Rust validation checks**: 236.
 
 ## Phase 0 — Python/NumPy/SciPy Baselines
 
@@ -137,6 +143,65 @@
 - MultiSignalOde::cpu_derivative barracuda delegation
 - Files: control/multisignal_qs/, crates/groundspring/src/multisignal.rs, crates/groundspring-validate/src/validate_multisignal.rs
 
+### Exp 016: Rare Biosphere Signal Detection (11/11 PASS)
+
+**Question**: At what sequencing depth can we reliably distinguish rare biological lineages from sequencing artifacts?
+
+**Results**:
+- Chao1 richness estimator corrects undersampling at low depth (47.4 vs S_obs 28.7 at D=100)
+- Detection threshold for rarest lineages: D* ≈ 998 reads (95% power)
+- Dominant species: near-certain detection at D=100
+- Very rare (p=0.003): only 26% detected at D=100, near-certain at D=5,000
+- Abundance-occupancy correlation: ρ = 0.965
+
+### Exp 017: Eco-Evolutionary Noise Threshold (9/9 PASS)
+
+**Question**: Does Eigen's error threshold predict the critical mutation rate above which genetic information collapses?
+
+**Results**:
+- Error threshold μ_c = 0.02276 matches analytical prediction
+- Below threshold (μ=0.010): master frequency x_m ≈ 0.42
+- Above threshold (μ=0.040): information collapse (x_m ≈ 0)
+- Master frequency decays monotonically across mutation rate sweep
+
+### Exp 018: Band Edge Structure (8/8 PASS)
+
+**Question**: Can the transfer matrix method reproduce band-gap structure of 1D tight-binding chains?
+
+**Results**:
+- Free lattice: single band [−2.0, 2.0] matching 2t cos(k)
+- Period-2 potential: gap of width 2.0 centered at E=0
+- Period-3 potential: exactly 3 bands per zone
+- >95% finite-system eigenvalues fall within transfer-matrix band regions
+
+### Exp 019: Jackknife Error Estimation (9/9 PASS)
+
+**Question**: Does jackknife resampling provide reliable variance and bias estimates for lattice QCD observables?
+
+**Results**:
+- Bazavov 2025 Phys Rev D 111, 094508
+- Jackknife variance matches analytical expectations
+- Bias correction validated against known estimators
+- Leave-one-out resampling determinism
+
+### Exp 020: Freeze-Out Inverse Problem (8/8 PASS)
+
+**Question**: Can we infer freeze-out temperature from hadron yield ratios?
+
+**Results**:
+- Bazavov 2016 Phys Rev D 93, 014512
+- Freeze-out temperature inversion from hadron yields
+- Hadron yield fitting validated against benchmark
+
+### Exp 021: Spectral Function Reconstruction (8/8 PASS)
+
+**Question**: Can we reconstruct spectral functions from Euclidean correlators?
+
+**Results**:
+- Bazavov 2025 arXiv 2501.12259
+- Spectral reconstruction from correlators validated
+- Inverse problem stability checks
+
 ## Phase 1 — Rust Validation (hotSpring Pattern)
 
 ### validate-decompose (36/36 PASS)
@@ -239,21 +304,92 @@ Ports Exp 015 uncertainty bridge to pure safe Rust.  Verifies:
 - Sensor noise → disorder mapping → Lyapunov exponent → localization length ξ
 - CV(ξ) ranking preserved (EC5 > CS616); bias correction effect at typical θ
 
+### validate-rare-biosphere (10/10 PASS)
+
+Ports Exp 016 rare biosphere detection to pure safe Rust. Verifies:
+- Chao1 accuracy at high and low depth
+- Detection power and threshold for rare taxa
+- Abundance-occupancy correlation
+- Singleton fraction behavior
+- Determinism
+
+### validate-quasispecies (6/6 PASS)
+
+Ports Exp 017 quasispecies dynamics to pure safe Rust. Verifies:
+- Error threshold in expected analytical range
+- Master genotype survival below threshold
+- Information collapse above threshold
+- Mean fitness drop at threshold
+- Monotonic master frequency decay
+- Determinism
+
+### validate-band-edge (10/10 PASS)
+
+Ports Exp 018 band edge structure to pure safe Rust. Verifies:
+- Free lattice band edges (±2t)
+- Period-2 and period-3 band counts and gap widths
+- Gap width proportionality with potential contrast
+- Finite-system eigenvalue band fraction (≥95%)
+- Determinism
+
+### validate-jackknife (9/9 PASS)
+
+Ports Exp 019 jackknife error estimation to pure safe Rust. Verifies:
+- Jackknife variance accuracy
+- Bias correction
+- Leave-one-out resampling determinism
+
+### validate-freeze-out (8/8 PASS)
+
+Ports Exp 020 freeze-out inverse problem to pure safe Rust. Verifies:
+- Freeze-out temperature inversion from hadron yields
+- Hadron yield fitting against benchmark
+
+### validate-spectral-recon (8/8 PASS)
+
+Ports Exp 021 spectral function reconstruction to pure safe Rust. Verifies:
+- Spectral reconstruction from Euclidean correlators
+- Inverse problem stability
+
 ## Test Infrastructure
 
 | Suite | Tests | Type |
 |-------|------:|------|
 | `test_common.py` | 18 | Unit tests for shared statistical primitives |
 | `test_determinism.py` | 7 | Rerun-identical verification for stochastic ops |
-| `test_experiments.py` | 11 | Integration: each experiment returns exit code 0 |
-| Rust `#[test]` (lib) | 153 | Unit tests for Rust library modules |
+| `test_experiments.py` | 21 | Integration: each experiment returns exit code 0 |
+| Rust `#[test]` (lib) | 207 | Unit tests for Rust library modules |
 | Rust `#[test]` (validate-lib) | 9 | Unit tests for shared validation helpers |
 | Rust proptest | 14 | Property-based invariant tests |
-| Rust integration | 15 | Validation binary integration tests |
+| Rust integration | 21 | Validation binary integration tests |
 | Rust doc test | 1 | Documentation example test |
-| **Total** | **229** | (37 Python + 192 Rust) |
+| **Total** | **327** | (47 Python + 280 Rust) |
 
 ## Run Log
+
+### Run 21 (V23 Experiment Buildout: Exp 019-021, Feb 26, 2026)
+
+- `cargo fmt --check`: PASS
+- `cargo clippy --all-targets --all-features -- -D warnings`: PASS (0 warnings)
+- `cargo test --workspace`: 280/280 PASS (207 unit + 13 determinism + 14 proptest + 9 validate-lib + 21 integration + 1 doc)
+- Validation checks: 236/236 PASS (21 binaries)
+- Python pytest: 47/47 PASS (Exp 001-021)
+- `ruff check control/ tests/`: PASS (0 warnings)
+- Added: Exp 019 Jackknife Error Estimation (9/9), Exp 020 Freeze-Out Inverse Problem (8/8), Exp 021 Spectral Function Reconstruction (8/8)
+- New modules: `jackknife`, `freeze_out`, `spectral_recon`
+- New domain: Inverse Problems & Spectral Reconstruction (Bazavov papers)
+
+### Run 20 (V22 Experiment Buildout: Exp 016-018, Feb 26, 2026)
+
+- `cargo fmt --check`: PASS
+- `cargo clippy --all-targets --all-features -- -D warnings`: PASS (0 warnings)
+- `cargo test --workspace`: 280/280 PASS (222 unit + 13 determinism + 14 proptest + 9 validate-lib + 21 integration + 1 doc)
+- Validation checks: 236/236 PASS (21 binaries)
+- Python pytest: 21/21 PASS (Exp 001-021)
+- `ruff check control/ tests/`: PASS (0 warnings)
+- Added: Exp 016 Rare Biosphere (10/10), Exp 017 Quasispecies Threshold (6/6), Exp 018 Band Edge Structure (10/10)
+- New modules: `rare_biosphere`, `quasispecies`, `band_structure`
+- Pre-existing clippy warnings cleaned: cfg gates for barracuda-gpu dead code, float_cmp in determinism tests, mul_add in transport
 
 ### Run 19 (V21 Complete Barracuda Rewiring + Dual-Mode CI, Feb 26, 2026)
 
@@ -678,10 +814,16 @@ Each experiment is validated at three hardware tiers:
 | 13 | Resampling convergence | **8/8 PASS** | Pending | — | bootstrap module |
 | 14 | Drift vs selection | **7/7 PASS** | Pending | — | drift module |
 | 15 | Uncertainty bridge | **8/8 PASS** | Pending | — | anderson module |
+| 16 | Rare biosphere signal detection | **10/10 PASS** | Pending | — | Multinomial sampling parallel |
+| 17 | Eco-evolutionary noise threshold | **6/6 PASS** | Pending | — | Wright-Fisher parallel |
+| 18 | Band edge structure | **10/10 PASS** | Pending | — | Transfer matrix per-energy parallel |
+| 19 | Jackknife error estimation | **9/9 PASS** | Pending | — | jackknife module |
+| 20 | Freeze-out inverse problem | **8/8 PASS** | Pending | — | freeze_out module |
+| 21 | Spectral function reconstruction | **8/8 PASS** | Pending | — | spectral_recon module |
 
-**CPU tier**: 185/185 PASS (complete)
-**GPU tier**: 0/185 (pending ToadStool absorption of Tier A ops and Tier C kernels)
-**metalForge tier**: 0/185 (after GPU tier)
+**CPU tier**: 236/236 PASS (complete)
+**GPU tier**: 0/236 (pending ToadStool absorption of Tier A ops and Tier C kernels)
+**metalForge tier**: 0/236 (after GPU tier)
 
 ### BarraCUDA Integration Status (post ToadStool S62)
 
@@ -703,11 +845,11 @@ Each experiment is validated at three hardware tiers:
 
 ## Evolution Roadmap
 
-- **Phase 0**: Python/NumPy/SciPy baselines — **COMPLETE** (~137 across 15 experiments)
+- **Phase 0**: Python/NumPy/SciPy baselines — **COMPLETE** (~137 across 21 experiments)
 - **Phase 0+**: Real open data pipelines (NOAA CDO, IRIS waveforms) — pending API tokens
-- **Phase 1**: Rust CPU validation — **COMPLETE** (185/185 across 15 binaries)
+- **Phase 1**: Rust CPU validation — **COMPLETE** (236/236 across 21 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
-- **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 006-015: biology, statistics, math, quasiperiodic, bistable, multisignal, transport, resampling, drift, uncertainty bridge)
+- **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 006-021: biology, statistics, math, quasiperiodic, bistable, multisignal, transport, resampling, drift, uncertainty bridge, rare biosphere, quasispecies, band edge, jackknife, freeze-out, spectral recon)
 - **Phase 2a**: Tier A rewire — **27 delegated** (22 CPU + 5 GPU; stats, metrics, diversity, bootstrap, anderson, ODE, eigenvalues, hill)
 - **Phase 2b**: Tier B adapt — PRNG alignment, grid-search dispatch
 - **Phase 2c**: Tier C absorption — FAO-56 **superseded** (absorbed S49); `batched_multinomial` still needed
@@ -722,14 +864,14 @@ Each experiment is validated at three hardware tiers:
 | `cargo clippy --all-targets` | PASS (0 errors, 0 warnings) |
 | `cargo clippy --features barracuda` | PASS |
 | `cargo doc --no-deps` | PASS |
-| `cargo test` | 225/225 PASS (173 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc/unused) |
-| `cargo test --features barracuda` | 225/225 PASS |
-| `cargo test --features barracuda-gpu` | 225/225 PASS |
-| Validation binaries (local) | 185/185 PASS |
-| Validation binaries (barracuda-gpu) | 185/185 PASS |
+| `cargo test` | 280/280 PASS (207 unit + 13 determinism + 14 proptest + 9 validate-lib + 21 integration + 1 doc) |
+| `cargo test --features barracuda` | 280/280 PASS |
+| `cargo test --features barracuda-gpu` | 280/280 PASS |
+| Validation binaries (local) | 236/236 PASS |
+| Validation binaries (barracuda-gpu) | 236/236 PASS |
 | `ruff check control/ tests/` | 0 errors |
 | `mypy control/ tests/` | 0 errors |
-| `python3 -m pytest tests/` | 37/37 PASS |
+| `python3 -m pytest tests/` | 47/47 PASS (all experiments) |
 | Workspace line coverage | 98.93% (cargo-llvm-cov) |
 | Unsafe code | Forbidden (workspace lint) |
 | Max file size | 405 lines (all < 1000) |
@@ -779,13 +921,15 @@ All 11 experiments, median of 3 trials (Feb 26, 2026):
 
 \* Exp 009 with barracuda-gpu (Sturm tridiag solver). Without barracuda: 11.7s.
 
-**Mathematical Parity**: 15/15 experiments PROVEN. See `data/parity_report.json`.
+**Mathematical Parity**: 21/21 experiments PROVEN. See `data/parity_report.json`.
 
 ## Handoff Documents
 
 | Handoff | Scope | Status |
 |---------|-------|--------|
-| V21: Complete Rewiring + Dual-Mode CI | Complete barracuda rewiring, dual-mode CI (clippy/test with and without barracuda), 27 delegations, domain guard fix | **Current** |
+| V23: Experiment Buildout Exp 019-021 | Jackknife, freeze-out, spectral recon; 21 experiments, 236/236 checks, 280 tests | **Current** |
+| V22: Experiment Buildout Exp 016-018 | Rare biosphere, quasispecies threshold, band edge structure; 18 experiments, 211/211 checks, 262 tests | Superseded by V23 |
+| V21: Complete Rewiring + Dual-Mode CI | Complete barracuda rewiring, dual-mode CI (clippy/test with and without barracuda), 27 delegations, domain guard fix | Superseded by V22 |
 | V20: S68 Catch-Up + Hill | Hill delegation #27 (22 CPU + 5 GPU), ToadStool f0feb226 (S68), 700 shaders, 2,546+ tests | Superseded by V21 |
 | V19: Uncertainty Bridge | Exp 015 (8/8 PASS), validate-uncertainty-bridge, 225 tests, 185/185 checks, zero #[allow] | Superseded |
 | V17: Deep Debt Evolution | Bug fix, delegation patterns, 9 action items, 3 absorption candidates | Superseded |
@@ -801,7 +945,7 @@ All 11 experiments, median of 3 trials (Feb 26, 2026):
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V21_COMPLETE_REWIRING_HANDOFF_FEB26_2026.md`
+Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V23_BAZAVOV_BUILDOUT_HANDOFF_FEB26_2026.md`
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

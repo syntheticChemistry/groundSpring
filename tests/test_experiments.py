@@ -127,3 +127,39 @@ class TestExperimentExitCodes:
             CONTROL_DIR / "uncertainty_bridge" / "uncertainty_bridge.py"
         )
         assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp016_rare_biosphere(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "rare_biosphere" / "rare_biosphere.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp017_quasispecies_threshold(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "quasispecies_threshold" / "quasispecies_threshold.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp018_band_edge(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "band_edge" / "band_edge.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp019_jackknife(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "jackknife_estimation" / "jackknife_estimation.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp020_freeze_out(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "freeze_out_inverse" / "freeze_out_inverse.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp021_spectral_recon(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "spectral_recon" / "spectral_recon.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr

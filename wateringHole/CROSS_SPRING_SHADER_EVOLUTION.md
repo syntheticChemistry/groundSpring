@@ -294,7 +294,7 @@ V19 adds the first cross-domain experiment that chains validated modules:
 |--------|--------|
 | Exp 015: Uncertainty Bridge | Sensor noise (Exp 001) → disorder mapping → Anderson Lyapunov (Exp 008) → localization length ξ |
 | `validate-uncertainty-bridge` | 8/8 PASS; uses existing `anderson` module (no new barracuda delegation) |
-| 15 experiments, 185/185 checks | Bridges Papers 22-24 (Sub-thesis 06: soil moisture → Anderson geometry → QS regime uncertainty) |
+| 21 experiments, 236/236 checks | Bridges Papers 22-24 (Sub-thesis 06: soil moisture → Anderson geometry → QS regime uncertainty) |
 | Zero `#[allow]` | transport.rs fix removes last remaining allow |
 
 **Key finding**: At typical soil moisture (θ≈0.30), Lyapunov exponent is in the saturated regime where bias correction has minimal effect on ξ uncertainty. CV(ξ) ranking preserved (EC5 > CS616). This validates the uncertainty propagation chain for the Anderson-QS bridge (Gen3 Sub-thesis 01+06).
@@ -318,7 +318,7 @@ V20 pins ToadStool at `f0feb226` (S68 universal precision). Hill kinetics delega
 
 ## V21 Evolution: Complete Barracuda Rewiring + Dual-Mode CI
 
-V21 completes the barracuda integration by making `--features barracuda` compile cleanly (zero warnings) and validating all 225 tests in both CPU-only and barracuda-delegated modes.
+V21 completes the barracuda integration by making `--features barracuda` compile cleanly (zero warnings) and validating all 280 tests in both CPU-only and barracuda-delegated modes.
 
 ### What Changed
 
@@ -332,7 +332,7 @@ V21 completes the barracuda integration by making `--features barracuda` compile
 
 ### Cross-Spring Benchmark: CPU vs Barracuda CPU Delegation
 
-All 15 validation binaries timed in `--release` mode, CPU-only vs barracuda-delegated (CPU math, no GPU):
+All 21 validation binaries timed in `--release` mode, CPU-only vs barracuda-delegated (CPU math, no GPU):
 
 | Experiment | CPU-only | Barracuda | Notes |
 |-----------|----------|-----------|-------|

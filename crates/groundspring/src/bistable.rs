@@ -180,44 +180,16 @@ fn bistable_derivative_cpu(state: &[f64; 5], p: &BistableParams) -> [f64; 5] {
     [d_cell, d_ai, d_hapr, d_cdg, d_bio]
 }
 
-/// RK4 integration step.
+/// RK4 integration step (delegates to [`crate::ode::rk4_step`]).
 #[must_use]
 pub fn rk4_step(state: &[f64; 5], params: &BistableParams, dt: f64) -> [f64; 5] {
-    let half_dt = 0.5 * dt;
-    let sixth_dt = dt / 6.0;
-
-    let k1 = bistable_derivative(state, params);
-    let mut s1 = [0.0; 5];
-    for i in 0..5 {
-        s1[i] = half_dt.mul_add(k1[i], state[i]);
-    }
-    let k2 = bistable_derivative(&s1, params);
-    let mut s2 = [0.0; 5];
-    for i in 0..5 {
-        s2[i] = half_dt.mul_add(k2[i], state[i]);
-    }
-    let k3 = bistable_derivative(&s2, params);
-    let mut s3 = [0.0; 5];
-    for i in 0..5 {
-        s3[i] = dt.mul_add(k3[i], state[i]);
-    }
-    let k4 = bistable_derivative(&s3, params);
-    let mut result = [0.0; 5];
-    for i in 0..5 {
-        let slope = 2.0f64.mul_add(k2[i] + k3[i], k1[i] + k4[i]);
-        result[i] = sixth_dt.mul_add(slope, state[i]);
-    }
-    result
+    crate::ode::rk4_step(state, dt, |s| bistable_derivative(s, params))
 }
 
 /// Integrate the bistable ODE from `state0` for `n_steps` of size `dt`.
 #[must_use]
 pub fn integrate(state0: &[f64; 5], params: &BistableParams, dt: f64, n_steps: usize) -> [f64; 5] {
-    let mut state = *state0;
-    for _ in 0..n_steps {
-        state = rk4_step(&state, params, dt);
-    }
-    state
+    crate::ode::integrate(state0, dt, n_steps, |s| bistable_derivative(s, params))
 }
 
 /// Euler-Maruyama integration with additive noise on c-di-GMP (index 3).
@@ -317,6 +289,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::float_cmp)]
     fn rk4_deterministic() {
         let p = default_params();
         let state = [0.5, 1.0, 0.5, 1.0, 0.3];

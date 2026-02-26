@@ -23,9 +23,15 @@
 | 20 | Drift vs selection | Evolutionary biology | 7/7 | 7/7 | Wright-Fisher fixation, Kimura probability (R. Anderson 2022) |
 | 10 | Bistable phenotypic switching | Biology | 10/10 | 9/9 | Two stable attractors (0.035 vs 1.634 c-di-GMP); noise-induced transitions; 18.5× faster |
 | 11 | Multi-signal QS integration | Biology | 9/9 | 8/8 | Dual signaling sharpens regulation; lower HapR variance; 46.2× faster |
+| 21 | Rare biosphere signal detection | Microbial ecology | 11/11 | 10/10 | Sequencing depth determines rare taxa signal boundary (R. Anderson 2015) |
+| 14 | Eco-evolutionary noise threshold | Evolutionary dynamics | 9/9 | 6/6 | Eigen's error threshold predicts mutation-driven information collapse (Dolson 2023) |
+| 18 | Band edge structure | Mathematical physics | 8/8 | 10/10 | Transfer matrix reproduces tight-binding band-gap structure (Filonov-Kachkovskiy 2018) |
+| 19 | Jackknife error estimation | Statistics/Error Estimation | 9/9 | 9/9 | Subpercent precision error bars (Bazavov 2025 Phys Rev D 111, 094508) |
+| 20 | Freeze-out inverse problem | Inverse Problems | 8/8 | 8/8 | Inferring freeze-out conditions from heavy ion data (Bazavov 2016 Phys Rev D 93, 014512) |
+| 21 | Spectral function reconstruction | Inverse Problems/Spectral Reconstruction | 8/8 | 8/8 | Signal recovery from incomplete/noisy lattice data (Bazavov 2025 arXiv 2501.12259) |
 
-**Phase 0**: ~137 checks (Python). **Phase 1**: 185/185 PASS (Rust). **Speedup**: 22× (all 15 experiments).
-**Mathematical Parity**: 15/15 PROVEN — Python and Rust both pass against shared benchmark JSONs.
+**Phase 0**: ~211 checks (Python). **Phase 1**: 236/236 PASS (Rust). **Speedup**: 22× (all 21 experiments).
+**Mathematical Parity**: 21/21 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **Exp 015** bridges Papers 22-24 (Sub-thesis 06): sensor noise → Anderson ξ → QS regime uncertainty.
 
 ---
@@ -36,9 +42,9 @@
 
 | # | Paper | Journal | Year | Faculty | Why | Status |
 |---|-------|---------|------|---------|-----|--------|
-| 6 | "Spectral reconstruction inverse problem in lattice QCD" | arXiv 2501.12259 | 2025 | Bazavov et al. | Signal recovery from incomplete/noisy data — direct generalization of Exp 005 seismic inversion, but at subpercent precision | Queued |
-| 7 | "Hadronic vacuum polarization for the muon g-2" | Phys Rev D 111, 094508 | 2025 | Bazavov et al. | Jackknife/bootstrap error estimation at subpercent precision. Exp 003 MC propagation is a simplified version of this | Queued |
-| 8 | "Curvature of the freeze-out line in heavy ion collisions" | Phys Rev D 93, 014512 | 2016 | Bazavov et al. | Inverse problem — inferring freeze-out conditions. Same math as seismic inversion, different physics | Queued |
+| 6 | "Spectral reconstruction inverse problem in lattice QCD" | arXiv 2501.12259 | 2025 | Bazavov et al. | Signal recovery from incomplete/noisy data — direct generalization of Exp 005 seismic inversion, but at subpercent precision | **Active** (Exp 021: 8/8 Py, 8/8 Rust) |
+| 7 | "Hadronic vacuum polarization for the muon g-2" | Phys Rev D 111, 094508 | 2025 | Bazavov et al. | Jackknife/bootstrap error estimation at subpercent precision. Exp 003 MC propagation is a simplified version of this | **Active** (Exp 019: 9/9 Py, 9/9 Rust) |
+| 8 | "Curvature of the freeze-out line in heavy ion collisions" | Phys Rev D 93, 014512 | 2016 | Bazavov et al. | Inverse problem — inferring freeze-out conditions. Same math as seismic inversion, different physics | **Active** (Exp 020: 8/8 Py, 8/8 Rust) |
 
 ### Biological Signal vs Noise (Waters)
 
@@ -68,7 +74,7 @@ does noise win?**
 | 15 | Bourgain & Kachkovskiy "Anderson localization for two interacting quasiperiodic particles" | GAFA 29:3-43 | 2018 | Kachkovskiy | Anderson localization = signal trapped by disorder. Two-particle case models how coupled noisy sensors affect each other — directly extends Exp 001's correlated sensor noise decomposition | **Active** (Exp 008: 8/8 Py, 8/8 Rust) |
 | 16 | Jitomirskaya & Kachkovskiy "All couplings localization for quasiperiodic operators with Lipschitz monotone potentials" | JEMS 21:777-795 | 2018 | Kachkovskiy | Localization at ALL coupling strengths for monotone potentials. Quasiperiodic = "almost periodic" = structured noise (seasonal drift, tidal cycles, orbital harmonics). Math of Exp 002's ERA5 vs station gap | **Active** (Exp 009: 8/8 Py, 8/8 Rust) |
 | 17 | Kachkovskiy "On transport properties of isotropic quasiperiodic XY spin chains" | CMP 345:659-673 | 2016 | Kachkovskiy | Energy transport through disordered chains — when does a signal reach the other end? Mathematical framework for Exp 005's seismic wave propagation through heterogeneous crust | **Active** (Exp 012: 18/18 Py, 18/18 Rust) |
-| 18 | Filonov & Kachkovskiy "On the structure of band edges of 2d periodic elliptic operators" | Acta Math 221:59-80 | 2018 | Kachkovskiy | Band edges = frequencies where waves transition from propagating to evanescent. The mathematical boundary between "signal gets through" and "noise kills it" | Queued |
+| 18 | Filonov & Kachkovskiy "On the structure of band edges of 2d periodic elliptic operators" | Acta Math 221:59-80 | 2018 | Kachkovskiy | Band edges = frequencies where waves transition from propagating to evanescent. The mathematical boundary between "signal gets through" and "noise kills it" | **Active** (Exp 018: 8/8 Py, 10/10 Rust) |
 
 **Why this is groundSpring's mathematical foundation**: groundSpring's 5 pillars —
 Signal vs Noise, Inverse Problems, Sensing Systems, Temporal Dynamics, Spatial
@@ -95,7 +101,7 @@ founding question: **when does signal propagate and when does noise win?**
 |---|-------|---------|------|---------|-----|--------|
 | 19 | Anderson (2021) "Tracking Microbial Evolution in the Subseafloor Biosphere" | mSystems 6:e00731-21 | 2021 | R. Anderson | Formalizes when stochastic forces dominate over deterministic selection in low-biomass environments. Cites Lenski LTEE (§1.2 of CONSTRAINED_EVOLUTION_FORMAL.md). Introduces Muller's ratchet as consequence of extreme energy limitation. Directly maps to groundSpring's signal vs noise framework | Reference |
 | 20 | Anderson et al. (2022) "Microbial population dynamics are dominated by stochastic forces in a low biomass subseafloor habitat" | mBio 13:e00354-22 | 2022 | R. Anderson | **Empirical proof** that drift dominates selection in energy-limited subsurface. Quantitative genomic evidence for stochastic > deterministic evolution. The biological equivalent of groundSpring Exp 001's finding that noise dominates signal in some sensor configurations | **Active** (Exp 014: 7/7 Py, 7/7 Rust) |
-| 21 | Anderson, Sogin, Baross (2015) "Biogeography and ecology of the rare and abundant microbial lineages" | FEMS Microbiol Ecol 91:fiu016 | 2015 | R. Anderson | Rare biosphere problem — when does a detected microbial lineage represent real biological signal vs. sequencing noise? Directly extends groundSpring Exp 004's genus saturation analysis | Queued |
+| 21 | Anderson, Sogin, Baross (2015) "Biogeography and ecology of the rare and abundant microbial lineages" | FEMS Microbiol Ecol 91:fiu016 | 2015 | R. Anderson | Rare biosphere problem — when does a detected microbial lineage represent real biological signal vs. sequencing noise? Directly extends groundSpring Exp 004's genus saturation analysis | **Active** (Exp 016: 11/11 Py, 10/10 Rust) |
 
 **Why this is groundSpring's evolutionary validation**: groundSpring decomposes
 measurement error into bias and noise across physics, agriculture, meteorology,
@@ -154,7 +160,7 @@ needs qualification.
 
 | # | Paper | Journal | Year | Faculty | Why | Status |
 |---|-------|---------|------|---------|-----|--------|
-| 14 | Dolson et al. "The ecology-evolution continuum and the origin of life" | J R Soc Interface 20(208) | 2023 | Dolson | Where does signal begin in a system that starts as pure noise? Origin-of-life context | Queued |
+| 14 | Dolson et al. "The ecology-evolution continuum and the origin of life" | J R Soc Interface 20(208) | 2023 | Dolson | Where does signal begin in a system that starts as pure noise? Origin-of-life context | **Active** (Exp 017: 9/9 Py, 6/6 Rust) |
 
 ---
 
@@ -197,7 +203,7 @@ Write → Absorb → Lean cycle:
 | **GPU** | `barracuda` feature + GPU adapter | GPU matches CPU within tolerance | BarraCUDA GPU ops (reduce, map, fused) |
 | **metalForge** | Mixed hardware dispatch | Cross-substrate agreement | metalForge forge crate routes to best substrate |
 
-### Completed Experiments (Papers 1-5, 9, 10, 11, 12, 13, 15, 16, 17, 20)
+### Completed Experiments (Papers 1-5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21)
 
 | # | Experiment | CPU | GPU | metalForge | Barracuda delegation |
 |---|-----------|:---:|:---:|:----------:|---------------------|
@@ -206,6 +212,9 @@ Write → Absorb → Lean cycle:
 | 3 | Error propagation FAO-56 | **15/15** | Tier C (`mc_et0_propagate.wgsl`) | After GPU | fao56 absorbed |
 | 4 | Sequencing noise | **15/15** | Tier C (`batched_multinomial.wgsl`) | After GPU | — |
 | 5 | Seismic source inversion | **9/9** | Tier B (grid dispatch) | After GPU | — |
+| 6 | Spectral function reconstruction | **8/8** | Dense linear algebra (Cholesky, mat-vec) | After GPU | Highest GPU potential of Bazavov trio |
+| 7 | Jackknife error estimation | **9/9** | Embarrassingly parallel (N leave-one-out subsets) | After GPU | Jackknife GPU kernel candidate |
+| 8 | Freeze-out inverse problem | **8/8** | Grid search embarrassingly parallel | After GPU | Grid dispatch candidate |
 | 9 | Enzymatic signal specificity | **12/12** | `GillespieGpu` (ready) | After GPU | GPU-only (no CPU) |
 | 10 | Bistable phenotypic switching | **9/9** | `BistableOde` (ready) | After GPU | `BistableOde::cpu_derivative` |
 | 11 | Multi-signal QS integration | **8/8** | `MultiSignalOde` (ready) | After GPU | `MultiSignalOde::cpu_derivative` |
@@ -215,10 +224,13 @@ Write → Absorb → Lean cycle:
 | 16 | Almost-Mathieu quasiperiodic | **8/8** | `almost_mathieu_hamiltonian` (ready) | After GPU | barracuda-gpu delegation |
 | 17 | Spin chain transport | **18/18** | `transport::*` (ready) | After GPU | tridiag_eigh candidate |
 | 20 | Drift vs selection | **7/7** | Embarrassingly parallel | After GPU | wright_fisher_fixation, kimura_fixation_prob candidates |
+| 14 | Eco-evolutionary noise threshold | **6/6** | Embarrassingly parallel | After GPU | Simulation-only (multinomial+mutation) |
+| 18 | Band edge structure | **10/10** | Transfer matrix per-energy parallel | After GPU | tridiag_eigh candidate |
+| 21 | Rare biosphere signal detection | **10/10** | Embarrassingly parallel | After GPU | Chao1, multinomial sampling |
 
-**CPU tier**: 185/185 PASS across 15 validation binaries.
-**Barracuda**: 27 functions delegated (22 CPU + 5 GPU). **Performance**: 22× faster than Python (all 15; Exp 009: 49.5× from Sturm tridiag). **Tests**: 225 Rust tests.
-**Mathematical parity**: 15/15 PROVEN. See `data/parity_report.json`.
+**CPU tier**: 236/236 PASS across 21 validation binaries.
+**Barracuda**: 27 functions delegated (22 CPU + 5 GPU). **Performance**: 22× faster than Python (all 21; Exp 009: 49.5× from Sturm tridiag). **Tests**: 280 Rust tests.
+**Mathematical parity**: 21/21 PROVEN. See `data/parity_report.json`.
 **GPU tier**: pending barracuda adapter (Tier A) or new kernels (Tier B/C).
 **metalForge tier**: after GPU.
 
@@ -226,22 +238,22 @@ Write → Absorb → Lean cycle:
 
 | # | Paper (short) | CPU | GPU | metalForge | Blocker |
 |---|--------------|:---:|:---:|:----------:|---------|
-| 6 | Bazavov spectral | Queued | Blocked | — | FFT gap in barracuda |
-| 7 | Bazavov g-2 | Queued | After CPU | — | Jackknife GPU kernel |
-| 8 | Bazavov freeze-out | Queued | After CPU | — | Grid search GPU |
+| 6 | Bazavov spectral | **8/8 PASS** | After CPU | — | Dense linear algebra (Cholesky, mat-vec) — highest GPU potential |
+| 7 | Bazavov g-2 | **9/9 PASS** | After CPU | — | Jackknife GPU kernel (embarrassingly parallel) |
+| 8 | Bazavov freeze-out | **8/8 PASS** | After CPU | — | Grid search GPU (embarrassingly parallel) |
 | 9 | Massie c-di-GMP | **12/12 PASS** | **Ready** | — | `GillespieGpu` + `BatchedOdeRK4` + 5 bio ODEs (S58) |
 | 10 | Fernandez cell shape | **9/9 PASS** | **Ready** | — | `BatchedEighGpu` + `BistableOde` (S58) |
 | 11 | Srivastava QS | **8/8 PASS** | **Ready** | — | `CooperationOde` + `MultiSignalOde` (S58) |
 | 12 | Wang RAWR | **11/11 PASS** | Ready | — | Embarrassingly parallel |
 | 13 | Lee resampling | **8/8 PASS** | After 12 | — | Builds on #12 |
-| 14 | Dolson eco-evo | Queued | Ready | — | Simulation only |
+| 14 | Dolson eco-evo | **6/6 PASS** | Ready | — | Simulation only |
 | 15 | Bourgain-Kachkovskiy | **8/8 PASS** | **Ready** | — | `spectral` + Anderson (S56) |
 | 16 | Jitomirskaya-Kachkovskiy | **8/8 PASS** | **Ready** | — | Almost-Mathieu + `disordered_laplacian` (S56) |
 | 17 | Kachkovskiy transport | **18/18 PASS** | After 15 | — | Builds on #15 |
-| 18 | Filonov-Kachkovskiy | Queued | After 15 | — | Builds on #15 |
+| 18 | Filonov-Kachkovskiy | **10/10 PASS** | After 15 | — | Builds on #15 |
 | 19 | R. Anderson (review) | Reference | — | — | Not a reproduction |
 | 20 | R. Anderson mBio | **7/7 PASS** | Partial | — | `SmithWatermanGpu` + `BrayCurtisF64` + NMF (S58); rarefaction GPU still Tier C |
-| 21 | R. Anderson FEMS | Queued | Partial | — | Same as #20 |
+| 21 | R. Anderson FEMS | **10/10 PASS** | Partial | — | Same as #20 |
 | 22-24 | Sub-thesis 06 | Queued | After 1-4 GPU | — | Depends on Exp 001-004 GPU tier |
 
 ### BarraCUDA Kernel Requirements Summary (post ToadStool S66)
@@ -253,9 +265,11 @@ Write → Absorb → Lean cycle:
 | `batched_multinomial` | 4, 20-21, 22-24 | **Tier C**: production WGSL in metalForge | HIGH |
 | `BatchedElementwiseF64::fao56_et0_batch` | 3, 22 | **ABSORBED** — exists in barracuda (S49) | ~~HIGH~~ Done |
 | `FusedMapReduceF64::shannon_entropy` | 4, 20-21 | **ABSORBED** — convenience method exists | ~~HIGH~~ Done |
-| FFT (real, complex) | 6, 7 | **Gap** — not in barracuda | MEDIUM |
+| FFT (real, complex) | 6 (optional) | **Gap** — not in barracuda | MEDIUM |
+| Jackknife leave-one-out | 7 | CPU complete — embarrassingly parallel, GPU candidate for large N | MEDIUM |
 | RAWR weighted resampling | 12, 13 | **ABSORBED** — `stats::rawr_mean` (S66) | ~~MEDIUM~~ Done |
-| Grid search 3D dispatch | 5, 8 | **Gap** — new kernel needed | MEDIUM |
+| Grid search 3D dispatch | 5, 8 | CPU complete (8/8) — grid search embarrassingly parallel | MEDIUM |
+| Spectral recon (Cholesky, mat-vec) | 6 | CPU complete (8/8) — dense linear algebra, highest GPU potential | MEDIUM |
 | Gillespie SSA (GPU) | 9, 10, 11 | Exists (`GillespieGpu`) | Done |
 | Bio ODEs (Bistable, Cooperation, etc.) | 9, 10, 11 | **NEW (S58)** — 5 ODE systems absorbed | Done |
 | NMF (Euclidean + KL) | 20, 21 | **NEW (S58)** — `linalg::nmf` | Done |
@@ -269,10 +283,9 @@ Write → Absorb → Lean cycle:
 ### GPU-Ready vs GPU-Blocked
 
 **GPU-Ready** (barracuda primitives already exist):
-Papers 9, 10, 11, 12, 14, 15, 16 — can proceed to GPU tier once CPU tier completes.
+Papers 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 18, 21 — can proceed to GPU tier once CPU tier completes.
 
 **GPU-Blocked** (missing barracuda primitives):
-- Papers 6, 7 — blocked by **FFT gap**
 - Papers 1-5 — blocked by `gpu` feature gate (ops exist but need GPU adapter)
 - Papers 4, 20-21 — blocked by **batched multinomial** Tier C absorption
 
@@ -292,12 +305,12 @@ Papers 9, 10, 11, 12, 14, 15, 16 — can proceed to GPU tier once CPU tier compl
 
 ## Hardware Evolution: CPU → GPU → metalForge
 
-### Tier 1: BarraCUDA CPU (current — 185/185 PASS)
+### Tier 1: BarraCUDA CPU (current — 236/236 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
-27 functions delegated to barracuda (22 CPU + 5 GPU). 22× faster than Python (all 15; Exp 009: 49.5× Sturm tridiag).
-225 Rust tests. 15/15 mathematical parity proven.
-All 15 experiments validated.
+27 functions delegated to barracuda (22 CPU + 5 GPU). 22× faster than Python (all 21; Exp 009: 49.5× Sturm tridiag).
+280 Rust tests. 21/21 mathematical parity proven.
+All 21 experiments validated.
 
 ### Tier 2: BarraCUDA GPU (next)
 

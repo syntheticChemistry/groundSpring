@@ -75,3 +75,27 @@ path = "src/validate_drift.rs"
 [[bin]]
 name = "validate-uncertainty-bridge"
 path = "src/validate_uncertainty_bridge.rs"
+
+[[bin]]
+name = "validate-rare-biosphere"
+path = "src/validate_rare_biosphere.rs"
+
+[[bin]]
+name = "validate-quasispecies"
+path = "src/validate_quasispecies.rs"
+
+[[bin]]
+name = "validate-band-edge"
+path = "src/validate_band_edge.rs"
+
+[[bin]]
+name = "validate-jackknife"
+path = "src/validate_jackknife.rs"
+
+[[bin]]
+name = "validate-freeze-out"
+path = "src/validate_freeze_out.rs"
+
+[[bin]]
+name = "validate-spectral-recon"
+path = "src/validate_spectral_recon.rs"

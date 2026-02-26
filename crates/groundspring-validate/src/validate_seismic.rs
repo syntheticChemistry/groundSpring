@@ -32,20 +32,20 @@ struct AcceptanceCriteria {
 }
 
 /// Forward-model checks: travel times are positive and monotonic.
-fn validate_forward_model(
+fn validate_forward_model<'a>(
     h: &mut ValidationHarness,
-    stations: &[Station],
+    stations: &'a [Station],
     truth: &SourceTruth,
     vp: f64,
-) -> Vec<(String, f64)> {
+) -> Vec<(&'a str, f64)> {
     println!("\n--- Forward Model ---");
 
-    let observed: Vec<(String, f64)> = stations
+    let observed: Vec<(&str, f64)> = stations
         .iter()
         .map(|s| {
             let dist = haversine_km(truth.lat, truth.lon, s.lat, s.lon);
             let tt = travel_time_1d(dist, truth.depth_km, vp);
-            (s.code.clone(), tt)
+            (s.code.as_str(), tt)
         })
         .collect();
 
@@ -71,7 +71,7 @@ fn validate_forward_model(
 /// Grid-search inversion and error checks.
 fn validate_inversion(
     h: &mut ValidationHarness,
-    observed: &[(String, f64)],
+    observed: &[(&str, f64)],
     stations: &[Station],
     grid: &Value,
     vp: f64,
