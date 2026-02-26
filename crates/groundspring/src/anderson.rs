@@ -24,6 +24,9 @@
 
 use crate::prng::Xorshift64;
 
+/// Derrida-Gardner constant for ξ ≈ C / W² at band center.
+const DERRIDA_GARDNER_CONSTANT: f64 = 96.0;
+
 /// Generate a random potential for the 1D Anderson model.
 ///
 /// Each site gets `V(n) ~ Uniform[-W/2, W/2]` where `W = disorder`.
@@ -57,11 +60,8 @@ pub fn anderson_potential(n: usize, disorder: f64, seed: u64) -> Vec<f64> {
 #[must_use]
 pub fn lyapunov_exponent(potential: &[f64], energy: f64) -> f64 {
     #[cfg(feature = "barracuda-gpu")]
-    {
-        return barracuda::spectral::lyapunov_exponent(potential, energy);
-    }
-
-    #[allow(unreachable_code)]
+    return barracuda::spectral::lyapunov_exponent(potential, energy);
+    #[cfg(not(feature = "barracuda-gpu"))]
     lyapunov_exponent_cpu(potential, energy)
 }
 
@@ -113,11 +113,8 @@ pub fn localization_length(gamma: f64) -> f64 {
 #[must_use]
 pub fn analytical_localization_length(disorder: f64, energy: f64) -> f64 {
     #[cfg(feature = "barracuda")]
-    {
-        return barracuda::special::anderson_transport::localization_length(disorder, energy);
-    }
-
-    #[allow(unreachable_code)]
+    return barracuda::special::anderson_transport::localization_length(disorder, energy);
+    #[cfg(not(feature = "barracuda"))]
     analytical_localization_length_cpu(disorder, energy)
 }
 
@@ -126,7 +123,7 @@ fn analytical_localization_length_cpu(disorder: f64, energy: f64) -> f64 {
         return f64::INFINITY;
     }
     let _ = energy;
-    96.0 / (disorder * disorder)
+    DERRIDA_GARDNER_CONSTANT / (disorder * disorder)
 }
 
 /// Average Lyapunov exponent over many disorder realizations.
@@ -145,17 +142,14 @@ pub fn lyapunov_averaged(
     base_seed: u64,
 ) -> f64 {
     #[cfg(feature = "barracuda-gpu")]
-    {
-        return barracuda::spectral::lyapunov_averaged(
-            n_sites,
-            disorder,
-            energy,
-            n_realizations,
-            base_seed,
-        );
-    }
-
-    #[allow(unreachable_code)]
+    return barracuda::spectral::lyapunov_averaged(
+        n_sites,
+        disorder,
+        energy,
+        n_realizations,
+        base_seed,
+    );
+    #[cfg(not(feature = "barracuda-gpu"))]
     lyapunov_averaged_cpu(n_sites, disorder, energy, n_realizations, base_seed)
 }
 

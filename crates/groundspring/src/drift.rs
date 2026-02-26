@@ -14,10 +14,10 @@
 //! - Kimura (1968) Nature 217:624-626
 //! - Wright (1931) Genetics 16:97-159
 //!
-//! # barracuda delegation
+//! # Future GPU path
 //!
-//! When the `barracuda` feature is enabled, `kimura_fixation_prob` delegates
-//! to `barracuda::stats::kimura_fixation` for batched probability computation.
+//! These are pure-CPU implementations. Future barracuda candidates include
+//! batched `kimura_fixation` for probability computation.
 
 use crate::cast::usize_f64;
 use crate::prng::Xorshift64;
@@ -50,6 +50,8 @@ pub fn wright_fisher_fixation(
     let n_alleles_f = usize_f64(n_alleles);
     #[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     let mut n_a = (initial_freq * n_alleles_f).round() as u64;
+    // Factor 10: Wright-Fisher fixation typically takes O(N) generations;
+    // 10× gives headroom for slow selection near neutrality.
     let max_gens = 10 * n_alleles;
     let mut rng = Xorshift64::new(seed);
     let n_alleles_u64 = n_alleles as u64;

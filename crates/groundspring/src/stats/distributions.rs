@@ -21,10 +21,8 @@
 #[must_use]
 pub fn norm_cdf(x: f64) -> f64 {
     #[cfg(feature = "barracuda")]
-    {
-        return barracuda::stats::norm_cdf(x);
-    }
-    #[allow(unreachable_code)]
+    return barracuda::stats::norm_cdf(x);
+    #[cfg(not(feature = "barracuda"))]
     norm_cdf_cpu(x)
 }
 
@@ -58,10 +56,8 @@ fn erf_cpu(x: f64) -> f64 {
 pub fn norm_ppf(p: f64) -> f64 {
     assert!(p > 0.0 && p < 1.0, "norm_ppf requires p ∈ (0, 1), got {p}");
     #[cfg(feature = "barracuda")]
-    {
-        return barracuda::stats::norm_ppf(p);
-    }
-    #[allow(unreachable_code)]
+    return barracuda::stats::norm_ppf(p);
+    #[cfg(not(feature = "barracuda"))]
     norm_ppf_cpu(p)
 }
 
@@ -134,11 +130,9 @@ pub fn chi2_statistic(observed: &[f64], expected: &[f64]) -> f64 {
         "observed and expected must have equal length"
     );
     #[cfg(feature = "barracuda")]
-    {
-        return barracuda::stats::chi2_decomposed(observed, expected, 0)
-            .map_or(0.0, |r| r.chi2_total);
+    if let Ok(r) = barracuda::stats::chi2_decomposed(observed, expected, 0) {
+        return r.chi2_total;
     }
-    #[allow(unreachable_code)]
     chi2_statistic_cpu(observed, expected)
 }
 

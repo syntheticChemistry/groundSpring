@@ -4,7 +4,7 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
-### V16 ToadStool S66 Catch-up + Rewiring (Feb 26, 2026)
+### V16 ToadStool S66 Catch-up + Deep Debt Evolution (Feb 26, 2026)
 - **ToadStool S66 review**: ToadStool reached Session 66 (2,541 tests, 707 WGSL
   shaders, sovereign compiler, DF64 multi-precision). V7 was last groundSpring
   handoff absorbed — V13-V15 handoffs await consumption.
@@ -12,15 +12,29 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
   in ToadStool S66 from groundSpring V15 request). RAWR (Dirichlet-weighted
   bootstrap) now delegates to barracuda CPU path with graceful fallback.
   Total: **26 active delegations** (21 CPU + 5 GPU).
-- **Test fix**: `bootstrap_different_from_rawr` unit test and `validate_rawr`
-  binary updated to compare CI widths instead of exact point estimates,
-  fixing barracuda-mode parity where both methods converge to sample mean
-  on small symmetric data.
+- **Bug fix**: `covariance`, `pearson_r`, `spearman_r` now fall through to CPU
+  implementation on barracuda error instead of returning 0.0. Previously, if
+  barracuda returned an error, these functions silently returned 0.0.
+- **Deep debt: delegation pattern evolution**: Eliminated ALL 20
+  `#[allow(unreachable_code)]` annotations across 13 files. Infallible
+  barracuda calls now use `#[cfg]`/`#[cfg(not)]` mutual exclusion. Fallible
+  calls use `#[cfg] if let Ok` with natural fall-through to CPU.
+  Only 1 `#[allow]` remains: `clippy::many_single_char_names` in QL algorithm.
+- **Deep debt: idiomatic Rust**: `BistableParams` and `MultiSignalParams` now
+  derive `Copy` — eliminated all `.clone()` calls on small-field structs.
+  Gillespie `time_averaged_mean`/`time_averaged_variance` use `.windows(2)`
+  instead of manual index loops.
+- **Deep debt: named constants**: 7 magic numbers extracted as named constants
+  (`QL_MAX_ITERATIONS`, `QR_MAX_ITERATIONS`, `MSD_MIN_THRESHOLD`,
+  `REGRESSION_EPSILON`, `EXP_VARIATE_CAP`, `DERRIDA_GARDNER_CONSTANT`).
+- **Deep debt: docs accuracy**: transport.rs, drift.rs, gillespie.rs docs
+  corrected from claiming barracuda delegation to documenting future candidates.
+- **Deep debt: error messages**: Validation binary `unwrap()` calls replaced
+  with `unwrap_or_else(|| panic!("descriptive message"))`.
+- **Test fix**: `bootstrap_different_from_rawr` and `validate_rawr` updated
+  for barracuda parity.
 - **Three-mode revalidation**: 205/205 tests × 3 modes, 177/177 validation
   checks × 3 modes, 0 clippy warnings × 3 modes.
-- **New S66 capabilities documented**: `WrightFisherGpu` (batched GPU drift),
-  `eigh_f64` (dense eigenvectors), `stats::regression`, `stats::hydrology`,
-  `stats::moving_window_f64`, `stats::mae`.
 
 ### V15 Experiment Buildout (Feb 26, 2026)
 - **3 new experiments built**: Exp 012 (Spin Chain Transport, 18/18 PASS),

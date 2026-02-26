@@ -26,7 +26,7 @@
 use barracuda::numerical::OdeSystem as _;
 
 /// Parameter set matching `barracuda::MultiSignalParams::default()`.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct MultiSignalParams {
     /// Maximum growth rate.
     pub mu_max: f64,
@@ -178,7 +178,7 @@ pub fn multisignal_derivative(state: &[f64; 7], params: &MultiSignalParams) -> [
             result[0], result[1], result[2], result[3], result[4], result[5], result[6],
         ];
     }
-    #[allow(unreachable_code)]
+    #[cfg(not(feature = "barracuda"))]
     multisignal_derivative_cpu(state, params)
 }
 
@@ -319,7 +319,7 @@ mod tests {
 
         let final_dual = integrate(&ic, &p, dt, n_steps);
 
-        let mut p_cai1 = p.clone();
+        let mut p_cai1 = p;
         p_cai1.k_ai2_prod = 0.0;
         let final_cai1 = integrate(&ic, &p_cai1, dt, n_steps);
 

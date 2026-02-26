@@ -35,10 +35,8 @@ pub fn rmse(observed: &[f64], modeled: &[f64]) -> f64 {
         "observed and modeled must have equal length"
     );
     #[cfg(feature = "barracuda")]
-    {
-        return barracuda::stats::rmse(observed, modeled);
-    }
-    #[allow(unreachable_code)]
+    return barracuda::stats::rmse(observed, modeled);
+    #[cfg(not(feature = "barracuda"))]
     rmse_cpu(observed, modeled)
 }
 
@@ -72,10 +70,8 @@ pub fn mbe(observed: &[f64], modeled: &[f64]) -> f64 {
         "observed and modeled must have equal length"
     );
     #[cfg(feature = "barracuda")]
-    {
-        return barracuda::stats::mbe(observed, modeled);
-    }
-    #[allow(unreachable_code)]
+    return barracuda::stats::mbe(observed, modeled);
+    #[cfg(not(feature = "barracuda"))]
     mbe_cpu(observed, modeled)
 }
 
@@ -105,10 +101,8 @@ pub fn r_squared(observed: &[f64], modeled: &[f64]) -> f64 {
         "observed and modeled must have equal length"
     );
     #[cfg(feature = "barracuda")]
-    {
-        return barracuda::stats::r_squared(observed, modeled);
-    }
-    #[allow(unreachable_code)]
+    return barracuda::stats::r_squared(observed, modeled);
+    #[cfg(not(feature = "barracuda"))]
     r_squared_cpu(observed, modeled)
 }
 
@@ -147,10 +141,8 @@ pub fn index_of_agreement(observed: &[f64], modeled: &[f64]) -> f64 {
         "observed and modeled must have equal length"
     );
     #[cfg(feature = "barracuda")]
-    {
-        return barracuda::stats::index_of_agreement(observed, modeled);
-    }
-    #[allow(unreachable_code)]
+    return barracuda::stats::index_of_agreement(observed, modeled);
+    #[cfg(not(feature = "barracuda"))]
     index_of_agreement_cpu(observed, modeled)
 }
 
@@ -196,10 +188,8 @@ pub fn hit_rate(observed: &[f64], modeled: &[f64], threshold: f64) -> f64 {
         "observed and modeled must have equal length"
     );
     #[cfg(feature = "barracuda")]
-    {
-        return barracuda::stats::hit_rate(observed, modeled, threshold);
-    }
-    #[allow(unreachable_code)]
+    return barracuda::stats::hit_rate(observed, modeled, threshold);
+    #[cfg(not(feature = "barracuda"))]
     hit_rate_cpu(observed, modeled, threshold)
 }
 
@@ -226,10 +216,8 @@ fn hit_rate_cpu(observed: &[f64], modeled: &[f64], threshold: f64) -> f64 {
 #[must_use]
 pub fn mean(values: &[f64]) -> f64 {
     #[cfg(feature = "barracuda")]
-    {
-        return barracuda::stats::mean(values);
-    }
-    #[allow(unreachable_code)]
+    return barracuda::stats::mean(values);
+    #[cfg(not(feature = "barracuda"))]
     mean_cpu(values)
 }
 
@@ -294,10 +282,8 @@ fn sample_std_dev_cpu(values: &[f64]) -> f64 {
 pub fn percentile(values: &[f64], p: f64) -> f64 {
     assert!((0.0..=100.0).contains(&p), "percentile must be 0–100");
     #[cfg(feature = "barracuda")]
-    {
-        return barracuda::stats::percentile(values, p);
-    }
-    #[allow(unreachable_code)]
+    return barracuda::stats::percentile(values, p);
+    #[cfg(not(feature = "barracuda"))]
     percentile_cpu(values, p)
 }
 

@@ -24,7 +24,7 @@ use barracuda::numerical::OdeSystem as _;
 /// Parameter set matching `barracuda::BistableParams::default()`.
 ///
 /// 18 base QS-biofilm parameters + 3 positive-feedback parameters.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct BistableParams {
     /// Maximum growth rate.
     pub mu_max: f64,
@@ -154,7 +154,7 @@ pub fn bistable_derivative(state: &[f64; 5], params: &BistableParams) -> [f64; 5
         );
         return [result[0], result[1], result[2], result[3], result[4]];
     }
-    #[allow(unreachable_code)]
+    #[cfg(not(feature = "barracuda"))]
     bistable_derivative_cpu(state, params)
 }
 

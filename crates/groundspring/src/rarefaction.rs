@@ -21,7 +21,7 @@ pub fn shannon_diversity(counts: &[u64]) -> f64 {
         let f_counts: Vec<f64> = counts.iter().map(|&c| u64_f64(c)).collect();
         return barracuda::stats::shannon(&f_counts);
     }
-    #[allow(unreachable_code)]
+    #[cfg(not(feature = "barracuda"))]
     shannon_diversity_cpu(counts)
 }
 
@@ -61,7 +61,7 @@ pub fn evenness(counts: &[u64]) -> f64 {
         let f_counts: Vec<f64> = counts.iter().map(|&c| u64_f64(c)).collect();
         return barracuda::stats::pielou_evenness(&f_counts);
     }
-    #[allow(unreachable_code)]
+    #[cfg(not(feature = "barracuda"))]
     evenness_cpu(counts)
 }
 

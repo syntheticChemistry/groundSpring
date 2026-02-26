@@ -22,6 +22,9 @@
 //! `coupling / 2` as barracuda's `λ_b` to match our convention where the
 //! Aubry-André transition sits at `λ = 2`.
 
+/// Maximum QR iterations for eigenvalue extraction (sufficient for n ≤ 500).
+const QR_MAX_ITERATIONS: usize = 100;
+
 /// Generate the quasiperiodic Almost-Mathieu potential.
 ///
 /// `V(i) = λ cos(2παi + θ)` where `λ` is the coupling strength, `α` the
@@ -51,11 +54,8 @@ pub fn potential(n: usize, coupling: f64, alpha: f64, theta: f64) -> Vec<f64> {
 pub fn level_spacing_ratio(eigenvalues: &mut [f64]) -> f64 {
     eigenvalues.sort_unstable_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
     #[cfg(feature = "barracuda-gpu")]
-    {
-        return barracuda::spectral::level_spacing_ratio(eigenvalues);
-    }
-
-    #[allow(unreachable_code)]
+    return barracuda::spectral::level_spacing_ratio(eigenvalues);
+    #[cfg(not(feature = "barracuda-gpu"))]
     level_spacing_ratio_cpu(eigenvalues)
 }
 
@@ -108,8 +108,7 @@ pub fn hamiltonian(n: usize, coupling: f64, alpha: f64, theta: f64) -> Vec<f64> 
         }
         return h;
     }
-
-    #[allow(unreachable_code)]
+    #[cfg(not(feature = "barracuda-gpu"))]
     hamiltonian_cpu(n, coupling, alpha, theta)
 }
 
@@ -143,8 +142,7 @@ pub fn eigenvalues(n: usize, coupling: f64, alpha: f64, theta: f64) -> Vec<f64> 
             barracuda::spectral::almost_mathieu_hamiltonian(n, barracuda_lambda, alpha, theta);
         return barracuda::spectral::find_all_eigenvalues(&diag, &off);
     }
-
-    #[allow(unreachable_code)]
+    #[cfg(not(feature = "barracuda-gpu"))]
     eigenvalues_cpu(n, coupling, alpha, theta)
 }
 
@@ -163,7 +161,7 @@ fn eigenvalues_qr_dense(n: usize, matrix: &[f64]) -> Vec<f64> {
         .map(|row| (0..n).map(|col| matrix[row * n + col]).collect())
         .collect();
 
-    for _ in 0..100 {
+    for _ in 0..QR_MAX_ITERATIONS {
         let (q_mat, r_mat) = givens_qr(&mat);
         mat = dense_mul(&r_mat, &q_mat);
     }

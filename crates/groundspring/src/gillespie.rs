@@ -7,11 +7,10 @@
 //! modelling enzymatic signal vs noise — specifically, c-di-GMP dynamics
 //! with competing DGC (synthesis) and PDE (degradation) enzymes.
 //!
-//! # barracuda delegation
+//! # Future GPU path
 //!
-//! When the `barracuda` feature is enabled, `gillespie_ssa` can delegate to
-//! `barracuda::ops::bio::GillespieGpu::simulate()` which uses the same
-//! `rate_k` / `stoich_react` / `stoich_net` format.
+//! CPU-only implementation. `GillespieGpu` is a future GPU path when
+//! barracuda's `rate_k` / `stoich_react` / `stoich_net` format is available.
 
 use crate::prng::Xorshift64;
 
@@ -114,9 +113,10 @@ pub fn time_averaged_mean(traj: &Trajectory, t_start: f64) -> f64 {
 
     let mut weighted_sum = 0.0;
     let mut total_dt = 0.0;
-    for i in 0..times.len() - 1 {
-        let dt = times[i + 1] - times[i];
-        weighted_sum += crate::cast::u64_f64(states[i]) * dt;
+    for (pair, &s) in times.windows(2).zip(states.iter()) {
+        let (t0, t1) = (pair[0], pair[1]);
+        let dt = t1 - t0;
+        weighted_sum += crate::cast::u64_f64(s) * dt;
         total_dt += dt;
     }
 
@@ -145,9 +145,10 @@ pub fn time_averaged_variance(traj: &Trajectory, t_start: f64, mean: f64) -> f64
 
     let mut weighted_sum = 0.0;
     let mut total_dt = 0.0;
-    for i in 0..times.len() - 1 {
-        let dt = times[i + 1] - times[i];
-        let dev = crate::cast::u64_f64(states[i]) - mean;
+    for (pair, &s) in times.windows(2).zip(states.iter()) {
+        let (t0, t1) = (pair[0], pair[1]);
+        let dt = t1 - t0;
+        let dev = crate::cast::u64_f64(s) - mean;
         weighted_sum += dev * dev * dt;
         total_dt += dt;
     }

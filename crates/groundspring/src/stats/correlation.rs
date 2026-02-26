@@ -30,13 +30,9 @@ use super::metrics::mean;
 pub fn pearson_r(x: &[f64], y: &[f64]) -> f64 {
     assert_eq!(x.len(), y.len(), "x and y must have equal length");
     #[cfg(feature = "barracuda")]
-    {
-        if let Ok(r) = barracuda::stats::pearson_correlation(x, y) {
-            return if r.is_nan() { 0.0 } else { r };
-        }
-        return 0.0;
+    if let Ok(r) = barracuda::stats::pearson_correlation(x, y) {
+        return if r.is_nan() { 0.0 } else { r };
     }
-    #[allow(unreachable_code)]
     pearson_r_cpu(x, y)
 }
 
@@ -79,13 +75,9 @@ fn pearson_r_cpu(x: &[f64], y: &[f64]) -> f64 {
 pub fn spearman_r(x: &[f64], y: &[f64]) -> f64 {
     assert_eq!(x.len(), y.len(), "x and y must have equal length");
     #[cfg(feature = "barracuda")]
-    {
-        if let Ok(r) = barracuda::stats::correlation::spearman_correlation(x, y) {
-            return if r.is_nan() { 0.0 } else { r };
-        }
-        return 0.0;
+    if let Ok(r) = barracuda::stats::correlation::spearman_correlation(x, y) {
+        return if r.is_nan() { 0.0 } else { r };
     }
-    #[allow(unreachable_code)]
     spearman_r_cpu(x, y)
 }
 
@@ -132,13 +124,9 @@ fn rank(data: &[f64]) -> Vec<f64> {
 pub fn covariance(x: &[f64], y: &[f64]) -> f64 {
     assert_eq!(x.len(), y.len(), "x and y must have equal length");
     #[cfg(feature = "barracuda")]
-    {
-        if let Ok(c) = barracuda::stats::correlation::covariance(x, y) {
-            return c;
-        }
-        return 0.0;
+    if let Ok(c) = barracuda::stats::correlation::covariance(x, y) {
+        return c;
     }
-    #[allow(unreachable_code)]
     covariance_cpu(x, y)
 }
 

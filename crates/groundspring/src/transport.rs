@@ -13,13 +13,19 @@
 //! - Kachkovskiy (2016) Comm Math Phys 345:659-673
 //! - Jitomirskaya & Kachkovskiy (2018) JEMS 21:777-795
 //!
-//! # barracuda delegation
+//! # Future GPU path
 //!
-//! When the `barracuda-gpu` feature is enabled, `tridiag_eigh` delegates to
-//! barracuda's spectral eigensolvers for the eigenvalue computation and uses
-//! inverse iteration for eigenvectors.
+//! Future: `tridiag_eigh` could delegate to barracuda's eigenvector primitives
+//! when available.
 
 use crate::cast::usize_f64;
+
+/// Maximum QL iterations before convergence failure.
+const QL_MAX_ITERATIONS: usize = 30;
+/// Minimum MSD threshold for log-log regression (avoids log(0)).
+const MSD_MIN_THRESHOLD: f64 = 1e-20;
+/// Denominator epsilon for regression singularity check.
+const REGRESSION_EPSILON: f64 = 1e-30;
 
 /// Eigendecomposition of a symmetric tridiagonal matrix via implicit QL
 /// algorithm with Wilkinson shifts.
@@ -64,7 +70,6 @@ pub fn tridiag_eigh(diag: &[f64], offdiag: &[f64]) -> (Vec<f64>, Vec<Vec<f64>>) 
 #[allow(clippy::many_single_char_names)]
 fn implicit_ql(d: &mut [f64], e: &mut [f64], z: &mut [Vec<f64>], n: usize) {
     let eps = f64::EPSILON;
-    let max_iter = 30;
 
     for l in 0..n {
         let mut iter_count = 0;
@@ -83,8 +88,8 @@ fn implicit_ql(d: &mut [f64], e: &mut [f64], z: &mut [Vec<f64>], n: usize) {
             }
 
             assert!(
-                iter_count < max_iter,
-                "QL algorithm failed to converge after {max_iter} iterations"
+                iter_count < QL_MAX_ITERATIONS,
+                "QL algorithm failed to converge after {QL_MAX_ITERATIONS} iterations"
             );
             iter_count += 1;
 
@@ -216,7 +221,7 @@ pub fn transport_exponent(times: &[f64], msds: &[f64]) -> f64 {
     let valid: Vec<(f64, f64)> = times
         .iter()
         .zip(msds.iter())
-        .filter(|(&t, &m)| t > 0.0 && m > 1e-20)
+        .filter(|(&t, &m)| t > 0.0 && m > MSD_MIN_THRESHOLD)
         .map(|(&t, &m)| (t.ln(), 0.5 * m.ln()))
         .collect();
 
@@ -231,7 +236,7 @@ pub fn transport_exponent(times: &[f64], msds: &[f64]) -> f64 {
     let sxy: f64 = valid.iter().map(|(x, y)| x * y).sum();
 
     let denom = n.mul_add(sxx, -(sx * sx));
-    if denom.abs() < 1e-30 {
+    if denom.abs() < REGRESSION_EPSILON {
         return 0.0;
     }
 

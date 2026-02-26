@@ -124,6 +124,9 @@ pub fn rawr_mean(data: &[f64], n_replicates: usize, confidence: f64, seed: u64) 
     rawr_mean_cpu(data, n_replicates, confidence, seed)
 }
 
+/// Cap for -ln(0) fallback when Exp(1) variate would be infinite.
+const EXP_VARIATE_CAP: f64 = 30.0;
+
 fn rawr_mean_cpu(data: &[f64], n_replicates: usize, confidence: f64, seed: u64) -> BootstrapResult {
     let n = data.len();
     let mut rng = Xorshift64::new(seed);
@@ -134,7 +137,7 @@ fn rawr_mean_cpu(data: &[f64], n_replicates: usize, confidence: f64, seed: u64) 
         let mut wsum = 0.0;
         for _ in 0..n {
             let u = rng.next_f64();
-            let w = if u > 0.0 { -u.ln() } else { 30.0 };
+            let w = if u > 0.0 { -u.ln() } else { EXP_VARIATE_CAP };
             weights.push(w);
             wsum += w;
         }

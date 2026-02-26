@@ -48,15 +48,13 @@ fn params_from_json(model: &Value) -> MultiSignalParams {
 
 fn ic_from_json(model: &Value) -> [f64; 7] {
     let arr = model["initial_state"].as_array().expect("IC array");
-    [
-        arr[0].as_f64().unwrap(),
-        arr[1].as_f64().unwrap(),
-        arr[2].as_f64().unwrap(),
-        arr[3].as_f64().unwrap(),
-        arr[4].as_f64().unwrap(),
-        arr[5].as_f64().unwrap(),
-        arr[6].as_f64().unwrap(),
-    ]
+    let mut ic = [0.0; 7];
+    for (i, val) in ic.iter_mut().enumerate() {
+        *val = arr[i]
+            .as_f64()
+            .unwrap_or_else(|| panic!("IC element {i} not a valid f64"));
+    }
+    ic
 }
 
 fn run() -> i32 {
@@ -109,11 +107,11 @@ fn run() -> i32 {
     // ── Part 2: Single-signal comparisons ─────────────────────────────
     println!("\n--- Part 2: Single-Signal vs Dual ---");
 
-    let mut p_cai1 = params.clone();
+    let mut p_cai1 = params;
     p_cai1.k_ai2_prod = 0.0;
     let final_cai1 = integrate(&ic, &p_cai1, dt, n_steps);
 
-    let mut p_ai2 = params.clone();
+    let mut p_ai2 = params;
     p_ai2.k_cai1_prod = 0.0;
     let final_ai2 = integrate(&ic, &p_ai2, dt, n_steps);
 

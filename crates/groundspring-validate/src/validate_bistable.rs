@@ -46,13 +46,13 @@ fn params_from_json(model: &Value) -> BistableParams {
 
 fn ic_from_json(model: &Value, key: &str) -> [f64; 5] {
     let arr = model[key].as_array().expect("IC array");
-    [
-        arr[0].as_f64().unwrap(),
-        arr[1].as_f64().unwrap(),
-        arr[2].as_f64().unwrap(),
-        arr[3].as_f64().unwrap(),
-        arr[4].as_f64().unwrap(),
-    ]
+    let mut ic = [0.0; 5];
+    for (i, val) in ic.iter_mut().enumerate() {
+        *val = arr[i]
+            .as_f64()
+            .unwrap_or_else(|| panic!("IC element {i} not a valid f64 in {key}"));
+    }
+    ic
 }
 
 fn run() -> i32 {
@@ -132,7 +132,7 @@ fn run() -> i32 {
     // ── Part 3: Monostable control ────────────────────────────────────
     println!("\n--- Part 3: Monostable Control ---");
 
-    let mut mono_params = params.clone();
+    let mut mono_params = params;
     mono_params.alpha_fb = 0.0;
     let mono_low = integrate(&ic_low, &mono_params, dt, n_steps);
     let mono_high = integrate(&ic_high, &mono_params, dt, n_steps);
