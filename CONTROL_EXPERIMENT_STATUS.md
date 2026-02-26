@@ -25,8 +25,8 @@
 **Rust Phase 1**: 177/177 PASS across 14 validation binaries
 **Rust tests**: 205/205 PASS (167 unit + 14 proptest + 9 validate-lib + 14 integration + 1 doc)
 **pytest**: 37/37 PASS (unit tests, determinism tests, integration tests)
-**BarraCUDA delegations**: 25 active (20 CPU + 5 GPU) — ToadStool S65
-**Handoff**: V14 (S65 revalidation)
+**BarraCUDA delegations**: 26 active (21 CPU + 5 GPU) — ToadStool S66
+**Handoff**: V16 (S66 catch-up + rewiring)
 
 **Python checks**: ~129 across 14 experiments. **Rust validation checks**: 177.
 
@@ -247,6 +247,30 @@ Ports Exp 014 drift vs selection to pure safe Rust.  Verifies:
 | **Total** | **228** | (37 Python + 191 Rust) |
 
 ## Run Log
+
+### Run 16 — February 26, 2026 (V16 ToadStool S66 catch-up + rewiring)
+
+```
+ToadStool S66 review: 2,541 tests, 707 WGSL shaders, sovereign compiler.
+  V7 was last groundSpring handoff consumed. V13–V15 await ToadStool pickup.
+  S66 absorbed rawr_mean from V15 request.
+
+New delegation #26: rawr_mean → barracuda::stats::rawr_mean (CPU)
+  Total: 26 active delegations (21 CPU + 5 GPU)
+
+Test fix: bootstrap_different_from_rawr and validate-rawr RAWR comparison
+  updated for barracuda parity (compare CI widths instead of exact estimates).
+
+Three-mode revalidation:
+  default:       205/205 tests PASS, 177/177 checks PASS
+  barracuda:     205/205 tests PASS, 177/177 checks PASS
+  barracuda-gpu: 205/205 tests PASS, 177/177 checks PASS
+  clippy:        0 warnings × 3 modes
+
+New S66 capabilities documented (not yet wired):
+  WrightFisherGpu, eigh_f64, stats::regression, stats::hydrology,
+  stats::moving_window_f64, stats::mae
+```
 
 ### Run 15 — February 26, 2026 (V15 Experiment Buildout: Exp 012–014)
 
@@ -721,8 +745,9 @@ All 11 experiments, median of 3 trials (Feb 26, 2026):
 
 | Handoff | Scope | Status |
 |---------|-------|--------|
+| V16: S66 Catch-Up + Rewiring | rawr_mean delegation #26, V13–V15 consumption audit, 26 delegations (21 CPU + 5 GPU) | **Current** |
 | V15: Absorption Request | 2 shaders, 3 semantic fixes, 25 delegations, cross-spring learnings | **Current** |
-| V14: S65 Revalidation | 25 delegations, evenness added, 49.5× Exp 009, three-mode benchmark | **Current** |
+| V14: S65 Revalidation | 25 delegations, evenness added, 49.5× Exp 009, three-mode benchmark | Archived |
 | V13: Complete Rewiring | 24 delegations, Sturm tridiag (50×), cross-spring S58-S65 | Archived |
 | V12: S64 Catch-Up | ToadStool S64 absorption, 6 new delegations (20 total), 3 bug fixes | Archived |
 | V11: Parity + Benchmarks | Full-suite parity, 11 experiments, 14 delegations, three-tier roadmap | Archived |
@@ -732,7 +757,7 @@ All 11 experiments, median of 3 trials (Feb 26, 2026):
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V15_ABSORPTION_REQUEST_FEB26_2026.md`
+Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V16_S66_CATCHUP_FEB26_2026.md`
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

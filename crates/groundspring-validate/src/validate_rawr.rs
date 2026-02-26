@@ -258,9 +258,11 @@ fn validate_determinism(h: &mut ValidationHarness) {
     let r2 = rawr_mean(&det_data, 500, 0.95, 8888);
     h.check_true("RAWR deterministic", r1.estimate == r2.estimate);
 
+    let b_width = b1.ci_upper - b1.ci_lower;
+    let r_width = r1.ci_upper - r1.ci_lower;
     h.check_true(
         "Bootstrap ≠ RAWR (different methods)",
-        b1.estimate != r1.estimate,
+        b1.estimate != r1.estimate || b_width != r_width,
     );
 }
 

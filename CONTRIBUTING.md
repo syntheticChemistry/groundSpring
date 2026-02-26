@@ -81,8 +81,8 @@ cargo fmt --check               # clean
 cargo llvm-cov --workspace       # 99.11% workspace line coverage
 
 # With barracuda feature gates (requires toadstool checkout):
-cargo test --features barracuda     # 205 tests, CPU delegation (20 CPU)
-cargo test --features barracuda-gpu # 205 tests, CPU + spectral (20 CPU + 5 GPU)
+cargo test --features barracuda     # 205 tests, CPU delegation (21 CPU)
+cargo test --features barracuda-gpu # 205 tests, CPU + spectral (21 CPU + 5 GPU)
 
 # Three-mode benchmark (local vs barracuda-gpu)
 bash scripts/bench_barracuda_modes.sh

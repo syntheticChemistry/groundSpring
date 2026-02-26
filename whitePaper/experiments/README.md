@@ -38,9 +38,9 @@ Each experiment is validated at three levels:
 2. **GPU** — Barracuda GPU matches CPU within tolerance (`--features barracuda-gpu`)
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
-Current status: **CPU complete** (177/177), **25 barracuda delegations active**
-(15 stats/metrics + bootstrap + 5 anderson/spectral + hamiltonian + 2 ODE + eigenvalues).
-20 CPU delegated (`#[cfg(feature = "barracuda")]`), 5 GPU delegated
+Current status: **CPU complete** (177/177), **26 barracuda delegations active**
+(15 stats/metrics + bootstrap + rawr_mean + 5 anderson/spectral + hamiltonian + 2 ODE + eigenvalues).
+21 CPU delegated (`#[cfg(feature = "barracuda")]`), 5 GPU delegated
 (`#[cfg(feature = "barracuda-gpu")]`). All with graceful CPU fallback.
 99.11% line coverage. 14/14 mathematical parity proven.
 

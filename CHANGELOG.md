@@ -4,6 +4,24 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V16 ToadStool S66 Catch-up + Rewiring (Feb 26, 2026)
+- **ToadStool S66 review**: ToadStool reached Session 66 (2,541 tests, 707 WGSL
+  shaders, sovereign compiler, DF64 multi-precision). V7 was last groundSpring
+  handoff absorbed — V13-V15 handoffs await consumption.
+- **New delegation #26**: `rawr_mean` → `barracuda::stats::rawr_mean` (absorbed
+  in ToadStool S66 from groundSpring V15 request). RAWR (Dirichlet-weighted
+  bootstrap) now delegates to barracuda CPU path with graceful fallback.
+  Total: **26 active delegations** (21 CPU + 5 GPU).
+- **Test fix**: `bootstrap_different_from_rawr` unit test and `validate_rawr`
+  binary updated to compare CI widths instead of exact point estimates,
+  fixing barracuda-mode parity where both methods converge to sample mean
+  on small symmetric data.
+- **Three-mode revalidation**: 205/205 tests × 3 modes, 177/177 validation
+  checks × 3 modes, 0 clippy warnings × 3 modes.
+- **New S66 capabilities documented**: `WrightFisherGpu` (batched GPU drift),
+  `eigh_f64` (dense eigenvectors), `stats::regression`, `stats::hydrology`,
+  `stats::moving_window_f64`, `stats::mae`.
+
 ### V15 Experiment Buildout (Feb 26, 2026)
 - **3 new experiments built**: Exp 012 (Spin Chain Transport, 18/18 PASS),
   Exp 013 (Resampling Convergence, 8/8 PASS), Exp 014 (Drift vs Selection,

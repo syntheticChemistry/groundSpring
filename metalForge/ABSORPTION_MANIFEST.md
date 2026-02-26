@@ -6,7 +6,7 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: February 26, 2026 (V14 — S65 revalidation, 25 delegations, 49.5× Exp 009)
+**Last updated**: February 26, 2026 (V14 — S66 revalidation, 26 delegations, 49.5× Exp 009)
 
 ## Absorption Status Summary
 
@@ -30,7 +30,7 @@
 | `fao56::daily_et0` | **Absorbed** — equation chain in barracuda | — | `barracuda::ops::BatchedElementwiseF64::fao56_et0_batch` |
 | `fao56::daily_et0` (MC wrapper) | **Write** — WGSL production shader ready | C | new `ops::mc_et0_propagate_f64` |
 | `bootstrap::bootstrap_mean` | **Lean** — CPU delegated (GPU shader exists) | A | `barracuda::stats::bootstrap_mean` + `bootstrap_mean_f64.wgsl` |
-| `bootstrap::rawr_mean` | **Write** — no barracuda RAWR yet | C | new `ops::rawr_weighted_mean_f64` |
+| `bootstrap::rawr_mean` | **Lean** — CPU delegated (S66) | A | `barracuda::stats::rawr_mean` |
 | `anderson::lyapunov_exponent` | **Lean** — GPU delegated | A | `barracuda::spectral::lyapunov_exponent` (requires `barracuda-gpu`) |
 | `anderson::lyapunov_averaged` | **Lean** — GPU delegated | A | `barracuda::spectral::lyapunov_averaged` (requires `barracuda-gpu`) |
 | `anderson::anderson_potential` | **Write** — local (matches barracuda when `barracuda-gpu` enabled) | B | `barracuda::spectral::anderson_potential` |
@@ -53,7 +53,7 @@ Both shaders use xoshiro128** matching `barracuda::ops::prng_xoshiro_wgsl`.
 
 ---
 
-## Tier A — Lean (25 delegated)
+## Tier A — Lean (26 delegated)
 
 ### All delegated
 
@@ -67,6 +67,7 @@ Both shaders use xoshiro128** matching `barracuda::ops::prng_xoshiro_wgsl`.
 | `norm_ppf` | `stats::norm_ppf` | `#[cfg(feature = "barracuda")]` direct |
 | `chi2_statistic` | `stats::chi2_decomposed` | `#[cfg(feature = "barracuda")]` struct mapping |
 | `bootstrap_mean` | `stats::bootstrap_mean` | `#[cfg(feature = "barracuda")]` Result mapping |
+| `rawr_mean` | `stats::rawr_mean` | `#[cfg(feature = "barracuda")]` Result mapping (S66) |
 | `lyapunov_exponent` | `spectral::lyapunov_exponent` | `#[cfg(feature = "barracuda-gpu")]` |
 | `lyapunov_averaged` | `spectral::lyapunov_averaged` | `#[cfg(feature = "barracuda-gpu")]` |
 | `analytical_localization_length` | `special::localization_length` | `#[cfg(feature = "barracuda")]` |
@@ -149,7 +150,7 @@ NOTE:       Equation chain is superseded by barracuda Op::Fao56Et0 — when
 - [x] f64 precision throughout (no f32 truncation)
 - [x] PRNG matches barracuda (xoshiro128**)
 - [x] Handoff V14 posted in `wateringHole/handoffs/` (V13, V12, V11, V10, V9, V8 archived)
-- [x] All 25 barracuda delegations use `#[cfg]` or `if let Ok` with CPU fallback always compiled
+- [x] All 26 barracuda delegations use `#[cfg]` or `if let Ok` with CPU fallback always compiled
 - [x] Mathematical parity: 11/11 PROVEN (Python ⇌ Rust, `data/parity_report.json`)
 - [x] PRNG alignment investigated: requires full rebaseline (documented in V8 handoff)
 - [x] ToadStool S64 catch-up: 6 new CPU delegations (metrics + shannon), 3 bug fixes

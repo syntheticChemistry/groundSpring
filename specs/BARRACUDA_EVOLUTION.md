@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: February 26, 2026 (ToadStool S65 revalidation — 25 delegations)
+**Last updated**: February 26, 2026 (ToadStool S66 catch-up — 26 delegations)
 
 ## Philosophy
 
@@ -65,6 +65,19 @@ are for throughput (100k+ MC samples, batch rarefaction).
 > Total: **24 active delegations**. 0 clippy warnings × 3 modes.
 > Three-mode benchmark: 14.5s (local) → 3.3s (barracuda-gpu).
 > RAWR kernel, CPU xoshiro128**, Gillespie CPU fallback still pending.
+>
+> **ToadStool S66 catch-up (Feb 26 2026)**: S66 absorbed `rawr_mean` into
+> `barracuda::stats::rawr_mean` (from groundSpring V15 request). Also added
+> `stats::regression` (fit_linear, fit_quadratic, etc.), `stats::hydrology`
+> (FAO-56), `stats::moving_window_f64`, `stats::mae`, `shannon_from_frequencies`,
+> `spearman_correlation` re-export, and `hill()/monod()` public Rust APIs.
+> GPU: `WrightFisherGpu` (batched drift+selection), `eigh_f64` (dense eigenvectors),
+> `BatchedEighGpu`, sovereign compiler fixes for `BatchedElementwiseF64`.
+> groundSpring wired **1 new CPU delegation**: `rawr_mean` (#26).
+> Fixed `bootstrap ≠ RAWR` comparison test for barracuda parity (both methods
+> converge to sample mean on small symmetric data).
+> Total: **26 active delegations** (21 CPU + 5 GPU). 0 clippy warnings × 3 modes.
+> 205/205 tests × 3 modes. 177/177 validation checks × 3 modes.
 
 ### Tier A — Lean (rewire to existing barracuda ops)
 
@@ -95,6 +108,7 @@ are for throughput (100k+ MC samples, batch rarefaction).
 | `anderson::level_spacing_ratio` | `spectral::level_spacing_ratio` | **DONE** (barracuda-gpu) | Sort adapter |
 | `anderson::almost_mathieu_eigenvalues` | `spectral::find_all_eigenvalues` | **DONE** (barracuda-gpu) | **49.5× Exp 009 speedup** — Sturm tridiag |
 | `rarefaction::evenness` | `stats::pielou_evenness` | **DONE** (CPU delegated) | S≤1 semantic adapter (ecology convention) |
+| `bootstrap::rawr_mean` | `stats::rawr_mean` | **DONE** (CPU delegated) | S66 absorption — Dirichlet-weighted mean |
 
 ### Tier B — Adapt (needs alignment or wrapper)
 
@@ -104,7 +118,7 @@ are for throughput (100k+ MC samples, batch rarefaction).
 | `seismic::grid_search_inversion` | Parallel grid dispatch | No existing grid-search op | Dispatch as 3D workgroup; reduce min RMS |
 | `rarefaction::multinomial_sample` | `ops::PrngXoshiro` + binary search | No batched multinomial | Production WGSL in metalForge |
 | `gillespie::birth_death_ssa` | `ops::bio::GillespieGpu` | GPU-only (no CPU fallback) | Write CPU → GPU dispatch when adapter ready |
-| `bootstrap::rawr_mean` | New: `ops::rawr_weighted_mean_f64` | No RAWR kernel in barracuda | Embarrassingly parallel — write metalForge shader |
+| ~~`bootstrap::rawr_mean`~~ | ~~New: `ops::rawr_weighted_mean_f64`~~ | **RESOLVED** — absorbed as `stats::rawr_mean` in S66 | Moved to Tier A (#26) |
 | `anderson::anderson_potential` | `spectral::anderson_potential` | Requires `barracuda-gpu` feature | Align PRNG seeds |
 
 ### Tier C — ~~New Kernel Required~~ → Partially Absorbed
@@ -150,6 +164,13 @@ are for throughput (100k+ MC samples, batch rarefaction).
 | `ridge_regression` | `linalg` | S59 — Tikhonov regression from ESN readout |
 | `PeakDetectF64` | `ops` | S62 — GPU local-maxima with prominence |
 | `BandwidthTier` | `dispatch` | S62 — PCIe/NvLink bandwidth-aware routing |
+| `stats::rawr_mean` | `stats::bootstrap` | S66 — RAWR Dirichlet-weighted bootstrap (**DONE**, delegation #26) |
+| `stats::regression` | `stats::regression` | S66 — `fit_linear`, `fit_quadratic`, `fit_exponential`, `fit_logarithmic` |
+| `stats::hydrology` | `stats::hydrology` | S66 — FAO-56 `hargreaves_et0`, `crop_coefficient`, `soil_water_balance` |
+| `stats::moving_window_f64` | `stats::moving_window_f64` | S66 — CPU sliding-window mean/var/min/max |
+| `stats::mae` | `stats::metrics` | S66 — Mean Absolute Error |
+| `WrightFisherGpu` | `ops::bio` | S66 — Batched drift+selection GPU (future Exp 014 GPU delegation) |
+| `eigh_f64` / `BatchedEighGpu` | `linalg` | S66 — Dense symmetric eigendecomposition (future Exp 012 GPU delegation) |
 
 ## Feature Gate
 
@@ -184,6 +205,7 @@ BarraCUDA primitives that already exist and MUST NOT be reimplemented:
 - Norm reduce (`ops::norm_reduce_f64`)
 - Sum reduce (`ops::sum_reduce_f64`)
 - Bootstrap mean/std (`stats::bootstrap_mean`, `stats::bootstrap_std`)
+- RAWR mean (`stats::rawr_mean`)
 
 groundSpring's CPU implementations serve as **validation references** for
 these GPU kernels.
@@ -318,7 +340,7 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (14/14 parity proven, timing data for all experiments) |
-| Phase 2a | Tier A rewire (stats + bootstrap + anderson → barracuda) | **25 delegated** (15 stats + bootstrap_mean + 5 anderson + analytical ξ + hamiltonian + 2 ODE + shannon + eigenvalues) |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson → barracuda) | **26 delegated** (15 stats + bootstrap_mean + rawr_mean + 5 anderson + analytical ξ + hamiltonian + 2 ODE + shannon + eigenvalues) |
 | Phase 2b | Tier B adapt (PRNG alignment, grid dispatch, gillespie GPU) | After 2a |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |

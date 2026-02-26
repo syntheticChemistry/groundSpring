@@ -216,12 +216,12 @@ Write → Absorb → Lean cycle:
 | 20 | Drift vs selection | **7/7** | Embarrassingly parallel | After GPU | wright_fisher_fixation, kimura_fixation_prob candidates |
 
 **CPU tier**: 177/177 PASS across 14 validation binaries.
-**Barracuda**: 25 functions delegated (19 CPU + 5 GPU). **Performance**: 22× faster than Python (all 11; Exp 009: 49.5× from Sturm tridiag). **Tests**: 205 Rust tests.
+**Barracuda**: 26 functions delegated (21 CPU + 5 GPU). **Performance**: 22× faster than Python (all 11; Exp 009: 49.5× from Sturm tridiag). **Tests**: 205 Rust tests.
 **Mathematical parity**: 14/14 PROVEN. See `data/parity_report.json`.
 **GPU tier**: pending barracuda adapter (Tier A) or new kernels (Tier B/C).
 **metalForge tier**: after GPU.
 
-### Queued Papers (updated after ToadStool S51-S62 absorption wave)
+### Queued Papers (updated after ToadStool S51-S66 absorption wave)
 
 | # | Paper (short) | CPU | GPU | metalForge | Blocker |
 |---|--------------|:---:|:---:|:----------:|---------|
@@ -243,7 +243,7 @@ Write → Absorb → Lean cycle:
 | 21 | R. Anderson FEMS | Queued | Partial | — | Same as #20 |
 | 22-24 | Sub-thesis 06 | Queued | After 1-4 GPU | — | Depends on Exp 001-004 GPU tier |
 
-### BarraCUDA Kernel Requirements Summary (post ToadStool S62)
+### BarraCUDA Kernel Requirements Summary (post ToadStool S66)
 
 | Kernel | Papers | Status | Priority |
 |--------|--------|--------|----------|
@@ -253,7 +253,7 @@ Write → Absorb → Lean cycle:
 | `BatchedElementwiseF64::fao56_et0_batch` | 3, 22 | **ABSORBED** — exists in barracuda (S49) | ~~HIGH~~ Done |
 | `FusedMapReduceF64::shannon_entropy` | 4, 20-21 | **ABSORBED** — convenience method exists | ~~HIGH~~ Done |
 | FFT (real, complex) | 6, 7 | **Gap** — not in barracuda | MEDIUM |
-| RAWR weighted resampling | 12, 13 | **Gap** — new kernel needed | MEDIUM |
+| RAWR weighted resampling | 12, 13 | **ABSORBED** — `stats::rawr_mean` (S66) | ~~MEDIUM~~ Done |
 | Grid search 3D dispatch | 5, 8 | **Gap** — new kernel needed | MEDIUM |
 | Gillespie SSA (GPU) | 9, 10, 11 | Exists (`GillespieGpu`) | Done |
 | Bio ODEs (Bistable, Cooperation, etc.) | 9, 10, 11 | **NEW (S58)** — 5 ODE systems absorbed | Done |
@@ -292,7 +292,7 @@ Papers 9, 10, 11, 12, 14, 15, 16 — can proceed to GPU tier once CPU tier compl
 ### Tier 1: BarraCUDA CPU (current — 177/177 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
-25 functions delegated to barracuda (19 CPU + 5 GPU). 22× faster than Python (all 11; Exp 009: 49.5× Sturm tridiag).
+26 functions delegated to barracuda (21 CPU + 5 GPU). 22× faster than Python (all 11; Exp 009: 49.5× Sturm tridiag).
 205 Rust tests. 14/14 mathematical parity proven.
 All 14 experiments validated.
 
@@ -305,7 +305,7 @@ GPU adapter wiring for existing barracuda ops + Tier C shader absorption.
 | Tier A adapt | 1-5 | `FusedMapReduceF64`, `NormReduceF64` | Wire `gpu` feature + adapter |
 | Tier B align | 5, all | `PrngXoshiro`, grid dispatch | Regenerate baselines with xoshiro |
 | Tier C absorb | 4, 20-21 | `batched_multinomial` (new) | ToadStool absorbs metalForge WGSL |
-| Tier C absorb | 12-13 | `rawr_weighted_mean` (new) | ToadStool writes from groundSpring spec |
+| Tier C absorb | 12-13 | `rawr_mean` | **ABSORBED** — `stats::rawr_mean` (S66) |
 | GPU-ready | 9, 15 | `GillespieGpu`, `spectral::*` | Dispatch wiring only |
 
 ### Tier 3: metalForge Cross-Substrate (future)

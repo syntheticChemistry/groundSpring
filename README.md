@@ -159,9 +159,9 @@ Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration
      (metalForge shaders)          (wateringHole/handoffs/)       (rewire to barracuda ops)
 ```
 
-**Lean progress**: 25 functions delegate to barracuda with graceful fallback —
+**Lean progress**: 26 functions delegate to barracuda with graceful fallback —
 `pearson_r`, `spearman_r`, `sample_std_dev`, `covariance`, `norm_cdf`, `norm_ppf`,
-`chi2_statistic`, `bootstrap_mean`, `lyapunov_exponent`, `lyapunov_averaged`,
+`chi2_statistic`, `bootstrap_mean`, `rawr_mean`, `lyapunov_exponent`, `lyapunov_averaged`,
 `analytical_localization_length`, `almost_mathieu_hamiltonian`, `bistable_derivative`,
 `multisignal_derivative`, `rmse`, `mbe`, `r_squared`, `index_of_agreement`,
 `hit_rate`, `shannon_diversity`, `evenness`, `mean`, `percentile`, `level_spacing_ratio`,

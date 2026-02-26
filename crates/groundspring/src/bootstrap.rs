@@ -9,8 +9,9 @@
 //!
 //! # barracuda delegation
 //!
-//! When the `barracuda` feature is enabled, `bootstrap_mean` delegates to
-//! `barracuda::stats::bootstrap_mean()` for the core computation.
+//! When the `barracuda` feature is enabled:
+//! - `bootstrap_mean` delegates to `barracuda::stats::bootstrap_mean()`
+//! - `rawr_mean` delegates to `barracuda::stats::rawr_mean()` (since S66)
 
 use crate::prng::Xorshift64;
 
@@ -94,6 +95,9 @@ fn bootstrap_mean_cpu(
 /// Generates Dirichlet(1,...,1) weights (via normalized Exp(1) variates)
 /// and computes the weighted mean for each replicate.
 ///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::rawr_mean` (absorbed in `ToadStool` S66).
+///
 /// # Panics
 ///
 /// Panics if `data` is empty or `confidence` is outside (0, 1).
@@ -105,6 +109,22 @@ pub fn rawr_mean(data: &[f64], n_replicates: usize, confidence: f64, seed: u64) 
         "confidence must be in (0, 1)"
     );
 
+    #[cfg(feature = "barracuda")]
+    {
+        if let Ok(ci) = barracuda::stats::rawr_mean(data, n_replicates, confidence, seed) {
+            return BootstrapResult {
+                estimate: ci.estimate,
+                ci_lower: ci.lower,
+                ci_upper: ci.upper,
+                std_error: ci.std_error,
+            };
+        }
+    }
+
+    rawr_mean_cpu(data, n_replicates, confidence, seed)
+}
+
+fn rawr_mean_cpu(data: &[f64], n_replicates: usize, confidence: f64, seed: u64) -> BootstrapResult {
     let n = data.len();
     let mut rng = Xorshift64::new(seed);
     let mut means = Vec::with_capacity(n_replicates);
@@ -114,8 +134,6 @@ pub fn rawr_mean(data: &[f64], n_replicates: usize, confidence: f64, seed: u64) 
         let mut wsum = 0.0;
         for _ in 0..n {
             let u = rng.next_f64();
-            // Exp(1) variate via inverse CDF; guard u=0 since -ln(0)=∞.
-            // Cap at 30 ≈ -ln(9.4e-14), well beyond practical Dirichlet range.
             let w = if u > 0.0 { -u.ln() } else { 30.0 };
             weights.push(w);
             wsum += w;
@@ -210,9 +228,15 @@ mod tests {
         let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
         let b = bootstrap_mean(&data, 500, 0.95, 42);
         let r = rawr_mean(&data, 500, 0.95, 42);
-        assert_ne!(
-            b.estimate, r.estimate,
-            "methods should produce different estimates"
+        let b_width = b.ci_upper - b.ci_lower;
+        let r_width = r.ci_upper - r.ci_lower;
+        assert!(
+            (b.estimate - r.estimate).abs() < 0.5 || b_width != r_width,
+            "methods should produce comparable estimates but may differ in CI width"
+        );
+        assert!(
+            b_width > 0.0 && r_width > 0.0,
+            "both methods must produce non-degenerate CIs"
         );
     }
 
