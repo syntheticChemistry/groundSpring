@@ -217,7 +217,7 @@ Write → Absorb → Lean cycle:
 | 20 | Drift vs selection | **7/7** | Embarrassingly parallel | After GPU | wright_fisher_fixation, kimura_fixation_prob candidates |
 
 **CPU tier**: 185/185 PASS across 15 validation binaries.
-**Barracuda**: 26 functions delegated (21 CPU + 5 GPU). **Performance**: 22× faster than Python (all 15; Exp 009: 49.5× from Sturm tridiag). **Tests**: 226 Rust tests.
+**Barracuda**: 27 functions delegated (22 CPU + 5 GPU). **Performance**: 22× faster than Python (all 15; Exp 009: 49.5× from Sturm tridiag). **Tests**: 226 Rust tests.
 **Mathematical parity**: 15/15 PROVEN. See `data/parity_report.json`.
 **GPU tier**: pending barracuda adapter (Tier A) or new kernels (Tier B/C).
 **metalForge tier**: after GPU.
@@ -263,7 +263,7 @@ Write → Absorb → Lean cycle:
 | Lanczos eigensolve (GPU) | 15-18 | Exists (`spectral`) | Done |
 | Smith-Waterman (GPU) | 20, 21 | Exists (`SmithWatermanGpu`) | Done |
 | Bray-Curtis (GPU) | 20, 21 | Exists (`BrayCurtisF64`) | Done |
-| Hill kinetics (`hill`, `hill_repress`) | 10, 11 | **STUBBED** — `barracuda::stats::hill` exists in S66, wiring pending | Low |
+| Hill kinetics (`hill`, `hill_repress`) | 10, 11 | **ACTIVE** — `barracuda::stats::hill` delegated (S68); `hill_repress` = `1.0 - hill()` | Done |
 | Eigenvector solver (tridiag QL) | 17 | **Gap** — eigenvalues only (Sturm); eigenvectors CPU-only | MEDIUM |
 
 ### GPU-Ready vs GPU-Blocked
@@ -295,7 +295,7 @@ Papers 9, 10, 11, 12, 14, 15, 16 — can proceed to GPU tier once CPU tier compl
 ### Tier 1: BarraCUDA CPU (current — 185/185 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
-26 functions delegated to barracuda (21 CPU + 5 GPU). 22× faster than Python (all 15; Exp 009: 49.5× Sturm tridiag).
+27 functions delegated to barracuda (22 CPU + 5 GPU). 22× faster than Python (all 15; Exp 009: 49.5× Sturm tridiag).
 226 Rust tests. 15/15 mathematical parity proven.
 All 15 experiments validated.
 

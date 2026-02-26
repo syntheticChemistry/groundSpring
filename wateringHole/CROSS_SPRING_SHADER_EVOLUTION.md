@@ -3,13 +3,13 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: February 26, 2026 (V19: Exp 015 uncertainty bridge, 15 experiments, 226 tests, 185/185 checks)
+**Last Updated**: February 26, 2026 (V20: ToadStool S68 catch-up, hill delegation #27, pin f0feb226)
 
 ---
 
 ## Overview
 
-groundSpring delegates **26 functions** to barracuda (+ 2 stubbed for `kinetics::hill`).
+groundSpring delegates **27 functions** to barracuda (including `kinetics::hill`).
 Those barracuda functions were not built in isolation — they were refined and
 battle-tested through absorption from **five Springs**, each bringing domain-specific
 requirements that hardened the shared library.
@@ -21,8 +21,8 @@ neuralSpring (ML/agents)        → spectral diagnostics, dispatch, xoshiro PRNG
 airSpring (agriculture)         → error metrics (RMSE, MBE, R², IoA, hit rate)
 groundSpring (noise validation) → error handling patterns, validation harness
                                   ↓
-                          BarraCUDA S66 + DF64
-                    2,490+ tests, 694 WGSL shaders
+                          BarraCUDA S68 + DF64
+                    2,546+ tests, 700 WGSL shaders (S68, zero f32-only)
 ```
 
 ---
@@ -183,10 +183,11 @@ Each of groundSpring's 26 delegations has a traceable cross-spring history:
 | 24 | `almost_mathieu_eigenvalues` | `spectral::find_all_eigenvalues` | hotSpring S26 (Sturm tridiag) | groundSpring Exp 009 (**49.5× speedup**) |
 | 25 | `evenness` | `stats::pielou_evenness` | S64 (wetSpring absorption) | groundSpring Exp 004 |
 | 26 | `rawr_mean` | `stats::rawr_mean` | S66 (groundSpring V15 request) | groundSpring Exp 007, Exp 013 |
+| 27 | `hill` | `stats::hill` | S68 (V20 catch-up) | groundSpring Exp 010, Exp 011 (bistable, multisignal) |
 
 ---
 
-## ToadStool Session Evolution (S58–S66)
+## ToadStool Session Evolution (S58–S68)
 
 The complete cross-spring evolution that led to groundSpring's 26 delegations:
 
@@ -297,3 +298,18 @@ V19 adds the first cross-domain experiment that chains validated modules:
 | Zero `#[allow]` | transport.rs fix removes last remaining allow |
 
 **Key finding**: At typical soil moisture (θ≈0.30), Lyapunov exponent is in the saturated regime where bias correction has minimal effect on ξ uncertainty. CV(ξ) ranking preserved (EC5 > CS616). This validates the uncertainty propagation chain for the Anderson-QS bridge (Gen3 Sub-thesis 01+06).
+
+---
+
+## V20 Evolution: ToadStool S68 Catch-up + Hill Delegation
+
+V20 pins ToadStool at `f0feb226` (S68 universal precision). Hill kinetics delegation #27 is now LIVE:
+
+| Change | Impact |
+|--------|--------|
+| `kinetics::hill` | Stub → active delegation to `barracuda::stats::hill` (`#[cfg]`/`#[cfg(not)]` infallible pattern) |
+| `kinetics::hill_repress` | Simplified to `1.0 - hill(x, k, n)` — gets barracuda delegation for free |
+| ToadStool S68 | 700 shaders (zero f32-only), 2,546+ barracuda tests, 21,599 workspace tests |
+| Delegation count | 27 active (22 CPU + 5 GPU), was 26 (21 + 5) |
+
+**S68 universal precision**: ToadStool S68 completed the f32-only shader migration. All 700 shaders use f64 or df64. **Noted**: CPU feature gate bug in ToadStool `stats/mod.rs` (references `crate::shaders` without `#[cfg(feature = "gpu")]`) blocks `--features barracuda` compilation — reported in V20 handoff.

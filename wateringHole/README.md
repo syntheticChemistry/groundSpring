@@ -9,8 +9,8 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
+| V20 | [GROUNDSPRING_TOADSTOOL_V20_S68_CATCHUP_HANDOFF_FEB26_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V20_S68_CATCHUP_HANDOFF_FEB26_2026.md) | Feb 26, 2026 | ToadStool S68 catch-up: hill delegation #27 LIVE, pin f0feb226, 700 shaders, 2,546+ tests, 27 delegations (22 CPU + 5 GPU) |
 | V19 | [GROUNDSPRING_TOADSTOOL_V19_UNCERTAINTY_BRIDGE_HANDOFF_FEB26_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V19_UNCERTAINTY_BRIDGE_HANDOFF_FEB26_2026.md) | Feb 26, 2026 | Uncertainty bridge: Exp 015 (8/8 PASS), 226 tests, 185/185 checks, 15 binaries, zero #[allow] |
-| V18 | [GROUNDSPRING_TOADSTOOL_V18_IDIOMATIC_RUST_EVOLUTION_HANDOFF_FEB26_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V18_IDIOMATIC_RUST_EVOLUTION_HANDOFF_FEB26_2026.md) | Feb 26, 2026 | Idiomatic Rust evolution: kinetics module, flat buffers, 225 tests, full provenance, 3-tier control matrix |
 
 ## Cross-Spring Documentation
 
@@ -37,6 +37,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V18 | Idiomatic Rust evolution: kinetics module, flat buffers, 225 tests (superseded by V20) |
 | V17 | Deep debt evolution: delegation patterns, 9 action items, 26 delegations |
 | V16 | S66 catch-up: rawr_mean delegation #26, V13–V15 consumption audit |
 | V15 | Absorption request: 2 shaders, 3 semantic fixes, 25 delegations, cross-spring learnings |

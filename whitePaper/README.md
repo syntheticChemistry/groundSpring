@@ -60,7 +60,7 @@ The `groundspring` crate provides 18 modules of pure safe Rust:
 
 | Module | Experiment | GPU Tier | Notes |
 |--------|-----------|----------|-------|
-| `stats` | All | 21 CPU delegated | Pearson, Spearman, std_dev, covariance, norm_cdf, norm_ppf, chi2, rmse, mbe, r², IoA, hit_rate, mean, percentile → barracuda |
+| `stats` | All | 22 CPU delegated | Pearson, Spearman, std_dev, covariance, norm_cdf, norm_ppf, chi2, rmse, mbe, r², IoA, hit_rate, mean, percentile → barracuda |
 | `decompose` | Exp 001 | CPU-only | Bias-variance decomposition, scalar math |
 | `fao56` | Exp 003 | **Absorbed** upstream | Equation chain → barracuda `Op::Fao56Et0`; MC wrapper pending |
 | `prng` | Exp 003, 004 | B (adapt) | Xorshift64 + Box-Muller, aligning to barracuda xoshiro |

@@ -26,8 +26,8 @@
 **Rust Phase 1**: 185/185 PASS across 15 validation binaries
 **Rust tests**: 226/226 PASS (174 unit + 13 determinism + 14 proptest + 9 validate-lib + 14 integration + 1 doc)
 **pytest**: 37/37 PASS (unit tests, determinism tests, integration tests)
-**BarraCUDA delegations**: 26 active (21 CPU + 5 GPU) — ToadStool S66
-**Handoff**: V19 (uncertainty bridge + zero #[allow])
+**BarraCUDA delegations**: 27 active (22 CPU + 5 GPU) — ToadStool S68 (f0feb226)
+**Handoff**: V20 (S68 catch-up + hill delegation #27)
 
 **Python checks**: ~137 across 15 experiments. **Rust validation checks**: 185.
 
@@ -700,7 +700,7 @@ Each experiment is validated at three hardware tiers:
 - **Phase 1**: Rust CPU validation — **COMPLETE** (185/185 across 15 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
 - **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 006-015: biology, statistics, math, quasiperiodic, bistable, multisignal, transport, resampling, drift, uncertainty bridge)
-- **Phase 2a**: Tier A rewire — **26 delegated** (21 CPU + 5 GPU; stats, metrics, diversity, bootstrap, anderson, ODE, eigenvalues)
+- **Phase 2a**: Tier A rewire — **27 delegated** (22 CPU + 5 GPU; stats, metrics, diversity, bootstrap, anderson, ODE, eigenvalues, hill)
 - **Phase 2b**: Tier B adapt — PRNG alignment, grid-search dispatch
 - **Phase 2c**: Tier C absorption — FAO-56 **superseded** (absorbed S49); `batched_multinomial` still needed
 - **Phase 3**: Faculty extension kernels (FFT, Lanczos, Gillespie GPU)
@@ -748,6 +748,7 @@ Each experiment is validated at three hardware tiers:
 | `multisignal::MultiSignalOde::cpu_derivative` | barracuda | **DONE** — Exp 011 |
 | `gillespie::birth_death_ssa` | `ops::bio::GillespieGpu` | Pending — GPU-only, no CPU fallback |
 | `bootstrap::rawr_mean` | **DONE** — S66 absorbed, delegation #26 | `barracuda::stats::rawr_mean` |
+| `kinetics::hill` | **DONE** — S68 absorbed, delegation #27 | `barracuda::stats::hill` |
 
 ## Rust vs Python Performance
 
@@ -776,8 +777,8 @@ All 11 experiments, median of 3 trials (Feb 26, 2026):
 
 | Handoff | Scope | Status |
 |---------|-------|--------|
+| V20: S68 Catch-Up + Hill | Hill delegation #27 (22 CPU + 5 GPU), ToadStool f0feb226 (S68), 700 shaders, 2,546+ tests | **Current** |
 | V19: Uncertainty Bridge | Exp 015 (8/8 PASS), validate-uncertainty-bridge, 226 tests, 185/185 checks, zero #[allow] | **Current** |
-| V18: Idiomatic Rust Evolution | Kinetics module, flat buffers, 225 tests, full provenance | **Current** |
 | V17: Deep Debt Evolution | Bug fix, delegation patterns, 9 action items, 3 absorption candidates | **Current** |
 | V16: S66 Catch-Up + Rewiring | rawr_mean delegation #26, V13–V15 consumption audit, 26 delegations (21 CPU + 5 GPU) | **Current** |
 | V16: S66 Catch-Up + Rewiring | rawr_mean delegation #26, V13–V15 consumption audit, 26 delegations (21 CPU + 5 GPU) | **Current** |
@@ -792,7 +793,7 @@ All 11 experiments, median of 3 trials (Feb 26, 2026):
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V19_UNCERTAINTY_BRIDGE_HANDOFF_FEB26_2026.md`
+Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V20_S68_CATCHUP_HANDOFF_FEB26_2026.md`
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: February 26, 2026 (V19 uncertainty bridge — Exp 015, 15 experiments, 226 tests, 185/185 checks)
+**Last updated**: February 26, 2026 (V20 ToadStool S68 catch-up — hill delegation #27, 27 active delegations)
 
 ## Philosophy
 
@@ -93,7 +93,7 @@ are for throughput (100k+ MC samples, batch rarefaction).
 > row-major `Vec<f64>` (GPU-promotable layout). 13 bitwise determinism tests
 > added. All 15 benchmark JSONs have DOIs and stamped `baseline_commit`.
 > CI now runs all 15 validation binaries. 226 tests, 98.93% llvm-cov.
-> Delegation #27 (`hill`) stubbed — awaiting barracuda signature verification.
+> **V20 (Feb 26 2026)**: Hill delegation #27 LIVE. ToadStool S68 (f0feb226). 700 shaders (zero f32-only), 2,546+ tests, 21,599 workspace tests. `hill_repress` → `1.0 - hill()`.
 
 ### Tier A — Lean (rewire to existing barracuda ops)
 
@@ -125,8 +125,8 @@ are for throughput (100k+ MC samples, batch rarefaction).
 | `anderson::almost_mathieu_eigenvalues` | `spectral::find_all_eigenvalues` | **DONE** (barracuda-gpu) | **49.5× Exp 009 speedup** — Sturm tridiag |
 | `rarefaction::evenness` | `stats::pielou_evenness` | **DONE** (CPU delegated) | S≤1 semantic adapter (ecology convention) |
 | `bootstrap::rawr_mean` | `stats::rawr_mean` | **DONE** (CPU delegated) | S66 absorption — Dirichlet-weighted mean |
-| `kinetics::hill` | `stats::hill` | **STUBBED** (delegation ready) | Activating Hill function — verify S66 API match |
-| `kinetics::hill_repress` | `stats::hill` (1 − hill) | **STUBBED** (delegation ready) | Repressing Hill — may compose from `hill()` |
+| `kinetics::hill` | `stats::hill` | **DONE** (CPU delegated) | S68 absorption — infallible `#[cfg]`/`#[cfg(not)]` |
+| `kinetics::hill_repress` | `stats::hill` (1 − hill) | **DONE** (CPU delegated) | Composes `1.0 - hill(x, k, n)` — gets barracuda delegation for free |
 
 ### Tier B — Adapt (needs alignment or wrapper)
 
@@ -358,7 +358,7 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (15/15 parity proven, timing data for all experiments) |
-| Phase 2a | Tier A rewire (stats + bootstrap + anderson → barracuda) | **26 delegated** (15 stats + bootstrap_mean + rawr_mean + 5 anderson + analytical ξ + hamiltonian + 2 ODE + shannon + eigenvalues) |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson → barracuda) | **27 delegated** (15 stats + bootstrap_mean + rawr_mean + hill + 5 anderson + analytical ξ + hamiltonian + 2 ODE + shannon + eigenvalues) |
 | Phase 2b | Tier B adapt (PRNG alignment, grid dispatch, gillespie GPU) | After 2a |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |

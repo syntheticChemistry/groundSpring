@@ -148,27 +148,27 @@ Run parity report: `python3 scripts/parity_report.py`
 Barracuda CPU delegation is free. Barracuda-GPU adds the Sturm tridiag
 eigenvalue solver (from hotSpring S26 spectral), giving **49.5× speedup**
 for Exp 009. Cross-spring evolution (hotSpring precision, wetSpring bio-stats,
-airSpring metrics, neuralSpring dispatch) validated by 26 barracuda delegations.
+airSpring metrics, neuralSpring dispatch) validated by 27 barracuda delegations (22 CPU + 5 GPU).
 
 ## Evolution Path
 
 ```
 Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration (Phase 2)
    NumPy/SciPy                    Pure safe Rust                BarraCUDA / ToadStool
-     ✓ Complete                     ✓ 185/185 PASS               ◐ 26 delegated (21 CPU + 5 GPU), 2 WGSL ready
+     ✓ Complete                     ✓ 185/185 PASS               ◐ 27 delegated (22 CPU + 5 GPU), 2 WGSL ready
    23× slower than Rust             15/15 parity proven           barracuda-gpu: anderson, ODE, hamiltonian
 
      Write locally              →  Hand off to barracuda      →  Lean on upstream
      (metalForge shaders)          (wateringHole/handoffs/)       (rewire to barracuda ops)
 ```
 
-**Lean progress**: 26 functions delegate to barracuda with graceful fallback —
+**Lean progress**: 27 functions delegate to barracuda with graceful fallback —
 `pearson_r`, `spearman_r`, `sample_std_dev`, `covariance`, `norm_cdf`, `norm_ppf`,
 `chi2_statistic`, `bootstrap_mean`, `rawr_mean`, `lyapunov_exponent`, `lyapunov_averaged`,
 `analytical_localization_length`, `almost_mathieu_hamiltonian`, `bistable_derivative`,
 `multisignal_derivative`, `rmse`, `mbe`, `r_squared`, `index_of_agreement`,
 `hit_rate`, `shannon_diversity`, `evenness`, `mean`, `percentile`, `level_spacing_ratio`,
-`almost_mathieu_eigenvalues`. 21 CPU delegated via `#[cfg(feature = "barracuda")]`,
+`almost_mathieu_eigenvalues`, `hill`. 22 CPU delegated via `#[cfg(feature = "barracuda")]`,
 5 GPU delegated via `#[cfg(feature = "barracuda-gpu")]`. FAO-56 equation chain
 absorbed upstream. Two production WGSL shaders ready for ToadStool absorption.
 
@@ -245,4 +245,4 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V19 uncertainty bridge + idiomatic evolution: February 26, 2026*
+*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V20 ToadStool S68 catch-up + hill delegation: February 26, 2026*

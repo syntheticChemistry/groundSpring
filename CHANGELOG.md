@@ -4,6 +4,24 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V20 ToadStool S68 Catch-up + Hill Delegation (Feb 26, 2026)
+
+#### Added
+- Hill kinetics delegation #27: `kinetics::hill` now delegates directly to `barracuda::stats::hill` (infallible f64 return, `#[cfg]`/`#[cfg(not)]` mutual exclusion)
+
+#### Changed
+- `kinetics::hill`: stub → active delegation. Was `if let Ok(v)` fallible pattern, now `#[cfg(feature)]` / `#[cfg(not)]` infallible pattern
+- `kinetics::hill_repress`: simplified to `1.0 - hill(x, k, n)`, gets barracuda delegation for free
+- ToadStool pin updated: `045103a7` (S66 Wave 5) → `f0feb226` (S68 universal precision)
+
+#### Noted
+- ToadStool S68 CPU feature gate bug: `stats/mod.rs` references `crate::shaders` without `#[cfg(feature = "gpu")]`, preventing `--features barracuda` compilation. Reported in V20 handoff.
+
+#### Metrics
+- 27 barracuda delegations (22 CPU + 5 GPU), was 26 (21 + 5)
+- 226 Rust tests, 185/185 validation checks, 98.93% coverage — unchanged
+- ToadStool S68: 700 shaders (zero f32-only), 2,546+ barracuda tests, 21,599 workspace tests
+
 ### V19 Uncertainty Bridge + Idiomatic Evolution (Feb 26, 2026)
 
 #### Added

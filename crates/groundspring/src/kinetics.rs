@@ -10,25 +10,22 @@
 //!
 //! # barracuda delegation
 //!
-//! When the `barracuda` feature is enabled, `hill` and `hill_repress` delegate
-//! to `barracuda::stats::hill` and `barracuda::stats::monod` (the repression
-//! form is `1 - hill`).
+//! When the `barracuda` feature is enabled, `hill` delegates directly to
+//! `barracuda::stats::hill` (infallible `f64` return, wired in V20 after
+//! `ToadStool` S68 absorption). `hill_repress` uses `1 - hill(x, k, n)`.
 
 /// Activating Hill function: `x^n / (K^n + x^n)`.
 ///
 /// Returns 0 for non-positive `x`, saturates to 1 as `x → ∞`.
 ///
 /// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::hill`.
+/// `barracuda::stats::hill` (infallible, returns `f64`).
 #[must_use]
 #[inline]
 pub fn hill(x: f64, k: f64, n: f64) -> f64 {
     #[cfg(feature = "barracuda")]
-    {
-        if let Ok(v) = barracuda::stats::hill(x, k, n) {
-            return v;
-        }
-    }
+    return barracuda::stats::hill(x, k, n);
+    #[cfg(not(feature = "barracuda"))]
     hill_cpu(x, k, n)
 }
 
@@ -43,15 +40,14 @@ fn hill_cpu(x: f64, k: f64, n: f64) -> f64 {
 /// Repressing Hill function: `K^n / (K^n + x^n)`.
 ///
 /// Returns 1 for non-positive `x`, decays to 0 as `x → ∞`.
-/// This is `1 - hill(x, k, n)`.
+/// Algebraically equivalent to `1 - hill(x, k, n)`.
+///
+/// When the `barracuda` feature is enabled, delegates via
+/// `1.0 - barracuda::stats::hill(x, k, n)`.
 #[must_use]
 #[inline]
 pub fn hill_repress(x: f64, k: f64, n: f64) -> f64 {
-    if x <= 0.0 {
-        return 1.0;
-    }
-    let kn = k.powf(n);
-    kn / (kn + x.powf(n))
+    1.0 - hill(x, k, n)
 }
 
 #[cfg(test)]
