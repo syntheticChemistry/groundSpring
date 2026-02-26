@@ -84,7 +84,7 @@ cargo run --bin validate-quasiperiodic
 cargo run --bin validate-bistable
 cargo run --bin validate-multisignal
 cargo run --bin validate-transport
-cargo run --bin validate-resampling-convergence
+cargo run --bin validate-resampling-conv
 cargo run --bin validate-drift
 ```
 
@@ -145,14 +145,14 @@ Run parity report: `python3 scripts/parity_report.py`
 Barracuda CPU delegation is free. Barracuda-GPU adds the Sturm tridiag
 eigenvalue solver (from hotSpring S26 spectral), giving **49.5× speedup**
 for Exp 009. Cross-spring evolution (hotSpring precision, wetSpring bio-stats,
-airSpring metrics, neuralSpring dispatch) validated by 25 barracuda delegations.
+airSpring metrics, neuralSpring dispatch) validated by 26 barracuda delegations.
 
 ## Evolution Path
 
 ```
 Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration (Phase 2)
    NumPy/SciPy                    Pure safe Rust                BarraCUDA / ToadStool
-     ✓ Complete                     ✓ 177/177 PASS               ◐ 25 delegated (20 CPU + 5 GPU), 2 WGSL ready
+     ✓ Complete                     ✓ 177/177 PASS               ◐ 26 delegated (21 CPU + 5 GPU), 2 WGSL ready
    23× slower than Rust             14/14 parity proven           barracuda-gpu: anderson, ODE, hamiltonian
 
      Write locally              →  Hand off to barracuda      →  Lean on upstream

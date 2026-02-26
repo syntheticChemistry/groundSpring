@@ -9,8 +9,8 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V16 | [GROUNDSPRING_TOADSTOOL_V16_S66_CATCHUP_FEB26_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V16_S66_CATCHUP_FEB26_2026.md) | Feb 26, 2026 | S66 catch-up: rawr_mean delegation #26, V13–V15 consumption audit, 26 delegations (21 CPU + 5 GPU) |
-| V15 | [GROUNDSPRING_TOADSTOOL_V15_ABSORPTION_REQUEST_FEB26_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V15_ABSORPTION_REQUEST_FEB26_2026.md) | Feb 26, 2026 | Absorption request: 2 shaders, 3 semantic fixes, 25 delegations, cross-spring learnings |
+| V17 | [GROUNDSPRING_TOADSTOOL_V17_DEEP_DEBT_EVOLUTION_HANDOFF_FEB26_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V17_DEEP_DEBT_EVOLUTION_HANDOFF_FEB26_2026.md) | Feb 26, 2026 | Deep debt evolution: bug fix, delegation patterns, 9 action items, 3 absorption candidates, 26 delegations |
+| V16 | [GROUNDSPRING_TOADSTOOL_V16_S66_CATCHUP_FEB26_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V16_S66_CATCHUP_FEB26_2026.md) | Feb 26, 2026 | S66 catch-up: rawr_mean delegation #26, V13–V15 consumption audit |
 
 ## Cross-Spring Documentation
 
@@ -37,6 +37,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V15 | Absorption request: 2 shaders, 3 semantic fixes, 25 delegations, cross-spring learnings |
 | V14 | S65 revalidation: 25 delegations, 49.5× Exp 009, cross-spring documentation |
 | V13 | Complete rewiring: 24 delegations, Sturm tridiag (50×), cross-spring S58-S65 |
 | V12 | ToadStool S64 catch-up: 6 new delegations (20 total), 3 bug fixes |

@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: February 26, 2026
 
-**Validation Summary**: 144/144 checks, 26 barracuda delegations (21 CPU + 5 GPU), 190 Rust tests. 99.11% coverage. Exps 006–011 DONE. **22× faster** than Python (all 11 experiments). **11/11 mathematical parity proven**. Barracuda-GPU: **3.9s total** (4.4× faster than local; Exp 009: 49.5× from Sturm tridiag). Cross-spring lineage: hotSpring precision, wetSpring bio-stats, airSpring metrics, neuralSpring dispatch.
+**Validation Summary**: 177/177 checks, 26 barracuda delegations (21 CPU + 5 GPU), 205 Rust tests. 99.11% coverage. All 14 experiments DONE. **22× faster** than Python (all 14 experiments). **14/14 mathematical parity proven**. Barracuda-GPU: **3.9s total** (4.4× faster than local; Exp 009: 49.5× from Sturm tridiag). Cross-spring lineage: hotSpring precision, wetSpring bio-stats, airSpring metrics, neuralSpring dispatch.
 
 ---
 
@@ -51,7 +51,7 @@ Each faculty extension paper is validated at three tiers:
 | Exp 001 (sensor noise) | Waters → **Exp 006** (signal specificity) | wetSpring (bio sensing) |
 | Exp 003 (error propagation) | Liu → **Exp 007** (RAWR bootstrap) | neuralSpring (confidence) |
 | Exp 005 (seismic inversion) | Bazavov (spectral reconstruction) | hotSpring (lattice QCD) |
-| All 11 experiments | Kachkovskiy → **Exp 008** + **Exp 009** | hotSpring (spectral theory) |
+| All 14 experiments | Kachkovskiy → **Exp 008** + **Exp 009** | hotSpring (spectral theory) |
 | Exp 009 (quasiperiodic) | Kachkovskiy → **Almost-Mathieu** (Aubry-André) | hotSpring (spectral theory) |
 | Exp 001 + 006 | Waters → **Exp 010** (bistable switching) | wetSpring (QS bifurcation) |
 | Exp 006 + 010 | Waters → **Exp 011** (multi-signal QS) | wetSpring (dual-signal integration) |

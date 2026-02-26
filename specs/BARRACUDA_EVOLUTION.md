@@ -78,6 +78,13 @@ are for throughput (100k+ MC samples, batch rarefaction).
 > converge to sample mean on small symmetric data).
 > Total: **26 active delegations** (21 CPU + 5 GPU). 0 clippy warnings × 3 modes.
 > 205/205 tests × 3 modes. 177/177 validation checks × 3 modes.
+>
+> **Deep debt evolution (Feb 26 2026)**: Eliminated all 20 `#[allow(unreachable_code)]`
+> via proper `#[cfg]`/`#[cfg(not)]` mutual exclusion. Fixed covariance/pearson_r/
+> spearman_r bug — now fall through to CPU on barracuda error instead of returning
+> 0.0. `BistableParams`/`MultiSignalParams` derive `Copy` (no more `.clone()`).
+> 7 magic numbers extracted as named constants. Misleading delegation docs fixed
+> in transport.rs, drift.rs, gillespie.rs.
 
 ### Tier A — Lean (rewire to existing barracuda ops)
 

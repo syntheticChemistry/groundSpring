@@ -26,7 +26,7 @@
 **Rust tests**: 205/205 PASS (167 unit + 14 proptest + 9 validate-lib + 14 integration + 1 doc)
 **pytest**: 37/37 PASS (unit tests, determinism tests, integration tests)
 **BarraCUDA delegations**: 26 active (21 CPU + 5 GPU) — ToadStool S66
-**Handoff**: V16 (S66 catch-up + rewiring)
+**Handoff**: V17 (deep debt evolution + absorption guidance)
 
 **Python checks**: ~129 across 14 experiments. **Rust validation checks**: 177.
 
@@ -745,8 +745,9 @@ All 11 experiments, median of 3 trials (Feb 26, 2026):
 
 | Handoff | Scope | Status |
 |---------|-------|--------|
+| V17: Deep Debt Evolution | Bug fix, delegation patterns, 9 action items, 3 absorption candidates | **Current** |
 | V16: S66 Catch-Up + Rewiring | rawr_mean delegation #26, V13–V15 consumption audit, 26 delegations (21 CPU + 5 GPU) | **Current** |
-| V15: Absorption Request | 2 shaders, 3 semantic fixes, 25 delegations, cross-spring learnings | **Current** |
+| V15: Absorption Request | 2 shaders, 3 semantic fixes, 25 delegations, cross-spring learnings | Archived |
 | V14: S65 Revalidation | 25 delegations, evenness added, 49.5× Exp 009, three-mode benchmark | Archived |
 | V13: Complete Rewiring | 24 delegations, Sturm tridiag (50×), cross-spring S58-S65 | Archived |
 | V12: S64 Catch-Up | ToadStool S64 absorption, 6 new delegations (20 total), 3 bug fixes | Archived |
@@ -757,7 +758,7 @@ All 11 experiments, median of 3 trials (Feb 26, 2026):
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V16_S66_CATCHUP_FEB26_2026.md`
+Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V17_DEEP_DEBT_EVOLUTION_HANDOFF_FEB26_2026.md`
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

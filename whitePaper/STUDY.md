@@ -2,7 +2,7 @@
 
 ## Abstract
 
-groundSpring systematically characterizes the gap between model predictions and real-world measurements across six scientific domains: agricultural sensing, meteorology, microbiome biology, seismology, stochastic biochemistry, and spectral theory. Through eleven experiments (~129 Phase 0 checks, 144/144 Phase 1 checks), we demonstrate a unified framework for decomposing measurement error into correctable bias and irreducible noise. Key findings include: (1) soil moisture sensor bias accounts for 26-77% of total error depending on sensor/soil combination; (2) humidity sensor accuracy dominates FAO-56 ET0 uncertainty at 66% of total variance; (3) 16S taxonomic assignments stabilize above 5000 reads; (4) seismic source localization shows ±2km horizontal but ±8.5km depth uncertainty; (5) c-di-GMP signal-to-noise ratio increases monotonically with enzyme production rate; (6) RAWR bootstrap achieves comparable coverage to standard bootstrap with different weighting; (7) Lyapunov exponents increase monotonically with Anderson disorder strength; (8) Aubry-André metal-insulator transition at λ=2 in Almost-Mathieu; (9) bistable phenotypic switching with stochastic noise-induced transitions; and (10) multi-signal QS integration sharpens regulatory response. Pure Rust implementations are **23.4× faster** than Python baselines (10/11 compute-bound experiments; 11/11 mathematical parity proven). These results inform minimum sensor requirements for Penny Irrigation and establish the noise characterization primitives needed for neuralSpring's transfer learning and barracuda GPU acceleration.
+groundSpring systematically characterizes the gap between model predictions and real-world measurements across six scientific domains: agricultural sensing, meteorology, microbiome biology, seismology, stochastic biochemistry, and spectral theory. Through fourteen experiments (~129 Phase 0 checks, 177/177 Phase 1 checks), we demonstrate a unified framework for decomposing measurement error into correctable bias and irreducible noise. Key findings include: (1) soil moisture sensor bias accounts for 26-77% of total error depending on sensor/soil combination; (2) humidity sensor accuracy dominates FAO-56 ET0 uncertainty at 66% of total variance; (3) 16S taxonomic assignments stabilize above 5000 reads; (4) seismic source localization shows ±2km horizontal but ±8.5km depth uncertainty; (5) c-di-GMP signal-to-noise ratio increases monotonically with enzyme production rate; (6) RAWR bootstrap achieves comparable coverage to standard bootstrap with different weighting; (7) Lyapunov exponents increase monotonically with Anderson disorder strength; (8) Aubry-André metal-insulator transition at λ=2 in Almost-Mathieu; (9) bistable phenotypic switching with stochastic noise-induced transitions; and (10) multi-signal QS integration sharpens regulatory response. Pure Rust implementations are **22× faster** than Python baselines (14/14 mathematical parity proven). These results inform minimum sensor requirements for Penny Irrigation and establish the noise characterization primitives needed for neuralSpring's transfer learning and barracuda GPU acceleration.
 
 ## 1. Introduction
 
@@ -203,14 +203,14 @@ All eleven experiments have been ported to idiomatic Rust in the `groundspring` 
 
 | Metric | Value |
 |--------|-------|
-| Validation binaries | 11 (decompose, rarefaction, seismic, weather, fao56, signal-specificity, rawr, anderson, quasiperiodic, bistable, multisignal) |
-| Total checks | 144/144 PASS |
-| Rust tests | 177 (131 unit + 9 validate-lib + 14 proptest + 8 integration + 1 doc) |
+| Validation binaries | 14 (decompose, rarefaction, seismic, weather, fao56, signal-specificity, rawr, anderson, quasiperiodic, bistable, multisignal, transport, resampling-conv, drift) |
+| Total checks | 177/177 PASS |
+| Rust tests | 205 (167 unit + 9 validate-lib + 14 proptest + 14 integration + 1 doc) |
 | Line coverage | Measured via cargo-llvm-cov |
 | Function coverage | 100% |
 | Clippy warnings | 0 |
-| Rust vs Python | **22× faster** across all 11 experiments (71s → 3.2s with barracuda-gpu Sturm tridiag for Exp 009) |
-| Mathematical parity | **11/11 PROVEN** — Python and Rust both pass against shared benchmark JSONs |
+| Rust vs Python | **22× faster** across all 14 experiments (71s → 3.2s with barracuda-gpu Sturm tridiag for Exp 009) |
+| Mathematical parity | **14/14 PROVEN** — Python and Rust both pass against shared benchmark JSONs |
 
 ### 12.2 New Modules
 
@@ -282,7 +282,7 @@ and the full module-by-module absorption inventory.
 ## 13. Evolution Path
 
 - **Phase 0+**: Wire real NOAA CDO data for Exp 002; download IRIS waveforms for Exp 005
-- **Phase 2a (DONE)**: Tier A rewire — **26 functions delegated** (21 CPU + 5 GPU: stats, metrics, diversity, bootstrap, rawr_mean, anderson, ODE, hamiltonian, eigenvalues). FAO-56 ET₀ absorbed upstream (ToadStool S49). Rust is **22× faster** than Python (all 11; Exp 009: 49.5× from Sturm tridiag). 11/11 parity proven.
+- **Phase 2a (DONE)**: Tier A rewire — **26 functions delegated** (21 CPU + 5 GPU: stats, metrics, diversity, bootstrap, rawr_mean, anderson, ODE, hamiltonian, eigenvalues). FAO-56 ET₀ absorbed upstream (ToadStool S49). Rust is **22× faster** than Python (all 14; Exp 009: 49.5× from Sturm tridiag). 14/14 parity proven.
 - **Phase 2b**: Tier B adapt — PRNG alignment, grid-search dispatch, Gillespie GPU
 - **Phase 2c**: Tier C absorption — MC and multinomial kernels → barracuda; RAWR kernel
 - **Phase 3**: Full GPU pipeline, metalForge cross-substrate validation
@@ -303,10 +303,10 @@ These extensions share the common theme: **how do you extract reliable conclusio
 ---
 
 *Phase 0 completed: February 25, 2026 — ~129 PASS (Python, 11 experiments)*
-*Phase 1 completed: February 25, 2026 — 144/144 PASS (Rust, 99.11% workspace coverage)*
-*Phase 2a completed: February 25, 2026 — 14 barracuda CPU delegated, 23.4× faster than Python*
-*Phase 2a++ completed: February 25, 2026 — sovereignty evolution, barracuda error hardening, 190 tests*
+*Phase 1 completed: February 25, 2026 — 177/177 PASS (Rust, 99.11% workspace coverage)*
+*Phase 2a completed: February 25, 2026 — 14 barracuda CPU delegated, 22× faster than Python*
+*Phase 2a++ completed: February 25, 2026 — sovereignty evolution, barracuda error hardening, 205 tests*
 *V9 rewiring complete: February 25, 2026 — full API audit, zero-overhead benchmarks, cross-spring lineage*
-*Full-suite parity: February 26, 2026 — 11/11 PROVEN, bench_rust_vs_python expanded to all 11 experiments*
+*Full-suite parity: February 26, 2026 — 14/14 PROVEN, bench_rust_vs_python expanded to all 14 experiments*
 *ToadStool S64 catch-up: February 26, 2026 — 20 barracuda delegations (+6 metrics/diversity), 3 bug fixes*
 *Complete rewiring: February 26, 2026 — 26 delegations, Sturm tridiag (49.5× Exp 009), V13 handoff*
