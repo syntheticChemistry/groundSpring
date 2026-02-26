@@ -30,19 +30,27 @@ to machine precision throughout time evolution.
 
 | Metric | Python | Rust | Speedup |
 |--------|--------|------|---------|
-| Time | TBD | 2.3s | TBD |
+| Time | — | 2.3s | — |
 
 ## Validation
 
 | Phase | Checks | Binary |
 |-------|--------|--------|
-| Phase 0 (Python) | TBD | `control/spin_transport/spin_chain_transport.py` |
+| Phase 0 (Python) | 18/18 | `control/spin_transport/spin_chain_transport.py` |
 | Phase 1 (Rust) | 18/18 | `validate-transport` |
+
+## V18 Changes
+
+- `tridiag_eigh` returns flat `Vec<f64>` eigenvector buffer (was `Vec<Vec<f64>>`)
+- `wavepacket_msd` accepts `&[f64]` eigenvectors — GPU-promotable layout
+- `implicit_ql` and `sort_eigenpairs` operate on flat buffers
+- DOI added to benchmark JSON; baseline_commit stamped
 
 ## Barracuda Path
 
 `tridiag_eigh` — **gap**: no eigenvector solver in barracuda (eigenvalues only via Sturm).
 Future: `barracuda::spectral::tridiag_eigh` for eigenvalues + eigenvectors.
+Flat row-major buffer format matches GPU dispatch expectations.
 `wavepacket_msd` — pure math on eigenpairs, suitable for GPU parallelization.
 
 ## Modules

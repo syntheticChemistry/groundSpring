@@ -1,5 +1,6 @@
 {
   "_source": "groundSpring Experiment 007 — RAWR Resampling",
+  "_doi": "10.1093/bioinformatics/btab271",
   "_references": [
     "Wang et al. (2021) Build a better bootstrap and the RAWR shall beat a random path to your door. Bioinformatics (ISMB) 37:i111-i119",
     "Efron (1979) Bootstrap methods: another look at the jackknife. Ann Statist 7:1-26"

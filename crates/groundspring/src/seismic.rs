@@ -78,6 +78,30 @@ pub struct InversionResult {
     pub rms_residual_s: f64,
 }
 
+/// Estimate origin time and RMS residual from paired observed/predicted travel times.
+///
+/// Origin time is the mean of (observed − predicted). RMS is computed from
+/// residuals after subtracting the estimated origin time.
+fn origin_time_and_rms(obs_times: &[f64], pred_tt: &[f64]) -> (f64, f64) {
+    let n = usize_f64(obs_times.len());
+    let t0: f64 = obs_times
+        .iter()
+        .zip(pred_tt.iter())
+        .map(|(o, p)| o - p)
+        .sum::<f64>()
+        / n;
+
+    let rms = (obs_times
+        .iter()
+        .zip(pred_tt.iter())
+        .map(|(o, p)| (o - (t0 + p)).powi(2))
+        .sum::<f64>()
+        / n)
+        .sqrt();
+
+    (t0, rms)
+}
+
 /// Grid-search earthquake location by minimizing RMS travel-time residual.
 ///
 /// For each candidate source position, estimates origin time as the mean
@@ -88,7 +112,6 @@ pub fn grid_search_inversion(
     stations: &[Station],
     config: &GridSearchConfig,
 ) -> InversionResult {
-    let mut best_rms = f64::INFINITY;
     let mut best = InversionResult {
         lat: 0.0,
         lon: 0.0,
@@ -120,14 +143,14 @@ pub fn grid_search_inversion(
             for i_depth in 0..n_depth {
                 let depth =
                     usize_f64(i_depth).mul_add(config.depth_spacing_km, config.depth_range.0);
+
                 pred_tt.clear();
                 obs_times.clear();
 
                 for sta in stations {
                     if let Some(&obs_t) = obs_map.get(sta.code.as_str()) {
                         let dist = haversine_km(lat, lon, sta.lat, sta.lon);
-                        let tt = travel_time_1d(dist, depth, config.vp);
-                        pred_tt.push(tt);
+                        pred_tt.push(travel_time_1d(dist, depth, config.vp));
                         obs_times.push(obs_t);
                     }
                 }
@@ -136,24 +159,8 @@ pub fn grid_search_inversion(
                     continue;
                 }
 
-                let n = usize_f64(obs_times.len());
-                let t0: f64 = obs_times
-                    .iter()
-                    .zip(&pred_tt)
-                    .map(|(o, p)| o - p)
-                    .sum::<f64>()
-                    / n;
-
-                let rms = (obs_times
-                    .iter()
-                    .zip(&pred_tt)
-                    .map(|(o, p)| (o - (t0 + p)).powi(2))
-                    .sum::<f64>()
-                    / n)
-                    .sqrt();
-
-                if rms < best_rms {
-                    best_rms = rms;
+                let (t0, rms) = origin_time_and_rms(&obs_times, &pred_tt);
+                if rms < best.rms_residual_s {
                     best = InversionResult {
                         lat,
                         lon,

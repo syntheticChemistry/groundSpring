@@ -30,20 +30,21 @@ const REGRESSION_EPSILON: f64 = 1e-30;
 /// Eigendecomposition of a symmetric tridiagonal matrix via implicit QL
 /// algorithm with Wilkinson shifts.
 ///
-/// Returns `(eigenvalues, eigenvectors)` where `eigenvectors[k]` is the k-th
-/// eigenvector (column of the orthogonal matrix U such that H = U Λ U^T).
+/// Returns `(eigenvalues, eigenvectors_flat)` where `eigenvectors_flat` is
+/// an `n × n` row-major flat buffer. Row `i` of the matrix holds `U[i][:]`,
+/// so the j-th component of eigenvector `k` is at `eigenvectors_flat[j * n + k]`.
 ///
 /// # Panics
 ///
 /// Panics if `diag` is empty or `offdiag.len() != diag.len() - 1`.
 #[must_use]
-pub fn tridiag_eigh(diag: &[f64], offdiag: &[f64]) -> (Vec<f64>, Vec<Vec<f64>>) {
+pub fn tridiag_eigh(diag: &[f64], offdiag: &[f64]) -> (Vec<f64>, Vec<f64>) {
     let n = diag.len();
     assert!(n > 0, "matrix must be non-empty");
     assert_eq!(offdiag.len(), n - 1, "offdiag must have n-1 elements");
 
     if n == 1 {
-        return (vec![diag[0]], vec![vec![1.0]]);
+        return (vec![diag[0]], vec![1.0]);
     }
 
     let mut d = diag.to_vec();
@@ -52,9 +53,9 @@ pub fn tridiag_eigh(diag: &[f64], offdiag: &[f64]) -> (Vec<f64>, Vec<Vec<f64>>) 
         e[i] = val;
     }
 
-    let mut z = vec![vec![0.0; n]; n];
-    for (i, row) in z.iter_mut().enumerate() {
-        row[i] = 1.0;
+    let mut z = vec![0.0; n * n];
+    for i in 0..n {
+        z[i * n + i] = 1.0;
     }
 
     implicit_ql(&mut d, &mut e, &mut z, n);
@@ -66,9 +67,12 @@ pub fn tridiag_eigh(diag: &[f64], offdiag: &[f64]) -> (Vec<f64>, Vec<Vec<f64>>) 
 
 /// Implicit QL algorithm for symmetric tridiagonal eigenvalue/eigenvector
 /// computation. Modifies `d` (diagonal → eigenvalues), `e` (off-diagonal →
-/// zeros), and `z` (identity → eigenvector columns).
-#[allow(clippy::many_single_char_names)]
-fn implicit_ql(d: &mut [f64], e: &mut [f64], z: &mut [Vec<f64>], n: usize) {
+/// zeros), and `z` (flat `n×n` identity → eigenvector columns).
+#[expect(
+    clippy::many_single_char_names,
+    reason = "standard QL algorithm notation (LAPACK dsteqr convention)"
+)]
+fn implicit_ql(d: &mut [f64], e: &mut [f64], z: &mut [f64], n: usize) {
     let eps = f64::EPSILON;
 
     for l in 0..n {
@@ -126,10 +130,10 @@ fn implicit_ql(d: &mut [f64], e: &mut [f64], z: &mut [Vec<f64>], n: usize) {
                 d[i + 1] = gi + p;
                 g = c.mul_add(r_val, -b);
 
-                for row in z.iter_mut() {
-                    let f_z = row[i + 1];
-                    row[i + 1] = s.mul_add(row[i], c * f_z);
-                    row[i] = c.mul_add(row[i], -(s * f_z));
+                for row_idx in 0..n {
+                    let f_z = z[row_idx * n + i + 1];
+                    z[row_idx * n + i + 1] = s.mul_add(z[row_idx * n + i], c * f_z);
+                    z[row_idx * n + i] = c.mul_add(z[row_idx * n + i], -(s * f_z));
                 }
             }
 
@@ -141,26 +145,29 @@ fn implicit_ql(d: &mut [f64], e: &mut [f64], z: &mut [Vec<f64>], n: usize) {
 }
 
 /// Sort eigenvalues in ascending order and permute eigenvectors accordingly.
-fn sort_eigenpairs(d: &mut [f64], z: &mut [Vec<f64>], n: usize) {
+fn sort_eigenpairs(d: &mut [f64], z: &mut [f64], n: usize) {
     let mut indices: Vec<usize> = (0..n).collect();
     indices.sort_unstable_by(|&a, &b| d[a].total_cmp(&d[b]));
 
     let d_sorted: Vec<f64> = indices.iter().map(|&i| d[i]).collect();
     d.copy_from_slice(&d_sorted);
 
-    let z_copy: Vec<Vec<f64>> = z.to_vec();
+    let z_copy = z.to_vec();
     for row_idx in 0..n {
         for (new_col, &old_col) in indices.iter().enumerate() {
-            z[row_idx][new_col] = z_copy[row_idx][old_col];
+            z[row_idx * n + new_col] = z_copy[row_idx * n + old_col];
         }
     }
 }
 
 /// Compute the mean square displacement of a wavepacket at a given time.
 ///
-/// Given the eigendecomposition (eigenvalues, eigenvectors) of the Hamiltonian,
-/// evolves an initial delta-function wavepacket at `init_site` to time `t` and
-/// returns `(msd, normalization)`.
+/// Given the eigendecomposition (eigenvalues, flat `n×n` eigenvector matrix)
+/// of the Hamiltonian, evolves an initial delta-function wavepacket at
+/// `init_site` to time `t` and returns `(msd, normalization)`.
+///
+/// The eigenvector matrix is row-major: element `(row, col)` is at
+/// `eigenvectors[row * n + col]`.
 ///
 /// # Theory
 ///
@@ -174,24 +181,24 @@ fn sort_eigenpairs(d: &mut [f64], z: &mut [Vec<f64>], n: usize) {
 #[must_use]
 pub fn wavepacket_msd(
     eigenvalues: &[f64],
-    eigenvectors: &[Vec<f64>],
+    eigenvectors: &[f64],
     init_site: usize,
     time: f64,
 ) -> (f64, f64) {
     let n = eigenvalues.len();
     assert!(init_site < n, "init_site must be < n");
 
-    let coeffs: Vec<f64> = (0..n).map(|k| eigenvectors[init_site][k]).collect();
+    let coeffs: Vec<f64> = (0..n).map(|k| eigenvectors[init_site * n + k]).collect();
 
     let mut msd = 0.0;
     let mut norm = 0.0;
     let init_f = usize_f64(init_site);
 
-    for (j, evec_row) in eigenvectors.iter().enumerate() {
+    for j in 0..n {
         let mut re = 0.0;
         let mut im = 0.0;
         for k in 0..n {
-            let u_jk = evec_row[k];
+            let u_jk = eigenvectors[j * n + k];
             let c_k = coeffs[k];
             let phase = eigenvalues[k] * time;
             re += u_jk * c_k * phase.cos();
@@ -264,16 +271,17 @@ mod tests {
     fn trivial_eigh() {
         let (vals, vecs) = tridiag_eigh(&[3.0], &[]);
         assert!((vals[0] - 3.0).abs() < 1e-14);
-        assert!((vecs[0][0] - 1.0).abs() < 1e-14);
+        assert!((vecs[0] - 1.0).abs() < 1e-14);
     }
 
     #[test]
     fn two_by_two_eigh() {
+        let n = 2;
         let (vals, vecs) = tridiag_eigh(&[0.0, 0.0], &[1.0]);
         assert!((vals[0] - (-1.0)).abs() < 1e-12);
         assert!((vals[1] - 1.0).abs() < 1e-12);
 
-        let norm0: f64 = vecs.iter().map(|row| row[0] * row[0]).sum();
+        let norm0: f64 = (0..n).map(|row| vecs[row * n] * vecs[row * n]).sum();
         assert!((norm0 - 1.0).abs() < 1e-12, "eigenvector 0 not normalized");
     }
 
@@ -285,7 +293,7 @@ mod tests {
 
         for i in 0..n {
             for j in 0..n {
-                let dot: f64 = (0..n).map(|k| vecs[k][i] * vecs[k][j]).sum();
+                let dot: f64 = (0..n).map(|k| vecs[k * n + i] * vecs[k * n + j]).sum();
                 let expected = if i == j { 1.0 } else { 0.0 };
                 assert!(
                     (dot - expected).abs() < 1e-8,
@@ -308,6 +316,7 @@ mod tests {
             .collect();
 
         let beta = transport_exponent(&times, &msds);
+        // Ballistic phase has β∈[0.8,1.0]; 0.5 is a conservative lower bound separating ballistic from diffusive.
         assert!(beta > 0.5, "ballistic β should be > 0.5, got {beta}");
     }
 
@@ -324,6 +333,7 @@ mod tests {
             .collect();
 
         let beta = transport_exponent(&times, &msds);
+        // Localized phase has β≈0; 0.3 separates from diffusive (β=0.5).
         assert!(beta < 0.3, "localized β should be < 0.3, got {beta}");
     }
 
@@ -335,6 +345,7 @@ mod tests {
 
         for &t in &[0.0, 1.0, 5.0, 20.0] {
             let (_, norm) = wavepacket_msd(&evals, &evecs, 25, t);
+            // Unitary evolution preserves norm to machine precision; 1e-8 absorbs accumulated rounding in n=51 sum.
             assert!((norm - 1.0).abs() < 1e-8, "normalization at t={t}: {norm}");
         }
     }
@@ -344,6 +355,7 @@ mod tests {
         let times = [1.0, 2.0, 4.0, 8.0, 16.0];
         let msds: Vec<f64> = times.iter().map(|&t| t * t).collect();
         let beta = transport_exponent(&times, &msds);
+        // Regression on exact σ²=t² data should give β=1.0 within floating-point regression error.
         assert!(
             (beta - 1.0).abs() < 0.01,
             "β for σ²~t² should be 1.0, got {beta}"
@@ -355,6 +367,7 @@ mod tests {
         let times = [1.0, 2.0, 4.0, 8.0, 16.0];
         let msds = [5.0; 5];
         let beta = transport_exponent(&times, &msds);
+        // Same as transport_exponent_linear: regression on constant MSD gives β=0.0 within floating-point error.
         assert!(
             beta.abs() < 0.01,
             "β for constant MSD should be 0.0, got {beta}"

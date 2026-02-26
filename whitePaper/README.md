@@ -8,10 +8,10 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 ### Status
 
-- Phase 0 baselines: **~129 quantitative checks passed** across 14 experiments, 6 domains.
-- Phase 1 Rust validation: **177/177 checks passed** across 14 validation binaries.
-- Mathematical parity: **14/14 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
-- Performance: **22× faster** (Rust vs Python, all 14 experiments with barracuda-gpu). Exp 009: **49.5× from Sturm tridiag**.
+- Phase 0 baselines: **~137 quantitative checks passed** across 15 experiments, 6 domains.
+- Phase 1 Rust validation: **185/185 checks passed** across 15 validation binaries.
+- Mathematical parity: **15/15 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
+- Performance: **22× faster** (Rust vs Python, all 15 experiments with barracuda-gpu). Exp 009: **49.5× from Sturm tridiag**.
 
 ### Key Results
 
@@ -28,6 +28,10 @@ This white paper documents groundSpring's systematic approach to quantifying the
 | 009: Quasiperiodic | Math (spectral) | 8/8 | 8/8 PASS | Aubry-André transition at λ=2; Herman's formula confirmed |
 | 010: Bistable Switching | Biology (c-di-GMP) | 10/10 | 9/9 PASS | Two stable attractors; noise-induced transitions |
 | 011: Multi-Signal QS | Biology (QS) | 9/9 | 8/8 PASS | Dual signaling sharpens regulation; lower variance |
+| 012: Spin Chain Transport | Math (spectral) | 18/18 | 18/18 PASS | Ballistic→localized transport transition (Kachkovskiy 2016) |
+| 013: Resampling Convergence | Statistics | 10/10 | 8/8 PASS | Bootstrap/RAWR converge by ~2000 replicates (Lee & Liu 2024) |
+| 014: Drift vs Selection | Evolutionary Bio | 7/7 | 7/7 PASS | N×s threshold: drift dominates at small N (R. Anderson 2022) |
+| 015: Uncertainty Bridge | Cross-domain | 8/8 | 8/8 PASS | Sensor noise → Anderson ξ; CV(ξ) ranking preserved; bias correction minimal at saturated disorder |
 
 ### Key Research Questions Answered
 
@@ -43,7 +47,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 - [STUDY.md](STUDY.md) — Detailed results and analysis
 - [METHODOLOGY.md](METHODOLOGY.md) — Experimental design and validation approach
-- [experiments/](experiments/) — Per-experiment summaries (14 experiments, 6 domains)
+- [experiments/](experiments/) — Per-experiment summaries (15 experiments, 6 domains)
 - [baseCamp/](baseCamp/) — Per-faculty research briefings (Bazavov, Waters, Liu, Kachkovskiy, R. Anderson)
 - [../wateringHole/CROSS_SPRING_SHADER_EVOLUTION.md](../wateringHole/CROSS_SPRING_SHADER_EVOLUTION.md) — Cross-spring shader provenance (S58–S66)
 - [../specs/BARRACUDA_EVOLUTION.md](../specs/BARRACUDA_EVOLUTION.md) — Module → GPU promotion mapping
@@ -52,7 +56,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 ## Phase 1 Rust Library
 
-The `groundspring` crate provides 11 modules of pure safe Rust:
+The `groundspring` crate provides 18 modules of pure safe Rust:
 
 | Module | Experiment | GPU Tier | Notes |
 |--------|-----------|----------|-------|
@@ -65,6 +69,13 @@ The `groundspring` crate provides 11 modules of pure safe Rust:
 | `gillespie` | Exp 006 | GPU-ready | Gillespie SSA birth-death process → `GillespieGpu` |
 | `bootstrap` | Exp 007 | A Lean | Bootstrap + RAWR CIs → `barracuda::stats::bootstrap_mean` |
 | `anderson` | Exp 008-009 | A Lean | Lyapunov, level_spacing, eigenvalues → `barracuda::spectral`, analytical ξ → `barracuda::special`. **49.5× Exp 009.** |
+| `almost_mathieu` | Exp 009, 012 | A Lean | Almost-Mathieu Hamiltonian, flat QR eigenvalues, level spacing |
+| `transport` | Exp 012 | B (adapt) | Tridiag eigenvector solver (implicit QL), wavepacket MSD — flat buffers |
+| `drift` | Exp 014 | B (adapt) | Wright-Fisher fixation, Kimura probability, neutral diversity |
+| `bistable` | Exp 010 | A Lean | Bistable ODE derivative → `barracuda::numerical::ode_bio` |
+| `multisignal` | Exp 011 | A Lean | Multi-signal ODE derivative → `barracuda::numerical::ode_bio` |
+| `kinetics` | Exp 010-011 | A (stub) | Hill functions — shared by bistable + multisignal, barracuda stub ready |
+| `cast` | All | N/A | Centralized numeric casts with documented safety |
 | `validate` | All | N/A | Generic `Write` harness (hotSpring pattern) |
 
 ### GPU Evolution (metalForge)

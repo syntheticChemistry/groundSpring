@@ -71,3 +71,7 @@ path = "src/validate_resampling_conv.rs"
 [[bin]]
 name = "validate-drift"
 path = "src/validate_drift.rs"
+
+[[bin]]
+name = "validate-uncertainty-bridge"
+path = "src/validate_uncertainty_bridge.rs"

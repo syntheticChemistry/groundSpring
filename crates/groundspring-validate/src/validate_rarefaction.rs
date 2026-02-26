@@ -10,6 +10,7 @@ use groundspring::rarefaction::{
     evenness, multinomial_sample, rarefaction_at_depth, shannon_diversity, taxa_detected,
 };
 use groundspring::validate::ValidationHarness;
+use groundspring_validate::print_provenance_header;
 use serde_json::Value;
 
 const BENCHMARK: &str =
@@ -27,10 +28,8 @@ fn run() -> i32 {
         .as_f64()
         .expect("shannon_diversity");
 
-    println!("{}", "=".repeat(72));
-    println!("groundSpring Rust Validation: Rarefaction & Sequencing Noise");
+    print_provenance_header(&bench, "Rarefaction & Sequencing Noise");
     println!("  Reference community: {n_genera} genera, H'={expected_shannon:.2}");
-    println!("{}", "=".repeat(72));
 
     // ── Shannon known values ────────────────────────────────────────
     println!("\n--- Shannon Diversity Known Values ---");

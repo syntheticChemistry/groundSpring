@@ -112,6 +112,10 @@ run_experiment \
     "Exp 014: Drift vs Selection (Python)" \
     "python3 control/drift_selection/drift_selection.py"
 
+run_experiment \
+    "Exp 015: Uncertainty Bridge (Python)" \
+    "python3 control/uncertainty_bridge/uncertainty_bridge.py"
+
 echo ""
 echo "╔══════════════════════════════════════════════════════════════╗"
 echo "║  PHASE 1: Rust Validation Binaries                         ║"
@@ -175,6 +179,10 @@ if command -v cargo &> /dev/null; then
     run_experiment \
         "Rust: Drift vs Selection" \
         "cargo run --release --bin validate-drift"
+
+    run_experiment \
+        "Rust: Uncertainty Bridge" \
+        "cargo run --release --bin validate-uncertainty-bridge"
 else
     echo "  [SKIP] cargo not found — Rust validation skipped"
 fi

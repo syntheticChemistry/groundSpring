@@ -151,6 +151,12 @@ EXPERIMENTS = [
         "python": [sys.executable, "control/drift_selection/drift_selection.py"],
         "rust_bin": "validate-drift",
     },
+    {
+        "name": "Exp 015: Uncertainty Bridge",
+        "benchmark": "control/uncertainty_bridge/benchmark_uncertainty_bridge.json",
+        "python": [sys.executable, "control/uncertainty_bridge/uncertainty_bridge.py"],
+        "rust_bin": "validate-uncertainty-bridge",
+    },
 ]
 
 

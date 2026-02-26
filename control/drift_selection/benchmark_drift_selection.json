@@ -1,5 +1,6 @@
 {
   "_source": "groundSpring Experiment 014 — Drift vs Selection",
+  "_doi": "10.1128/mbio.00354-22",
   "_references": [
     "Anderson (2022) Microbial population dynamics are dominated by stochastic forces in a low biomass subseafloor habitat. mBio 13:e00354-22",
     "Anderson (2021) Tracking Microbial Evolution in the Subseafloor Biosphere. mSystems 6:e00731-21",
@@ -12,7 +13,7 @@
     "real_data_accession": "N/A (analytical + simulation)",
     "prng_algorithm": "xorshift64 (Marsaglia 2003), reproducible seeds",
     "baseline_date": "2026-02-26",
-    "baseline_commit": "pending",
+    "baseline_commit": "459e5d0c648905b521307c4022edf877c794a503",
     "validation_script": "control/drift_selection/drift_selection.py",
     "command": "python3 control/drift_selection/drift_selection.py"
   },

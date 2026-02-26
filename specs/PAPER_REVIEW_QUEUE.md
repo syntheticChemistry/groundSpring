@@ -16,16 +16,17 @@
 | 5 | Seismic source inversion | Geophysics | PASS | 9/9 | ±2km horizontal, ±8.5km depth |
 | 9 | Enzymatic signal specificity | Biology (c-di-GMP) | 12/12 | 12/12 | SNR ≈ 2 at 20× activation; 30.9× faster |
 | 12 | RAWR resampling | Statistics | 11/11 | 11/11 | Coverage comparable to bootstrap; 7.3× faster |
-| 13 | Resampling convergence | Statistics | TBD | 8/8 | Meta-statistical optimization (Lee & Liu 2024) |
+| 13 | Resampling convergence | Statistics | 10/10 | 8/8 | Meta-statistical optimization (Lee & Liu 2024) |
 | 15 | Anderson localization | Mathematics | 8/8 | 8/8 | All states localized; Thouless C ≈ 104; 29.8× faster |
 | 16 | Almost-Mathieu quasiperiodic localization | Mathematics | 8/8 | 8/8 | Aubry-André transition at λ=2; Herman's formula verified; level statistics distinguish phases |
-| 17 | Spin chain transport | Mathematics | TBD | 18/18 | Energy transport through disordered XY chains (Kachkovskiy 2016) |
-| 20 | Drift vs selection | Evolutionary biology | TBD | 7/7 | Wright-Fisher fixation, Kimura probability (R. Anderson 2022) |
+| 17 | Spin chain transport | Mathematics | 18/18 | 18/18 | Energy transport through disordered XY chains (Kachkovskiy 2016) |
+| 20 | Drift vs selection | Evolutionary biology | 7/7 | 7/7 | Wright-Fisher fixation, Kimura probability (R. Anderson 2022) |
 | 10 | Bistable phenotypic switching | Biology | 10/10 | 9/9 | Two stable attractors (0.035 vs 1.634 c-di-GMP); noise-induced transitions; 18.5× faster |
 | 11 | Multi-signal QS integration | Biology | 9/9 | 8/8 | Dual signaling sharpens regulation; lower HapR variance; 46.2× faster |
 
-**Phase 0**: ~129 checks (Python). **Phase 1**: 177/177 PASS (Rust). **Speedup**: 22× (all 14 experiments).
-**Mathematical Parity**: 14/14 PROVEN — Python and Rust both pass against shared benchmark JSONs.
+**Phase 0**: ~137 checks (Python). **Phase 1**: 185/185 PASS (Rust). **Speedup**: 22× (all 15 experiments).
+**Mathematical Parity**: 15/15 PROVEN — Python and Rust both pass against shared benchmark JSONs.
+**Exp 015** bridges Papers 22-24 (Sub-thesis 06): sensor noise → Anderson ξ → QS regime uncertainty.
 
 ---
 
@@ -52,7 +53,7 @@
 | # | Paper | Journal | Year | Faculty | Why | Status |
 |---|-------|---------|------|---------|-----|--------|
 | 12 | Wang et al. "Build a better bootstrap and the RAWR shall beat a random path" | Bioinformatics (ISMB) 37:i111-i119 | 2021 | Liu | RAWR: modern weighted resampling that outperforms naive bootstrap for structured data. Upgrade for Exp 003 | **Active** (Exp 007: 11/11 Py, 11/11 Rust) |
-| 13 | Lee & Liu "A Statistical Optimization Technique to Inform Statistical Resampling" | IEEE BIBM 2024 | 2024 | Liu | Meta-statistical optimization — improving the resampling strategy itself | **Active** (Exp 013: 8/8 Py TBD, 8/8 Rust) |
+| 13 | Lee & Liu "A Statistical Optimization Technique to Inform Statistical Resampling" | IEEE BIBM 2024 | 2024 | Liu | Meta-statistical optimization — improving the resampling strategy itself | **Active** (Exp 013: 10/10 Py, 8/8 Rust) |
 
 ### Anderson Localization & Spectral Theory (Kachkovskiy)
 
@@ -66,7 +67,7 @@ does noise win?**
 |---|-------|---------|------|---------|-----|--------|
 | 15 | Bourgain & Kachkovskiy "Anderson localization for two interacting quasiperiodic particles" | GAFA 29:3-43 | 2018 | Kachkovskiy | Anderson localization = signal trapped by disorder. Two-particle case models how coupled noisy sensors affect each other — directly extends Exp 001's correlated sensor noise decomposition | **Active** (Exp 008: 8/8 Py, 8/8 Rust) |
 | 16 | Jitomirskaya & Kachkovskiy "All couplings localization for quasiperiodic operators with Lipschitz monotone potentials" | JEMS 21:777-795 | 2018 | Kachkovskiy | Localization at ALL coupling strengths for monotone potentials. Quasiperiodic = "almost periodic" = structured noise (seasonal drift, tidal cycles, orbital harmonics). Math of Exp 002's ERA5 vs station gap | **Active** (Exp 009: 8/8 Py, 8/8 Rust) |
-| 17 | Kachkovskiy "On transport properties of isotropic quasiperiodic XY spin chains" | CMP 345:659-673 | 2016 | Kachkovskiy | Energy transport through disordered chains — when does a signal reach the other end? Mathematical framework for Exp 005's seismic wave propagation through heterogeneous crust | **Active** (Exp 012: TBD Py, 18/18 Rust) |
+| 17 | Kachkovskiy "On transport properties of isotropic quasiperiodic XY spin chains" | CMP 345:659-673 | 2016 | Kachkovskiy | Energy transport through disordered chains — when does a signal reach the other end? Mathematical framework for Exp 005's seismic wave propagation through heterogeneous crust | **Active** (Exp 012: 18/18 Py, 18/18 Rust) |
 | 18 | Filonov & Kachkovskiy "On the structure of band edges of 2d periodic elliptic operators" | Acta Math 221:59-80 | 2018 | Kachkovskiy | Band edges = frequencies where waves transition from propagating to evanescent. The mathematical boundary between "signal gets through" and "noise kills it" | Queued |
 
 **Why this is groundSpring's mathematical foundation**: groundSpring's 5 pillars —
@@ -93,7 +94,7 @@ founding question: **when does signal propagate and when does noise win?**
 | # | Paper | Journal | Year | Faculty | Why | Status |
 |---|-------|---------|------|---------|-----|--------|
 | 19 | Anderson (2021) "Tracking Microbial Evolution in the Subseafloor Biosphere" | mSystems 6:e00731-21 | 2021 | R. Anderson | Formalizes when stochastic forces dominate over deterministic selection in low-biomass environments. Cites Lenski LTEE (§1.2 of CONSTRAINED_EVOLUTION_FORMAL.md). Introduces Muller's ratchet as consequence of extreme energy limitation. Directly maps to groundSpring's signal vs noise framework | Reference |
-| 20 | Anderson et al. (2022) "Microbial population dynamics are dominated by stochastic forces in a low biomass subseafloor habitat" | mBio 13:e00354-22 | 2022 | R. Anderson | **Empirical proof** that drift dominates selection in energy-limited subsurface. Quantitative genomic evidence for stochastic > deterministic evolution. The biological equivalent of groundSpring Exp 001's finding that noise dominates signal in some sensor configurations | **Active** (Exp 014: TBD Py, 7/7 Rust) |
+| 20 | Anderson et al. (2022) "Microbial population dynamics are dominated by stochastic forces in a low biomass subseafloor habitat" | mBio 13:e00354-22 | 2022 | R. Anderson | **Empirical proof** that drift dominates selection in energy-limited subsurface. Quantitative genomic evidence for stochastic > deterministic evolution. The biological equivalent of groundSpring Exp 001's finding that noise dominates signal in some sensor configurations | **Active** (Exp 014: 7/7 Py, 7/7 Rust) |
 | 21 | Anderson, Sogin, Baross (2015) "Biogeography and ecology of the rare and abundant microbial lineages" | FEMS Microbiol Ecol 91:fiu016 | 2015 | R. Anderson | Rare biosphere problem — when does a detected microbial lineage represent real biological signal vs. sequencing noise? Directly extends groundSpring Exp 004's genus saturation analysis | Queued |
 
 **Why this is groundSpring's evolutionary validation**: groundSpring decomposes
@@ -215,9 +216,9 @@ Write → Absorb → Lean cycle:
 | 17 | Spin chain transport | **18/18** | `transport::*` (ready) | After GPU | tridiag_eigh candidate |
 | 20 | Drift vs selection | **7/7** | Embarrassingly parallel | After GPU | wright_fisher_fixation, kimura_fixation_prob candidates |
 
-**CPU tier**: 177/177 PASS across 14 validation binaries.
-**Barracuda**: 26 functions delegated (21 CPU + 5 GPU). **Performance**: 22× faster than Python (all 14; Exp 009: 49.5× from Sturm tridiag). **Tests**: 205 Rust tests.
-**Mathematical parity**: 14/14 PROVEN. See `data/parity_report.json`.
+**CPU tier**: 185/185 PASS across 15 validation binaries.
+**Barracuda**: 26 functions delegated (21 CPU + 5 GPU). **Performance**: 22× faster than Python (all 15; Exp 009: 49.5× from Sturm tridiag). **Tests**: 226 Rust tests.
+**Mathematical parity**: 15/15 PROVEN. See `data/parity_report.json`.
 **GPU tier**: pending barracuda adapter (Tier A) or new kernels (Tier B/C).
 **metalForge tier**: after GPU.
 
@@ -262,6 +263,8 @@ Write → Absorb → Lean cycle:
 | Lanczos eigensolve (GPU) | 15-18 | Exists (`spectral`) | Done |
 | Smith-Waterman (GPU) | 20, 21 | Exists (`SmithWatermanGpu`) | Done |
 | Bray-Curtis (GPU) | 20, 21 | Exists (`BrayCurtisF64`) | Done |
+| Hill kinetics (`hill`, `hill_repress`) | 10, 11 | **STUBBED** — `barracuda::stats::hill` exists in S66, wiring pending | Low |
+| Eigenvector solver (tridiag QL) | 17 | **Gap** — eigenvalues only (Sturm); eigenvectors CPU-only | MEDIUM |
 
 ### GPU-Ready vs GPU-Blocked
 
@@ -289,12 +292,12 @@ Papers 9, 10, 11, 12, 14, 15, 16 — can proceed to GPU tier once CPU tier compl
 
 ## Hardware Evolution: CPU → GPU → metalForge
 
-### Tier 1: BarraCUDA CPU (current — 177/177 PASS)
+### Tier 1: BarraCUDA CPU (current — 185/185 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
-26 functions delegated to barracuda (21 CPU + 5 GPU). 22× faster than Python (all 14; Exp 009: 49.5× Sturm tridiag).
-205 Rust tests. 14/14 mathematical parity proven.
-All 14 experiments validated.
+26 functions delegated to barracuda (21 CPU + 5 GPU). 22× faster than Python (all 15; Exp 009: 49.5× Sturm tridiag).
+226 Rust tests. 15/15 mathematical parity proven.
+All 15 experiments validated.
 
 ### Tier 2: BarraCUDA GPU (next)
 

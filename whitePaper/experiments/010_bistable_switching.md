@@ -57,5 +57,6 @@ for numerical efficiency.
 
 ## Modules
 
-`bistable` (new: `BistableParams`, `hill`, `bistable_derivative`, `rk4_step`,
-`integrate`, `stochastic_integrate`), `prng`
+`bistable` (`BistableParams`, `bistable_derivative`, `rk4_step`,
+`integrate`, `stochastic_integrate`), `kinetics` (`hill`, `hill_repress` — shared
+with Exp 011), `prng`

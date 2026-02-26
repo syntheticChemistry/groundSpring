@@ -128,13 +128,7 @@ impl BistableParams {
     }
 }
 
-fn hill(x: f64, k: f64, n: f64) -> f64 {
-    if x <= 0.0 {
-        return 0.0;
-    }
-    let xn = x.powf(n);
-    xn / (k.powf(n) + xn)
-}
+use crate::kinetics::hill;
 
 /// Compute the derivative for the 5-variable bistable ODE.
 ///

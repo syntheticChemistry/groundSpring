@@ -9,14 +9,16 @@
 
 groundSpring Phase 0 (Python), Phase 1 (Rust), and Phase 2a (barracuda CPU) are **complete**.
 
-- 177/177 validation checks across 14 binaries
-- 13 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, bistable, multisignal, cast, validate
-- 205 Rust tests (167 unit + 9 validate-lib + 14 proptest + 14 integration + 1 doc), 0 clippy warnings
+- 185/185 validation checks across 15 binaries
+- 15 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, almost_mathieu, bistable, multisignal, kinetics, transport, drift (+cast, validate)
+- 226 Rust tests (174 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc + 1 unused), 0 clippy warnings, 98.93% llvm-cov
 - Two feature gates: `barracuda` (21 CPU delegations) and `barracuda-gpu` (5 GPU delegations including Sturm tridiag)
-- 26 functions delegated to barracuda (stats, metrics, diversity, bootstrap, anderson, ODE, hamiltonian, eigenvalues)
+- 26 active delegations + 2 stubbed (`kinetics::hill`, `kinetics::hill_repress`)
 - 2 production WGSL shaders in `metalForge/shaders/` (261 combined lines)
-- Rust is **22× faster** than Python (all 11 with barracuda-gpu). Exp 009: **49.5× from Sturm tridiag**.
-- **14/14 mathematical parity proven** (Python ⇌ Rust; `data/parity_report.json`)
+- All matrices use flat row-major `Vec<f64>` — GPU-promotable layout
+- Rust is **22× faster** than Python (all 15 experiments). Exp 009: **49.5× from Sturm tridiag**
+- **15/15 mathematical parity proven** (Python ⇌ Rust; `data/parity_report.json`)
+- **15/15 DOIs**, all provenance fields stamped, 13 bitwise determinism tests
 
 See [BARRACUDA_EVOLUTION.md](BARRACUDA_EVOLUTION.md) for the module-by-module
 GPU promotion mapping.
@@ -82,7 +84,7 @@ NumPy Gillespie     ────────→  gillespie::birth_death_ssa  →
 NumPy bootstrap     ────────→  bootstrap::rawr_mean        →  (Gap: no RAWR kernel)
 NumPy Anderson      ────────→  anderson::lyapunov_*        →  lyapunov_exponent, lyapunov_averaged → barracuda
 NumPy ODE           ────────→  bistable + multisignal      →  BistableOde, MultiSignalOde → barracuda
-                                                               22× faster, 14/14 parity proven
+                                                               22× faster, 15/15 parity proven
 
 Phase 2a (DONE)                Phase 2b (GPU — NEXT)
 ──────────────                 ────────────────────

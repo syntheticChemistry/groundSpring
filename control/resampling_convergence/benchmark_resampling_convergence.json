@@ -1,5 +1,6 @@
 {
   "_source": "groundSpring Experiment 013 — Resampling Convergence",
+  "_doi": "10.1093/bioinformatics/btab271",
   "_references": [
     "Lee & Liu (2024) A Statistical Optimization Technique to Inform Statistical Resampling. IEEE BIBM 2024",
     "Wang et al. (2021) Build a better bootstrap and the RAWR shall beat a random path to your door. Bioinformatics (ISMB) 37:i111-i119",
@@ -11,7 +12,7 @@
     "real_data_accession": "N/A (pure simulation)",
     "prng_algorithm": "xorshift64 (Marsaglia 2003)",
     "baseline_date": "2026-02-26",
-    "baseline_commit": "pending",
+    "baseline_commit": "459e5d0c648905b521307c4022edf877c794a503",
     "validation_script": "control/resampling_convergence/resampling_convergence.py",
     "command": "python3 control/resampling_convergence/resampling_convergence.py"
   },

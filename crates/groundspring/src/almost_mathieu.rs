@@ -151,41 +151,31 @@ fn eigenvalues_cpu(n: usize, coupling: f64, alpha: f64, theta: f64) -> Vec<f64> 
     eigenvalues_qr_dense(n, &ham)
 }
 
-/// Dense QR eigenvalue extraction via Givens rotations.
-///
-/// Iterates 100 QR steps on the full matrix. Sufficient for small
+/// Dense QR eigenvalue extraction via Givens rotations on a flat row-major
+/// buffer. Iterates `QR_MAX_ITERATIONS` QR steps. Sufficient for small
 /// validation matrices (n ≤ 500). The barracuda-gpu path uses
 /// `find_all_eigenvalues` (Sturm bisection) which is O(n²) for tridiag.
 fn eigenvalues_qr_dense(n: usize, matrix: &[f64]) -> Vec<f64> {
-    let mut mat: Vec<Vec<f64>> = (0..n)
-        .map(|row| (0..n).map(|col| matrix[row * n + col]).collect())
-        .collect();
+    let mut mat = matrix.to_vec();
 
     for _ in 0..QR_MAX_ITERATIONS {
-        let (q_mat, r_mat) = givens_qr(&mat);
-        mat = dense_mul(&r_mat, &q_mat);
+        let mut q = flat_identity(n);
+        let mut r = mat.clone();
+        givens_qr_flat(&mut q, &mut r, n);
+        dense_mul_flat(&r, &q, &mut mat, n);
     }
-    (0..n).map(|i| mat[i][i]).collect()
+    (0..n).map(|i| mat[i * n + i]).collect()
 }
 
-fn givens_qr(mat: &[Vec<f64>]) -> (Vec<Vec<f64>>, Vec<Vec<f64>>) {
-    let n = mat.len();
-    let mut q_mat: Vec<Vec<f64>> = (0..n)
-        .map(|i| {
-            let mut row = vec![0.0; n];
-            row[i] = 1.0;
-            row
-        })
-        .collect();
-    let mut r_mat: Vec<Vec<f64>> = mat.to_vec();
-
+/// In-place Givens QR decomposition on flat row-major buffers.
+fn givens_qr_flat(q: &mut [f64], r: &mut [f64], n: usize) {
     for col in 0..n.saturating_sub(1) {
         for row in (col + 1)..n {
-            if r_mat[row][col].abs() < 1e-30 {
+            if r[row * n + col].abs() < 1e-30 {
                 continue;
             }
-            let diag = r_mat[col][col];
-            let below = r_mat[row][col];
+            let diag = r[col * n + col];
+            let below = r[row * n + col];
             let hyp = diag.hypot(below);
             if hyp < 1e-30 {
                 continue;
@@ -193,41 +183,45 @@ fn givens_qr(mat: &[Vec<f64>]) -> (Vec<Vec<f64>>, Vec<Vec<f64>>) {
             let cos = diag / hyp;
             let sin = below / hyp;
 
-            givens_rotate_rows(&mut r_mat, col, row, cos, sin);
-            givens_rotate_cols(&mut q_mat, col, row, cos, sin);
+            givens_rotate_rows_flat(r, col, row, cos, sin, n);
+            givens_rotate_cols_flat(q, col, row, cos, sin, n);
         }
     }
-    (q_mat, r_mat)
 }
 
-fn givens_rotate_rows(mat: &mut [Vec<f64>], r1: usize, r2: usize, cos: f64, sin: f64) {
-    let (top, bot) = mat.split_at_mut(r2);
-    for (a, b) in top[r1].iter_mut().zip(bot[0].iter_mut()) {
-        let orig_a = *a;
-        let orig_b = *b;
-        *a = cos.mul_add(orig_a, sin * orig_b);
-        *b = (-sin).mul_add(orig_a, cos * orig_b);
+fn givens_rotate_rows_flat(m: &mut [f64], r1: usize, r2: usize, cos: f64, sin: f64, n: usize) {
+    for j in 0..n {
+        let a = m[r1 * n + j];
+        let b = m[r2 * n + j];
+        m[r1 * n + j] = cos.mul_add(a, sin * b);
+        m[r2 * n + j] = (-sin).mul_add(a, cos * b);
     }
 }
 
-fn givens_rotate_cols(mat: &mut [Vec<f64>], c1: usize, c2: usize, cos: f64, sin: f64) {
-    for row in mat.iter_mut() {
-        let a = row[c1];
-        let b = row[c2];
-        row[c1] = cos.mul_add(a, sin * b);
-        row[c2] = (-sin).mul_add(a, cos * b);
+fn givens_rotate_cols_flat(m: &mut [f64], c1: usize, c2: usize, cos: f64, sin: f64, n: usize) {
+    for i in 0..n {
+        let a = m[i * n + c1];
+        let b = m[i * n + c2];
+        m[i * n + c1] = cos.mul_add(a, sin * b);
+        m[i * n + c2] = (-sin).mul_add(a, cos * b);
     }
 }
 
-fn dense_mul(a_mat: &[Vec<f64>], b_mat: &[Vec<f64>]) -> Vec<Vec<f64>> {
-    let n = a_mat.len();
-    let mut result = vec![vec![0.0; n]; n];
-    for (i, row) in result.iter_mut().enumerate() {
-        for (j, cell) in row.iter_mut().enumerate() {
-            *cell = (0..n).map(|k| a_mat[i][k] * b_mat[k][j]).sum();
+/// Flat row-major matrix multiplication: `out = a × b` (both `n × n`).
+fn dense_mul_flat(a: &[f64], b: &[f64], out: &mut [f64], n: usize) {
+    for i in 0..n {
+        for j in 0..n {
+            out[i * n + j] = (0..n).map(|k| a[i * n + k] * b[k * n + j]).sum();
         }
     }
-    result
+}
+
+fn flat_identity(n: usize) -> Vec<f64> {
+    let mut m = vec![0.0; n * n];
+    for i in 0..n {
+        m[i * n + i] = 1.0;
+    }
+    m
 }
 
 #[cfg(test)]
@@ -254,6 +248,7 @@ mod tests {
     fn extended_phase_zero_lyapunov() {
         let pot = potential(100_000, 1.0, GOLDEN, 0.0);
         let g = lyapunov_exponent(&pot, 0.0);
+        // For 100k sites in extended phase (λ=1), transfer-matrix averaging converges to ~0 with O(1/√N) fluctuations; 0.01 is ~3× the expected O(10⁻²·⁵) statistical error.
         assert!(g.abs() < 0.01, "extended phase γ={g}, expected ~0");
     }
 
@@ -262,6 +257,7 @@ mod tests {
         let pot = potential(100_000, 3.0, GOLDEN, 0.0);
         let g = lyapunov_exponent(&pot, 0.0);
         let expected = (3.0_f64 / 2.0).ln();
+        // For 100k sites, Herman's formula convergence has O(1/N) systematic correction; 0.02 absorbs the finite-size effect.
         assert!(
             (g - expected).abs() < 0.02,
             "γ={g}, expected ln(3/2)={expected}"
@@ -272,6 +268,7 @@ mod tests {
     fn critical_point_near_zero() {
         let pot = potential(100_000, 2.0, GOLDEN, 0.0);
         let g = lyapunov_exponent(&pot, 0.0);
+        // Critical point has logarithmic corrections and slowest convergence; 0.05 is the minimal bound for N=100k.
         assert!(g.abs() < 0.05, "critical point γ={g}, expected ~0");
     }
 

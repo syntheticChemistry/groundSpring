@@ -36,14 +36,19 @@ groundSpring's signal-to-noise ratio framework.
 
 | Metric | Python | Rust | Speedup |
 |--------|--------|------|---------|
-| Time | TBD | 2.1s | TBD |
+| Time | — | 2.1s | — |
 
 ## Validation
 
 | Phase | Checks | Binary |
 |-------|--------|--------|
-| Phase 0 (Python) | TBD | `control/drift_selection/drift_selection.py` |
+| Phase 0 (Python) | 7/7 | `control/drift_selection/drift_selection.py` |
 | Phase 1 (Rust) | 7/7 | `validate-drift` |
+
+## V18 Changes
+
+- Python baseline confirmed: 7/7 PASS
+- DOI added to benchmark JSON; baseline_commit stamped
 
 ## Barracuda Path
 

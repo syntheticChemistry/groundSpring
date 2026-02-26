@@ -3,16 +3,16 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: February 26, 2026 (complete rewiring — 26 delegations, S58–S66 evolution)
+**Last Updated**: February 26, 2026 (V19: Exp 015 uncertainty bridge, 15 experiments, 226 tests, 185/185 checks)
 
 ---
 
 ## Overview
 
-groundSpring delegates **26 functions** to barracuda. Those barracuda functions
-were not built in isolation — they were refined and battle-tested through
-absorption from **five Springs**, each bringing domain-specific requirements
-that hardened the shared library.
+groundSpring delegates **26 functions** to barracuda (+ 2 stubbed for `kinetics::hill`).
+Those barracuda functions were not built in isolation — they were refined and
+battle-tested through absorption from **five Springs**, each bringing domain-specific
+requirements that hardened the shared library.
 
 ```
 hotSpring (nuclear physics)     → f64 precision, spectral theory, DF64, Sturm eigensolve
@@ -254,3 +254,46 @@ absorbed into `barracuda::spectral::tridiag`) exploits the tridiagonal structure
 of the Almost-Mathieu Hamiltonian. Combined with `find_all_eigenvalues`, this
 replaces the O(n³) dense Givens QR with an O(n²) tridiag solver — closing
 the LAPACK gap that was Exp 009's only performance outlier.
+
+---
+
+## V18 Evolution: Flat Buffers + Kinetics Module
+
+V18 completed the GPU-promotability groundwork:
+
+| Change | Impact |
+|--------|--------|
+| `Vec<Vec<f64>>` → flat `Vec<f64>` (almost_mathieu, transport) | Data layout matches GPU dispatch (row-major, no indirection) |
+| `kinetics::hill()` with barracuda stub | Delegation #27 ready — `barracuda::stats::hill` exists in S66 |
+| 13 determinism tests | Guards against silent PRNG/FP regressions across platforms |
+| Full provenance (14 DOIs, 14 baseline_commits) | Machine-auditable chain: paper → Python → JSON → Rust → pass/fail |
+
+### Learnings for ToadStool
+
+1. **Flat buffers from day one**: Designing APIs with `&[f64]` + explicit `n` dimension
+   avoids a refactor step when GPU dispatch arrives. The almost_mathieu and transport
+   refactors were low-risk only because the public API was already slice-based.
+
+2. **Determinism tests are cheap insurance**: 13 tests with `#[expect(clippy::float_cmp)]`
+   for bitwise equality. Any PRNG stream change, reduction reorder, or platform FP
+   difference will fail loudly. barracuda should adopt this pattern for all stateful
+   computations.
+
+3. **`if let Ok` is the right delegation pattern**: 26 delegations use it. The V17 bug
+   fix (covariance/pearson/spearman silently returning 0.0) proved that the alternative
+   (match + default) masks errors. Always fall through to CPU on delegation failure.
+
+---
+
+## V19 Evolution: Uncertainty Bridge (Exp 015)
+
+V19 adds the first cross-domain experiment that chains validated modules:
+
+| Change | Impact |
+|--------|--------|
+| Exp 015: Uncertainty Bridge | Sensor noise (Exp 001) → disorder mapping → Anderson Lyapunov (Exp 008) → localization length ξ |
+| `validate-uncertainty-bridge` | 8/8 PASS; uses existing `anderson` module (no new barracuda delegation) |
+| 15 experiments, 185/185 checks | Bridges Papers 22-24 (Sub-thesis 06: soil moisture → Anderson geometry → QS regime uncertainty) |
+| Zero `#[allow]` | transport.rs fix removes last remaining allow |
+
+**Key finding**: At typical soil moisture (θ≈0.30), Lyapunov exponent is in the saturated regime where bias correction has minimal effect on ξ uncertainty. CV(ξ) ranking preserved (EC5 > CS616). This validates the uncertainty propagation chain for the Anderson-QS bridge (Gen3 Sub-thesis 01+06).

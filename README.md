@@ -40,8 +40,9 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | 012: Spin Chain Transport | Mathematics | 18/18 PASS | 18/18 PASS | Kachkovskiy 2016 wavepacket MSD, transport exponent |
 | 013: Resampling Convergence | Statistics | 8/8 PASS | 8/8 PASS | Lee & Liu 2024 bootstrap convergence |
 | 014: Drift vs Selection | Biological | 7/7 PASS | 7/7 PASS | R. Anderson 2022 Wright-Fisher, Kimura fixation |
+| 015: Uncertainty Bridge | Cross-domain | 8/8 PASS | 8/8 PASS | Sensor noise → Anderson ξ propagation |
 
-**Phase 1 total: 177/177 PASS across 14 validation binaries.**
+**Phase 1 total: 185/185 PASS across 15 validation binaries.**
 
 ## Library Modules
 
@@ -60,6 +61,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | `transport` | Tridiag eigenvector solver (implicit QL), wavepacket MSD, transport exponent | B (adapt) |
 | `drift` | Wright-Fisher fixation, Kimura fixation probability, neutral diversity trajectory | B (adapt) |
 | `cast` | Centralized numeric casts with documented safety | N/A |
+| `kinetics` | Hill-function kinetics (shared bistable + multi-signal) | A Lean (barracuda::stats::hill) |
 | `validate` | Generic Write harness (hotSpring pattern) | N/A |
 
 ## Quick Start
@@ -67,7 +69,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace          # 205 tests (167 unit + 14 proptest + 9 validate-lib + 14 integration + 1 doc)
+cargo test --workspace          # 226 tests (173 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc + 1 unused)
 cargo clippy --workspace        # zero warnings
 cargo fmt --check               # clean
 
@@ -86,13 +88,14 @@ cargo run --bin validate-multisignal
 cargo run --bin validate-transport
 cargo run --bin validate-resampling-conv
 cargo run --bin validate-drift
+cargo run --bin validate-uncertainty-bridge
 ```
 
 ### Python Phase 0
 
 ```bash
 pip install -e ".[dev]"
-python3 -m pytest tests/ -v       # ~129 checks
+python3 -m pytest tests/ -v       # ~137 checks (15 experiments)
 ruff check control/ tests/        # zero errors
 mypy control/ tests/              # zero errors
 ```
@@ -100,12 +103,12 @@ mypy control/ tests/              # zero errors
 ### Test Coverage
 
 ```bash
-cargo llvm-cov --workspace          # 99.11% workspace line coverage
+cargo llvm-cov --workspace          # 98.93% workspace line coverage
 ```
 
 ## Performance: Rust vs Python
 
-Median of 3 trials, all 14 experiments (Feb 26, 2026):
+Median of 3 trials, all 15 experiments (Feb 26, 2026):
 
 | Experiment | Python (s) | Rust (s) | Speedup |
 |---|---|---|---|
@@ -128,7 +131,7 @@ Median of 3 trials, all 14 experiments (Feb 26, 2026):
 \* Exp 009 with barracuda-gpu (Sturm tridiag solver from hotSpring S26).
 Without barracuda: 11.7s (custom QR). The Sturm solver is **49.5× faster**.
 
-**Mathematical parity**: 14/14 PROVEN — both languages validate against the
+**Mathematical parity**: 15/15 PROVEN — both languages validate against the
 same shared benchmark JSONs. See `data/parity_report.json`.
 
 Run benchmarks: `python3 scripts/bench_rust_vs_python.py`
@@ -152,8 +155,8 @@ airSpring metrics, neuralSpring dispatch) validated by 26 barracuda delegations.
 ```
 Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration (Phase 2)
    NumPy/SciPy                    Pure safe Rust                BarraCUDA / ToadStool
-     ✓ Complete                     ✓ 177/177 PASS               ◐ 26 delegated (21 CPU + 5 GPU), 2 WGSL ready
-   23× slower than Rust             14/14 parity proven           barracuda-gpu: anderson, ODE, hamiltonian
+     ✓ Complete                     ✓ 185/185 PASS               ◐ 26 delegated (21 CPU + 5 GPU), 2 WGSL ready
+   23× slower than Rust             15/15 parity proven           barracuda-gpu: anderson, ODE, hamiltonian
 
      Write locally              →  Hand off to barracuda      →  Lean on upstream
      (metalForge shaders)          (wateringHole/handoffs/)       (rewire to barracuda ops)
@@ -200,10 +203,11 @@ groundSpring/
 │   ├── multisignal_qs/             # Exp 011: Multi-signal QS integration
 │   ├── spin_transport/             # Exp 012: Spin chain transport (Kachkovskiy 2016)
 │   ├── resampling_convergence/     # Exp 013: Resampling convergence (Lee & Liu 2024)
-│   └── drift_selection/            # Exp 014: Drift vs selection (R. Anderson 2022)
+│   ├── drift_selection/            # Exp 014: Drift vs selection (R. Anderson 2022)
+│   └── uncertainty_bridge/         # Exp 015: Sensor noise → Anderson ξ uncertainty
 ├── crates/
-│   ├── groundspring/                # Phase 1 Rust library (17 modules)
-│   └── groundspring-validate/       # 14 validation binaries (hotSpring pattern)
+│   ├── groundspring/                # Phase 1 Rust library (18 modules)
+│   └── groundspring-validate/       # 15 validation binaries (hotSpring pattern)
 ├── metalForge/                      # Write → Absorb → Lean artifacts
 │   ├── ABSORPTION_MANIFEST.md       # Module-by-module absorption inventory
 │   └── shaders/                     # Production WGSL shaders for ToadStool absorption
@@ -215,7 +219,7 @@ groundSpring/
 │   └── PAPER_REVIEW_QUEUE.md        # 27 papers, three-tier control matrix, open data audit
 ├── whitePaper/                      # Study, methodology, baseCamp, experiments
 │   ├── baseCamp/                    # Per-faculty research briefings (5 faculty)
-│   ├── experiments/                 # Per-experiment summaries (001-014)
+│   ├── experiments/                 # Per-experiment summaries (001-015)
 ├── tests/                           # Python test suite (~129 checks)
 ├── Cargo.toml                       # Rust workspace (barracuda feature gate)
 ├── CONTRIBUTING.md
@@ -241,4 +245,4 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026*
+*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V19 uncertainty bridge + idiomatic evolution: February 26, 2026*

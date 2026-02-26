@@ -42,6 +42,10 @@ jobs:
       - run: cargo run --bin validate-quasiperiodic
       - run: cargo run --bin validate-bistable
       - run: cargo run --bin validate-multisignal
+      - run: cargo run --bin validate-transport
+      - run: cargo run --bin validate-resampling-conv
+      - run: cargo run --bin validate-drift
+      - run: cargo run --bin validate-uncertainty-bridge
 
   python:
     name: Python baselines

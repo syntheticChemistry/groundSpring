@@ -5,11 +5,12 @@
 > (Phase 0), a Rust validation (Phase 1), and a barracuda delegation path
 > (Phase 2+).
 
-**Total**: 177/177 validation checks across 14 experiments, 6 domains. 205 Rust tests, ~129 Python checks.
-**Rust vs Python**: 22× faster across all 14 experiments (Exp 009 now 2.8× with barracuda-gpu Sturm).
-**Mathematical Parity**: 14/14 PROVEN — Python and Rust both pass against shared benchmark JSONs.
-**Coverage**: 99.11% workspace line coverage. Zero clippy warnings.
+**Total**: 185/185 validation checks across 15 experiments, 6 domains. 226 Rust tests, ~137 Python checks.
+**Rust vs Python**: 22× faster across all 15 experiments (Exp 009 now 2.8× with barracuda-gpu Sturm).
+**Mathematical Parity**: 15/15 PROVEN — Python and Rust both pass against shared benchmark JSONs.
+**Coverage**: 98.93% workspace line coverage. Zero clippy warnings.
 **BarraCUDA performance**: 14.9s (local) → 3.9s (barracuda-gpu). Exp 009: **49.5× from Sturm tridiag**.
+**Modules**: 18 (including `kinetics`, shared by Exp 010 and 011).
 
 ## Experiment Index
 
@@ -26,9 +27,10 @@
 | 009 | [Quasiperiodic Localization](009_quasiperiodic_localization.md) | Mathematics | Jitomirskaya-Kachkovskiy 2018 | 8/8 | 8/8 | GPU delegated (**49.5×**) |
 | 010 | [Bistable Switching](010_bistable_switching.md) | Biological | Fernandez 2020 PNAS | 10/10 | 9/9 | ODE delegated |
 | 011 | [Multi-Signal QS](011_multisignal_qs.md) | Biological | Srivastava 2011 J Bact | 9/9 | 8/8 | ODE delegated |
-| 012 | [Spin Chain Transport](012_spin_chain_transport.md) | Mathematics | Kachkovskiy 2016 CMP | TBD | 18/18 | tridiag_eigh candidate |
-| 013 | [Resampling Convergence](013_resampling_convergence.md) | Statistics | Lee & Liu 2024 IEEE BIBM | TBD | 8/8 | Uses bootstrap |
-| 014 | [Drift vs Selection](014_drift_selection.md) | Evolutionary biology | R. Anderson 2022 mBio | TBD | 7/7 | Wright-Fisher, Kimura |
+| 012 | [Spin Chain Transport](012_spin_chain_transport.md) | Mathematics | Kachkovskiy 2016 CMP | 18/18 | 18/18 | tridiag_eigh candidate |
+| 013 | [Resampling Convergence](013_resampling_convergence.md) | Statistics | Lee & Liu 2024 IEEE BIBM | 10/10 | 8/8 | Uses bootstrap |
+| 014 | [Drift vs Selection](014_drift_selection.md) | Evolutionary biology | R. Anderson 2022 mBio | 7/7 | 7/7 | Wright-Fisher, Kimura |
+| 015 | [Uncertainty Bridge](015_uncertainty_bridge.md) | Cross-domain | Dong 2020 + Bourgain-Kachkovskiy 2018 | 8/8 | 8/8 | Sensor noise → Anderson ξ |
 
 ## Three-Tier Control Plan
 
@@ -38,11 +40,11 @@ Each experiment is validated at three levels:
 2. **GPU** — Barracuda GPU matches CPU within tolerance (`--features barracuda-gpu`)
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
-Current status: **CPU complete** (177/177), **26 barracuda delegations active**
+Current status: **CPU complete** (185/185), **26 barracuda delegations active**
 (15 stats/metrics + bootstrap + rawr_mean + 5 anderson/spectral + hamiltonian + 2 ODE + eigenvalues).
 21 CPU delegated (`#[cfg(feature = "barracuda")]`), 5 GPU delegated
 (`#[cfg(feature = "barracuda-gpu")]`). All with graceful CPU fallback.
-99.11% line coverage. 14/14 mathematical parity proven.
+98.93% line coverage. 15/15 mathematical parity proven.
 
 Three-mode benchmarks: 14.9s (local) → 3.9s (barracuda-gpu, **4.4× faster**).
 Cross-spring evolution (hotSpring precision + Sturm, wetSpring bio-stats,

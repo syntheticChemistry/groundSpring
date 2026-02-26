@@ -53,6 +53,7 @@ BENCHMARKS=(
     "control/spin_transport/benchmark_spin_transport.json"
     "control/resampling_convergence/benchmark_resampling_convergence.json"
     "control/drift_selection/benchmark_drift_selection.json"
+    "control/uncertainty_bridge/benchmark_uncertainty_bridge.json"
 )
 
 BASELINES=(
@@ -70,6 +71,7 @@ BASELINES=(
     "python3 control/spin_transport/spin_chain_transport.py"
     "python3 control/resampling_convergence/resampling_convergence.py"
     "python3 control/drift_selection/drift_selection.py"
+    "python3 control/uncertainty_bridge/uncertainty_bridge.py"
 )
 
 echo "--- Phase 1: Re-run all Python baselines ---"

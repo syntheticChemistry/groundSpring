@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: February 26, 2026 (ToadStool S66 catch-up — 26 delegations)
+**Last updated**: February 26, 2026 (V19 uncertainty bridge — Exp 015, 15 experiments, 226 tests, 185/185 checks)
 
 ## Philosophy
 
@@ -85,6 +85,15 @@ are for throughput (100k+ MC samples, batch rarefaction).
 > 0.0. `BistableParams`/`MultiSignalParams` derive `Copy` (no more `.clone()`).
 > 7 magic numbers extracted as named constants. Misleading delegation docs fixed
 > in transport.rs, drift.rs, gillespie.rs.
+>
+> **Idiomatic Rust evolution (Feb 26 2026)**: New `kinetics` module extracts
+> `hill()` / `hill_repress()` from bistable + multisignal with barracuda
+> delegation stub (`barracuda::stats::hill`). All `Vec<Vec<f64>>` eliminated —
+> `almost_mathieu.rs` QR and `transport.rs` eigenvectors refactored to flat
+> row-major `Vec<f64>` (GPU-promotable layout). 13 bitwise determinism tests
+> added. All 15 benchmark JSONs have DOIs and stamped `baseline_commit`.
+> CI now runs all 15 validation binaries. 226 tests, 98.93% llvm-cov.
+> Delegation #27 (`hill`) stubbed — awaiting barracuda signature verification.
 
 ### Tier A — Lean (rewire to existing barracuda ops)
 
@@ -116,6 +125,8 @@ are for throughput (100k+ MC samples, batch rarefaction).
 | `anderson::almost_mathieu_eigenvalues` | `spectral::find_all_eigenvalues` | **DONE** (barracuda-gpu) | **49.5× Exp 009 speedup** — Sturm tridiag |
 | `rarefaction::evenness` | `stats::pielou_evenness` | **DONE** (CPU delegated) | S≤1 semantic adapter (ecology convention) |
 | `bootstrap::rawr_mean` | `stats::rawr_mean` | **DONE** (CPU delegated) | S66 absorption — Dirichlet-weighted mean |
+| `kinetics::hill` | `stats::hill` | **STUBBED** (delegation ready) | Activating Hill function — verify S66 API match |
+| `kinetics::hill_repress` | `stats::hill` (1 − hill) | **STUBBED** (delegation ready) | Repressing Hill — may compose from `hill()` |
 
 ### Tier B — Adapt (needs alignment or wrapper)
 
@@ -299,7 +310,7 @@ behavior in `spectral::lyapunov_averaged`.
 ## Rust vs Python Performance (Phase 1c — Full Suite)
 
 Pure Rust CPU math vs interpreted Python (NumPy/SciPy), median of 3 trials
-across all 14 experiments:
+across all 15 experiments:
 
 | Experiment | Python (s) | Rust (s) | Speedup |
 |---|---|---|---|
@@ -332,7 +343,7 @@ Speedup varies with algorithm type:
 
 ### Mathematical Parity Certificate
 
-All 14 experiments: **PARITY PROVEN**.  Both Python baselines and Rust
+All 15 experiments: **PARITY PROVEN**.  Both Python baselines and Rust
 validation binaries check against the same shared benchmark JSON files.
 If both pass, the math is identical within stated tolerances.
 
@@ -342,11 +353,11 @@ See `data/parity_report.json` for the machine-readable certificate.
 
 | Phase | Milestone | Status |
 |---|---|---|
-| Phase 0 | Python baselines | **Done** (~129 checks across 14 experiments) |
-| Phase 1a | Rust CPU validation | **Done** (177/177 PASS across 14 binaries) |
+| Phase 0 | Python baselines | **Done** (~137 checks across 15 experiments) |
+| Phase 1a | Rust CPU validation | **Done** (185/185 PASS across 15 binaries) |
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
-| Phase 1d | Full-suite parity + benchmarks | **Done** (14/14 parity proven, timing data for all experiments) |
+| Phase 1d | Full-suite parity + benchmarks | **Done** (15/15 parity proven, timing data for all experiments) |
 | Phase 2a | Tier A rewire (stats + bootstrap + anderson → barracuda) | **26 delegated** (15 stats + bootstrap_mean + rawr_mean + 5 anderson + analytical ξ + hamiltonian + 2 ODE + shannon + eigenvalues) |
 | Phase 2b | Tier B adapt (PRNG alignment, grid dispatch, gillespie GPU) | After 2a |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |

@@ -1,5 +1,6 @@
 {
   "_source": "groundSpring Experiment 012 — Spin Chain Transport",
+  "_doi": "10.1007/s00220-016-2612-7",
   "_references": [
     "Kachkovskiy (2016) On transport properties of isotropic quasiperiodic XY spin chains. Comm Math Phys 345:659-673",
     "Jitomirskaya & Kachkovskiy (2018) All couplings localization for quasiperiodic operators with Lipschitz monotone potentials. JEMS 21:777-795",
@@ -11,7 +12,7 @@
     "real_data_accession": "N/A (analytical)",
     "prng_algorithm": "deterministic quasiperiodic potential (no randomness)",
     "baseline_date": "2026-02-26",
-    "baseline_commit": "pending",
+    "baseline_commit": "459e5d0c648905b521307c4022edf877c794a503",
     "validation_script": "control/spin_transport/spin_chain_transport.py",
     "command": "python3 control/spin_transport/spin_chain_transport.py"
   },

@@ -142,21 +142,7 @@ impl MultiSignalParams {
     }
 }
 
-fn hill(x: f64, k: f64, n: f64) -> f64 {
-    if x <= 0.0 {
-        return 0.0;
-    }
-    let xn = x.powf(n);
-    xn / (k.powf(n) + xn)
-}
-
-fn hill_repress(x: f64, k: f64, n: f64) -> f64 {
-    if x <= 0.0 {
-        return 1.0;
-    }
-    let kn = k.powf(n);
-    kn / (kn + x.powf(n))
-}
+use crate::kinetics::{hill, hill_repress};
 
 /// Compute the derivative for the 7-variable multi-signal ODE.
 ///

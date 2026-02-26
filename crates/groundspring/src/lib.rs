@@ -18,6 +18,7 @@
 //! - [`rarefaction`] — Multinomial rarefaction for sequencing noise analysis
 //! - [`seismic`] — Travel-time computation and source inversion
 //! - [`fao56`] — FAO-56 Penman-Monteith reference evapotranspiration
+//! - [`kinetics`] — Hill-function kinetics (shared by bistable + multi-signal)
 //! - [`gillespie`] — Gillespie SSA for stochastic chemical kinetics
 //! - [`bootstrap`] — Bootstrap and RAWR resampling confidence intervals
 //! - [`anderson`] — Anderson localization / Lyapunov exponents
@@ -35,6 +36,7 @@ pub mod decompose;
 pub mod drift;
 pub mod fao56;
 pub mod gillespie;
+pub mod kinetics;
 pub mod multisignal;
 pub mod prng;
 pub mod rarefaction;

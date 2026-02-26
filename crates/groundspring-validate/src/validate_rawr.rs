@@ -11,7 +11,9 @@
 use groundspring::bootstrap::{bootstrap_mean, rawr_mean};
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, f64_range, u64_field, usize_field};
+use groundspring_validate::{
+    f64_field, f64_range, print_provenance_header, u64_field, usize_field,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str =
@@ -270,9 +272,7 @@ fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: RAWR Resampling");
 
-    println!("{}", "=".repeat(72));
-    println!("groundSpring Rust Validation: RAWR Resampling");
-    println!("{}", "=".repeat(72));
+    print_provenance_header(&bench, "RAWR Resampling");
 
     validate_gaussian(&mut h, &bench);
     validate_skewed(&mut h, &bench);

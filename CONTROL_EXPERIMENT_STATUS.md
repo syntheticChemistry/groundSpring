@@ -18,17 +18,18 @@
 | 010 | Bistable Phenotypic Switching | Biological (c-di-GMP) | 10/10 PASS | 9/9 PASS |
 | 011 | Multi-Signal QS Integration | Biological (quorum sensing) | 9/9 PASS | 8/8 PASS |
 | 012 | Spin Chain Transport | Mathematics (spectral theory) | 18/18 PASS | 18/18 PASS |
-| 013 | Resampling Convergence | Statistics (bootstrap) | 8/8 PASS | 8/8 PASS |
+| 013 | Resampling Convergence | Statistics (bootstrap) | 10/10 PASS | 8/8 PASS |
 | 014 | Drift vs Selection | Biological (population genetics) | 7/7 PASS | 7/7 PASS |
+| 015 | Uncertainty Bridge | Cross-domain (sensor→Anderson→QS) | 8/8 PASS | 8/8 PASS |
 
-**Python Phase 0**: All 14 experiments passing
-**Rust Phase 1**: 177/177 PASS across 14 validation binaries
-**Rust tests**: 205/205 PASS (167 unit + 14 proptest + 9 validate-lib + 14 integration + 1 doc)
+**Python Phase 0**: All 15 experiments passing
+**Rust Phase 1**: 185/185 PASS across 15 validation binaries
+**Rust tests**: 226/226 PASS (174 unit + 13 determinism + 14 proptest + 9 validate-lib + 14 integration + 1 doc)
 **pytest**: 37/37 PASS (unit tests, determinism tests, integration tests)
 **BarraCUDA delegations**: 26 active (21 CPU + 5 GPU) — ToadStool S66
-**Handoff**: V17 (deep debt evolution + absorption guidance)
+**Handoff**: V19 (uncertainty bridge + zero #[allow])
 
-**Python checks**: ~129 across 14 experiments. **Rust validation checks**: 177.
+**Python checks**: ~137 across 15 experiments. **Rust validation checks**: 185.
 
 ## Phase 0 — Python/NumPy/SciPy Baselines
 
@@ -232,6 +233,12 @@ Ports Exp 013 resampling convergence to pure safe Rust.  Verifies:
 Ports Exp 014 drift vs selection to pure safe Rust.  Verifies:
 - Wright-Fisher fixation, Kimura fixation probability, neutral diversity trajectory
 
+### validate-uncertainty-bridge (8/8 PASS)
+
+Ports Exp 015 uncertainty bridge to pure safe Rust.  Verifies:
+- Sensor noise → disorder mapping → Lyapunov exponent → localization length ξ
+- CV(ξ) ranking preserved (EC5 > CS616); bias correction effect at typical θ
+
 ## Test Infrastructure
 
 | Suite | Tests | Type |
@@ -242,11 +249,34 @@ Ports Exp 014 drift vs selection to pure safe Rust.  Verifies:
 | Rust `#[test]` (lib) | 153 | Unit tests for Rust library modules |
 | Rust `#[test]` (validate-lib) | 9 | Unit tests for shared validation helpers |
 | Rust proptest | 14 | Property-based invariant tests |
-| Rust integration | 14 | Validation binary integration tests |
+| Rust integration | 15 | Validation binary integration tests |
 | Rust doc test | 1 | Documentation example test |
-| **Total** | **228** | (37 Python + 191 Rust) |
+| **Total** | **229** | (37 Python + 192 Rust) |
 
 ## Run Log
+
+### Run 18 (V19 Uncertainty Bridge, Feb 26, 2026)
+
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace -- -D warnings`: PASS (0 warnings)
+- `cargo doc --workspace --no-deps`: PASS
+- `cargo test --workspace`: 226/226 PASS (174 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc)
+- Validation checks: 185/185 PASS (15 binaries)
+- `cargo llvm-cov`: 98.93% line coverage
+- Python pytest: 37/37 PASS (Exp 001-015)
+- Added: Exp 015 Uncertainty Bridge (8/8 PASS), validate-uncertainty-bridge binary
+- Zero `#[allow]` remaining (transport.rs fix)
+
+### Run 17 (V18 Deep Debt Evolution, Feb 26, 2026)
+
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace -- -D warnings`: PASS (0 warnings)
+- `cargo doc --workspace --no-deps`: PASS
+- `cargo test --workspace`: 225/225 PASS (173 unit + 13 determinism + 14 proptest + 9 validate-lib + 14 integration + 1 doc)
+- Validation checks: 177/177 PASS (14 binaries)
+- `cargo llvm-cov`: 98.94% line coverage
+- Python pytest: 37/37 PASS (Exp 001-011)
+- Added: kinetics module, flat buffers, 13 determinism tests, DOIs, CI completeness
 
 ### Run 16 — February 26, 2026 (V16 ToadStool S66 catch-up + rewiring)
 
@@ -287,10 +317,10 @@ New modules:
 prng::binomial   Added for Wright-Fisher sampling
 
 Totals:
-  14 experiments, 177/177 validation checks
+  15 experiments, 185/185 validation checks
   205 Rust tests (167 unit + 14 proptest + 9 validate-lib + 14 integration + 1 doc)
-  14 validation binaries
-  Mathematical parity: 14/14 PROVEN (Python ⇌ Rust)
+  15 validation binaries
+  Mathematical parity: 15/15 PROVEN (Python ⇌ Rust)
 
 Paper queue: Papers #13, #17, #20 moved Queued → Active
 ```
@@ -639,10 +669,11 @@ Each experiment is validated at three hardware tiers:
 | 12 | Spin chain transport | **18/18 PASS** | Pending | — | transport module |
 | 13 | Resampling convergence | **8/8 PASS** | Pending | — | bootstrap module |
 | 14 | Drift vs selection | **7/7 PASS** | Pending | — | drift module |
+| 15 | Uncertainty bridge | **8/8 PASS** | Pending | — | anderson module |
 
-**CPU tier**: 177/177 PASS (complete)
-**GPU tier**: 0/177 (pending ToadStool absorption of Tier A ops and Tier C kernels)
-**metalForge tier**: 0/177 (after GPU tier)
+**CPU tier**: 185/185 PASS (complete)
+**GPU tier**: 0/185 (pending ToadStool absorption of Tier A ops and Tier C kernels)
+**metalForge tier**: 0/185 (after GPU tier)
 
 ### BarraCUDA Integration Status (post ToadStool S62)
 
@@ -664,11 +695,11 @@ Each experiment is validated at three hardware tiers:
 
 ## Evolution Roadmap
 
-- **Phase 0**: Python/NumPy/SciPy baselines — **COMPLETE** (129/129 across 14 experiments)
+- **Phase 0**: Python/NumPy/SciPy baselines — **COMPLETE** (~137 across 15 experiments)
 - **Phase 0+**: Real open data pipelines (NOAA CDO, IRIS waveforms) — pending API tokens
-- **Phase 1**: Rust CPU validation — **COMPLETE** (177/177 across 14 binaries)
+- **Phase 1**: Rust CPU validation — **COMPLETE** (185/185 across 15 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
-- **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 006-014: biology, statistics, math, quasiperiodic, bistable, multisignal, transport, resampling, drift)
+- **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 006-015: biology, statistics, math, quasiperiodic, bistable, multisignal, transport, resampling, drift, uncertainty bridge)
 - **Phase 2a**: Tier A rewire — **26 delegated** (21 CPU + 5 GPU; stats, metrics, diversity, bootstrap, anderson, ODE, eigenvalues)
 - **Phase 2b**: Tier B adapt — PRNG alignment, grid-search dispatch
 - **Phase 2c**: Tier C absorption — FAO-56 **superseded** (absorbed S49); `batched_multinomial` still needed
@@ -683,15 +714,15 @@ Each experiment is validated at three hardware tiers:
 | `cargo clippy --all-targets` | PASS (0 errors, 0 warnings) |
 | `cargo clippy --features barracuda` | PASS |
 | `cargo doc --no-deps` | PASS |
-| `cargo test` | 205/205 PASS (167 unit + 9 validate-lib + 14 proptest + 14 integration + 1 doc) |
-| `cargo test --features barracuda` | 205/205 PASS |
-| `cargo test --features barracuda-gpu` | 205/205 PASS |
-| Validation binaries (local) | 177/177 PASS |
-| Validation binaries (barracuda-gpu) | 177/177 PASS |
+| `cargo test` | 226/226 PASS (174 unit + 13 determinism + 9 validate-lib + 14 proptest + 15 integration + 1 doc) |
+| `cargo test --features barracuda` | 226/226 PASS |
+| `cargo test --features barracuda-gpu` | 226/226 PASS |
+| Validation binaries (local) | 185/185 PASS |
+| Validation binaries (barracuda-gpu) | 185/185 PASS |
 | `ruff check control/ tests/` | 0 errors |
 | `mypy control/ tests/` | 0 errors |
-| `python3 -m pytest tests/` | 34/34 PASS |
-| Workspace line coverage | 99.11% (cargo-llvm-cov) |
+| `python3 -m pytest tests/` | 37/37 PASS |
+| Workspace line coverage | 98.93% (cargo-llvm-cov) |
 | Unsafe code | Forbidden (workspace lint) |
 | Max file size | 405 lines (all < 1000) |
 | SPDX headers | All `.rs` files |
@@ -739,13 +770,16 @@ All 11 experiments, median of 3 trials (Feb 26, 2026):
 
 \* Exp 009 with barracuda-gpu (Sturm tridiag solver). Without barracuda: 11.7s.
 
-**Mathematical Parity**: 14/14 experiments PROVEN. See `data/parity_report.json`.
+**Mathematical Parity**: 15/15 experiments PROVEN. See `data/parity_report.json`.
 
 ## Handoff Documents
 
 | Handoff | Scope | Status |
 |---------|-------|--------|
+| V19: Uncertainty Bridge | Exp 015 (8/8 PASS), validate-uncertainty-bridge, 226 tests, 185/185 checks, zero #[allow] | **Current** |
+| V18: Idiomatic Rust Evolution | Kinetics module, flat buffers, 225 tests, full provenance | **Current** |
 | V17: Deep Debt Evolution | Bug fix, delegation patterns, 9 action items, 3 absorption candidates | **Current** |
+| V16: S66 Catch-Up + Rewiring | rawr_mean delegation #26, V13–V15 consumption audit, 26 delegations (21 CPU + 5 GPU) | **Current** |
 | V16: S66 Catch-Up + Rewiring | rawr_mean delegation #26, V13–V15 consumption audit, 26 delegations (21 CPU + 5 GPU) | **Current** |
 | V15: Absorption Request | 2 shaders, 3 semantic fixes, 25 delegations, cross-spring learnings | Archived |
 | V14: S65 Revalidation | 25 delegations, evenness added, 49.5× Exp 009, three-mode benchmark | Archived |
@@ -758,7 +792,7 @@ All 11 experiments, median of 3 trials (Feb 26, 2026):
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V17_DEEP_DEBT_EVOLUTION_HANDOFF_FEB26_2026.md`
+Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V19_UNCERTAINTY_BRIDGE_HANDOFF_FEB26_2026.md`
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

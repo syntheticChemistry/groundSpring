@@ -57,6 +57,6 @@ pattern as Exp 010.
 
 ## Modules
 
-`multisignal` (new: `MultiSignalParams`, `hill`, `hill_repress`,
-`multisignal_derivative`, `rk4_step`, `integrate`, `stochastic_integrate`),
-`prng`
+`multisignal` (`MultiSignalParams`, `multisignal_derivative`, `rk4_step`,
+`integrate`, `stochastic_integrate`), `kinetics` (`hill`, `hill_repress` — shared
+with Exp 010), `prng`

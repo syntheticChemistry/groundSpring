@@ -31,19 +31,25 @@ This saves ~5× compute vs n=10000 with negligible accuracy loss.
 
 | Metric | Python | Rust | Speedup |
 |--------|--------|------|---------|
-| Time | TBD | 0.5s | TBD |
+| Time | — | 0.5s | — |
 
 ## Validation
 
 | Phase | Checks | Binary |
 |-------|--------|--------|
-| Phase 0 (Python) | TBD | `control/resampling_convergence/resampling_convergence.py` |
+| Phase 0 (Python) | 10/10 | `control/resampling_convergence/resampling_convergence.py` |
 | Phase 1 (Rust) | 8/8 | `validate-resampling-conv` |
+
+## V18 Changes
+
+- Python baseline confirmed: 10/10 PASS (lognormal CI width tolerance justified at 1.5×)
+- DOI added to benchmark JSON; baseline_commit stamped
 
 ## Barracuda Path
 
 `bootstrap_mean` already delegated to `barracuda::stats::bootstrap_mean` (CPU).
-`rawr_mean` — **gap**: no RAWR kernel in barracuda. Embarrassingly parallel.
+`rawr_mean` delegated to `barracuda::stats::rawr_mean` (S66). Embarrassingly parallel
+for future GPU batching.
 
 ## Modules
 

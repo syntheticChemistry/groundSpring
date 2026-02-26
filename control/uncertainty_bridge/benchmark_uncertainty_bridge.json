@@ -1,0 +1,70 @@
+{
+  "_source": "groundSpring Exp 015: Sensor noise propagation through Anderson localization to QS regime prediction",
+  "_doi": "10.1007/s00039-019-00478-4",
+  "_references": [
+    "Dong et al. (2020) 'Calibration and validation of soil moisture sensors' Agriculture 10:598",
+    "Bourgain & Kachkovskiy (2018) 'Anderson localization for two interacting quasiperiodic particles' GAFA 29:3-43",
+    "Allen et al. (1998) FAO Irrigation and Drainage Paper 56"
+  ],
+  "_provenance": {
+    "generated_by": "groundSpring Exp 015 cross-domain uncertainty bridge",
+    "baseline_date": "2026-02-26",
+    "baseline_commit": "pending",
+    "validation_script": "control/uncertainty_bridge/uncertainty_bridge.py",
+    "command": "python3 control/uncertainty_bridge/uncertainty_bridge.py",
+    "notes": "Propagates Exp 001 sensor noise through Anderson localization (Exp 008) to predict QS regime confidence intervals. Combines three validated modules: decompose, anderson, rarefaction.",
+    "prng_algorithm": "numpy.random.default_rng (PCG64)",
+    "data_origin": "Derived from Dong et al. 2020 sensor calibration + Anderson analytical model"
+  },
+
+  "sensor_noise": {
+    "description": "Soil moisture sensor noise from Exp 001 (Dong et al. 2020)",
+    "cs616_sand": {
+      "bias_mbe": -0.010,
+      "random_sigma": 0.014,
+      "bias_fraction": 0.346
+    },
+    "ec5_sandy_clay_loam": {
+      "bias_mbe": -0.050,
+      "random_sigma": 0.027,
+      "bias_fraction": 0.770
+    }
+  },
+
+  "anderson_model": {
+    "description": "1D Anderson localization model for QS signal propagation",
+    "chain_length": 200,
+    "n_realizations": 10,
+    "energy": 0.0,
+    "disorder_range": [0.5, 2.0, 5.0, 8.0, 12.0],
+    "derrida_gardner_constant": 96.0
+  },
+
+  "propagation": {
+    "description": "Monte Carlo uncertainty propagation: sensor noise → θ → W_eff → γ → ξ",
+    "n_mc_samples": 200,
+    "theta_to_disorder_slope": 15.0,
+    "theta_to_disorder_intercept": 0.5,
+    "theta_nominal": 0.30
+  },
+
+  "expected": {
+    "description": "Expected results from uncertainty propagation",
+    "localization_length_cv_cs616": {
+      "min": 0.01,
+      "max": 0.30,
+      "description": "CV of localization length due to CS616 noise (lower noise → lower CV)"
+    },
+    "localization_length_cv_ec5": {
+      "min": 0.03,
+      "max": 0.50,
+      "description": "CV of localization length due to EC5 noise (higher noise → higher CV)"
+    },
+    "bias_corrected_improvement": {
+      "description": "Bias correction reduces uncertainty when operating in the non-saturated disorder regime. At high W (saturated γ), improvement is minimal — the physics dominates sensor quality.",
+      "min_reduction_fraction": -0.05
+    },
+    "lyapunov_monotonic_with_disorder": true,
+    "sensor_ranking_preserved": true
+  }
+}

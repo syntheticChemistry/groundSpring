@@ -176,6 +176,7 @@ mod tests {
     fn clean_system_zero_lyapunov() {
         let pot = anderson_potential(10000, 0.0, 42);
         let gamma = lyapunov_exponent(&pot, 0.0);
+        // W=0 gives deterministic transfer matrix (identity-like); γ=0 exactly; 0.001 absorbs any residual numerical drift.
         assert!(gamma.abs() < 0.001, "clean system γ={gamma}, expected ~0");
     }
 
@@ -250,6 +251,7 @@ mod tests {
         let g = lyapunov_averaged(100_000, 1.0, 0.0, 20, 42);
         let xi = localization_length(g);
         let c = xi * 1.0_f64.powi(2);
+        // Derrida-Gardner C≈96; 20 realizations give ~√20 sample variance; [60,140] is ~±45% around 96.
         assert!(
             (60.0..140.0).contains(&c),
             "Thouless coefficient C={c}, expected ~96"

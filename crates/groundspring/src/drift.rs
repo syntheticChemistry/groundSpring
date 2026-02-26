@@ -163,6 +163,7 @@ mod tests {
     #[test]
     fn kimura_neutral() {
         let p = kimura_fixation_prob(100, 0.0, 0.5);
+        // Kimura formula with s=0 returns initial_freq exactly; 1e-10 absorbs floating-point in special-case branch.
         assert!((p - 0.5).abs() < 1e-10, "neutral fixation should be p₀");
     }
 

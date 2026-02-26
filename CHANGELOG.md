@@ -4,6 +4,57 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V19 Uncertainty Bridge + Idiomatic Evolution (Feb 26, 2026)
+
+#### Added
+- New **Experiment 015: Uncertainty Bridge** — cross-domain uncertainty propagation from sensor noise (Exp 001) through Anderson localization (Exp 008) to predict localization length confidence intervals
+- Python Phase 0 baseline: 8/8 PASS (Monte Carlo with PCG64, 200 samples × 10 realizations)
+- Rust Phase 1 validation binary `validate-uncertainty-bridge`: 8/8 PASS (Xorshift64 MC)
+- Experiment briefing at `whitePaper/experiments/015_uncertainty_bridge.md`
+- Python integration test `test_exp015_uncertainty_bridge`
+- CI: `validate-uncertainty-bridge` added to GitHub Actions workflow
+
+#### Changed
+- `seismic.rs`: extracted `origin_time_and_rms()` from `grid_search_inversion()` reducing main function complexity by 20 lines
+- `transport.rs`: `#[allow(clippy::many_single_char_names)]` → `#[expect(..., reason = "...")]` (modern Rust idiom, zero remaining `#[allow]`)
+- Validation binary pattern: `BridgeParams` struct replaces 10-argument functions (clippy `too_many_arguments` fix)
+
+#### Scientific Findings
+- At typical soil moisture (θ ≈ 0.30), Lyapunov exponent operates in the saturated regime — bias correction provides <1% improvement in localization length uncertainty
+- Sensor ranking preserved: EC5 (higher noise) → higher CV(ξ) than CS616 (lower noise)
+- This validates the Gen3 Sub-thesis 01+06 precursor: sensor noise quantification is a prerequisite for the Anderson-QS bridge
+
+#### Metrics
+- 226 Rust tests (was 225), 185/185 validation checks, 98.93% llvm-cov
+- 15 validation binaries (was 14), 15/15 experiments with parity
+- Zero `#[allow]` remaining (was 1), zero clippy warnings
+
+### V18 Deep Debt Evolution — Idiomatic Rust + Test Coverage (Feb 26, 2026)
+
+#### Added
+- New `kinetics` module: `hill()` and `hill_repress()` with barracuda delegation
+- 13 determinism tests: bitwise-identical rerun verification for all stochastic algorithms
+- 6 Hill kinetics unit tests
+- Python tests for Exp 012-014 in `test_experiments.py`
+- DOIs added to 10 benchmark JSONs (all 14 now have formal DOIs)
+- Tolerance justification comments on 17 library tests
+
+#### Fixed
+- CI: added 3 missing validation binaries (`validate-transport`, `validate-resampling-conv`, `validate-drift`)
+- Provenance: `validate_rawr` and `validate_rarefaction` now use standard `print_provenance_header`
+- Exp 013 lognormal convergence tolerance widened (1.2× → 1.5×) with justification
+- 3 pending `baseline_commit` fields stamped
+
+#### Changed
+- `almost_mathieu.rs`: Givens QR refactored from `Vec<Vec<f64>>` to flat row-major `Vec<f64>`
+- `transport.rs`: `tridiag_eigh` returns flat `Vec<f64>` instead of `Vec<Vec<f64>>`
+- `bistable.rs` and `multisignal.rs`: rewired from local `hill()` to `crate::kinetics::hill()`
+
+#### Metrics
+- 225 Rust tests (was 205), 177/177 validation checks, 98.94% llvm-cov
+- 0 clippy warnings (pedantic + nursery), 0 unsafe, 0 `Vec<Vec<f64>>`, 0 duplicate math
+- 14/14 CI validation binaries, 14/14 DOIs, 0 pending baseline commits
+
 ### V16 ToadStool S66 Catch-up + Deep Debt Evolution (Feb 26, 2026)
 - **ToadStool S66 review**: ToadStool reached Session 66 (2,541 tests, 707 WGSL
   shaders, sovereign compiler, DF64 multi-precision). V7 was last groundSpring

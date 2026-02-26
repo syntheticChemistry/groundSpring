@@ -103,3 +103,27 @@ class TestExperimentExitCodes:
             CONTROL_DIR / "multisignal_qs" / "multisignal_qs.py"
         )
         assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp012_spin_transport(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "spin_transport" / "spin_chain_transport.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp013_resampling_convergence(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "resampling_convergence" / "resampling_convergence.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp014_drift_selection(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "drift_selection" / "drift_selection.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp015_uncertainty_bridge(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "uncertainty_bridge" / "uncertainty_bridge.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
