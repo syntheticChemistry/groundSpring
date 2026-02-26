@@ -17,33 +17,17 @@ use groundspring::anderson::{
     anderson_potential, localization_length, lyapunov_averaged, lyapunov_exponent,
 };
 use groundspring::validate::ValidationHarness;
+use groundspring_validate::{f64_field, f64_range, print_provenance_header, usize_field};
 use serde_json::Value;
 
 const BENCHMARK: &str =
     include_str!("../../../control/anderson_localization/benchmark_anderson_localization.json");
 
-fn f64_field(v: &Value, key: &str) -> f64 {
-    v[key]
-        .as_f64()
-        .unwrap_or_else(|| panic!("missing f64 field: {key}"))
-}
-
-#[expect(clippy::cast_possible_truncation)]
-fn usize_field(v: &Value, key: &str) -> usize {
-    v[key]
-        .as_u64()
-        .unwrap_or_else(|| panic!("missing u64 field: {key}")) as usize
-}
-
-fn f64_range(arr: &Value) -> (f64, f64) {
-    let a = arr.as_array().expect("expected JSON array for range");
-    (
-        a[0].as_f64().expect("range lower bound"),
-        a[1].as_f64().expect("range upper bound"),
-    )
-}
-
 /// Disorder sweep: compute Lyapunov exponents across disorder strengths.
+///
+/// Tolerances: `strong_disorder_lyapunov_min` from JSON ensures γ > 0.3
+/// at W=8, which is the deep-localization regime where the transfer-matrix
+/// product converges within 10⁴ sites.
 fn disorder_sweep(
     h: &mut ValidationHarness,
     disorders: &[f64],
@@ -97,6 +81,9 @@ fn disorder_sweep(
 }
 
 /// Thouless scaling and localization-length checks.
+///
+/// Thouless coefficient C = ξ·W² ≈ 96 (Derrida-Gardner); the range
+/// [60, 140] from JSON absorbs finite-size effects at 10⁴ sites.
 fn thouless_and_localization(h: &mut ValidationHarness, gammas: &[(f64, f64)], exp: &Value) {
     println!("\n--- Part 3: Thouless Scaling ---");
 
@@ -138,6 +125,8 @@ fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Anderson Localization");
 
+    print_provenance_header(&bench, "Anderson Localization");
+
     let model = &bench["model"];
     let pred = &bench["analytical_predictions"];
     let exp = &bench["expected_results"];
@@ -153,12 +142,12 @@ fn run() -> i32 {
         .map(|v| v.as_f64().expect("disorder f64"))
         .collect();
 
-    println!("{}", "=".repeat(72));
-    println!("groundSpring Rust Validation: Anderson Localization");
     println!("  Model: 1D tight-binding, {n_sites} sites, {n_real} realizations");
-    println!("{}", "=".repeat(72));
 
     // ── Part 1: Clean system ──────────────────────────────────────────
+    // Tol: `clean_lyapunov_tol` from JSON (0.001); for W=0 the transfer
+    // matrix is a rotation and γ = 0 analytically. Tolerance absorbs
+    // finite-chain drift at 10⁵ sites.
     println!("\n--- Part 1: Clean System (W=0) ---");
 
     let gamma_clean = lyapunov_averaged(n_sites, 0.0, energy, 1, 42);

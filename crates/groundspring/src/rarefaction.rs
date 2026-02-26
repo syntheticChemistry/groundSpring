@@ -11,22 +11,32 @@ use crate::cast::{u64_f64, usize_f64};
 
 /// Shannon diversity index H' = −Σ(pᵢ ln pᵢ).
 ///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::shannon` (natural log convention).
 /// Operates on a count vector.  Returns `0.0` if the total count is zero.
 #[must_use]
 pub fn shannon_diversity(counts: &[u64]) -> f64 {
-    let total: u64 = counts.iter().sum();
-    if total == 0 {
-        return 0.0;
+    #[cfg(feature = "barracuda")]
+    {
+        let f_counts: Vec<f64> = counts.iter().map(|&c| u64_f64(c)).collect();
+        barracuda::stats::shannon(&f_counts)
     }
-    let total_f = u64_f64(total);
-    counts
-        .iter()
-        .filter(|&&c| c > 0)
-        .map(|&c| {
-            let p = u64_f64(c) / total_f;
-            -p * p.ln()
-        })
-        .sum()
+    #[cfg(not(feature = "barracuda"))]
+    {
+        let total: u64 = counts.iter().sum();
+        if total == 0 {
+            return 0.0;
+        }
+        let total_f = u64_f64(total);
+        counts
+            .iter()
+            .filter(|&&c| c > 0)
+            .map(|&c| {
+                let p = u64_f64(c) / total_f;
+                -p * p.ln()
+            })
+            .sum()
+    }
 }
 
 /// Pielou's evenness J' = H' / ln(S).

@@ -11,59 +11,13 @@ of truth rather than carrying its own copy.
 
 from __future__ import annotations
 
-import json
 import math
-import subprocess
-from datetime import datetime, timezone
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
 
 if TYPE_CHECKING:
     pass
-
-
-# ---------------------------------------------------------------------------
-# Provenance — reproducible benchmark generation
-# ---------------------------------------------------------------------------
-
-def provenance_metadata(script_path: str, notes: str = "") -> dict:
-    """Collect git commit, date, and command for benchmark provenance."""
-    try:
-        commit = subprocess.check_output(
-            ["git", "rev-parse", "HEAD"],
-            stderr=subprocess.DEVNULL,
-        ).decode().strip()
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        commit = "unknown"
-
-    return {
-        "baseline_date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-        "baseline_commit": commit,
-        "validation_script": script_path,
-        "command": f"python3 {script_path}",
-        "notes": notes,
-    }
-
-
-def write_benchmark(
-    data: dict,
-    output_path: str | Path,
-    *,
-    script_path: str,
-    notes: str = "",
-) -> None:
-    """Write a benchmark JSON with embedded provenance metadata.
-
-    Merges a fresh ``_provenance`` block into *data* and writes
-    pretty-printed JSON to *output_path*.
-    """
-    data["_provenance"] = provenance_metadata(script_path, notes)
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
-    print(f"  Wrote benchmark: {path}")
 
 
 # ---------------------------------------------------------------------------

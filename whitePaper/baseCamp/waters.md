@@ -2,7 +2,7 @@
 
 **Faculty**: Christopher Waters (MMG, Michigan State University)
 **Domain**: Quorum sensing, c-di-GMP signaling, biofilm formation
-**groundSpring Connection**: Exp 006 (signal specificity) — DONE. Exp 001 (sensor noise decomposition) applied to biological sensing.
+**groundSpring Connection**: Exp 006 (signal specificity), Exp 010 (bistable switching), Exp 011 (multi-signal QS) — all DONE. Exp 001 (sensor noise decomposition) applied to biological sensing.
 
 ---
 
@@ -27,25 +27,33 @@ di-GMP Signaling." PNAS 109:12746-51. DOI: 10.1073/pnas.1115663109
 - **Open Code**: ODE model parameters published; reimplementable from Methods
 - **groundSpring Modules**: `decompose` (signal vs noise in FRET data),
   `stats` (R², correlation), `gillespie` module (stochastic SSA noise floor)
-- **BarraCUDA Needs**: `GillespieGpu` (exists in barracuda, not yet delegated — needs PRNG alignment), ODE integrator
-  (exists: `BatchedOdeRK4`)
+- **BarraCUDA Needs**: `GillespieGpu` (exists in barracuda — GPU-only, no CPU fallback;
+  needs PRNG alignment from Xorshift64 → xoshiro128** before delegation), ODE integrator
+  (exists: `BatchedOdeRK4`). Gillespie delegation is Tier B: requires rebaseline of
+  all stochastic experiments once PRNG alignment is resolved.
 - **Control Plan**: Python ODE → Rust CPU → barracuda GPU (Gillespie + ODE)
 
-### Tier 2
+### Tier 1 (continued)
 
 **Paper #10**: Fernandez et al. (2020) "V. cholerae adapts to sessile and
 motile lifestyles by c-di-GMP regulation of cell shape." PNAS 117:29046-29054.
 
 - **Open Data**: Flow cytometry data in PNAS SI
-- **Method**: Bistable switching — bifurcation analysis of phenotype transitions
-- **groundSpring Modules**: `decompose` (noise threshold for phenotype switching)
+- **Open Code**: ODE model parameters published; reimplementable from Methods
+- **groundSpring Modules**: `bistable` (ODE integration, RK4, Euler-Maruyama),
+  `prng` (stochastic noise)
+- **BarraCUDA Needs**: `BistableOde::cpu_derivative` **delegated** via `OdeSystem` trait
+- **Control Plan**: **DONE** — 10/10 Python, 9/9 Rust, **18.5× faster**
 
 **Paper #11**: Srivastava et al. (2011) "Integration of Cyclic di-GMP and
 Quorum Sensing in the Control of vpsT and aphA." J Bacteriology 193:6331-41.
 
 - **Open Data**: qRT-PCR fold-change data in supplementary tables
-- **Method**: Multi-input signal integration — how cells fuse noisy signals
-- **groundSpring Modules**: `stats` (multi-input correlation), `decompose`
+- **Open Code**: ODE model parameters published; reimplementable from Methods
+- **groundSpring Modules**: `multisignal` (dual-signal ODE, RK4, Euler-Maruyama),
+  `prng` (stochastic noise)
+- **BarraCUDA Needs**: `MultiSignalOde::cpu_derivative` **delegated** via `OdeSystem` trait
+- **Control Plan**: **DONE** — 9/9 Python, 8/8 Rust, **46.2× faster**
 
 ## BarraCUDA Kernel Requirements
 
@@ -60,8 +68,8 @@ Quorum Sensing in the Control of vpsT and aphA." J Bacteriology 193:6331-41.
 
 | Tier | Validation | Status |
 |------|-----------|--------|
-| CPU | Python ODE baseline matches Rust | **DONE** (12/12 PASS, 30.9× faster) |
-| GPU | Gillespie GPU matches CPU statistics | Requires PRNG alignment |
+| CPU | Python ODE baseline matches Rust (Exp 006, 010, 011) | **DONE** (29/29 checks, 18–46× faster) |
+| GPU | Gillespie + ODE GPU matches CPU statistics | Exp 006: PRNG alignment; Exp 010/011: ODE delegated |
 | metalForge | Cross-substrate stochastic agreement | After GPU tier |
 
 ## Cross-Spring

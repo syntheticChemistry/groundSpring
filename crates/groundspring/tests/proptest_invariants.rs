@@ -38,7 +38,7 @@ proptest! {
     fn std_dev_of_constant_is_zero(c in -1e6_f64..1e6, n in 2_usize..100) {
         let v = vec![c; n];
         let sd = std_dev(&v);
-        let tol = c.abs() * 1e-12 + 1e-14;
+        let tol = c.abs().mul_add(1e-12, 1e-14);
         prop_assert!(sd < tol, "std_dev({c}) = {sd}");
     }
 
@@ -109,7 +109,7 @@ proptest! {
         let a = &a[..len];
         let b = &b[..len];
         let r = pearson_r(a, b);
-        prop_assert!(r >= -1.0 - 1e-8 && r <= 1.0 + 1e-8, "r = {r}");
+        prop_assert!((-1.0 - 1e-8..=1.0 + 1e-8).contains(&r), "r = {r}");
     }
 }
 
@@ -138,6 +138,6 @@ proptest! {
     #[test]
     fn cdf_bounded(z in -10.0_f64..10.0) {
         let p = norm_cdf(z);
-        prop_assert!(p >= 0.0 && p <= 1.0, "CDF({z}) = {p}");
+        prop_assert!((0.0..=1.0).contains(&p), "CDF({z}) = {p}");
     }
 }

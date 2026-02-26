@@ -58,6 +58,9 @@ This decomposition is applied across all domains:
 - Stochastic biochemical noise (Exp 006)
 - Resampling confidence estimation (Exp 007)
 - Disorder-induced localization (Exp 008)
+- Quasiperiodic localization (Exp 009)
+- Bistable phenotypic switching (Exp 010)
+- Multi-signal QS integration (Exp 011)
 
 ## Experiment Details
 
@@ -110,6 +113,24 @@ This decomposition is applied across all domains:
 **Method**: Transfer-matrix Lyapunov exponent computation + Thouless scaling
 **Validation**: 1 clean + 1 positivity + 1 monotonicity + 1 strong disorder + 1 Thouless + 1 ξ ordering + 2 determinism = 8 checks (Python and Rust)
 
+### Exp 009: Almost-Mathieu Quasiperiodic Localization
+
+**Input**: Almost-Mathieu operator with golden-ratio frequency (Paper #16)
+**Method**: Aubry-André metal-insulator transition, Herman's formula, level spacing statistics
+**Validation**: 1 clean + 3 coupling sweep + 1 critical + 1 monotonicity + 2 level spacing = 8 checks
+
+### Exp 010: Bistable Phenotypic Switching
+
+**Input**: Fernandez et al. (2020 PNAS) 5-variable ODE parameters
+**Method**: Deterministic integration with two initial conditions; monostable control; stochastic switching
+**Validation**: 2 cell capacity + 4 attractor + 1 monostable + 1 determinism + 1 stochastic = 9 checks
+
+### Exp 011: Multi-Signal QS Integration
+
+**Input**: Srivastava et al. (2011 J Bacteriology) 7-variable dual-signal ODE
+**Method**: Dual-signal vs single-signal comparison; deterministic and low-noise stochastic
+**Validation**: 3 steady state + 3 single-signal + 1 determinism + 1 low-noise = 8 checks
+
 ### Phase 1: Rust / BarraCUDA Validation
 
 Phase 1 ports each experiment's core algorithm to idiomatic Rust in the
@@ -126,16 +147,19 @@ Phase 1 ports each experiment's core algorithm to idiomatic Rust in the
 | `validate-signal-specificity` | Exp 006 | 12 | `gillespie`, `prng` |
 | `validate-rawr` | Exp 007 | 11 | `bootstrap`, `prng`, `stats` |
 | `validate-anderson` | Exp 008 | 8 | `anderson`, `prng` |
+| `validate-quasiperiodic` | Exp 009 | 8 | `anderson` |
+| `validate-bistable` | Exp 010 | 9 | `bistable` |
+| `validate-multisignal` | Exp 011 | 8 | `multisignal` |
 
 ### Rust Quality Gates
 
 | Gate | Requirement |
 |------|-------------|
-| `cargo test` | 154 total tests (131 unit + 14 proptest + 8 integration + 1 doc), all pass |
+| `cargo test` | 177 total tests (131 unit + 9 validate-lib + 14 proptest + 8 integration + 1 doc), all pass |
 | `cargo clippy` | Zero warnings (pedantic + nursery) |
 | `cargo fmt` | Clean |
 | `cargo doc` | Clean, `missing_docs = "deny"` |
-| `cargo llvm-cov` | 98.64% line coverage (cargo-llvm-cov) |
+| `cargo llvm-cov` | 99.11% line coverage (cargo-llvm-cov) |
 | No `unsafe` | Enforced at workspace lint level |
 | Max file size | 1000 lines per file |
 | Provenance | Benchmark JSONs have real commit SHA |
@@ -145,7 +169,7 @@ Phase 1 ports each experiment's core algorithm to idiomatic Rust in the
 groundSpring follows the **Write → Absorb → Lean** cycle (hotSpring pattern):
 
 1. Write CPU implementations + production WGSL shaders (`metalForge/shaders/`)
-2. Validate CPU against Python baselines (119/119 checks)
+2. Validate CPU against Python baselines (144/144 checks)
 3. Hand off WGSL to ToadStool/BarraCUDA with binding layout documentation
 4. BarraCUDA absorbs as upstream op
 5. groundSpring rewires behind `#[cfg(feature = "barracuda")]`
@@ -172,6 +196,6 @@ Same as all ecoPrimals springs:
 
 ## Grand Total
 
-- **Phase 0 (Python)**: 102/102 quantitative checks passed across 8 experiments, 6 domains.
-- **Phase 1 (Rust)**: 119/119 checks passed across 8 validation binaries.
-- **Phase 2a (Barracuda CPU)**: 11 functions delegated, 24× faster than Python.
+- **Phase 0 (Python)**: ~129 quantitative checks passed across 11 experiments, 6 domains.
+- **Phase 1 (Rust)**: 144/144 checks passed across 11 validation binaries.
+- **Phase 2a (Barracuda)**: 24 functions delegated (19 CPU + 5 GPU). 22× faster than Python (all 11 experiments). Exp 009: 50× from Sturm tridiag. 11/11 parity proven.

@@ -4,7 +4,7 @@
 **Previously**: Institute for Advanced Study, UC Irvine
 **Co-author**: Jean Bourgain (Fields Medal, 1994)
 **Domain**: Anderson localization, quasiperiodic operators, spectral theory
-**groundSpring Connection**: Exp 008 (Anderson localization) — DONE. Mathematical foundation for ALL five pillars.
+**groundSpring Connection**: Exp 008 (Anderson localization) and Exp 009 (Almost-Mathieu quasiperiodic) — both DONE. Mathematical foundation for ALL five pillars.
 
 ---
 
@@ -46,8 +46,12 @@ DOI: 10.1007/s00039-019-00478-4
 for quasiperiodic operators with Lipschitz monotone potentials." JEMS 21:777-795.
 
 - **Open Data**: Analytical; Almost-Mathieu model parameters from paper
-- **groundSpring Modules**: New `quasiperiodic` module (structured noise analysis)
-- **BarraCUDA Needs**: Almost-Mathieu operator (exists in barracuda `spectral`)
+- **groundSpring Modules**: `anderson` (extended: `almost_mathieu_potential`,
+  `almost_mathieu_hamiltonian`, `level_spacing_ratio`)
+- **BarraCUDA Needs**: `almost_mathieu_hamiltonian` **delegated** to barracuda-gpu
+  (coupling convention adjusted at delegation boundary)
+- **Control Plan**: **DONE** — 8/8 Python, 8/8 Rust. Aubry-André transition at
+  λ=2 confirmed, Herman's formula verified, level statistics distinguish phases.
 
 ### Tier 2
 
@@ -78,8 +82,8 @@ of 2d periodic elliptic operators." Acta Math 221:59-80.
 
 | Tier | Validation | Status |
 |------|-----------|--------|
-| CPU | Python Anderson model matches Rust | **DONE** (8/8 PASS, 29.8× faster) |
-| GPU | barracuda `spectral` matches CPU | `lyapunov_exponent`, `lyapunov_averaged` delegated; `analytical_localization_length` → `barracuda::special::anderson_transport::localization_length` |
+| CPU | Python models match Rust (Exp 008 + 009) | **DONE** (16/16 PASS; 008: 29.9×, 009: parity proven) |
+| GPU | barracuda `spectral` matches CPU | `lyapunov_*` delegated, `almost_mathieu_hamiltonian` delegated, `analytical_localization_length` delegated |
 | metalForge | Cross-substrate for large lattice | After GPU tier |
 
 ## Cross-Spring

@@ -9,7 +9,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 BINS=(validate-decompose validate-rarefaction validate-seismic validate-weather
-      validate-fao56 validate-signal-specificity validate-rawr validate-anderson)
+      validate-fao56 validate-signal-specificity validate-rawr validate-anderson
+      validate-quasiperiodic validate-bistable validate-multisignal)
 
 MODES=("default (local)" "barracuda" "barracuda-gpu")
 FEATURES=("" "--features barracuda" "--features barracuda-gpu")
@@ -63,6 +64,6 @@ done
 
 echo ""
 printf "| %-30s | %10s ms | %10s ms | %10s ms | %8s |\n" \
-    "**TOTAL**" "$total_local" "$total_barra" "$total_gpu" "119/119"
+    "**TOTAL**" "$total_local" "$total_barra" "$total_gpu" "144/144"
 echo ""
-echo "All 119/119 validation checks PASS in all three modes."
+echo "All 144/144 validation checks PASS in all three modes."

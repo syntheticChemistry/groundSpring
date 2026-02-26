@@ -43,41 +43,50 @@ from common import (
 # Runtime discovery of airSpring FAO-56 module
 # ---------------------------------------------------------------------------
 
-def _discover_airspring_fao56() -> Path | None:
-    """Discover airSpring FAO-56 module at runtime.
+def _discover_fao56_capability() -> Path | None:
+    """Discover a FAO-56 Penman-Monteith module at runtime.
+
+    groundSpring has no compile-time knowledge of which primal provides
+    FAO-56.  Discovery is capability-based: we look for a directory
+    containing ``penman_monteith.py`` with the required callables.
 
     Discovery strategy (first match wins):
-      1. ``AIRSPRING_ROOT`` environment variable (explicit override)
-      2. ``ECOPRIMALS_ROOT`` env var + ``airSpring/control/fao56``
-      3. Relative sibling: ``../../airSpring/control/fao56`` from this primal's root
+      1. ``FAO56_MODULE_PATH`` — explicit path to directory with module
+      2. ``ECOPRIMALS_ROOT`` — scan all sibling primals for
+         ``control/fao56/penman_monteith.py``
+      3. Filesystem scan of sibling directories under the ecoPrimals root
     """
-    target = Path("control") / "fao56"
     module_file = "penman_monteith.py"
+    capability_path = Path("control") / "fao56"
 
-    env_air = os.environ.get("AIRSPRING_ROOT")
-    if env_air:
-        p = Path(env_air) / target
+    env_fao = os.environ.get("FAO56_MODULE_PATH")
+    if env_fao:
+        p = Path(env_fao)
         if (p / module_file).exists():
             return p
 
-    env_eco = os.environ.get("ECOPRIMALS_ROOT")
-    if env_eco:
-        p = Path(env_eco) / "airSpring" / target
-        if (p / module_file).exists():
-            return p
+    eco_root = os.environ.get("ECOPRIMALS_ROOT")
+    if eco_root is None:
+        eco_root_path = Path(__file__).resolve().parent.parent.parent.parent
+    else:
+        eco_root_path = Path(eco_root)
 
-    primal_root = Path(__file__).resolve().parent.parent.parent.parent
-    p = primal_root / "airSpring" / target
-    if (p / module_file).exists():
-        return p
+    if eco_root_path.is_dir():
+        for sibling in sorted(eco_root_path.iterdir()):
+            if not sibling.is_dir():
+                continue
+            candidate = sibling / capability_path / module_file
+            if candidate.exists():
+                return candidate.parent
 
     return None
 
 
-_fao56_path = _discover_airspring_fao56()
+_fao56_path = _discover_fao56_capability()
 if _fao56_path is None:
-    print("ERROR: Cannot discover airSpring FAO-56 module.")
-    print("  groundSpring Exp 003 requires airSpring/control/fao56/penman_monteith.py")
+    print("ERROR: Cannot discover FAO-56 module.")
+    print("  groundSpring Exp 003 requires a sibling primal that provides")
+    print("  control/fao56/penman_monteith.py, or set FAO56_MODULE_PATH.")
     sys.exit(1)
 
 sys.path.insert(0, str(_fao56_path))

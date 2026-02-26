@@ -17,7 +17,9 @@ use super::metrics::mean;
 ///
 /// When the `barracuda` feature is enabled, delegates to
 /// `barracuda::stats::pearson_correlation`.
-/// Returns `0.0` when total sum of squares is zero for either variable.
+/// Returns `0.0` when total sum of squares is zero for either variable,
+/// or when the `barracuda` delegate reports an error (matching the local
+/// fallback semantics for degenerate inputs).
 ///
 /// # Panics
 ///
@@ -27,12 +29,10 @@ pub fn pearson_r(x: &[f64], y: &[f64]) -> f64 {
     assert_eq!(x.len(), y.len(), "x and y must have equal length");
     #[cfg(feature = "barracuda")]
     {
-        let r = barracuda::stats::pearson_correlation(x, y).unwrap_or(0.0);
-        if r.is_nan() {
-            0.0
-        } else {
-            r
+        if let Ok(r) = barracuda::stats::pearson_correlation(x, y) {
+            return if r.is_nan() { 0.0 } else { r };
         }
+        0.0
     }
     #[cfg(not(feature = "barracuda"))]
     {
@@ -65,7 +65,8 @@ pub fn pearson_r(x: &[f64], y: &[f64]) -> f64 {
 ///
 /// When the `barracuda` feature is enabled, delegates to
 /// `barracuda::stats::spearman_correlation`.
-/// Returns `0.0` for empty slices or when variance is zero.
+/// Returns `0.0` for empty slices, when variance is zero, or when the
+/// `barracuda` delegate reports an error (matching the local fallback).
 ///
 /// # Panics
 ///
@@ -75,12 +76,10 @@ pub fn spearman_r(x: &[f64], y: &[f64]) -> f64 {
     assert_eq!(x.len(), y.len(), "x and y must have equal length");
     #[cfg(feature = "barracuda")]
     {
-        let r = barracuda::stats::correlation::spearman_correlation(x, y).unwrap_or(0.0);
-        if r.is_nan() {
-            0.0
-        } else {
-            r
+        if let Ok(r) = barracuda::stats::correlation::spearman_correlation(x, y) {
+            return if r.is_nan() { 0.0 } else { r };
         }
+        0.0
     }
     #[cfg(not(feature = "barracuda"))]
     {
@@ -116,7 +115,8 @@ pub fn spearman_r(x: &[f64], y: &[f64]) -> f64 {
 ///
 /// When the `barracuda` feature is enabled, delegates to
 /// `barracuda::stats::correlation::covariance`.
-/// Returns `0.0` for slices with fewer than 2 elements.
+/// Returns `0.0` for slices with fewer than 2 elements, or when the
+/// `barracuda` delegate reports an error (matching the local fallback).
 ///
 /// # Panics
 ///
@@ -126,7 +126,10 @@ pub fn covariance(x: &[f64], y: &[f64]) -> f64 {
     assert_eq!(x.len(), y.len(), "x and y must have equal length");
     #[cfg(feature = "barracuda")]
     {
-        barracuda::stats::correlation::covariance(x, y).unwrap_or(0.0)
+        if let Ok(c) = barracuda::stats::correlation::covariance(x, y) {
+            return c;
+        }
+        0.0
     }
     #[cfg(not(feature = "barracuda"))]
     {

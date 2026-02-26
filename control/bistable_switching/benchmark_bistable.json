@@ -1,0 +1,61 @@
+{
+  "_source": "groundSpring Experiment 010 — Bistable Phenotypic Switching",
+  "_references": [
+    "Fernandez, Waters et al. (2020) Bistable switching in V. cholerae biofilm. PNAS 117:26058-26068",
+    "Waters (2008) QS: cell-to-cell communication in bacteria. Annu Rev Cell Dev Biol 24:511-544",
+    "Hammer & Bassler (2007) Distinct sensory pathways in the quorum sensing phosphorelay. Mol Microbiol 64:547-558"
+  ],
+  "_provenance": {
+    "generated_by": "RK4 ODE integration of 5-variable bistable QS/c-di-GMP/biofilm model",
+    "data_origin": "Analytical: ODE model from barracuda::numerical::ode_bio::BistableOde (Fernandez 2020 parameters). Bistability from positive feedback.",
+    "real_data_accession": "Fernandez et al. 2020, PNAS SI — parameter ranges for V. cholerae c-di-GMP circuit",
+    "prng_algorithm": "xorshift64 (Marsaglia 2003), seed=42",
+    "baseline_date": "2026-02-25",
+    "baseline_commit": "pending",
+    "validation_script": "control/bistable_switching/bistable_switching.py",
+    "command": "python3 control/bistable_switching/bistable_switching.py"
+  },
+  "_description": "Bistable switching in V. cholerae QS/biofilm circuit: positive feedback on DGC creates two stable phenotypes (motile/sessile)",
+  "_groundspring_question": "When does stochastic noise push a bistable biological system across its switching threshold? This is Anderson localization's biological analog — noise determines which state the system occupies.",
+  "_cross_spring": "wetSpring — biological ODE systems, QS signaling",
+
+  "model": {
+    "_description": "5-variable ODE: [cell, AI, HapR, c-di-GMP, biofilm]. QsBiofilm base + positive feedback α_fb · Hill(bio, K_fb, n_fb). Default barracuda parameters.",
+    "n_vars": 5,
+    "n_params": 21,
+    "dt": 0.01,
+    "t_final": 200.0,
+    "initial_low_cdg": [0.95, 4.5, 1.9, 0.3, 0.02],
+    "initial_high_cdg": [0.95, 4.5, 1.9, 2.5, 0.85],
+    "parameters": {
+      "mu_max": 0.8, "k_cap": 1.0, "death_rate": 0.02,
+      "k_ai_prod": 5.0, "d_ai": 1.0,
+      "k_hapr_max": 1.0, "k_hapr_ai": 0.5, "n_hapr": 2.0, "d_hapr": 0.5,
+      "k_dgc_basal": 2.0, "k_dgc_rep": 0.3,
+      "k_pde_basal": 0.5, "k_pde_act": 0.5,
+      "d_cdg": 0.3,
+      "k_bio_max": 1.0, "k_bio_cdg": 1.5, "n_bio": 4.0, "d_bio": 0.2,
+      "alpha_fb": 3.0, "n_fb": 4.0, "k_fb": 0.6
+    }
+  },
+
+  "analytical_predictions": {
+    "_description": "Positive feedback α_fb creates bistability. At default params (α_fb=3.0), two stable fixed points exist. Without feedback (α_fb=0), monostable.",
+    "monostable_below_alpha": "alpha_fb < ~1.0",
+    "bistable_above_alpha": "alpha_fb > ~1.5",
+    "cell_steady_state": 0.975,
+    "cell_tol": 0.1
+  },
+
+  "expected_results": {
+    "cell_reaches_capacity_tol": 0.1,
+    "low_cdg_attractor_max": 1.5,
+    "high_cdg_attractor_min": 1.2,
+    "biofilm_low_attractor_max": 0.3,
+    "biofilm_high_attractor_min": 0.5,
+    "monostable_attractors_agree_tol": 0.5,
+    "deterministic_trajectories_agree": true,
+    "stochastic_switching_rate_range": [0.001, 0.5],
+    "low_noise_agreement_tol": 0.3
+  }
+}

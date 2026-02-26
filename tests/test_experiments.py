@@ -43,9 +43,14 @@ class TestExperimentExitCodes:
         assert result.returncode == 0, result.stdout + result.stderr
 
     def test_exp003_error_propagation(self) -> None:
-        airspring = CONTROL_DIR.parent.parent / "airSpring" / "control" / "fao56"
-        if not (airspring / "penman_monteith.py").exists():
-            pytest.skip("airSpring FAO-56 module not found")
+        eco_root = CONTROL_DIR.parent.parent
+        has_fao56 = any(
+            (sibling / "control" / "fao56" / "penman_monteith.py").exists()
+            for sibling in eco_root.iterdir()
+            if sibling.is_dir()
+        )
+        if not has_fao56:
+            pytest.skip("No sibling primal provides FAO-56 module")
         result = _run_experiment(
             CONTROL_DIR / "error_propagation" / "error_propagation_fao56.py"
         )
@@ -78,5 +83,23 @@ class TestExperimentExitCodes:
     def test_exp008_anderson_localization(self) -> None:
         result = _run_experiment(
             CONTROL_DIR / "anderson_localization" / "anderson_localization.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp009_quasiperiodic_localization(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "quasiperiodic" / "quasiperiodic_localization.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp010_bistable_switching(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "bistable_switching" / "bistable_switching.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp011_multisignal_qs(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "multisignal_qs" / "multisignal_qs.py"
         )
         assert result.returncode == 0, result.stdout + result.stderr

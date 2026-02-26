@@ -11,36 +11,16 @@
 
 use groundspring::decompose::{decompose_error, noise_floor_reduction};
 use groundspring::validate::ValidationHarness;
+use groundspring_validate::{f64_field, print_provenance_header};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/sensor_noise/benchmark_sensor_noise.json");
-
-fn f64_field(v: &Value, key: &str) -> f64 {
-    v[key]
-        .as_f64()
-        .unwrap_or_else(|| panic!("missing f64 field: {key}"))
-}
 
 fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Bias-Variance Decomposition");
 
-    println!("{}", "=".repeat(72));
-    println!("groundSpring Rust Validation: Bias-Variance Decomposition");
-    println!(
-        "  Source: {}",
-        bench["_source"].as_str().unwrap_or("Dong et al. (2020)")
-    );
-    println!(
-        "  Provenance: commit {}, {}",
-        bench["_provenance"]["baseline_commit"]
-            .as_str()
-            .unwrap_or("unknown"),
-        bench["_provenance"]["baseline_date"]
-            .as_str()
-            .unwrap_or("unknown"),
-    );
-    println!("{}", "=".repeat(72));
+    print_provenance_header(&bench, "Bias-Variance Decomposition");
 
     let sensors: Vec<&str> = bench["sensors"]
         .as_array()

@@ -9,7 +9,7 @@ that proves Python baselines can be faithfully ported to Rust and eventually
 promoted to GPU acceleration via the Write → Absorb → Lean cycle.
 
 ```
-control/             Python Phase 0 experiments (8 experiments across 5+ domains)
+control/             Python Phase 0 experiments (11 experiments across 6 domains)
   common.py          Shared statistical primitives
   sensor_noise/      Exp 001: Bias-variance decomposition
   observation_gap/   Exp 002: Model-observation gap
@@ -19,8 +19,11 @@ control/             Python Phase 0 experiments (8 experiments across 5+ domains
   signal_specificity/ Exp 006: c-di-GMP Gillespie SSA
   rawr_resampling/   Exp 007: RAWR bootstrap
   anderson_localization/ Exp 008: Anderson localization
+  quasiperiodic/       Exp 009: Almost-Mathieu quasiperiodic
+  bistable_switching/  Exp 010: Bistable phenotypic switching
+  multisignal_qs/      Exp 011: Multi-signal QS integration
 crates/
-  groundspring/            Rust library (11 modules)
+  groundspring/            Rust library (13 modules)
     src/stats/             RMSE, MBE, R², IA, hit rate, Pearson/Spearman, covariance,
                            norm_cdf/ppf, chi2_statistic, mean, std, percentile (3 submodules)
     src/decompose.rs       Bias-variance decomposition, noise floor
@@ -30,10 +33,12 @@ crates/
     src/seismic.rs         Haversine, travel time, grid-search inversion
     src/gillespie.rs       Gillespie SSA for stochastic kinetics
     src/bootstrap.rs       Bootstrap + RAWR confidence intervals (bootstrap_mean delegated)
-    src/anderson.rs        Anderson localization, Lyapunov exponents, analytical ξ(W,E)
+    src/anderson.rs        Anderson localization, Lyapunov exponents, Almost-Mathieu, analytical ξ(W,E)
+    src/bistable.rs        Bistable ODE (RK4, Euler-Maruyama, BistableOde delegation)
+    src/multisignal.rs     Multi-signal QS ODE (dual-signal integration, ODE delegation)
     src/cast.rs            Centralized numeric casts (usize_f64, f64_usize, u64_f64)
     src/validate.rs        Struct-based ValidationHarness
-  groundspring-validate/   8 validation binaries (hotSpring pattern)
+  groundspring-validate/   11 validation binaries (hotSpring pattern)
 metalForge/          Write → Absorb → Lean artifacts
   ABSORPTION_MANIFEST.md  Module-by-module absorption inventory
   shaders/                 Production WGSL shaders for ToadStool absorption
@@ -51,19 +56,23 @@ scripts/             Automation (baselines, benchmarks)
 5. **All Rust modules have doc comments** including `# Panics` sections.
 6. **Deterministic.** All stochastic operations use explicit seeds. Rerun-identical.
 7. **Provenance.** Every benchmark JSON has a `_provenance` block with real commit SHA.
-8. **Primal isolation.** groundSpring does not hardcode sibling primal paths.
-   Discovery happens at runtime.
+8. **Primal isolation.** groundSpring does not hardcode sibling primal names.
+   Discovery is capability-based: scan for the needed file/module, not the
+   primal name. Use `FAO56_MODULE_PATH` or `ECOPRIMALS_ROOT` env vars.
 9. **No duplicate math.** If barracuda has a primitive, use it (behind feature gate).
+10. **Graceful barracuda fallback.** All `#[cfg(feature = "barracuda")]` blocks
+    use `if let Ok` with a CPU fallback that is always compiled. Never `.expect()`
+    or `.unwrap()` on barracuda calls in production code.
 
 ## Development
 
 ### Rust
 
 ```bash
-cargo test --workspace          # 154 tests (131 unit + 14 proptest + 8 integration + 1 doc)
+cargo test --workspace          # 163 tests (131 unit + 9 validate-lib + 14 proptest + 8 integration + 1 doc)
 cargo clippy --workspace        # zero warnings required
 cargo fmt --check               # clean
-cargo llvm-cov --workspace       # 98.64% workspace line coverage
+cargo llvm-cov --workspace       # 99.11% workspace line coverage
 
 # With barracuda feature gates (requires toadstool checkout):
 cargo test --features barracuda     # CPU delegation (8 of 11: stats, bootstrap)

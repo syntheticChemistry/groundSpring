@@ -50,24 +50,20 @@ pub fn bootstrap_mean(
 
     #[cfg(feature = "barracuda")]
     {
-        let ci = barracuda::stats::bootstrap_mean(data, n_replicates, confidence, seed)
-            .expect("barracuda bootstrap_mean failed");
-        BootstrapResult {
-            estimate: ci.estimate,
-            ci_lower: ci.lower,
-            ci_upper: ci.upper,
-            std_error: ci.std_error,
+        if let Ok(ci) = barracuda::stats::bootstrap_mean(data, n_replicates, confidence, seed) {
+            return BootstrapResult {
+                estimate: ci.estimate,
+                ci_lower: ci.lower,
+                ci_upper: ci.upper,
+                std_error: ci.std_error,
+            };
         }
     }
 
-    #[cfg(not(feature = "barracuda"))]
-    {
-        bootstrap_mean_local(data, n_replicates, confidence, seed)
-    }
+    bootstrap_mean_cpu(data, n_replicates, confidence, seed)
 }
 
-#[cfg(not(feature = "barracuda"))]
-fn bootstrap_mean_local(
+fn bootstrap_mean_cpu(
     data: &[f64],
     n_replicates: usize,
     confidence: f64,

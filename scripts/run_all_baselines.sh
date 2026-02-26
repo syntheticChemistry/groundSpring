@@ -88,6 +88,18 @@ run_experiment \
     "Exp 008: Anderson Localization (Python)" \
     "python3 control/anderson_localization/anderson_localization.py"
 
+run_experiment \
+    "Exp 009: Quasiperiodic Localization (Python)" \
+    "python3 control/quasiperiodic/quasiperiodic_localization.py"
+
+run_experiment \
+    "Exp 010: Bistable Switching (Python)" \
+    "python3 control/bistable_switching/bistable_switching.py"
+
+run_experiment \
+    "Exp 011: Multi-Signal QS (Python)" \
+    "python3 control/multisignal_qs/multisignal_qs.py"
+
 echo ""
 echo "╔══════════════════════════════════════════════════════════════╗"
 echo "║  PHASE 1: Rust Validation Binaries                         ║"
@@ -127,6 +139,18 @@ if command -v cargo &> /dev/null; then
     run_experiment \
         "Rust: Anderson Localization" \
         "cargo run --release --bin validate-anderson"
+
+    run_experiment \
+        "Rust: Quasiperiodic Localization" \
+        "cargo run --release --bin validate-quasiperiodic"
+
+    run_experiment \
+        "Rust: Bistable Switching" \
+        "cargo run --release --bin validate-bistable"
+
+    run_experiment \
+        "Rust: Multi-Signal QS" \
+        "cargo run --release --bin validate-multisignal"
 else
     echo "  [SKIP] cargo not found — Rust validation skipped"
 fi

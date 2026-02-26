@@ -47,3 +47,15 @@ path = "src/validate_rawr.rs"
 [[bin]]
 name = "validate-anderson"
 path = "src/validate_anderson.rs"
+
+[[bin]]
+name = "validate-quasiperiodic"
+path = "src/validate_quasiperiodic.rs"
+
+[[bin]]
+name = "validate-bistable"
+path = "src/validate_bistable.rs"
+
+[[bin]]
+name = "validate-multisignal"
+path = "src/validate_multisignal.rs"

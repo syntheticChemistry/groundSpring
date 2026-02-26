@@ -7,12 +7,16 @@
 //! Agreement, hit rate, percentile and basic descriptive statistics
 //! (mean, population σ, sample σ).
 
-use crate::cast::{f64_usize, usize_f64};
+#[cfg(not(feature = "barracuda"))]
+use crate::cast::f64_usize;
+use crate::cast::usize_f64;
 
 // ── Error / agreement metrics ───────────────────────────────────────────
 
 /// Root Mean Square Error between observed and modeled values.
 ///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::rmse`.
 /// Returns `0.0` for empty slices.
 ///
 /// # Panics
@@ -25,20 +29,29 @@ pub fn rmse(observed: &[f64], modeled: &[f64]) -> f64 {
         modeled.len(),
         "observed and modeled must have equal length"
     );
-    let n = observed.len();
-    if n == 0 {
-        return 0.0;
+    #[cfg(feature = "barracuda")]
+    {
+        barracuda::stats::rmse(observed, modeled)
     }
-    let sum_sq: f64 = observed
-        .iter()
-        .zip(modeled)
-        .map(|(o, m)| (o - m).powi(2))
-        .sum();
-    (sum_sq / usize_f64(n)).sqrt()
+    #[cfg(not(feature = "barracuda"))]
+    {
+        let n = observed.len();
+        if n == 0 {
+            return 0.0;
+        }
+        let sum_sq: f64 = observed
+            .iter()
+            .zip(modeled)
+            .map(|(o, m)| (o - m).powi(2))
+            .sum();
+        (sum_sq / usize_f64(n)).sqrt()
+    }
 }
 
 /// Mean Bias Error (modeled − observed).
 ///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::mbe`.
 /// Positive MBE indicates the model overestimates.
 ///
 /// # Panics
@@ -51,16 +64,25 @@ pub fn mbe(observed: &[f64], modeled: &[f64]) -> f64 {
         modeled.len(),
         "observed and modeled must have equal length"
     );
-    let n = observed.len();
-    if n == 0 {
-        return 0.0;
+    #[cfg(feature = "barracuda")]
+    {
+        barracuda::stats::mbe(observed, modeled)
     }
-    let sum: f64 = observed.iter().zip(modeled).map(|(o, m)| m - o).sum();
-    sum / usize_f64(n)
+    #[cfg(not(feature = "barracuda"))]
+    {
+        let n = observed.len();
+        if n == 0 {
+            return 0.0;
+        }
+        let sum: f64 = observed.iter().zip(modeled).map(|(o, m)| m - o).sum();
+        sum / usize_f64(n)
+    }
 }
 
 /// Coefficient of determination (R²).
 ///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::r_squared`.
 /// Returns `0.0` when total sum of squares is zero (constant observation).
 ///
 /// # Panics
@@ -73,25 +95,34 @@ pub fn r_squared(observed: &[f64], modeled: &[f64]) -> f64 {
         modeled.len(),
         "observed and modeled must have equal length"
     );
-    let n = observed.len();
-    if n == 0 {
-        return 0.0;
+    #[cfg(feature = "barracuda")]
+    {
+        barracuda::stats::r_squared(observed, modeled)
     }
-    let mean_obs: f64 = observed.iter().sum::<f64>() / usize_f64(n);
-    let ss_res: f64 = observed
-        .iter()
-        .zip(modeled)
-        .map(|(o, m)| (o - m).powi(2))
-        .sum();
-    let ss_tot: f64 = observed.iter().map(|o| (o - mean_obs).powi(2)).sum();
-    if ss_tot == 0.0 {
-        return 0.0;
+    #[cfg(not(feature = "barracuda"))]
+    {
+        let n = observed.len();
+        if n == 0 {
+            return 0.0;
+        }
+        let mean_obs: f64 = observed.iter().sum::<f64>() / usize_f64(n);
+        let ss_res: f64 = observed
+            .iter()
+            .zip(modeled)
+            .map(|(o, m)| (o - m).powi(2))
+            .sum();
+        let ss_tot: f64 = observed.iter().map(|o| (o - mean_obs).powi(2)).sum();
+        if ss_tot == 0.0 {
+            return 0.0;
+        }
+        1.0 - ss_res / ss_tot
     }
-    1.0 - ss_res / ss_tot
 }
 
 /// Index of Agreement (Willmott 1981).
 ///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::index_of_agreement`.
 /// Ranges from 0.0 (no agreement) to 1.0 (perfect agreement).
 ///
 /// # Panics
@@ -104,29 +135,38 @@ pub fn index_of_agreement(observed: &[f64], modeled: &[f64]) -> f64 {
         modeled.len(),
         "observed and modeled must have equal length"
     );
-    let n = observed.len();
-    if n == 0 {
-        return 0.0;
+    #[cfg(feature = "barracuda")]
+    {
+        barracuda::stats::index_of_agreement(observed, modeled)
     }
-    let mean_obs: f64 = observed.iter().sum::<f64>() / usize_f64(n);
-    let numerator: f64 = observed
-        .iter()
-        .zip(modeled)
-        .map(|(o, m)| (o - m).powi(2))
-        .sum();
-    let denominator: f64 = observed
-        .iter()
-        .zip(modeled)
-        .map(|(o, m)| ((m - mean_obs).abs() + (o - mean_obs).abs()).powi(2))
-        .sum();
-    if denominator == 0.0 {
-        return 0.0;
+    #[cfg(not(feature = "barracuda"))]
+    {
+        let n = observed.len();
+        if n == 0 {
+            return 0.0;
+        }
+        let mean_obs: f64 = observed.iter().sum::<f64>() / usize_f64(n);
+        let numerator: f64 = observed
+            .iter()
+            .zip(modeled)
+            .map(|(o, m)| (o - m).powi(2))
+            .sum();
+        let denominator: f64 = observed
+            .iter()
+            .zip(modeled)
+            .map(|(o, m)| ((m - mean_obs).abs() + (o - mean_obs).abs()).powi(2))
+            .sum();
+        if denominator == 0.0 {
+            return 0.0;
+        }
+        1.0 - numerator / denominator
     }
-    1.0 - numerator / denominator
 }
 
 /// Fraction of days where observed and modeled agree on occurrence.
 ///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::hit_rate`.
 /// A day "occurs" if the value exceeds `threshold`.  Returns the
 /// fraction of days where both agree (both above or both at-or-below).
 ///
@@ -142,29 +182,45 @@ pub fn hit_rate(observed: &[f64], modeled: &[f64], threshold: f64) -> f64 {
         modeled.len(),
         "observed and modeled must have equal length"
     );
-    let n = observed.len();
-    if n == 0 {
-        return 0.0;
+    #[cfg(feature = "barracuda")]
+    {
+        barracuda::stats::hit_rate(observed, modeled, threshold)
     }
-    let agree = observed
-        .iter()
-        .zip(modeled)
-        .filter(|(&o, &m)| (o > threshold) == (m > threshold))
-        .count();
-    usize_f64(agree) / usize_f64(n)
+    #[cfg(not(feature = "barracuda"))]
+    {
+        let n = observed.len();
+        if n == 0 {
+            return 0.0;
+        }
+        let agree = observed
+            .iter()
+            .zip(modeled)
+            .filter(|(&o, &m)| (o > threshold) == (m > threshold))
+            .count();
+        usize_f64(agree) / usize_f64(n)
+    }
 }
 
 // ── Descriptive statistics ──────────────────────────────────────────────
 
 /// Arithmetic mean of a slice.
 ///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::mean`.
 /// Returns `0.0` for empty slices.
 #[must_use]
 pub fn mean(values: &[f64]) -> f64 {
-    if values.is_empty() {
-        return 0.0;
+    #[cfg(feature = "barracuda")]
+    {
+        barracuda::stats::mean(values)
     }
-    values.iter().sum::<f64>() / usize_f64(values.len())
+    #[cfg(not(feature = "barracuda"))]
+    {
+        if values.is_empty() {
+            return 0.0;
+        }
+        values.iter().sum::<f64>() / usize_f64(values.len())
+    }
 }
 
 /// Population standard deviation (divides by N).
@@ -185,27 +241,30 @@ pub fn std_dev(values: &[f64]) -> f64 {
 /// Sample standard deviation (Bessel-corrected, divides by N−1).
 ///
 /// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::correlation::std_dev`.
+/// `barracuda::stats::correlation::std_dev`, falling back to the local
+/// implementation on error.
 /// Returns `0.0` for slices with fewer than 2 elements.
 #[must_use]
 pub fn sample_std_dev(values: &[f64]) -> f64 {
     #[cfg(feature = "barracuda")]
     {
-        barracuda::stats::correlation::std_dev(values).unwrap_or(0.0)
-    }
-    #[cfg(not(feature = "barracuda"))]
-    {
-        let n = values.len();
-        if n < 2 {
-            return 0.0;
+        if let Ok(s) = barracuda::stats::correlation::std_dev(values) {
+            return s;
         }
-        let m = mean(values);
-        let variance = values.iter().map(|v| (v - m).powi(2)).sum::<f64>() / usize_f64(n - 1);
-        variance.sqrt()
     }
+    let n = values.len();
+    if n < 2 {
+        return 0.0;
+    }
+    let m = mean(values);
+    let variance = values.iter().map(|v| (v - m).powi(2)).sum::<f64>() / usize_f64(n - 1);
+    variance.sqrt()
 }
 
 /// Percentile of a sorted copy of `values` (0–100 scale).
+///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::percentile`.
 ///
 /// # Panics
 ///
@@ -213,19 +272,26 @@ pub fn sample_std_dev(values: &[f64]) -> f64 {
 #[must_use]
 pub fn percentile(values: &[f64], p: f64) -> f64 {
     assert!((0.0..=100.0).contains(&p), "percentile must be 0–100");
-    if values.is_empty() {
-        return 0.0;
+    #[cfg(feature = "barracuda")]
+    {
+        barracuda::stats::percentile(values, p)
     }
-    let mut sorted: Vec<f64> = values.to_vec();
-    sorted.sort_by(f64::total_cmp);
-    let rank = p / 100.0 * usize_f64(sorted.len() - 1);
-    let lo = f64_usize(rank.floor());
-    let hi = f64_usize(rank.ceil());
-    if lo == hi {
-        sorted[lo]
-    } else {
-        let frac = rank - usize_f64(lo);
-        sorted[lo].mul_add(1.0 - frac, sorted[hi] * frac)
+    #[cfg(not(feature = "barracuda"))]
+    {
+        if values.is_empty() {
+            return 0.0;
+        }
+        let mut sorted: Vec<f64> = values.to_vec();
+        sorted.sort_by(f64::total_cmp);
+        let rank = p / 100.0 * usize_f64(sorted.len() - 1);
+        let lo = f64_usize(rank.floor());
+        let hi = f64_usize(rank.ceil());
+        if lo == hi {
+            sorted[lo]
+        } else {
+            let frac = rank - usize_f64(lo);
+            sorted[lo].mul_add(1.0 - frac, sorted[hi] * frac)
+        }
     }
 }
 

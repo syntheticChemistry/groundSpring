@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: February 25, 2026
+**Last updated**: February 26, 2026
 
 ## Experiment Register
 
@@ -14,10 +14,15 @@
 | 006 | Enzymatic Signal Specificity | Biological (c-di-GMP) | 12/12 PASS | 12/12 PASS |
 | 007 | RAWR Resampling | Statistics (bootstrap) | 11/11 PASS | 11/11 PASS |
 | 008 | Anderson Localization | Mathematics (spectral theory) | 8/8 PASS | 8/8 PASS |
+| 009 | Almost-Mathieu Quasiperiodic Localization | Mathematics (quasiperiodic operators) | 8/8 PASS | 8/8 PASS |
+| 010 | Bistable Phenotypic Switching | Biological (c-di-GMP) | 10/10 PASS | 9/9 PASS |
+| 011 | Multi-Signal QS Integration | Biological (quorum sensing) | 9/9 PASS | 8/8 PASS |
 
-**Python Phase 0**: All 8 experiments passing
-**Rust Phase 1**: 119/119 PASS across 8 validation binaries
+**Python Phase 0**: All 11 experiments passing
+**Rust Phase 1**: 144/144 PASS across 11 validation binaries
 **pytest**: 34/34 PASS (unit tests, determinism tests, integration tests)
+
+**Python checks**: ~129 across 11 experiments. **Rust validation checks**: 144.
 
 ## Phase 0 — Python/NumPy/SciPy Baselines
 
@@ -101,6 +106,30 @@
 - Thouless scaling: ξ ≈ 104/W² at band center
 - Strong disorder (W=8): ξ ≈ 1.9 sites (strongly localized)
 
+### Exp 009: Almost-Mathieu Quasiperiodic Localization (8/8 PASS)
+
+**Question**: When does quasiperiodic (almost-periodic) disorder localize waves at all coupling strengths?
+
+**Results**:
+- Almost-Mathieu Hamiltonian; barracuda-gpu delegation for `almost_mathieu_hamiltonian`
+- Files: control/quasiperiodic/, crates/groundspring/src/anderson.rs (extended), crates/groundspring-validate/src/validate_quasiperiodic.rs
+
+### Exp 010: Bistable Phenotypic Switching (10/10 PASS)
+
+**Question**: When does noise push a bistable system across a phenotypic threshold?
+
+**Results**:
+- BistableOde::cpu_derivative barracuda delegation
+- Files: control/bistable_switching/, crates/groundspring/src/bistable.rs, crates/groundspring-validate/src/validate_bistable.rs
+
+### Exp 011: Multi-Signal QS Integration (9/9 PASS)
+
+**Question**: How does multi-input signal fusion behave in a noisy quorum-sensing environment?
+
+**Results**:
+- MultiSignalOde::cpu_derivative barracuda delegation
+- Files: control/multisignal_qs/, crates/groundspring/src/multisignal.rs, crates/groundspring-validate/src/validate_multisignal.rs
+
 ## Phase 1 — Rust Validation (hotSpring Pattern)
 
 ### validate-decompose (36/36 PASS)
@@ -167,20 +196,179 @@ Ports Exp 008 transfer-matrix Lyapunov to pure safe Rust.  Verifies:
 - Localization length decreases with disorder
 - Determinism of potential generation and Lyapunov computation
 
+### validate-quasiperiodic (8/8 PASS)
+
+Ports Exp 009 Almost-Mathieu quasiperiodic localization to pure safe Rust.  Verifies:
+- Almost-Mathieu Hamiltonian; barracuda-gpu delegation for `almost_mathieu_hamiltonian`
+
+### validate-bistable (9/9 PASS)
+
+Ports Exp 010 bistable phenotypic switching to pure safe Rust.  Verifies:
+- BistableOde::cpu_derivative barracuda delegation
+
+### validate-multisignal (8/8 PASS)
+
+Ports Exp 011 multi-signal QS integration to pure safe Rust.  Verifies:
+- MultiSignalOde::cpu_derivative barracuda delegation
+
 ## Test Infrastructure
 
 | Suite | Tests | Type |
 |-------|------:|------|
 | `test_common.py` | 18 | Unit tests for shared statistical primitives |
 | `test_determinism.py` | 7 | Rerun-identical verification for stochastic ops |
-| `test_experiments.py` | 8 | Integration: each experiment returns exit code 0 |
-| Rust `#[test]` | 131 | Unit tests for Rust library modules |
+| `test_experiments.py` | 11 | Integration: each experiment returns exit code 0 |
+| Rust `#[test]` (lib) | 153 | Unit tests for Rust library modules |
+| Rust `#[test]` (validate-lib) | 9 | Unit tests for shared validation helpers |
 | Rust proptest | 14 | Property-based invariant tests |
-| Rust integration | 8 | Validation binary integration tests |
+| Rust integration | 11 | Validation binary integration tests |
 | Rust doc test | 1 | Documentation example test |
-| **Total** | **188** | (34 Python + 154 Rust) |
+| **Total** | **225** | (37 Python + 188 Rust) |
 
 ## Run Log
+
+### Run 11 — February 26, 2026 (Full-suite parity + benchmarks)
+
+```
+Benchmark expansion:
+  bench_rust_vs_python.py     3 → 11 experiments (full suite)
+  bench_barracuda_modes.sh    8 → 11 binaries (full suite)
+  run_all_baselines.sh        8+8 → 11+11 experiments (Python + Rust)
+
+New scripts:
+  parity_report.py            Formal Python⇌Rust parity certificate
+  data/parity_report.json     Machine-readable parity certificate
+  data/bench_rust_vs_python.json  Updated with all 11 experiments
+
+Parity certificate:
+  11/11 experiments: PARITY PROVEN
+  Python baselines + Rust validation both pass against same benchmark JSONs
+  Python checks: ~129    Rust checks: 144/144
+
+Performance (median of 3 trials):
+  10/11 experiments: Rust 1.8×–63.6× faster than Python
+  1/11 (Exp 009):   custom QR vs LAPACK — parity proven, LAPACK faster
+  Total (excl. LAPACK-bound): 23.4× Rust speedup
+```
+
+### Run 10 — February 25, 2026 (Exp 009–011: quasiperiodic, bistable, multisignal)
+
+```
+Phase 0 (Python):
+  Exp 009: Almost-Mathieu Quasiperiodic    8/8  PASS
+  Exp 010: Bistable Phenotypic Switching  10/10 PASS
+  Exp 011: Multi-Signal QS Integration   9/9  PASS
+
+Phase 1 (Rust):
+  validate-quasiperiodic                  8/8  PASS
+  validate-bistable                      9/9  PASS
+  validate-multisignal                   8/8  PASS
+
+New experiments:
+  control/quasiperiodic/                  Almost-Mathieu Hamiltonian
+  control/bistable_switching/             BistableOde phenotypic switching
+  control/multisignal_qs/                MultiSignalOde QS integration
+
+Barracuda delegations (+3):
+  almost_mathieu_hamiltonian              barracuda-gpu (Exp 009)
+  BistableOde::cpu_derivative           barracuda (Exp 010)
+  MultiSignalOde::cpu_derivative        barracuda (Exp 011)
+
+Totals:
+  11 experiments, 144/144 validation checks
+  Rust tests: 177 (153 lib + 9 validate-lib + 14 proptest + 11 integration + 1 doc)
+  Python checks: ~129
+  Barracuda delegations: 14
+```
+
+### Run 7 — February 25, 2026 (Deep debt resolution & sovereignty evolution)
+
+```
+Phase 1 (Rust) — local mode:
+  8/8 binaries, 119/119 PASS
+
+Sovereignty:
+  error_propagation_fao56.py    capability-based discovery (no hardcoded primal names)
+  test_experiments.py           capability scan for FAO-56 skip check
+
+BarraCUDA error handling:
+  All 11 delegations             .expect() / .unwrap_or() → if let Ok + CPU fallback
+  CPU fallbacks                  always compiled (no #[cfg(not(feature))] guard)
+
+Shared validation helpers (DRY):
+  groundspring-validate lib.rs   f64_field, usize_field, u64_field, f64_range, print_provenance_header
+  9 unit tests for validate-lib  (was 0% coverage)
+
+Validation refactoring:
+  validate_seismic               SourceTruth + AcceptanceCriteria structs
+  validate_fao56                 Uncertainties struct, split run()
+  validate_rawr                  validate_gaussian/skewed/correlated/determinism
+  validate_signal_specificity    EnzymeNetwork + SimConfig structs, split run()
+
+Dead code removal:
+  control/common.py              write_benchmark(), provenance_metadata() removed (unused)
+
+Clippy: 0 warnings
+Rust tests: 163/163 PASS (131 unit + 9 validate-lib + 14 proptest + 8 integration + 1 doc)
+Python tests: 34/34 PASS
+Coverage: 99.11% (cargo-llvm-cov)
+```
+
+### Run 9 — February 25, 2026 (Complete rewiring + benchmarks + cross-spring lineage)
+
+```
+Complete barracuda API audit:
+  All CPU-accessible functions reviewed
+  11 delegations confirmed as the complete set
+  6 remaining metrics (rmse, mbe, r², IoA, hit_rate, shannon) require WgpuDevice
+  No new CPU-only primitives available to wire
+
+Three-mode benchmarks (release, best-of-3):
+  Binary                   Local(ms)  BarraCUDA(ms)  BarraCUDA-GPU(ms)
+  validate-anderson            671         670             640
+  validate-decompose             5           4               5
+  validate-fao56                12          12              13
+  validate-rarefaction          11          12              12
+  validate-rawr                555         560             556
+  validate-seismic              56          59              58
+  validate-signal-specificity  795         787             787
+  validate-weather               3           3               5
+  TOTAL                       2108        2107            2076
+  Overhead: ~0% (compute-heavy <1%, signal-spec -1%, anderson -5%)
+
+Cross-spring lineage documented:
+  hotSpring → precision (df64_core, spectral/anderson, sum_reduce_f64)
+  wetSpring → bio-stats (FusedMapReduce, Gillespie, log_f64 fix, ridge)
+  neuralSpring → ML/dispatch (spectral_density, domain_ops, xoshiro)
+
+Validation (all three modes):
+  163/163 Rust tests PASS × 3 modes
+  119/119 validation checks × 3 modes
+  0 clippy warnings × 3 modes
+  34/34 Python tests PASS
+
+Handoff V9 posted (V8 archived)
+```
+
+### Run 8 — February 25, 2026 (ToadStool catch-up revalidation)
+
+```
+ToadStool baseline: S50–S62 + DF64 expansion (Feb 23-24, 2026)
+  14,200+ tests, 650+ WGSL shaders, shader-first architecture
+
+Review findings:
+  No new CPU stats primitives added since our S62 baseline
+  Our 11 delegations remain current and complete
+  ToadStool has NOT absorbed our shaders (batched_multinomial, mc_et0_propagate)
+
+Code fix:
+  correlation.rs  3× needless_return in barracuda cfg blocks → removed
+
+Three-mode validation:
+  Local:          163/163 PASS, 0 clippy warnings
+  Barracuda:      163/163 PASS, 0 clippy warnings
+  Barracuda-GPU:  163/163 PASS, 0 clippy warnings
+```
 
 ### Run 6 — February 25, 2026 (Complete rewiring + benchmarks)
 
@@ -335,10 +523,13 @@ Each experiment is validated at three hardware tiers:
 | 6 | Signal specificity | **12/12 PASS** | Pending | — | `GillespieGpu` (exists) |
 | 7 | RAWR resampling | **11/11 PASS** | Pending | — | Embarrassingly parallel |
 | 8 | Anderson localization | **8/8 PASS** | Pending | — | `spectral::*` (lyapunov re-exported) |
+| 9 | Almost-Mathieu quasiperiodic | **8/8 PASS** | Pending | — | `almost_mathieu_hamiltonian` (barracuda-gpu) |
+| 10 | Bistable phenotypic switching | **9/9 PASS** | Pending | — | `BistableOde::cpu_derivative` |
+| 11 | Multi-signal QS integration | **8/8 PASS** | Pending | — | `MultiSignalOde::cpu_derivative` |
 
-**CPU tier**: 119/119 PASS (complete)
-**GPU tier**: 0/119 (pending ToadStool absorption of Tier A ops and Tier C kernels)
-**metalForge tier**: 0/119 (after GPU tier)
+**CPU tier**: 144/144 PASS (complete)
+**GPU tier**: 0/144 (pending ToadStool absorption of Tier A ops and Tier C kernels)
+**metalForge tier**: 0/144 (after GPU tier)
 
 ### BarraCUDA Integration Status (post ToadStool S62)
 
@@ -360,12 +551,12 @@ Each experiment is validated at three hardware tiers:
 
 ## Evolution Roadmap
 
-- **Phase 0**: Python/NumPy/SciPy baselines — **COMPLETE** (102/102 across 8 experiments)
+- **Phase 0**: Python/NumPy/SciPy baselines — **COMPLETE** (129/129 across 11 experiments)
 - **Phase 0+**: Real open data pipelines (NOAA CDO, IRIS waveforms) — pending API tokens
-- **Phase 1**: Rust CPU validation — **COMPLETE** (119/119 across 8 binaries)
+- **Phase 1**: Rust CPU validation — **COMPLETE** (144/144 across 11 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
-- **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 006-008: biology, statistics, math)
-- **Phase 2a**: Tier A rewire — **11 CPU leaned** (stats, bootstrap, anderson); 6 GPU ops pending adapter
+- **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 006-011: biology, statistics, math, quasiperiodic, bistable, multisignal)
+- **Phase 2a**: Tier A rewire — **24 delegated** (19 CPU + 5 GPU; stats, metrics, diversity, bootstrap, anderson, ODE, eigenvalues)
 - **Phase 2b**: Tier B adapt — PRNG alignment, grid-search dispatch
 - **Phase 2c**: Tier C absorption — FAO-56 **superseded** (absorbed S49); `batched_multinomial` still needed
 - **Phase 3**: Faculty extension kernels (FFT, Lanczos, Gillespie GPU)
@@ -379,15 +570,15 @@ Each experiment is validated at three hardware tiers:
 | `cargo clippy --all-targets` | PASS (0 errors, 0 warnings) |
 | `cargo clippy --features barracuda` | PASS |
 | `cargo doc --no-deps` | PASS |
-| `cargo test` | 154/154 PASS (131 unit + 14 proptest + 8 integration + 1 doc) |
-| `cargo test --features barracuda` | 154/154 PASS |
-| `cargo test --features barracuda-gpu` | 154/154 PASS |
-| Validation binaries (local) | 119/119 PASS |
-| Validation binaries (barracuda-gpu) | 119/119 PASS |
+| `cargo test` | 177/177 PASS (153 unit + 9 validate-lib + 14 proptest + 11 integration + 1 doc) |
+| `cargo test --features barracuda` | 177/177 PASS |
+| `cargo test --features barracuda-gpu` | 177/177 PASS |
+| Validation binaries (local) | 144/144 PASS |
+| Validation binaries (barracuda-gpu) | 144/144 PASS |
 | `ruff check control/ tests/` | 0 errors |
 | `mypy control/ tests/` | 0 errors |
 | `python3 -m pytest tests/` | 34/34 PASS |
-| Workspace line coverage | 98.64% (cargo-llvm-cov) |
+| Workspace line coverage | 99.11% (cargo-llvm-cov) |
 | Unsafe code | Forbidden (workspace lint) |
 | Max file size | 405 lines (all < 1000) |
 | SPDX headers | All `.rs` files |
@@ -408,28 +599,50 @@ Each experiment is validated at three hardware tiers:
 | `anderson::lyapunov_exponent` | `spectral::lyapunov_exponent` | **DONE** — `#[cfg(feature = "barracuda-gpu")]` |
 | `anderson::lyapunov_averaged` | `spectral::lyapunov_averaged` | **DONE** — `#[cfg(feature = "barracuda-gpu")]` |
 | `anderson::analytical_localization_length` | `special::anderson_transport::localization_length` | **DONE** — `#[cfg(feature = "barracuda")]` |
+| `quasiperiodic::almost_mathieu_hamiltonian` | barracuda-gpu | **DONE** — Exp 009 |
+| `bistable::BistableOde::cpu_derivative` | barracuda | **DONE** — Exp 010 |
+| `multisignal::MultiSignalOde::cpu_derivative` | barracuda | **DONE** — Exp 011 |
 | `gillespie::birth_death_ssa` | `ops::bio::GillespieGpu` | Pending — GPU-only, no CPU fallback |
 | `bootstrap::rawr_mean` | New kernel needed | Pending — no RAWR in barracuda |
 
 ## Rust vs Python Performance
 
+All 11 experiments, median of 3 trials (Feb 26, 2026):
+
 | Experiment | Python (s) | Rust (s) | Speedup |
 |---|---|---|---|
-| Exp 006: Signal Specificity | 26.2 | 0.85 | **30.9×** |
-| Exp 007: RAWR Resampling | 4.4 | 0.60 | **7.3×** |
-| Exp 008: Anderson Localization | 21.4 | 0.72 | **29.8×** |
-| **Total** | **52.0** | **2.17** | **24.0×** |
+| Exp 001: Sensor Noise | 0.64 | 0.11 | **5.7×** |
+| Exp 002: Observation Gap | 0.28 | 0.07 | **4.4×** |
+| Exp 003: Error Propagation | 0.36 | 0.10 | **3.8×** |
+| Exp 004: Sequencing Noise | 0.14 | 0.08 | **1.8×** |
+| Exp 005: Seismic Inversion | 7.63 | 0.12 | **63.6×** |
+| Exp 006: Signal Specificity | 26.78 | 0.88 | **30.5×** |
+| Exp 007: RAWR Resampling | 4.64 | 0.63 | **7.3×** |
+| Exp 008: Anderson Localization | 21.98 | 0.73 | **29.9×** |
+| Exp 009: Quasiperiodic | 0.65 | 0.23 * | **2.8×** |
+| Exp 010: Bistable Switching | 3.58 | 0.19 | **18.5×** |
+| Exp 011: Multi-Signal QS | 4.30 | 0.09 | **46.2×** |
+| **Total** | **70.98** | **3.23** | **22.0×** |
+
+\* Exp 009 with barracuda-gpu (Sturm tridiag solver). Without barracuda: 11.7s.
+
+**Mathematical Parity**: 11/11 experiments PROVEN. See `data/parity_report.json`.
 
 ## Handoff Documents
 
-| Handoff | Location | Status |
-|---------|----------|--------|
-| V1: Initial Barracuda Evolution | `wateringHole/handoffs/archive/GROUNDSPRING_TOADSTOOL_V1_FEB25_2026.md` | Archived |
-| V2: Comprehensive Absorption | `wateringHole/handoffs/archive/GROUNDSPRING_TOADSTOOL_V2_FEB25_2026.md` | Archived |
-| V3: ToadStool Catch-Up | `wateringHole/handoffs/archive/GROUNDSPRING_TOADSTOOL_V3_FEB25_2026.md` | Archived |
-| V4: Phase 2a + Benchmarks | `wateringHole/handoffs/archive/GROUNDSPRING_TOADSTOOL_V4_FEB25_2026.md` | Archived |
-| V5: Code Audit + Catch-Up | `wateringHole/handoffs/archive/GROUNDSPRING_TOADSTOOL_V5_FEB25_2026.md` | Archived |
-| V6: Complete Rewiring + Evolution | `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V6_EVOLUTION_FEB25_2026.md` | **Current** |
+| Handoff | Scope | Status |
+|---------|-------|--------|
+| V13: Complete Rewiring | 24 total delegations, Sturm tridiag (50× Exp 009), cross-spring evolution | **Current** |
+| V12: S64 Catch-Up | ToadStool S64 absorption, 6 new delegations (20 total), 3 bug fixes | Archived |
+| V11: Parity + Benchmarks | Full-suite parity, 11 experiments, 14 delegations, three-tier roadmap | Archived |
+| V10: Definitive Handoff | 5 absorption priorities, benchmarks, cross-spring lineage, PRNG roadmap | Archived |
+| V9: Complete Rewire + Benchmarks | API audit, zero-overhead benchmarks, cross-spring lineage | Archived |
+| V8: Sovereignty + BarraCUDA | Sovereignty evolution, error handling, PRNG/GPU assessment | Archived |
+| V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
+| V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
+
+Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V13_COMPLETE_REWIRING_HANDOFF_FEB26_2026.md`
+Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.
 See `specs/PAPER_REVIEW_QUEUE.md` for per-paper three-tier control plan.

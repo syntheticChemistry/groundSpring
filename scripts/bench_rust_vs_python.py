@@ -52,6 +52,31 @@ def time_command(cmd: list[str], cwd: Path, timeout: int = 600) -> tuple[float, 
 
 EXPERIMENTS = [
     {
+        "name": "Exp 001: Sensor Noise",
+        "python": [sys.executable, "control/sensor_noise/sensor_noise_decomposition.py"],
+        "rust_bin": "validate-decompose",
+    },
+    {
+        "name": "Exp 002: Observation Gap",
+        "python": [sys.executable, "control/observation_gap/observation_gap.py"],
+        "rust_bin": "validate-weather",
+    },
+    {
+        "name": "Exp 003: Error Propagation",
+        "python": [sys.executable, "control/error_propagation/error_propagation_fao56.py"],
+        "rust_bin": "validate-fao56",
+    },
+    {
+        "name": "Exp 004: Sequencing Noise",
+        "python": [sys.executable, "control/sequencing_noise/sequencing_noise.py"],
+        "rust_bin": "validate-rarefaction",
+    },
+    {
+        "name": "Exp 005: Seismic Inversion",
+        "python": [sys.executable, "control/seismic/seismic_inversion.py"],
+        "rust_bin": "validate-seismic",
+    },
+    {
         "name": "Exp 006: Signal Specificity",
         "python": [sys.executable, "control/signal_specificity/signal_specificity.py"],
         "rust_bin": "validate-signal-specificity",
@@ -65,6 +90,21 @@ EXPERIMENTS = [
         "name": "Exp 008: Anderson Localization",
         "python": [sys.executable, "control/anderson_localization/anderson_localization.py"],
         "rust_bin": "validate-anderson",
+    },
+    {
+        "name": "Exp 009: Quasiperiodic",
+        "python": [sys.executable, "control/quasiperiodic/quasiperiodic_localization.py"],
+        "rust_bin": "validate-quasiperiodic",
+    },
+    {
+        "name": "Exp 010: Bistable Switching",
+        "python": [sys.executable, "control/bistable_switching/bistable_switching.py"],
+        "rust_bin": "validate-bistable",
+    },
+    {
+        "name": "Exp 011: Multi-Signal QS",
+        "python": [sys.executable, "control/multisignal_qs/multisignal_qs.py"],
+        "rust_bin": "validate-multisignal",
     },
 ]
 
@@ -144,8 +184,18 @@ def main() -> int:
     print(f"|{'-'*37}|{'-'*12}|{'-'*12}|{'-'*10}|")
     print(f"| {'TOTAL':<35} | {total_py:>10.3f} | {total_rs:>10.3f} | {total_speedup:>7.1f}× |")
 
+    # Compute totals excluding LAPACK-bound experiments (custom QR vs LAPACK)
+    lapack_bound = {"Exp 009: Quasiperiodic"}
+    comp_py = sum(r.python_s for r in results if r.name not in lapack_bound)
+    comp_rs = sum(r.rust_s for r in results if r.name not in lapack_bound)
+    comp_speedup = comp_py / comp_rs if comp_rs > 0 else 0
+    print(f"| {'TOTAL (excl. LAPACK-bound)':<35} | {comp_py:>10.3f} | {comp_rs:>10.3f} | {comp_speedup:>7.1f}× |")
+
     print(f"\n{'=' * 72}")
     print("Pure Rust math is faster than interpreted Python.")
+    print("Note: Exp 009 uses a custom QR eigenvalue solver in Rust to prove")
+    print("mathematical parity; numpy delegates to LAPACK/Fortran for dense")
+    print("eigenvalues.  Barracuda GPU kernels will close this gap.")
     print(f"{'=' * 72}")
 
     # JSON output
@@ -158,12 +208,16 @@ def main() -> int:
                 "python_s": round(r.python_s, 4),
                 "rust_s": round(r.rust_s, 4),
                 "speedup": round(r.speedup, 1),
+                "lapack_bound": r.name in lapack_bound,
             }
             for r in results
         ],
         "total_python_s": round(total_py, 4),
         "total_rust_s": round(total_rs, 4),
         "total_speedup": round(total_speedup, 1),
+        "compute_bound_python_s": round(comp_py, 4),
+        "compute_bound_rust_s": round(comp_rs, 4),
+        "compute_bound_speedup": round(comp_speedup, 1),
     }
 
     out_path = ROOT / "data" / "bench_rust_vs_python.json"

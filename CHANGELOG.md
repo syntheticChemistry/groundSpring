@@ -4,6 +4,119 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### Complete Rewiring + Cross-Spring Benchmark (V13 — Feb 26, 2026)
+- **4 new barracuda delegations**: `mean`, `percentile`, `level_spacing_ratio`,
+  `almost_mathieu_eigenvalues` (via `find_all_eigenvalues` Sturm tridiag solver).
+  Total: **24 active delegations** (was 20).
+- **Exp 009 performance breakthrough**: Sturm bisection tridiag solver from
+  barracuda (originated in hotSpring S26 spectral module) replaces dense QR.
+  Quasiperiodic validation: 11.7s → 0.23s (**50× speedup**).
+  Total three-mode benchmark: 14.5s → 3.3s (barracuda-gpu mode).
+- **QR eigenvalue code moved**: Dense Givens QR moved from validation binary
+  to library (`anderson::eigenvalues_qr_dense`), gated behind
+  `#[cfg(not(feature = "barracuda-gpu"))]`.
+- **V13 handoff**: Created with complete rewiring state. V12 archived.
+
+### ToadStool S64 Catch-Up + 20 Delegations (V12 — Feb 26, 2026)
+- **6 new barracuda delegations**: ToadStool Session 64 absorbed `stats::metrics`
+  (rmse, mbe, r_squared, index_of_agreement, hit_rate) and `stats::diversity`
+  (shannon) from airSpring/groundSpring. groundSpring immediately wired all 6.
+  Total: **20 active delegations** (was 14).
+- **3 pre-existing barracuda-mode bug fixes**:
+  - `OdeSystem` trait import for `BistableOde`/`MultiSignalOde` delegation
+  - `barracuda::spectral::hofstadter` module path (now private, re-exported)
+  - Dead-code gates for local helpers (`hill`, `hill_repress`, `*_local`)
+- **batched_multinomial absorbed**: ToadStool S64 absorbed `BatchedMultinomialGpu`
+  + `multinomial_sample_cpu`. groundSpring rewiring deferred (signature mismatch).
+- **V12 handoff**: Created with updated priorities. V11 archived.
+- **All docs updated**: 14→20 delegations across README, specs, whitePaper,
+  wateringHole, metalForge.
+
+### Full-Suite Parity + Benchmarks (V11 — Feb 26, 2026)
+- **Exp 009–011 buildout**: Almost-Mathieu quasiperiodic localization,
+  bistable phenotypic switching, multi-signal QS integration. 3 new Python
+  baselines, 3 new Rust modules (`bistable`, `multisignal`, `anderson` extended),
+  3 new validation binaries. 25 new validation checks, 24 new unit tests,
+  3 new barracuda delegations (`almost_mathieu_hamiltonian`,
+  `BistableOde::cpu_derivative`, `MultiSignalOde::cpu_derivative`).
+  Total: **144/144** across 11 binaries, **177** Rust tests, **14** delegations.
+- **Full-suite Python vs Rust benchmarks**: Expanded `bench_rust_vs_python.py`
+  from 3 to all 11 experiments. 10/11 compute-bound experiments: **23.4× faster**.
+  Exp 009 (custom QR vs LAPACK) intentionally slower — proves parity not speed.
+- **Mathematical parity certificate**: New `scripts/parity_report.py` runs all
+  22 validation paths (11 Python + 11 Rust) against shared benchmark JSONs.
+  **11/11 PARITY PROVEN**. Machine-readable `data/parity_report.json`.
+- **Benchmark scripts expanded**: `bench_barracuda_modes.sh` (8→11 binaries),
+  `run_all_baselines.sh` (8+8→11+11 Python+Rust entries).
+- **Documentation updated**: README, CONTROL_EXPERIMENT_STATUS, BARRACUDA_EVOLUTION,
+  whitePaper/STUDY all reflect 11 experiments, 23.4× speedup, 11/11 parity.
+- **V11 handoff**: Created with full-suite benchmarks, parity certificate,
+  updated absorption priorities, and three-tier validation roadmap.
+  V10 archived.
+
+### Definitive Handoff & Cross-Spring Evolution Doc (V10)
+- Created `wateringHole/CROSS_SPRING_SHADER_EVOLUTION.md` (following wetSpring pattern)
+  documenting how hotSpring, wetSpring, and neuralSpring evolved barracuda
+- V10 definitive handoff: 5 absorption priorities, complete delegation inventory,
+  PRNG roadmap, error handling standard, benchmark results, cross-spring learnings
+- Fixed CONTROL_EXPERIMENT_STATUS.md handoff table (was stale at V8, now V10)
+- Added barracuda overhead benchmark table to README.md
+- V9 archived
+
+### Complete Rewiring, Benchmarks & Cross-Spring Lineage (V9)
+- Full barracuda API audit: 11 delegations confirmed as the complete CPU-only set
+- Three-mode release benchmarks: **zero overhead** for compute-heavy binaries
+  - anderson: 671ms local → 640ms barracuda-gpu (−5%)
+  - signal-specificity: 795ms local → 787ms barracuda-gpu (−1%)
+  - Total: 2108ms local → 2076ms barracuda-gpu (~0%)
+- Cross-spring shader lineage documented:
+  - hotSpring → precision (df64_core, spectral/anderson, sum_reduce_f64)
+  - wetSpring → bio-stats (FusedMapReduce, Gillespie, log_f64 fix, ridge)
+  - neuralSpring → ML/dispatch (spectral_density, domain_ops, xoshiro)
+- V9 handoff posted with benchmarks, API audit, cross-spring map
+- V8 archived
+
+### ToadStool S62 Catch-Up Revalidation
+- Reviewed ToadStool S50–S62 + DF64 expansion (14,200+ tests, 650+ WGSL shaders)
+- Fixed 3 `needless_return` clippy warnings in `stats/correlation.rs`
+- Revalidated all three modes: 163/163 PASS × 3, 0 clippy × 3
+
+### Deep Debt Resolution & Sovereignty Evolution (Phase 2a++)
+- **Sovereignty fix**: `error_propagation_fao56.py` discovery rewritten from
+  hardcoded `"airSpring"` name to capability-based scan. New
+  `_discover_fao56_capability()` scans sibling primals for
+  `control/fao56/penman_monteith.py` without knowing which primal provides it.
+  Primary override: `FAO56_MODULE_PATH` env var.
+- **Sovereignty fix**: `tests/test_experiments.py` airSpring skip check
+  replaced with capability scan across all sibling directories.
+- **BarraCUDA error handling**: All 11 barracuda delegations now use `if let Ok`
+  pattern with graceful CPU fallback. Replaced `.expect()` panics and
+  `.unwrap_or(0.0)` silent suppressions. CPU fallback functions are always
+  compiled regardless of feature gate (no `#[cfg(not(feature))]` on fallbacks).
+- **Shared validation helpers**: New `groundspring-validate` library crate with
+  `f64_field`, `usize_field`, `u64_field`, `f64_range`, `print_provenance_header`.
+  9 unit tests. All 7 validation binaries import from shared lib (DRY).
+- **Validation refactoring**: Large `run()` functions split into focused validators
+  (`validate_gaussian`, `validate_correlated`, `validate_analytical`, etc.).
+  Parameter groups extracted into structs (`SourceTruth`, `AcceptanceCriteria`,
+  `Uncertainties`, `EnzymeNetwork`, `SimConfig`).
+- **Dead code removal**: `write_benchmark()` and `provenance_metadata()` removed
+  from `control/common.py` (defined but never called). Unused imports cleaned.
+- **Clippy zero warnings**: Fixed `suboptimal_flops` (→ `mul_add`),
+  `manual_range_contains` (→ `.contains()`), `items_after_test_module`,
+  `struct_field_names`, `doc_markdown`. All resolved with zero suppressions.
+- **Tolerance documentation**: All validation binaries now document tolerance
+  justification inline (mathematical basis, not just the number).
+- **PRNG alignment investigation**: Confirmed Xorshift64 → xoshiro128** requires
+  full rebaseline of all 5 stochastic experiments. BarraCUDA has no CPU-side
+  xoshiro128** with Box-Muller. Documented as planned Tier B evolution step.
+- **GPU adapter assessment**: Confirmed all 6 pending metrics (RMSE, MBE, R², IA,
+  hit rate, Shannon) require `WgpuDevice` async context — no CPU delegations
+  available. Deferred to ToadStool GPU infrastructure phase.
+- **Tests**: 163 Rust tests (131 unit + 9 validate-lib + 14 proptest +
+  8 integration + 1 doc), 34 Python tests, 119/119 validation checks.
+- **Coverage**: 99.11% workspace line coverage (cargo-llvm-cov).
+
 ### Complete BarraCUDA Rewiring (Phase 2a complete)
 - **4 new CPU delegations**: `covariance`, `norm_cdf`, `norm_ppf`,
   `chi2_statistic`, `analytical_localization_length` — total **11 active**

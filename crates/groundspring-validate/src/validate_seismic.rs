@@ -12,128 +12,30 @@ use groundspring::seismic::{
     grid_search_inversion, haversine_km, travel_time_1d, GridSearchConfig, Station,
 };
 use groundspring::validate::ValidationHarness;
+use groundspring_validate::{f64_field, print_provenance_header};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/seismic/benchmark_seismic.json");
 
-fn f64_field(v: &Value, key: &str) -> f64 {
-    v[key]
-        .as_f64()
-        .unwrap_or_else(|| panic!("missing f64 field: {key}"))
+/// Ground-truth source location for inversion validation.
+struct SourceTruth {
+    lat: f64,
+    lon: f64,
+    depth_km: f64,
 }
 
-fn run() -> i32 {
-    let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
-    let mut h = ValidationHarness::stdout("Rust Validation: Seismic Inversion");
-
-    println!("{}", "=".repeat(72));
-    println!("groundSpring Rust Validation: Seismic Wave Propagation");
-    println!(
-        "  Source: {}",
-        bench["_source"]
-            .as_str()
-            .unwrap_or("IASP91 synthetic scenario")
-    );
-    println!(
-        "  Provenance: commit {}, {}",
-        bench["_provenance"]["baseline_commit"]
-            .as_str()
-            .unwrap_or("unknown"),
-        bench["_provenance"]["baseline_date"]
-            .as_str()
-            .unwrap_or("unknown"),
-    );
-    println!("{}", "=".repeat(72));
-
-    let vp = f64_field(&bench["travel_time_model"]["layers"][0], "vp_km_s");
-
-    let src = &bench["test_scenario"]["true_source"];
-    let true_lat = f64_field(src, "lat");
-    let true_lon = f64_field(src, "lon");
-    let true_depth = f64_field(src, "depth_km");
-
-    let stations: Vec<Station> = bench["test_scenario"]["stations"]
-        .as_array()
-        .expect("stations array")
-        .iter()
-        .map(|s| Station {
-            code: s["code"].as_str().expect("station code").into(),
-            lat: f64_field(s, "lat"),
-            lon: f64_field(s, "lon"),
-        })
-        .collect();
-
-    let criteria = &bench["inversion_config"]["acceptance_criteria"];
-    let max_loc_error = f64_field(criteria, "location_error_km_max");
-    let max_depth_error = f64_field(criteria, "depth_error_km_max");
-    let max_rms = f64_field(criteria, "rms_residual_s_max");
-
-    let grid = &bench["inversion_config"]["grid_search"];
-
-    // ── Haversine ───────────────────────────────────────────────────
-    // Tol 1e-10: identity check (same point → 0 km), limited only by
-    // trig rounding; 1e-10 is ~6 orders above machine epsilon.
-    // Range 5520–5620: great-circle NY–London is 5570 km (WGS-84);
-    // ±50 km absorbs spherical vs ellipsoidal model difference.
-    println!("\n--- Haversine Distance ---");
-
-    h.check_approx(
-        "Zero distance",
-        haversine_km(true_lat, true_lon, true_lat, true_lon),
-        0.0,
-        1e-10,
-    );
-
-    let ny_london = haversine_km(40.7128, -74.0060, 51.5074, -0.1278);
-    h.check_range("NY-London ~5570 km", ny_london, 5520.0, 5620.0);
-
-    // ── Travel time ─────────────────────────────────────────────────
-    println!("\n--- Travel Time ---");
-
-    let tt_100 = travel_time_1d(100.0, 0.0, 6.0);
-    h.check_approx("100km/6.0km/s = 16.667s", tt_100, 100.0 / 6.0, 1e-10);
-
-    let t1 = travel_time_1d(100.0, 10.0, vp);
-    let t2 = travel_time_1d(200.0, 10.0, vp);
-    h.check_true("Travel time increases with distance", t2 > t1);
-
-    let observed = validate_forward_model(&mut h, &stations, true_lat, true_lon, true_depth, vp);
-    validate_inversion(
-        &mut h,
-        &observed,
-        &stations,
-        grid,
-        vp,
-        true_lat,
-        true_lon,
-        true_depth,
-        max_loc_error,
-        max_depth_error,
-        max_rms,
-    );
-
-    h.summary()
-}
-
-fn main() {
-    std::process::exit(run());
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn validation_passes() {
-        assert_eq!(super::run(), 0);
-    }
+/// Acceptance thresholds loaded from the benchmark JSON.
+struct AcceptanceCriteria {
+    location_error_km: f64,
+    depth_error_km: f64,
+    rms_residual_s: f64,
 }
 
 /// Forward-model checks: travel times are positive and monotonic.
 fn validate_forward_model(
     h: &mut ValidationHarness,
     stations: &[Station],
-    true_lat: f64,
-    true_lon: f64,
-    true_depth: f64,
+    truth: &SourceTruth,
     vp: f64,
 ) -> Vec<(String, f64)> {
     println!("\n--- Forward Model ---");
@@ -141,8 +43,8 @@ fn validate_forward_model(
     let observed: Vec<(String, f64)> = stations
         .iter()
         .map(|s| {
-            let dist = haversine_km(true_lat, true_lon, s.lat, s.lon);
-            let tt = travel_time_1d(dist, true_depth, vp);
+            let dist = haversine_km(truth.lat, truth.lon, s.lat, s.lon);
+            let tt = travel_time_1d(dist, truth.depth_km, vp);
             (s.code.clone(), tt)
         })
         .collect();
@@ -155,7 +57,7 @@ fn validate_forward_model(
     let mut by_dist: Vec<(f64, f64)> = stations
         .iter()
         .zip(&observed)
-        .map(|(s, (_, t))| (haversine_km(true_lat, true_lon, s.lat, s.lon), *t))
+        .map(|(s, (_, t))| (haversine_km(truth.lat, truth.lon, s.lat, s.lon), *t))
         .collect();
     by_dist.sort_by(|a, b| a.0.total_cmp(&b.0));
     h.check_true(
@@ -167,19 +69,14 @@ fn validate_forward_model(
 }
 
 /// Grid-search inversion and error checks.
-#[expect(clippy::too_many_arguments)]
 fn validate_inversion(
     h: &mut ValidationHarness,
     observed: &[(String, f64)],
     stations: &[Station],
     grid: &Value,
     vp: f64,
-    true_lat: f64,
-    true_lon: f64,
-    true_depth: f64,
-    max_loc_error: f64,
-    max_depth_error: f64,
-    max_rms: f64,
+    truth: &SourceTruth,
+    criteria: &AcceptanceCriteria,
 ) {
     println!("\n--- Grid-Search Inversion (no noise) ---");
 
@@ -206,8 +103,8 @@ fn validate_inversion(
     };
     let result = grid_search_inversion(observed, stations, &config);
 
-    let loc_error = haversine_km(result.lat, result.lon, true_lat, true_lon);
-    let depth_error = (result.depth_km - true_depth).abs();
+    let loc_error = haversine_km(result.lat, result.lon, truth.lat, truth.lon);
+    let depth_error = (result.depth_km - truth.depth_km).abs();
 
     println!(
         "  Inverted: ({:.2}°N, {:.2}°E), depth={:.1}km",
@@ -217,7 +114,91 @@ fn validate_inversion(
     println!("  Depth error:    {depth_error:.2} km");
     println!("  RMS residual:   {:.4} s", result.rms_residual_s);
 
-    h.check_max("Location error (km)", loc_error, max_loc_error);
-    h.check_max("Depth error (km)", depth_error, max_depth_error);
-    h.check_max("RMS residual (s)", result.rms_residual_s, max_rms);
+    h.check_max("Location error (km)", loc_error, criteria.location_error_km);
+    h.check_max("Depth error (km)", depth_error, criteria.depth_error_km);
+    h.check_max(
+        "RMS residual (s)",
+        result.rms_residual_s,
+        criteria.rms_residual_s,
+    );
+}
+
+fn run() -> i32 {
+    let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
+    let mut h = ValidationHarness::stdout("Rust Validation: Seismic Inversion");
+
+    print_provenance_header(&bench, "Seismic Wave Propagation");
+
+    let vp = f64_field(&bench["travel_time_model"]["layers"][0], "vp_km_s");
+
+    let src = &bench["test_scenario"]["true_source"];
+    let truth = SourceTruth {
+        lat: f64_field(src, "lat"),
+        lon: f64_field(src, "lon"),
+        depth_km: f64_field(src, "depth_km"),
+    };
+
+    let stations: Vec<Station> = bench["test_scenario"]["stations"]
+        .as_array()
+        .expect("stations array")
+        .iter()
+        .map(|s| Station {
+            code: s["code"].as_str().expect("station code").into(),
+            lat: f64_field(s, "lat"),
+            lon: f64_field(s, "lon"),
+        })
+        .collect();
+
+    let criteria_json = &bench["inversion_config"]["acceptance_criteria"];
+    let criteria = AcceptanceCriteria {
+        location_error_km: f64_field(criteria_json, "location_error_km_max"),
+        depth_error_km: f64_field(criteria_json, "depth_error_km_max"),
+        rms_residual_s: f64_field(criteria_json, "rms_residual_s_max"),
+    };
+
+    let grid = &bench["inversion_config"]["grid_search"];
+
+    // ── Haversine ───────────────────────────────────────────────────
+    // Tol 1e-10: identity check (same point → 0 km), limited only by
+    // trig rounding; 1e-10 is ~6 orders above machine epsilon.
+    // Range 5520–5620: great-circle NY–London is 5570 km (WGS-84);
+    // ±50 km absorbs spherical vs ellipsoidal model difference.
+    println!("\n--- Haversine Distance ---");
+
+    h.check_approx(
+        "Zero distance",
+        haversine_km(truth.lat, truth.lon, truth.lat, truth.lon),
+        0.0,
+        1e-10,
+    );
+
+    let ny_london = haversine_km(40.7128, -74.0060, 51.5074, -0.1278);
+    h.check_range("NY-London ~5570 km", ny_london, 5520.0, 5620.0);
+
+    // ── Travel time ─────────────────────────────────────────────────
+    println!("\n--- Travel Time ---");
+
+    let tt_100 = travel_time_1d(100.0, 0.0, 6.0);
+    h.check_approx("100km/6.0km/s = 16.667s", tt_100, 100.0 / 6.0, 1e-10);
+
+    let t1 = travel_time_1d(100.0, 10.0, vp);
+    let t2 = travel_time_1d(200.0, 10.0, vp);
+    h.check_true("Travel time increases with distance", t2 > t1);
+
+    let observed = validate_forward_model(&mut h, &stations, &truth, vp);
+    validate_inversion(&mut h, &observed, &stations, grid, vp, &truth, &criteria);
+
+    h.summary()
+}
+
+fn main() {
+    std::process::exit(run());
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn validation_passes() {
+        assert_eq!(super::run(), 0);
+    }
 }

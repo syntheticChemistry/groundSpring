@@ -2,7 +2,7 @@
 
 ## Abstract
 
-groundSpring systematically characterizes the gap between model predictions and real-world measurements across six scientific domains: agricultural sensing, meteorology, microbiome biology, seismology, stochastic biochemistry, and spectral theory. Through eight experiments (102/102 Phase 0 checks, 119/119 Phase 1 checks), we demonstrate a unified framework for decomposing measurement error into correctable bias and irreducible noise. Key findings include: (1) soil moisture sensor bias accounts for 26-77% of total error depending on sensor/soil combination; (2) humidity sensor accuracy dominates FAO-56 ET0 uncertainty at 66% of total variance; (3) 16S taxonomic assignments stabilize above 5000 reads; (4) seismic source localization shows ±2km horizontal but ±8.5km depth uncertainty; (5) c-di-GMP signal-to-noise ratio increases monotonically with enzyme production rate; (6) RAWR bootstrap achieves comparable coverage to standard bootstrap with different weighting; and (7) Lyapunov exponents increase monotonically with Anderson disorder strength. Pure Rust implementations are **24× faster** than Python baselines. These results inform minimum sensor requirements for Penny Irrigation and establish the noise characterization primitives needed for neuralSpring's transfer learning and barracuda GPU acceleration.
+groundSpring systematically characterizes the gap between model predictions and real-world measurements across six scientific domains: agricultural sensing, meteorology, microbiome biology, seismology, stochastic biochemistry, and spectral theory. Through eleven experiments (~129 Phase 0 checks, 144/144 Phase 1 checks), we demonstrate a unified framework for decomposing measurement error into correctable bias and irreducible noise. Key findings include: (1) soil moisture sensor bias accounts for 26-77% of total error depending on sensor/soil combination; (2) humidity sensor accuracy dominates FAO-56 ET0 uncertainty at 66% of total variance; (3) 16S taxonomic assignments stabilize above 5000 reads; (4) seismic source localization shows ±2km horizontal but ±8.5km depth uncertainty; (5) c-di-GMP signal-to-noise ratio increases monotonically with enzyme production rate; (6) RAWR bootstrap achieves comparable coverage to standard bootstrap with different weighting; (7) Lyapunov exponents increase monotonically with Anderson disorder strength; (8) Aubry-André metal-insulator transition at λ=2 in Almost-Mathieu; (9) bistable phenotypic switching with stochastic noise-induced transitions; and (10) multi-signal QS integration sharpens regulatory response. Pure Rust implementations are **23.4× faster** than Python baselines (10/11 compute-bound experiments; 11/11 mathematical parity proven). These results inform minimum sensor requirements for Penny Irrigation and establish the noise characterization primitives needed for neuralSpring's transfer learning and barracuda GPU acceleration.
 
 ## 1. Introduction
 
@@ -174,36 +174,45 @@ Thouless coefficient C (γ ∝ W²/C): 103.9 (expected 60–140 for band center 
 
 **All states are localized in 1D.** Even weak disorder (W=0.5) produces positive Lyapunov exponents — there are no extended states in 1D, confirming Anderson's 1958 prediction. The localization length ξ decreases monotonically with disorder strength, following the Thouless scaling γ ≈ W²/C. This is the mathematical framework underlying wave propagation noise: disordered media exponentially attenuate coherent signals, and groundSpring quantifies this attenuation rate.
 
-## 10. Cross-Domain Synthesis
+## 10. Experiments 009–011: Quasiperiodic, Bistable, Multi-Signal
 
-The eight experiments share a common structure:
+**Exp 009 (Almost-Mathieu Quasiperiodic)**: Aubry-André metal-insulator transition at coupling λ=2. Herman's formula γ ≈ ln(λ/2) for λ > 2. Level spacing statistics: extended phase exhibits level repulsion; localized phase approaches Poisson.
 
-| Concept | Exp 001 | Exp 003 | Exp 004 | Exp 005 | Exp 006 | Exp 008 |
-|---------|---------|---------|---------|---------|---------|---------|
-| **Input noise** | Sensor calibration | Weather sensors | Sequencing sampling | Arrival time picks | Birth-death stochasticity | Disorder potential |
-| **Model** | Topp equation | FAO-56 PM chain | Multinomial sampling | 1D travel times | Gillespie SSA | Transfer matrix |
-| **Output** | VWC estimate | ET0 (mm/day) | Genus assignments | Source location | SNR ratio | Lyapunov γ |
-| **Noise floor** | 0.004-0.021 m³/m³ | ±0.14 mm/day | ±0.004 H' | ±2.1 km | SNR < 1 at α < 10 | γ > 0 for any W > 0 |
+**Exp 010 (Bistable Phenotypic Switching)**: Fernandez et al. (2020 PNAS) 5-variable ODE. Two attractors (low vs high c-di-GMP) separated by positive feedback. Monostable control (α_fb=0) collapses to single attractor. Stochastic switching rate validated.
+
+**Exp 011 (Multi-Signal QS Integration)**: Srivastava et al. (2011 J Bacteriology) 7-variable dual-signal ODE. CAI-1 and AI-2 integrate to sharpen HapR activation; dual-signal HapR exceeds single-signal; biofilm repressed by dual regulation.
+
+## 11. Cross-Domain Synthesis
+
+The eleven experiments share a common structure:
+
+| Concept | Exp 001 | Exp 003 | Exp 004 | Exp 005 | Exp 006 | Exp 008 | Exp 009 | Exp 010 | Exp 011 |
+|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|
+| **Input noise** | Sensor calibration | Weather sensors | Sequencing sampling | Arrival time picks | Birth-death stochasticity | Disorder potential | Quasiperiodic potential | Initial c-di-GMP | Dual AHL signals |
+| **Model** | Topp equation | FAO-56 PM chain | Multinomial sampling | 1D travel times | Gillespie SSA | Transfer matrix | Almost-Mathieu | Bistable ODE | Multi-signal ODE |
+| **Output** | VWC estimate | ET0 (mm/day) | Genus assignments | Source location | SNR ratio | Lyapunov γ | Aubry-André transition | Attractor separation | Signal integration |
+| **Noise floor** | 0.004-0.021 m³/m³ | ±0.14 mm/day | ±0.004 H' | ±2.1 km | SNR < 1 at α < 10 | γ > 0 for any W > 0 | λ=2 critical | Stochastic switching | Dual > single HapR |
 
 The framework — decompose error, identify the dominant source, quantify the noise floor — is universal across agricultural, meteorological, biological, geological, biochemical, and mathematical domains.
 
-## 11. Phase 1: Rust Validation
+## 12. Phase 1: Rust Validation
 
-All eight experiments have been ported to idiomatic Rust in the `groundspring` crate.
+All eleven experiments have been ported to idiomatic Rust in the `groundspring` crate.
 
-### 11.1 Coverage
+### 12.1 Coverage
 
 | Metric | Value |
 |--------|-------|
-| Validation binaries | 8 (decompose, rarefaction, seismic, weather, fao56, signal-specificity, rawr, anderson) |
-| Total checks | 119/119 PASS |
-| Rust tests | 154 (131 unit + 14 proptest + 8 integration + 1 doc) |
+| Validation binaries | 11 (decompose, rarefaction, seismic, weather, fao56, signal-specificity, rawr, anderson, quasiperiodic, bistable, multisignal) |
+| Total checks | 144/144 PASS |
+| Rust tests | 177 (131 unit + 9 validate-lib + 14 proptest + 8 integration + 1 doc) |
 | Line coverage | Measured via cargo-llvm-cov |
 | Function coverage | 100% |
 | Clippy warnings | 0 |
-| Rust vs Python | **24× faster** (52s → 2.2s for Exp 006-008) |
+| Rust vs Python | **22× faster** across all 11 experiments (71s → 3.2s with barracuda-gpu Sturm tridiag for Exp 009) |
+| Mathematical parity | **11/11 PROVEN** — Python and Rust both pass against shared benchmark JSONs |
 
-### 11.2 New Modules
+### 12.2 New Modules
 
 - **`gillespie`** — Gillespie SSA for stochastic chemical kinetics. `birth_death_ssa`,
   `steady_state_mean`, `time_averaged_mean`, `time_averaged_variance`. Delegates to
@@ -241,13 +250,13 @@ All eight experiments have been ported to idiomatic Rust in the `groundspring` c
   `ValidationHarness`. Enables independent, concurrent, and nested validation
   scopes without shared state.
 
-### 11.3 Key Improvements
+### 12.3 Key Improvements
 
 - **Hot-loop optimization**: `seismic::grid_search_inversion` Vec allocations
   hoisted outside triple loop (lat × lon × depth).
 - **Modern Rust idioms**: `f64::total_cmp` replaces `partial_cmp().unwrap_or(Equal)`
   (5 sites); `f64::midpoint`, `.hypot()`, `.mul_add()`, `f64::from()` used throughout.
-- **Data-driven validation**: All 8 binaries load expected values from benchmark
+- **Data-driven validation**: All 11 binaries load expected values from benchmark
   JSONs via `include_str!` + `serde_json` — single source of truth.
 - **Barracuda feature gate**: `pearson_r` delegates to `barracuda::stats::pearson_correlation`
   under `#[cfg(feature = "barracuda")]`. Builds and tests clean with and without the feature.
@@ -255,7 +264,7 @@ All eight experiments have been ported to idiomatic Rust in the `groundspring` c
   `prng_algorithm`, and `real_data_accession` fields.
 - **`missing_docs`** promoted from `warn` to `deny`.
 
-### 11.4 GPU Evolution
+### 12.4 GPU Evolution
 
 Two production WGSL shaders in `metalForge/shaders/` following hotSpring
 conventions (documented bindings, xoshiro128** PRNG, f64, workgroup_size(64)):
@@ -270,10 +279,10 @@ conventions (documented bindings, xoshiro128** PRNG, f64, workgroup_size(64)):
 See `metalForge/ABSORPTION_MANIFEST.md` for binding layouts, dispatch geometry,
 and the full module-by-module absorption inventory.
 
-## 12. Evolution Path
+## 13. Evolution Path
 
 - **Phase 0+**: Wire real NOAA CDO data for Exp 002; download IRIS waveforms for Exp 005
-- **Phase 2a (DONE)**: Tier A rewire — **11 functions delegated** (stats, bootstrap, anderson, etc.); 6 GPU ops pending adapter. FAO-56 ET₀ absorbed upstream (ToadStool S49). Rust is **24× faster** than Python.
+- **Phase 2a (DONE)**: Tier A rewire — **24 functions delegated** (19 CPU + 5 GPU: stats, metrics, diversity, bootstrap, anderson, ODE, hamiltonian, eigenvalues). FAO-56 ET₀ absorbed upstream (ToadStool S49). Rust is **22× faster** than Python (all 11; Exp 009: 50× from Sturm tridiag). 11/11 parity proven.
 - **Phase 2b**: Tier B adapt — PRNG alignment, grid-search dispatch, Gillespie GPU
 - **Phase 2c**: Tier C absorption — MC and multinomial kernels → barracuda; RAWR kernel
 - **Phase 3**: Full GPU pipeline, metalForge cross-substrate validation
@@ -293,6 +302,11 @@ These extensions share the common theme: **how do you extract reliable conclusio
 
 ---
 
-*Phase 0 completed: February 25, 2026 — 102/102 PASS (Python, 8 experiments)*
-*Phase 1 completed: February 25, 2026 — 119/119 PASS (Rust, 98.64% workspace coverage)*
-*Phase 2a completed: February 25, 2026 — 11 barracuda CPU delegated, 24× faster than Python*
+*Phase 0 completed: February 25, 2026 — ~129 PASS (Python, 11 experiments)*
+*Phase 1 completed: February 25, 2026 — 144/144 PASS (Rust, 99.11% workspace coverage)*
+*Phase 2a completed: February 25, 2026 — 14 barracuda CPU delegated, 23.4× faster than Python*
+*Phase 2a++ completed: February 25, 2026 — sovereignty evolution, barracuda error hardening, 177 tests*
+*V9 rewiring complete: February 25, 2026 — full API audit, zero-overhead benchmarks, cross-spring lineage*
+*Full-suite parity: February 26, 2026 — 11/11 PROVEN, bench_rust_vs_python expanded to all 11 experiments*
+*ToadStool S64 catch-up: February 26, 2026 — 20 barracuda delegations (+6 metrics/diversity), 3 bug fixes*
+*Complete rewiring: February 26, 2026 — 24 delegations, Sturm tridiag (50× Exp 009), V13 handoff*

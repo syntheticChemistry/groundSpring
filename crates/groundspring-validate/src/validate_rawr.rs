@@ -11,37 +11,11 @@
 use groundspring::bootstrap::{bootstrap_mean, rawr_mean};
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
+use groundspring_validate::{f64_field, f64_range, u64_field, usize_field};
 use serde_json::Value;
 
 const BENCHMARK: &str =
     include_str!("../../../control/rawr_resampling/benchmark_rawr_resampling.json");
-
-fn f64_field(v: &Value, key: &str) -> f64 {
-    v[key]
-        .as_f64()
-        .unwrap_or_else(|| panic!("missing f64 field: {key}"))
-}
-
-#[expect(clippy::cast_possible_truncation)]
-fn usize_field(v: &Value, key: &str) -> usize {
-    v[key]
-        .as_u64()
-        .unwrap_or_else(|| panic!("missing u64 field: {key}")) as usize
-}
-
-fn u64_field(v: &Value, key: &str) -> u64 {
-    v[key]
-        .as_u64()
-        .unwrap_or_else(|| panic!("missing u64 field: {key}"))
-}
-
-fn f64_range(arr: &Value) -> (f64, f64) {
-    let a = arr.as_array().expect("expected JSON array for range");
-    (
-        a[0].as_f64().expect("range lower bound"),
-        a[1].as_f64().expect("range upper bound"),
-    )
-}
 
 fn generate_normal(n: usize, mu: f64, sigma: f64, seed: u64) -> Vec<f64> {
     let mut rng = Xorshift64::new(seed);
@@ -91,20 +65,16 @@ fn coverage_test(
     covers as f64 / n_trials as f64
 }
 
-#[expect(clippy::cast_precision_loss, clippy::float_cmp, clippy::too_many_lines)]
-fn run() -> i32 {
-    let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
-    let mut h = ValidationHarness::stdout("Rust Validation: RAWR Resampling");
-
-    let exp = &bench["expected_results"];
-
-    println!("{}", "=".repeat(72));
-    println!("groundSpring Rust Validation: RAWR Resampling");
-    println!("{}", "=".repeat(72));
-
-    // ── Part 1: Gaussian ──────────────────────────────────────────────
+/// Validate bootstrap and RAWR on symmetric Gaussian data.
+///
+/// Coverage tolerance: [0.9, 1.0] — 200 trials at 95% confidence;
+/// theoretical coverage is 0.95, lower bound 0.9 gives 5× margin.
+/// CI width tolerance: [0.5, 1.2] — n=100, σ=2, so theoretical
+/// SE ≈ σ/√n ≈ 0.2 and 95% CI width ≈ 0.8; range absorbs seed variance.
+fn validate_gaussian(h: &mut ValidationHarness, bench: &Value) {
     println!("\n--- Part 1: Gaussian ---");
 
+    let exp = &bench["expected_results"];
     let tc = &bench["test_cases"]["gaussian"];
     let n = usize_field(tc, "n");
     let mu = f64_field(tc, "mu");
@@ -176,10 +146,17 @@ fn run() -> i32 {
 
     h.check_range("Bootstrap Gaussian coverage", boot_cov, cov_lo, cov_hi);
     h.check_range("RAWR Gaussian coverage", rawr_cov, cov_lo, cov_hi);
+}
 
-    // ── Part 2: Skewed ────────────────────────────────────────────────
+/// Validate coverage on skewed (lognormal) data.
+///
+/// Coverage tolerance: [0.8, 1.0] — wider than Gaussian because
+/// lognormal skew biases the percentile bootstrap; 0.8 lower bound
+/// is the documented floor for heavy-tailed distributions.
+fn validate_skewed(h: &mut ValidationHarness, bench: &Value) {
     println!("\n--- Part 2: Skewed ---");
 
+    let exp = &bench["expected_results"];
     let tc_s = &bench["test_cases"]["skewed"];
     let n_s = usize_field(tc_s, "n");
     let mu_ln = f64_field(tc_s, "lognormal_mu");
@@ -190,6 +167,7 @@ fn run() -> i32 {
     let seed_s = u64_field(tc_s, "seed");
 
     let (skew_lo, skew_hi) = f64_range(&exp["skewed_coverage_range"]);
+    let n_cov_trials = 200;
 
     let boot_cov_s = coverage_test(
         |s| generate_lognormal(n_s, mu_ln, sigma_ln, s),
@@ -216,10 +194,17 @@ fn run() -> i32 {
 
     h.check_range("Bootstrap skewed coverage", boot_cov_s, skew_lo, skew_hi);
     h.check_range("RAWR skewed coverage", rawr_cov_s, skew_lo, skew_hi);
+}
 
-    // ── Part 3: Correlated ────────────────────────────────────────────
+/// Validate RAWR vs bootstrap on AR(1)-correlated data.
+///
+/// RMSE ratio tolerance: max 1.5 from benchmark JSON — RAWR should not
+/// be dramatically worse than bootstrap for correlated data.
+#[expect(clippy::cast_sign_loss, clippy::cast_lossless)]
+fn validate_correlated(h: &mut ValidationHarness, bench: &Value) {
     println!("\n--- Part 3: Correlated ---");
 
+    let exp = &bench["expected_results"];
     let tc_c = &bench["test_cases"]["correlated"];
     let n_c = usize_field(tc_c, "n");
     let mu_c = f64_field(tc_c, "mu");
@@ -228,6 +213,7 @@ fn run() -> i32 {
     let n_boot_c = usize_field(tc_c, "n_bootstrap");
     let conf_c = f64_field(tc_c, "confidence");
     let seed_c = u64_field(tc_c, "seed");
+    let n_cov_trials = 200;
 
     let mut boot_mses = Vec::new();
     let mut rawr_mses = Vec::new();
@@ -256,8 +242,11 @@ fn run() -> i32 {
         ratio,
         f64_field(exp, "correlated_rawr_mse_ratio_max"),
     );
+}
 
-    // ── Part 4: Determinism ───────────────────────────────────────────
+/// Validate that both methods are deterministic (same seed → same result).
+#[expect(clippy::float_cmp)]
+fn validate_determinism(h: &mut ValidationHarness) {
     println!("\n--- Part 4: Determinism ---");
 
     let det_data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
@@ -273,6 +262,20 @@ fn run() -> i32 {
         "Bootstrap ≠ RAWR (different methods)",
         b1.estimate != r1.estimate,
     );
+}
+
+fn run() -> i32 {
+    let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
+    let mut h = ValidationHarness::stdout("Rust Validation: RAWR Resampling");
+
+    println!("{}", "=".repeat(72));
+    println!("groundSpring Rust Validation: RAWR Resampling");
+    println!("{}", "=".repeat(72));
+
+    validate_gaussian(&mut h, &bench);
+    validate_skewed(&mut h, &bench);
+    validate_correlated(&mut h, &bench);
+    validate_determinism(&mut h);
 
     h.summary()
 }

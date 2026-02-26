@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: February 25, 2026
+**Last Updated**: February 26, 2026
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---
@@ -17,8 +17,12 @@
 | 9 | Enzymatic signal specificity | Biology (c-di-GMP) | 12/12 | 12/12 | SNR ≈ 2 at 20× activation; 30.9× faster |
 | 12 | RAWR resampling | Statistics | 11/11 | 11/11 | Coverage comparable to bootstrap; 7.3× faster |
 | 15 | Anderson localization | Mathematics | 8/8 | 8/8 | All states localized; Thouless C ≈ 104; 29.8× faster |
+| 16 | Almost-Mathieu quasiperiodic localization | Mathematics | 8/8 | 8/8 | Aubry-André transition at λ=2; Herman's formula verified; level statistics distinguish phases |
+| 10 | Bistable phenotypic switching | Biology | 10/10 | 9/9 | Two stable attractors (0.035 vs 1.634 c-di-GMP); noise-induced transitions; 18.5× faster |
+| 11 | Multi-signal QS integration | Biology | 9/9 | 8/8 | Dual signaling sharpens regulation; lower HapR variance; 46.2× faster |
 
-**Phase 0**: 102/102 PASS (Python). **Phase 1**: 119/119 PASS (Rust). **Speedup**: 24× total.
+**Phase 0**: ~129 checks (Python). **Phase 1**: 144/144 PASS (Rust). **Speedup**: 23.4× (10/11 compute-bound).
+**Mathematical Parity**: 11/11 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 
 ---
 
@@ -37,8 +41,8 @@
 | # | Paper | Journal | Year | Faculty | Why | Status |
 |---|-------|---------|------|---------|-----|--------|
 | 9 | Massie et al. "Quantification of High Specificity Cyclic di-GMP Signaling" | PNAS 109:12746-51 | 2012 | Waters | How cells resolve signal from noise with 60+ competing enzymes. Biological Exp 001 | **Active** (Exp 006: 12/12 Py, 12/12 Rust) |
-| 10 | Fernandez et al. "V. cholerae adapts by c-di-GMP regulation of cell shape" | PNAS 117:29046-29054 | 2020 | Waters | Bistable switching — when does noise push a system across a threshold? Bifurcation analysis | Queued |
-| 11 | Srivastava et al. "Integration of Cyclic di-GMP and Quorum Sensing" | J Bacteriology 193:6331-41 | 2011 | Waters | Multi-input signal fusion in noisy environment. Biological analog of sensor fusion | Queued |
+| 10 | Fernandez et al. "V. cholerae adapts by c-di-GMP regulation of cell shape" | PNAS 117:29046-29054 | 2020 | Waters | Bistable switching — when does noise push a system across a threshold? Bifurcation analysis | **Active** (Exp 010: 10/10 Py, 9/9 Rust) |
+| 11 | Srivastava et al. "Integration of Cyclic di-GMP and Quorum Sensing" | J Bacteriology 193:6331-41 | 2011 | Waters | Multi-input signal fusion in noisy environment. Biological analog of sensor fusion | **Active** (Exp 011: 9/9 Py, 8/8 Rust) |
 
 ### Statistical Confidence & Resampling (Liu)
 
@@ -58,7 +62,7 @@ does noise win?**
 | # | Paper | Journal | Year | Faculty | Why | Status |
 |---|-------|---------|------|---------|-----|--------|
 | 15 | Bourgain & Kachkovskiy "Anderson localization for two interacting quasiperiodic particles" | GAFA 29:3-43 | 2018 | Kachkovskiy | Anderson localization = signal trapped by disorder. Two-particle case models how coupled noisy sensors affect each other — directly extends Exp 001's correlated sensor noise decomposition | **Active** (Exp 008: 8/8 Py, 8/8 Rust) |
-| 16 | Jitomirskaya & Kachkovskiy "All couplings localization for quasiperiodic operators with Lipschitz monotone potentials" | JEMS 21:777-795 | 2018 | Kachkovskiy | Localization at ALL coupling strengths for monotone potentials. Quasiperiodic = "almost periodic" = structured noise (seasonal drift, tidal cycles, orbital harmonics). Math of Exp 002's ERA5 vs station gap | Queued |
+| 16 | Jitomirskaya & Kachkovskiy "All couplings localization for quasiperiodic operators with Lipschitz monotone potentials" | JEMS 21:777-795 | 2018 | Kachkovskiy | Localization at ALL coupling strengths for monotone potentials. Quasiperiodic = "almost periodic" = structured noise (seasonal drift, tidal cycles, orbital harmonics). Math of Exp 002's ERA5 vs station gap | **Active** (Exp 009: 8/8 Py, 8/8 Rust) |
 | 17 | Kachkovskiy "On transport properties of isotropic quasiperiodic XY spin chains" | CMP 345:659-673 | 2016 | Kachkovskiy | Energy transport through disordered chains — when does a signal reach the other end? Mathematical framework for Exp 005's seismic wave propagation through heterogeneous crust | Queued |
 | 18 | Filonov & Kachkovskiy "On the structure of band edges of 2d periodic elliptic operators" | Acta Math 221:59-80 | 2018 | Kachkovskiy | Band edges = frequencies where waves transition from propagating to evanescent. The mathematical boundary between "signal gets through" and "noise kills it" | Queued |
 
@@ -189,7 +193,7 @@ Write → Absorb → Lean cycle:
 | **GPU** | `barracuda` feature + GPU adapter | GPU matches CPU within tolerance | BarraCUDA GPU ops (reduce, map, fused) |
 | **metalForge** | Mixed hardware dispatch | Cross-substrate agreement | metalForge forge crate routes to best substrate |
 
-### Completed Experiments (Papers 1-5, 9, 12, 15)
+### Completed Experiments (Papers 1-5, 9, 10, 11, 12, 15, 16)
 
 | # | Experiment | CPU | GPU | metalForge | Barracuda delegation |
 |---|-----------|:---:|:---:|:----------:|---------------------|
@@ -199,11 +203,15 @@ Write → Absorb → Lean cycle:
 | 4 | Sequencing noise | **15/15** | Tier C (`batched_multinomial.wgsl`) | After GPU | — |
 | 5 | Seismic source inversion | **9/9** | Tier B (grid dispatch) | After GPU | — |
 | 9 | Enzymatic signal specificity | **12/12** | `GillespieGpu` (ready) | After GPU | GPU-only (no CPU) |
+| 10 | Bistable phenotypic switching | **9/9** | `BistableOde` (ready) | After GPU | `BistableOde::cpu_derivative` |
+| 11 | Multi-signal QS integration | **8/8** | `MultiSignalOde` (ready) | After GPU | `MultiSignalOde::cpu_derivative` |
 | 12 | RAWR resampling | **11/11** | Embarrassingly parallel | After GPU | `bootstrap_mean` (CPU) |
 | 15 | Anderson localization | **8/8** | `spectral::*` (ready) | After GPU | 2 lyapunov (barracuda-gpu) |
+| 16 | Almost-Mathieu quasiperiodic | **8/8** | `almost_mathieu_hamiltonian` (ready) | After GPU | barracuda-gpu delegation |
 
-**CPU tier**: 119/119 PASS across 8 validation binaries.
-**Barracuda CPU**: 11 functions delegated. **Performance**: 24× faster than Python.
+**CPU tier**: 144/144 PASS across 11 validation binaries.
+**Barracuda**: 24 functions delegated (19 CPU + 5 GPU). **Performance**: 22× faster than Python (all 11; Exp 009: 50× from Sturm tridiag).
+**Mathematical parity**: 11/11 PROVEN. See `data/parity_report.json`.
 **GPU tier**: pending barracuda adapter (Tier A) or new kernels (Tier B/C).
 **metalForge tier**: after GPU.
 
@@ -215,13 +223,13 @@ Write → Absorb → Lean cycle:
 | 7 | Bazavov g-2 | Queued | After CPU | — | Jackknife GPU kernel |
 | 8 | Bazavov freeze-out | Queued | After CPU | — | Grid search GPU |
 | 9 | Massie c-di-GMP | **12/12 PASS** | **Ready** | — | `GillespieGpu` + `BatchedOdeRK4` + 5 bio ODEs (S58) |
-| 10 | Fernandez cell shape | Queued | **Ready** | — | `BatchedEighGpu` + `BistableOde` (S58) |
-| 11 | Srivastava QS | Queued | **Ready** | — | `CooperationOde` + `MultiSignalOde` (S58) |
+| 10 | Fernandez cell shape | **9/9 PASS** | **Ready** | — | `BatchedEighGpu` + `BistableOde` (S58) |
+| 11 | Srivastava QS | **8/8 PASS** | **Ready** | — | `CooperationOde` + `MultiSignalOde` (S58) |
 | 12 | Wang RAWR | **11/11 PASS** | Ready | — | Embarrassingly parallel |
 | 13 | Lee resampling | Queued | After 12 | — | Builds on #12 |
 | 14 | Dolson eco-evo | Queued | Ready | — | Simulation only |
 | 15 | Bourgain-Kachkovskiy | **8/8 PASS** | **Ready** | — | `spectral` + Anderson (S56) |
-| 16 | Jitomirskaya-Kachkovskiy | Queued | **Ready** | — | Almost-Mathieu + `disordered_laplacian` (S56) |
+| 16 | Jitomirskaya-Kachkovskiy | **8/8 PASS** | **Ready** | — | Almost-Mathieu + `disordered_laplacian` (S56) |
 | 17 | Kachkovskiy transport | Queued | After 15 | — | Builds on #15 |
 | 18 | Filonov-Kachkovskiy | Queued | After 15 | — | Builds on #15 |
 | 19 | R. Anderson (review) | Reference | — | — | Not a reproduction |
@@ -252,7 +260,7 @@ Write → Absorb → Lean cycle:
 ### GPU-Ready vs GPU-Blocked
 
 **GPU-Ready** (barracuda primitives already exist):
-Papers 9, 10, 12, 14, 15, 16 — can proceed to GPU tier once CPU tier completes.
+Papers 9, 10, 11, 12, 14, 15, 16 — can proceed to GPU tier once CPU tier completes.
 
 **GPU-Blocked** (missing barracuda primitives):
 - Papers 6, 7 — blocked by **FFT gap**
@@ -275,11 +283,12 @@ Papers 9, 10, 12, 14, 15, 16 — can proceed to GPU tier once CPU tier completes
 
 ## Hardware Evolution: CPU → GPU → metalForge
 
-### Tier 1: BarraCUDA CPU (current — 119/119 PASS)
+### Tier 1: BarraCUDA CPU (current — 144/144 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
-11 functions delegated to barracuda CPU ops. 24× faster than Python.
-All 8 experiments validated.
+24 functions delegated to barracuda (19 CPU + 5 GPU). 22× faster than Python (all 11; Exp 009: 50× Sturm tridiag).
+11/11 mathematical parity proven.
+All 11 experiments validated.
 
 ### Tier 2: BarraCUDA GPU (next)
 

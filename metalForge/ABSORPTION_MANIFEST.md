@@ -6,7 +6,7 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: February 25, 2026 (Phase 2a — paper queue buildout)
+**Last updated**: February 26, 2026 (V13 — complete rewiring, 24 delegations, Sturm tridiag)
 
 ## Absorption Status Summary
 
@@ -50,32 +50,36 @@ Both shaders use xoshiro128** matching `barracuda::ops::prng_xoshiro_wgsl`.
 
 ---
 
-## Tier A — Lean (11 delegated, 6 GPU pending adapter)
+## Tier A — Lean (24 delegated)
 
-### Already delegated
+### All delegated
 
 | Function | BarraCUDA target | Wiring |
 |---|---|---|
 | `pearson_r` | `stats::pearson_correlation` | `#[cfg(feature = "barracuda")]` NaN-safe |
 | `spearman_r` | `stats::correlation::spearman_correlation` | `#[cfg(feature = "barracuda")]` NaN-safe |
 | `sample_std_dev` | `stats::correlation::std_dev` | `#[cfg(feature = "barracuda")]` |
+| `covariance` | `stats::correlation::covariance` | `#[cfg(feature = "barracuda")]` if-let |
+| `norm_cdf` | `stats::norm_cdf` | `#[cfg(feature = "barracuda")]` direct |
+| `norm_ppf` | `stats::norm_ppf` | `#[cfg(feature = "barracuda")]` direct |
+| `chi2_statistic` | `stats::chi2_decomposed` | `#[cfg(feature = "barracuda")]` struct mapping |
 | `bootstrap_mean` | `stats::bootstrap_mean` | `#[cfg(feature = "barracuda")]` Result mapping |
 | `lyapunov_exponent` | `spectral::lyapunov_exponent` | `#[cfg(feature = "barracuda-gpu")]` |
 | `lyapunov_averaged` | `spectral::lyapunov_averaged` | `#[cfg(feature = "barracuda-gpu")]` |
-
-### Pending GPU adapter
-
-These have existing barracuda GPU ops but need `#[cfg(feature = "barracuda")]`
-wiring with a `WgpuDevice`:
-
-| Function | GPU op | How |
-|---|---|---|
-| `rmse` | `NormReduceF64::l2` | L2(obs − mod) / √n |
-| `mbe` | `SumReduceF64::mean` | mean(mod − obs) |
-| `r_squared` | `VarianceReduceF64` + `SumReduceF64` | 1 − SS_res/SS_tot |
-| `index_of_agreement` | `FusedMapReduceF64` | custom map + sum |
-| `hit_rate` | `FusedMapReduceF64` | binary agree map + mean |
-| `shannon_diversity` | `FusedMapReduceF64::shannon_entropy` | convenience method exists |
+| `analytical_localization_length` | `special::localization_length` | `#[cfg(feature = "barracuda")]` |
+| `almost_mathieu_hamiltonian` | `spectral::almost_mathieu_hamiltonian` | `#[cfg(feature = "barracuda-gpu")]` |
+| `bistable_derivative` | `BistableOde::cpu_derivative` | `#[cfg(feature = "barracuda")]` OdeSystem trait |
+| `multisignal_derivative` | `MultiSignalOde::cpu_derivative` | `#[cfg(feature = "barracuda")]` OdeSystem trait |
+| `rmse` | `stats::rmse` | `#[cfg(feature = "barracuda")]` direct (S64) |
+| `mbe` | `stats::mbe` | `#[cfg(feature = "barracuda")]` direct (S64) |
+| `r_squared` | `stats::r_squared` | `#[cfg(feature = "barracuda")]` direct (S64) |
+| `index_of_agreement` | `stats::index_of_agreement` | `#[cfg(feature = "barracuda")]` direct (S64) |
+| `hit_rate` | `stats::hit_rate` | `#[cfg(feature = "barracuda")]` direct (S64) |
+| `shannon_diversity` | `stats::shannon` | `#[cfg(feature = "barracuda")]` u64→f64 (S64) |
+| `mean` | `stats::mean` | `#[cfg(feature = "barracuda")]` direct (S64) |
+| `percentile` | `stats::percentile` | `#[cfg(feature = "barracuda")]` direct (S64) |
+| `level_spacing_ratio` | `spectral::level_spacing_ratio` | `#[cfg(feature = "barracuda-gpu")]` sort adapter |
+| `almost_mathieu_eigenvalues` | `spectral::find_all_eigenvalues` | `#[cfg(feature = "barracuda-gpu")]` Sturm tridiag → **50× Exp 009** |
 
 ---
 
@@ -135,11 +139,19 @@ NOTE:       Equation chain is superseded by barracuda Op::Fao56Et0 — when
 ## Handoff Checklist (per shader)
 
 - [x] Production WGSL file with documented bindings
-- [x] CPU reference passes all validation checks (119/119)
+- [x] CPU reference passes all validation checks (144/144 across 11 binaries)
 - [x] Binding layout documented in this manifest
 - [x] Dispatch geometry documented (workgroup size, grid dims)
 - [x] f64 precision throughout (no f32 truncation)
 - [x] PRNG matches barracuda (xoshiro128**)
-- [x] Handoff V3 posted in `wateringHole/handoffs/`
+- [x] Handoff V13 posted in `wateringHole/handoffs/` (V12, V11, V10, V9, V8 archived)
+- [x] All 24 barracuda delegations use `#[cfg]` or `if let Ok` with CPU fallback always compiled
+- [x] Mathematical parity: 11/11 PROVEN (Python ⇌ Rust, `data/parity_report.json`)
+- [x] PRNG alignment investigated: requires full rebaseline (documented in V8 handoff)
+- [x] ToadStool S64 catch-up: 6 new CPU delegations (metrics + shannon), 3 bug fixes
+- [x] Complete rewiring: 4 more delegations (mean, percentile, level_spacing_ratio, eigenvalues)
+- [x] Exp 009: 50× speedup from Sturm tridiag solver (hotSpring S26 spectral)
+- [x] Three-mode revalidation (local / barracuda / barracuda-gpu): all PASS × 3, 0 warnings × 3
+- [x] Fixed OdeSystem trait import, hofstadter module path, dead-code gates
 - [ ] Tolerance comparison: GPU output vs CPU reference
-- [ ] ToadStool absorption confirmed
+- [ ] ToadStool absorption of groundSpring shaders confirmed

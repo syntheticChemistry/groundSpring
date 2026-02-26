@@ -8,8 +8,10 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 ### Status
 
-- Phase 0 baselines: **102/102 quantitative checks passed** across 8 experiments, 6 domains.
-- Phase 1 Rust validation: **119/119 checks passed** across 8 validation binaries.
+- Phase 0 baselines: **~129 quantitative checks passed** across 11 experiments, 6 domains.
+- Phase 1 Rust validation: **144/144 checks passed** across 11 validation binaries.
+- Mathematical parity: **11/11 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
+- Performance: **22× faster** (Rust vs Python, all 11 experiments with barracuda-gpu). Exp 009: **50× from Sturm tridiag**.
 
 ### Key Results
 
@@ -23,6 +25,9 @@ This white paper documents groundSpring's systematic approach to quantifying the
 | 006: Signal Specificity | Biology (c-di-GMP) | 12/12 | 12/12 PASS | SNR ≈ 2 at 20× activation; Poisson variance confirmed |
 | 007: RAWR Resampling | Statistics | 11/11 | 11/11 PASS | RAWR competitive or better than bootstrap across all test cases |
 | 008: Anderson Localization | Math (spectral) | 8/8 | 8/8 PASS | Thouless scaling ξ ≈ 104/W²; all states localized for W > 0 |
+| 009: Quasiperiodic | Math (spectral) | 8/8 | 8/8 PASS | Aubry-André transition at λ=2; Herman's formula confirmed |
+| 010: Bistable Switching | Biology (c-di-GMP) | 10/10 | 9/9 PASS | Two stable attractors; noise-induced transitions |
+| 011: Multi-Signal QS | Biology (QS) | 9/9 | 8/8 PASS | Dual signaling sharpens regulation; lower variance |
 
 ### Key Research Questions Answered
 
@@ -38,9 +43,9 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 - [STUDY.md](STUDY.md) — Detailed results and analysis
 - [METHODOLOGY.md](METHODOLOGY.md) — Experimental design and validation approach
-- [experiments/](experiments/) — Per-experiment summaries (8 experiments, 6 domains)
+- [experiments/](experiments/) — Per-experiment summaries (11 experiments, 6 domains)
 - [baseCamp/](baseCamp/) — Per-faculty research briefings (Bazavov, Waters, Liu, Kachkovskiy, R. Anderson)
-- [../specs/CROSS_SPRING_EVOLUTION.md](../specs/CROSS_SPRING_EVOLUTION.md) — Cross-spring shader provenance
+- [../wateringHole/CROSS_SPRING_SHADER_EVOLUTION.md](../wateringHole/CROSS_SPRING_SHADER_EVOLUTION.md) — Cross-spring shader provenance (S58–S65)
 - [../specs/BARRACUDA_EVOLUTION.md](../specs/BARRACUDA_EVOLUTION.md) — Module → GPU promotion mapping
 
 ---
@@ -51,7 +56,7 @@ The `groundspring` crate provides 11 modules of pure safe Rust:
 
 | Module | Experiment | GPU Tier | Notes |
 |--------|-----------|----------|-------|
-| `stats` | All | 7 CPU leaned, 6 GPU pending | Pearson, Spearman, sample_std_dev, covariance, norm_cdf, norm_ppf, chi2 → barracuda |
+| `stats` | All | 15 CPU delegated | Pearson, Spearman, std_dev, covariance, norm_cdf, norm_ppf, chi2, rmse, mbe, r², IoA, hit_rate, mean, percentile → barracuda |
 | `decompose` | Exp 001 | CPU-only | Bias-variance decomposition, scalar math |
 | `fao56` | Exp 003 | **Absorbed** upstream | Equation chain → barracuda `Op::Fao56Et0`; MC wrapper pending |
 | `prng` | Exp 003, 004 | B (adapt) | Xorshift64 + Box-Muller, aligning to barracuda xoshiro |
@@ -59,7 +64,7 @@ The `groundspring` crate provides 11 modules of pure safe Rust:
 | `seismic` | Exp 005 | B (adapt) | Haversine, travel time, grid-search inversion |
 | `gillespie` | Exp 006 | GPU-ready | Gillespie SSA birth-death process → `GillespieGpu` |
 | `bootstrap` | Exp 007 | A Lean | Bootstrap + RAWR CIs → `barracuda::stats::bootstrap_mean` |
-| `anderson` | Exp 008 | A Lean | Lyapunov → `barracuda::spectral`, analytical ξ → `barracuda::special` |
+| `anderson` | Exp 008-009 | A Lean | Lyapunov, level_spacing, eigenvalues → `barracuda::spectral`, analytical ξ → `barracuda::special`. **50× Exp 009.** |
 | `validate` | All | N/A | Generic `Write` harness (hotSpring pattern) |
 
 ### GPU Evolution (metalForge)
