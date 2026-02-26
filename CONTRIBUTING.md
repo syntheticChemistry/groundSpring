@@ -84,8 +84,7 @@ cargo llvm-cov --workspace       # 99.11% workspace line coverage
 cargo test --features barracuda     # 205 tests, CPU delegation (21 CPU)
 cargo test --features barracuda-gpu # 205 tests, CPU + spectral (21 CPU + 5 GPU)
 
-# Three-mode benchmark (local vs barracuda-gpu)
-bash scripts/bench_barracuda_modes.sh
+# Three-mode benchmark (local vs barracuda vs barracuda-gpu)
 bash scripts/three_mode_benchmark.sh
 
 # Validation binaries (hotSpring pattern: exit 0 = pass, exit 1 = fail)

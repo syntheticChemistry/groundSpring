@@ -45,6 +45,7 @@ def run_and_capture(cmd: list[str], timeout: int = 300) -> tuple[bool, str]:
     try:
         result = subprocess.run(
             cmd, cwd=str(ROOT), capture_output=True, text=True, timeout=timeout,
+            check=False,
         )
         return result.returncode == 0, result.stdout + result.stderr
     except subprocess.TimeoutExpired:
@@ -132,6 +133,24 @@ EXPERIMENTS = [
         "python": [sys.executable, "control/multisignal_qs/multisignal_qs.py"],
         "rust_bin": "validate-multisignal",
     },
+    {
+        "name": "Exp 012: Spin Chain Transport",
+        "benchmark": "control/spin_transport/benchmark_spin_transport.json",
+        "python": [sys.executable, "control/spin_transport/spin_chain_transport.py"],
+        "rust_bin": "validate-transport",
+    },
+    {
+        "name": "Exp 013: Resampling Convergence",
+        "benchmark": "control/resampling_convergence/benchmark_resampling_convergence.json",
+        "python": [sys.executable, "control/resampling_convergence/resampling_convergence.py"],
+        "rust_bin": "validate-resampling-conv",
+    },
+    {
+        "name": "Exp 014: Drift vs Selection",
+        "benchmark": "control/drift_selection/benchmark_drift_selection.json",
+        "python": [sys.executable, "control/drift_selection/drift_selection.py"],
+        "rust_bin": "validate-drift",
+    },
 ]
 
 
@@ -142,7 +161,7 @@ def main() -> int:
 
     subprocess.run(
         ["cargo", "build", "--release", "--workspace"],
-        cwd=str(ROOT), capture_output=True,
+        cwd=str(ROOT), capture_output=True, check=False,
     )
 
     results: list[ExperimentParity] = []
@@ -192,8 +211,8 @@ def main() -> int:
             n_parity += 1
 
     print(f"\n  {n_parity}/{len(results)} experiments demonstrate mathematical parity.")
-    print(f"  Both Python and Rust validate against the same benchmark JSON files.")
-    print(f"  Parity is proven within the tolerances specified in each benchmark.")
+    print("  Both Python and Rust validate against the same benchmark JSON files.")
+    print("  Parity is proven within the tolerances specified in each benchmark.")
 
     if n_parity == len(results):
         print(f"\n  ALL {n_parity} EXPERIMENTS: PARITY PROVEN")

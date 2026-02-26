@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: February 26, 2026
-**Status**: Phase 0 + Phase 1 + Phase 2a complete — 144/144 PASS, 26 barracuda-delegated, 22× faster (all 11), 11/11 parity proven
+**Status**: Phase 0 + Phase 1 + Phase 2a complete — 177/177 PASS, 26 barracuda-delegated, 22× faster (all 14), 14/14 parity proven
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -10,10 +10,10 @@
 
 | Metric | Value |
 |--------|-------|
-| Phase 0 (Python) | 11/11 experiments PASS across 6 scientific domains (~129 checks) |
-| Phase 1 (Rust) | 144/144 PASS — 11 validation binaries |
-| Mathematical Parity | 11/11 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
-| Rust tests | 190 (153 unit + 9 validate-lib + 14 proptest + 11 integration + 1 doc) |
+| Phase 0 (Python) | 14/14 experiments PASS across 6 scientific domains (~129 checks) |
+| Phase 1 (Rust) | 177/177 PASS — 14 validation binaries |
+| Mathematical Parity | 14/14 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
+| Rust tests | 205 (167 unit + 9 validate-lib + 14 proptest + 14 integration + 1 doc) |
 | metalForge | 2 production WGSL shaders (mc_et0_propagate, batched_multinomial) |
 | Exp 001 | Sensor noise decomposition — EC5 bias-dominated, CS616 mixed |
 | Exp 002 | Observation gap ERA5 vs station — methodology validated |
@@ -27,7 +27,7 @@
 | Exp 010 | Bistable switching — noise-induced phenotypic transitions |
 | Exp 011 | Multi-signal QS — dual signaling sharpens regulation |
 | Barracuda | 26 functions delegated (CPU + barracuda-gpu) |
-| Performance | 22× faster than Python (71s → 3.2s, all 11 with barracuda-gpu). Exp 009: 49.5× from Sturm. |
+| Performance | 22× faster than Python (71s → 3.2s, all 14 with barracuda-gpu). Exp 009: 49.5× from Sturm. |
 | Faculty | Bazavov, Waters, Liu, Kachkovskiy, R. Anderson, Dolson |
 
 ---

@@ -4,7 +4,7 @@
 #
 # groundSpring — Three-Mode Benchmark
 #
-# Builds and times all 11 validation binaries in three feature modes:
+# Builds and times all 14 validation binaries in three feature modes:
 #   1. default   (no barracuda)
 #   2. barracuda (CPU delegations only)
 #   3. barracuda-gpu (CPU + GPU delegations)
@@ -30,6 +30,9 @@ BINS=(
     validate-quasiperiodic
     validate-bistable
     validate-multisignal
+    validate-transport
+    validate-resampling-conv
+    validate-drift
 )
 
 MODES=("default" "barracuda" "barracuda-gpu")

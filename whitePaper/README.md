@@ -8,10 +8,10 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 ### Status
 
-- Phase 0 baselines: **~129 quantitative checks passed** across 11 experiments, 6 domains.
-- Phase 1 Rust validation: **144/144 checks passed** across 11 validation binaries.
-- Mathematical parity: **11/11 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
-- Performance: **22× faster** (Rust vs Python, all 11 experiments with barracuda-gpu). Exp 009: **49.5× from Sturm tridiag**.
+- Phase 0 baselines: **~129 quantitative checks passed** across 14 experiments, 6 domains.
+- Phase 1 Rust validation: **177/177 checks passed** across 14 validation binaries.
+- Mathematical parity: **14/14 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
+- Performance: **22× faster** (Rust vs Python, all 14 experiments with barracuda-gpu). Exp 009: **49.5× from Sturm tridiag**.
 
 ### Key Results
 
@@ -43,9 +43,9 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 - [STUDY.md](STUDY.md) — Detailed results and analysis
 - [METHODOLOGY.md](METHODOLOGY.md) — Experimental design and validation approach
-- [experiments/](experiments/) — Per-experiment summaries (11 experiments, 6 domains)
+- [experiments/](experiments/) — Per-experiment summaries (14 experiments, 6 domains)
 - [baseCamp/](baseCamp/) — Per-faculty research briefings (Bazavov, Waters, Liu, Kachkovskiy, R. Anderson)
-- [../wateringHole/CROSS_SPRING_SHADER_EVOLUTION.md](../wateringHole/CROSS_SPRING_SHADER_EVOLUTION.md) — Cross-spring shader provenance (S58–S65)
+- [../wateringHole/CROSS_SPRING_SHADER_EVOLUTION.md](../wateringHole/CROSS_SPRING_SHADER_EVOLUTION.md) — Cross-spring shader provenance (S58–S66)
 - [../specs/BARRACUDA_EVOLUTION.md](../specs/BARRACUDA_EVOLUTION.md) — Module → GPU promotion mapping
 
 ---
@@ -56,7 +56,7 @@ The `groundspring` crate provides 11 modules of pure safe Rust:
 
 | Module | Experiment | GPU Tier | Notes |
 |--------|-----------|----------|-------|
-| `stats` | All | 15 CPU delegated | Pearson, Spearman, std_dev, covariance, norm_cdf, norm_ppf, chi2, rmse, mbe, r², IoA, hit_rate, mean, percentile → barracuda |
+| `stats` | All | 21 CPU delegated | Pearson, Spearman, std_dev, covariance, norm_cdf, norm_ppf, chi2, rmse, mbe, r², IoA, hit_rate, mean, percentile → barracuda |
 | `decompose` | Exp 001 | CPU-only | Bias-variance decomposition, scalar math |
 | `fao56` | Exp 003 | **Absorbed** upstream | Equation chain → barracuda `Op::Fao56Et0`; MC wrapper pending |
 | `prng` | Exp 003, 004 | B (adapt) | Xorshift64 + Box-Muller, aligning to barracuda xoshiro |

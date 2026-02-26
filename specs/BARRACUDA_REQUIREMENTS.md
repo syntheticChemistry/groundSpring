@@ -9,14 +9,14 @@
 
 groundSpring Phase 0 (Python), Phase 1 (Rust), and Phase 2a (barracuda CPU) are **complete**.
 
-- 144/144 validation checks across 11 binaries
+- 177/177 validation checks across 14 binaries
 - 13 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, bistable, multisignal, cast, validate
-- 190 Rust tests (153 unit + 9 validate-lib + 14 proptest + 11 integration + 1 doc), 0 clippy warnings
+- 205 Rust tests (167 unit + 9 validate-lib + 14 proptest + 14 integration + 1 doc), 0 clippy warnings
 - Two feature gates: `barracuda` (21 CPU delegations) and `barracuda-gpu` (5 GPU delegations including Sturm tridiag)
 - 26 functions delegated to barracuda (stats, metrics, diversity, bootstrap, anderson, ODE, hamiltonian, eigenvalues)
 - 2 production WGSL shaders in `metalForge/shaders/` (261 combined lines)
 - Rust is **22× faster** than Python (all 11 with barracuda-gpu). Exp 009: **49.5× from Sturm tridiag**.
-- **11/11 mathematical parity proven** (Python ⇌ Rust; `data/parity_report.json`)
+- **14/14 mathematical parity proven** (Python ⇌ Rust; `data/parity_report.json`)
 
 See [BARRACUDA_EVOLUTION.md](BARRACUDA_EVOLUTION.md) for the module-by-module
 GPU promotion mapping.
@@ -76,17 +76,17 @@ GPU promotion mapping.
 ```
 Phase 0 (DONE — Python)        Phase 1 (DONE — Rust CPU)       Phase 2a (DONE — Barracuda CPU)
 ────────────────────           ─────────────────────────       ──────────────────────────────
-NumPy MC (N=10k)    ────────→  prng + fao56 (144/144 PASS) →  bootstrap_mean → barracuda
+NumPy MC (N=10k)    ────────→  prng + fao56 (177/177 PASS) →  bootstrap_mean → barracuda
 NumPy stats         ────────→  stats (RMSE/MBE/R²/IA/hit) →   pearson_r, spearman_r, std_dev → barracuda
 NumPy Gillespie     ────────→  gillespie::birth_death_ssa  →  (GPU-only: GillespieGpu)
 NumPy bootstrap     ────────→  bootstrap::rawr_mean        →  (Gap: no RAWR kernel)
 NumPy Anderson      ────────→  anderson::lyapunov_*        →  lyapunov_exponent, lyapunov_averaged → barracuda
 NumPy ODE           ────────→  bistable + multisignal      →  BistableOde, MultiSignalOde → barracuda
-                                                               23.4× faster, 11/11 parity proven
+                                                               22× faster, 14/14 parity proven
 
 Phase 2a (DONE)                Phase 2b (GPU — NEXT)
 ──────────────                 ────────────────────
-24 CPU delegated    ────────→  Tier A complete (all CPU delegated)
+26 delegated (21 CPU + 5 GPU) ────────→  Tier A complete (all CPU delegated)
 prng::Xorshift64    ────────→  Tier B: align to barracuda xoshiro128**
 fao56::daily_et0    ────────→  Tier C: mc_et0_propagate.wgsl → barracuda
 rarefaction         ────────→  Tier C: batched_multinomial.wgsl → barracuda

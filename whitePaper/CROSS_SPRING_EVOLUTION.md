@@ -118,7 +118,7 @@ the backbone of model-observation comparison across all Springs.
 ### Who benefits from airSpring
 
 - **groundSpring**: 7 error metric delegations (RMSE, MBE, R², IoA, hit_rate,
-  mean, percentile) used across all 11 experiments.
+  mean, percentile) used across all 14 experiments.
 - **wetSpring**: Moving window for time-series diversity.
 - **hotSpring**: IoA for lattice QCD convergence monitoring.
 
@@ -208,7 +208,7 @@ architecture was designed to enable.
 
 ## 8. Benchmark Results (Feb 26, 2026)
 
-Three-mode timing for all 11 validation binaries:
+Three-mode timing for all 14 validation binaries:
 
 | Binary | Default (ms) | Barracuda CPU (ms) | Barracuda-GPU (ms) | Speedup | Checks |
 |--------|-------------|-------------------|-------------------|---------|--------|
@@ -223,7 +223,7 @@ Three-mode timing for all 11 validation binaries:
 | validate-quasiperiodic | **11,986** | **11,867** | **242** | **49.5×** | 8/8 |
 | validate-bistable | 167 | 222 | 207 | 0.8× | 9/9 |
 | validate-multisignal | 85 | 118 | 118 | 0.7× | 8/8 |
-| **TOTAL** | **14,893** | **14,884** | **3,926** | **3.8×** | **144/144** |
+| **TOTAL** | **14,893** | **14,884** | **3,926** | **3.8×** | **177/177** |
 
 ¹ GPU initialization overhead dominates for small workloads (<100ms).
 These experiments are not GPU-bound; the overhead is wgpu device discovery

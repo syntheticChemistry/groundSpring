@@ -50,6 +50,9 @@ BENCHMARKS=(
     "control/quasiperiodic/benchmark_quasiperiodic.json"
     "control/bistable_switching/benchmark_bistable.json"
     "control/multisignal_qs/benchmark_multisignal.json"
+    "control/spin_transport/benchmark_spin_transport.json"
+    "control/resampling_convergence/benchmark_resampling_convergence.json"
+    "control/drift_selection/benchmark_drift_selection.json"
 )
 
 BASELINES=(
@@ -64,6 +67,9 @@ BASELINES=(
     "python3 control/quasiperiodic/quasiperiodic_localization.py"
     "python3 control/bistable_switching/bistable_switching.py"
     "python3 control/multisignal_qs/multisignal_qs.py"
+    "python3 control/spin_transport/spin_chain_transport.py"
+    "python3 control/resampling_convergence/resampling_convergence.py"
+    "python3 control/drift_selection/drift_selection.py"
 )
 
 echo "--- Phase 1: Re-run all Python baselines ---"

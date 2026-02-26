@@ -23,13 +23,10 @@ Output:
 """
 
 import argparse
-import json
-import sys
 from pathlib import Path
 
 import pandas as pd
 import requests
-
 
 IRIS_STATION_URL = "https://service.iris.edu/fdsnws/station/1/query"
 IRIS_EVENT_URL = "https://service.iris.edu/fdsnws/event/1/query"
@@ -155,7 +152,7 @@ def main():
     print(f"  Region: NMSZ ({min_lat}-{max_lat}°N, {min_lon}-{max_lon}°E)")
 
     if args.stations or (not args.events):
-        print(f"\n--- Station Metadata ---")
+        print("\n--- Station Metadata ---")
         df_stations = fetch_stations(min_lat, max_lat, min_lon, max_lon)
 
         if not df_stations.empty:
@@ -165,7 +162,7 @@ def main():
             print(f"  Saved: {sta_path}")
 
             if "Station" in df_stations.columns:
-                print(f"\n  Sample stations:")
+                print("\n  Sample stations:")
                 for _, row in df_stations.head(10).iterrows():
                     print(f"    {row.get('Station', '?'):>6s} | "
                           f"{row.get('Network', '?'):>3s} | "
@@ -176,7 +173,7 @@ def main():
             print("  No stations returned (API may be temporarily unavailable)")
 
     if args.events:
-        print(f"\n--- Earthquake Events ---")
+        print("\n--- Earthquake Events ---")
         print(f"  Period: {args.start} to {args.end}, min mag: {args.min_mag}")
 
         df_events = fetch_events(min_lat, max_lat, min_lon, max_lon,

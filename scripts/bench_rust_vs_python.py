@@ -43,6 +43,7 @@ def time_command(cmd: list[str], cwd: Path, timeout: int = 600) -> tuple[float, 
     try:
         result = subprocess.run(
             cmd, cwd=str(cwd), capture_output=True, text=True, timeout=timeout,
+            check=False,
         )
         elapsed = time.perf_counter() - start
         return elapsed, result.returncode == 0
@@ -106,6 +107,21 @@ EXPERIMENTS = [
         "python": [sys.executable, "control/multisignal_qs/multisignal_qs.py"],
         "rust_bin": "validate-multisignal",
     },
+    {
+        "name": "Exp 012: Spin Chain Transport",
+        "python": [sys.executable, "control/spin_transport/spin_chain_transport.py"],
+        "rust_bin": "validate-transport",
+    },
+    {
+        "name": "Exp 013: Resampling Convergence",
+        "python": [sys.executable, "control/resampling_convergence/resampling_convergence.py"],
+        "rust_bin": "validate-resampling-conv",
+    },
+    {
+        "name": "Exp 014: Drift vs Selection",
+        "python": [sys.executable, "control/drift_selection/drift_selection.py"],
+        "rust_bin": "validate-drift",
+    },
 ]
 
 
@@ -119,7 +135,7 @@ def main() -> int:
     build_start = time.perf_counter()
     subprocess.run(
         ["cargo", "build", "--release", "--workspace"],
-        cwd=str(ROOT), capture_output=True,
+        cwd=str(ROOT), capture_output=True, check=False,
     )
     print(f"  Build time: {time.perf_counter() - build_start:.1f}s")
 
@@ -143,8 +159,8 @@ def main() -> int:
         rs_times = []
 
         for trial in range(n_trials):
-            py_t, py_ok = time_command(exp["python"], ROOT, timeout=300)
-            rs_t, rs_ok = time_command(
+            py_t, _py_ok = time_command(exp["python"], ROOT, timeout=300)
+            rs_t, _rs_ok = time_command(
                 ["cargo", "run", "--release", "--bin", exp["rust_bin"]],
                 ROOT, timeout=300,
             )

@@ -24,7 +24,7 @@
 | 10 | Bistable phenotypic switching | Biology | 10/10 | 9/9 | Two stable attractors (0.035 vs 1.634 c-di-GMP); noise-induced transitions; 18.5× faster |
 | 11 | Multi-signal QS integration | Biology | 9/9 | 8/8 | Dual signaling sharpens regulation; lower HapR variance; 46.2× faster |
 
-**Phase 0**: ~129 checks (Python). **Phase 1**: 177/177 PASS (Rust). **Speedup**: 23.4× (10/11 compute-bound).
+**Phase 0**: ~129 checks (Python). **Phase 1**: 177/177 PASS (Rust). **Speedup**: 22× (all 14 experiments).
 **Mathematical Parity**: 14/14 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 
 ---
@@ -216,7 +216,7 @@ Write → Absorb → Lean cycle:
 | 20 | Drift vs selection | **7/7** | Embarrassingly parallel | After GPU | wright_fisher_fixation, kimura_fixation_prob candidates |
 
 **CPU tier**: 177/177 PASS across 14 validation binaries.
-**Barracuda**: 26 functions delegated (21 CPU + 5 GPU). **Performance**: 22× faster than Python (all 11; Exp 009: 49.5× from Sturm tridiag). **Tests**: 205 Rust tests.
+**Barracuda**: 26 functions delegated (21 CPU + 5 GPU). **Performance**: 22× faster than Python (all 14; Exp 009: 49.5× from Sturm tridiag). **Tests**: 205 Rust tests.
 **Mathematical parity**: 14/14 PROVEN. See `data/parity_report.json`.
 **GPU tier**: pending barracuda adapter (Tier A) or new kernels (Tier B/C).
 **metalForge tier**: after GPU.
@@ -292,7 +292,7 @@ Papers 9, 10, 11, 12, 14, 15, 16 — can proceed to GPU tier once CPU tier compl
 ### Tier 1: BarraCUDA CPU (current — 177/177 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
-26 functions delegated to barracuda (21 CPU + 5 GPU). 22× faster than Python (all 11; Exp 009: 49.5× Sturm tridiag).
+26 functions delegated to barracuda (21 CPU + 5 GPU). 22× faster than Python (all 14; Exp 009: 49.5× Sturm tridiag).
 205 Rust tests. 14/14 mathematical parity proven.
 All 14 experiments validated.
 

@@ -100,6 +100,18 @@ run_experiment \
     "Exp 011: Multi-Signal QS (Python)" \
     "python3 control/multisignal_qs/multisignal_qs.py"
 
+run_experiment \
+    "Exp 012: Spin Chain Transport (Python)" \
+    "python3 control/spin_transport/spin_chain_transport.py"
+
+run_experiment \
+    "Exp 013: Resampling Convergence (Python)" \
+    "python3 control/resampling_convergence/resampling_convergence.py"
+
+run_experiment \
+    "Exp 014: Drift vs Selection (Python)" \
+    "python3 control/drift_selection/drift_selection.py"
+
 echo ""
 echo "╔══════════════════════════════════════════════════════════════╗"
 echo "║  PHASE 1: Rust Validation Binaries                         ║"
@@ -151,6 +163,18 @@ if command -v cargo &> /dev/null; then
     run_experiment \
         "Rust: Multi-Signal QS" \
         "cargo run --release --bin validate-multisignal"
+
+    run_experiment \
+        "Rust: Spin Chain Transport" \
+        "cargo run --release --bin validate-transport"
+
+    run_experiment \
+        "Rust: Resampling Convergence" \
+        "cargo run --release --bin validate-resampling-conv"
+
+    run_experiment \
+        "Rust: Drift vs Selection" \
+        "cargo run --release --bin validate-drift"
 else
     echo "  [SKIP] cargo not found — Rust validation skipped"
 fi

@@ -669,7 +669,7 @@ Each experiment is validated at three hardware tiers:
 - **Phase 1**: Rust CPU validation — **COMPLETE** (177/177 across 14 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
 - **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 006-014: biology, statistics, math, quasiperiodic, bistable, multisignal, transport, resampling, drift)
-- **Phase 2a**: Tier A rewire — **24 delegated** (19 CPU + 5 GPU; stats, metrics, diversity, bootstrap, anderson, ODE, eigenvalues)
+- **Phase 2a**: Tier A rewire — **26 delegated** (21 CPU + 5 GPU; stats, metrics, diversity, bootstrap, anderson, ODE, eigenvalues)
 - **Phase 2b**: Tier B adapt — PRNG alignment, grid-search dispatch
 - **Phase 2c**: Tier C absorption — FAO-56 **superseded** (absorbed S49); `batched_multinomial` still needed
 - **Phase 3**: Faculty extension kernels (FFT, Lanczos, Gillespie GPU)
@@ -716,7 +716,7 @@ Each experiment is validated at three hardware tiers:
 | `bistable::BistableOde::cpu_derivative` | barracuda | **DONE** — Exp 010 |
 | `multisignal::MultiSignalOde::cpu_derivative` | barracuda | **DONE** — Exp 011 |
 | `gillespie::birth_death_ssa` | `ops::bio::GillespieGpu` | Pending — GPU-only, no CPU fallback |
-| `bootstrap::rawr_mean` | New kernel needed | Pending — no RAWR in barracuda |
+| `bootstrap::rawr_mean` | **DONE** — S66 absorbed, delegation #26 | `barracuda::stats::rawr_mean` |
 
 ## Rust vs Python Performance
 

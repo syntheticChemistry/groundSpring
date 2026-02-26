@@ -47,7 +47,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 
 | Module | Purpose | GPU Tier |
 |--------|---------|----------|
-| `stats` | RMSE, MBE, R², IA, hit rate, mean, percentile, Pearson/Spearman, std, covariance, norm_cdf/ppf, χ² | 20 CPU delegated, GPU pending adapter |
+| `stats` | RMSE, MBE, R², IA, hit rate, mean, percentile, Pearson/Spearman, std, covariance, norm_cdf/ppf, χ² | 21 CPU delegated, GPU pending adapter |
 | `decompose` | Bias-variance decomposition, noise floor | CPU-only (scalar) |
 | `fao56` | FAO-56 Penman-Monteith equation chain | **Absorbed** (barracuda `Op::Fao56Et0`) |
 | `prng` | Xorshift64 PRNG, Box-Muller normal | B (align to xoshiro) |
@@ -165,7 +165,7 @@ Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration
 `analytical_localization_length`, `almost_mathieu_hamiltonian`, `bistable_derivative`,
 `multisignal_derivative`, `rmse`, `mbe`, `r_squared`, `index_of_agreement`,
 `hit_rate`, `shannon_diversity`, `evenness`, `mean`, `percentile`, `level_spacing_ratio`,
-`almost_mathieu_eigenvalues`. 20 CPU delegated via `#[cfg(feature = "barracuda")]`,
+`almost_mathieu_eigenvalues`. 21 CPU delegated via `#[cfg(feature = "barracuda")]`,
 5 GPU delegated via `#[cfg(feature = "barracuda-gpu")]`. FAO-56 equation chain
 absorbed upstream. Two production WGSL shaders ready for ToadStool absorption.
 
