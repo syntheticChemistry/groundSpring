@@ -34,7 +34,7 @@ are for throughput (100k+ MC samples, batch rarefaction).
 > **Complete rewiring (Feb 25 2026)**: 4 new CPU delegations added:
 > `covariance`, `norm_cdf`, `norm_ppf`, `chi2_statistic`,
 > `analytical_localization_length`. Total: **11 active delegations**.
-> 205 Rust tests + 177/177 validation checks PASS in all three modes.
+> 225 Rust tests, 185/185 validation checks PASS in all three modes.
 > All 11 delegations use `if let Ok` with always-compiled CPU fallback.
 > Benchmarks confirm <2% overhead for compute-heavy binaries.
 >
@@ -42,7 +42,7 @@ are for throughput (100k+ MC samples, batch rarefaction).
 > (14,200+ tests, 650+ shaders). No new CPU stats primitives to wire.
 > Our 11 delegations remain current. Fixed 3 `needless_return` clippy
 > warnings in barracuda feature paths. Revalidated all three modes:
-> 205/205 PASS × 3 modes, 0 clippy warnings × 3 modes.
+> 225/225 PASS (dual-mode: CPU-only + barracuda), 0 clippy warnings × 3 modes.
 >
 > **ToadStool S64 catch-up (Feb 26 2026)**: Session 64 absorbed
 > `stats::metrics` (rmse, mbe, nash_sutcliffe, r_squared, index_of_agreement,
@@ -76,8 +76,8 @@ are for throughput (100k+ MC samples, batch rarefaction).
 > groundSpring wired **1 new CPU delegation**: `rawr_mean` (#26).
 > Fixed `bootstrap ≠ RAWR` comparison test for barracuda parity (both methods
 > converge to sample mean on small symmetric data).
-> Total: **26 active delegations** (21 CPU + 5 GPU). 0 clippy warnings × 3 modes.
-> 205/205 tests × 3 modes. 177/177 validation checks × 3 modes.
+> Total: **27 active delegations** (22 CPU + 5 GPU). 0 clippy warnings × 3 modes.
+> 225 tests, 185/185 validation checks.
 >
 > **Deep debt evolution (Feb 26 2026)**: Eliminated all 20 `#[allow(unreachable_code)]`
 > via proper `#[cfg]`/`#[cfg(not)]` mutual exclusion. Fixed covariance/pearson_r/
@@ -88,14 +88,14 @@ are for throughput (100k+ MC samples, batch rarefaction).
 >
 > **Idiomatic Rust evolution (Feb 26 2026)**: New `kinetics` module extracts
 > `hill()` / `hill_repress()` from bistable + multisignal with barracuda
-> delegation stub (`barracuda::stats::hill`). All `Vec<Vec<f64>>` eliminated —
+> barracuda delegation (hill is live) (`barracuda::stats::hill`). All `Vec<Vec<f64>>` eliminated —
 > `almost_mathieu.rs` QR and `transport.rs` eigenvectors refactored to flat
 > row-major `Vec<f64>` (GPU-promotable layout). 13 bitwise determinism tests
 > added. All 15 benchmark JSONs have DOIs and stamped `baseline_commit`.
-> CI now runs all 15 validation binaries. 226 tests, 98.93% llvm-cov.
+> CI now runs all 15 validation binaries. 225 tests, 98.93% llvm-cov.
 > **V20 (Feb 26 2026)**: Hill delegation #27 LIVE. ToadStool S68 (f0feb226). 700 shaders (zero f32-only), 2,546+ tests, 21,599 workspace tests. `hill_repress` → `1.0 - hill()`.
 >
-> **V21 (Feb 26 2026)**: Complete barracuda rewiring. `--features barracuda` compiles cleanly (zero warnings both modes). Dual-mode CI: `cargo clippy` and `cargo test` run with and without barracuda feature. 226/226 tests pass in both CPU-only and barracuda-delegated modes. Domain guard fix for hill (biological convention before delegation). 17 `_cpu` functions properly gated behind `#[cfg(not(feature = "barracuda"))]`. CPU delegation overhead: +1.7% total.
+> **V21 (Feb 26 2026)**: Complete barracuda rewiring. `--features barracuda` compiles cleanly (zero warnings both modes). Dual-mode CI: `cargo clippy` and `cargo test` run with and without barracuda feature. 225/225 tests pass in both CPU-only and barracuda-delegated modes. Domain guard fix for hill (biological convention before delegation). 17 `_cpu` functions properly gated behind `#[cfg(not(feature = "barracuda"))]`. CPU delegation overhead: +1.7% total.
 
 ### Tier A — Lean (rewire to existing barracuda ops)
 

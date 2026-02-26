@@ -77,7 +77,7 @@ scripts/             Automation (baselines, benchmarks)
 ### Rust
 
 ```bash
-cargo test --workspace          # 226 tests (174 unit + 13 determinism + 9 validate-lib + 14 proptest + 14 integration + 1 doc + 1 unused)
+cargo test --workspace          # 225 tests (173 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc/unused)
 cargo clippy --workspace        # zero warnings required
 cargo fmt --check               # clean
 cargo llvm-cov --workspace       # 98.93% workspace line coverage
@@ -89,8 +89,8 @@ cargo clippy --workspace --features barracuda -- -D warnings
 cargo test --workspace --features barracuda
 
 # With barracuda feature gates (requires toadstool checkout):
-cargo test --features barracuda     # 226 tests, CPU delegation (22 CPU)
-cargo test --features barracuda-gpu # 226 tests, CPU + spectral (22 CPU + 5 GPU)
+cargo test --features barracuda     # 225 tests, CPU delegation (22 CPU)
+cargo test --features barracuda-gpu # 225 tests, CPU + spectral (22 CPU + 5 GPU)
 
 # Three-mode benchmark (local vs barracuda vs barracuda-gpu)
 bash scripts/three_mode_benchmark.sh

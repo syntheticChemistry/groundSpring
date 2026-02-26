@@ -75,7 +75,7 @@ The `groundspring` crate provides 18 modules of pure safe Rust:
 | `drift` | Exp 014 | B (adapt) | Wright-Fisher fixation, Kimura probability, neutral diversity |
 | `bistable` | Exp 010 | A Lean | Bistable ODE derivative → `barracuda::numerical::ode_bio` |
 | `multisignal` | Exp 011 | A Lean | Multi-signal ODE derivative → `barracuda::numerical::ode_bio` |
-| `kinetics` | Exp 010-011 | A (stub) | Hill functions — shared by bistable + multisignal, barracuda stub ready |
+| `kinetics` | Exp 010-011 | A Lean | Hill functions — shared by bistable + multisignal, barracuda delegation |
 | `cast` | All | N/A | Centralized numeric casts with documented safety |
 | `validate` | All | N/A | Generic `Write` harness (hotSpring pattern) |
 

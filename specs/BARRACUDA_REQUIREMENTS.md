@@ -11,7 +11,7 @@ groundSpring Phase 0 (Python), Phase 1 (Rust), and Phase 2a (barracuda CPU) are 
 
 - 185/185 validation checks across 15 binaries
 - 15 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, almost_mathieu, bistable, multisignal, kinetics, transport, drift (+cast, validate)
-- 226 Rust tests (174 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc + 1 unused), 0 clippy warnings, 98.93% llvm-cov
+- 225 Rust tests (173 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc/unused), 0 clippy warnings, 98.93% llvm-cov
 - Two feature gates: `barracuda` (22 CPU delegations) and `barracuda-gpu` (5 GPU delegations including Sturm tridiag). **Note**: V20 feature gate bug RESOLVED in ToadStool HEAD. V21: dual-mode CI runs `cargo clippy` and `cargo test` with and without barracuda feature; `--features barracuda` compiles cleanly.
 - 27 active delegations (22 CPU + 5 GPU; `kinetics::hill` now LIVE; `hill_repress` composes `1.0 - hill()`)
 - 2 production WGSL shaders in `metalForge/shaders/` (261 combined lines)
@@ -78,7 +78,7 @@ GPU promotion mapping.
 ```
 Phase 0 (DONE — Python)        Phase 1 (DONE — Rust CPU)       Phase 2a (DONE — Barracuda CPU)
 ────────────────────           ─────────────────────────       ──────────────────────────────
-NumPy MC (N=10k)    ────────→  prng + fao56 (177/177 PASS) →  bootstrap_mean → barracuda
+NumPy MC (N=10k)    ────────→  prng + fao56 (185/185 PASS) →  bootstrap_mean → barracuda
 NumPy stats         ────────→  stats (RMSE/MBE/R²/IA/hit) →   pearson_r, spearman_r, std_dev → barracuda
 NumPy Gillespie     ────────→  gillespie::birth_death_ssa  →  (GPU-only: GillespieGpu)
 NumPy bootstrap     ────────→  bootstrap::rawr_mean        →  (Gap: no RAWR kernel)

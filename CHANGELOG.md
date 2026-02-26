@@ -14,7 +14,7 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 - CI: `cargo clippy --features barracuda` + `cargo test --features barracuda` added — dual-mode validation
 
 #### Metrics
-- 226 Rust tests PASS in both CPU-only and barracuda-delegated modes
+- 225 Rust tests PASS in both CPU-only and barracuda-delegated modes
 - Zero clippy warnings in both modes (`cargo clippy --workspace -- -D warnings`)
 - CPU delegation overhead: +1.7% total (16,447ms → 16,722ms in release benchmarks)
 - Anderson/RAWR actually faster with barracuda (742ms vs 831ms, 604ms vs 640ms)
@@ -35,7 +35,7 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 #### Metrics
 - 27 barracuda delegations (22 CPU + 5 GPU), was 26 (21 + 5)
-- 226 Rust tests, 185/185 validation checks, 98.93% coverage — unchanged
+- 225 Rust tests, 185/185 validation checks, 98.93% coverage — unchanged
 - ToadStool S68: 700 shaders (zero f32-only), 2,546+ barracuda tests, 21,599 workspace tests
 
 ### V19 Uncertainty Bridge + Idiomatic Evolution (Feb 26, 2026)
@@ -59,7 +59,7 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 - This validates the Gen3 Sub-thesis 01+06 precursor: sensor noise quantification is a prerequisite for the Anderson-QS bridge
 
 #### Metrics
-- 226 Rust tests (was 225), 185/185 validation checks, 98.93% llvm-cov
+- 225 Rust tests (unchanged), 185/185 validation checks, 98.93% llvm-cov
 - 15 validation binaries (was 14), 15/15 experiments with parity
 - Zero `#[allow]` remaining (was 1), zero clippy warnings
 
@@ -124,7 +124,7 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 ### V15 Experiment Buildout (Feb 26, 2026)
 - **3 new experiments built**: Exp 012 (Spin Chain Transport, 18/18 PASS),
   Exp 013 (Resampling Convergence, 8/8 PASS), Exp 014 (Drift vs Selection,
-  7/7 PASS). Total: **14 experiments, 177 validation checks, 205 Rust tests**.
+  7/7 PASS). Total: **15 experiments, 185 validation checks, 225 Rust tests**.
 - **New module `transport`**: Tridiagonal eigenvector solver (implicit QL),
   wavepacket MSD computation, transport exponent extraction via log-log fit.
 - **New module `drift`**: Wright-Fisher fixation simulation, Kimura analytical

@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: February 26, 2026
-**Status**: Phase 0 + Phase 1 + Phase 2a complete — 185/185 PASS, 26 barracuda-delegated, 22× faster (all 15), 15/15 parity proven
+**Status**: Phase 0 + Phase 1 + Phase 2a complete — 185/185 PASS, 27 barracuda-delegated, 22× faster (all 15), 15/15 parity proven
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -13,7 +13,7 @@
 | Phase 0 (Python) | 15/15 experiments PASS across 6 scientific domains (~129 checks) |
 | Phase 1 (Rust) | 185/185 PASS — 15 validation binaries |
 | Mathematical Parity | 15/15 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
-| Rust tests | 226 (174 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc) |
+| Rust tests | 225 (173 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc/unused) |
 | metalForge | 2 production WGSL shaders (mc_et0_propagate, batched_multinomial) |
 | Exp 001 | Sensor noise decomposition — EC5 bias-dominated, CS616 mixed |
 | Exp 002 | Observation gap ERA5 vs station — methodology validated |
@@ -26,7 +26,7 @@
 | Exp 009 | Almost-Mathieu quasiperiodic — Aubry-André at λ=2 |
 | Exp 010 | Bistable switching — noise-induced phenotypic transitions |
 | Exp 011 | Multi-signal QS — dual signaling sharpens regulation |
-| Barracuda | 26 functions delegated (CPU + barracuda-gpu) |
+| Barracuda | 27 functions delegated (22 CPU + 5 GPU) |
 | Performance | 22× faster than Python (71s → 3.2s, all 15 with barracuda-gpu). Exp 009: 49.5× from Sturm. |
 | Faculty | Bazavov, Waters, Liu, Kachkovskiy, R. Anderson, Dolson |
 

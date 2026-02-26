@@ -265,7 +265,7 @@ V18 completed the GPU-promotability groundwork:
 | Change | Impact |
 |--------|--------|
 | `Vec<Vec<f64>>` → flat `Vec<f64>` (almost_mathieu, transport) | Data layout matches GPU dispatch (row-major, no indirection) |
-| `kinetics::hill()` with barracuda stub | Delegation #27 ready — `barracuda::stats::hill` exists in S66 |
+| `kinetics::hill()` with barracuda delegation | Delegation #27 ready — `barracuda::stats::hill` exists in S66 |
 | 13 determinism tests | Guards against silent PRNG/FP regressions across platforms |
 | Full provenance (14 DOIs, 14 baseline_commits) | Machine-auditable chain: paper → Python → JSON → Rust → pass/fail |
 
@@ -318,7 +318,7 @@ V20 pins ToadStool at `f0feb226` (S68 universal precision). Hill kinetics delega
 
 ## V21 Evolution: Complete Barracuda Rewiring + Dual-Mode CI
 
-V21 completes the barracuda integration by making `--features barracuda` compile cleanly (zero warnings) and validating all 226 tests in both CPU-only and barracuda-delegated modes.
+V21 completes the barracuda integration by making `--features barracuda` compile cleanly (zero warnings) and validating all 225 tests in both CPU-only and barracuda-delegated modes.
 
 ### What Changed
 

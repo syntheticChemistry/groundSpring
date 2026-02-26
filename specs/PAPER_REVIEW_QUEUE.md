@@ -217,7 +217,7 @@ Write → Absorb → Lean cycle:
 | 20 | Drift vs selection | **7/7** | Embarrassingly parallel | After GPU | wright_fisher_fixation, kimura_fixation_prob candidates |
 
 **CPU tier**: 185/185 PASS across 15 validation binaries.
-**Barracuda**: 27 functions delegated (22 CPU + 5 GPU). **Performance**: 22× faster than Python (all 15; Exp 009: 49.5× from Sturm tridiag). **Tests**: 226 Rust tests.
+**Barracuda**: 27 functions delegated (22 CPU + 5 GPU). **Performance**: 22× faster than Python (all 15; Exp 009: 49.5× from Sturm tridiag). **Tests**: 225 Rust tests.
 **Mathematical parity**: 15/15 PROVEN. See `data/parity_report.json`.
 **GPU tier**: pending barracuda adapter (Tier A) or new kernels (Tier B/C).
 **metalForge tier**: after GPU.
@@ -296,7 +296,7 @@ Papers 9, 10, 11, 12, 14, 15, 16 — can proceed to GPU tier once CPU tier compl
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
 27 functions delegated to barracuda (22 CPU + 5 GPU). 22× faster than Python (all 15; Exp 009: 49.5× Sturm tridiag).
-226 Rust tests. 15/15 mathematical parity proven.
+225 Rust tests. 15/15 mathematical parity proven.
 All 15 experiments validated.
 
 ### Tier 2: BarraCUDA GPU (next)

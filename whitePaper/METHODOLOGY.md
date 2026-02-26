@@ -155,7 +155,7 @@ Phase 1 ports each experiment's core algorithm to idiomatic Rust in the
 
 | Gate | Requirement |
 |------|-------------|
-| `cargo test` | 226 total tests (174 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc), all pass |
+| `cargo test` | 225 total tests (173 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc/unused), all pass |
 | `cargo clippy` | Zero warnings (pedantic + nursery) |
 | `cargo fmt` | Clean |
 | `cargo doc` | Clean, `missing_docs = "deny"` |
@@ -198,4 +198,4 @@ Same as all ecoPrimals springs:
 
 - **Phase 0 (Python)**: ~129 quantitative checks passed across 15 experiments, 6 domains.
 - **Phase 1 (Rust)**: 185/185 checks passed across 15 validation binaries.
-- **Phase 2a (Barracuda)**: 26 functions delegated (21 CPU + 5 GPU). 22× faster than Python (all 15 experiments). Exp 009: 49.5× from Sturm tridiag. 15/15 parity proven.
+- **Phase 2a (Barracuda)**: 27 functions delegated (22 CPU + 5 GPU). 22× faster than Python (all 15 experiments). Exp 009: 49.5× from Sturm tridiag. 15/15 parity proven.

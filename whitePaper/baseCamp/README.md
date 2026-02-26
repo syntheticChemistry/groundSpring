@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: February 26, 2026
 
-**Validation Summary**: 185/185 checks, 27 barracuda delegations (22 CPU + 5 GPU), 226 Rust tests. 98.93% coverage. All 15 experiments DONE. **22× faster** than Python (all 15 experiments). **15/15 mathematical parity proven**. V21: dual-mode CI (CPU-only + barracuda); barracuda compiles cleanly. Barracuda-GPU: **3.9s total** (4.4× faster than local; Exp 009: 49.5× from Sturm tridiag). Cross-spring lineage: hotSpring precision, wetSpring bio-stats, airSpring metrics, neuralSpring dispatch.
+**Validation Summary**: 185/185 checks, 27 barracuda delegations (22 CPU + 5 GPU), 225 Rust tests. 98.93% coverage. All 15 experiments DONE. **22× faster** than Python (all 15 experiments). **15/15 mathematical parity proven**. V21: dual-mode CI (CPU-only + barracuda); barracuda compiles cleanly. Barracuda-GPU: **3.9s total** (4.4× faster than local; Exp 009: 49.5× from Sturm tridiag). Cross-spring lineage: hotSpring precision, wetSpring bio-stats, airSpring metrics, neuralSpring dispatch.
 
 ---
 

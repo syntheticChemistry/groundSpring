@@ -21,6 +21,10 @@ proptest-regressions/
 .Rhistory
 .RData
 
+# Secrets (API keys, credentials — never committed)
+testing-secrets/
+api-keys.toml
+
 # OS
 .DS_Store
 Thumbs.db

@@ -12,7 +12,7 @@
 ## Executive Summary
 
 - **`--features barracuda` now compiles cleanly** — zero warnings in both CPU-only and barracuda-delegated modes (was 17 dead-code warnings + 3 import warnings + 4 needless_return lints).
-- **226/226 tests pass in both modes** — dual-mode CI validates cross-spring math correctness.
+- **225/225 tests pass in both modes** — dual-mode CI validates cross-spring math correctness.
 - **CPU delegation overhead: +1.7%** — functionally free (16,447ms → 16,722ms total across 15 experiments).
 - **Anderson/RAWR faster with barracuda** — barracuda's optimized implementations outperform groundSpring's CPU path (742ms vs 831ms, 604ms vs 640ms).
 - **Domain guard fix**: `kinetics::hill` now applies biological convention (x ≤ 0 → 0) before delegation, preventing barracuda's pure-math `(-1)^2 / (1+1) = 0.5` from violating enzyme kinetics semantics.
@@ -145,8 +145,8 @@ groundSpring now documents the full lineage of its 27 delegations through 5 spri
 ## Verification Commands
 
 ```bash
-cargo test --workspace                           # 226 tests, CPU-only
-cargo test --workspace --features barracuda      # 226 tests, barracuda-delegated
+cargo test --workspace                           # 225 tests, CPU-only
+cargo test --workspace --features barracuda      # 225 tests, barracuda-delegated
 cargo clippy --workspace -- -D warnings          # zero warnings, CPU-only
 cargo clippy --workspace --features barracuda -- -D warnings  # zero warnings, barracuda
 
@@ -157,4 +157,4 @@ time cargo run --release --features barracuda --bin validate-anderson  # ~742ms 
 
 ---
 
-*groundSpring V21 | February 26, 2026 | Complete barracuda rewiring | 15 experiments, 226 tests (dual-mode), 185/185 checks, 27 delegations (22 CPU + 5 GPU)*
+*groundSpring V21 | February 26, 2026 | Complete barracuda rewiring | 15 experiments, 225 tests (dual-mode), 185/185 checks, 27 delegations (22 CPU + 5 GPU)*

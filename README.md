@@ -1,5 +1,8 @@
 # groundSpring — The Dirty Differences
 
+**Date**: February 26, 2026 | **License**: AGPL-3.0-or-later
+**Status**: 15 experiments, 225 Rust tests, 185/185 validation checks, 98.93% coverage, 27 barracuda delegations (22 CPU + 5 GPU), dual-mode CI
+
 **The gap between what models predict and what instruments measure.**
 
 groundSpring is the reality layer in the [ecoPrimals](https://github.com/ecoPrimals) ecosystem. Where other springs validate clean science — hotSpring (nuclear math), airSpring (FAO-56 equations), wetSpring (taxonomy pipelines) — groundSpring lives in the space where those models meet the physical world.
@@ -69,12 +72,12 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace          # 226 tests (173 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc + 1 unused)
+cargo test --workspace          # 225 tests (173 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc/unused)
 cargo clippy --workspace        # zero warnings
 cargo fmt --check               # clean
 
 # Barracuda-delegated mode (validates cross-spring math)
-cargo test --workspace --features barracuda   # 226 tests, zero warnings
+cargo test --workspace --features barracuda   # 225 tests, zero warnings
 cargo clippy --workspace --features barracuda -- -D warnings
 
 # Validation binaries (hotSpring pattern: exit 0 = pass, exit 1 = fail)

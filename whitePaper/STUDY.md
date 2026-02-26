@@ -215,7 +215,7 @@ All fifteen experiments have been ported to idiomatic Rust in the `groundspring`
 |--------|-------|
 | Validation binaries | 15 (decompose, rarefaction, seismic, weather, fao56, signal-specificity, rawr, anderson, quasiperiodic, bistable, multisignal, transport, resampling-conv, drift, uncertainty-bridge) |
 | Total checks | 185/185 PASS |
-| Rust tests | 226 (174 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc + 1 unused) |
+| Rust tests | 225 (173 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc/unused) |
 | Line coverage | 98.93% (cargo-llvm-cov) |
 | Function coverage | 100% |
 | Clippy warnings | 0 |
@@ -261,7 +261,7 @@ All fifteen experiments have been ported to idiomatic Rust in the `groundspring`
   scopes without shared state.
 
 - **`kinetics`** — Shared Hill-function kinetics (`hill`, `hill_repress`) extracted
-  from bistable and multisignal modules. Barracuda delegation stub for
+  from bistable and multisignal modules. Barracuda delegation for
   `barracuda::stats::hill`. Used by Exp 010 and 011.
 
 - **`transport`** — Tridiagonal eigenvector solver (implicit QL), wavepacket MSD,
@@ -329,7 +329,7 @@ These extensions share the common theme: **how do you extract reliable conclusio
 *V9 rewiring complete: February 25, 2026 — full API audit, zero-overhead benchmarks, cross-spring lineage*
 *Full-suite parity: February 26, 2026 — 15/15 PROVEN, bench_rust_vs_python expanded to all 15 experiments*
 *ToadStool S64 catch-up: February 26, 2026 — 20 barracuda delegations (+6 metrics/diversity), 3 bug fixes*
-*Complete rewiring: February 26, 2026 — 26 delegations, Sturm tridiag (49.5× Exp 009), V13 handoff*
-*V18 idiomatic evolution: February 26, 2026 — 226 tests, kinetics module, flat buffers, full provenance, 15/15 DOIs*
-*V19 uncertainty bridge: February 26, 2026 — Exp 015 (8/8 PASS), 226 tests, 185/185 checks, 15 experiments, zero #[allow]*
-*V21 complete rewiring: February 26, 2026 — dual-mode CI, barracuda compiles cleanly, 226/226 tests both modes, domain guard fix*
+*Complete rewiring: February 26, 2026 — 27 delegations, Sturm tridiag (49.5× Exp 009), V13 handoff*
+*V18 idiomatic evolution: February 26, 2026 — 225 tests, kinetics module, flat buffers, full provenance, 15/15 DOIs*
+*V19 uncertainty bridge: February 26, 2026 — Exp 015 (8/8 PASS), 225 tests, 185/185 checks, 15 experiments, zero #[allow]*
+*V21 complete rewiring: February 26, 2026 — dual-mode CI, barracuda compiles cleanly, 225/225 tests both modes, domain guard fix*

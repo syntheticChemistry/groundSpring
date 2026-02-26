@@ -6,7 +6,7 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: February 26, 2026 (V14 — S66 revalidation, 26 delegations, 49.5× Exp 009)
+**Last updated**: February 26, 2026 (V21 — S68 revalidation, 27 delegations, 49.5× Exp 009)
 
 ## Absorption Status Summary
 
@@ -53,7 +53,7 @@ Both shaders use xoshiro128** matching `barracuda::ops::prng_xoshiro_wgsl`.
 
 ---
 
-## Tier A — Lean (26 delegated)
+## Tier A — Lean (27 delegated)
 
 ### All delegated
 
@@ -150,7 +150,7 @@ NOTE:       Equation chain is superseded by barracuda Op::Fao56Et0 — when
 - [x] f64 precision throughout (no f32 truncation)
 - [x] PRNG matches barracuda (xoshiro128**)
 - [x] Handoff V14 posted in `wateringHole/handoffs/` (V13, V12, V11, V10, V9, V8 archived)
-- [x] All 26 barracuda delegations use `#[cfg]` or `if let Ok` with CPU fallback always compiled
+- [x] All 27 barracuda delegations use `#[cfg]` or `if let Ok` with CPU fallback always compiled
 - [x] Mathematical parity: 15/15 PROVEN (Python ⇌ Rust, `data/parity_report.json`)
 - [x] PRNG alignment investigated: requires full rebaseline (documented in V8 handoff)
 - [x] ToadStool S64 catch-up: 6 new CPU delegations (metrics + shannon), 3 bug fixes

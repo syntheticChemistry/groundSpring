@@ -5,7 +5,7 @@
 > (Phase 0), a Rust validation (Phase 1), and a barracuda delegation path
 > (Phase 2+).
 
-**Total**: 185/185 validation checks across 15 experiments, 6 domains. 226 Rust tests, ~137 Python checks.
+**Total**: 185/185 validation checks across 15 experiments, 6 domains. 225 Rust tests, ~137 Python checks.
 **Rust vs Python**: 22× faster across all 15 experiments (Exp 009 now 2.8× with barracuda-gpu Sturm).
 **Mathematical Parity**: 15/15 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **Coverage**: 98.93% workspace line coverage. Zero clippy warnings.
@@ -40,9 +40,9 @@ Each experiment is validated at three levels:
 2. **GPU** — Barracuda GPU matches CPU within tolerance (`--features barracuda-gpu`)
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
-Current status: **CPU complete** (185/185), **26 barracuda delegations active**
-(15 stats/metrics + bootstrap + rawr_mean + 5 anderson/spectral + hamiltonian + 2 ODE + eigenvalues).
-21 CPU delegated (`#[cfg(feature = "barracuda")]`), 5 GPU delegated
+Current status: **CPU complete** (185/185), **27 barracuda delegations active**
+(15 stats/metrics + bootstrap + rawr_mean + hill + 5 anderson/spectral + hamiltonian + 2 ODE + eigenvalues).
+22 CPU delegated (`#[cfg(feature = "barracuda")]`), 5 GPU delegated
 (`#[cfg(feature = "barracuda-gpu")]`). All with graceful CPU fallback.
 98.93% line coverage. 15/15 mathematical parity proven.
 
