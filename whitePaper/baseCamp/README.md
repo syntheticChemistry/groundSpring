@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: February 26, 2026
 
-**Validation Summary**: 144/144 checks, 24 barracuda delegations (19 CPU + 5 GPU), 177 Rust tests. 99.11% coverage. Exps 006–011 DONE. **22× faster** than Python (all 11 experiments). **11/11 mathematical parity proven**. Barracuda-GPU: **3.3s total** (4.4× faster than local; Exp 009: 50× from Sturm tridiag). Cross-spring lineage: hotSpring precision, wetSpring bio-stats, airSpring metrics, neuralSpring dispatch.
+**Validation Summary**: 144/144 checks, 25 barracuda delegations (20 CPU + 5 GPU), 190 Rust tests. 99.11% coverage. Exps 006–011 DONE. **22× faster** than Python (all 11 experiments). **11/11 mathematical parity proven**. Barracuda-GPU: **3.9s total** (4.4× faster than local; Exp 009: 49.5× from Sturm tridiag). Cross-spring lineage: hotSpring precision, wetSpring bio-stats, airSpring metrics, neuralSpring dispatch.
 
 ---
 
@@ -16,7 +16,7 @@ reproductions and extensions.
 | Alexei Bazavov | CMSE + Physics, MSU | Lattice QCD, inverse problems | Spectral reconstruction (Exp 005 generalization) |
 | Christopher Waters | MMG, MSU | Quorum sensing, c-di-GMP | **Exp 006** (30.5×), **Exp 010** (18.5×), **Exp 011** (46.2×) |
 | Kevin Liu | CMSE, MSU | Phylogenetics, statistical resampling | **Exp 007**: RAWR bootstrap (11/11 PASS, 7.3× faster) |
-| Ilya Kachkovskiy | Math, MSU | Anderson localization, spectral theory | **Exp 008** (29.9×), **Exp 009** (50× barracuda-gpu via Sturm tridiag) |
+| Ilya Kachkovskiy | Math, MSU | Anderson localization, spectral theory | **Exp 008** (29.9×), **Exp 009** (49.5× barracuda-gpu via Sturm tridiag) |
 | Rika Anderson | Biology, Carleton College | Deep subsurface microbiology | Stochastic vs deterministic evolution (Exp 001 biological analog) |
 | Emily Dolson | CSE, MSU | Eco-evolutionary dynamics | Origin-of-life noise (philosophical) |
 

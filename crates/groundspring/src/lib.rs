@@ -19,11 +19,13 @@
 //! - [`fao56`] — FAO-56 Penman-Monteith reference evapotranspiration
 //! - [`gillespie`] — Gillespie SSA for stochastic chemical kinetics
 //! - [`bootstrap`] — Bootstrap and RAWR resampling confidence intervals
-//! - [`anderson`] — Anderson localization / Lyapunov exponents / Almost-Mathieu
+//! - [`anderson`] — Anderson localization / Lyapunov exponents
+//! - [`almost_mathieu`] — Almost-Mathieu quasiperiodic localization / level spacing
 //! - [`bistable`] — Bistable phenotypic switching (c-di-GMP circuit)
 //! - [`multisignal`] — Multi-signal QS integration (CAI-1 + AI-2)
 //! - [`validate`] — Validation harness (pass/fail with counters)
 
+pub mod almost_mathieu;
 pub mod anderson;
 pub mod bistable;
 pub mod bootstrap;

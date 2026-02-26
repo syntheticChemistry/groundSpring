@@ -14,8 +14,7 @@ use groundspring::validate::ValidationHarness;
 use groundspring_validate::{f64_field, print_provenance_header};
 use serde_json::Value;
 
-const BENCHMARK: &str =
-    include_str!("../../../control/multisignal_qs/benchmark_multisignal.json");
+const BENCHMARK: &str = include_str!("../../../control/multisignal_qs/benchmark_multisignal.json");
 
 fn params_from_json(model: &Value) -> MultiSignalParams {
     let p = &model["parameters"];

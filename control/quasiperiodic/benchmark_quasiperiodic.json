@@ -12,7 +12,7 @@
     "real_data_accession": "N/A (analytical)",
     "prng_algorithm": "deterministic quasiperiodic potential (no randomness)",
     "baseline_date": "2026-02-25",
-    "baseline_commit": "pending",
+    "baseline_commit": "520ca65978039deb65cd8a479a088aef8f47c5b1",
     "validation_script": "control/quasiperiodic/quasiperiodic_localization.py",
     "command": "python3 control/quasiperiodic/quasiperiodic_localization.py"
   },

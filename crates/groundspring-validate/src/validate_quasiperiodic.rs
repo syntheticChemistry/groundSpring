@@ -15,15 +15,15 @@
 //!            Herman (1983) Commentarii Math Helv 58:453,
 //!            Jitomirskaya & Kachkovskiy (2018) JEMS 21:777
 
-use groundspring::anderson::{
-    almost_mathieu_eigenvalues, almost_mathieu_potential, lyapunov_exponent,
+use groundspring::almost_mathieu::{
+    eigenvalues as almost_mathieu_eigenvalues, potential as almost_mathieu_potential,
 };
+use groundspring::anderson::lyapunov_exponent;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{f64_field, f64_range, print_provenance_header, usize_field};
 use serde_json::Value;
 
-const BENCHMARK: &str =
-    include_str!("../../../control/quasiperiodic/benchmark_quasiperiodic.json");
+const BENCHMARK: &str = include_str!("../../../control/quasiperiodic/benchmark_quasiperiodic.json");
 
 /// Parameters for the coupling sweep, bundled to satisfy the 7-argument limit.
 struct SweepParams {
@@ -51,14 +51,22 @@ fn coupling_sweep(
         gammas.push((lam, g));
     }
 
-    let g1 = gammas.iter().find(|(l, _)| (*l - 1.0).abs() < 0.01).expect("λ=1").1;
+    let g1 = gammas
+        .iter()
+        .find(|(l, _)| (*l - 1.0).abs() < 0.01)
+        .expect("λ=1")
+        .1;
     harness.check_max(
         "Extended regime (λ=1) γ < threshold",
         g1,
         f64_field(exp, "extended_regime_lyapunov_max"),
     );
 
-    let g3 = gammas.iter().find(|(l, _)| (*l - 3.0).abs() < 0.01).expect("λ=3").1;
+    let g3 = gammas
+        .iter()
+        .find(|(l, _)| (*l - 3.0).abs() < 0.01)
+        .expect("λ=3")
+        .1;
     harness.check_approx(
         "Herman's formula at λ=3: γ ≈ ln(3/2)",
         g3,
@@ -66,7 +74,11 @@ fn coupling_sweep(
         f64_field(exp, "herman_tol_lambda_3"),
     );
 
-    let g4 = gammas.iter().find(|(l, _)| (*l - 4.0).abs() < 0.01).expect("λ=4").1;
+    let g4 = gammas
+        .iter()
+        .find(|(l, _)| (*l - 4.0).abs() < 0.01)
+        .expect("λ=4")
+        .1;
     harness.check_approx(
         "Herman's formula at λ=4: γ ≈ ln(2)",
         g4,
@@ -78,14 +90,14 @@ fn coupling_sweep(
 }
 
 /// Critical point and monotonicity checks.
-fn critical_and_monotonicity(
-    harness: &mut ValidationHarness,
-    gammas: &[(f64, f64)],
-    exp: &Value,
-) {
+fn critical_and_monotonicity(harness: &mut ValidationHarness, gammas: &[(f64, f64)], exp: &Value) {
     println!("\n--- Part 3: Critical Point (λ=2) ---");
 
-    let g2 = gammas.iter().find(|(l, _)| (*l - 2.0).abs() < 0.01).expect("λ=2").1;
+    let g2 = gammas
+        .iter()
+        .find(|(l, _)| (*l - 2.0).abs() < 0.01)
+        .expect("λ=2")
+        .1;
     println!("  Lyapunov at critical coupling (λ=2): {g2:.6}");
     harness.check_approx(
         "Critical point γ ≈ 0 (Aubry-André)",
@@ -116,12 +128,7 @@ fn critical_and_monotonicity(
 /// precision, so we validate the *relative* ordering: extended-phase
 /// `<r>` must exceed localized-phase `<r>`, and the localized phase must
 /// fall in the Poisson range.
-fn level_spacing_checks(
-    harness: &mut ValidationHarness,
-    n_eig: usize,
-    alpha: f64,
-    exp: &Value,
-) {
+fn level_spacing_checks(harness: &mut ValidationHarness, n_eig: usize, alpha: f64, exp: &Value) {
     println!("\n--- Part 5: Level Spacing Statistics ---");
 
     let n_theta: usize = 20;

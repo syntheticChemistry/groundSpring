@@ -128,7 +128,6 @@ impl BistableParams {
     }
 }
 
-#[cfg(not(feature = "barracuda"))]
 fn hill(x: f64, k: f64, n: f64) -> f64 {
     if x <= 0.0 {
         return 0.0;
@@ -148,19 +147,18 @@ pub fn bistable_derivative(state: &[f64; 5], params: &BistableParams) -> [f64; 5
     #[cfg(feature = "barracuda")]
     {
         let flat = params.to_flat();
-        let result =
-            barracuda::numerical::ode_bio::BistableOde::cpu_derivative(0.0, state.as_slice(), &flat);
-        [result[0], result[1], result[2], result[3], result[4]]
+        let result = barracuda::numerical::ode_bio::BistableOde::cpu_derivative(
+            0.0,
+            state.as_slice(),
+            &flat,
+        );
+        return [result[0], result[1], result[2], result[3], result[4]];
     }
-
-    #[cfg(not(feature = "barracuda"))]
-    {
-        bistable_derivative_local(state, params)
-    }
+    #[allow(unreachable_code)]
+    bistable_derivative_cpu(state, params)
 }
 
-#[cfg(not(feature = "barracuda"))]
-fn bistable_derivative_local(state: &[f64; 5], p: &BistableParams) -> [f64; 5] {
+fn bistable_derivative_cpu(state: &[f64; 5], p: &BistableParams) -> [f64; 5] {
     let cell = state[0].max(0.0);
     let ai = state[1].max(0.0);
     let hapr = state[2].max(0.0);
@@ -176,7 +174,9 @@ fn bistable_derivative_local(state: &[f64; 5], p: &BistableParams) -> [f64; 5] {
     let basal_dgc = p.k_dgc_basal * p.k_dgc_rep.mul_add(-hapr, 1.0).max(0.0);
     let feedback_dgc = p.alpha_fb * hill(bio, p.k_fb, p.n_fb);
     let pde_rate = p.k_pde_act.mul_add(hapr, p.k_pde_basal);
-    let d_cdg = p.d_cdg.mul_add(-cdg, basal_dgc + feedback_dgc - pde_rate * cdg);
+    let d_cdg = p
+        .d_cdg
+        .mul_add(-cdg, basal_dgc + feedback_dgc - pde_rate * cdg);
 
     let bio_promote = p.k_bio_max * hill(cdg, p.k_bio_cdg, p.n_bio);
     let d_bio = bio_promote.mul_add(1.0 - bio, -(p.d_bio * bio));
@@ -262,7 +262,10 @@ mod tests {
     fn derivative_at_zero_state() {
         let state = [0.0; 5];
         let d = bistable_derivative(&state, &default_params());
-        assert!(d[0].abs() < f64::EPSILON, "d_cell should be 0 at zero state");
+        assert!(
+            d[0].abs() < f64::EPSILON,
+            "d_cell should be 0 at zero state"
+        );
     }
 
     #[test]

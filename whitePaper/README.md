@@ -11,7 +11,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 0 baselines: **~129 quantitative checks passed** across 11 experiments, 6 domains.
 - Phase 1 Rust validation: **144/144 checks passed** across 11 validation binaries.
 - Mathematical parity: **11/11 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
-- Performance: **22× faster** (Rust vs Python, all 11 experiments with barracuda-gpu). Exp 009: **50× from Sturm tridiag**.
+- Performance: **22× faster** (Rust vs Python, all 11 experiments with barracuda-gpu). Exp 009: **49.5× from Sturm tridiag**.
 
 ### Key Results
 
@@ -64,7 +64,7 @@ The `groundspring` crate provides 11 modules of pure safe Rust:
 | `seismic` | Exp 005 | B (adapt) | Haversine, travel time, grid-search inversion |
 | `gillespie` | Exp 006 | GPU-ready | Gillespie SSA birth-death process → `GillespieGpu` |
 | `bootstrap` | Exp 007 | A Lean | Bootstrap + RAWR CIs → `barracuda::stats::bootstrap_mean` |
-| `anderson` | Exp 008-009 | A Lean | Lyapunov, level_spacing, eigenvalues → `barracuda::spectral`, analytical ξ → `barracuda::special`. **50× Exp 009.** |
+| `anderson` | Exp 008-009 | A Lean | Lyapunov, level_spacing, eigenvalues → `barracuda::spectral`, analytical ξ → `barracuda::special`. **49.5× Exp 009.** |
 | `validate` | All | N/A | Generic `Write` harness (hotSpring pattern) |
 
 ### GPU Evolution (metalForge)

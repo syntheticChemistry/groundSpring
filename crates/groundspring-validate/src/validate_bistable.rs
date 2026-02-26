@@ -15,8 +15,7 @@ use groundspring::validate::ValidationHarness;
 use groundspring_validate::{f64_field, f64_range, print_provenance_header};
 use serde_json::Value;
 
-const BENCHMARK: &str =
-    include_str!("../../../control/bistable_switching/benchmark_bistable.json");
+const BENCHMARK: &str = include_str!("../../../control/bistable_switching/benchmark_bistable.json");
 
 fn params_from_json(model: &Value) -> BistableParams {
     let p = &model["parameters"];
@@ -119,7 +118,11 @@ fn run() -> i32 {
         final_high[3],
         f64_field(exp, "high_cdg_attractor_min"),
     );
-    h.check_max("Low IC → low biofilm", final_low[4], f64_field(exp, "biofilm_low_attractor_max"));
+    h.check_max(
+        "Low IC → low biofilm",
+        final_low[4],
+        f64_field(exp, "biofilm_low_attractor_max"),
+    );
     h.check_min(
         "High IC → high biofilm",
         final_high[4],
@@ -135,7 +138,10 @@ fn run() -> i32 {
     let mono_high = integrate(&ic_high, &mono_params, dt, n_steps);
 
     let cdg_diff = (mono_low[3] - mono_high[3]).abs();
-    println!("  Mono low cdg={:.3}, mono high cdg={:.3}", mono_low[3], mono_high[3]);
+    println!(
+        "  Mono low cdg={:.3}, mono high cdg={:.3}",
+        mono_low[3], mono_high[3]
+    );
     h.check_max(
         "Monostable: both ICs agree",
         cdg_diff,

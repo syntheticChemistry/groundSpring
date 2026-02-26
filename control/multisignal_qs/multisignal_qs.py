@@ -43,7 +43,6 @@ from common import (
     reset_counters,
 )
 
-
 # ---------------------------------------------------------------------------
 # Hill functions
 # ---------------------------------------------------------------------------
@@ -103,17 +102,16 @@ def multisignal_derivative(state: list[float], params: dict) -> list[float]:
 
 
 def rk4_step(state: list[float], params: dict, dt: float) -> list[float]:
-    n = len(state)
     k1 = multisignal_derivative(state, params)
-    s1 = [s + 0.5 * dt * k for s, k in zip(state, k1)]
+    s1 = [s + 0.5 * dt * k for s, k in zip(state, k1, strict=True)]
     k2 = multisignal_derivative(s1, params)
-    s2 = [s + 0.5 * dt * k for s, k in zip(state, k2)]
+    s2 = [s + 0.5 * dt * k for s, k in zip(state, k2, strict=True)]
     k3 = multisignal_derivative(s2, params)
-    s3 = [s + dt * k for s, k in zip(state, k3)]
+    s3 = [s + dt * k for s, k in zip(state, k3, strict=True)]
     k4 = multisignal_derivative(s3, params)
     return [
         s + dt / 6.0 * (a + 2 * b + 2 * c + d)
-        for s, a, b, c, d in zip(state, k1, k2, k3, k4)
+        for s, a, b, c, d in zip(state, k1, k2, k3, k4, strict=True)
     ]
 
 
@@ -238,7 +236,7 @@ def main() -> int:
     traj_repeat = integrate(ic, params, dt, t_final)
     check_true(
         "Deterministic trajectories agree",
-        all(abs(a - b) < 1e-10 for a, b in zip(traj_dual[-1], traj_repeat[-1])),
+        all(abs(a - b) < 1e-10 for a, b in zip(traj_dual[-1], traj_repeat[-1], strict=True)),
     )
 
     # ------------------------------------------------------------------

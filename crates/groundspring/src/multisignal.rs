@@ -142,7 +142,6 @@ impl MultiSignalParams {
     }
 }
 
-#[cfg(not(feature = "barracuda"))]
 fn hill(x: f64, k: f64, n: f64) -> f64 {
     if x <= 0.0 {
         return 0.0;
@@ -151,7 +150,6 @@ fn hill(x: f64, k: f64, n: f64) -> f64 {
     xn / (k.powf(n) + xn)
 }
 
-#[cfg(not(feature = "barracuda"))]
 fn hill_repress(x: f64, k: f64, n: f64) -> f64 {
     if x <= 0.0 {
         return 1.0;
@@ -171,22 +169,20 @@ pub fn multisignal_derivative(state: &[f64; 7], params: &MultiSignalParams) -> [
     #[cfg(feature = "barracuda")]
     {
         let flat = params.to_flat();
-        let result =
-            barracuda::numerical::ode_bio::MultiSignalOde::cpu_derivative(0.0, state.as_slice(), &flat);
-        [
-            result[0], result[1], result[2], result[3], result[4], result[5],
-            result[6],
-        ]
+        let result = barracuda::numerical::ode_bio::MultiSignalOde::cpu_derivative(
+            0.0,
+            state.as_slice(),
+            &flat,
+        );
+        return [
+            result[0], result[1], result[2], result[3], result[4], result[5], result[6],
+        ];
     }
-
-    #[cfg(not(feature = "barracuda"))]
-    {
-        multisignal_derivative_local(state, params)
-    }
+    #[allow(unreachable_code)]
+    multisignal_derivative_cpu(state, params)
 }
 
-#[cfg(not(feature = "barracuda"))]
-fn multisignal_derivative_local(state: &[f64; 7], p: &MultiSignalParams) -> [f64; 7] {
+fn multisignal_derivative_cpu(state: &[f64; 7], p: &MultiSignalParams) -> [f64; 7] {
     let cell = state[0].max(0.0);
     let cai1 = state[1].max(0.0);
     let ai2 = state[2].max(0.0);
@@ -203,9 +199,10 @@ fn multisignal_derivative_local(state: &[f64; 7], p: &MultiSignalParams) -> [f64
     let dephos_ai2 = hill(ai2, p.k_luxpq, 2.0);
     let d_luxo_p = (p.d_luxo_p + dephos_cai1 + dephos_ai2).mul_add(-luxo_p, p.k_luxo_phos);
 
-    let d_hapr = p
-        .k_hapr_max
-        .mul_add(hill_repress(luxo_p, p.k_repress, p.n_repress), -p.d_hapr * hapr);
+    let d_hapr = p.k_hapr_max.mul_add(
+        hill_repress(luxo_p, p.k_repress, p.n_repress),
+        -p.d_hapr * hapr,
+    );
 
     let dgc_rate = p.k_dgc_basal * p.k_dgc_rep.mul_add(-hapr, 1.0).max(0.0);
     let pde_rate = p.k_pde_act.mul_add(hapr, p.k_pde_basal);

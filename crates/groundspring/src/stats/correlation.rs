@@ -4,13 +4,15 @@
 //! Correlation coefficients and covariance.
 //!
 //! Pearson (linear), Spearman (monotonic rank) and sample covariance.
+//!
+//! # barracuda delegation
+//!
 //! When the `barracuda` feature is enabled each function delegates to the
-//! corresponding GPU-ready implementation.
+//! corresponding GPU-ready implementation, falling back to the always-compiled
+//! CPU path on error.
 
-#[cfg(not(feature = "barracuda"))]
 use crate::cast::usize_f64;
 
-#[cfg(not(feature = "barracuda"))]
 use super::metrics::mean;
 
 /// Pearson correlation coefficient.
@@ -32,32 +34,34 @@ pub fn pearson_r(x: &[f64], y: &[f64]) -> f64 {
         if let Ok(r) = barracuda::stats::pearson_correlation(x, y) {
             return if r.is_nan() { 0.0 } else { r };
         }
-        0.0
+        return 0.0;
     }
-    #[cfg(not(feature = "barracuda"))]
-    {
-        let n = x.len();
-        if n == 0 {
-            return 0.0;
-        }
-        let mx = mean(x);
-        let my = mean(y);
-        let mut cov = 0.0_f64;
-        let mut vx = 0.0_f64;
-        let mut vy = 0.0_f64;
-        for (&xi, &yi) in x.iter().zip(y) {
-            let dx = xi - mx;
-            let dy = yi - my;
-            cov += dx * dy;
-            vx += dx * dx;
-            vy += dy * dy;
-        }
-        let denom = (vx * vy).sqrt();
-        if denom == 0.0 {
-            0.0
-        } else {
-            cov / denom
-        }
+    #[allow(unreachable_code)]
+    pearson_r_cpu(x, y)
+}
+
+fn pearson_r_cpu(x: &[f64], y: &[f64]) -> f64 {
+    let n = x.len();
+    if n == 0 {
+        return 0.0;
+    }
+    let mx = mean(x);
+    let my = mean(y);
+    let mut cov = 0.0_f64;
+    let mut vx = 0.0_f64;
+    let mut vy = 0.0_f64;
+    for (&xi, &yi) in x.iter().zip(y) {
+        let dx = xi - mx;
+        let dy = yi - my;
+        cov += dx * dy;
+        vx += dx * dx;
+        vy += dy * dy;
+    }
+    let denom = (vx * vy).sqrt();
+    if denom == 0.0 {
+        0.0
+    } else {
+        cov / denom
     }
 }
 
@@ -79,36 +83,39 @@ pub fn spearman_r(x: &[f64], y: &[f64]) -> f64 {
         if let Ok(r) = barracuda::stats::correlation::spearman_correlation(x, y) {
             return if r.is_nan() { 0.0 } else { r };
         }
-        0.0
+        return 0.0;
     }
-    #[cfg(not(feature = "barracuda"))]
-    {
-        fn rank(data: &[f64]) -> Vec<f64> {
-            let mut indexed: Vec<(usize, f64)> = data.iter().copied().enumerate().collect();
-            indexed.sort_by(|a, b| f64::total_cmp(&a.1, &b.1));
-            let mut ranks = vec![0.0; data.len()];
-            let mut i = 0;
-            while i < indexed.len() {
-                let mut j = i;
-                while j < indexed.len() && f64::total_cmp(&indexed[j].1, &indexed[i].1).is_eq() {
-                    j += 1;
-                }
-                let avg_rank = usize_f64(i + j + 1) / 2.0;
-                for item in &indexed[i..j] {
-                    ranks[item.0] = avg_rank;
-                }
-                i = j;
-            }
-            ranks
-        }
-        let n = x.len();
-        if n < 2 {
-            return 0.0;
-        }
-        let rx = rank(x);
-        let ry = rank(y);
-        pearson_r(&rx, &ry)
+    #[allow(unreachable_code)]
+    spearman_r_cpu(x, y)
+}
+
+fn spearman_r_cpu(x: &[f64], y: &[f64]) -> f64 {
+    let n = x.len();
+    if n < 2 {
+        return 0.0;
     }
+    let rx = rank(x);
+    let ry = rank(y);
+    pearson_r(&rx, &ry)
+}
+
+fn rank(data: &[f64]) -> Vec<f64> {
+    let mut indexed: Vec<(usize, f64)> = data.iter().copied().enumerate().collect();
+    indexed.sort_by(|a, b| f64::total_cmp(&a.1, &b.1));
+    let mut ranks = vec![0.0; data.len()];
+    let mut i = 0;
+    while i < indexed.len() {
+        let mut j = i;
+        while j < indexed.len() && f64::total_cmp(&indexed[j].1, &indexed[i].1).is_eq() {
+            j += 1;
+        }
+        let avg_rank = usize_f64(i + j + 1) / 2.0;
+        for item in &indexed[i..j] {
+            ranks[item.0] = avg_rank;
+        }
+        i = j;
+    }
+    ranks
 }
 
 /// Sample covariance between two slices (Bessel-corrected, divides by N−1).
@@ -129,23 +136,25 @@ pub fn covariance(x: &[f64], y: &[f64]) -> f64 {
         if let Ok(c) = barracuda::stats::correlation::covariance(x, y) {
             return c;
         }
-        0.0
+        return 0.0;
     }
-    #[cfg(not(feature = "barracuda"))]
-    {
-        let n = x.len();
-        if n < 2 {
-            return 0.0;
-        }
-        let mx = mean(x);
-        let my = mean(y);
-        let sum: f64 = x
-            .iter()
-            .zip(y)
-            .map(|(&xi, &yi)| (xi - mx) * (yi - my))
-            .sum();
-        sum / usize_f64(n - 1)
+    #[allow(unreachable_code)]
+    covariance_cpu(x, y)
+}
+
+fn covariance_cpu(x: &[f64], y: &[f64]) -> f64 {
+    let n = x.len();
+    if n < 2 {
+        return 0.0;
     }
+    let mx = mean(x);
+    let my = mean(y);
+    let sum: f64 = x
+        .iter()
+        .zip(y)
+        .map(|(&xi, &yi)| (xi - mx) * (yi - my))
+        .sum();
+    sum / usize_f64(n - 1)
 }
 
 #[cfg(test)]

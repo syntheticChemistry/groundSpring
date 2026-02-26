@@ -281,7 +281,7 @@ fn run() -> i32 {
         sunshine_hours: f64_field(inp, "sunshine_hours"),
         latitude_deg_n: f64_field(inp, "latitude_deg_n"),
         altitude_m: f64_field(inp, "altitude_m"),
-        #[allow(clippy::cast_possible_truncation)]
+        #[expect(clippy::cast_possible_truncation)]
         day_of_year: u64_field(inp, "day_of_year") as u16,
     };
     let expected_et0 = f64_field(ref_day, "expected_et0_mm_day");

@@ -19,36 +19,55 @@ pub fn shannon_diversity(counts: &[u64]) -> f64 {
     #[cfg(feature = "barracuda")]
     {
         let f_counts: Vec<f64> = counts.iter().map(|&c| u64_f64(c)).collect();
-        barracuda::stats::shannon(&f_counts)
+        return barracuda::stats::shannon(&f_counts);
     }
-    #[cfg(not(feature = "barracuda"))]
-    {
-        let total: u64 = counts.iter().sum();
-        if total == 0 {
-            return 0.0;
-        }
-        let total_f = u64_f64(total);
-        counts
-            .iter()
-            .filter(|&&c| c > 0)
-            .map(|&c| {
-                let p = u64_f64(c) / total_f;
-                -p * p.ln()
-            })
-            .sum()
+    #[allow(unreachable_code)]
+    shannon_diversity_cpu(counts)
+}
+
+fn shannon_diversity_cpu(counts: &[u64]) -> f64 {
+    let total: u64 = counts.iter().sum();
+    if total == 0 {
+        return 0.0;
     }
+    let total_f = u64_f64(total);
+    counts
+        .iter()
+        .filter(|&&c| c > 0)
+        .map(|&c| {
+            let p = u64_f64(c) / total_f;
+            -p * p.ln()
+        })
+        .sum()
 }
 
 /// Pielou's evenness J' = H' / ln(S).
 ///
-/// S is the number of species with non-zero counts.
+/// S is the number of species with non-zero counts.  Returns `1.0` by
+/// convention when S ≤ 1 (single species = perfect evenness).
+///
+/// When the `barracuda` feature is enabled, delegates the S > 1 case to
+/// `barracuda::stats::pielou_evenness` (which returns `0.0` for S ≤ 1;
+/// groundSpring overrides that to `1.0` for consistency with the ecology
+/// convention used by our Python baselines).
 #[must_use]
 pub fn evenness(counts: &[u64]) -> f64 {
     let s = counts.iter().filter(|&&c| c > 0).count();
     if s <= 1 {
         return 1.0;
     }
+    #[cfg(feature = "barracuda")]
+    {
+        let f_counts: Vec<f64> = counts.iter().map(|&c| u64_f64(c)).collect();
+        return barracuda::stats::pielou_evenness(&f_counts);
+    }
+    #[allow(unreachable_code)]
+    evenness_cpu(counts)
+}
+
+fn evenness_cpu(counts: &[u64]) -> f64 {
     let h = shannon_diversity(counts);
+    let s = counts.iter().filter(|&&c| c > 0).count();
     h / usize_f64(s).ln()
 }
 

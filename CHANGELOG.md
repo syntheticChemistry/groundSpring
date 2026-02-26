@@ -4,6 +4,24 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V14 S65 Revalidation + Cross-Spring Documentation (Feb 26, 2026)
+- **New delegation #25**: `evenness` → `barracuda::stats::pielou_evenness`.
+  S≤1 semantic adapter (groundSpring returns 1.0, barracuda returns 0.0).
+  Total: **25 active delegations** (20 CPU + 5 GPU).
+- **`stats/correlation.rs` modernized**: Removed `#[cfg(not(feature))]` gates.
+  CPU code always compiled. Extracted `pearson_r_cpu`, `spearman_r_cpu`,
+  `covariance_cpu`, `rank` as private always-compiled functions.
+- **`anderson.rs` → `almost_mathieu.rs` split**: Almost-Mathieu model
+  extracted to own module (264 + 329 lines, was 594 combined).
+- **Python linting**: 14 ruff errors fixed (import sorting, `zip(strict=True)`,
+  unused variables). Python linting now zero-warning.
+- **Three-mode benchmark**: 14,893ms → 3,926ms (barracuda-gpu). Exp 009: 49.5×.
+- **Cross-spring evolution document**: `whitePaper/CROSS_SPRING_EVOLUTION.md`
+  tracing lineage of all 25 delegations through hotSpring, wetSpring, airSpring,
+  neuralSpring.
+- **New scripts**: `regenerate_benchmarks.sh` (drift guard), `three_mode_benchmark.sh`.
+- **V14 handoff**: Created. V13 archived.
+
 ### Complete Rewiring + Cross-Spring Benchmark (V13 — Feb 26, 2026)
 - **4 new barracuda delegations**: `mean`, `percentile`, `level_spacing_ratio`,
   `almost_mathieu_eigenvalues` (via `find_all_eigenvalues` Sturm tridiag solver).

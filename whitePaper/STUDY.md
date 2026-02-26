@@ -282,7 +282,7 @@ and the full module-by-module absorption inventory.
 ## 13. Evolution Path
 
 - **Phase 0+**: Wire real NOAA CDO data for Exp 002; download IRIS waveforms for Exp 005
-- **Phase 2a (DONE)**: Tier A rewire — **24 functions delegated** (19 CPU + 5 GPU: stats, metrics, diversity, bootstrap, anderson, ODE, hamiltonian, eigenvalues). FAO-56 ET₀ absorbed upstream (ToadStool S49). Rust is **22× faster** than Python (all 11; Exp 009: 50× from Sturm tridiag). 11/11 parity proven.
+- **Phase 2a (DONE)**: Tier A rewire — **25 functions delegated** (19 CPU + 5 GPU: stats, metrics, diversity, bootstrap, anderson, ODE, hamiltonian, eigenvalues). FAO-56 ET₀ absorbed upstream (ToadStool S49). Rust is **22× faster** than Python (all 11; Exp 009: 49.5× from Sturm tridiag). 11/11 parity proven.
 - **Phase 2b**: Tier B adapt — PRNG alignment, grid-search dispatch, Gillespie GPU
 - **Phase 2c**: Tier C absorption — MC and multinomial kernels → barracuda; RAWR kernel
 - **Phase 3**: Full GPU pipeline, metalForge cross-substrate validation
@@ -305,8 +305,8 @@ These extensions share the common theme: **how do you extract reliable conclusio
 *Phase 0 completed: February 25, 2026 — ~129 PASS (Python, 11 experiments)*
 *Phase 1 completed: February 25, 2026 — 144/144 PASS (Rust, 99.11% workspace coverage)*
 *Phase 2a completed: February 25, 2026 — 14 barracuda CPU delegated, 23.4× faster than Python*
-*Phase 2a++ completed: February 25, 2026 — sovereignty evolution, barracuda error hardening, 177 tests*
+*Phase 2a++ completed: February 25, 2026 — sovereignty evolution, barracuda error hardening, 190 tests*
 *V9 rewiring complete: February 25, 2026 — full API audit, zero-overhead benchmarks, cross-spring lineage*
 *Full-suite parity: February 26, 2026 — 11/11 PROVEN, bench_rust_vs_python expanded to all 11 experiments*
 *ToadStool S64 catch-up: February 26, 2026 — 20 barracuda delegations (+6 metrics/diversity), 3 bug fixes*
-*Complete rewiring: February 26, 2026 — 24 delegations, Sturm tridiag (50× Exp 009), V13 handoff*
+*Complete rewiring: February 26, 2026 — 25 delegations, Sturm tridiag (49.5× Exp 009), V13 handoff*

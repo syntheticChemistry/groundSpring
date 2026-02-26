@@ -9,7 +9,8 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V13 | [GROUNDSPRING_TOADSTOOL_V13_COMPLETE_REWIRING_HANDOFF_FEB26_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V13_COMPLETE_REWIRING_HANDOFF_FEB26_2026.md) | Feb 26, 2026 | Complete rewiring: 24 delegations, Sturm tridiag (50× Exp 009), cross-spring evolution S58-S65 |
+| V15 | [GROUNDSPRING_TOADSTOOL_V15_ABSORPTION_REQUEST_FEB26_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V15_ABSORPTION_REQUEST_FEB26_2026.md) | Feb 26, 2026 | Absorption request: 2 shaders, 3 semantic fixes, 25 delegations, cross-spring learnings |
+| V14 | [GROUNDSPRING_TOADSTOOL_V14_S65_REVALIDATION_HANDOFF_FEB26_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V14_S65_REVALIDATION_HANDOFF_FEB26_2026.md) | Feb 26, 2026 | S65 revalidation: 25 delegations, 49.5× Exp 009, cross-spring documentation |
 
 ## Cross-Spring Documentation
 
@@ -36,6 +37,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V13 | Complete rewiring: 24 delegations, Sturm tridiag (50×), cross-spring S58-S65 |
 | V12 | ToadStool S64 catch-up: 6 new delegations (20 total), 3 bug fixes |
 | V11 | Full-suite parity + benchmarks: 14 delegations, 144/144 checks, 23.4× speedup |
 | V10 | Definitive handoff: 5 absorption priorities, 119/119 checks, 11 delegations |

@@ -11,11 +11,11 @@ groundSpring Phase 0 (Python), Phase 1 (Rust), and Phase 2a (barracuda CPU) are 
 
 - 144/144 validation checks across 11 binaries
 - 13 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, bistable, multisignal, cast, validate
-- 177 Rust tests (153 unit + 9 validate-lib + 14 proptest + 11 integration + 1 doc), 0 clippy warnings
+- 190 Rust tests (153 unit + 9 validate-lib + 14 proptest + 11 integration + 1 doc), 0 clippy warnings
 - Two feature gates: `barracuda` (19 CPU delegations) and `barracuda-gpu` (5 GPU delegations including Sturm tridiag)
-- 24 functions delegated to barracuda (stats, metrics, diversity, bootstrap, anderson, ODE, hamiltonian, eigenvalues)
+- 25 functions delegated to barracuda (stats, metrics, diversity, bootstrap, anderson, ODE, hamiltonian, eigenvalues)
 - 2 production WGSL shaders in `metalForge/shaders/` (261 combined lines)
-- Rust is **22× faster** than Python (all 11 with barracuda-gpu). Exp 009: **50× from Sturm tridiag**.
+- Rust is **22× faster** than Python (all 11 with barracuda-gpu). Exp 009: **49.5× from Sturm tridiag**.
 - **11/11 mathematical parity proven** (Python ⇌ Rust; `data/parity_report.json`)
 
 See [BARRACUDA_EVOLUTION.md](BARRACUDA_EVOLUTION.md) for the module-by-module

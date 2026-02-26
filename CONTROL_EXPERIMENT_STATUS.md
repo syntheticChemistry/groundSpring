@@ -20,7 +20,10 @@
 
 **Python Phase 0**: All 11 experiments passing
 **Rust Phase 1**: 144/144 PASS across 11 validation binaries
-**pytest**: 34/34 PASS (unit tests, determinism tests, integration tests)
+**Rust tests**: 190/190 PASS (153 unit + 14 proptest + 9 validate-lib + 11 validation + 1 doc + 2 empty)
+**pytest**: 37/37 PASS (unit tests, determinism tests, integration tests)
+**BarraCUDA delegations**: 25 active (20 CPU + 5 GPU) — ToadStool S65
+**Handoff**: V14 (S65 revalidation)
 
 **Python checks**: ~129 across 11 experiments. **Rust validation checks**: 144.
 
@@ -226,6 +229,48 @@ Ports Exp 011 multi-signal QS integration to pure safe Rust.  Verifies:
 | **Total** | **225** | (37 Python + 188 Rust) |
 
 ## Run Log
+
+### Run 14 — February 26, 2026 (V14 S65 revalidation + cross-spring documentation)
+
+```
+New delegation #25: evenness → barracuda::stats::pielou_evenness
+  S≤1 semantic adapter (groundSpring returns 1.0, barracuda returns 0.0)
+  Total: 25 active delegations (20 CPU + 5 GPU)
+
+Code quality:
+  anderson.rs → almost_mathieu.rs split (594 → 264 + 329 lines)
+  stats/correlation.rs modernized (CPU always compiled)
+  Python: 14 ruff errors fixed (zip(strict=True), unused vars)
+  Python linting: zero-warning
+
+Three-mode benchmark (release, single pass):
+  Binary                   Local(ms)  Barracuda(ms)  Barra-GPU(ms)
+  validate-decompose             82           71            560
+  validate-rarefaction            70           99            102
+  validate-seismic              141          128            171
+  validate-weather                65           71             97
+  validate-fao56                  79           80            106
+  validate-signal-specificity    854          858            898
+  validate-rawr                  619          625            651
+  validate-anderson              745          745            774
+  validate-quasiperiodic      11986        11867            242
+  validate-bistable              167          222            207
+  validate-multisignal            85          118            118
+  TOTAL                       14893        14884           3926
+
+Three-mode validation:
+  190/190 Rust tests PASS × 3 modes
+  144/144 validation checks × 3 modes
+  0 clippy warnings × 3 modes
+  37/37 Python tests PASS
+
+New artifacts:
+  whitePaper/CROSS_SPRING_EVOLUTION.md   Cross-spring lineage for all 25 delegations
+  scripts/regenerate_benchmarks.sh       Benchmark drift guard
+  scripts/three_mode_benchmark.sh        Automated three-mode timing
+
+Handoff V14 posted (V13 archived)
+```
 
 ### Run 11 — February 26, 2026 (Full-suite parity + benchmarks)
 
@@ -632,7 +677,9 @@ All 11 experiments, median of 3 trials (Feb 26, 2026):
 
 | Handoff | Scope | Status |
 |---------|-------|--------|
-| V13: Complete Rewiring | 24 total delegations, Sturm tridiag (50× Exp 009), cross-spring evolution | **Current** |
+| V15: Absorption Request | 2 shaders, 3 semantic fixes, 25 delegations, cross-spring learnings | **Current** |
+| V14: S65 Revalidation | 25 delegations, evenness added, 49.5× Exp 009, three-mode benchmark | **Current** |
+| V13: Complete Rewiring | 24 delegations, Sturm tridiag (50×), cross-spring S58-S65 | Archived |
 | V12: S64 Catch-Up | ToadStool S64 absorption, 6 new delegations (20 total), 3 bug fixes | Archived |
 | V11: Parity + Benchmarks | Full-suite parity, 11 experiments, 14 delegations, three-tier roadmap | Archived |
 | V10: Definitive Handoff | 5 absorption priorities, benchmarks, cross-spring lineage, PRNG roadmap | Archived |
@@ -641,7 +688,7 @@ All 11 experiments, median of 3 trials (Feb 26, 2026):
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V13_COMPLETE_REWIRING_HANDOFF_FEB26_2026.md`
+Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V15_ABSORPTION_REQUEST_FEB26_2026.md`
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

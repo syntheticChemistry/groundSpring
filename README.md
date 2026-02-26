@@ -44,7 +44,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 
 | Module | Purpose | GPU Tier |
 |--------|---------|----------|
-| `stats` | RMSE, MBE, R², IA, hit rate, mean, percentile, Pearson/Spearman, std, covariance, norm_cdf/ppf, χ² | 15 CPU delegated, GPU pending adapter |
+| `stats` | RMSE, MBE, R², IA, hit rate, mean, percentile, Pearson/Spearman, std, covariance, norm_cdf/ppf, χ² | 20 CPU delegated, GPU pending adapter |
 | `decompose` | Bias-variance decomposition, noise floor | CPU-only (scalar) |
 | `fao56` | FAO-56 Penman-Monteith equation chain | **Absorbed** (barracuda `Op::Fao56Et0`) |
 | `prng` | Xorshift64 PRNG, Box-Muller normal | B (align to xoshiro) |
@@ -53,6 +53,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | `gillespie` | Gillespie SSA for stochastic chemical kinetics | GPU-ready (`GillespieGpu`) |
 | `bootstrap` | Bootstrap + RAWR confidence intervals | A Lean (`barracuda::stats`) |
 | `anderson` | Anderson localization, Lyapunov exponents, analytical ξ(W,E) | A Lean (`barracuda::spectral` + `special`) |
+| `almost_mathieu` | Almost-Mathieu quasiperiodic localization, level spacing | A Lean (`barracuda::spectral`) |
 | `cast` | Centralized numeric casts with documented safety | N/A |
 | `validate` | Generic Write harness (hotSpring pattern) | N/A |
 
@@ -61,7 +62,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace          # 177 tests (131 unit + 9 validate-lib + 14 proptest + 8 integration + 1 doc)
+cargo test --workspace          # 190 tests (153 unit + 9 validate-lib + 14 proptest + 11 validation + 1 doc + 2 empty)
 cargo clippy --workspace        # zero warnings
 cargo fmt --check               # clean
 
@@ -114,7 +115,7 @@ Median of 3 trials, all 11 experiments (Feb 26, 2026):
 | **Total** | **70.98** | **3.23** | **22.0×** |
 
 \* Exp 009 with barracuda-gpu (Sturm tridiag solver from hotSpring S26).
-Without barracuda: 11.7s (custom QR). The Sturm solver is **50× faster**.
+Without barracuda: 11.7s (custom QR). The Sturm solver is **49.5× faster**.
 
 **Mathematical parity**: All 11 experiments proven — both languages validate
 against the same shared benchmark JSONs. See `data/parity_report.json`.
@@ -126,34 +127,34 @@ Run parity report: `python3 scripts/parity_report.py`
 
 | Mode | Total (ms) | Quasiperiodic (ms) | Delta |
 |------|-----------|-------------------|-------|
-| Local (no features) | 14,530 | 11,717 | baseline |
-| Barracuda CPU | 14,282 | 11,355 | ~0% overhead |
-| **Barracuda-GPU** | **3,274** | **234** | **−77% (4.4× faster)** |
+| Local (no features) | 14,893 | 11,986 | baseline |
+| Barracuda CPU | 14,884 | 11,867 | ~0% overhead |
+| **Barracuda-GPU** | **3,926** | **242** | **−74% (3.8× faster)** |
 
 Barracuda CPU delegation is free. Barracuda-GPU adds the Sturm tridiag
-eigenvalue solver (from hotSpring S26 spectral), giving **50× speedup**
+eigenvalue solver (from hotSpring S26 spectral), giving **49.5× speedup**
 for Exp 009. Cross-spring evolution (hotSpring precision, wetSpring bio-stats,
-airSpring metrics, neuralSpring dispatch) validated by 24 barracuda delegations.
+airSpring metrics, neuralSpring dispatch) validated by 25 barracuda delegations.
 
 ## Evolution Path
 
 ```
 Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration (Phase 2)
    NumPy/SciPy                    Pure safe Rust                BarraCUDA / ToadStool
-     ✓ Complete                     ✓ 144/144 PASS               ◐ 24 delegated (19 CPU + 5 GPU), 2 WGSL ready
+     ✓ Complete                     ✓ 144/144 PASS               ◐ 25 delegated (20 CPU + 5 GPU), 2 WGSL ready
    23× slower than Rust             11/11 parity proven           barracuda-gpu: anderson, ODE, hamiltonian
 
      Write locally              →  Hand off to barracuda      →  Lean on upstream
      (metalForge shaders)          (wateringHole/handoffs/)       (rewire to barracuda ops)
 ```
 
-**Lean progress**: 24 functions delegate to barracuda with graceful fallback —
+**Lean progress**: 25 functions delegate to barracuda with graceful fallback —
 `pearson_r`, `spearman_r`, `sample_std_dev`, `covariance`, `norm_cdf`, `norm_ppf`,
 `chi2_statistic`, `bootstrap_mean`, `lyapunov_exponent`, `lyapunov_averaged`,
 `analytical_localization_length`, `almost_mathieu_hamiltonian`, `bistable_derivative`,
 `multisignal_derivative`, `rmse`, `mbe`, `r_squared`, `index_of_agreement`,
-`hit_rate`, `shannon_diversity`, `mean`, `percentile`, `level_spacing_ratio`,
-`almost_mathieu_eigenvalues`. 19 CPU delegated via `#[cfg(feature = "barracuda")]`,
+`hit_rate`, `shannon_diversity`, `evenness`, `mean`, `percentile`, `level_spacing_ratio`,
+`almost_mathieu_eigenvalues`. 20 CPU delegated via `#[cfg(feature = "barracuda")]`,
 5 GPU delegated via `#[cfg(feature = "barracuda-gpu")]`. FAO-56 equation chain
 absorbed upstream. Two production WGSL shaders ready for ToadStool absorption.
 

@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: February 26, 2026 (ToadStool S64 catch-up — 24 delegations)
+**Last updated**: February 26, 2026 (ToadStool S65 revalidation — 25 delegations)
 
 ## Philosophy
 
@@ -93,7 +93,8 @@ are for throughput (100k+ MC samples, batch rarefaction).
 | `stats::mean` | `stats::metrics::mean` | **DONE** (CPU delegated) | S64 absorption |
 | `stats::percentile` | `stats::metrics::percentile` | **DONE** (CPU delegated) | S64 absorption |
 | `anderson::level_spacing_ratio` | `spectral::level_spacing_ratio` | **DONE** (barracuda-gpu) | Sort adapter |
-| `anderson::almost_mathieu_eigenvalues` | `spectral::find_all_eigenvalues` | **DONE** (barracuda-gpu) | **50× Exp 009 speedup** — Sturm tridiag |
+| `anderson::almost_mathieu_eigenvalues` | `spectral::find_all_eigenvalues` | **DONE** (barracuda-gpu) | **49.5× Exp 009 speedup** — Sturm tridiag |
+| `rarefaction::evenness` | `stats::pielou_evenness` | **DONE** (CPU delegated) | S≤1 semantic adapter (ecology convention) |
 
 ### Tier B — Adapt (needs alignment or wrapper)
 
@@ -278,7 +279,7 @@ across all 11 experiments:
 | Exp 011: Multi-Signal QS (ODE) | 4.30 | 0.09 | **46.2×** |
 | **Total** | **70.98** | **3.23** | **22.0×** |
 
-\* With barracuda-gpu (Sturm tridiag). Without: 11.7s (dense QR). **50× speedup.**
+\* With barracuda-gpu (Sturm tridiag). Without: 11.7s (dense QR). **49.5× speedup.**
 
 **Note on Exp 009**: With barracuda-gpu, the Sturm tridiag eigenvalue solver
 (from hotSpring S26 spectral module) exploits the tridiagonal structure of
@@ -309,7 +310,7 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-011) | **Done** (56 new checks, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (11/11 parity proven, timing data for all experiments) |
-| Phase 2a | Tier A rewire (stats + bootstrap + anderson → barracuda) | **24 delegated** (15 stats + bootstrap_mean + 5 anderson + analytical ξ + hamiltonian + 2 ODE + shannon + eigenvalues) |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson → barracuda) | **25 delegated** (15 stats + bootstrap_mean + 5 anderson + analytical ξ + hamiltonian + 2 ODE + shannon + eigenvalues) |
 | Phase 2b | Tier B adapt (PRNG alignment, grid dispatch, gillespie GPU) | After 2a |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |

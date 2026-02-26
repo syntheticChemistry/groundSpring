@@ -39,6 +39,9 @@ jobs:
       - run: cargo run --bin validate-signal-specificity
       - run: cargo run --bin validate-rawr
       - run: cargo run --bin validate-anderson
+      - run: cargo run --bin validate-quasiperiodic
+      - run: cargo run --bin validate-bistable
+      - run: cargo run --bin validate-multisignal
 
   python:
     name: Python baselines

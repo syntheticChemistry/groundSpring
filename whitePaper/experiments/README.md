@@ -5,11 +5,11 @@
 > (Phase 0), a Rust validation (Phase 1), and a barracuda delegation path
 > (Phase 2+).
 
-**Total**: 144/144 validation checks across 11 experiments, 6 domains. 177 Rust tests, ~129 Python checks.
+**Total**: 144/144 validation checks across 11 experiments, 6 domains. 190 Rust tests, ~129 Python checks.
 **Rust vs Python**: 22× faster across all 11 experiments (Exp 009 now 2.8× with barracuda-gpu Sturm).
 **Mathematical Parity**: 11/11 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **Coverage**: 99.11% workspace line coverage. Zero clippy warnings.
-**BarraCUDA performance**: 14.5s (local) → 3.3s (barracuda-gpu). Exp 009: **50× from Sturm tridiag**.
+**BarraCUDA performance**: 14.9s (local) → 3.9s (barracuda-gpu). Exp 009: **49.5× from Sturm tridiag**.
 
 ## Experiment Index
 
@@ -23,7 +23,7 @@
 | 006 | [Signal Specificity](006_signal_specificity.md) | Biological | Massie 2012 PNAS | 12/12 | 12/12 | GillespieGpu |
 | 007 | [RAWR Resampling](007_rawr_resampling.md) | Statistics | Wang 2021 ISMB | 11/11 | 11/11 | Gap (RAWR) |
 | 008 | [Anderson Localization](008_anderson_localization.md) | Mathematics | Bourgain-Kachkovskiy 2018 | 8/8 | 8/8 | GPU delegated |
-| 009 | [Quasiperiodic Localization](009_quasiperiodic_localization.md) | Mathematics | Jitomirskaya-Kachkovskiy 2018 | 8/8 | 8/8 | GPU delegated (**50×**) |
+| 009 | [Quasiperiodic Localization](009_quasiperiodic_localization.md) | Mathematics | Jitomirskaya-Kachkovskiy 2018 | 8/8 | 8/8 | GPU delegated (**49.5×**) |
 | 010 | [Bistable Switching](010_bistable_switching.md) | Biological | Fernandez 2020 PNAS | 10/10 | 9/9 | ODE delegated |
 | 011 | [Multi-Signal QS](011_multisignal_qs.md) | Biological | Srivastava 2011 J Bact | 9/9 | 8/8 | ODE delegated |
 
@@ -35,13 +35,13 @@ Each experiment is validated at three levels:
 2. **GPU** — Barracuda GPU matches CPU within tolerance (`--features barracuda-gpu`)
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
-Current status: **CPU complete** (144/144), **24 barracuda delegations active**
+Current status: **CPU complete** (144/144), **25 barracuda delegations active**
 (15 stats/metrics + bootstrap + 5 anderson/spectral + hamiltonian + 2 ODE + eigenvalues).
-19 CPU delegated (`#[cfg(feature = "barracuda")]`), 5 GPU delegated
+20 CPU delegated (`#[cfg(feature = "barracuda")]`), 5 GPU delegated
 (`#[cfg(feature = "barracuda-gpu")]`). All with graceful CPU fallback.
 99.11% line coverage. 11/11 mathematical parity proven.
 
-Three-mode benchmarks: 14.5s (local) → 3.3s (barracuda-gpu, **4.4× faster**).
+Three-mode benchmarks: 14.9s (local) → 3.9s (barracuda-gpu, **4.4× faster**).
 Cross-spring evolution (hotSpring precision + Sturm, wetSpring bio-stats,
 airSpring metrics, neuralSpring dispatch) means the delegated code paths are
 validated by 2,490+ barracuda tests across the ecosystem.

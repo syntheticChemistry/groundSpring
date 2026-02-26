@@ -6,10 +6,15 @@
 //! Contains the canonical implementations of RMSE, MBE, R², Index of
 //! Agreement, hit rate, percentile and basic descriptive statistics
 //! (mean, population σ, sample σ).
+//!
+//! # barracuda delegation
+//!
+//! When the `barracuda` feature is enabled, each metric delegates to the
+//! corresponding `barracuda::stats` function.  CPU implementations are
+//! always compiled and serve as the fallback when the feature is off or
+//! when the barracuda call returns an error.
 
-#[cfg(not(feature = "barracuda"))]
-use crate::cast::f64_usize;
-use crate::cast::usize_f64;
+use crate::cast::{f64_usize, usize_f64};
 
 // ── Error / agreement metrics ───────────────────────────────────────────
 
@@ -31,21 +36,23 @@ pub fn rmse(observed: &[f64], modeled: &[f64]) -> f64 {
     );
     #[cfg(feature = "barracuda")]
     {
-        barracuda::stats::rmse(observed, modeled)
+        return barracuda::stats::rmse(observed, modeled);
     }
-    #[cfg(not(feature = "barracuda"))]
-    {
-        let n = observed.len();
-        if n == 0 {
-            return 0.0;
-        }
-        let sum_sq: f64 = observed
-            .iter()
-            .zip(modeled)
-            .map(|(o, m)| (o - m).powi(2))
-            .sum();
-        (sum_sq / usize_f64(n)).sqrt()
+    #[allow(unreachable_code)]
+    rmse_cpu(observed, modeled)
+}
+
+fn rmse_cpu(observed: &[f64], modeled: &[f64]) -> f64 {
+    let n = observed.len();
+    if n == 0 {
+        return 0.0;
     }
+    let sum_sq: f64 = observed
+        .iter()
+        .zip(modeled)
+        .map(|(o, m)| (o - m).powi(2))
+        .sum();
+    (sum_sq / usize_f64(n)).sqrt()
 }
 
 /// Mean Bias Error (modeled − observed).
@@ -66,17 +73,19 @@ pub fn mbe(observed: &[f64], modeled: &[f64]) -> f64 {
     );
     #[cfg(feature = "barracuda")]
     {
-        barracuda::stats::mbe(observed, modeled)
+        return barracuda::stats::mbe(observed, modeled);
     }
-    #[cfg(not(feature = "barracuda"))]
-    {
-        let n = observed.len();
-        if n == 0 {
-            return 0.0;
-        }
-        let sum: f64 = observed.iter().zip(modeled).map(|(o, m)| m - o).sum();
-        sum / usize_f64(n)
+    #[allow(unreachable_code)]
+    mbe_cpu(observed, modeled)
+}
+
+fn mbe_cpu(observed: &[f64], modeled: &[f64]) -> f64 {
+    let n = observed.len();
+    if n == 0 {
+        return 0.0;
     }
+    let sum: f64 = observed.iter().zip(modeled).map(|(o, m)| m - o).sum();
+    sum / usize_f64(n)
 }
 
 /// Coefficient of determination (R²).
@@ -97,26 +106,28 @@ pub fn r_squared(observed: &[f64], modeled: &[f64]) -> f64 {
     );
     #[cfg(feature = "barracuda")]
     {
-        barracuda::stats::r_squared(observed, modeled)
+        return barracuda::stats::r_squared(observed, modeled);
     }
-    #[cfg(not(feature = "barracuda"))]
-    {
-        let n = observed.len();
-        if n == 0 {
-            return 0.0;
-        }
-        let mean_obs: f64 = observed.iter().sum::<f64>() / usize_f64(n);
-        let ss_res: f64 = observed
-            .iter()
-            .zip(modeled)
-            .map(|(o, m)| (o - m).powi(2))
-            .sum();
-        let ss_tot: f64 = observed.iter().map(|o| (o - mean_obs).powi(2)).sum();
-        if ss_tot == 0.0 {
-            return 0.0;
-        }
-        1.0 - ss_res / ss_tot
+    #[allow(unreachable_code)]
+    r_squared_cpu(observed, modeled)
+}
+
+fn r_squared_cpu(observed: &[f64], modeled: &[f64]) -> f64 {
+    let n = observed.len();
+    if n == 0 {
+        return 0.0;
     }
+    let mean_obs: f64 = observed.iter().sum::<f64>() / usize_f64(n);
+    let ss_res: f64 = observed
+        .iter()
+        .zip(modeled)
+        .map(|(o, m)| (o - m).powi(2))
+        .sum();
+    let ss_tot: f64 = observed.iter().map(|o| (o - mean_obs).powi(2)).sum();
+    if ss_tot == 0.0 {
+        return 0.0;
+    }
+    1.0 - ss_res / ss_tot
 }
 
 /// Index of Agreement (Willmott 1981).
@@ -137,30 +148,32 @@ pub fn index_of_agreement(observed: &[f64], modeled: &[f64]) -> f64 {
     );
     #[cfg(feature = "barracuda")]
     {
-        barracuda::stats::index_of_agreement(observed, modeled)
+        return barracuda::stats::index_of_agreement(observed, modeled);
     }
-    #[cfg(not(feature = "barracuda"))]
-    {
-        let n = observed.len();
-        if n == 0 {
-            return 0.0;
-        }
-        let mean_obs: f64 = observed.iter().sum::<f64>() / usize_f64(n);
-        let numerator: f64 = observed
-            .iter()
-            .zip(modeled)
-            .map(|(o, m)| (o - m).powi(2))
-            .sum();
-        let denominator: f64 = observed
-            .iter()
-            .zip(modeled)
-            .map(|(o, m)| ((m - mean_obs).abs() + (o - mean_obs).abs()).powi(2))
-            .sum();
-        if denominator == 0.0 {
-            return 0.0;
-        }
-        1.0 - numerator / denominator
+    #[allow(unreachable_code)]
+    index_of_agreement_cpu(observed, modeled)
+}
+
+fn index_of_agreement_cpu(observed: &[f64], modeled: &[f64]) -> f64 {
+    let n = observed.len();
+    if n == 0 {
+        return 0.0;
     }
+    let mean_obs: f64 = observed.iter().sum::<f64>() / usize_f64(n);
+    let numerator: f64 = observed
+        .iter()
+        .zip(modeled)
+        .map(|(o, m)| (o - m).powi(2))
+        .sum();
+    let denominator: f64 = observed
+        .iter()
+        .zip(modeled)
+        .map(|(o, m)| ((m - mean_obs).abs() + (o - mean_obs).abs()).powi(2))
+        .sum();
+    if denominator == 0.0 {
+        return 0.0;
+    }
+    1.0 - numerator / denominator
 }
 
 /// Fraction of days where observed and modeled agree on occurrence.
@@ -184,21 +197,23 @@ pub fn hit_rate(observed: &[f64], modeled: &[f64], threshold: f64) -> f64 {
     );
     #[cfg(feature = "barracuda")]
     {
-        barracuda::stats::hit_rate(observed, modeled, threshold)
+        return barracuda::stats::hit_rate(observed, modeled, threshold);
     }
-    #[cfg(not(feature = "barracuda"))]
-    {
-        let n = observed.len();
-        if n == 0 {
-            return 0.0;
-        }
-        let agree = observed
-            .iter()
-            .zip(modeled)
-            .filter(|(&o, &m)| (o > threshold) == (m > threshold))
-            .count();
-        usize_f64(agree) / usize_f64(n)
+    #[allow(unreachable_code)]
+    hit_rate_cpu(observed, modeled, threshold)
+}
+
+fn hit_rate_cpu(observed: &[f64], modeled: &[f64], threshold: f64) -> f64 {
+    let n = observed.len();
+    if n == 0 {
+        return 0.0;
     }
+    let agree = observed
+        .iter()
+        .zip(modeled)
+        .filter(|(&o, &m)| (o > threshold) == (m > threshold))
+        .count();
+    usize_f64(agree) / usize_f64(n)
 }
 
 // ── Descriptive statistics ──────────────────────────────────────────────
@@ -212,15 +227,17 @@ pub fn hit_rate(observed: &[f64], modeled: &[f64], threshold: f64) -> f64 {
 pub fn mean(values: &[f64]) -> f64 {
     #[cfg(feature = "barracuda")]
     {
-        barracuda::stats::mean(values)
+        return barracuda::stats::mean(values);
     }
-    #[cfg(not(feature = "barracuda"))]
-    {
-        if values.is_empty() {
-            return 0.0;
-        }
-        values.iter().sum::<f64>() / usize_f64(values.len())
+    #[allow(unreachable_code)]
+    mean_cpu(values)
+}
+
+fn mean_cpu(values: &[f64]) -> f64 {
+    if values.is_empty() {
+        return 0.0;
     }
+    values.iter().sum::<f64>() / usize_f64(values.len())
 }
 
 /// Population standard deviation (divides by N).
@@ -252,6 +269,10 @@ pub fn sample_std_dev(values: &[f64]) -> f64 {
             return s;
         }
     }
+    sample_std_dev_cpu(values)
+}
+
+fn sample_std_dev_cpu(values: &[f64]) -> f64 {
     let n = values.len();
     if n < 2 {
         return 0.0;
@@ -274,24 +295,26 @@ pub fn percentile(values: &[f64], p: f64) -> f64 {
     assert!((0.0..=100.0).contains(&p), "percentile must be 0–100");
     #[cfg(feature = "barracuda")]
     {
-        barracuda::stats::percentile(values, p)
+        return barracuda::stats::percentile(values, p);
     }
-    #[cfg(not(feature = "barracuda"))]
-    {
-        if values.is_empty() {
-            return 0.0;
-        }
-        let mut sorted: Vec<f64> = values.to_vec();
-        sorted.sort_by(f64::total_cmp);
-        let rank = p / 100.0 * usize_f64(sorted.len() - 1);
-        let lo = f64_usize(rank.floor());
-        let hi = f64_usize(rank.ceil());
-        if lo == hi {
-            sorted[lo]
-        } else {
-            let frac = rank - usize_f64(lo);
-            sorted[lo].mul_add(1.0 - frac, sorted[hi] * frac)
-        }
+    #[allow(unreachable_code)]
+    percentile_cpu(values, p)
+}
+
+fn percentile_cpu(values: &[f64], p: f64) -> f64 {
+    if values.is_empty() {
+        return 0.0;
+    }
+    let mut sorted: Vec<f64> = values.to_vec();
+    sorted.sort_by(f64::total_cmp);
+    let rank = p / 100.0 * usize_f64(sorted.len() - 1);
+    let lo = f64_usize(rank.floor());
+    let hi = f64_usize(rank.ceil());
+    if lo == hi {
+        sorted[lo]
+    } else {
+        let frac = rank - usize_f64(lo);
+        sorted[lo].mul_add(1.0 - frac, sorted[hi] * frac)
     }
 }
 

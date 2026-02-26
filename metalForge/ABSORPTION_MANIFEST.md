@@ -6,7 +6,7 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: February 26, 2026 (V13 — complete rewiring, 24 delegations, Sturm tridiag)
+**Last updated**: February 26, 2026 (V14 — S65 revalidation, 25 delegations, 49.5× Exp 009)
 
 ## Absorption Status Summary
 
@@ -15,12 +15,15 @@
 | `stats::pearson_r` | **Lean** — CPU delegated | A | `barracuda::stats::pearson_correlation` |
 | `stats::spearman_r` | **Lean** — CPU delegated | A | `barracuda::stats::correlation::spearman_correlation` |
 | `stats::sample_std_dev` | **Lean** — CPU delegated | A | `barracuda::stats::correlation::std_dev` |
-| `stats::rmse` | **Ready** — GPU op exists, needs adapter | A | `barracuda::ops::NormReduceF64::l2` |
-| `stats::mbe` | **Ready** — GPU op exists, needs adapter | A | `barracuda::ops::SumReduceF64::mean` |
-| `stats::r_squared` | **Ready** — GPU op exists, needs adapter | A | `barracuda::ops::VarianceReduceF64` + reduce |
-| `stats::index_of_agreement` | **Ready** — GPU op exists, needs adapter | A | `barracuda::ops::FusedMapReduceF64` |
-| `stats::hit_rate` | **Ready** — GPU op exists, needs adapter | A | `barracuda::ops::FusedMapReduceF64` |
-| `rarefaction::shannon_diversity` | **Ready** — GPU convenience method exists | A | `barracuda::ops::FusedMapReduceF64::shannon_entropy` |
+| `stats::rmse` | **Lean** — CPU delegated | A | `barracuda::stats::rmse` |
+| `stats::mbe` | **Lean** — CPU delegated | A | `barracuda::stats::mbe` |
+| `stats::r_squared` | **Lean** — CPU delegated | A | `barracuda::stats::r_squared` |
+| `stats::index_of_agreement` | **Lean** — CPU delegated | A | `barracuda::stats::index_of_agreement` |
+| `stats::hit_rate` | **Lean** — CPU delegated | A | `barracuda::stats::hit_rate` |
+| `stats::mean` | **Lean** — CPU delegated | A | `barracuda::stats::mean` |
+| `stats::percentile` | **Lean** — CPU delegated | A | `barracuda::stats::percentile` |
+| `rarefaction::shannon_diversity` | **Lean** — CPU delegated | A | `barracuda::stats::shannon` |
+| `rarefaction::evenness` | **Lean** — CPU delegated + S≤1 adapter | A | `barracuda::stats::pielou_evenness` |
 | `prng::Xorshift64` | **Adapt** — needs PRNG alignment | B | `barracuda::ops::PrngXoshiro` |
 | `seismic::grid_search_inversion` | **Write** — parallel grid dispatch | B | new workgroup dispatch |
 | `rarefaction::multinomial_sample` | **Write** — WGSL production shader ready | C | new `ops::batched_multinomial_f64` |
@@ -50,7 +53,7 @@ Both shaders use xoshiro128** matching `barracuda::ops::prng_xoshiro_wgsl`.
 
 ---
 
-## Tier A — Lean (24 delegated)
+## Tier A — Lean (25 delegated)
 
 ### All delegated
 
@@ -79,7 +82,8 @@ Both shaders use xoshiro128** matching `barracuda::ops::prng_xoshiro_wgsl`.
 | `mean` | `stats::mean` | `#[cfg(feature = "barracuda")]` direct (S64) |
 | `percentile` | `stats::percentile` | `#[cfg(feature = "barracuda")]` direct (S64) |
 | `level_spacing_ratio` | `spectral::level_spacing_ratio` | `#[cfg(feature = "barracuda-gpu")]` sort adapter |
-| `almost_mathieu_eigenvalues` | `spectral::find_all_eigenvalues` | `#[cfg(feature = "barracuda-gpu")]` Sturm tridiag → **50× Exp 009** |
+| `almost_mathieu_eigenvalues` | `spectral::find_all_eigenvalues` | `#[cfg(feature = "barracuda-gpu")]` Sturm tridiag → **49.5× Exp 009** |
+| `evenness` | `stats::pielou_evenness` | `#[cfg(feature = "barracuda")]` u64→f64 + S≤1 adapter |
 
 ---
 
@@ -144,13 +148,13 @@ NOTE:       Equation chain is superseded by barracuda Op::Fao56Et0 — when
 - [x] Dispatch geometry documented (workgroup size, grid dims)
 - [x] f64 precision throughout (no f32 truncation)
 - [x] PRNG matches barracuda (xoshiro128**)
-- [x] Handoff V13 posted in `wateringHole/handoffs/` (V12, V11, V10, V9, V8 archived)
-- [x] All 24 barracuda delegations use `#[cfg]` or `if let Ok` with CPU fallback always compiled
+- [x] Handoff V14 posted in `wateringHole/handoffs/` (V13, V12, V11, V10, V9, V8 archived)
+- [x] All 25 barracuda delegations use `#[cfg]` or `if let Ok` with CPU fallback always compiled
 - [x] Mathematical parity: 11/11 PROVEN (Python ⇌ Rust, `data/parity_report.json`)
 - [x] PRNG alignment investigated: requires full rebaseline (documented in V8 handoff)
 - [x] ToadStool S64 catch-up: 6 new CPU delegations (metrics + shannon), 3 bug fixes
 - [x] Complete rewiring: 4 more delegations (mean, percentile, level_spacing_ratio, eigenvalues)
-- [x] Exp 009: 50× speedup from Sturm tridiag solver (hotSpring S26 spectral)
+- [x] Exp 009: 49.5× speedup from Sturm tridiag solver (hotSpring S26 spectral)
 - [x] Three-mode revalidation (local / barracuda / barracuda-gpu): all PASS × 3, 0 warnings × 3
 - [x] Fixed OdeSystem trait import, hofstadter module path, dead-code gates
 - [ ] Tolerance comparison: GPU output vs CPU reference

@@ -3,13 +3,13 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: February 26, 2026 (complete rewiring — 24 delegations, S58–S65 evolution)
+**Last Updated**: February 26, 2026 (complete rewiring — 25 delegations, S58–S65 evolution)
 
 ---
 
 ## Overview
 
-groundSpring delegates **24 functions** to barracuda. Those barracuda functions
+groundSpring delegates **25 functions** to barracuda. Those barracuda functions
 were not built in isolation — they were refined and battle-tested through
 absorption from **five Springs**, each bringing domain-specific requirements
 that hardened the shared library.
@@ -37,7 +37,7 @@ the f64 precision infrastructure that ALL statistical operations depend on.
 | `df64_core.wgsl` | S58 | Future GPU bootstrap precision |
 | `Fp64Strategy` + `split_workgroups` | S58 | Correct f64 GPU dispatch strategy |
 | `spectral/anderson.rs` | S26 | **Direct delegation**: `lyapunov_exponent`, `lyapunov_averaged` |
-| `spectral/tridiag.rs` (Sturm bisection) | S26 | **Direct delegation**: `find_all_eigenvalues` → **50× Exp 009 speedup** |
+| `spectral/tridiag.rs` (Sturm bisection) | S26 | **Direct delegation**: `find_all_eigenvalues` → **49.5× Exp 009 speedup** |
 | `spectral/stats.rs` | S26 | **Direct delegation**: `level_spacing_ratio` |
 | `sum_reduce_f64.wgsl` | S46 | Foundation for RMSE/MBE GPU ops |
 | `special/anderson_transport.rs` | S52 | **Direct delegation**: `localization_length` |
@@ -50,7 +50,7 @@ the f64 precision infrastructure that ALL statistical operations depend on.
 (RTX 4070) need careful workgroup sizing to avoid precision loss. This
 discovery propagated to all barracuda f64 ops, including the `stats::*`
 functions groundSpring delegates to. The Sturm tridiag eigenvalue solver
-from S26 spectral work enables the 50× speedup for Exp 009's Almost-Mathieu
+from S26 spectral work enables the 49.5× speedup for Exp 009's Almost-Mathieu
 level spacing analysis — a direct cross-spring win.
 
 ---
@@ -153,7 +153,7 @@ same need independently**:
 
 ## groundSpring Delegation Lineage
 
-Each of groundSpring's 24 delegations has a traceable cross-spring history:
+Each of groundSpring's 25 delegations has a traceable cross-spring history:
 
 | # | groundSpring fn | barracuda fn | Primary Origin | Validated By |
 |---|----------------|--------------|---------------|-------------|
@@ -180,13 +180,13 @@ Each of groundSpring's 24 delegations has a traceable cross-spring history:
 | 21 | `mean` | `stats::mean` | S64 (airSpring/groundSpring) | All experiments |
 | 22 | `percentile` | `stats::percentile` | S64 (airSpring/groundSpring) | groundSpring bootstrap CI |
 | 23 | `level_spacing_ratio` | `spectral::level_spacing_ratio` | hotSpring S26 (spectral stats) | groundSpring Exp 009 |
-| 24 | `almost_mathieu_eigenvalues` | `spectral::find_all_eigenvalues` | hotSpring S26 (Sturm tridiag) | groundSpring Exp 009 (**50× speedup**) |
+| 24 | `almost_mathieu_eigenvalues` | `spectral::find_all_eigenvalues` | hotSpring S26 (Sturm tridiag) | groundSpring Exp 009 (**49.5× speedup**) |
 
 ---
 
 ## ToadStool Session Evolution (S58–S65)
 
-The complete cross-spring evolution that led to groundSpring's 24 delegations:
+The complete cross-spring evolution that led to groundSpring's 25 delegations:
 
 ### S58 — Cross-Spring Absorption Wave
 

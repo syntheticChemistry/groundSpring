@@ -210,7 +210,7 @@ Write → Absorb → Lean cycle:
 | 16 | Almost-Mathieu quasiperiodic | **8/8** | `almost_mathieu_hamiltonian` (ready) | After GPU | barracuda-gpu delegation |
 
 **CPU tier**: 144/144 PASS across 11 validation binaries.
-**Barracuda**: 24 functions delegated (19 CPU + 5 GPU). **Performance**: 22× faster than Python (all 11; Exp 009: 50× from Sturm tridiag).
+**Barracuda**: 25 functions delegated (19 CPU + 5 GPU). **Performance**: 22× faster than Python (all 11; Exp 009: 49.5× from Sturm tridiag).
 **Mathematical parity**: 11/11 PROVEN. See `data/parity_report.json`.
 **GPU tier**: pending barracuda adapter (Tier A) or new kernels (Tier B/C).
 **metalForge tier**: after GPU.
@@ -286,7 +286,7 @@ Papers 9, 10, 11, 12, 14, 15, 16 — can proceed to GPU tier once CPU tier compl
 ### Tier 1: BarraCUDA CPU (current — 144/144 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
-24 functions delegated to barracuda (19 CPU + 5 GPU). 22× faster than Python (all 11; Exp 009: 50× Sturm tridiag).
+25 functions delegated to barracuda (19 CPU + 5 GPU). 22× faster than Python (all 11; Exp 009: 49.5× Sturm tridiag).
 11/11 mathematical parity proven.
 All 11 experiments validated.
 

@@ -7,8 +7,11 @@
 //! - Inverse normal CDF Φ⁻¹(p) via Acklam rational approximation
 //! - Chi-squared statistic for goodness-of-fit testing
 //!
+//! # barracuda delegation
+//!
 //! When the `barracuda` feature is enabled each function delegates to the
-//! corresponding GPU-ready implementation.
+//! corresponding GPU-ready implementation.  CPU implementations are always
+//! compiled and serve as the fallback.
 
 /// Standard normal cumulative distribution function Φ(x).
 ///
@@ -19,22 +22,18 @@
 pub fn norm_cdf(x: f64) -> f64 {
     #[cfg(feature = "barracuda")]
     {
-        barracuda::stats::norm_cdf(x)
+        return barracuda::stats::norm_cdf(x);
     }
-    #[cfg(not(feature = "barracuda"))]
-    {
-        norm_cdf_local(x)
-    }
+    #[allow(unreachable_code)]
+    norm_cdf_cpu(x)
 }
 
-#[cfg(not(feature = "barracuda"))]
-fn norm_cdf_local(x: f64) -> f64 {
-    0.5_f64.mul_add(erf_local(x / std::f64::consts::SQRT_2), 0.5)
+fn norm_cdf_cpu(x: f64) -> f64 {
+    0.5_f64.mul_add(erf_cpu(x / std::f64::consts::SQRT_2), 0.5)
 }
 
 /// Error function via Abramowitz & Stegun 7.1.26.  Max |ε| < 1.5×10⁻⁷.
-#[cfg(not(feature = "barracuda"))]
-fn erf_local(x: f64) -> f64 {
+fn erf_cpu(x: f64) -> f64 {
     let sign = x.signum();
     let a = x.abs();
     let t = 1.0 / a.mul_add(0.327_591_1, 1.0);
@@ -60,18 +59,15 @@ pub fn norm_ppf(p: f64) -> f64 {
     assert!(p > 0.0 && p < 1.0, "norm_ppf requires p ∈ (0, 1), got {p}");
     #[cfg(feature = "barracuda")]
     {
-        barracuda::stats::norm_ppf(p)
+        return barracuda::stats::norm_ppf(p);
     }
-    #[cfg(not(feature = "barracuda"))]
-    {
-        norm_ppf_local(p)
-    }
+    #[allow(unreachable_code)]
+    norm_ppf_cpu(p)
 }
 
 /// Acklam rational approximation — relative error < 1.15×10⁻⁹.
-#[cfg(not(feature = "barracuda"))]
 #[expect(clippy::suboptimal_flops, clippy::excessive_precision)]
-fn norm_ppf_local(p: f64) -> f64 {
+fn norm_ppf_cpu(p: f64) -> f64 {
     const A: [f64; 6] = [
         -3.969_683_028_665_376e1,
         2.209_460_984_245_205e2,
@@ -139,20 +135,23 @@ pub fn chi2_statistic(observed: &[f64], expected: &[f64]) -> f64 {
     );
     #[cfg(feature = "barracuda")]
     {
-        barracuda::stats::chi2_decomposed(observed, expected, 0).map_or(0.0, |r| r.chi2_total)
+        return barracuda::stats::chi2_decomposed(observed, expected, 0)
+            .map_or(0.0, |r| r.chi2_total);
     }
-    #[cfg(not(feature = "barracuda"))]
-    {
-        if observed.is_empty() {
-            return 0.0;
-        }
-        observed
-            .iter()
-            .zip(expected)
-            .filter(|(_, &e)| e != 0.0)
-            .map(|(&o, &e)| (o - e).powi(2) / e)
-            .sum()
+    #[allow(unreachable_code)]
+    chi2_statistic_cpu(observed, expected)
+}
+
+fn chi2_statistic_cpu(observed: &[f64], expected: &[f64]) -> f64 {
+    if observed.is_empty() {
+        return 0.0;
     }
+    observed
+        .iter()
+        .zip(expected)
+        .filter(|(_, &e)| e != 0.0)
+        .map(|(&o, &e)| (o - e).powi(2) / e)
+        .sum()
 }
 
 #[cfg(test)]
@@ -175,7 +174,6 @@ mod tests {
 
     #[test]
     fn norm_cdf_known_values() {
-        // Φ(1) and Φ(−1) from standard normal tables
         assert!((norm_cdf(1.0) - 0.841_344_746_068_543).abs() < 1e-6);
         assert!((norm_cdf(-1.0) - 0.158_655_253_931_457).abs() < 1e-6);
         assert!((norm_cdf(1.96) - 0.975).abs() < 0.001);
@@ -184,13 +182,11 @@ mod tests {
     #[test]
     fn norm_cdf_complement() {
         let x = 2.0;
-        // Φ(x) + Φ(−x) = 1 by symmetry
         assert!((norm_cdf(x) + norm_cdf(-x) - 1.0).abs() < 1e-6);
     }
 
     #[test]
     fn norm_ppf_known_values() {
-        // Φ⁻¹(0.5) = 0, Φ⁻¹(0.975) ≈ 1.96
         assert!((norm_ppf(0.5)).abs() < 1e-6);
         assert!((norm_ppf(0.975) - 1.96).abs() < 0.01);
         assert!((norm_ppf(0.025) + 1.96).abs() < 0.01);
@@ -201,7 +197,6 @@ mod tests {
         for &p in &[0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.99] {
             let x = norm_ppf(p);
             let p_back = norm_cdf(x);
-            // Both approximations compound: erf polynomial + rational inverse
             assert!(
                 (p - p_back).abs() < 1e-5,
                 "roundtrip: norm_cdf(norm_ppf({p})) = {p_back}"
