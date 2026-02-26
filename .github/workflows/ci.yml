@@ -21,8 +21,10 @@ jobs:
           components: clippy, rustfmt
       - run: cargo fmt --check
       - run: cargo clippy --workspace -- -D warnings
+      - run: cargo clippy --workspace --features barracuda -- -D warnings
       - run: cargo doc --workspace --no-deps
       - run: cargo test --workspace
+      - run: cargo test --workspace --features barracuda
 
   validate:
     name: Validation binaries

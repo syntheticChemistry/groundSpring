@@ -9,8 +9,7 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V20 | [GROUNDSPRING_TOADSTOOL_V20_S68_CATCHUP_HANDOFF_FEB26_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V20_S68_CATCHUP_HANDOFF_FEB26_2026.md) | Feb 26, 2026 | ToadStool S68 catch-up: hill delegation #27 LIVE, pin f0feb226, 700 shaders, 2,546+ tests, 27 delegations (22 CPU + 5 GPU) |
-| V19 | [GROUNDSPRING_TOADSTOOL_V19_UNCERTAINTY_BRIDGE_HANDOFF_FEB26_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V19_UNCERTAINTY_BRIDGE_HANDOFF_FEB26_2026.md) | Feb 26, 2026 | Uncertainty bridge: Exp 015 (8/8 PASS), 226 tests, 185/185 checks, 15 binaries, zero #[allow] |
+| V21 | [GROUNDSPRING_TOADSTOOL_V21_COMPLETE_REWIRING_HANDOFF_FEB26_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V21_COMPLETE_REWIRING_HANDOFF_FEB26_2026.md) | Feb 26, 2026 | Complete barracuda rewiring: dual-mode CI, 226/226 pass both modes, +1.7% CPU overhead, cross-spring benchmark |
 
 ## Cross-Spring Documentation
 
@@ -37,6 +36,8 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V20 | S68 catch-up: hill delegation #27, pin f0feb226, 27 delegations (superseded by V21) |
+| V19 | Uncertainty bridge: Exp 015, 226 tests, 185/185 checks (superseded by V21) |
 | V18 | Idiomatic Rust evolution: kinetics module, flat buffers, 225 tests (superseded by V20) |
 | V17 | Deep debt evolution: delegation patterns, 9 action items, 26 delegations |
 | V16 | S66 catch-up: rawr_mean delegation #26, V13–V15 consumption audit |

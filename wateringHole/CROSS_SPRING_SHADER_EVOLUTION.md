@@ -3,7 +3,7 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: February 26, 2026 (V20: ToadStool S68 catch-up, hill delegation #27, pin f0feb226)
+**Last Updated**: February 26, 2026 (V21: complete barracuda rewiring, dual-mode CI, cross-spring benchmark)
 
 ---
 
@@ -153,7 +153,7 @@ same need independently**:
 
 ## groundSpring Delegation Lineage
 
-Each of groundSpring's 26 delegations has a traceable cross-spring history:
+Each of groundSpring's 27 delegations has a traceable cross-spring history:
 
 | # | groundSpring fn | barracuda fn | Primary Origin | Validated By |
 |---|----------------|--------------|---------------|-------------|
@@ -189,7 +189,7 @@ Each of groundSpring's 26 delegations has a traceable cross-spring history:
 
 ## ToadStool Session Evolution (S58–S68)
 
-The complete cross-spring evolution that led to groundSpring's 26 delegations:
+The complete cross-spring evolution that led to groundSpring's 27 delegations:
 
 ### S58 — Cross-Spring Absorption Wave
 
@@ -312,4 +312,87 @@ V20 pins ToadStool at `f0feb226` (S68 universal precision). Hill kinetics delega
 | ToadStool S68 | 700 shaders (zero f32-only), 2,546+ barracuda tests, 21,599 workspace tests |
 | Delegation count | 27 active (22 CPU + 5 GPU), was 26 (21 + 5) |
 
-**S68 universal precision**: ToadStool S68 completed the f32-only shader migration. All 700 shaders use f64 or df64. **Noted**: CPU feature gate bug in ToadStool `stats/mod.rs` (references `crate::shaders` without `#[cfg(feature = "gpu")]`) blocks `--features barracuda` compilation — reported in V20 handoff.
+**S68 universal precision**: ToadStool S68 completed the f32-only shader migration. All 700 shaders use f64 or df64. Feature gate bug resolved in latest ToadStool HEAD.
+
+---
+
+## V21 Evolution: Complete Barracuda Rewiring + Dual-Mode CI
+
+V21 completes the barracuda integration by making `--features barracuda` compile cleanly (zero warnings) and validating all 226 tests in both CPU-only and barracuda-delegated modes.
+
+### What Changed
+
+| Change | Impact |
+|--------|--------|
+| Domain guard fix | `kinetics::hill` preserves biological convention (x ≤ 0 → 0) before delegating |
+| 17 `_cpu` functions gated | `#[cfg(not(feature = "barracuda"))]` on all fallback functions — zero dead-code warnings |
+| `needless_return` cleanup | `#[cfg]` blocks use expression position instead of `return` keyword |
+| Import gating | `bistable`, `multisignal`, `metrics` imports gated per feature flag |
+| Dual-mode CI | `cargo clippy --features barracuda` + `cargo test --features barracuda` added to CI |
+
+### Cross-Spring Benchmark: CPU vs Barracuda CPU Delegation
+
+All 15 validation binaries timed in `--release` mode, CPU-only vs barracuda-delegated (CPU math, no GPU):
+
+| Experiment | CPU-only | Barracuda | Notes |
+|-----------|----------|-----------|-------|
+| Exp 001 decompose | 69ms | 84ms | Small data; call overhead dominates |
+| Exp 002 weather | 67ms | 78ms | Small data |
+| Exp 003 seismic | 119ms | 128ms | No barracuda delegation in hot path |
+| Exp 004 rarefaction | 70ms | 93ms | Shannon/evenness via barracuda stats |
+| Exp 005 fao56 | 82ms | 95ms | No barracuda delegation in hot path |
+| Exp 006 signal | 855ms | 919ms | Bootstrap via barracuda |
+| Exp 007 rawr | 640ms | 604ms | **Faster** — barracuda rawr_mean optimized |
+| Exp 008 anderson | 831ms | 742ms | **Faster** — barracuda lyapunov hot path |
+| Exp 009 quasiperiodic | 11,750ms | 11,836ms | Dominated by eigensolver (both use Sturm) |
+| Exp 010 bistable | 173ms | 198ms | ODE derivative via barracuda |
+| Exp 011 multisignal | 101ms | 128ms | ODE derivative via barracuda |
+| Exp 012 transport | 313ms | 365ms | No barracuda eigenvector solver yet |
+| Exp 013 resampling | 123ms | 166ms | Bootstrap CI via barracuda |
+| Exp 014 drift | 1,146ms | 1,155ms | Wright-Fisher CPU-only (no delegation) |
+| Exp 015 uncertainty | 108ms | 131ms | MC loop CPU-only, lyapunov via barracuda |
+| **Total** | **16,447ms** | **16,722ms** | **+1.7%** — negligible CPU delegation overhead |
+
+**Key insight**: CPU delegation adds ~1.7% total overhead from function indirection — functionally free. Heavy experiments (Anderson, RAWR) are actually slightly *faster* with barracuda's optimized implementations. The real speedup opportunity is GPU delegation for Exp 009 (eigensolver) and Exp 014 (Wright-Fisher batching).
+
+### Cross-Spring Shader Categories (ToadStool S68)
+
+The 700 barracuda WGSL shaders that groundSpring's delegations ultimately depend on:
+
+| Category | Count | Primary Origin Springs | groundSpring Usage |
+|----------|-------|----------------------|-------------------|
+| math/ | 108 | All springs | Foundation for all numeric ops |
+| reduce/ | 31 | All springs | Sum, mean, variance reductions |
+| linalg/ | 32 | hotSpring, neuralSpring | CG solver, eigenvalues |
+| special/ | 36 | hotSpring | Transcendentals, DF64 |
+| loss/ | 34 | wetSpring, neuralSpring | Loss functions |
+| activation/ | 37 | neuralSpring | Neural network activations |
+| bio/ | 38 | wetSpring, neuralSpring | Genomics, ODE, Gillespie |
+| lattice/ | 36 | hotSpring | QCD, SU(3) |
+| tensor/ | 43 | neuralSpring | Shape operations |
+| stats/ | ~10 | airSpring, groundSpring | Histogram, bootstrap |
+| spectral/ | ~8 | hotSpring, neuralSpring | IPR, Lanczos |
+| science/ | 13 | hotSpring | HFB nuclear structure |
+| numerical/ | ~6 | neuralSpring, wetSpring | RK4, Hessian |
+| ml/ | ~12 | hotSpring, wetSpring, neuralSpring | ESN, RF, HMM |
+| interpolation/ | ~4 | airSpring, wetSpring | Kriging |
+| Other | ~52 | Various | Norm, pooling, conv, RNN, optimizer |
+
+### Cross-Pollination Timeline Highlights
+
+| Date | Flow | What Evolved |
+|------|------|-------------|
+| Feb 12 | hotSpring → ToadStool | Complex64 WGSL, SU(3) matrix algebra |
+| Feb 14 | hotSpring → ToadStool | Native f64 builtins, MD observables |
+| Feb 16 | wetSpring → ToadStool | First 3 bio shaders (Bray-Curtis, diversity) |
+| Feb 18 | hotSpring → ToadStool | DF64 core streaming (FP64 on FP32 cores) |
+| Feb 19-20 | wetSpring → ToadStool | Gillespie SSA, Smith-Waterman, Felsenstein, tree inference |
+| Feb 20 | neuralSpring → ToadStool | TensorSession ML ops, pairwise metrics |
+| Feb 21 | hotSpring → ToadStool | Spectral module (Lanczos, Anderson, Sturm) |
+| Feb 22 | airSpring → ToadStool | Richards PDE, kriging, moving window |
+| Feb 24 | neuralSpring → ToadStool | Graph Laplacian, spectral density, Hessian |
+| Feb 24 | wetSpring + hotSpring → ToadStool | NMF, 5 bio ODEs, Fp64Strategy, df64_core |
+| Feb 25 | hotSpring → ToadStool | 8 lattice QCD shaders, DF64 GEMM |
+| Feb 26 | airSpring + groundSpring → ToadStool | stats::regression, hydrology, rawr_mean |
+| Feb 26 | **ToadStool S68** | **291 f32→f64 canonical, zero f32-only, universal precision** |
+| Feb 26 | **groundSpring V21** | **Complete barracuda rewiring, dual-mode CI** |

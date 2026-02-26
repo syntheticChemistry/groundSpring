@@ -82,6 +82,12 @@ cargo clippy --workspace        # zero warnings required
 cargo fmt --check               # clean
 cargo llvm-cov --workspace       # 98.93% workspace line coverage
 
+# Dual-mode CI: run both CPU-only and barracuda-delegated (CI validates both)
+cargo clippy --workspace -- -D warnings
+cargo test --workspace
+cargo clippy --workspace --features barracuda -- -D warnings
+cargo test --workspace --features barracuda
+
 # With barracuda feature gates (requires toadstool checkout):
 cargo test --features barracuda     # 226 tests, CPU delegation (22 CPU)
 cargo test --features barracuda-gpu # 226 tests, CPU + spectral (22 CPU + 5 GPU)

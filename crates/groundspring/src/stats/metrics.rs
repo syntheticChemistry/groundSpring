@@ -14,7 +14,9 @@
 //! always compiled and serve as the fallback when the feature is off or
 //! when the barracuda call returns an error.
 
-use crate::cast::{f64_usize, usize_f64};
+#[cfg(not(feature = "barracuda"))]
+use crate::cast::f64_usize;
+use crate::cast::usize_f64;
 
 // ── Error / agreement metrics ───────────────────────────────────────────
 
@@ -40,6 +42,7 @@ pub fn rmse(observed: &[f64], modeled: &[f64]) -> f64 {
     rmse_cpu(observed, modeled)
 }
 
+#[cfg(not(feature = "barracuda"))]
 fn rmse_cpu(observed: &[f64], modeled: &[f64]) -> f64 {
     let n = observed.len();
     if n == 0 {
@@ -75,6 +78,7 @@ pub fn mbe(observed: &[f64], modeled: &[f64]) -> f64 {
     mbe_cpu(observed, modeled)
 }
 
+#[cfg(not(feature = "barracuda"))]
 fn mbe_cpu(observed: &[f64], modeled: &[f64]) -> f64 {
     let n = observed.len();
     if n == 0 {
@@ -106,6 +110,7 @@ pub fn r_squared(observed: &[f64], modeled: &[f64]) -> f64 {
     r_squared_cpu(observed, modeled)
 }
 
+#[cfg(not(feature = "barracuda"))]
 fn r_squared_cpu(observed: &[f64], modeled: &[f64]) -> f64 {
     let n = observed.len();
     if n == 0 {
@@ -146,6 +151,7 @@ pub fn index_of_agreement(observed: &[f64], modeled: &[f64]) -> f64 {
     index_of_agreement_cpu(observed, modeled)
 }
 
+#[cfg(not(feature = "barracuda"))]
 fn index_of_agreement_cpu(observed: &[f64], modeled: &[f64]) -> f64 {
     let n = observed.len();
     if n == 0 {
@@ -193,6 +199,7 @@ pub fn hit_rate(observed: &[f64], modeled: &[f64], threshold: f64) -> f64 {
     hit_rate_cpu(observed, modeled, threshold)
 }
 
+#[cfg(not(feature = "barracuda"))]
 fn hit_rate_cpu(observed: &[f64], modeled: &[f64], threshold: f64) -> f64 {
     let n = observed.len();
     if n == 0 {
@@ -221,6 +228,7 @@ pub fn mean(values: &[f64]) -> f64 {
     mean_cpu(values)
 }
 
+#[cfg(not(feature = "barracuda"))]
 fn mean_cpu(values: &[f64]) -> f64 {
     if values.is_empty() {
         return 0.0;
@@ -287,6 +295,7 @@ pub fn percentile(values: &[f64], p: f64) -> f64 {
     percentile_cpu(values, p)
 }
 
+#[cfg(not(feature = "barracuda"))]
 fn percentile_cpu(values: &[f64], p: f64) -> f64 {
     if values.is_empty() {
         return 0.0;

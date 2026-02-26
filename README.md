@@ -48,7 +48,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 
 | Module | Purpose | GPU Tier |
 |--------|---------|----------|
-| `stats` | RMSE, MBE, R², IA, hit rate, mean, percentile, Pearson/Spearman, std, covariance, norm_cdf/ppf, χ² | 21 CPU delegated, GPU pending adapter |
+| `stats` | RMSE, MBE, R², IA, hit rate, mean, percentile, Pearson/Spearman, std, covariance, norm_cdf/ppf, χ² | 22 CPU delegated (dual-mode CI), GPU pending adapter |
 | `decompose` | Bias-variance decomposition, noise floor | CPU-only (scalar) |
 | `fao56` | FAO-56 Penman-Monteith equation chain | **Absorbed** (barracuda `Op::Fao56Et0`) |
 | `prng` | Xorshift64 PRNG, Box-Muller normal | B (align to xoshiro) |
@@ -72,6 +72,10 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 cargo test --workspace          # 226 tests (173 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc + 1 unused)
 cargo clippy --workspace        # zero warnings
 cargo fmt --check               # clean
+
+# Barracuda-delegated mode (validates cross-spring math)
+cargo test --workspace --features barracuda   # 226 tests, zero warnings
+cargo clippy --workspace --features barracuda -- -D warnings
 
 # Validation binaries (hotSpring pattern: exit 0 = pass, exit 1 = fail)
 cargo run --bin validate-decompose
@@ -245,4 +249,4 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V20 ToadStool S68 catch-up + hill delegation: February 26, 2026*
+*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring + dual-mode CI: February 26, 2026*

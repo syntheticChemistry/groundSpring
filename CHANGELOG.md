@@ -4,6 +4,22 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V21 Complete Barracuda Rewiring + Dual-Mode CI (Feb 26, 2026)
+
+#### Changed
+- `kinetics::hill`: domain guard (x ≤ 0 → 0) now precedes barracuda delegation — preserves biological convention
+- 17 `_cpu` fallback functions gated with `#[cfg(not(feature = "barracuda"))]` — zero dead-code warnings in barracuda mode
+- `needless_return` cleanup: `#[cfg]` blocks use expression position instead of `return`
+- Import gating: `bistable`, `multisignal`, `stats/metrics` imports gated per feature flag
+- CI: `cargo clippy --features barracuda` + `cargo test --features barracuda` added — dual-mode validation
+
+#### Metrics
+- 226 Rust tests PASS in both CPU-only and barracuda-delegated modes
+- Zero clippy warnings in both modes (`cargo clippy --workspace -- -D warnings`)
+- CPU delegation overhead: +1.7% total (16,447ms → 16,722ms in release benchmarks)
+- Anderson/RAWR actually faster with barracuda (742ms vs 831ms, 604ms vs 640ms)
+- Cross-spring shader evolution documented: 700 shaders from 5 springs
+
 ### V20 ToadStool S68 Catch-up + Hill Delegation (Feb 26, 2026)
 
 #### Added

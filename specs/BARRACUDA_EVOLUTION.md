@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: February 26, 2026 (V20 ToadStool S68 catch-up — hill delegation #27, 27 active delegations)
+**Last updated**: February 26, 2026 (V21 complete barracuda rewiring + dual-mode CI)
 
 ## Philosophy
 
@@ -94,6 +94,8 @@ are for throughput (100k+ MC samples, batch rarefaction).
 > added. All 15 benchmark JSONs have DOIs and stamped `baseline_commit`.
 > CI now runs all 15 validation binaries. 226 tests, 98.93% llvm-cov.
 > **V20 (Feb 26 2026)**: Hill delegation #27 LIVE. ToadStool S68 (f0feb226). 700 shaders (zero f32-only), 2,546+ tests, 21,599 workspace tests. `hill_repress` → `1.0 - hill()`.
+>
+> **V21 (Feb 26 2026)**: Complete barracuda rewiring. `--features barracuda` compiles cleanly (zero warnings both modes). Dual-mode CI: `cargo clippy` and `cargo test` run with and without barracuda feature. 226/226 tests pass in both CPU-only and barracuda-delegated modes. Domain guard fix for hill (biological convention before delegation). 17 `_cpu` functions properly gated behind `#[cfg(not(feature = "barracuda"))]`. CPU delegation overhead: +1.7% total.
 
 ### Tier A — Lean (rewire to existing barracuda ops)
 

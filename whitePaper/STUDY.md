@@ -302,7 +302,7 @@ and the full module-by-module absorption inventory.
 ## 14. Evolution Path
 
 - **Phase 0+**: Wire real NOAA CDO data for Exp 002; download IRIS waveforms for Exp 005
-- **Phase 2a (DONE)**: Tier A rewire — **26 functions delegated** (21 CPU + 5 GPU: stats, metrics, diversity, bootstrap, rawr_mean, anderson, ODE, hamiltonian, eigenvalues). FAO-56 ET₀ absorbed upstream (ToadStool S49). Rust is **22× faster** than Python (all 15; Exp 009: 49.5× from Sturm tridiag). 15/15 parity proven.
+- **Phase 2a (DONE)**: Tier A rewire — **27 functions delegated** (22 CPU + 5 GPU: stats, metrics, diversity, bootstrap, rawr_mean, hill, anderson, ODE, hamiltonian, eigenvalues). FAO-56 ET₀ absorbed upstream (ToadStool S49). Rust is **22× faster** than Python (all 15; Exp 009: 49.5× from Sturm tridiag). 15/15 parity proven. V21: dual-mode CI, barracuda compiles cleanly.
 - **Phase 2b**: Tier B adapt — PRNG alignment, grid-search dispatch, Gillespie GPU
 - **Phase 2c**: Tier C absorption — MC and multinomial kernels → barracuda; RAWR kernel
 - **Phase 3**: Full GPU pipeline, metalForge cross-substrate validation
@@ -332,3 +332,4 @@ These extensions share the common theme: **how do you extract reliable conclusio
 *Complete rewiring: February 26, 2026 — 26 delegations, Sturm tridiag (49.5× Exp 009), V13 handoff*
 *V18 idiomatic evolution: February 26, 2026 — 226 tests, kinetics module, flat buffers, full provenance, 15/15 DOIs*
 *V19 uncertainty bridge: February 26, 2026 — Exp 015 (8/8 PASS), 226 tests, 185/185 checks, 15 experiments, zero #[allow]*
+*V21 complete rewiring: February 26, 2026 — dual-mode CI, barracuda compiles cleanly, 226/226 tests both modes, domain guard fix*

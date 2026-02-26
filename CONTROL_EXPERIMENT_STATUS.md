@@ -27,7 +27,7 @@
 **Rust tests**: 226/226 PASS (174 unit + 13 determinism + 14 proptest + 9 validate-lib + 14 integration + 1 doc)
 **pytest**: 37/37 PASS (unit tests, determinism tests, integration tests)
 **BarraCUDA delegations**: 27 active (22 CPU + 5 GPU) — ToadStool S68 (f0feb226)
-**Handoff**: V20 (S68 catch-up + hill delegation #27)
+**Handoff**: V21 (complete barracuda rewiring + dual-mode CI)
 
 **Python checks**: ~137 across 15 experiments. **Rust validation checks**: 185.
 
@@ -254,6 +254,14 @@ Ports Exp 015 uncertainty bridge to pure safe Rust.  Verifies:
 | **Total** | **229** | (37 Python + 192 Rust) |
 
 ## Run Log
+
+### Run 19 (V21 Complete Barracuda Rewiring + Dual-Mode CI, Feb 26, 2026)
+
+- **Dual-mode validation**: CI now runs `cargo clippy` and `cargo test` both with and without `--features barracuda`. 226/226 tests pass in both CPU-only and barracuda-delegated modes.
+- `--features barracuda` compiles cleanly (zero warnings both modes).
+- Domain guard fix for hill: biological convention applied before delegation.
+- 17 `_cpu` functions properly gated behind `#[cfg(not(feature = "barracuda"))]`.
+- CPU delegation overhead: +1.7% total.
 
 ### Run 18 (V19 Uncertainty Bridge, Feb 26, 2026)
 
@@ -777,7 +785,8 @@ All 11 experiments, median of 3 trials (Feb 26, 2026):
 
 | Handoff | Scope | Status |
 |---------|-------|--------|
-| V20: S68 Catch-Up + Hill | Hill delegation #27 (22 CPU + 5 GPU), ToadStool f0feb226 (S68), 700 shaders, 2,546+ tests | **Current** |
+| V21: Complete Rewiring + Dual-Mode CI | Complete barracuda rewiring, dual-mode CI (clippy/test with and without barracuda), 27 delegations, domain guard fix | **Current** |
+| V20: S68 Catch-Up + Hill | Hill delegation #27 (22 CPU + 5 GPU), ToadStool f0feb226 (S68), 700 shaders, 2,546+ tests | Superseded by V21 |
 | V19: Uncertainty Bridge | Exp 015 (8/8 PASS), validate-uncertainty-bridge, 226 tests, 185/185 checks, zero #[allow] | **Current** |
 | V17: Deep Debt Evolution | Bug fix, delegation patterns, 9 action items, 3 absorption candidates | **Current** |
 | V16: S66 Catch-Up + Rewiring | rawr_mean delegation #26, V13–V15 consumption audit, 26 delegations (21 CPU + 5 GPU) | **Current** |
@@ -793,7 +802,7 @@ All 11 experiments, median of 3 trials (Feb 26, 2026):
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V20_S68_CATCHUP_HANDOFF_FEB26_2026.md`
+Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V21_COMPLETE_REWIRING_HANDOFF_FEB26_2026.md`
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

@@ -12,7 +12,7 @@ groundSpring Phase 0 (Python), Phase 1 (Rust), and Phase 2a (barracuda CPU) are 
 - 185/185 validation checks across 15 binaries
 - 15 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, almost_mathieu, bistable, multisignal, kinetics, transport, drift (+cast, validate)
 - 226 Rust tests (174 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc + 1 unused), 0 clippy warnings, 98.93% llvm-cov
-- Two feature gates: `barracuda` (22 CPU delegations) and `barracuda-gpu` (5 GPU delegations including Sturm tridiag). **Note**: ToadStool S68 CPU feature gate bug blocks `--features barracuda` compilation (`stats/mod.rs` references `crate::shaders` without `#[cfg(feature = "gpu")]`).
+- Two feature gates: `barracuda` (22 CPU delegations) and `barracuda-gpu` (5 GPU delegations including Sturm tridiag). **Note**: V20 feature gate bug RESOLVED in ToadStool HEAD. V21: dual-mode CI runs `cargo clippy` and `cargo test` with and without barracuda feature; `--features barracuda` compiles cleanly.
 - 27 active delegations (22 CPU + 5 GPU; `kinetics::hill` now LIVE; `hill_repress` composes `1.0 - hill()`)
 - 2 production WGSL shaders in `metalForge/shaders/` (261 combined lines)
 - All matrices use flat row-major `Vec<f64>` — GPU-promotable layout

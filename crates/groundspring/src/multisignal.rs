@@ -142,6 +142,7 @@ impl MultiSignalParams {
     }
 }
 
+#[cfg(not(feature = "barracuda"))]
 use crate::kinetics::{hill, hill_repress};
 
 /// Compute the derivative for the 7-variable multi-signal ODE.
@@ -160,14 +161,15 @@ pub fn multisignal_derivative(state: &[f64; 7], params: &MultiSignalParams) -> [
             state.as_slice(),
             &flat,
         );
-        return [
+        [
             result[0], result[1], result[2], result[3], result[4], result[5], result[6],
-        ];
+        ]
     }
     #[cfg(not(feature = "barracuda"))]
     multisignal_derivative_cpu(state, params)
 }
 
+#[cfg(not(feature = "barracuda"))]
 fn multisignal_derivative_cpu(state: &[f64; 7], p: &MultiSignalParams) -> [f64; 7] {
     let cell = state[0].max(0.0);
     let cai1 = state[1].max(0.0);

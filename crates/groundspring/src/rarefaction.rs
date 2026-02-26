@@ -19,12 +19,13 @@ pub fn shannon_diversity(counts: &[u64]) -> f64 {
     #[cfg(feature = "barracuda")]
     {
         let f_counts: Vec<f64> = counts.iter().map(|&c| u64_f64(c)).collect();
-        return barracuda::stats::shannon(&f_counts);
+        barracuda::stats::shannon(&f_counts)
     }
     #[cfg(not(feature = "barracuda"))]
     shannon_diversity_cpu(counts)
 }
 
+#[cfg(not(feature = "barracuda"))]
 fn shannon_diversity_cpu(counts: &[u64]) -> f64 {
     let total: u64 = counts.iter().sum();
     if total == 0 {
@@ -59,12 +60,13 @@ pub fn evenness(counts: &[u64]) -> f64 {
     #[cfg(feature = "barracuda")]
     {
         let f_counts: Vec<f64> = counts.iter().map(|&c| u64_f64(c)).collect();
-        return barracuda::stats::pielou_evenness(&f_counts);
+        barracuda::stats::pielou_evenness(&f_counts)
     }
     #[cfg(not(feature = "barracuda"))]
     evenness_cpu(counts)
 }
 
+#[cfg(not(feature = "barracuda"))]
 fn evenness_cpu(counts: &[u64]) -> f64 {
     let h = shannon_diversity(counts);
     let s = counts.iter().filter(|&&c| c > 0).count();

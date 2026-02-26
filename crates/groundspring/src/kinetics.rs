@@ -23,18 +23,16 @@
 #[must_use]
 #[inline]
 pub fn hill(x: f64, k: f64, n: f64) -> f64 {
-    #[cfg(feature = "barracuda")]
-    return barracuda::stats::hill(x, k, n);
-    #[cfg(not(feature = "barracuda"))]
-    hill_cpu(x, k, n)
-}
-
-fn hill_cpu(x: f64, k: f64, n: f64) -> f64 {
     if x <= 0.0 {
         return 0.0;
     }
-    let xn = x.powf(n);
-    xn / (k.powf(n) + xn)
+    #[cfg(feature = "barracuda")]
+    return barracuda::stats::hill(x, k, n);
+    #[cfg(not(feature = "barracuda"))]
+    {
+        let xn = x.powf(n);
+        xn / (k.powf(n) + xn)
+    }
 }
 
 /// Repressing Hill function: `K^n / (K^n + x^n)`.

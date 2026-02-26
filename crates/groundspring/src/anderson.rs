@@ -25,6 +25,7 @@
 use crate::prng::Xorshift64;
 
 /// Derrida-Gardner constant for ξ ≈ C / W² at band center.
+#[cfg(not(feature = "barracuda"))]
 const DERRIDA_GARDNER_CONSTANT: f64 = 96.0;
 
 /// Generate a random potential for the 1D Anderson model.
@@ -118,6 +119,7 @@ pub fn analytical_localization_length(disorder: f64, energy: f64) -> f64 {
     analytical_localization_length_cpu(disorder, energy)
 }
 
+#[cfg(not(feature = "barracuda"))]
 fn analytical_localization_length_cpu(disorder: f64, energy: f64) -> f64 {
     if disorder <= 0.0 {
         return f64::INFINITY;

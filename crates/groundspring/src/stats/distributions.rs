@@ -26,11 +26,13 @@ pub fn norm_cdf(x: f64) -> f64 {
     norm_cdf_cpu(x)
 }
 
+#[cfg(not(feature = "barracuda"))]
 fn norm_cdf_cpu(x: f64) -> f64 {
     0.5_f64.mul_add(erf_cpu(x / std::f64::consts::SQRT_2), 0.5)
 }
 
 /// Error function via Abramowitz & Stegun 7.1.26.  Max |ε| < 1.5×10⁻⁷.
+#[cfg(not(feature = "barracuda"))]
 fn erf_cpu(x: f64) -> f64 {
     let sign = x.signum();
     let a = x.abs();
@@ -62,6 +64,7 @@ pub fn norm_ppf(p: f64) -> f64 {
 }
 
 /// Acklam rational approximation — relative error < 1.15×10⁻⁹.
+#[cfg(not(feature = "barracuda"))]
 #[expect(clippy::suboptimal_flops, clippy::excessive_precision)]
 fn norm_ppf_cpu(p: f64) -> f64 {
     const A: [f64; 6] = [

@@ -128,6 +128,7 @@ impl BistableParams {
     }
 }
 
+#[cfg(not(feature = "barracuda"))]
 use crate::kinetics::hill;
 
 /// Compute the derivative for the 5-variable bistable ODE.
@@ -146,12 +147,13 @@ pub fn bistable_derivative(state: &[f64; 5], params: &BistableParams) -> [f64; 5
             state.as_slice(),
             &flat,
         );
-        return [result[0], result[1], result[2], result[3], result[4]];
+        [result[0], result[1], result[2], result[3], result[4]]
     }
     #[cfg(not(feature = "barracuda"))]
     bistable_derivative_cpu(state, params)
 }
 
+#[cfg(not(feature = "barracuda"))]
 fn bistable_derivative_cpu(state: &[f64; 5], p: &BistableParams) -> [f64; 5] {
     let cell = state[0].max(0.0);
     let ai = state[1].max(0.0);

@@ -12,6 +12,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **185/185 checks passed** across 15 validation binaries.
 - Mathematical parity: **15/15 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **22× faster** (Rust vs Python, all 15 experiments with barracuda-gpu). Exp 009: **49.5× from Sturm tridiag**.
+- V21: Dual-mode CI validates both CPU-only and barracuda-delegated; `--features barracuda` compiles cleanly (zero warnings).
 
 ### Key Results
 
