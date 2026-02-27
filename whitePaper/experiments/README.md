@@ -5,12 +5,12 @@
 > (Phase 0), a Rust validation (Phase 1), and a barracuda delegation path
 > (Phase 2+).
 
-**Total**: 236/236 validation checks across 21 experiments, 8 domains. 280 Rust tests.
-**Rust vs Python**: 22× faster across all 21 experiments (Exp 009: 49.5× with barracuda-gpu Sturm).
-**Mathematical Parity**: 21/21 PROVEN — Python and Rust both pass against shared benchmark JSONs.
+**Total**: 288/288 validation checks across 28 experiments, 9 domains. 314 Rust tests.
+**Rust vs Python**: 22× faster across all 28 experiments (Exp 009: 49.5× with barracuda-gpu Sturm).
+**Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **Coverage**: 98.93% workspace line coverage. Zero clippy warnings.
 **BarraCUDA performance**: 14.9s (local) → 3.9s (barracuda-gpu). Exp 009: **49.5× from Sturm tridiag**.
-**Modules**: 24 (including `jackknife`, `freeze_out`, `spectral_recon`).
+**Modules**: 28 (including `jackknife`, `freeze_out`, `spectral_recon`, `wdm`, `npu`).
 
 ## Experiment Index
 
@@ -37,6 +37,13 @@
 | 019 | [Jackknife Error Estimation](019_jackknife_estimation.md) | Statistics | Bazavov 2025 Phys Rev D 111 | 9/9 | 9/9 | CPU-only |
 | 020 | [Freeze-Out Inverse](020_freeze_out_inverse.md) | Inverse problems | Bazavov 2016 Phys Rev D 93 | 8/8 | 8/8 | CPU-only |
 | 021 | [Spectral Function Reconstruction](021_spectral_recon.md) | Inverse problems | Bazavov 2025 arXiv 2501.12259 | 8/8 | 8/8 | CPU-only |
+| 022 | [ET₀ → Anderson Propagation](022_et0_anderson_propagation.md) | Cross-spring | FAO-56 + Bourgain-Kachkovskiy 2018 | 7/7 | 7/7 | Uses fao56+anderson |
+| 023 | [No-Till vs Tilled Sampling](023_notill_sampling.md) | Cross-spring | R. Anderson 2015 FEMS | 7/7 | 7/7 | Uses rarefaction+rare_biosphere |
+| 024 | [Aggregate Stability Noise](024_aggregate_stability.md) | Cross-spring | Nimmo & Perkins 2002 | 8/8 | 8/8 | Uses decompose+stats |
+| 025 | [f32 vs f64 Precision Drift](025_f32_f64_precision.md) | WDM MD | IEEE 754-2019, Higham 2002 | 7/7 | 7/7 | Bias-variance decomposition of f32→f64 Green-Kubo integration error; bias fraction ~28% |
+| 026 | [System-size Convergence](026_system_size_convergence.md) | WDM MD | Yeh & Hummer 2004 | 7/7 | 7/7 | Finite-size extrapolation D(N) = D∞ + α/N^(1/d); R² > 0.999 |
+| 027 | [GPU Vendor Parity](027_vendor_parity.md) | WDM MD | hotSpring parity framework | 7/7 | 7/7 | Vendor differences at 1e-12 relative level; correlation 1.000000 |
+| 028 | [NPU Anderson Classification](028_npu_anderson.md) | Hardware (NPU) | Anderson 1958; BrainChip | 7/7 | 9/9 | NPU DMA validated |
 
 ## Three-Tier Control Plan
 
@@ -46,13 +53,14 @@ Each experiment is validated at three levels:
 2. **GPU** — Barracuda GPU matches CPU within tolerance (`--features barracuda-gpu`)
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
-Current status: **CPU complete** (236/236), **27 barracuda delegations active**
+Current status: **CPU complete** (288/288), **27 barracuda delegations active**
 (15 stats/metrics + bootstrap + rawr_mean + hill + 5 anderson/spectral + hamiltonian + 2 ODE + eigenvalues).
 22 CPU delegated (`#[cfg(feature = "barracuda")]`), 5 GPU delegated
 (`#[cfg(feature = "barracuda-gpu")]`). All with graceful CPU fallback.
-98.93% line coverage. 21/21 mathematical parity proven.
+98.93% line coverage. 28/28 mathematical parity proven.
+**metalForge tier**: groundspring-forge crate with live hardware validation (NPU DMA on AKD1000).
 
-Three-mode benchmarks: 14.9s (local) → 3.9s (barracuda-gpu, **4.4× faster**).
+Three-mode benchmarks: 20.4s → 9.2s (**2.2× speedup**); quasiperiodic 47.7×.
 Cross-spring evolution (hotSpring precision + Sturm, wetSpring bio-stats,
 airSpring metrics, neuralSpring dispatch) means the delegated code paths are
 validated by 2,490+ barracuda tests across the ecosystem.

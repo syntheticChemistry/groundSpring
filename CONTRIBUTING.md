@@ -9,7 +9,7 @@ that proves Python baselines can be faithfully ported to Rust and eventually
 promoted to GPU acceleration via the Write → Absorb → Lean cycle.
 
 ```
-control/             Python Phase 0 experiments (21 experiments across 6 domains)
+control/             Python Phase 0 experiments (28 experiments across 9 domains)
   common.py          Shared statistical primitives
   sensor_noise/      Exp 001: Bias-variance decomposition
   observation_gap/   Exp 002: Model-observation gap
@@ -58,7 +58,7 @@ crates/
     src/jackknife.rs       Jackknife variance, bias correction, leave-one-out resampling
     src/freeze_out.rs     Freeze-out temperature inversion, hadron yield fitting
     src/spectral_recon.rs  Spectral reconstruction from Euclidean correlators
-  groundspring-validate/   21 validation binaries (hotSpring pattern)
+  groundspring-validate/   28 validation binaries (hotSpring pattern)
 metalForge/          Write → Absorb → Lean artifacts
   ABSORPTION_MANIFEST.md  Module-by-module absorption inventory
   shaders/                 Production WGSL shaders for ToadStool absorption

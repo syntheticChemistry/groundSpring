@@ -1,0 +1,48 @@
+{
+  "_source": "groundSpring Exp 024: Aggregate stability measurement noise for Anderson regime discrimination",
+  "_references": [
+    "Nimmo & Perkins (2002) 'Aggregate stability and size distribution' in Methods of Soil Analysis",
+    "Kemper & Rosenau (1986) Aggregate stability wet sieving",
+    "Bourgain & Kachkovskiy (2018) GAFA 29:3-43"
+  ],
+  "_provenance": {
+    "generated_by": "groundSpring Exp 024 aggregate stability noise decomposition",
+    "baseline_date": "2026-02-26",
+    "baseline_commit": "6e73709291d5dacfd527dd414a62aa8ade7e8f57",
+    "validation_script": "control/aggregate_stability/aggregate_stability.py",
+    "command": "python3 control/aggregate_stability/aggregate_stability.py",
+    "prng_algorithm": "numpy.random.default_rng (PCG64)",
+    "data_origin": "Synthetic WSA values based on published ranges (Nimmo & Perkins 2002)"
+  },
+  "soil_states": {
+    "tilled": {
+      "wsa_true": 0.35,
+      "d_eff_true": 2.0,
+      "description": "Low aggregate stability, tilled soil"
+    },
+    "notill": {
+      "wsa_true": 0.75,
+      "d_eff_true": 3.0,
+      "description": "High aggregate stability, no-till soil"
+    }
+  },
+  "measurement_noise": {
+    "bias_mbe": 0.02,
+    "random_sigma": 0.05,
+    "n_measurements": 100,
+    "seed": 2026
+  },
+  "calibration": {
+    "description": "Linear mapping WSA → d_eff: d_eff = slope * WSA + intercept",
+    "slope": 2.5,
+    "intercept": 1.125
+  },
+  "expected": {
+    "tilled_d_eff_range": [1.5, 2.5],
+    "notill_d_eff_range": [2.5, 3.5],
+    "regimes_distinguishable": true,
+    "bias_fraction_range": [0.01, 0.50],
+    "noise_floor_below_regime_gap": true,
+    "d_eff_cv_range": [0.01, 0.20]
+  }
+}

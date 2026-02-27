@@ -8,10 +8,10 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 ### Status
 
-- Phase 0 baselines: **~190 quantitative checks passed** across 21 experiments, 8 domains.
-- Phase 1 Rust validation: **236/236 checks passed** across 21 validation binaries.
-- Mathematical parity: **21/21 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
-- Performance: **22× faster** (Rust vs Python, all 21 experiments with barracuda-gpu). Exp 009: **49.5× from Sturm tridiag**.
+- Phase 0 baselines: **~288 quantitative checks passed** across 28 experiments, 9 domains.
+- Phase 1 Rust validation: **288/288 checks passed** across 28 validation binaries.
+- Mathematical parity: **28/28 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
+- Performance: **22× faster** (Rust vs Python, all 28 experiments with barracuda-gpu). Exp 009: **49.5× from Sturm tridiag**.
 - V21: Dual-mode CI validates both CPU-only and barracuda-delegated; `--features barracuda` compiles cleanly (zero warnings).
 
 ### Key Results
@@ -54,7 +54,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 - [STUDY.md](STUDY.md) — Detailed results and analysis
 - [METHODOLOGY.md](METHODOLOGY.md) — Experimental design and validation approach
-- [experiments/](experiments/) — Per-experiment summaries (21 experiments, 8 domains)
+- [experiments/](experiments/) — Per-experiment summaries (28 experiments, 9 domains)
 - [baseCamp/](baseCamp/) — Per-faculty research briefings (Bazavov, Waters, Liu, Kachkovskiy, R. Anderson, Dolson)
 - [../wateringHole/CROSS_SPRING_SHADER_EVOLUTION.md](../wateringHole/CROSS_SPRING_SHADER_EVOLUTION.md) — Cross-spring shader provenance (S58–S66)
 - [../specs/BARRACUDA_EVOLUTION.md](../specs/BARRACUDA_EVOLUTION.md) — Module → GPU promotion mapping

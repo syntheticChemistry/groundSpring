@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 ecoPrimals / Squirrel Team
 """Exp 020: Freeze-Out Inverse Problem (Bazavov 2016 Phys Rev D 93, 014512).
 
 Chi-squared fitting inverse problem: recover freeze-out curve parameters

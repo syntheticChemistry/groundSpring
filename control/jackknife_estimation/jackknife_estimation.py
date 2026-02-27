@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 ecoPrimals / Squirrel Team
 """Exp 019: Jackknife Error Estimation (Bazavov 2025 Phys Rev D 111, 094508).
 
 Delete-one jackknife resampling for variance estimation and bias correction.

@@ -1,0 +1,68 @@
+{
+  "_source": "groundSpring Exp 022: FAO-56 ET₀ uncertainty propagation through Anderson localization",
+  "_doi": "10.1007/s00039-019-00478-4",
+  "_references": [
+    "Allen et al. (1998) FAO Irrigation and Drainage Paper 56",
+    "Bourgain & Kachkovskiy (2018) GAFA 29:3-43",
+    "Dong et al. (2020) Agriculture 10:598"
+  ],
+  "_provenance": {
+    "generated_by": "groundSpring Exp 022 cross-spring ET₀→Anderson propagation",
+    "baseline_date": "2026-02-26",
+    "baseline_commit": "6e73709291d5dacfd527dd414a62aa8ade7e8f57",
+    "validation_script": "control/et0_anderson_propagation/et0_anderson_propagation.py",
+    "command": "python3 control/et0_anderson_propagation/et0_anderson_propagation.py",
+    "prng_algorithm": "numpy.random.default_rng (PCG64)",
+    "data_origin": "FAO-56 Example 18 (Uccle, Belgium) + Anderson analytical model"
+  },
+  "fao56_inputs": {
+    "description": "FAO-56 Example 18 baseline with documented uncertainties",
+    "tmax_c": 21.5,
+    "tmin_c": 12.3,
+    "rhmax_pct": 84.0,
+    "rhmin_pct": 63.0,
+    "wind_10m_m_s": 2.778,
+    "rs_mj_m2_day": 22.07,
+    "latitude_deg": 50.8,
+    "altitude_m": 100.0,
+    "day_of_year": 187,
+    "uncertainties": {
+      "tmax_sigma": 0.5,
+      "tmin_sigma": 0.5,
+      "rh_sigma": 5.0,
+      "wind_sigma": 0.3,
+      "rs_sigma": 1.0
+    }
+  },
+  "water_balance": {
+    "description": "Simple daily water balance: θ(t+1) = θ(t) + P/D - ET₀·Kc/D",
+    "soil_depth_mm": 300,
+    "crop_coefficient": 0.85,
+    "daily_precip_mm": 2.0,
+    "theta_initial": 0.35,
+    "theta_min": 0.08,
+    "theta_max": 0.45
+  },
+  "anderson_model": {
+    "description": "1D Anderson localization from Exp 008",
+    "chain_length": 200,
+    "n_realizations": 10,
+    "theta_to_disorder_slope": 8.0,
+    "theta_to_disorder_intercept": 0.5
+  },
+  "propagation": {
+    "n_mc_samples": 500,
+    "mc_seed": 2026,
+    "n_days": 30
+  },
+  "expected": {
+    "et0_mean_range": [3.5, 4.3],
+    "et0_cv_range": [0.02, 0.10],
+    "theta_final_range": [0.10, 0.45],
+    "theta_cv_range": [0.01, 0.30],
+    "xi_cv_range": [0.01, 0.50],
+    "humidity_dominates_et0": true,
+    "et0_uncertainty_propagates_through_anderson": true,
+    "xi_cv_to_et0_cv_ratio_min": 0.5
+  }
+}

@@ -1,0 +1,186 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 ecoPrimals / Squirrel Team
+
+//! Warm Dense Matter transport analysis utilities.
+//!
+//! Provides Green-Kubo integration, synthetic autocorrelation generation,
+//! and finite-size extrapolation for WDM transport coefficient analysis.
+//!
+//! These functions support groundSpring's uncertainty quantification
+//! methodology applied to molecular dynamics transport coefficients.
+
+/// Numerically integrate an autocorrelation function using the trapezoidal rule.
+///
+/// Computes ∫₀ᵀ acf(t) dt where T = (len-1) × dt.
+#[must_use]
+pub fn green_kubo_integrate(acf: &[f64], dt: f64) -> f64 {
+    if acf.len() < 2 {
+        return 0.0;
+    }
+    let n = acf.len();
+    let mut sum = 0.5 * (acf[0] + acf[n - 1]);
+    for &val in &acf[1..n - 1] {
+        sum += val;
+    }
+    sum * dt
+}
+
+/// Green-Kubo integration with f32 accumulation.
+///
+/// Simulates reduced-precision GPU arithmetic by casting each value to f32
+/// before accumulating. The running sum is maintained in f32 precision
+/// throughout, then cast to f64 at the end.
+#[must_use]
+#[expect(
+    clippy::cast_possible_truncation,
+    reason = "deliberate f64→f32 precision reduction"
+)]
+pub fn green_kubo_integrate_f32(acf: &[f64], dt: f64) -> f64 {
+    if acf.len() < 2 {
+        return 0.0;
+    }
+    let n = acf.len();
+    let dt_f32 = dt as f32;
+    let mut sum: f32 = 0.5 * (acf[0] as f32 + acf[n - 1] as f32);
+    for &val in &acf[1..n - 1] {
+        sum += val as f32;
+    }
+    f64::from(sum) * f64::from(dt_f32)
+}
+
+/// Generate a synthetic velocity autocorrelation function.
+///
+/// Uses the exponential decay model: C(t) = c₀ × exp(-t/τ).
+/// The analytical integral is c₀ × τ.
+#[must_use]
+pub fn synthetic_vacf(c0: f64, tau: f64, n_steps: usize, dt: f64) -> Vec<f64> {
+    (0..n_steps)
+        .map(|i| {
+            #[expect(clippy::cast_precision_loss)]
+            let t = i as f64 * dt;
+            c0 * (-t / tau).exp()
+        })
+        .collect()
+}
+
+/// Analytical diffusion coefficient from exponential VACF parameters.
+///
+/// D = c₀ × τ / d (Green-Kubo relation for isotropic diffusion).
+#[must_use]
+pub fn analytical_diffusion(c0: f64, tau: f64, d_dim: f64) -> f64 {
+    c0 * tau / d_dim
+}
+
+/// Finite-size extrapolation for transport coefficients.
+///
+/// Fits D(N) = D∞ + α / N^(1/d) using linear regression on the
+/// transformed variable x = 1/N^(1/d). Returns `(d_inf, alpha, r_squared)`.
+///
+/// Reference: Yeh & Hummer (2004) J. Phys. Chem. B 108, 15873.
+///
+/// # Panics
+///
+/// Panics if `sizes` and `values` have different lengths or fewer than 2 points.
+#[must_use]
+#[allow(clippy::similar_names, clippy::suspicious_operation_groupings)]
+pub fn finite_size_extrapolate(sizes: &[f64], values: &[f64], d_dim: f64) -> (f64, f64, f64) {
+    assert_eq!(
+        sizes.len(),
+        values.len(),
+        "sizes and values must have the same length"
+    );
+    assert!(sizes.len() >= 2, "need at least 2 data points");
+
+    #[expect(clippy::cast_precision_loss)]
+    let n = sizes.len() as f64;
+    let exponent = 1.0 / d_dim;
+
+    let xs: Vec<f64> = sizes.iter().map(|&s| 1.0 / s.powf(exponent)).collect();
+
+    let x_mean: f64 = xs.iter().sum::<f64>() / n;
+    let y_mean: f64 = values.iter().sum::<f64>() / n;
+
+    let (mut ss_xy, mut ss_xx, mut ss_yy) = (0.0, 0.0, 0.0);
+    for (x, val) in xs.iter().zip(values.iter()) {
+        let dx = x - x_mean;
+        let dy = val - y_mean;
+        ss_xy += dx * dy;
+        ss_xx += dx * dx;
+        ss_yy += dy * dy;
+    }
+
+    let alpha = if ss_xx > 0.0 { ss_xy / ss_xx } else { 0.0 };
+    let d_inf = y_mean - alpha * x_mean;
+    let r_squared = if ss_yy > 0.0 {
+        (ss_xy * ss_xy) / (ss_xx * ss_yy)
+    } else {
+        1.0
+    };
+
+    (d_inf, alpha, r_squared)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn green_kubo_exponential_decay() {
+        let c0 = 1.0;
+        let tau = 10.0;
+        let dt = 0.001;
+        let n_steps = 100_000;
+        let vacf = synthetic_vacf(c0, tau, n_steps, dt);
+        let integral = green_kubo_integrate(&vacf, dt);
+        let analytical = c0 * tau;
+        let rel_err = (integral - analytical).abs() / analytical;
+        assert!(rel_err < 0.001, "relative error {rel_err:.6} exceeds 0.1%");
+    }
+
+    #[test]
+    fn green_kubo_f32_bounded_error() {
+        let c0 = 1.0;
+        let tau = 10.0;
+        let dt = 0.001;
+        let n_steps = 100_000;
+        let vacf = synthetic_vacf(c0, tau, n_steps, dt);
+        let f64_result = green_kubo_integrate(&vacf, dt);
+        let f32_result = green_kubo_integrate_f32(&vacf, dt);
+        let rel_err = (f32_result - f64_result).abs() / f64_result;
+        assert!(rel_err < 0.01, "f32 relative error {rel_err:.6} exceeds 1%");
+    }
+
+    #[test]
+    fn analytical_diffusion_3d() {
+        let d = analytical_diffusion(1.0, 10.0, 3.0);
+        assert!((d - 10.0 / 3.0).abs() < 1e-10);
+    }
+
+    #[test]
+    fn finite_size_extrapolation_perfect_data() {
+        let d_inf_true = 2.0;
+        let alpha_true = 5.0;
+        let sizes = vec![100.0, 500.0, 1000.0, 5000.0, 10000.0];
+        let values: Vec<f64> = sizes
+            .iter()
+            .map(|&n: &f64| d_inf_true + alpha_true / n.powf(1.0 / 3.0))
+            .collect();
+        let (d_inf, alpha, r_sq) = finite_size_extrapolate(&sizes, &values, 3.0);
+        assert!(
+            (d_inf - d_inf_true).abs() < 0.001,
+            "D_inf: {d_inf} vs {d_inf_true}"
+        );
+        assert!(
+            (alpha - alpha_true).abs() < 0.01,
+            "alpha: {alpha} vs {alpha_true}"
+        );
+        assert!(r_sq > 0.999, "R²: {r_sq}");
+    }
+
+    #[test]
+    fn empty_acf_returns_zero() {
+        assert_eq!(green_kubo_integrate(&[], 0.001), 0.0);
+        assert_eq!(green_kubo_integrate(&[1.0], 0.001), 0.0);
+        assert_eq!(green_kubo_integrate_f32(&[], 0.001), 0.0);
+    }
+}

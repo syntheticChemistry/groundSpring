@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 ecoPrimals / Squirrel Team
 #!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2026 ecoPrimals / Squirrel Team
@@ -25,6 +27,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+
+NPU_AVAILABLE = Path("/dev/akida0").exists()
 
 
 @dataclass
@@ -157,6 +161,43 @@ EXPERIMENTS = [
         "python": [sys.executable, "control/spectral_recon/spectral_recon.py"],
         "rust_bin": "validate-spectral-recon",
     },
+    {
+        "name": "Exp 022: ET0 Anderson Propagation",
+        "python": [sys.executable, "control/et0_anderson_propagation/et0_anderson_propagation.py"],
+        "rust_bin": "validate-et0-anderson",
+    },
+    {
+        "name": "Exp 023: No-Till Sampling",
+        "python": [sys.executable, "control/notill_sampling/notill_sampling.py"],
+        "rust_bin": "validate-notill-sampling",
+    },
+    {
+        "name": "Exp 024: Aggregate Stability",
+        "python": [sys.executable, "control/aggregate_stability/aggregate_stability.py"],
+        "rust_bin": "validate-aggregate-stability",
+    },
+    {
+        "name": "Exp 025: Precision Drift",
+        "python": [sys.executable, "control/precision_drift/precision_drift.py"],
+        "rust_bin": "validate-precision-drift",
+    },
+    {
+        "name": "Exp 026: Size Convergence",
+        "python": [sys.executable, "control/size_convergence/size_convergence.py"],
+        "rust_bin": "validate-size-convergence",
+    },
+    {
+        "name": "Exp 027: Vendor Parity",
+        "python": [sys.executable, "control/vendor_parity/vendor_parity.py"],
+        "rust_bin": "validate-vendor-parity",
+    },
+    {
+        "name": "Exp 028: NPU Anderson",
+        "python": [sys.executable, "control/npu_anderson/npu_anderson.py"],
+        "rust_bin": "validate-npu-anderson",
+        "rust_features": ["npu"],
+        "npu_required": True,
+    },
 ]
 
 
@@ -179,15 +220,21 @@ def main() -> int:
     n_trials = 3
 
     for exp in EXPERIMENTS:
+        if exp.get("npu_required") and not NPU_AVAILABLE:
+            print(f"\n--- {exp['name']} ---")
+            print("  [SKIP] NPU hardware (/dev/akida0) not available")
+            continue
+
         print(f"\n--- {exp['name']} ---")
+
+        rust_cmd = ["cargo", "run", "--release", "--bin", exp["rust_bin"]]
+        if "rust_features" in exp:
+            rust_cmd.extend(["--features", ",".join(exp["rust_features"])])
 
         # Warmup
         for _ in range(n_warmup):
             time_command(exp["python"], ROOT, timeout=300)
-            time_command(
-                ["cargo", "run", "--release", "--bin", exp["rust_bin"]],
-                ROOT, timeout=300,
-            )
+            time_command(rust_cmd, ROOT, timeout=300)
 
         # Timed runs
         py_times = []
@@ -195,10 +242,7 @@ def main() -> int:
 
         for trial in range(n_trials):
             py_t, _py_ok = time_command(exp["python"], ROOT, timeout=300)
-            rs_t, _rs_ok = time_command(
-                ["cargo", "run", "--release", "--bin", exp["rust_bin"]],
-                ROOT, timeout=300,
-            )
+            rs_t, _rs_ok = time_command(rust_cmd, ROOT, timeout=300)
             py_times.append(py_t)
             rs_times.append(rs_t)
             print(f"  Trial {trial+1}: Python={py_t:.3f}s, Rust={rs_t:.3f}s")

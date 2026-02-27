@@ -60,6 +60,13 @@ BENCHMARKS=(
     "control/jackknife_estimation/benchmark_jackknife.json"
     "control/freeze_out_inverse/benchmark_freeze_out.json"
     "control/spectral_recon/benchmark_spectral_recon.json"
+    "control/et0_anderson_propagation/benchmark_et0_anderson.json"
+    "control/notill_sampling/benchmark_notill_sampling.json"
+    "control/aggregate_stability/benchmark_aggregate_stability.json"
+    "control/precision_drift/benchmark_precision_drift.json"
+    "control/size_convergence/benchmark_size_convergence.json"
+    "control/vendor_parity/benchmark_vendor_parity.json"
+    "control/npu_anderson/benchmark_npu_anderson.json"
 )
 
 BASELINES=(
@@ -84,6 +91,13 @@ BASELINES=(
     "python3 control/jackknife_estimation/jackknife_estimation.py"
     "python3 control/freeze_out_inverse/freeze_out_inverse.py"
     "python3 control/spectral_recon/spectral_recon.py"
+    "python3 control/et0_anderson_propagation/et0_anderson_propagation.py"
+    "python3 control/notill_sampling/notill_sampling.py"
+    "python3 control/aggregate_stability/aggregate_stability.py"
+    "python3 control/precision_drift/precision_drift.py"
+    "python3 control/size_convergence/size_convergence.py"
+    "python3 control/vendor_parity/vendor_parity.py"
+    "python3 control/npu_anderson/npu_anderson.py"
 )
 
 echo "--- Phase 1: Re-run all Python baselines ---"

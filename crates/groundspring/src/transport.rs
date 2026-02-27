@@ -443,4 +443,87 @@ mod tests {
             "β for constant MSD should be 0.0, got {beta}"
         );
     }
+
+    #[test]
+    fn transport_exponent_insufficient_data() {
+        assert_eq!(transport_exponent(&[1.0], &[1.0]), 0.0);
+        assert_eq!(transport_exponent(&[], &[]), 0.0);
+    }
+
+    #[test]
+    fn transport_exponent_filters_nonpositive_time() {
+        let times = [0.0, -1.0, 1.0, 2.0, 4.0];
+        let msds = [1.0, 1.0, 1.0, 4.0, 16.0];
+        let beta = transport_exponent(&times, &msds);
+        assert!(beta > 0.5, "should still compute from valid entries");
+    }
+
+    #[test]
+    fn transport_exponent_filters_tiny_msd() {
+        let times = [1.0, 2.0, 4.0, 8.0];
+        let msds = [1e-30, 1e-25, 4.0, 16.0];
+        let beta = transport_exponent(&times, &msds);
+        assert!(beta.is_finite());
+    }
+
+    #[test]
+    fn transport_exponent_identical_times() {
+        let times = [1.0, 1.0, 1.0];
+        let msds = [1.0, 2.0, 3.0];
+        let beta = transport_exponent(&times, &msds);
+        assert_eq!(beta, 0.0);
+    }
+
+    #[test]
+    fn eigh_error_display() {
+        let e = EighError::EmptyMatrix;
+        assert_eq!(format!("{e}"), "matrix must be non-empty");
+
+        let e = EighError::DimensionMismatch {
+            diag_len: 3,
+            offdiag_len: 5,
+        };
+        assert!(format!("{e}").contains("5"));
+
+        let e = EighError::ConvergenceFailure {
+            index: 2,
+            max_iterations: 30,
+        };
+        assert!(format!("{e}").contains("30"));
+    }
+
+    #[test]
+    fn msd_at_time_zero() {
+        let n = 21;
+        let (diag, offdiag) = almost_mathieu_diag_offdiag(n, 1.0, 0.618_033_988_749_894_9, 0.0);
+        let (evals, evecs) = tridiag_eigh(&diag, &offdiag).expect("msd at t=0");
+        let (msd, norm) = wavepacket_msd(&evals, &evecs, 10, 0.0);
+        assert!(msd.abs() < 1e-10, "MSD at t=0 should be 0, got {msd}");
+        assert!((norm - 1.0).abs() < 1e-10);
+    }
+
+    #[test]
+    fn eigenvalue_reconstruction() {
+        let n = 10;
+        let diag: Vec<f64> = (0..n).map(|i| usize_f64(i) * 0.5).collect();
+        let offdiag = vec![0.3; n - 1];
+        let (vals, vecs) = tridiag_eigh(&diag, &offdiag).expect("recon");
+
+        for k in 0..n {
+            let mut hv = vec![0.0; n];
+            for j in 0..n {
+                hv[j] += diag[j] * vecs[j * n + k];
+                if j > 0 {
+                    hv[j] += offdiag[j - 1] * vecs[(j - 1) * n + k];
+                }
+                if j + 1 < n {
+                    hv[j] += offdiag[j] * vecs[(j + 1) * n + k];
+                }
+            }
+            for j in 0..n {
+                let diff = (hv[j] - vals[k] * vecs[j * n + k]).abs();
+                assert!(diff < 1e-10, "H*v != λ*v at k={k}, j={j}: diff={diff}");
+            }
+        }
+    }
 }

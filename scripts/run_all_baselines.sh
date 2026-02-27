@@ -140,6 +140,34 @@ run_experiment \
     "Exp 021: Spectral Recon (Python)" \
     "python3 control/spectral_recon/spectral_recon.py"
 
+run_experiment \
+    "Exp 022: ET0 Anderson Propagation (Python)" \
+    "python3 control/et0_anderson_propagation/et0_anderson_propagation.py"
+
+run_experiment \
+    "Exp 023: No-Till Sampling (Python)" \
+    "python3 control/notill_sampling/notill_sampling.py"
+
+run_experiment \
+    "Exp 024: Aggregate Stability (Python)" \
+    "python3 control/aggregate_stability/aggregate_stability.py"
+
+run_experiment \
+    "Exp 025: Precision Drift (Python)" \
+    "python3 control/precision_drift/precision_drift.py"
+
+run_experiment \
+    "Exp 026: Size Convergence (Python)" \
+    "python3 control/size_convergence/size_convergence.py"
+
+run_experiment \
+    "Exp 027: Vendor Parity (Python)" \
+    "python3 control/vendor_parity/vendor_parity.py"
+
+run_experiment \
+    "Exp 028: NPU Anderson (Python)" \
+    "python3 control/npu_anderson/npu_anderson.py"
+
 echo ""
 echo "╔══════════════════════════════════════════════════════════════╗"
 echo "║  PHASE 1: Rust Validation Binaries                         ║"
@@ -231,6 +259,40 @@ if command -v cargo &> /dev/null; then
     run_experiment \
         "Rust: Spectral Recon" \
         "cargo run --release --bin validate-spectral-recon"
+
+    run_experiment \
+        "Rust: ET0 Anderson Propagation" \
+        "cargo run --release --bin validate-et0-anderson"
+
+    run_experiment \
+        "Rust: No-Till Sampling" \
+        "cargo run --release --bin validate-notill-sampling"
+
+    run_experiment \
+        "Rust: Aggregate Stability" \
+        "cargo run --release --bin validate-aggregate-stability"
+
+    run_experiment \
+        "Rust: Precision Drift" \
+        "cargo run --release --bin validate-precision-drift"
+
+    run_experiment \
+        "Rust: Size Convergence" \
+        "cargo run --release --bin validate-size-convergence"
+
+    run_experiment \
+        "Rust: Vendor Parity" \
+        "cargo run --release --bin validate-vendor-parity"
+
+    if [[ -e /dev/akida0 ]]; then
+        cargo build --release --workspace --features npu 2>&1 | tail -1
+        run_experiment \
+            "Rust: NPU Anderson (--features npu)" \
+            "cargo run --release --bin validate-npu-anderson --features npu"
+    else
+        echo ""
+        echo "  [SKIP] Rust: NPU Anderson — /dev/akida0 not present"
+    fi
 else
     echo "  [SKIP] cargo not found — Rust validation skipped"
 fi

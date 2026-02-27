@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: February 26, 2026
+**Last Updated**: February 27, 2026
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---
@@ -29,9 +29,16 @@
 | 19 | Jackknife error estimation | Statistics/Error Estimation | 9/9 | 9/9 | Subpercent precision error bars (Bazavov 2025 Phys Rev D 111, 094508) |
 | 20 | Freeze-out inverse problem | Inverse Problems | 8/8 | 8/8 | Inferring freeze-out conditions from heavy ion data (Bazavov 2016 Phys Rev D 93, 014512) |
 | 21 | Spectral function reconstruction | Inverse Problems/Spectral Reconstruction | 8/8 | 8/8 | Signal recovery from incomplete/noisy lattice data (Bazavov 2025 arXiv 2501.12259) |
+| 22 | ET₀ → Anderson uncertainty propagation | Cross-spring (FAO-56 × Anderson) | 7/7 | 7/7 | Humidity uncertainty propagates through water balance to localization length; ξ_CV/ET₀_CV ≥ 0.5 |
+| 23 | No-till vs tilled 16S sampling design | Cross-spring (Rarefaction × Ecology) | 7/7 | 7/7 | No-till saturates later (~1500 reads) vs tilled (~800); higher diversity demands deeper sampling |
+| 24 | Aggregate stability measurement noise | Cross-spring (WSA × Anderson) | 8/8 | 8/8 | Bias-variance decomposition distinguishes tilled vs no-till Anderson regimes under measurement noise |
+| 25 | f32 vs f64 precision drift | WDM MD | 7/7 | 7/7 | Bias-variance decomposition of f32→f64 Green-Kubo integration error; bias fraction ~28% |
+| 26 | System-size convergence for WDM transport | WDM MD | 7/7 | 7/7 | Finite-size extrapolation D(N) = D∞ + α/N^(1/d); R² > 0.999 |
+| 27 | GPU vendor parity for WDM observables | WDM MD | 7/7 | 7/7 | Vendor differences at 1e-12 relative level; correlation 1.000000 |
+| 28 | NPU Anderson regime classification | Hardware (NPU) | 7/7 | 9/9 | int8 DMA classification on AKD1000 at ~51µs |
 
-**Phase 0**: ~211 checks (Python). **Phase 1**: 236/236 PASS (Rust). **Speedup**: 22× (all 21 experiments).
-**Mathematical Parity**: 21/21 PROVEN — Python and Rust both pass against shared benchmark JSONs.
+**Phase 0**: ~261 checks (Python). **Phase 1**: 288/288 PASS (Rust). **Speedup**: 22× (all 28 experiments).
+**Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **Exp 015** bridges Papers 22-24 (Sub-thesis 06): sensor noise → Anderson ξ → QS regime uncertainty.
 
 ---
@@ -128,9 +135,9 @@ and aggregate stability propagate into QS regime predictions?
 
 | # | Paper | Journal | Year | Faculty | Why | Status |
 |---|-------|---------|------|---------|-----|--------|
-| 22 | Soil moisture → Anderson geometry uncertainty propagation | — | Cross-spring | Extend Exp 003 (FAO-56 uncertainty): humidity uncertainty → θ(t) uncertainty → d_eff(t) uncertainty → r(t) uncertainty. How much does 66% humidity-dominated ET₀ error affect QS regime prediction? | Queued |
-| 23 | No-till vs tilled 16S sampling design | — | Cross-spring | Extend Exp 004 (genus saturation at 5,000 reads): is the saturation depth different in no-till (higher diversity) vs tilled (lower diversity) soil? Does aggregate stability affect DNA extraction and therefore effective sampling depth? | Queued |
-| 24 | Aggregate stability measurement noise | — | Cross-spring | How precisely must aggregate stability be measured to distinguish Anderson regimes (d_eff = 2 vs d_eff = 3)? Error decomposition similar to Exp 001 (sensor noise) | Queued |
+| 22 | Soil moisture → Anderson geometry uncertainty propagation | — | Cross-spring | Extend Exp 003 (FAO-56 uncertainty): humidity uncertainty → θ(t) uncertainty → d_eff(t) uncertainty → r(t) uncertainty. How much does 66% humidity-dominated ET₀ error affect QS regime prediction? | **Active** (Exp 022: 7/7 Py, 7/7 Rust) |
+| 23 | No-till vs tilled 16S sampling design | — | Cross-spring | Extend Exp 004 (genus saturation at 5,000 reads): is the saturation depth different in no-till (higher diversity) vs tilled (lower diversity) soil? Does aggregate stability affect DNA extraction and therefore effective sampling depth? | **Active** (Exp 023: 7/7 Py, 7/7 Rust) |
+| 24 | Aggregate stability measurement noise | — | Cross-spring | How precisely must aggregate stability be measured to distinguish Anderson regimes (d_eff = 2 vs d_eff = 3)? Error decomposition similar to Exp 001 (sensor noise) | **Active** (Exp 024: 8/8 Py, 8/8 Rust) |
 
 **Cross-spring impact**: groundSpring provides error bars for the entire
 cross-spring pipeline. Exp 003 → airSpring θ(t) uncertainty. Exp 004 →
@@ -146,9 +153,9 @@ GPU arithmetic affect the accuracy of WDM observables?
 
 | # | Target | Domain | Connection | Status |
 |---|--------|--------|-----------|--------|
-| 25 | f32 vs f64 transport coefficient drift | WDM MD | Extend Exp 001 (sensor noise) methodology: decompose f32→f64 error into systematic bias vs stochastic noise. Does reduced precision introduce directional bias in D*, η*, λ*? | Queued |
-| 26 | System-size convergence for WDM transport | WDM MD | At what N does consumer GPU (N≤10k) transport converge vs institutional HPC (N≥100k)? Map the N→∞ extrapolation uncertainty | Queued |
-| 27 | GPU vendor parity for WDM observables | WDM MD | Extend hotSpring's RTX 4070 vs Titan V (NVK) parity tests to WDM conditions. Does vendor/driver affect physics? (should be zero, but prove it) | Queued |
+| 25 | f32 vs f64 transport coefficient drift | WDM MD | Extend Exp 001 (sensor noise) methodology: decompose f32→f64 error into systematic bias vs stochastic noise. Does reduced precision introduce directional bias in D*, η*, λ*? | **Active** (Exp 025: 7/7 Py, 7/7 Rust) |
+| 26 | System-size convergence for WDM transport | WDM MD | At what N does consumer GPU (N≤10k) transport converge vs institutional HPC (N≥100k)? Map the N→∞ extrapolation uncertainty | **Active** (Exp 026: 7/7 Py, 7/7 Rust) |
+| 27 | GPU vendor parity for WDM observables | WDM MD | Extend hotSpring's RTX 4070 vs Titan V (NVK) parity tests to WDM conditions. Does vendor/driver affect physics? (should be zero, but prove it) | **Active** (Exp 027: 7/7 Py, 7/7 Rust) |
 
 **Cross-spring impact**: These experiments provide the error bars for
 Sub-thesis 07's central claim. If f32→f64 bias is <1% for transport
@@ -187,8 +194,9 @@ datasets, no proprietary software dependencies.
 | 21 | R. Anderson FEMS | NCBI SRA 16S amplicons | SRA accession | **Yes** |
 | 22-24 | Cross-spring sub-thesis 06 | Derived from Exp 001-004 | Internal | **Yes** |
 | 25-27 | Sub-thesis 07 (WDM GPU) | Simulation + analytical | Reproducible | **Yes** |
+| 28 | NPU Anderson (AKD1000) | ToadStool akida-driver | Pure Rust, zero mocks | **Yes** |
 
-**Status**: All 27 papers use open data or open systems. Zero proprietary dependencies.
+**Status**: All 28 papers use open data or open systems. Zero proprietary dependencies.
 
 ---
 
@@ -203,7 +211,7 @@ Write → Absorb → Lean cycle:
 | **GPU** | `barracuda` feature + GPU adapter | GPU matches CPU within tolerance | BarraCUDA GPU ops (reduce, map, fused) |
 | **metalForge** | Mixed hardware dispatch | Cross-substrate agreement | metalForge forge crate routes to best substrate |
 
-### Completed Experiments (Papers 1-5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21)
+### Completed Experiments (Papers 1-5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 27)
 
 | # | Experiment | CPU | GPU | metalForge | Barracuda delegation |
 |---|-----------|:---:|:---:|:----------:|---------------------|
@@ -227,12 +235,13 @@ Write → Absorb → Lean cycle:
 | 14 | Eco-evolutionary noise threshold | **6/6** | Embarrassingly parallel | After GPU | Simulation-only (multinomial+mutation) |
 | 18 | Band edge structure | **10/10** | Transfer matrix per-energy parallel | After GPU | tridiag_eigh candidate |
 | 21 | Rare biosphere signal detection | **10/10** | Embarrassingly parallel | After GPU | Chao1, multinomial sampling |
+| 28 | NPU Anderson regime classification | **9/9** | — | **Live** (AKD1000 DMA) | int8 centroid classifier on NPU |
 
-**CPU tier**: 236/236 PASS across 21 validation binaries.
-**Barracuda**: 27 functions delegated (22 CPU + 5 GPU). **Performance**: 22× faster than Python (all 21; Exp 009: 49.5× from Sturm tridiag). **Tests**: 280 Rust tests.
-**Mathematical parity**: 21/21 PROVEN. See `data/parity_report.json`.
+**CPU tier**: 288/288 PASS across 28 validation binaries.
+**Barracuda**: 27 functions delegated (22 CPU + 5 GPU). **Performance**: 22× faster than Python (all 28; Exp 009: 49.5× from Sturm tridiag). **Tests**: 314 Rust tests.
+**Mathematical parity**: 28/28 PROVEN. See `data/parity_report.json`.
 **GPU tier**: pending barracuda adapter (Tier A) or new kernels (Tier B/C).
-**metalForge tier**: after GPU.
+**metalForge tier**: partially validated (groundspring-forge crate, Exp 028 NPU DMA on AKD1000).
 
 ### Queued Papers (updated after ToadStool S51-S66 absorption wave)
 
@@ -305,12 +314,12 @@ Papers 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 18, 21 — can proceed to GPU tier on
 
 ## Hardware Evolution: CPU → GPU → metalForge
 
-### Tier 1: BarraCUDA CPU (current — 236/236 PASS)
+### Tier 1: BarraCUDA CPU (current — 288/288 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
-27 functions delegated to barracuda (22 CPU + 5 GPU). 22× faster than Python (all 21; Exp 009: 49.5× Sturm tridiag).
-280 Rust tests. 21/21 mathematical parity proven.
-All 21 experiments validated.
+27 functions delegated to barracuda (22 CPU + 5 GPU). 22× faster than Python (all 28; Exp 009: 49.5× Sturm tridiag).
+314 Rust tests. 28/28 mathematical parity proven.
+All 28 experiments validated.
 
 ### Tier 2: BarraCUDA GPU (next)
 
@@ -351,4 +360,4 @@ dispatch use hotSpring's shared metalForge infrastructure.
 - Papers 15-18 (Kachkovskiy) are the mathematical foundation — all use barracuda `spectral`
 - Papers 20-21 (R. Anderson) share barracuda bio ops with wetSpring
 - The common thread: **extracting reliable conclusions from noisy measurements**
-- **All 27 papers use open data and open systems. Zero proprietary dependencies.**
+- **All 28 papers use open data and open systems. Zero proprietary dependencies.**

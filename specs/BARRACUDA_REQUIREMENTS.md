@@ -9,16 +9,16 @@
 
 groundSpring Phase 0 (Python), Phase 1 (Rust), and Phase 2a (barracuda CPU) are **complete**.
 
-- 236/236 validation checks across 21 binaries
-- 24 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, almost_mathieu, bistable, multisignal, kinetics, transport, drift, rare_biosphere, quasispecies, band_structure, jackknife, freeze_out, spectral_recon (+cast, validate)
-- 280 Rust tests, 0 clippy warnings, 98.93% llvm-cov
+- 288/288 validation checks across 28 binaries
+- 28 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, almost_mathieu, bistable, multisignal, kinetics, transport, drift, rare_biosphere, quasispecies, band_structure, jackknife, freeze_out, spectral_recon, wdm (+cast, validate)
+- 302 Rust tests, 0 clippy warnings × 3 feature modes (default, barracuda, barracuda-gpu)
 - Two feature gates: `barracuda` (22 CPU delegations) and `barracuda-gpu` (5 GPU delegations including Sturm tridiag). **Note**: V20 feature gate bug RESOLVED in ToadStool HEAD. V21: dual-mode CI runs `cargo clippy` and `cargo test` with and without barracuda feature; `--features barracuda` compiles cleanly.
-- 27 active delegations (22 CPU + 5 GPU; `kinetics::hill` now LIVE; `hill_repress` composes `1.0 - hill()`)
+- 28 active delegations (22 CPU + 5 GPU; `kinetics::hill` now LIVE; `hill_repress` composes `1.0 - hill()`)
 - 2 production WGSL shaders in `metalForge/shaders/` (261 combined lines)
 - All matrices use flat row-major `Vec<f64>` — GPU-promotable layout
-- Rust is **22× faster** than Python (all 21 experiments). Exp 009: **49.5× from Sturm tridiag**
-- **21/21 mathematical parity proven** (Python ⇌ Rust; `data/parity_report.json`)
-- **21/21 DOIs**, all provenance fields stamped, 13 bitwise determinism tests
+- Rust is **22× faster** than Python (all 28 experiments). Exp 009: **49.5× from Sturm tridiag**
+- **28/28 mathematical parity proven** (Python ⇌ Rust; `data/parity_report.json`)
+- **28/28 mathematical parity proven**, all provenance fields stamped, 13 bitwise determinism tests
 
 See [BARRACUDA_EVOLUTION.md](BARRACUDA_EVOLUTION.md) for the module-by-module
 GPU promotion mapping.
@@ -78,17 +78,17 @@ GPU promotion mapping.
 ```
 Phase 0 (DONE — Python)        Phase 1 (DONE — Rust CPU)       Phase 2a (DONE — Barracuda CPU)
 ────────────────────           ─────────────────────────       ──────────────────────────────
-NumPy MC (N=10k)    ────────→  prng + fao56 (236/236 PASS) →  bootstrap_mean → barracuda
+NumPy MC (N=10k)    ────────→  prng + fao56 (258/258 PASS) →  bootstrap_mean → barracuda
 NumPy stats         ────────→  stats (RMSE/MBE/R²/IA/hit) →   pearson_r, spearman_r, std_dev → barracuda
 NumPy Gillespie     ────────→  gillespie::birth_death_ssa  →  (GPU-only: GillespieGpu)
 NumPy bootstrap     ────────→  bootstrap::rawr_mean        →  (Gap: no RAWR kernel)
 NumPy Anderson      ────────→  anderson::lyapunov_*        →  lyapunov_exponent, lyapunov_averaged → barracuda
 NumPy ODE           ────────→  bistable + multisignal      →  BistableOde, MultiSignalOde → barracuda
-                                                               22× faster, 21/21 parity proven
+                                                               22× faster, 28/28 parity proven
 
 Phase 2a (DONE)                Phase 2b (GPU — NEXT)
 ──────────────                 ────────────────────
-27 delegated (22 CPU + 5 GPU) ────────→  Tier A complete (all CPU delegated)
+28 delegated (22 CPU + 5 GPU) ────────→  Tier A complete (all CPU delegated)
 prng::Xorshift64    ────────→  Tier B: align to barracuda xoshiro128**
 fao56::daily_et0    ────────→  Tier C: mc_et0_propagate.wgsl → barracuda
 rarefaction         ────────→  Tier C: batched_multinomial.wgsl → barracuda

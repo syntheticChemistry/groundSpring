@@ -6,6 +6,7 @@ resolver = "2"
 members = [
     "crates/groundspring",
     "crates/groundspring-validate",
+    "metalForge/forge",
 ]
 
 [workspace.package]

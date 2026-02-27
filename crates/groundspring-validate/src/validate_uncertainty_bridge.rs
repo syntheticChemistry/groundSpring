@@ -96,11 +96,14 @@ fn validate_anderson_baseline(
     h.check_true("Clean system (W=0.5) has small γ", gammas[0] < 0.1);
     h.check_true(
         "Strong disorder (W=12) has large γ",
-        *gammas.last().unwrap() > 0.3,
+        *gammas.last().expect("non-empty disorder range") > 0.3,
     );
 }
 
 /// Propagate one sensor type and return `(raw_cv, corrected_cv)`.
+///
+/// Each sensor creates its own deterministic RNG from `sensor_seed` so that
+/// results are independent of call order and prior RNG consumption.
 fn validate_sensor(
     h: &mut ValidationHarness,
     label: &str,
@@ -108,17 +111,21 @@ fn validate_sensor(
     sensor_cfg: &Value,
     expected_cv: &Value,
     n_mc: usize,
-    rng: &mut Xorshift64,
+    sensor_seed: u64,
 ) -> (f64, f64) {
     println!("\n--- {label} ---");
 
     let bias = f64_field(sensor_cfg, "bias_mbe");
     let sigma = f64_field(sensor_cfg, "random_sigma");
 
-    let (raw_mean, raw_std, raw_cv) = propagate_sensor_noise(params, bias, sigma, n_mc, rng, 42);
+    let mut rng_raw = Xorshift64::new(sensor_seed);
+    let (raw_mean, raw_std, raw_cv) =
+        propagate_sensor_noise(params, bias, sigma, n_mc, &mut rng_raw, sensor_seed);
     println!("  Raw:  ξ = {raw_mean:.1} ± {raw_std:.1} (CV = {raw_cv:.3})");
 
-    let (corr_mean, corr_std, corr_cv) = propagate_sensor_noise(params, 0.0, sigma, n_mc, rng, 42);
+    let mut rng_corr = Xorshift64::new(sensor_seed.wrapping_add(1));
+    let (corr_mean, corr_std, corr_cv) =
+        propagate_sensor_noise(params, 0.0, sigma, n_mc, &mut rng_corr, sensor_seed);
     println!("  Corrected: ξ = {corr_mean:.1} ± {corr_std:.1} (CV = {corr_cv:.3})");
 
     h.check_range(
@@ -160,8 +167,6 @@ fn run() -> i32 {
         .map(|v| v.as_f64().expect("disorder f64"))
         .collect();
 
-    let mut rng = Xorshift64::new(2026);
-
     validate_anderson_baseline(&mut h, &disorders, chain_length, n_realizations);
 
     let (cs616_raw_cv, cs616_corr_cv) = validate_sensor(
@@ -171,7 +176,7 @@ fn run() -> i32 {
         &sensor["cs616_sand"],
         &exp["localization_length_cv_cs616"],
         n_mc,
-        &mut rng,
+        2026,
     );
     let (ec5_raw_cv, ec5_corr_cv) = validate_sensor(
         &mut h,
@@ -180,7 +185,7 @@ fn run() -> i32 {
         &sensor["ec5_sandy_clay_loam"],
         &exp["localization_length_cv_ec5"],
         n_mc,
-        &mut rng,
+        3026,
     );
 
     println!("\n--- Cross-sensor comparison ---");

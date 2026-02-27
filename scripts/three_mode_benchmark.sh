@@ -4,7 +4,7 @@
 #
 # groundSpring — Three-Mode Benchmark
 #
-# Builds and times all 21 validation binaries in three feature modes:
+# Builds and times 27 validation binaries in three feature modes:
 #   1. default   (no barracuda)
 #   2. barracuda (CPU delegations only)
 #   3. barracuda-gpu (CPU + GPU delegations)
@@ -40,7 +40,16 @@ BINS=(
     validate-jackknife
     validate-freeze-out
     validate-spectral-recon
+    validate-et0-anderson
+    validate-notill-sampling
+    validate-aggregate-stability
+    validate-precision-drift
+    validate-size-convergence
+    validate-vendor-parity
 )
+
+# NPU binary: requires --features npu and physical NPU hardware (/dev/akida0)
+NPU_BINS=(validate-npu-anderson)
 
 MODES=("default" "barracuda" "barracuda-gpu")
 FEATURES=("" "--features barracuda" "--features barracuda-gpu")

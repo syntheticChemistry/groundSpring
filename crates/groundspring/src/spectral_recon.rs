@@ -17,8 +17,6 @@
 //! kernel construction is embarrassingly parallel, and the Cholesky solve
 //! maps to batched dense linear algebra.
 
-use crate::cast::usize_f64;
-
 /// Build the Laplace-transform kernel matrix (row-major, `n_tau × n_omega`).
 ///
 /// `K[i,j] = exp(−τ_i ω_j) Δω`
@@ -104,19 +102,22 @@ pub fn peak_index(rho: &[f64]) -> usize {
 
 /// RMSE between two vectors.
 ///
+/// Delegates to [`crate::stats::rmse`], which in turn delegates to
+/// `barracuda::stats::rmse` when the `barracuda` feature is enabled.
+///
 /// # Panics
 ///
 /// Panics if `a` and `b` have different lengths.
 #[must_use]
 pub fn rmse(a: &[f64], b: &[f64]) -> f64 {
-    assert_eq!(a.len(), b.len());
-    let n = usize_f64(a.len());
-    let ss: f64 = a.iter().zip(b.iter()).map(|(&x, &y)| (x - y).powi(2)).sum();
-    (ss / n).sqrt()
+    crate::stats::rmse(a, b)
 }
 
 /// Aᵀ · B where A is `m × k` and B is `m × n`, result is `k × n` (row-major).
-#[allow(clippy::many_single_char_names)]
+#[expect(
+    clippy::many_single_char_names,
+    reason = "standard linear algebra notation (m × k × n)"
+)]
 fn mat_transpose_mul(a: &[f64], b: &[f64], m: usize, k: usize, n: usize) -> Vec<f64> {
     let mut c = vec![0.0; k * n];
     for i in 0..k {
@@ -132,7 +133,10 @@ fn mat_transpose_mul(a: &[f64], b: &[f64], m: usize, k: usize, n: usize) -> Vec<
 }
 
 /// Aᵀ · v where A is `m × n`, v is length `m`, result is length `n`.
-#[allow(clippy::many_single_char_names)]
+#[expect(
+    clippy::many_single_char_names,
+    reason = "standard linear algebra notation (m × n)"
+)]
 fn mat_transpose_vec(a: &[f64], v: &[f64], m: usize, n: usize) -> Vec<f64> {
     let mut r = vec![0.0; n];
     for i in 0..n {
@@ -148,7 +152,10 @@ fn mat_transpose_vec(a: &[f64], v: &[f64], m: usize, n: usize) -> Vec<f64> {
 /// Cholesky decomposition and solve for SPD system `Ax = b`.
 ///
 /// Returns x. Panics if A is not positive definite.
-#[allow(clippy::many_single_char_names)]
+#[expect(
+    clippy::many_single_char_names,
+    reason = "standard Cholesky notation (L, i, j, k, n)"
+)]
 fn cholesky_solve(a: &[f64], b: &[f64], n: usize) -> Vec<f64> {
     let mut l: Vec<f64> = vec![0.0; n * n];
 
@@ -192,6 +199,7 @@ fn cholesky_solve(a: &[f64], b: &[f64], n: usize) -> Vec<f64> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::cast::usize_f64;
 
     #[test]
     fn kernel_shape() {

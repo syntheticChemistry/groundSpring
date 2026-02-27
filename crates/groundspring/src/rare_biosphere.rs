@@ -29,6 +29,10 @@ use crate::cast::{u64_f64, usize_f64};
 /// where `f₁` = singletons (count == 1), `f₂` = doubletons (count == 2).
 /// When `f₂ = 0` and `f₁ > 0`, uses the bias-corrected form
 /// `S_obs + f₁(f₁ − 1) / 2` (Chao 1984).
+///
+/// Stays local: barracuda's `chao1(&[f64])` uses float equality for
+/// singleton/doubleton classification, which can differ from integer
+/// equality on u64 counts. Tier B alignment required before delegation.
 #[must_use]
 pub fn chao1(counts: &[u64]) -> f64 {
     let s_obs = usize_f64(counts.iter().filter(|&&c| c > 0).count());

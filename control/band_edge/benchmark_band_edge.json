@@ -12,7 +12,7 @@
     "real_data_accession": "N/A (analytical)",
     "prng_algorithm": "N/A (fully deterministic)",
     "baseline_date": "2026-02-26",
-    "baseline_commit": "pending",
+    "baseline_commit": "6e73709291d5dacfd527dd414a62aa8ade7e8f57",
     "validation_script": "control/band_edge/band_edge.py",
     "command": "python3 control/band_edge/band_edge.py"
   },

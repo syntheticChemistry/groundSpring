@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 ecoPrimals / Squirrel Team
 #!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2026 ecoPrimals / Squirrel Team
@@ -27,6 +29,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+
+NPU_AVAILABLE = Path("/dev/akida0").exists()
 
 
 @dataclass
@@ -193,6 +197,50 @@ EXPERIMENTS = [
         "python": [sys.executable, "control/spectral_recon/spectral_recon.py"],
         "rust_bin": "validate-spectral-recon",
     },
+    {
+        "name": "Exp 022: ET0 Anderson Propagation",
+        "benchmark": "control/et0_anderson_propagation/benchmark_et0_anderson.json",
+        "python": [sys.executable, "control/et0_anderson_propagation/et0_anderson_propagation.py"],
+        "rust_bin": "validate-et0-anderson",
+    },
+    {
+        "name": "Exp 023: No-Till Sampling",
+        "benchmark": "control/notill_sampling/benchmark_notill_sampling.json",
+        "python": [sys.executable, "control/notill_sampling/notill_sampling.py"],
+        "rust_bin": "validate-notill-sampling",
+    },
+    {
+        "name": "Exp 024: Aggregate Stability",
+        "benchmark": "control/aggregate_stability/benchmark_aggregate_stability.json",
+        "python": [sys.executable, "control/aggregate_stability/aggregate_stability.py"],
+        "rust_bin": "validate-aggregate-stability",
+    },
+    {
+        "name": "Exp 025: Precision Drift",
+        "benchmark": "control/precision_drift/benchmark_precision_drift.json",
+        "python": [sys.executable, "control/precision_drift/precision_drift.py"],
+        "rust_bin": "validate-precision-drift",
+    },
+    {
+        "name": "Exp 026: Size Convergence",
+        "benchmark": "control/size_convergence/benchmark_size_convergence.json",
+        "python": [sys.executable, "control/size_convergence/size_convergence.py"],
+        "rust_bin": "validate-size-convergence",
+    },
+    {
+        "name": "Exp 027: Vendor Parity",
+        "benchmark": "control/vendor_parity/benchmark_vendor_parity.json",
+        "python": [sys.executable, "control/vendor_parity/vendor_parity.py"],
+        "rust_bin": "validate-vendor-parity",
+    },
+    {
+        "name": "Exp 028: NPU Anderson",
+        "benchmark": "control/npu_anderson/benchmark_npu_anderson.json",
+        "python": [sys.executable, "control/npu_anderson/npu_anderson.py"],
+        "rust_bin": "validate-npu-anderson",
+        "rust_features": ["npu"],
+        "npu_required": True,
+    },
 ]
 
 
@@ -209,6 +257,11 @@ def main() -> int:
     results: list[ExperimentParity] = []
 
     for exp in EXPERIMENTS:
+        if exp.get("npu_required") and not NPU_AVAILABLE:
+            print(f"\n--- {exp['name']} ---")
+            print("  [SKIP] NPU hardware (/dev/akida0) not available")
+            continue
+
         print(f"\n--- {exp['name']} ---")
         print(f"  Shared benchmark: {exp['benchmark']}")
 
@@ -216,9 +269,10 @@ def main() -> int:
         py_checks = extract_checks(py_out)
         print(f"  Python: {'PASS' if py_ok else 'FAIL'} ({py_checks})")
 
-        rs_ok, rs_out = run_and_capture(
-            ["cargo", "run", "--release", "--bin", exp["rust_bin"]],
-        )
+        rs_cmd = ["cargo", "run", "--release", "--bin", exp["rust_bin"]]
+        if "rust_features" in exp:
+            rs_cmd.extend(["--features", ",".join(exp["rust_features"])])
+        rs_ok, rs_out = run_and_capture(rs_cmd)
         rs_checks = extract_checks(rs_out)
         print(f"  Rust:   {'PASS' if rs_ok else 'FAIL'} ({rs_checks})")
 

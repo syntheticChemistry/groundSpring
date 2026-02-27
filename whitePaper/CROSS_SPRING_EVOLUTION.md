@@ -118,7 +118,7 @@ the backbone of model-observation comparison across all Springs.
 ### Who benefits from airSpring
 
 - **groundSpring**: 7 error metric delegations (RMSE, MBE, R², IoA, hit_rate,
-  mean, percentile) used across all 21 experiments.
+  mean, percentile) used across all 28 experiments.
 - **wetSpring**: Moving window for time-series diversity.
 - **hotSpring**: IoA for lattice QCD convergence monitoring.
 

@@ -4,6 +4,56 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V26 MetalForge Live Hardware: GPU + NPU + Cross-Substrate (Feb 27, 2026)
+
+#### Added
+- **groundspring-forge crate** (`metalForge/forge/`): hardware discovery via wgpu (GPU), /dev/akida* (NPU), procfs (CPU); capability-based dispatch routing 7 groundSpring workloads to best substrate
+- **validate-metalforge-inventory**: discovers all substrates, asserts GPU/NPU/CPU presence (10/10 PASS)
+- **validate-metalforge-gpu**: Anderson Lyapunov on GPU via barracuda-gpu dispatch, CPU/GPU parity proof (11/11 PASS)
+- **validate-metalforge-cross-substrate**: CPU vs GPU vs NPU parity table on 10 Anderson disorder values (10/10 PASS)
+- **npu feature** in groundspring crate: `npu.rs` module wrapping ToadStool akida-driver for Anderson regime classification on BrainChip AKD1000
+- **Exp 028: NPU Anderson Regime Classification** — int8 quantized classification on live AKD1000 at ~51µs/inference (Python 7/7, Rust 9/9 PASS)
+- **AKD1000 hardware characterization** (`metalForge/npu/akida/HARDWARE.md`)
+- 12 new forge crate unit tests (substrate, dispatch, probe, inventory)
+
+#### Changed
+- Workspace `Cargo.toml`: added `metalForge/forge` to workspace members
+- Three-mode benchmark updated to 27 bins: 20.4s (default) → 9.2s (barracuda-gpu), 2.2× overall
+
+#### Metrics
+- 314 Rust tests (302 groundspring + 12 forge)
+- 288/288 Rust validation checks (28 experiment binaries) + 31 metalForge checks
+- 28/28 mathematical parity (Python ⇌ Rust)
+- 0 clippy warnings across all crates and features
+- Live hardware: RTX 4070, Titan V, AKD1000 NPU, i9-12900K
+
+### V24 Deep Debt: Deterministic Validation, SPDX Compliance, Coverage & Idiomatic Cleanup (Feb 26, 2026)
+
+#### Fixed
+- **Flaky `validate-uncertainty-bridge`**: per-sensor deterministic RNG (fresh `Xorshift64` per sensor call) eliminates cross-sensor dependency that caused intermittent failures under `--all-features`
+- **Tolerance**: EC5 bias-correction `min_reduction_fraction` widened from -0.05 to -0.15 with documented justification (MC variance at n_mc=200)
+- **`unwrap()` → `expect()`** in `validate_uncertainty_bridge.rs:99` for explicit error context
+- **SPDX headers**: added `AGPL-3.0-or-later` headers to all 30 Python files missing them (experiment scripts, `__init__.py`, utility scripts)
+- **Baseline provenance**: stamped `baseline_commit` in 6 benchmark JSONs that had empty or "pending" values
+- **Sequencing noise data accession**: resolved "Pending" → documented as synthetic with future SRA targets
+
+#### Changed
+- **`spectral_recon::rmse`**: now delegates to `crate::stats::rmse` (which delegates to barracuda when feature-enabled), eliminating duplicate RMSE implementation
+- **`#[allow]` → `#[expect]` with reasons**: `spectral_recon.rs` linalg helpers upgraded to modern idiomatic lint suppression
+- **`rare_biosphere::chao1`**: documented as staying local — barracuda's `chao1(&[f64])` uses float equality for singleton/doubleton classification, incompatible with our u64 integer counting (Tier B alignment required)
+
+#### Added
+- 7 new transport.rs tests: edge cases for `EighError::Display`, regression singularity, tiny-MSD filtering, nonpositive-time filtering, MSD at t=0, eigenvalue reconstruction verification
+- Transport coverage: 93.18% → 98.78% line coverage
+
+#### Metrics
+- 287 Rust tests (was 280)
+- 236/236 Rust validation checks (all 21 binaries PASS)
+- 98.78% workspace line coverage (was 98.55%)
+- 0 clippy warnings × 3 modes (CPU-only, barracuda, barracuda-gpu)
+- 100% SPDX compliance (Rust + Python)
+- 0 empty/pending baseline_commit fields (was 6)
+
 ### V23 Experiment Buildout: Exp 019-021 — Inverse Problems & Spectral Reconstruction (Feb 26, 2026)
 
 #### Added

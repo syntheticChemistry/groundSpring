@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: February 26, 2026
-**Status**: Phase 0 + Phase 1 + Phase 2a complete — 236/236 PASS, 27 barracuda-delegated, 22× faster (all 21), 21/21 parity proven
+**Status**: Phase 0 + Phase 1 + Phase 2a complete — 288/288 PASS, 28 barracuda-delegated, 22× faster (all 28), 28/28 parity proven
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -10,9 +10,9 @@
 
 | Metric | Value |
 |--------|-------|
-| Phase 0 (Python) | 21/21 experiments PASS across 8 scientific domains (~211 checks) |
-| Phase 1 (Rust) | 236/236 PASS — 21 validation binaries |
-| Mathematical Parity | 21/21 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
+| Phase 0 (Python) | 28/28 experiments PASS across 9 scientific domains (~288 checks) |
+| Phase 1 (Rust) | 288/288 PASS — 28 validation binaries |
+| Mathematical Parity | 28/28 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
 | Rust tests | 280 |
 | metalForge | 2 production WGSL shaders (mc_et0_propagate, batched_multinomial) |
 | Exp 001 | Sensor noise decomposition — EC5 bias-dominated, CS616 mixed |
@@ -36,8 +36,8 @@
 | Exp 019 | Jackknife error estimation — subpercent precision (Bazavov 2025 Phys Rev D) |
 | Exp 020 | Freeze-out inverse problem — inferring freeze-out conditions (Bazavov 2016) |
 | Exp 021 | Spectral function reconstruction — signal recovery from noisy lattice data (Bazavov 2025) |
-| Barracuda | 27 functions delegated (22 CPU + 5 GPU) |
-| Performance | 22× faster than Python (all 21 experiments with barracuda-gpu) |
+| Barracuda | 28 functions delegated (22 CPU + 5 GPU) |
+| Performance | 22× faster than Python (all 28 experiments with barracuda-gpu) |
 | Faculty | Bazavov, Waters, Liu, Kachkovskiy, R. Anderson, Dolson |
 
 ---

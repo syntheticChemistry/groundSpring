@@ -525,8 +525,17 @@ dependencies = [
 name = "groundspring"
 version = "0.1.0"
 dependencies = [
+ "akida-driver",
  "barracuda",
  "proptest",
+]
+
+[[package]]
+name = "groundspring-forge"
+version = "0.1.0"
+dependencies = [
+ "groundspring",
+ "wgpu",
 ]
 
 [[package]]

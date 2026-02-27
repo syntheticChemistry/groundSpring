@@ -33,6 +33,8 @@
 //! - [`multisignal`] — Multi-signal QS integration (CAI-1 + AI-2)
 //! - [`quasispecies`] — Eigen quasispecies model and error threshold
 //! - [`transport`] — Wavepacket transport in tight-binding chains
+//! - [`wdm`] — Warm Dense Matter transport analysis (Green-Kubo, finite-size extrapolation)
+//! - [`npu`] — NPU integration for Akida neuromorphic inference (behind `npu` feature)
 //! - [`validate`] — Validation harness (pass/fail with counters)
 
 pub mod almost_mathieu;
@@ -58,6 +60,10 @@ pub mod spectral_recon;
 pub mod stats;
 pub mod transport;
 pub mod validate;
+pub mod wdm;
+
+#[cfg(feature = "npu")]
+pub mod npu;
 
 /// Centralized numeric cast helpers.
 ///

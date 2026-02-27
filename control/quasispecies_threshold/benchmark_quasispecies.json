@@ -13,7 +13,7 @@
     "real_data_accession": "N/A (analytical + simulation)",
     "prng_algorithm": "xorshift64 (Marsaglia 2003), reproducible seeds",
     "baseline_date": "2026-02-26",
-    "baseline_commit": "pending",
+    "baseline_commit": "6e73709291d5dacfd527dd414a62aa8ade7e8f57",
     "validation_script": "control/quasispecies_threshold/quasispecies_threshold.py",
     "command": "python3 control/quasispecies_threshold/quasispecies_threshold.py"
   },

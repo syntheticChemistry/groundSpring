@@ -27,15 +27,22 @@
 | 019 | Jackknife Error Estimation | Inverse Problems & Spectral Reconstruction | 9/9 PASS | 9/9 PASS |
 | 020 | Freeze-Out Inverse Problem | Inverse Problems & Spectral Reconstruction | 8/8 PASS | 8/8 PASS |
 | 021 | Spectral Function Reconstruction | Inverse Problems & Spectral Reconstruction | 8/8 PASS | 8/8 PASS |
+| 022 | ET₀ → Anderson Propagation | Cross-spring (FAO-56 + Anderson) | 7/7 PASS | 7/7 PASS |
+| 023 | No-Till vs Tilled Sampling | Cross-spring (microbiome + soil) | 7/7 PASS | 7/7 PASS |
+| 024 | Aggregate Stability Noise | Cross-spring (soil physics) | 8/8 PASS | 8/8 PASS |
+| 025 | f32 vs f64 Precision Drift | WDM MD | 7/7 PASS | 7/7 PASS |
+| 026 | System-size Convergence | WDM MD | 7/7 PASS | 7/7 PASS |
+| 027 | GPU Vendor Parity | WDM MD | 7/7 PASS | 7/7 PASS |
+| 028 | NPU Anderson Regime Classification | Hardware (NPU) | 7/7 PASS | 9/9 PASS |
 
-**Python Phase 0**: All 21 experiments passing
-**Rust Phase 1**: 236/236 PASS across 21 validation binaries
-**Rust tests**: 280/280 PASS (207 unit + 13 determinism + 14 proptest + 9 validate-lib + 21 integration + 1 doc)
-**pytest**: 47/47 PASS (all experiments)
+**Python Phase 0**: All 28 experiments passing
+**Rust Phase 1**: 288/288 PASS across 28 validation binaries
+**Rust tests**: 314/314 PASS (234 unit + 13 determinism + 14 proptest + 9 validate-lib + 28 integration + 2 doc + 12 forge)
+**pytest**: 52/52 PASS (all experiments)
 **BarraCUDA delegations**: 27 active (22 CPU + 5 GPU) — ToadStool S68 (f0feb226)
-**Handoff**: V23 (Exp 019-021 experiment buildout)
+**Handoff**: V26 (MetalForge live hardware + Exp 028 NPU Anderson)
 
-**Python checks**: ~137 across 21 experiments. **Rust validation checks**: 236.
+**Python checks**: ~160 across 28 experiments. **Rust validation checks**: 288.
 
 ## Phase 0 — Python/NumPy/SciPy Baselines
 
@@ -202,6 +209,48 @@
 - Spectral reconstruction from correlators validated
 - Inverse problem stability checks
 
+### Exp 022: ET₀ → Anderson Propagation (7/7 PASS)
+
+**Question**: How much does humidity-dominated ET₀ error affect localization length predictions?
+
+**Results**: ET₀ CV 0.043 propagates to ξ CV 0.040 (ratio 0.94); humidity dominates at 51%.
+
+### Exp 023: No-Till vs Tilled 16S Sampling (7/7 PASS)
+
+**Question**: Does saturation depth differ between soil management regimes?
+
+**Results**: No-till H'=3.88, Tilled H'=1.57; both saturate at ~500 reads; distinguishable at 1000.
+
+### Exp 024: Aggregate Stability Measurement Noise (8/8 PASS)
+
+**Question**: How precisely must WSA be measured to distinguish Anderson regimes?
+
+**Results**: Noise floor (0.12-0.14) well below regime gap (1.0); regimes distinguishable.
+
+### Exp 025: f32 vs f64 Precision Drift (7/7 PASS)
+
+**Question**: Does f32 accumulation introduce systematic bias in Green-Kubo transport coefficient calculations?
+
+**Results**: f32 introduces measurable systematic bias (~28% of total error); absolute errors scale with integral magnitude.
+
+### Exp 026: System-size Convergence (7/7 PASS)
+
+**Question**: At what system size N does consumer GPU transport converge to the thermodynamic limit?
+
+**Results**: Finite-size correction fits with R² > 0.999; extrapolation within 1% of true D∞.
+
+### Exp 027: GPU Vendor Parity (7/7 PASS)
+
+**Question**: Do GPU vendor/driver differences affect transport coefficient results?
+
+**Results**: Vendor differences at 1e-12 relative level; correlation 1.000000; chi²/DOF ≈ 0.
+
+### Exp 028: NPU Anderson Regime Classification (9/9 PASS)
+
+**Question**: Can int8 quantized Anderson regime classification run on live BrainChip AKD1000 NPU?
+
+**Results**: int8 DMA round-trip at ~51µs/inference; CPU/NPU parity on 10 disorder values; 9/9 Rust checks, 7/7 Python checks.
+
 ## Phase 1 — Rust Validation (hotSpring Pattern)
 
 ### validate-decompose (36/36 PASS)
@@ -351,21 +400,84 @@ Ports Exp 021 spectral function reconstruction to pure safe Rust. Verifies:
 - Spectral reconstruction from Euclidean correlators
 - Inverse problem stability
 
+### validate-et0-anderson (7/7 PASS)
+
+Ports Exp 022 FAO-56→Anderson propagation chain. Verifies ET₀ range, CV propagation, humidity dominance, Anderson propagation ratio.
+
+### validate-notill-sampling (7/7 PASS)
+
+Ports Exp 023 no-till vs tilled rarefaction. Verifies diversity ordering, Chao1, community distinguishability, saturation depths.
+
+### validate-aggregate-stability (8/8 PASS)
+
+Ports Exp 024 aggregate stability noise decomposition. Verifies d_eff ranges, bias-variance decomposition, regime discrimination, noise floor.
+
+### validate-precision-drift (7/7 PASS)
+
+Ports Exp 025 f32 vs f64 precision drift. Verifies f64 analytical match, f32 relative error bounds, bias fraction, error-magnitude correlation.
+
+### validate-size-convergence (7/7 PASS)
+
+Ports Exp 026 system-size convergence. Verifies D∞ extrapolation, fitted α, R², convergence at N_max.
+
+### validate-vendor-parity (7/7 PASS)
+
+Ports Exp 027 GPU vendor parity. Verifies max/mean relative difference, correlation, bias fraction, chi-squared per DOF.
+
+### validate-npu-anderson (9/9 PASS)
+
+Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classification on AKD1000, CPU/NPU parity, DMA round-trip.
+
 ## Test Infrastructure
 
 | Suite | Tests | Type |
 |-------|------:|------|
 | `test_common.py` | 18 | Unit tests for shared statistical primitives |
 | `test_determinism.py` | 7 | Rerun-identical verification for stochastic ops |
-| `test_experiments.py` | 21 | Integration: each experiment returns exit code 0 |
-| Rust `#[test]` (lib) | 207 | Unit tests for Rust library modules |
+| `test_experiments.py` | 27 | Integration: each experiment returns exit code 0 |
+| Rust `#[test]` (lib) | 234 | Unit tests for Rust library modules |
 | Rust `#[test]` (validate-lib) | 9 | Unit tests for shared validation helpers |
 | Rust proptest | 14 | Property-based invariant tests |
-| Rust integration | 21 | Validation binary integration tests |
-| Rust doc test | 1 | Documentation example test |
-| **Total** | **327** | (47 Python + 280 Rust) |
+| Rust integration | 28 | Validation binary integration tests |
+| Rust doc test | 2 | Documentation example test |
+| Rust forge | 12 | groundspring-forge crate tests |
+| **Total** | **372** | (52 Python + 314 Rust) |
 
 ## Run Log
+
+### Run 24 (V26 MetalForge Live Hardware, Feb 27, 2026)
+
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace`: PASS (0 warnings)
+- `cargo test --workspace`: 314/314 PASS
+- Validation checks: 288/288 PASS (28 binaries)
+- MetalForge checks: 31/31 PASS (inventory 10/10, GPU 11/11, cross-substrate 10/10)
+- Python pytest: 52/52 PASS (28 experiments)
+- Three-mode benchmark: 279/279 × 3 modes = all PASS
+- Added: Exp 028 NPU Anderson (9/9), groundspring-forge crate (12 tests), npu module (8 tests)
+- Live hardware: RTX 4070, Titan V, AKD1000 NPU (80 NPs, ~51µs/inference)
+
+### Run 23 (V25 Experiment Buildout: Exp 025-027, Feb 26, 2026)
+
+- `cargo fmt --check`: PASS
+- `cargo clippy --all-targets --all-features -- -D warnings`: PASS (0 warnings)
+- `cargo test --workspace`: 302/302 PASS (234 unit + 13 determinism + 14 proptest + 9 validate-lib + 27 integration + 2 doc)
+- Validation checks: 279/279 PASS (27 binaries)
+- Python pytest: 50/50 PASS (Exp 001-027)
+- `ruff check control/ tests/`: PASS (0 warnings)
+- Added: Exp 025 f32 vs f64 Precision Drift (7/7), Exp 026 System-size Convergence (7/7), Exp 027 GPU Vendor Parity (7/7)
+- New modules: `wdm` (precision_drift, size_convergence, vendor_parity)
+
+### Run 22 (V24 Experiment Buildout: Exp 022-024, Feb 26, 2026)
+
+- `cargo fmt --check`: PASS
+- `cargo clippy --all-targets --all-features -- -D warnings`: PASS (0 warnings)
+- `cargo test --workspace`: 290/290 PASS (207 unit + 13 determinism + 14 proptest + 9 validate-lib + 24 integration + 1 doc)
+- Validation checks: 258/258 PASS (24 binaries)
+- Python pytest: 50/50 PASS (Exp 001-024)
+- `ruff check control/ tests/`: PASS (0 warnings)
+- Added: Exp 022 ET₀ → Anderson Propagation (7/7), Exp 023 No-Till vs Tilled Sampling (7/7), Exp 024 Aggregate Stability Noise (8/8)
+- New modules: none (uses fao56, anderson, rarefaction, rare_biosphere, decompose, stats)
 
 ### Run 21 (V23 Experiment Buildout: Exp 019-021, Feb 26, 2026)
 
@@ -820,10 +932,17 @@ Each experiment is validated at three hardware tiers:
 | 19 | Jackknife error estimation | **9/9 PASS** | Pending | — | jackknife module |
 | 20 | Freeze-out inverse problem | **8/8 PASS** | Pending | — | freeze_out module |
 | 21 | Spectral function reconstruction | **8/8 PASS** | Pending | — | spectral_recon module |
+| 22 | ET₀ → Anderson propagation | **7/7 PASS** | Pending | — | fao56 + anderson modules |
+| 23 | No-till vs tilled sampling | **7/7 PASS** | Pending | — | rarefaction + rare_biosphere modules |
+| 24 | Aggregate stability noise | **8/8 PASS** | Pending | — | decompose + stats modules |
+| 25 | f32 vs f64 precision drift | **7/7 PASS** | Pending | — | wdm module |
+| 26 | System-size convergence | **7/7 PASS** | Pending | — | wdm module |
+| 27 | GPU vendor parity | **7/7 PASS** | Pending | — | wdm module |
+| 28 | NPU Anderson regime classification | **9/9 PASS** | — | **9/9 PASS** | NPU (AKD1000) |
 
-**CPU tier**: 236/236 PASS (complete)
-**GPU tier**: 0/236 (pending ToadStool absorption of Tier A ops and Tier C kernels)
-**metalForge tier**: 0/236 (after GPU tier)
+**CPU tier**: 288/288 PASS (28 binaries, complete)
+**GPU tier**: validate-metalforge-gpu 11/11 PASS (Anderson Lyapunov on GPU); barracuda-gpu: 279/279 PASS (27 experiments)
+**metalForge tier**: validate-metalforge-cross-substrate 10/10 PASS (CPU vs GPU vs NPU parity); Exp 028 NPU 9/9 PASS
 
 ### BarraCUDA Integration Status (post ToadStool S62)
 
@@ -845,11 +964,11 @@ Each experiment is validated at three hardware tiers:
 
 ## Evolution Roadmap
 
-- **Phase 0**: Python/NumPy/SciPy baselines — **COMPLETE** (~137 across 21 experiments)
+- **Phase 0**: Python/NumPy/SciPy baselines — **COMPLETE** (~158 across 27 experiments)
 - **Phase 0+**: Real open data pipelines (NOAA CDO, IRIS waveforms) — pending API tokens
-- **Phase 1**: Rust CPU validation — **COMPLETE** (236/236 across 21 binaries)
+- **Phase 1**: Rust CPU validation — **COMPLETE** (279/279 across 27 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
-- **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 006-021: biology, statistics, math, quasiperiodic, bistable, multisignal, transport, resampling, drift, uncertainty bridge, rare biosphere, quasispecies, band edge, jackknife, freeze-out, spectral recon)
+- **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 006-027: biology, statistics, math, quasiperiodic, bistable, multisignal, transport, resampling, drift, uncertainty bridge, rare biosphere, quasispecies, band edge, jackknife, freeze-out, spectral recon, et0-anderson, notill-sampling, aggregate-stability, precision-drift, size-convergence, vendor-parity)
 - **Phase 2a**: Tier A rewire — **27 delegated** (22 CPU + 5 GPU; stats, metrics, diversity, bootstrap, anderson, ODE, eigenvalues, hill)
 - **Phase 2b**: Tier B adapt — PRNG alignment, grid-search dispatch
 - **Phase 2c**: Tier C absorption — FAO-56 **superseded** (absorbed S49); `batched_multinomial` still needed
@@ -864,14 +983,14 @@ Each experiment is validated at three hardware tiers:
 | `cargo clippy --all-targets` | PASS (0 errors, 0 warnings) |
 | `cargo clippy --features barracuda` | PASS |
 | `cargo doc --no-deps` | PASS |
-| `cargo test` | 280/280 PASS (207 unit + 13 determinism + 14 proptest + 9 validate-lib + 21 integration + 1 doc) |
-| `cargo test --features barracuda` | 280/280 PASS |
-| `cargo test --features barracuda-gpu` | 280/280 PASS |
-| Validation binaries (local) | 236/236 PASS |
-| Validation binaries (barracuda-gpu) | 236/236 PASS |
+| `cargo test` | 314/314 PASS (234 unit + 13 determinism + 14 proptest + 9 validate-lib + 28 integration + 2 doc + 12 forge) |
+| `cargo test --features barracuda` | 314/314 PASS |
+| `cargo test --features barracuda-gpu` | 314/314 PASS |
+| Validation binaries (local) | 288/288 PASS |
+| Validation binaries (barracuda-gpu) | 288/288 PASS |
 | `ruff check control/ tests/` | 0 errors |
 | `mypy control/ tests/` | 0 errors |
-| `python3 -m pytest tests/` | 47/47 PASS (all experiments) |
+| `python3 -m pytest tests/` | 52/52 PASS (all experiments) |
 | Workspace line coverage | 98.93% (cargo-llvm-cov) |
 | Unsafe code | Forbidden (workspace lint) |
 | Max file size | 405 lines (all < 1000) |
@@ -921,13 +1040,16 @@ All 11 experiments, median of 3 trials (Feb 26, 2026):
 
 \* Exp 009 with barracuda-gpu (Sturm tridiag solver). Without barracuda: 11.7s.
 
-**Mathematical Parity**: 21/21 experiments PROVEN. See `data/parity_report.json`.
+**Mathematical Parity**: 27/27 experiments PROVEN. See `data/parity_report.json`.
 
 ## Handoff Documents
 
 | Handoff | Scope | Status |
 |---------|-------|--------|
-| V23: Experiment Buildout Exp 019-021 | Jackknife, freeze-out, spectral recon; 21 experiments, 236/236 checks, 280 tests | **Current** |
+| V26: MetalForge Live Hardware + Exp 028 | groundspring-forge crate, npu module, validate-metalforge-*; 28 experiments, 288/288 checks, 314 tests, 31 metalForge checks | **Current** |
+| V25: Experiment Buildout Exp 025-027 | precision-drift, size-convergence, vendor-parity; 27 experiments, 279/279 checks, 302 tests | Superseded by V26 |
+| V24: Experiment Buildout Exp 022-024 | ET₀→Anderson, notill-sampling, aggregate-stability; 24 experiments, 258/258 checks, 290 tests | Superseded by V25 |
+| V23: Experiment Buildout Exp 019-021 | Jackknife, freeze-out, spectral recon; 21 experiments, 236/236 checks, 280 tests | Superseded by V24 |
 | V22: Experiment Buildout Exp 016-018 | Rare biosphere, quasispecies threshold, band edge structure; 18 experiments, 211/211 checks, 262 tests | Superseded by V23 |
 | V21: Complete Rewiring + Dual-Mode CI | Complete barracuda rewiring, dual-mode CI (clippy/test with and without barracuda), 27 delegations, domain guard fix | Superseded by V22 |
 | V20: S68 Catch-Up + Hill | Hill delegation #27 (22 CPU + 5 GPU), ToadStool f0feb226 (S68), 700 shaders, 2,546+ tests | Superseded by V21 |

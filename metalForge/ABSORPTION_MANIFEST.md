@@ -6,7 +6,7 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: February 26, 2026 (V21 — S68 revalidation, 27 delegations, 49.5× Exp 009)
+**Last updated**: February 27, 2026 (V26 — MetalForge live hardware, NPU integration, 28 experiments, 288/288 checks)
 
 ## Absorption Status Summary
 
@@ -39,6 +39,10 @@
 | `validate::*` | **Stays local** — harness, not compute | — | N/A |
 | `seismic::haversine_km` | **Stays local** — scalar trig | — | N/A |
 | `seismic::travel_time_1d` | **Stays local** — one sqrt + division | — | N/A |
+| `npu::discover_npu` | **Lean** — wraps `akida_driver::DeviceManager` | A | `akida_driver::discover()` |
+| `npu::quantize_features` | **Write** — int8 quantization for NPU dispatch | B | generic `barracuda::quantize_i8` candidate |
+| `npu::npu_classify_regime` | **Write** — DMA inference on AKD1000 | B | higher-level `akida_driver::classify_i8` candidate |
+| `npu::train_classifier_weights` | **Write** — centroid-based int8 weights | B | `akida_driver::ModelManager` candidate |
 
 ---
 
@@ -144,19 +148,24 @@ NOTE:       Equation chain is superseded by barracuda Op::Fao56Et0 — when
 ## Handoff Checklist (per shader)
 
 - [x] Production WGSL file with documented bindings
-- [x] CPU reference passes all validation checks (236/236 across 21 binaries)
+- [x] CPU reference passes all validation checks (288/288 across 28 binaries)
 - [x] Binding layout documented in this manifest
 - [x] Dispatch geometry documented (workgroup size, grid dims)
 - [x] f64 precision throughout (no f32 truncation)
 - [x] PRNG matches barracuda (xoshiro128**)
 - [x] Handoff V14 posted in `wateringHole/handoffs/` (V13, V12, V11, V10, V9, V8 archived)
 - [x] All 27 barracuda delegations use `#[cfg]` or `if let Ok` with CPU fallback always compiled
-- [x] Mathematical parity: 21/21 PROVEN (Python ⇌ Rust, `data/parity_report.json`)
+- [x] Mathematical parity: 28/28 PROVEN (Python ⇌ Rust, `data/parity_report.json`)
 - [x] PRNG alignment investigated: requires full rebaseline (documented in V8 handoff)
 - [x] ToadStool S64 catch-up: 6 new CPU delegations (metrics + shannon), 3 bug fixes
 - [x] Complete rewiring: 4 more delegations (mean, percentile, level_spacing_ratio, eigenvalues)
 - [x] Exp 009: 49.5× speedup from Sturm tridiag solver (hotSpring S26 spectral)
 - [x] Three-mode revalidation (local / barracuda / barracuda-gpu): all PASS × 3, 0 warnings × 3
 - [x] Fixed OdeSystem trait import, hofstadter module path, dead-code gates
+- [x] V26 MetalForge: groundspring-forge crate (probe, inventory, dispatch, workloads) with 12 tests
+- [x] V26 NPU: `npu.rs` module wrapping akida-driver for Anderson regime classification on AKD1000
+- [x] V26 Live hardware: RTX 4070, Titan V, AKD1000 NPU (80 NPs, ~51 µs DMA), i9-12900K
+- [x] V26 Validation: 288/288 experiment checks + 31 metalForge checks (inventory 10, GPU 11, cross-substrate 10)
+- [x] Three-mode benchmark: 20.4s → 9.2s (2.2× overall, 47.7× quasiperiodic)
 - [ ] Tolerance comparison: GPU output vs CPU reference
 - [ ] ToadStool absorption of groundSpring shaders confirmed

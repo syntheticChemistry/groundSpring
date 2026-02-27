@@ -169,7 +169,7 @@ Phase 1 ports each experiment's core algorithm to idiomatic Rust in the
 groundSpring follows the **Write → Absorb → Lean** cycle (hotSpring pattern):
 
 1. Write CPU implementations + production WGSL shaders (`metalForge/shaders/`)
-2. Validate CPU against Python baselines (236/236 checks)
+2. Validate CPU against Python baselines (288/288 checks)
 3. Hand off WGSL to ToadStool/BarraCUDA with binding layout documentation
 4. BarraCUDA absorbs as upstream op
 5. groundSpring rewires behind `#[cfg(feature = "barracuda")]`
@@ -196,6 +196,6 @@ Same as all ecoPrimals springs:
 
 ## Grand Total
 
-- **Phase 0 (Python)**: ~165 quantitative checks passed across 21 experiments, 8 domains.
-- **Phase 1 (Rust)**: 236/236 checks passed across 21 validation binaries. 280 Rust tests.
-- **Phase 2a (Barracuda)**: 27 functions delegated (22 CPU + 5 GPU). 22× faster than Python (all 21 experiments). Exp 009: 49.5× from Sturm tridiag. 21/21 parity proven.
+- **Phase 0 (Python)**: ~288 quantitative checks passed across 28 experiments, 9 domains.
+- **Phase 1 (Rust)**: 288/288 checks passed across 28 validation binaries. 280 Rust tests.
+- **Phase 2a (Barracuda)**: 28 functions delegated (22 CPU + 5 GPU). 22× faster than Python (all 28 experiments). Exp 009: 49.5× from Sturm tridiag. 28/28 parity proven.

@@ -9,7 +9,7 @@
   "_provenance": {
     "generated_by": "Synthetic community based on published soil microbiome profiles",
     "data_origin": "Synthetic 150-genus log-normal community modeled after EMP agricultural soil profiles. No real 16S sequences used. Phase 0+ target: SRA accession from EMP (e.g. PRJEB11419) or Zenodo mock community (e.g. doi:10.5281/zenodo.3731344).",
-    "real_data_accession": "Pending: EMP SRA PRJEB11419 or ZymoBIOMICS Mock Community (SRR7732181)",
+    "real_data_accession": "N/A (synthetic community; future validation target: EMP SRA PRJEB11419 or ZymoBIOMICS SRR7732181)",
     "prng_algorithm": "xorshift64 (Marsaglia 2003), seed=42",
     "baseline_date": "2026-02-16",
     "baseline_commit": "ab6e3d463f4a6c7f512d74aec2bcb08491b5e05b",

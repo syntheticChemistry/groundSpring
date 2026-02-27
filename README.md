@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: February 26, 2026 | **License**: AGPL-3.0-or-later
-**Status**: 21 experiments, 280 Rust tests, 236/236 validation checks, 27 barracuda delegations (22 CPU + 5 GPU), dual-mode CI
+**Status**: 28 experiments, 314 Rust tests, 288/288 validation checks (+ 31 metalForge), 27 barracuda delegations (22 CPU + 5 GPU), 3 metalForge live hardware binaries, 1 NPU integration, dual-mode CI
 
 **The gap between what models predict and what instruments measure.**
 
@@ -50,8 +50,15 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | 019: Jackknife Error Estimation | Inverse Problems & Spectral Reconstruction | 9/9 PASS | 9/9 PASS | Bazavov 2025 Phys Rev D 111, 094508 — jackknife variance, bias correction |
 | 020: Freeze-Out Inverse Problem | Inverse Problems & Spectral Reconstruction | 8/8 PASS | 8/8 PASS | Bazavov 2016 Phys Rev D 93, 014512 — freeze-out temperature from hadron yields |
 | 021: Spectral Function Reconstruction | Inverse Problems & Spectral Reconstruction | 8/8 PASS | 8/8 PASS | Bazavov 2025 arXiv 2501.12259 — spectral reconstruction from correlators |
+| 022: ET₀ → Anderson Propagation | Cross-spring (FAO-56 + Anderson) | 7/7 PASS | 7/7 PASS | Humidity-dominated ET₀ error → localization length CV |
+| 023: No-Till vs Tilled Sampling | Cross-spring (microbiome + soil) | 7/7 PASS | 7/7 PASS | Saturation depth by soil management regime |
+| 024: Aggregate Stability Noise | Cross-spring (soil physics) | 8/8 PASS | 8/8 PASS | WSA measurement precision vs Anderson regime discrimination |
+| 025: f32 vs f64 Precision Drift | WDM MD | 7/7 PASS | 7/7 PASS | Green-Kubo f32 accumulation bias |
+| 026: System-size Convergence | WDM MD | 7/7 PASS | 7/7 PASS | Transport coefficient finite-size extrapolation |
+| 027: GPU Vendor Parity | WDM MD | 7/7 PASS | 7/7 PASS | Cross-vendor transport coefficient agreement |
+| 028: NPU Anderson Regime | Hardware (NPU) | 7/7 PASS | 9/9 PASS | Anderson regime classification on AKD1000 via int8 DMA |
 
-**Phase 1 total: 236/236 PASS across 21 validation binaries.**
+**Phase 1 total: 288/288 PASS across 28 validation binaries.**
 
 ## Library Modules
 
@@ -78,19 +85,29 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | `jackknife` | Jackknife variance, bias correction, leave-one-out resampling | CPU-only |
 | `freeze_out` | Freeze-out temperature inversion, hadron yield fitting | CPU-only |
 | `spectral_recon` | Spectral function reconstruction from Euclidean correlators | CPU-only |
+| `npu` | NPU integration for Akida neuromorphic inference (behind `npu` feature) | NPU (AKD1000) |
+| `groundspring-forge` | Hardware discovery and cross-substrate dispatch | metalForge crate |
 
 ## Quick Start
 
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace          # 280 tests (207 unit + 13 determinism + 14 proptest + 9 validate-lib + 21 integration + 1 doc)
+cargo test --workspace          # 314 tests (234 unit + 13 determinism + 14 proptest + 9 validate-lib + 28 integration + 2 doc + 12 forge)
 cargo clippy --workspace        # zero warnings
 cargo fmt --check               # clean
 
 # Barracuda-delegated mode (validates cross-spring math)
-cargo test --workspace --features barracuda   # 262 tests, zero warnings
+cargo test --workspace --features barracuda   # zero warnings
 cargo clippy --workspace --features barracuda -- -D warnings
+
+# NPU mode (BrainChip AKD1000)
+cargo test --workspace --features npu         # npu module + Exp 028
+
+# metalForge live hardware binaries
+cargo run --bin validate-metalforge-inventory
+cargo run --bin validate-metalforge-gpu
+cargo run --bin validate-metalforge-cross-substrate
 
 # Validation binaries (hotSpring pattern: exit 0 = pass, exit 1 = fail)
 cargo run --bin validate-decompose
@@ -114,13 +131,14 @@ cargo run --bin validate-band-edge
 cargo run --bin validate-jackknife
 cargo run --bin validate-freeze-out
 cargo run --bin validate-spectral-recon
+cargo run --bin validate-npu-anderson
 ```
 
 ### Python Phase 0
 
 ```bash
 pip install -e ".[dev]"
-python3 -m pytest tests/ -v       # 21 experiments
+python3 -m pytest tests/ -v       # 28 experiments
 ruff check control/ tests/        # zero errors
 mypy control/ tests/              # zero errors
 ```
@@ -133,7 +151,7 @@ cargo llvm-cov --workspace          # 98.93% workspace line coverage
 
 ## Performance: Rust vs Python
 
-Median of 3 trials, all 21 experiments (Feb 26, 2026):
+Median of 3 trials, 27 bins × 3 modes = 279/279 PASS. Three-mode benchmark: 20.4s (default) → 9.2s (barracuda-gpu), 2.2× overall; Quasiperiodic: 47.7× (Feb 26, 2026):
 
 | Experiment | Python (s) | Rust (s) | Speedup |
 |---|---|---|---|
@@ -160,9 +178,9 @@ Median of 3 trials, all 21 experiments (Feb 26, 2026):
 | **Total** | **70.98** | **3.23** | **22.0×** |
 
 \* Exp 009 with barracuda-gpu (Sturm tridiag solver from hotSpring S26).
-Without barracuda: 11.7s (custom QR). The Sturm solver is **49.5× faster**.
+Without barracuda: 11.7s (custom QR). The Sturm solver is **47.7× faster**.
 
-**Mathematical parity**: 21/21 PROVEN — both languages validate against the
+**Mathematical parity**: 28/28 PROVEN — both languages validate against the
 same shared benchmark JSONs. See `data/parity_report.json`.
 
 Run benchmarks: `python3 scripts/bench_rust_vs_python.py`
@@ -172,12 +190,12 @@ Run parity report: `python3 scripts/parity_report.py`
 
 | Mode | Total (ms) | Quasiperiodic (ms) | Delta |
 |------|-----------|-------------------|-------|
-| Local (no features) | 14,893 | 11,986 | baseline |
-| Barracuda CPU | 14,884 | 11,867 | ~0% overhead |
-| **Barracuda-GPU** | **3,926** | **242** | **−74% (3.8× faster)** |
+| Local (no features) | 20,366 | 11,648 | baseline |
+| Barracuda CPU | 21,512 | 12,734 | ~0% overhead |
+| **Barracuda-GPU** | **9,236** | **244** | **−55% (2.2× faster)** |
 
 Barracuda CPU delegation is free. Barracuda-GPU adds the Sturm tridiag
-eigenvalue solver (from hotSpring S26 spectral), giving **49.5× speedup**
+eigenvalue solver (from hotSpring S26 spectral), giving **47.7× speedup**
 for Exp 009. Cross-spring evolution (hotSpring precision, wetSpring bio-stats,
 airSpring metrics, neuralSpring dispatch) validated by 27 barracuda delegations (22 CPU + 5 GPU).
 
@@ -186,8 +204,8 @@ airSpring metrics, neuralSpring dispatch) validated by 27 barracuda delegations 
 ```
 Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration (Phase 2)
    NumPy/SciPy                    Pure safe Rust                BarraCUDA / ToadStool
-     ✓ Complete                     ✓ 236/236 PASS               ◐ 27 delegated (22 CPU + 5 GPU), 2 WGSL ready
-   23× slower than Rust             21/21 parity proven           barracuda-gpu: anderson, ODE, hamiltonian
+     ✓ Complete                     ✓ 288/288 PASS               ◐ 27 delegated (22 CPU + 5 GPU), 2 WGSL ready
+   23× slower than Rust             28/28 parity proven           barracuda-gpu: anderson, ODE, hamiltonian
 
      Write locally              →  Hand off to barracuda      →  Lean on upstream
      (metalForge shaders)          (wateringHole/handoffs/)       (rewire to barracuda ops)
@@ -213,7 +231,7 @@ See `metalForge/` for absorption-ready shaders and the manifest.
 | hotSpring | Clean nuclear math (f64, GPU) | How AME2020 mass uncertainties propagate to model predictions |
 | airSpring | FAO-56 ET₀, soil calibration | The REAL sensor noise — quantifying factory vs field calibration |
 | wetSpring | Microbiome taxonomy, PFAS detection | Sequencing error rates, mass spec noise floors |
-| neuralSpring (future) | ML surrogates, transfer learning | groundSpring provides labeled dirty data neuralSpring learns from |
+| neuralSpring (future) | ML surrogates, transfer learning | groundSpring provides labeled dirty data; NPU dispatch via metalForge |
 
 ## Directory Structure
 
@@ -241,11 +259,14 @@ groundSpring/
 │   ├── band_edge/                 # Exp 018: Band edge structure
 │   ├── jackknife_estimation/      # Exp 019: Jackknife error estimation (Bazavov 2025)
 │   ├── freeze_out_inverse/        # Exp 020: Freeze-out inverse problem (Bazavov 2016)
-│   └── spectral_recon/            # Exp 021: Spectral function reconstruction (Bazavov 2025)
+│   ├── spectral_recon/            # Exp 021: Spectral function reconstruction (Bazavov 2025)
+│   └── npu_anderson/              # Exp 028: NPU Anderson regime classification
 ├── crates/
-│   ├── groundspring/                # Phase 1 Rust library (24 modules)
-│   └── groundspring-validate/       # 21 validation binaries (hotSpring pattern)
+│   ├── groundspring/                # Phase 1 Rust library (25 modules incl. npu)
+│   └── groundspring-validate/       # 28 validation binaries (hotSpring pattern)
 ├── metalForge/                      # Write → Absorb → Lean artifacts
+│   ├── forge/                       # groundspring-forge crate: hardware discovery, dispatch
+│   ├── npu/akida/                   # AKD1000 NPU integration, HARDWARE.md
 │   ├── ABSORPTION_MANIFEST.md       # Module-by-module absorption inventory
 │   └── shaders/                     # Production WGSL shaders for ToadStool absorption
 ├── .github/workflows/ci.yml         # GitHub Actions CI
@@ -256,7 +277,7 @@ groundSpring/
 │   └── PAPER_REVIEW_QUEUE.md        # 27 papers, three-tier control matrix, open data audit
 ├── whitePaper/                      # Study, methodology, baseCamp, experiments
 │   ├── baseCamp/                    # Per-faculty research briefings (6 faculty)
-│   ├── experiments/                 # Per-experiment summaries (001-021)
+│   ├── experiments/                 # Per-experiment summaries (001-028)
 ├── tests/                           # Python test suite (21 experiments)
 ├── Cargo.toml                       # Rust workspace (barracuda feature gate)
 ├── CONTRIBUTING.md
@@ -273,6 +294,8 @@ Same as all ecoPrimals springs:
 | CPU | Intel i9-12900K (16C/24T, 5.2 GHz) |
 | RAM | 64 GB DDR5-4800 |
 | GPU | NVIDIA GeForce RTX 4070 (12 GB VRAM) |
+| GPU | NVIDIA Titan V (12 GB HBM2) |
+| NPU | BrainChip AKD1000 (80 NPs, 10 MB SRAM, PCIe 2.0 x1) |
 | Storage | 1 TB NVMe SSD |
 | OS | Pop!_OS 22.04 (Ubuntu-based) |
 
@@ -282,4 +305,4 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring + dual-mode CI: February 26, 2026 | V22 experiment buildout (016-018): February 26, 2026 | V23 experiment buildout (019-021): February 26, 2026*
+*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring + dual-mode CI: February 26, 2026 | V22 experiment buildout (016-018): February 26, 2026 | V23 experiment buildout (019-021): February 26, 2026 | V26 metalForge live hardware: February 27, 2026*

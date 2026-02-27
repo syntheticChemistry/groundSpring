@@ -12,6 +12,10 @@ repository.workspace = true
 [lints]
 workspace = true
 
+[features]
+default = []
+npu = ["groundspring/npu"]
+
 [dependencies]
 groundspring = { path = "../groundspring" }
 serde_json = "1.0.149"
@@ -99,3 +103,32 @@ path = "src/validate_freeze_out.rs"
 [[bin]]
 name = "validate-spectral-recon"
 path = "src/validate_spectral_recon.rs"
+
+[[bin]]
+name = "validate-et0-anderson"
+path = "src/validate_et0_anderson.rs"
+
+[[bin]]
+name = "validate-notill-sampling"
+path = "src/validate_notill_sampling.rs"
+
+[[bin]]
+name = "validate-aggregate-stability"
+path = "src/validate_aggregate_stability.rs"
+
+[[bin]]
+name = "validate-precision-drift"
+path = "src/validate_precision_drift.rs"
+
+[[bin]]
+name = "validate-size-convergence"
+path = "src/validate_size_convergence.rs"
+
+[[bin]]
+name = "validate-vendor-parity"
+path = "src/validate_vendor_parity.rs"
+
+[[bin]]
+name = "validate-npu-anderson"
+path = "src/validate_npu_anderson.rs"
+required-features = ["npu"]

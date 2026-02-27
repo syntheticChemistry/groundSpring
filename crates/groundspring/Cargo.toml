@@ -16,9 +16,11 @@ workspace = true
 default = []
 barracuda = ["dep:barracuda"]
 barracuda-gpu = ["barracuda", "barracuda/gpu"]
+npu = ["dep:akida-driver"]
 
 [dependencies]
 barracuda = { path = "../../../phase1/toadstool/crates/barracuda", optional = true, default-features = false }
+akida-driver = { path = "../../../phase1/toadstool/crates/neuromorphic/akida-driver", optional = true }
 
 [dev-dependencies]
 proptest = "1"

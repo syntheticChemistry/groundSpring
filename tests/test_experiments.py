@@ -163,3 +163,57 @@ class TestExperimentExitCodes:
             CONTROL_DIR / "spectral_recon" / "spectral_recon.py"
         )
         assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp022_et0_anderson(self) -> None:
+        eco_root = CONTROL_DIR.parent.parent
+        has_fao56 = any(
+            (sibling / "control" / "fao56" / "penman_monteith.py").exists()
+            for sibling in eco_root.iterdir()
+            if sibling.is_dir()
+        )
+        if not has_fao56:
+            pytest.skip("No sibling primal provides FAO-56 module")
+        result = _run_experiment(
+            CONTROL_DIR / "et0_anderson_propagation" / "et0_anderson_propagation.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp023_notill_sampling(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "notill_sampling" / "notill_sampling.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp024_aggregate_stability(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "aggregate_stability" / "aggregate_stability.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp025_precision_drift(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "precision_drift" / "precision_drift.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp026_size_convergence(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "size_convergence" / "size_convergence.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp027_vendor_parity(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "vendor_parity" / "vendor_parity.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    @pytest.mark.skipif(
+        not Path("/dev/akida0").exists(),
+        reason="Requires NPU hardware (/dev/akida0)",
+    )
+    def test_exp028_npu_anderson(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "npu_anderson" / "npu_anderson.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr

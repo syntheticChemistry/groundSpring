@@ -11,7 +11,7 @@
     "data_origin": "Gaussian and exponential distributions with known moments",
     "prng_algorithm": "Xorshift64 (Rust) / PCG64 (Python)",
     "baseline_date": "2026-02-26",
-    "baseline_commit": "",
+    "baseline_commit": "6e73709291d5dacfd527dd414a62aa8ade7e8f57",
     "validation_script": "control/jackknife_estimation/jackknife_estimation.py",
     "command": "python3 control/jackknife_estimation/jackknife_estimation.py"
   },

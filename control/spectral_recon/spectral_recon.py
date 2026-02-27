@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 ecoPrimals / Squirrel Team
 """Exp 021: Spectral Function Reconstruction (Bazavov 2025 arXiv 2501.12259).
 
 Tikhonov-regularized reconstruction of a spectral function from a noisy
