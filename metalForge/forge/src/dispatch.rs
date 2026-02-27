@@ -58,6 +58,7 @@ impl Workload {
 }
 
 /// Route a workload to the best matching substrate.
+#[must_use]
 pub fn route<'a>(workload: &Workload, substrates: &'a [Substrate]) -> Option<Decision<'a>> {
     let capable: Vec<&Substrate> = substrates
         .iter()

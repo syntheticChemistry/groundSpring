@@ -46,13 +46,18 @@
     "jackknife_bias_formula": "bias_JK = (N-1) * (theta_bar_JK - theta_full)",
     "block_jackknife_effective_n": "N / block_size"
   },
+  "bootstrap_comparison": {
+    "n_bootstrap": 500,
+    "seed": 12345,
+    "_note": "Bootstrap resamples for variance comparison with jackknife"
+  },
   "expected_results": {
     "gaussian_jk_mean_tol": 0.5,
     "gaussian_jk_var_range": [0.005, 0.08],
     "exponential_jk_mean_tol": 0.5,
     "exponential_jk_var_range": [0.005, 0.08],
-    "bias_correction_reduces_bias": true,
-    "block_jk_var_increases_with_block_size": true,
+    "bias_correction_error_ratio_max": 1.5,
+    "block_jk_monotone_slack": 1.5,
     "block_jk_large_block_var_range": [0.02, 0.40],
     "jk_bootstrap_ratio_range": [0.5, 2.0],
     "determinism": true

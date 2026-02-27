@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: February 27, 2026 (V26 metalForge integration: Exp 028 NPU Anderson + live hardware validation)
+**Last updated**: February 27, 2026 (V31 GPU dispatch wiring + metalForge workload expansion)
 
 ## Philosophy
 
@@ -25,6 +25,28 @@ experiments on live hardware: RTX 4070, Titan V, AKD1000 NPU, i9-12900K.
 mocks) for Anderson regime classification on BrainChip AKD1000; DMA
 round-trip ~51 µs/inference. groundSpring's `npu` feature mirrors
 wetSpring's proven NPU integration pattern.
+
+**GPU dispatch wiring (V31)**: 5 modules wired with `#[cfg(feature = "barracuda-gpu")]`
+dispatch blocks: `freeze_out::grid_fit_2d` (2D parallel grid),
+`band_structure::find_band_edges` (per-energy parallel transfer matrix),
+`seismic::grid_search_inversion` (3D parallel grid),
+`quasispecies::quasispecies_simulation` (batched Wright-Fisher via
+`barracuda::ops::bio::wright_fisher_simulate`), `rare_biosphere::abundance_occupancy`
+and `tier_detection_rate` (batched multinomial via `barracuda::ops::bio`).
+5 new metalForge workloads added (total 12). 37 barracuda dispatch targets (26 CPU + 6 GPU + 5 GPU-ready).
+These dispatch blocks compile only with `--features barracuda-gpu` and call
+expected barracuda functions — ToadStool absorbs them to activate GPU paths.
+
+**biomeOS integration (V30)**: groundSpring joins the biomeOS ecosystem as a
+validation science primal. The `biomeos` feature gate adds a JSON-RPC 2.0
+Unix socket client (`crates/groundspring/src/biomeos.rs`) that routes
+compute through the Neural API: `capability.call` → ToadStool GPU dispatch
+or NestGate storage, with sovereign local fallback when biomeOS is
+unavailable. `validate-anderson` is the first wired experiment — Lyapunov
+computation optionally routes through `compute.execute`, and results are
+stored in NestGate for provenance. See `whitePaper/neuralAPI/` for the
+concept docs and `graphs/groundspring_validation.toml` for the pipeline
+graph.
 
 ## Module Mapping
 
@@ -84,7 +106,7 @@ wetSpring's proven NPU integration pattern.
 > groundSpring wired **1 new CPU delegation**: `rawr_mean` (#26).
 > Fixed `bootstrap ≠ RAWR` comparison test for barracuda parity (both methods
 > converge to sample mean on small symmetric data).
-> Total: **27 active delegations** (22 CPU + 5 GPU). 0 clippy warnings × 3 modes.
+> Total: **29 active delegations** (23 CPU + 6 barracuda-gpu). 0 clippy warnings × 3 modes.
 > 225 tests, 185/185 validation checks.
 >
 > **Deep debt evolution (Feb 26 2026)**: Eliminated all 20 `#[allow(unreachable_code)]`
@@ -127,6 +149,18 @@ wetSpring's proven NPU integration pattern.
 > ToadStool `akida-driver` (pure Rust, zero mocks). Total: **314 Rust tests**,
 > **288/288 validation checks**, **28/28 experiments**. Three-mode benchmark:
 > 20.4s → 9.2s (**2.2× speedup**); quasiperiodic 47.7×.
+>
+> **V29 (Feb 27 2026)**: Three-tier validation buildout. New barracuda CPU
+> delegations wired: `drift::kimura_fixation_prob` → `barracuda::stats::kimura_fixation`,
+> `jackknife::jackknife_mean_variance` → `barracuda::stats::jackknife_mean_variance`,
+> `fao56::daily_et0` → `barracuda::stats::hydrology::fao56_et0`.
+> GPU-ready annotations added to 8 undelegated modules (freeze_out, band_structure,
+> seismic, quasispecies, rare_biosphere, gillespie, transport, fao56) documenting
+> embarrassingly parallel dispatch targets.
+> 23 three-tier parity integration tests added (`three_tier_parity.rs`).
+> Python parity + performance test added (`test_three_tier_parity.py`).
+> Total: **391 Rust tests + 322 Python tests = 713**, all green.
+> Delegation count: **32** (26 CPU + 6 GPU). 0 clippy warnings.
 
 ### Tier A — Lean (rewire to existing barracuda ops)
 
@@ -160,15 +194,24 @@ wetSpring's proven NPU integration pattern.
 | `bootstrap::rawr_mean` | `stats::rawr_mean` | **DONE** (CPU delegated) | S66 absorption — Dirichlet-weighted mean |
 | `kinetics::hill` | `stats::hill` | **DONE** (CPU delegated) | S68 absorption — infallible `#[cfg]`/`#[cfg(not)]` |
 | `kinetics::hill_repress` | `stats::hill` (1 − hill) | **DONE** (CPU delegated) | Composes `1.0 - hill(x, k, n)` — gets barracuda delegation for free |
+| `spectral_recon::tikhonov_solve` | `linalg::solve_f64_cpu` | **DONE** (barracuda-gpu) | Gauss–Jordan with partial pivoting; falls back to local Cholesky |
+| `wdm::finite_size_extrapolate` | `stats::regression::fit_linear` | **DONE** (CPU delegated) | Linear regression on transformed 1/N^(1/d) coordinates |
+| `drift::kimura_fixation_prob` | `stats::kimura_fixation` | **DONE** (CPU delegated) | Analytical fixation probability, `if let Ok` with CPU fallback |
+| `jackknife::jackknife_mean_variance` | `stats::jackknife_mean_variance` | **DONE** (CPU delegated) | Delete-one jackknife, embarrassingly parallel GPU target |
+| `fao56::daily_et0` | `stats::hydrology::fao56_et0` | **DONE** (CPU delegated) | Full FAO-56 Penman-Monteith chain, batch GPU via `fao56_et0_batch` |
 
 ### Tier B — Adapt (needs alignment or wrapper)
 
 | groundSpring Module | BarraCUDA Target | Blocker | Action |
 |---|---|---|---|
 | `prng::Xorshift64` | `ops::PrngXoshiro` (f64) | Different PRNG algorithm | Align to xoshiro; retain xorshift as CPU reference |
-| `seismic::grid_search_inversion` | Parallel grid dispatch | No existing grid-search op | Dispatch as 3D workgroup; reduce min RMS |
+| `seismic::grid_search_inversion` | Parallel 3D grid dispatch | No existing grid-search op | GPU: dispatch as (lat,lon,depth) workgroup; reduce min RMS |
 | `rarefaction::multinomial_sample` | `ops::PrngXoshiro` + binary search | No batched multinomial | Production WGSL in metalForge |
-| `gillespie::birth_death_ssa` | `ops::bio::GillespieGpu` | GPU-only (no CPU fallback) | Write CPU → GPU dispatch when adapter ready |
+| `gillespie::birth_death_ssa` | `ops::bio::GillespieGpu` | GPU-only (batched trajectories) | Serial per-trajectory, parallel across replicates |
+| `freeze_out::grid_fit_2d` | Parallel 2D grid dispatch | No existing grid-search op | GPU: dispatch as (T₀,κ₂) workgroup; reduce min χ² |
+| `band_structure::find_band_edges` | Per-energy parallel dispatch | No existing per-energy op | GPU: one thread per energy, L sequential 2×2 multiplies |
+| `quasispecies::quasispecies_simulation` | `ops::bio::WrightFisherGpu` | Batched replicate dispatch | GPU: parallel across replicates, serial per-generation |
+| `rare_biosphere::abundance_occupancy` | `BatchedMultinomialGpu` | Batched replicate dispatch | GPU: parallel multinomial across replicates |
 | ~~`bootstrap::rawr_mean`~~ | ~~New: `ops::rawr_weighted_mean_f64`~~ | **RESOLVED** — absorbed as `stats::rawr_mean` in S66 | Moved to Tier A (#26) |
 | `anderson::anderson_potential` | `spectral::anderson_potential` | Requires `barracuda-gpu` feature | Align PRNG seeds |
 
@@ -303,9 +346,11 @@ GPU and CPU paths produce bitwise-identical streams.
 1. **Feature-gate the PRNG** — add `#[cfg(feature = "barracuda")]` path
    that delegates to `barracuda::ops::PrngXoshiro` for stream generation.
    Keep `Xorshift64` as the default (CPU reference).
-2. **Create `prng::Xoshiro128` wrapper** — thin CPU-side wrapper around
-   barracuda's generator with `next_u64()` and `next_normal()` matching
-   the existing API surface.
+2. ~~**Create `prng::Xoshiro128` wrapper**~~ — **DONE (V28)**: `Xoshiro128StarStar`
+   implemented with full API parity (`next_u32`, `next_u64`, `next_f64`,
+   `next_normal`, `normal`, `binomial`). 10 tests. SplitMix64 seed initialization.
+   `DefaultRng` type alias points to `Xorshift64`; will switch to `Xoshiro128StarStar`
+   when barracuda feature activates.
 3. **Regenerate all baselines** — rerun Python baselines with a compatible
    xoshiro128** implementation (e.g., a pure-Python xoshiro128** port).
 4. **Update benchmark JSONs** — new expected values, new `baseline_commit`,
@@ -350,36 +395,25 @@ behavior in `spectral::lyapunov_averaged`.
 ## Rust vs Python Performance (Phase 1c — Full Suite)
 
 Pure Rust CPU math vs interpreted Python (NumPy/SciPy), median of 3 trials
-across all 28 experiments (Exp 001-024 benchmarked; Exp 025-028 WDM + NPU):
+across all 28 experiments (Feb 27, 2026). See `data/bench_rust_vs_python.json`.
 
-| Experiment | Python (s) | Rust (s) | Speedup |
-|---|---|---|---|
-| Exp 001: Sensor Noise | 0.64 | 0.11 | **5.7×** |
-| Exp 002: Observation Gap | 0.28 | 0.07 | **4.4×** |
-| Exp 003: Error Propagation | 0.36 | 0.10 | **3.8×** |
-| Exp 004: Sequencing Noise | 0.14 | 0.08 | **1.8×** |
-| Exp 005: Seismic Inversion | 7.63 | 0.12 | **63.6×** |
-| Exp 006: Signal Specificity (Gillespie SSA) | 26.78 | 0.88 | **30.5×** |
-| Exp 007: RAWR Resampling (bootstrap) | 4.64 | 0.63 | **7.3×** |
-| Exp 008: Anderson Localization (transfer matrix) | 21.98 | 0.73 | **29.9×** |
-| Exp 009: Quasiperiodic (Almost-Mathieu) | 0.65 | 0.23 * | **2.8×** |
-| Exp 010: Bistable Switching (ODE) | 3.58 | 0.19 | **18.5×** |
-| Exp 011: Multi-Signal QS (ODE) | 4.30 | 0.09 | **46.2×** |
-| **Total** | **70.98** | **3.23** | **22.0×** |
-
-\* With barracuda-gpu (Sturm tridiag). Without: 11.7s (dense QR). **49.5× speedup.**
-
-**Note on Exp 009**: With barracuda-gpu, the Sturm tridiag eigenvalue solver
-(from hotSpring S26 spectral module) exploits the tridiagonal structure of
-the Almost-Mathieu Hamiltonian. Without barracuda, the custom dense Givens QR
-still works but is O(n³) vs O(n²). Python delegates to numpy/LAPACK for
-this workload.  Barracuda GPU kernels will close this gap.
+| Metric | Value |
+|--------|-------|
+| Total Python | 104.49s |
+| Total Rust | 20.35s |
+| Overall speedup | **5.1×** |
+| Excl. LAPACK-bound | **11.5×** |
+| Best: Exp 005 Seismic | **53.5×** |
+| Best: Exp 011 Multi-Signal QS | **44.7×** |
+| Best: Exp 008 Anderson | **28.6×** |
+| Best: Exp 010 Bistable | **18.1×** |
 
 Speedup varies with algorithm type:
-- **Branching loops** (Gillespie, Anderson, seismic grid search): 30–64×
-- **ODE integration** (bistable, multisignal): 18–46×
-- **Vectorized ops** (RAWR, sensor noise): 4–7×
-- **Lightweight checks** (sequencing noise, error propagation): 2–4×
+- **Branching loops** (Gillespie, Anderson, seismic grid search): 28–53×
+- **ODE integration** (bistable, multisignal): 18–44×
+- **MC propagation** (error propagation, uncertainty bridge): 4–11×
+- **Vectorized ops** (RAWR, sensor noise): 3–7×
+- **LAPACK-bound** (Exp 009, 014): Rust custom QR/WF slower than NumPy LAPACK
 
 ### Mathematical Parity Certificate
 
@@ -398,8 +432,8 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (28/28 parity proven, timing data for all experiments) |
-| Phase 2a | Tier A rewire (stats + bootstrap + anderson → barracuda) | **27 delegated** (15 stats + bootstrap_mean + rawr_mean + hill + 5 anderson + analytical ξ + hamiltonian + 2 ODE + shannon + eigenvalues) |
-| Phase 2b | Tier B adapt (PRNG alignment, grid dispatch, gillespie GPU) | After 2a |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) | **37 dispatch targets** (26 CPU + 6 GPU + 5 GPU-ready) |
+| Phase 2b | Tier B adapt (GPU dispatch wiring, PRNG alignment) | **V31** — 5 modules GPU-wired, 12 metalForge workloads; awaiting ToadStool absorption |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |
 

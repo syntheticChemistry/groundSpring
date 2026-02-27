@@ -34,7 +34,8 @@
 //! - [`quasispecies`] — Eigen quasispecies model and error threshold
 //! - [`transport`] — Wavepacket transport in tight-binding chains
 //! - [`wdm`] — Warm Dense Matter transport analysis (Green-Kubo, finite-size extrapolation)
-//! - [`npu`] — NPU integration for Akida neuromorphic inference (behind `npu` feature)
+//! - `biomeos` — biomeOS Neural API client (behind `biomeos` feature)
+//! - `npu` — NPU integration for Akida neuromorphic inference (behind `npu` feature)
 //! - [`validate`] — Validation harness (pass/fail with counters)
 
 pub mod almost_mathieu;
@@ -61,6 +62,9 @@ pub mod stats;
 pub mod transport;
 pub mod validate;
 pub mod wdm;
+
+#[cfg(feature = "biomeos")]
+pub mod biomeos;
 
 #[cfg(feature = "npu")]
 pub mod npu;

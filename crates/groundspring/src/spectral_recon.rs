@@ -11,11 +11,15 @@
 //!
 //! Reference: Bazavov et al. (2025) arXiv 2501.12259
 //!
-//! # `barracuda` delegation
+//! # barracuda delegation
 //!
-//! `build_kernel` and `tikhonov_solve` are natural GPU candidates:
+//! When the `barracuda-gpu` feature is enabled, [`tikhonov_solve`] delegates
+//! the linear system solve to `barracuda::linalg::solve_f64_cpu` (Gauss–Jordan
+//! with partial pivoting). Falls back to the local Cholesky solver on error.
+//!
+//! GPU path: `build_kernel` and `tikhonov_solve` are natural GPU candidates:
 //! kernel construction is embarrassingly parallel, and the Cholesky solve
-//! maps to batched dense linear algebra.
+//! maps to batched dense linear algebra (`BatchedEighGpu`, `CholeskyF64`).
 
 /// Build the Laplace-transform kernel matrix (row-major, `n_tau × n_omega`).
 ///
@@ -69,6 +73,10 @@ pub fn gaussian_peak(omega: &[f64], center: f64, width: f64, amplitude: f64) -> 
 ///
 /// Solves `(KᵀK + λI) ρ = KᵀG` via Cholesky decomposition.
 ///
+/// When the `barracuda` feature is enabled, delegates the linear system
+/// solve to `barracuda::linalg::solve_f64_cpu`. Falls back to the local
+/// Cholesky solver on error.
+///
 /// # Panics
 ///
 /// Panics if dimensions are inconsistent or Cholesky fails.
@@ -86,6 +94,11 @@ pub fn tikhonov_solve(
     let mut a = ktk;
     for i in 0..n_omega {
         a[i * n_omega + i] += lambda;
+    }
+
+    #[cfg(feature = "barracuda-gpu")]
+    if let Ok(solution) = barracuda::linalg::solve_f64_cpu(&a, &ktg, n_omega) {
+        return solution;
     }
 
     cholesky_solve(&a, &ktg, n_omega)

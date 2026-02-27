@@ -14,6 +14,7 @@ workspace = true
 
 [features]
 default = []
+biomeos = ["groundspring/biomeos"]
 npu = ["groundspring/npu"]
 
 [dependencies]

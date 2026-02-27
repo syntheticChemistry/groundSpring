@@ -8,11 +8,12 @@
 //! Bazavov et al. (2025) Phys Rev D 111, 094508 — jackknife error
 //! estimation at subpercent precision for lattice QCD observables.
 //!
-//! # `barracuda` delegation
+//! # barracuda delegation
 //!
-//! When the `barracuda` feature is enabled, `jackknife_mean_variance`
-//! will delegate to `barracuda::stats::jackknife_mean_variance()` once
-//! the kernel is absorbed by `ToadStool`.
+//! When the `barracuda` feature is enabled, [`jackknife_mean_variance`]
+//! delegates to `barracuda::stats::jackknife_mean_variance()`. The
+//! delete-one loop is embarrassingly parallel — GPU promotion via
+//! `barracuda-gpu` is a high-value target for large N.
 
 use crate::cast::usize_f64;
 
@@ -40,6 +41,20 @@ pub struct JackknifeResult {
 /// Panics if `data` has fewer than 2 elements.
 #[must_use]
 pub fn jackknife_mean_variance(data: &[f64]) -> JackknifeResult {
+    #[cfg(feature = "barracuda")]
+    {
+        if let Ok((est, var)) = barracuda::stats::jackknife_mean_variance(data) {
+            return JackknifeResult {
+                estimate: est,
+                variance: var,
+                std_error: var.sqrt(),
+            };
+        }
+    }
+    jackknife_mean_variance_cpu(data)
+}
+
+fn jackknife_mean_variance_cpu(data: &[f64]) -> JackknifeResult {
     let n = data.len();
     assert!(n >= 2, "need at least 2 data points");
 

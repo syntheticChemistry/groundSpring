@@ -7,37 +7,29 @@
 //! `BrainChip` AKD1000 NPU. CPU analytical classification provides
 //! ground truth; NPU DMA inference proves hardware portability.
 
+#![expect(clippy::cast_precision_loss, clippy::cast_possible_truncation)]
+
 use groundspring::npu;
 use groundspring::validate::ValidationHarness;
+use groundspring_validate::{f64_field, usize_field};
+use serde_json::Value;
 
-#[expect(clippy::cast_possible_truncation)]
-fn json_usize(v: &serde_json::Value) -> usize {
-    v.as_u64().unwrap() as usize
-}
+const BENCHMARK: &str = include_str!("../../../control/npu_anderson/benchmark_npu_anderson.json");
 
-fn json_f64_vec(v: &serde_json::Value) -> Vec<f64> {
+fn json_f64_vec(v: &Value) -> Vec<f64> {
     v.as_array()
-        .unwrap()
+        .expect("expected JSON array")
         .iter()
-        .map(|x| x.as_f64().unwrap())
+        .map(|x| x.as_f64().expect("array element must be f64"))
         .collect()
 }
 
-fn json_str_vec(v: &serde_json::Value) -> Vec<String> {
+fn json_str_vec(v: &Value) -> Vec<String> {
     v.as_array()
-        .unwrap()
+        .expect("expected JSON array")
         .iter()
-        .map(|x| x.as_str().unwrap().to_string())
+        .map(|x| x.as_str().expect("array element must be string").to_owned())
         .collect()
-}
-
-fn load_benchmark() -> serde_json::Value {
-    let path = concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../control/npu_anderson/benchmark_npu_anderson.json"
-    );
-    let data = std::fs::read_to_string(path).expect("benchmark JSON");
-    serde_json::from_str(&data).expect("valid JSON")
 }
 
 fn make_train_disorders(n: usize, w_min: f64, w_max: f64) -> Vec<f64> {
@@ -47,16 +39,15 @@ fn make_train_disorders(n: usize, w_min: f64, w_max: f64) -> Vec<f64> {
         .collect()
 }
 
-#[expect(clippy::cast_precision_loss)]
 const fn to_f64(n: usize) -> f64 {
     n as f64
 }
 
-fn run_cpu_checks(bench: &serde_json::Value, h: &mut ValidationHarness) {
+fn run_cpu_checks(bench: &Value, h: &mut ValidationHarness) {
     let model = &bench["model"];
     let expected = &bench["expected_results"];
-    let n_sites = json_usize(&model["n_sites"]);
-    let energy = model["energy"].as_f64().unwrap();
+    let n_sites = usize_field(model, "n_sites");
+    let energy = f64_field(model, "energy");
     let disorders = json_f64_vec(&model["disorders"]);
     let expected_regimes = json_str_vec(&expected["cpu_regimes"]);
     let l_f64 = to_f64(n_sites);
@@ -70,9 +61,7 @@ fn run_cpu_checks(bench: &serde_json::Value, h: &mut ValidationHarness) {
         cpu_regimes == expected_regimes,
     );
 
-    let max_tol = expected["quantization_roundtrip_max_error"]
-        .as_f64()
-        .unwrap();
+    let max_tol = f64_field(expected, "quantization_roundtrip_max_error");
     let mut max_err = 0.0_f64;
     for &w in &disorders {
         let features = npu::quantize_features(w, energy, l_f64);
@@ -82,14 +71,14 @@ fn run_cpu_checks(bench: &serde_json::Value, h: &mut ValidationHarness) {
     }
     h.check_max("Quantization roundtrip max error", max_err, max_tol);
 
-    let n_train = json_usize(&model["n_training_disorders"]);
-    let w_min = model["training_W_min"].as_f64().unwrap();
-    let w_max = model["training_W_max"].as_f64().unwrap();
+    let n_train = usize_field(model, "n_training_disorders");
+    let w_min = f64_field(model, "training_W_min");
+    let w_max = f64_field(model, "training_W_max");
     let train_disorders = make_train_disorders(n_train, w_min, w_max);
     let weights = npu::train_classifier_weights(&train_disorders, n_sites);
     h.check_true("Classifier weights: 9 i8 values", weights.len() == 9);
 
-    let accuracy_min = expected["cpu_accuracy_min"].as_f64().unwrap();
+    let accuracy_min = f64_field(expected, "cpu_accuracy_min");
     let mut correct = 0usize;
     for &w in &train_disorders {
         let features = npu::quantize_features(w, energy, l_f64);
@@ -107,7 +96,7 @@ fn run_cpu_checks(bench: &serde_json::Value, h: &mut ValidationHarness) {
     );
 
     let unique: std::collections::HashSet<_> = cpu_regimes.iter().collect();
-    let coverage_min = json_usize(&expected["regime_coverage_min"]);
+    let coverage_min = usize_field(expected, "regime_coverage_min");
     h.check_true(
         &format!("Regime coverage >= {coverage_min} ({} found)", unique.len()),
         unique.len() >= coverage_min,
@@ -142,11 +131,11 @@ fn cpu_classify_with_weights(features: [i8; 3], weights: &[i8; 9]) -> npu::Regim
     npu::RegimeClass::from_index(best_class)
 }
 
-fn run_npu_checks(bench: &serde_json::Value, h: &mut ValidationHarness) {
+fn run_npu_checks(bench: &Value, h: &mut ValidationHarness) {
     let model = &bench["model"];
     let expected = &bench["expected_results"];
-    let n_sites = json_usize(&model["n_sites"]);
-    let energy = model["energy"].as_f64().unwrap();
+    let n_sites = usize_field(model, "n_sites");
+    let energy = f64_field(model, "energy");
     let disorders = json_f64_vec(&model["disorders"]);
     let l_f64 = to_f64(n_sites);
 
@@ -173,9 +162,9 @@ fn run_npu_checks(bench: &serde_json::Value, h: &mut ValidationHarness) {
         }
     };
 
-    let n_train = json_usize(&model["n_training_disorders"]);
-    let w_min = model["training_W_min"].as_f64().unwrap();
-    let w_max = model["training_W_max"].as_f64().unwrap();
+    let n_train = usize_field(model, "n_training_disorders");
+    let w_min = f64_field(model, "training_W_min");
+    let w_max = f64_field(model, "training_W_max");
     let train_disorders = make_train_disorders(n_train, w_min, w_max);
     let weights = npu::train_classifier_weights(&train_disorders, n_sites);
 
@@ -187,8 +176,8 @@ fn run_npu_checks(bench: &serde_json::Value, h: &mut ValidationHarness) {
         }
     }
 
-    let accuracy_min = expected["npu_accuracy_min"].as_f64().unwrap();
-    let latency_max_us = expected["npu_latency_max_us"].as_f64().unwrap();
+    let accuracy_min = f64_field(expected, "npu_accuracy_min");
+    let latency_max_us = f64_field(expected, "npu_latency_max_us");
     let mut correct = 0usize;
     let mut total_us = 0.0_f64;
 
@@ -227,7 +216,7 @@ fn run_npu_checks(bench: &serde_json::Value, h: &mut ValidationHarness) {
 }
 
 fn main() {
-    let bench = load_benchmark();
+    let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Exp 028 — NPU Anderson Regime Classification");
 
     println!("--- CPU Classification ---\n");

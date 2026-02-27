@@ -3,9 +3,9 @@
 **Purpose**: Per-faculty research briefings for groundSpring noise characterization
 reproductions and extensions.
 
-**Last Updated**: February 26, 2026
+**Last Updated**: February 27, 2026
 
-**Validation Summary**: 288/288 checks, 28 barracuda delegations (22 CPU + 5 GPU), 280 Rust tests. 98.93% coverage. All 28 experiments DONE. **22× faster** than Python (all 28 experiments). **28/28 mathematical parity proven**. V23: Exp 019-021 (jackknife, freeze-out, spectral recon). 9 domains, 24 modules. Cross-spring lineage: hotSpring precision, wetSpring bio-stats, airSpring metrics, neuralSpring dispatch.
+**Validation Summary**: 288/288 checks, 37 dispatch targets (26 CPU + 6 GPU + 5 GPU-ready), 442 Rust tests (biomeos) / 410 default + 320 Python tests = 762 total. All 28 experiments DONE. **11.5× faster** than Python (excl. LAPACK-bound). **28/28 mathematical parity proven**. V31: GPU dispatch wiring (5 modules), 12 metalForge workloads. V30: biomeOS Neural API. V29: three-tier parity. V26: metalForge live hardware (NPU DMA on AKD1000, RTX 4070, Titan V). 9 domains, 26 modules.
 
 ---
 

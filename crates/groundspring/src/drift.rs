@@ -14,10 +14,13 @@
 //! - Kimura (1968) Nature 217:624-626
 //! - Wright (1931) Genetics 16:97-159
 //!
-//! # Future GPU path
+//! # barracuda delegation
 //!
-//! These are pure-CPU implementations. Future barracuda candidates include
-//! batched `kimura_fixation` for probability computation.
+//! When the `barracuda` feature is enabled:
+//! - [`kimura_fixation_prob`] delegates to `barracuda::stats::kimura_fixation`
+//!   (analytical, no RNG needed — pure math speedup from upstream optimisation).
+//! - [`wright_fisher_fixation`] remains local (serial RNG loop, GPU batched
+//!   via `barracuda::ops::bio::WrightFisherGpu` at GPU tier).
 
 use crate::cast::usize_f64;
 use crate::prng::Xorshift64;
@@ -81,8 +84,21 @@ pub fn wright_fisher_fixation(
 /// `P_fix = (1 - exp(-4Ns p₀)) / (1 - exp(-4Ns))`
 ///
 /// For neutral evolution (s=0), returns `initial_freq`.
+///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::kimura_fixation`.
 #[must_use]
 pub fn kimura_fixation_prob(pop_size: usize, selection: f64, initial_freq: f64) -> f64 {
+    #[cfg(feature = "barracuda")]
+    {
+        if let Ok(p) = barracuda::stats::kimura_fixation(pop_size, selection, initial_freq) {
+            return p;
+        }
+    }
+    kimura_fixation_prob_cpu(pop_size, selection, initial_freq)
+}
+
+fn kimura_fixation_prob_cpu(pop_size: usize, selection: f64, initial_freq: f64) -> f64 {
     let four_ns = 4.0 * usize_f64(pop_size) * selection;
     if four_ns.abs() < 1e-10 {
         return initial_freq;

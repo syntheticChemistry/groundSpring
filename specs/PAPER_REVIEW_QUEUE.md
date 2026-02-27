@@ -39,6 +39,7 @@
 
 **Phase 0**: ~261 checks (Python). **Phase 1**: 288/288 PASS (Rust). **Speedup**: 22× (all 28 experiments).
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs.
+**GPU dispatch (V31)**: 5 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere. 12 metalForge workloads. 37 dispatch targets.
 **Exp 015** bridges Papers 22-24 (Sub-thesis 06): sensor noise → Anderson ξ → QS regime uncertainty.
 
 ---
@@ -197,6 +198,7 @@ datasets, no proprietary software dependencies.
 | 28 | NPU Anderson (AKD1000) | ToadStool akida-driver | Pure Rust, zero mocks | **Yes** |
 
 **Status**: All 28 papers use open data or open systems. Zero proprietary dependencies.
+**Verified V28**: `test_baseline_integrity.py` confirms all 28 benchmark JSONs have complete provenance (196/196 PASS).
 
 ---
 
@@ -238,9 +240,11 @@ Write → Absorb → Lean cycle:
 | 28 | NPU Anderson regime classification | **9/9** | — | **Live** (AKD1000 DMA) | int8 centroid classifier on NPU |
 
 **CPU tier**: 288/288 PASS across 28 validation binaries.
-**Barracuda**: 27 functions delegated (22 CPU + 5 GPU). **Performance**: 22× faster than Python (all 28; Exp 009: 49.5× from Sturm tridiag). **Tests**: 314 Rust tests.
+**Barracuda**: 37 dispatch targets (26 CPU + 6 GPU + 5 GPU-ready). **Performance**: 11.5× faster than Python (excl. LAPACK-bound); 5.1× overall. **Tests**: 442 Rust (biomeos) / 410 default + 320 Python = 762 total. **biomeOS**: Neural API integration (V30). **GPU dispatch (V31)**: 5 modules wired for barracuda-gpu, 12 metalForge workloads.
 **Mathematical parity**: 28/28 PROVEN. See `data/parity_report.json`.
-**GPU tier**: pending barracuda adapter (Tier A) or new kernels (Tier B/C).
+**Three-tier parity**: 23 integration tests validate CPU ↔ barracuda-CPU ↔ barracuda-GPU equivalence.
+**PRNG readiness**: Xoshiro128** at full API parity — Phase 2b migration unblocked.
+**GPU tier**: 5 modules wired with `#[cfg(feature = "barracuda-gpu")]` dispatch (freeze_out, band_structure, seismic, quasispecies, rare_biosphere). 3 modules previously wired (anderson, almost_mathieu, spectral_recon). Pending ToadStool absorption of GPU wrapper functions.
 **metalForge tier**: partially validated (groundspring-forge crate, Exp 028 NPU DMA on AKD1000).
 
 ### Queued Papers (updated after ToadStool S51-S66 absorption wave)
@@ -317,8 +321,8 @@ Papers 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 18, 21 — can proceed to GPU tier on
 ### Tier 1: BarraCUDA CPU (current — 288/288 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
-27 functions delegated to barracuda (22 CPU + 5 GPU). 22× faster than Python (all 28; Exp 009: 49.5× Sturm tridiag).
-314 Rust tests. 28/28 mathematical parity proven.
+37 dispatch targets (26 CPU + 6 GPU + 5 GPU-ready). 11.5× faster than Python (excl. LAPACK-bound).
+410 Rust tests (442 with biomeos) + 320 Python = 762 total. 28/28 mathematical parity proven. 99.37% line coverage.
 All 28 experiments validated.
 
 ### Tier 2: BarraCUDA GPU (next)

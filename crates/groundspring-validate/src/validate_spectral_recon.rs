@@ -10,7 +10,7 @@
 //! - Bazavov et al. (2025) arXiv 2501.12259
 //! - Tikhonov & Arsenin (1977)
 
-#![allow(clippy::cast_precision_loss, clippy::cast_possible_truncation)]
+#![expect(clippy::cast_precision_loss, clippy::cast_possible_truncation)]
 
 use groundspring::prng::Xorshift64;
 use groundspring::spectral_recon::{

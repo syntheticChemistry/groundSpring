@@ -1,0 +1,147 @@
+# groundSpring Validation Pipeline Graph
+# Used by biomeOS to orchestrate Anderson localization validation
+# through the primal ecosystem: groundSpring (science) → ToadStool (GPU) → NestGate (provenance)
+#
+# STATUS: Protocol defined (Feb 27, 2026)
+# Requires: Tower (BearDog + Songbird) + ToadStool (GPU compute)
+# Optional: NestGate (provenance storage), metalForge (hardware dispatch)
+#
+# Pipeline: benchmark load → Lyapunov computation → parity check → results storage
+
+[graph]
+id = "groundspring_validation"
+description = "Anderson localization validation: benchmark → Lyapunov → parity → provenance"
+coordination = "Sequential"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 1: ENSURE PREREQUISITES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "check_toadstool"
+output = "toadstool_healthy"
+capabilities = ["compute"]
+
+[nodes.operation]
+name = "rpc_call"
+target = "toadstool"
+
+[nodes.operation.params]
+method = "toadstool.health"
+params = {}
+
+[nodes.constraints]
+timeout_ms = 10000
+
+[[nodes]]
+id = "check_nestgate"
+output = "nestgate_healthy"
+capabilities = ["storage"]
+
+[nodes.operation]
+name = "rpc_call"
+target = "nestgate"
+
+[nodes.operation.params]
+method = "health"
+params = {}
+
+[nodes.constraints]
+timeout_ms = 10000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 2: BENCHMARK LOADING (NestGate or local)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "load_benchmark"
+depends_on = ["check_nestgate"]
+output = "benchmark_json"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "storage.get"
+params = { key = "groundspring:benchmarks:${EXPERIMENT_ID}", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "local"  # sovereign: use local benchmark JSON if NestGate unavailable
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 3: LYAPUNOV COMPUTATION (ToadStool GPU via Barracuda)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "lyapunov_computation"
+depends_on = ["load_benchmark", "check_toadstool"]
+output = "lyapunov_results"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "compute.execute"
+params = { op = "lyapunov_averaged", n_sites = 10000, disorder_strengths = [0.5, 1.0, 2.0, 4.0, 8.0], energy = 0.0, n_realizations = 20, seed = 42 }
+
+[nodes.constraints]
+timeout_ms = 300000  # 5 min for GPU Lyapunov across disorder sweep
+fallback = "local"   # sovereign: run on CPU if ToadStool unavailable
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 4: PARITY VALIDATION (groundSpring local)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "parity_check"
+depends_on = ["lyapunov_computation"]
+output = "parity_results"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "science.parity_check"
+params = { experiment_id = "exp008_anderson_localization", benchmark_json_key = "groundspring:benchmarks:exp008" }
+
+[nodes.constraints]
+timeout_ms = 60000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 5: RESULTS STORAGE (NestGate provenance)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "store_results"
+depends_on = ["parity_check"]
+output = "results_stored"
+
+[nodes.operation]
+name = "rpc_call"
+target = "nestgate"
+
+[nodes.operation.params]
+method = "storage.store"
+params = { key = "groundspring:results:${EXPERIMENT_ID}", value = "${PARITY_RESULTS_JSON}", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 30000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 6: PIPELINE HEALTH VALIDATION
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "validate_pipeline"
+depends_on = ["store_results"]
+output = "pipeline_validated"
+
+[nodes.operation]
+name = "health_check"
+
+[nodes.operation.params]
+check_toadstool = true
+check_nestgate = true
+check_results_integrity = true
+timeout_seconds = 30

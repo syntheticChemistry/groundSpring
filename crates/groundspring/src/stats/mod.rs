@@ -19,9 +19,11 @@
 mod correlation;
 mod distributions;
 mod metrics;
+mod regression;
 
 pub use correlation::{covariance, pearson_r, spearman_r};
 pub use distributions::{chi2_statistic, norm_cdf, norm_ppf};
 pub use metrics::{
     hit_rate, index_of_agreement, mbe, mean, percentile, r_squared, rmse, sample_std_dev, std_dev,
 };
+pub use regression::{fit_linear, LinearFit};

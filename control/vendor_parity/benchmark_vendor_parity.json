@@ -5,10 +5,12 @@
     "IEEE 754-2019 floating-point arithmetic standard"
   ],
   "_provenance": {
-    "baseline_commit": "TBD",
+    "baseline_commit": "d166af6cc281255dd107e81c4462a7fe65c097b2",
     "baseline_date": "2026-02-26",
     "prng": "numpy.random.default_rng(42)",
-    "python_version": "3.10"
+    "python_version": "3.10",
+    "validation_script": "control/vendor_parity/vendor_parity.py",
+    "command": "python3 control/vendor_parity/vendor_parity.py"
   },
   "_description": "GPU vendor parity validation for WDM transport coefficient computation",
   "model": {

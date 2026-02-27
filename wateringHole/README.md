@@ -3,13 +3,13 @@
 **Purpose**: Handoff documents from groundSpring to ToadStool/BarraCUDA team,
 following the wateringHole inter-primal standard.
 
-**Last Updated**: February 26, 2026
+**Last Updated**: February 27, 2026
 
 ## Active Handoffs
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V23 | [GROUNDSPRING_TOADSTOOL_V23_BAZAVOV_BUILDOUT_HANDOFF_FEB26_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V23_BAZAVOV_BUILDOUT_HANDOFF_FEB26_2026.md) | Feb 26, 2026 | Exp 019-021 buildout (jackknife, freeze-out, spectral recon), 3 new modules, Bazavov paper queue complete, full inverse-problem GPU tier plan |
+| V31 | [GROUNDSPRING_TOADSTOOL_V31_GPU_DISPATCH_HANDOFF_FEB27_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V31_GPU_DISPATCH_HANDOFF_FEB27_2026.md) | Feb 27, 2026 | GPU dispatch wiring: 5 modules wired for `barracuda-gpu`, 12 metalForge workloads, 37 dispatch targets, 762 total tests; supersedes V28 |
 
 ## Cross-Spring Documentation
 
@@ -36,6 +36,12 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V30 | biomeOS Neural API integration (superseded by V31) |
+| V29 | Three-tier validation buildout + 3 new CPU delegations (superseded by V30) |
+| V28 | Coverage evolution + PRNG readiness (superseded by V29) |
+| V27 | Comprehensive barracuda review: 29 delegations, paper controls, three-tier validation (superseded by V28) |
+| V26 | metalForge live hardware: NPU DMA on AKD1000, Exp 028 (superseded by V27) |
+| V23 | Exp 019-021 buildout (jackknife, freeze-out, spectral recon) (superseded by V26) |
 | V22 | Exp 016-018 buildout (rare biosphere, quasispecies, band edge), 3 new modules, absorption candidates (superseded by V23) |
 | V21 | Complete barracuda rewiring: dual-mode CI, 225/225 pass both modes, 27 delegations (superseded by V22) |
 | V20 | S68 catch-up: hill delegation #27, pin f0feb226, 27 delegations (superseded by V21) |

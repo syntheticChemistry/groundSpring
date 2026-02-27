@@ -321,4 +321,42 @@ mod tests {
         assert!((flat[0] - 0.8).abs() < f64::EPSILON);
         assert!((flat[23] - 0.2).abs() < f64::EPSILON);
     }
+
+    #[test]
+    fn stochastic_integrate_deterministic_same_seed() {
+        let p = default_params();
+        let ic = [0.5, 1.0, 1.0, 0.5, 0.3, 0.5, 0.2];
+        let a = stochastic_integrate(&ic, &p, 0.01, 1000, 0.1, 42);
+        let b = stochastic_integrate(&ic, &p, 0.01, 1000, 0.1, 42);
+        assert_eq!(a, b);
+    }
+
+    #[test]
+    fn stochastic_integrate_different_seed_diverges() {
+        let p = default_params();
+        let ic = [0.5, 1.0, 1.0, 0.5, 0.3, 0.5, 0.2];
+        let a = stochastic_integrate(&ic, &p, 0.01, 1000, 0.1, 42);
+        let b = stochastic_integrate(&ic, &p, 0.01, 1000, 0.1, 99);
+        assert_ne!(a, b);
+    }
+
+    #[test]
+    fn stochastic_integrate_states_non_negative() {
+        let p = default_params();
+        let ic = [0.01, 0.01, 0.01, 0.5, 0.01, 0.01, 0.01];
+        let result = stochastic_integrate(&ic, &p, 0.01, 5000, 1.0, 42);
+        for (i, &val) in result.iter().enumerate() {
+            assert!(val >= 0.0, "state[{i}] = {val} < 0 after stochastic integration");
+        }
+    }
+
+    #[test]
+    fn derivative_components_bounded() {
+        let p = default_params();
+        let state = [1.0, 5.0, 3.0, 0.5, 2.0, 1.0, 0.5];
+        let d = multisignal_derivative(&state, &p);
+        for (i, &val) in d.iter().enumerate() {
+            assert!(val.is_finite(), "derivative[{i}] is not finite: {val}");
+        }
+    }
 }

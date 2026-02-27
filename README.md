@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
-**Date**: February 26, 2026 | **License**: AGPL-3.0-or-later
-**Status**: 28 experiments, 314 Rust tests, 288/288 validation checks (+ 31 metalForge), 27 barracuda delegations (22 CPU + 5 GPU), 3 metalForge live hardware binaries, 1 NPU integration, dual-mode CI
+**Date**: February 27, 2026 | **License**: AGPL-3.0-or-later
+**Status**: 28 experiments, 442 Rust tests (biomeos) / 410 (default) + 320 Python tests = 762 total, 288/288 validation checks (+ 31 metalForge), 37 barracuda dispatch targets (26 CPU + 6 GPU + 5 GPU-ready), 12 metalForge workloads, biomeOS Neural API (V30), GPU dispatch wiring (V31), four-mode CI
 
 **The gap between what models predict and what instruments measure.**
 
@@ -64,13 +64,13 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 
 | Module | Purpose | GPU Tier |
 |--------|---------|----------|
-| `stats` | RMSE, MBE, R², IA, hit rate, mean, percentile, Pearson/Spearman, std, covariance, norm_cdf/ppf, χ² | 22 CPU delegated (dual-mode CI), GPU pending adapter |
+| `stats` | RMSE, MBE, R², IA, hit rate, mean, percentile, Pearson/Spearman, std, covariance, norm_cdf/ppf, χ² | 22 CPU delegated, GPU pending adapter |
 | `decompose` | Bias-variance decomposition, noise floor | CPU-only (scalar) |
 | `fao56` | FAO-56 Penman-Monteith equation chain | **Absorbed** (barracuda `Op::Fao56Et0`) |
 | `prng` | Xorshift64 PRNG, Box-Muller normal | B (align to xoshiro) |
 | `rarefaction` | Multinomial sampling, Shannon diversity, evenness | C (WGSL production ready) |
-| `seismic` | Haversine, travel time, grid-search inversion | B (adapt) |
-| `gillespie` | Gillespie SSA for stochastic chemical kinetics | GPU-ready (`GillespieGpu`) |
+| `seismic` | Haversine, travel time, grid-search inversion | **GPU-ready** (V31 dispatch) |
+| `gillespie` | Gillespie SSA for stochastic chemical kinetics | Pending (batch API needed, SSA serial) |
 | `bootstrap` | Bootstrap + RAWR confidence intervals | A Lean (`barracuda::stats`) |
 | `anderson` | Anderson localization, Lyapunov exponents, analytical ξ(W,E) | A Lean (`barracuda::spectral` + `special`) |
 | `almost_mathieu` | Almost-Mathieu quasiperiodic localization, level spacing | A Lean (`barracuda::spectral`) |
@@ -79,30 +79,31 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | `cast` | Centralized numeric casts with documented safety | N/A |
 | `kinetics` | Hill-function kinetics (shared bistable + multi-signal) | A Lean (barracuda::stats::hill) |
 | `validate` | Generic Write harness (hotSpring pattern) | N/A |
-| `rare_biosphere` | Chao1, detection power/threshold, abundance-occupancy, singleton fraction | CPU-only (parallel candidates) |
-| `quasispecies` | Eigen error threshold, master frequency, Wright-Fisher mutation simulation | CPU-only (parallel candidates) |
-| `band_structure` | Transfer matrix, band edge detection, count bands, periodic Hamiltonian | CPU-only (tridiag candidate) |
-| `jackknife` | Jackknife variance, bias correction, leave-one-out resampling | CPU-only |
-| `freeze_out` | Freeze-out temperature inversion, hadron yield fitting | CPU-only |
-| `spectral_recon` | Spectral function reconstruction from Euclidean correlators | CPU-only |
+| `rare_biosphere` | Chao1, detection power/threshold, abundance-occupancy, singleton fraction | **GPU-ready** (V31 dispatch) |
+| `quasispecies` | Eigen error threshold, master frequency, Wright-Fisher mutation simulation | **GPU-ready** (V31 dispatch) |
+| `band_structure` | Transfer matrix, band edge detection, count bands, periodic Hamiltonian | **GPU-ready** (V31 dispatch) |
+| `jackknife` | Jackknife variance, bias correction, leave-one-out resampling | CPU delegated |
+| `freeze_out` | Freeze-out temperature inversion, hadron yield fitting | **GPU-ready** (V31 dispatch) |
+| `spectral_recon` | Spectral function reconstruction from Euclidean correlators | GPU delegated (tikhonov_solve) |
 | `npu` | NPU integration for Akida neuromorphic inference (behind `npu` feature) | NPU (AKD1000) |
-| `groundspring-forge` | Hardware discovery and cross-substrate dispatch | metalForge crate |
+| `groundspring-forge` | Hardware discovery and cross-substrate dispatch (12 workloads) | metalForge crate |
 
 ## Quick Start
 
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace          # 314 tests (234 unit + 13 determinism + 14 proptest + 9 validate-lib + 28 integration + 2 doc + 12 forge)
-cargo clippy --workspace        # zero warnings
-cargo fmt --check               # clean
+cargo test --workspace                         # 410 tests, all PASS
+cargo test --workspace --features biomeos      # 442 tests (adds biomeOS client + integration)
+cargo clippy --workspace -- -D warnings        # zero warnings × 4 modes
+cargo fmt --check                              # clean
 
 # Barracuda-delegated mode (validates cross-spring math)
-cargo test --workspace --features barracuda   # zero warnings
-cargo clippy --workspace --features barracuda -- -D warnings
+cargo test --workspace --features barracuda
+cargo test --workspace --features barracuda-gpu
 
 # NPU mode (BrainChip AKD1000)
-cargo test --workspace --features npu         # npu module + Exp 028
+cargo test --workspace --features npu          # npu module + Exp 028
 
 # metalForge live hardware binaries
 cargo run --bin validate-metalforge-inventory
@@ -146,39 +147,48 @@ mypy control/ tests/              # zero errors
 ### Test Coverage
 
 ```bash
-cargo llvm-cov --workspace          # 98.93% workspace line coverage
+cargo llvm-cov --workspace          # 99.37% workspace line coverage
 ```
 
 ## Performance: Rust vs Python
 
-Median of 3 trials, 27 bins × 3 modes = 279/279 PASS. Three-mode benchmark: 20.4s (default) → 9.2s (barracuda-gpu), 2.2× overall; Quasiperiodic: 47.7× (Feb 26, 2026):
+Median of 3 trials across all 28 experiments (Feb 27, 2026). See `data/bench_rust_vs_python.json` for full data.
 
 | Experiment | Python (s) | Rust (s) | Speedup |
 |---|---|---|---|
-| Exp 001: Sensor Noise | 0.64 | 0.11 | **5.7×** |
-| Exp 002: Observation Gap | 0.28 | 0.07 | **4.4×** |
-| Exp 003: Error Propagation | 0.36 | 0.10 | **3.8×** |
-| Exp 004: Sequencing Noise | 0.14 | 0.08 | **1.8×** |
-| Exp 005: Seismic Inversion | 7.63 | 0.12 | **63.6×** |
-| Exp 006: Signal Specificity | 26.78 | 0.88 | **30.5×** |
-| Exp 007: RAWR Resampling | 4.64 | 0.63 | **7.3×** |
-| Exp 008: Anderson Localization | 21.98 | 0.73 | **29.9×** |
-| Exp 009: Quasiperiodic | 0.65 | 0.23 * | **2.8×** |
-| Exp 010: Bistable Switching | 3.58 | 0.19 | **18.5×** |
-| Exp 011: Multi-Signal QS | 4.30 | 0.09 | **46.2×** |
-| Exp 012: Spin Chain Transport | — | — | — |
-| Exp 013: Resampling Convergence | — | — | — |
-| Exp 014: Drift vs Selection | — | — | — |
-| Exp 016: Rare Biosphere | — | — | — |
-| Exp 017: Quasispecies Threshold | — | — | — |
-| Exp 018: Band Edge Structure | — | — | — |
-| Exp 019: Jackknife Error Estimation | — | — | — |
-| Exp 020: Freeze-Out Inverse Problem | — | — | — |
-| Exp 021: Spectral Function Reconstruction | — | — | — |
-| **Total** | **70.98** | **3.23** | **22.0×** |
+| Exp 001: Sensor Noise | 0.38 | 0.07 | **5.3×** |
+| Exp 002: Observation Gap | 0.27 | 0.08 | **3.6×** |
+| Exp 003: Error Propagation | 0.34 | 0.08 | **4.4×** |
+| Exp 004: Sequencing Noise | 0.14 | 0.09 | **1.5×** |
+| Exp 005: Seismic Inversion | 7.42 | 0.14 | **53.5×** |
+| Exp 006: Signal Specificity | 26.51 | 0.86 | **31.0×** |
+| Exp 007: RAWR Resampling | 4.54 | 0.64 | **7.1×** |
+| Exp 008: Anderson Localization | 21.96 | 0.77 | **28.6×** |
+| Exp 009: Quasiperiodic | 0.65 | 11.32 * | **0.1×** |
+| Exp 010: Bistable Switching | 3.26 | 0.18 | **18.1×** |
+| Exp 011: Multi-Signal QS | 4.25 | 0.10 | **44.7×** |
+| Exp 012: Spin Chain Transport | 0.92 | 0.31 | **3.0×** |
+| Exp 013: Resampling Convergence | 1.36 | 0.13 | **10.4×** |
+| Exp 014: Drift vs Selection | 0.42 | 1.14 | **0.4×** |
+| Exp 015: Uncertainty Bridge | 1.32 | 0.12 | **11.1×** |
+| Exp 016: Rare Biosphere | 0.38 | 0.20 | **1.9×** |
+| Exp 017: Quasispecies Threshold | 0.12 | 0.09 | **1.3×** |
+| Exp 018: Band Edge Structure | 0.23 | 0.11 | **2.1×** |
+| Exp 019: Jackknife Estimation | 0.12 | 0.07 | **1.7×** |
+| Exp 020: Freeze-Out Inverse | 0.36 | 0.07 | **5.1×** |
+| Exp 021: Spectral Recon | 0.12 | 0.07 | **1.7×** |
+| Exp 022: ET₀ Anderson | 0.87 | 0.10 | **8.6×** |
+| Exp 023: No-Till Sampling | 0.11 | 0.09 | **1.3×** |
+| Exp 024: Aggregate Stability | 0.14 | 0.09 | **1.6×** |
+| Exp 025: Precision Drift | 27.93 | 3.18 | **8.8×** |
+| Exp 026: Size Convergence | 0.12 | 0.07 | **1.6×** |
+| Exp 027: Vendor Parity | 0.14 | 0.12 | **1.1×** |
+| Exp 028: NPU Anderson | 0.12 | 0.08 | **1.5×** |
+| **Total** | **104.49** | **20.35** | **5.1×** |
+| **Total (excl. LAPACK-bound)** | **103.84** | **9.04** | **11.5×** |
 
-\* Exp 009 with barracuda-gpu (Sturm tridiag solver from hotSpring S26).
-Without barracuda: 11.7s (custom QR). The Sturm solver is **47.7× faster**.
+\* Exp 009/014: Rust custom QR/Wright-Fisher vs NumPy LAPACK/SciPy. Barracuda-gpu
+(Sturm tridiag from hotSpring S26) closes the gap: **47.7× speedup** for Exp 009.
 
 **Mathematical parity**: 28/28 PROVEN — both languages validate against the
 same shared benchmark JSONs. See `data/parity_report.json`.
@@ -197,29 +207,27 @@ Run parity report: `python3 scripts/parity_report.py`
 Barracuda CPU delegation is free. Barracuda-GPU adds the Sturm tridiag
 eigenvalue solver (from hotSpring S26 spectral), giving **47.7× speedup**
 for Exp 009. Cross-spring evolution (hotSpring precision, wetSpring bio-stats,
-airSpring metrics, neuralSpring dispatch) validated by 27 barracuda delegations (22 CPU + 5 GPU).
+airSpring metrics, neuralSpring dispatch) validated by 37 dispatch targets
+(26 CPU + 6 GPU + 5 GPU-ready). 12 metalForge workloads route to GPU/NPU/CPU.
 
 ## Evolution Path
 
 ```
-Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration (Phase 2)
-   NumPy/SciPy                    Pure safe Rust                BarraCUDA / ToadStool
-     ✓ Complete                     ✓ 288/288 PASS               ◐ 27 delegated (22 CPU + 5 GPU), 2 WGSL ready
-   23× slower than Rust             28/28 parity proven           barracuda-gpu: anderson, ODE, hamiltonian
+Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration (Phase 2)  →  Mixed hardware (Phase 3)
+   NumPy/SciPy                    Pure safe Rust                BarraCUDA / ToadStool            metalForge dispatch
+     ✓ Complete                     ✓ 288/288 PASS               ◐ 37 targets (26 CPU +            12 workloads
+   11.5× slower than Rust           28/28 parity proven            6 GPU + 5 GPU-ready)            GPU/NPU/CPU routing
 
-     Write locally              →  Hand off to barracuda      →  Lean on upstream
-     (metalForge shaders)          (wateringHole/handoffs/)       (rewire to barracuda ops)
+     Write locally              →  Hand off to barracuda      →  Lean on upstream              →  Cross-substrate parity
+     (metalForge shaders)          (wateringHole/handoffs/)       (rewire to barracuda ops)        (metalForge forge crate)
 ```
 
-**Lean progress**: 27 functions delegate to barracuda with graceful fallback —
-`pearson_r`, `spearman_r`, `sample_std_dev`, `covariance`, `norm_cdf`, `norm_ppf`,
-`chi2_statistic`, `bootstrap_mean`, `rawr_mean`, `lyapunov_exponent`, `lyapunov_averaged`,
-`analytical_localization_length`, `almost_mathieu_hamiltonian`, `bistable_derivative`,
-`multisignal_derivative`, `rmse`, `mbe`, `r_squared`, `index_of_agreement`,
-`hit_rate`, `shannon_diversity`, `evenness`, `mean`, `percentile`, `level_spacing_ratio`,
-`almost_mathieu_eigenvalues`, `hill`. 22 CPU delegated via `#[cfg(feature = "barracuda")]`,
-5 GPU delegated via `#[cfg(feature = "barracuda-gpu")]`. FAO-56 equation chain
-absorbed upstream. Two production WGSL shaders ready for ToadStool absorption.
+**Lean progress**: 32 functions delegate to barracuda with graceful sovereign fallback.
+26 CPU delegated via `#[cfg(feature = "barracuda")]`,
+6 GPU delegated via `#[cfg(feature = "barracuda-gpu")]`.
+5 additional GPU-ready dispatch blocks wired (V31): `grid_fit_2d`, `find_band_edges`,
+`grid_search_inversion`, `quasispecies_simulation`, `abundance_occupancy`, `tier_detection_rate`.
+FAO-56 equation chain absorbed upstream. Two production WGSL shaders ready for ToadStool absorption.
 
 See `specs/BARRACUDA_EVOLUTION.md` for the full GPU promotion mapping.
 See `metalForge/` for absorption-ready shaders and the manifest.
@@ -262,7 +270,7 @@ groundSpring/
 │   ├── spectral_recon/            # Exp 021: Spectral function reconstruction (Bazavov 2025)
 │   └── npu_anderson/              # Exp 028: NPU Anderson regime classification
 ├── crates/
-│   ├── groundspring/                # Phase 1 Rust library (25 modules incl. npu)
+│   ├── groundspring/                # Phase 1 Rust library (26 modules incl. npu)
 │   └── groundspring-validate/       # 28 validation binaries (hotSpring pattern)
 ├── metalForge/                      # Write → Absorb → Lean artifacts
 │   ├── forge/                       # groundspring-forge crate: hardware discovery, dispatch
@@ -274,7 +282,7 @@ groundSpring/
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md       # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md    # GPU kernel gap analysis
-│   └── PAPER_REVIEW_QUEUE.md        # 27 papers, three-tier control matrix, open data audit
+│   └── PAPER_REVIEW_QUEUE.md        # 28 papers, three-tier control matrix, open data audit
 ├── whitePaper/                      # Study, methodology, baseCamp, experiments
 │   ├── baseCamp/                    # Per-faculty research briefings (6 faculty)
 │   ├── experiments/                 # Per-experiment summaries (001-028)
@@ -305,4 +313,4 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring + dual-mode CI: February 26, 2026 | V22 experiment buildout (016-018): February 26, 2026 | V23 experiment buildout (019-021): February 26, 2026 | V26 metalForge live hardware: February 27, 2026*
+*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring + dual-mode CI: February 26, 2026 | V22 experiment buildout (016-018): February 26, 2026 | V23 experiment buildout (019-021): February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V27 docs + handoff audit: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V31 GPU dispatch wiring + metalForge workloads: February 27, 2026*

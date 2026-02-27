@@ -5,6 +5,13 @@
 //!
 //! Provides travel-time computation and grid-search earthquake location
 //! using the IASP91 simplified velocity model.
+//!
+//! # barracuda delegation
+//!
+//! [`grid_search_inversion`] is embarrassingly parallel — each
+//! (lat, lon, depth) candidate evaluates independently. GPU promotion
+//! dispatches as a 3D workgroup with per-point RMS reduction.
+//! [`haversine_km`] and [`travel_time_1d`] stay local (scalar trig).
 
 use crate::cast::{f64_usize, usize_f64};
 
@@ -111,6 +118,48 @@ fn origin_time_and_rms(obs_times: &[f64], pred_tt: &[f64]) -> (f64, f64) {
 /// `AsRef<str>`) with arrival times, avoiding forced `String` ownership.
 #[must_use]
 pub fn grid_search_inversion<S: AsRef<str>>(
+    observed: &[(S, f64)],
+    stations: &[Station],
+    config: &GridSearchConfig,
+) -> InversionResult {
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        let sta_lats: Vec<f64> = stations.iter().map(|s| s.lat).collect();
+        let sta_lons: Vec<f64> = stations.iter().map(|s| s.lon).collect();
+        let obs_map: std::collections::HashMap<&str, f64> = observed
+            .iter()
+            .map(|(code, t)| (code.as_ref(), *t))
+            .collect();
+        let obs_times: Vec<f64> = stations
+            .iter()
+            .filter_map(|s| obs_map.get(s.code.as_str()).copied())
+            .collect();
+
+        if let Ok(result) = barracuda::ops::grid::grid_search_3d_f64(
+            &sta_lats,
+            &sta_lons,
+            &obs_times,
+            config.vp,
+            config.lat_range,
+            config.lon_range,
+            config.depth_range,
+            config.grid_spacing_deg,
+            config.depth_spacing_km,
+        ) {
+            return InversionResult {
+                lat: result.0,
+                lon: result.1,
+                depth_km: result.2,
+                origin_time_s: result.3,
+                rms_residual_s: result.4,
+            };
+        }
+    }
+    grid_search_inversion_cpu(observed, stations, config)
+}
+
+#[allow(clippy::similar_names, clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+fn grid_search_inversion_cpu<S: AsRef<str>>(
     observed: &[(S, f64)],
     stations: &[Station],
     config: &GridSearchConfig,

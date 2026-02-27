@@ -155,11 +155,12 @@ Phase 1 ports each experiment's core algorithm to idiomatic Rust in the
 
 | Gate | Requirement |
 |------|-------------|
-| `cargo test` | 225 total tests (173 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc/unused), all pass |
-| `cargo clippy` | Zero warnings (pedantic + nursery) |
+| `cargo test` | 391 total Rust tests (includes 23 three-tier parity integration tests), all pass |
+| `cargo clippy` | Zero warnings (pedantic + nursery) × 3 feature modes |
 | `cargo fmt` | Clean |
 | `cargo doc` | Clean, `missing_docs = "deny"` |
-| `cargo llvm-cov` | 98.93% line coverage (cargo-llvm-cov) |
+| Python baseline integrity | 322 tests (provenance, completeness, UTF-8, three-tier parity) via `test_baseline_integrity.py` and `test_three_tier_parity.py` |
+| Three-tier parity | CPU → GPU → metalForge validation chain exercised by `three_tier_parity.rs` and `test_three_tier_parity.py` |
 | No `unsafe` | Enforced at workspace lint level |
 | Max file size | 1000 lines per file |
 | Provenance | Benchmark JSONs have real commit SHA |
@@ -197,5 +198,6 @@ Same as all ecoPrimals springs:
 ## Grand Total
 
 - **Phase 0 (Python)**: ~288 quantitative checks passed across 28 experiments, 9 domains.
-- **Phase 1 (Rust)**: 288/288 checks passed across 28 validation binaries. 280 Rust tests.
-- **Phase 2a (Barracuda)**: 28 functions delegated (22 CPU + 5 GPU). 22× faster than Python (all 28 experiments). Exp 009: 49.5× from Sturm tridiag. 28/28 parity proven.
+- **Phase 1 (Rust)**: 288/288 checks passed across 28 validation binaries. 442 Rust tests (with biomeOS feature) / 410 default. 99.37% coverage.
+- **Phase 2a (Barracuda)**: 37 dispatch targets (26 CPU + 6 GPU + 5 GPU-ready). 11.5× faster than Python (excl. LAPACK-bound). Exp 009: 47.7× from Sturm tridiag. 28/28 parity proven.
+- **metalForge**: 3 live hardware binaries (RTX 4070, Titan V, AKD1000 NPU). 31 metalForge checks.

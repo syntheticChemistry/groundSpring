@@ -22,6 +22,14 @@
 //! - Dolson et al. (2023) J R Soc Interface 20(208)
 //! - Eigen (1971) Naturwiss 58:465-523
 //! - Eigen & Schuster (1977) Naturwiss 64:541-565
+//!
+//! # barracuda delegation
+//!
+//! [`error_threshold`] and [`master_frequency_analytical`] are closed-form
+//! — barracuda CPU candidates (two scalar ops each, Stays Local tier in
+//! practice). [`quasispecies_simulation`] is the GPU target: Wright-Fisher
+//! selection + per-locus mutation is embarrassingly parallel across
+//! replicates via `WrightFisherGpu` (`ToadStool` S66).
 
 use crate::cast::usize_f64;
 use crate::prng::Xorshift64;
@@ -64,6 +72,30 @@ pub fn master_frequency_analytical(sigma: f64, mu: f64, genome_length: usize) ->
 /// Panics if `pop_size` is zero.
 #[must_use]
 pub fn quasispecies_simulation(
+    pop_size: usize,
+    genome_length: usize,
+    sigma: f64,
+    mu: f64,
+    n_generations: usize,
+    seed: u64,
+) -> Vec<f64> {
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Ok(freqs) = barracuda::ops::bio::wright_fisher_simulate(
+            pop_size,
+            genome_length,
+            sigma,
+            mu,
+            n_generations,
+            seed,
+        ) {
+            return freqs;
+        }
+    }
+    quasispecies_simulation_cpu(pop_size, genome_length, sigma, mu, n_generations, seed)
+}
+
+fn quasispecies_simulation_cpu(
     pop_size: usize,
     genome_length: usize,
     sigma: f64,

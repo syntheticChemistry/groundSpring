@@ -19,6 +19,15 @@
 //! - Filonov & Kachkovskiy (2018) Acta Math 221:59-80
 //! - Anderson (1958) Phys Rev 109:1492-1505
 //! - Kachkovskiy (2016) CMP 345:659-673
+//!
+//! # barracuda delegation
+//!
+//! The energy scan in [`find_band_edges`] and [`count_bands`] is
+//! embarrassingly parallel — one thread per energy point, each
+//! performing L sequential 2×2 matrix multiplications. GPU promotion
+//! via `barracuda-gpu` is a high-value target for fine energy grids.
+//! [`transfer_matrix_half_trace`] stays local on CPU (L is small,
+//! latency-dominated).
 
 use crate::cast::usize_f64;
 
@@ -48,6 +57,24 @@ pub fn transfer_matrix_half_trace(energy: f64, potential: &[f64], hopping: f64) 
 /// Returns energies where the system transitions between band and gap.
 #[must_use]
 pub fn find_band_edges(
+    potential: &[f64],
+    hopping: f64,
+    e_lo: f64,
+    e_hi: f64,
+    n_points: usize,
+) -> Vec<f64> {
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Ok(edges) =
+            barracuda::spectral::band_edges_parallel(potential, hopping, e_lo, e_hi, n_points)
+        {
+            return edges;
+        }
+    }
+    find_band_edges_cpu(potential, hopping, e_lo, e_hi, n_points)
+}
+
+fn find_band_edges_cpu(
     potential: &[f64],
     hopping: f64,
     e_lo: f64,

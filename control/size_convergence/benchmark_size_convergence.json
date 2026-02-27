@@ -5,10 +5,12 @@
     "Dünweg & Kremer (1993) J Chem Phys 99:6983 (hydrodynamic finite-size effects)"
   ],
   "_provenance": {
-    "baseline_commit": "TBD",
+    "baseline_commit": "d166af6cc281255dd107e81c4462a7fe65c097b2",
     "baseline_date": "2026-02-26",
     "prng": "numpy.random.default_rng(42)",
-    "python_version": "3.10"
+    "python_version": "3.10",
+    "validation_script": "control/size_convergence/size_convergence.py",
+    "command": "python3 control/size_convergence/size_convergence.py"
   },
   "_description": "System-size convergence for WDM transport coefficients",
   "model": {

@@ -22,7 +22,12 @@
 //! `coupling / 2` as barracuda's `λ_b` to match our convention where the
 //! Aubry-André transition sits at `λ = 2`.
 
-/// Maximum QR iterations for eigenvalue extraction (sufficient for n ≤ 500).
+/// Maximum QR iterations for eigenvalue extraction.
+///
+/// 100 iterations is sufficient for tridiagonal and near-tridiagonal
+/// matrices up to n = 500. The Givens QR on a symmetric matrix converges
+/// at a cubic rate per sub-diagonal element.
+/// Reference: Golub & Van Loan (2013) Matrix Computations, §8.3.
 #[cfg(not(feature = "barracuda-gpu"))]
 const QR_MAX_ITERATIONS: usize = 100;
 
@@ -161,11 +166,14 @@ fn eigenvalues_cpu(n: usize, coupling: f64, alpha: f64, theta: f64) -> Vec<f64> 
 /// `find_all_eigenvalues` (Sturm bisection) which is O(n²) for tridiag.
 #[cfg(not(feature = "barracuda-gpu"))]
 fn eigenvalues_qr_dense(n: usize, matrix: &[f64]) -> Vec<f64> {
+    let nn = n * n;
     let mut mat = matrix.to_vec();
+    let mut r = vec![0.0; nn];
+    let mut q = vec![0.0; nn];
 
     for _ in 0..QR_MAX_ITERATIONS {
-        let mut q = flat_identity(n);
-        let mut r = mat.clone();
+        init_identity(&mut q, n);
+        r.copy_from_slice(&mat);
         givens_qr_flat(&mut q, &mut r, n);
         dense_mul_flat(&r, &q, &mut mat, n);
     }
@@ -225,13 +233,13 @@ fn dense_mul_flat(a: &[f64], b: &[f64], out: &mut [f64], n: usize) {
     }
 }
 
+/// Write the `n × n` identity matrix into an existing buffer.
 #[cfg(not(feature = "barracuda-gpu"))]
-fn flat_identity(n: usize) -> Vec<f64> {
-    let mut m = vec![0.0; n * n];
+fn init_identity(buf: &mut [f64], n: usize) {
+    buf.fill(0.0);
     for i in 0..n {
-        m[i * n + i] = 1.0;
+        buf[i * n + i] = 1.0;
     }
-    m
 }
 
 #[cfg(test)]
@@ -330,5 +338,95 @@ mod tests {
         let mut eigs = vec![1.0, 2.0];
         let r = level_spacing_ratio(&mut eigs);
         assert!(r.abs() < f64::EPSILON, "too few eigenvalues should give 0");
+    }
+
+    #[test]
+    fn eigenvalues_count_matches_n() {
+        let n = 20;
+        let eigs = eigenvalues(n, 2.0, GOLDEN, 0.0);
+        assert_eq!(eigs.len(), n);
+    }
+
+    #[test]
+    fn eigenvalues_bounded_by_spectrum() {
+        let n = 50;
+        let coupling = 3.0;
+        let eigs = eigenvalues(n, coupling, GOLDEN, 0.0);
+        let spectral_bound = 2.0 + coupling;
+        for &e in &eigs {
+            assert!(
+                e.abs() <= spectral_bound + 0.01,
+                "eigenvalue {e} exceeds spectral bound {spectral_bound}"
+            );
+        }
+    }
+
+    #[test]
+    fn eigenvalues_deterministic() {
+        let e1 = eigenvalues(30, 2.5, GOLDEN, 0.0);
+        let e2 = eigenvalues(30, 2.5, GOLDEN, 0.0);
+        assert_eq!(e1, e2);
+    }
+
+    #[test]
+    fn hamiltonian_correct_size() {
+        let n = 15;
+        let h = hamiltonian(n, 1.5, GOLDEN, 0.0);
+        assert_eq!(h.len(), n * n);
+    }
+
+    #[test]
+    fn hamiltonian_tridiagonal_structure() {
+        let n = 10;
+        let h = hamiltonian(n, 2.0, GOLDEN, 0.0);
+        for i in 0..n {
+            for j in 0..n {
+                let diff = if i > j { i - j } else { j - i };
+                if diff > 1 {
+                    assert!(
+                        h[i * n + j].abs() < f64::EPSILON,
+                        "H[{i},{j}] = {} should be 0 for tridiagonal",
+                        h[i * n + j]
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn level_spacing_ratio_localized_vs_extended() {
+        let n = 200;
+        let mut eigs_ext = eigenvalues(n, 0.5, GOLDEN, 0.0);
+        let r_ext = level_spacing_ratio(&mut eigs_ext);
+
+        let mut eigs_loc = eigenvalues(n, 4.0, GOLDEN, 0.0);
+        let r_loc = level_spacing_ratio(&mut eigs_loc);
+
+        assert!(
+            r_ext > r_loc,
+            "extended r={r_ext} should exceed localized r={r_loc}"
+        );
+    }
+
+    #[test]
+    fn potential_length_matches_n() {
+        assert_eq!(potential(50, 2.0, GOLDEN, 0.0).len(), 50);
+        assert_eq!(potential(1, 2.0, GOLDEN, 0.0).len(), 1);
+    }
+
+    #[test]
+    fn level_spacing_ratio_unsorted_input() {
+        let mut eigs = vec![5.0, 1.0, 3.0, 2.0, 4.0];
+        let r = level_spacing_ratio(&mut eigs);
+        assert!(
+            (r - 1.0).abs() < f64::EPSILON,
+            "should sort internally and return r=1 for uniform spacing"
+        );
+    }
+
+    #[test]
+    fn level_spacing_ratio_empty() {
+        let mut eigs: Vec<f64> = vec![];
+        assert!(level_spacing_ratio(&mut eigs).abs() < f64::EPSILON);
     }
 }

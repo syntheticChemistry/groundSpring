@@ -1,6 +1,6 @@
+#!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2026 ecoPrimals / Squirrel Team
-#!/usr/bin/env python3
 """
 groundSpring Experiment 023 — No-Till vs Tilled 16S Sampling Design
 
@@ -284,7 +284,7 @@ def main() -> int:
     sat_notill = find_saturation_depth(notill_results, notill_true_shannon)
     sat_tilled = find_saturation_depth(tilled_results, tilled_true_shannon)
 
-    print(f"\n  Saturation depth (5% convergence):")
+    print("\n  Saturation depth (5% convergence):")
     print(f"    No-till: {sat_notill} reads")
     print(f"    Tilled:  {sat_tilled} reads")
 
@@ -310,7 +310,7 @@ def main() -> int:
     print(f"{'=' * 72}")
     print(f"\n1. No-till saturation: {sat_notill} reads")
     print(f"2. Tilled saturation:  {sat_tilled} reads")
-    print(f"3. Distinguishable at 1000 reads: yes")
+    print("3. Distinguishable at 1000 reads: yes")
     print(f"4. No-till Chao1 ({notill_chao1_high:.1f}) > Tilled Chao1 ({tilled_chao1_high:.1f})")
 
     return print_summary("Exp 023: No-Till vs Tilled Sampling Design")

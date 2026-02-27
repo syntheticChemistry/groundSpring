@@ -7,10 +7,15 @@
 //! modelling enzymatic signal vs noise — specifically, c-di-GMP dynamics
 //! with competing DGC (synthesis) and PDE (degradation) enzymes.
 //!
-//! # Future GPU path
+//! # barracuda delegation
 //!
-//! CPU-only implementation. `GillespieGpu` is a future GPU path when
-//! barracuda's `rate_k` / `stoich_react` / `stoich_net` format is available.
+//! [`birth_death_ssa`] stays local on CPU — SSA is inherently serial
+//! (next event depends on current state). GPU promotion is via batched
+//! independent trajectories using `barracuda::ops::bio::GillespieGpu`
+//! (`ToadStool` S58) — requires a batch API wrapping multiple
+//! `birth_death_ssa` calls, not a drop-in replacement for a single
+//! trajectory. [`steady_state_mean`] and [`time_averaged_mean`]
+//! are scalar reductions, Stays Local tier.
 
 use crate::prng::Xorshift64;
 

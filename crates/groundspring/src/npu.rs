@@ -14,8 +14,45 @@
 //! - **Capability-Based**: Devices discovered at runtime
 //! - **Primal Self-Knowledge**: groundSpring discovers NPU, never hardcodes
 
-#[expect(clippy::wildcard_imports)]
-use akida_driver::*;
+use akida_driver::{AkidaDevice, AkidaError, Capabilities, ChipVersion, DeviceManager, Result};
+
+/// Int8 maximum for linear quantization (AKD1000 uses unsigned 7-bit range).
+const INT8_QUANT_MAX: f64 = 127.0;
+
+/// Disorder strength quantization range: W ∈ \[0, 10\].
+///
+/// Upper bound chosen to cover the full localized regime; W > 10 is
+/// deep-localized with ξ < 1 site (uninteresting for regime classification).
+const W_RANGE: (f64, f64) = (0.0, 10.0);
+
+/// Band-centre energy quantization range: E ∈ \[-3, 3\].
+///
+/// Covers the full single-particle bandwidth (±2t for nearest-neighbour
+/// hopping t = 1) with headroom for disorder broadening.
+const E_RANGE: (f64, f64) = (-3.0, 3.0);
+
+/// System length quantization range: L ∈ \[10, 10 000\].
+///
+/// Lower bound ensures meaningful localization-length ratios; upper bound
+/// covers the largest systems used in validation (N = 200–1000).
+const L_RANGE: (f64, f64) = (10.0, 10_000.0);
+
+/// ξ/L below this threshold → Localized regime.
+///
+/// When the localization length is less than half the system length,
+/// the wavefunction decays significantly within the sample.
+/// Reference: Kramer & MacKinnon (1993) Rep Prog Phys 56:1469, §3.1.
+const LOCALIZED_RATIO_THRESHOLD: f64 = 0.5;
+
+/// ξ/L above this threshold → Extended regime.
+///
+/// When ξ exceeds twice the system size, finite-size effects dominate
+/// and the system behaves as if extended.
+/// Reference: Kramer & MacKinnon (1993) Rep Prog Phys 56:1469, §3.1.
+const EXTENDED_RATIO_THRESHOLD: f64 = 2.0;
+
+/// Nanoseconds per microsecond.
+const NS_PER_US: f64 = 1000.0;
 
 /// Anderson localization regime classes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -132,22 +169,26 @@ pub fn npu_available() -> bool {
 
 /// Quantize Anderson features `(W, E, L)` to int8 for NPU inference.
 ///
-/// Ranges: W ∈ [0, 10], E ∈ [-3, 3], L ∈ [10, 10000].
-/// Each value maps linearly to [0, 127] with clamping.
+/// Ranges: W ∈ \[0, 10\], E ∈ \[-3, 3\], L ∈ \[10, 10000\].
+/// Each value maps linearly to \[0, 127\] with clamping.
 #[must_use]
 #[expect(clippy::cast_possible_truncation)]
 pub fn quantize_features(w: f64, e: f64, l: f64) -> [i8; 3] {
     let q = |val: f64, lo: f64, hi: f64| -> i8 {
         let n = ((val - lo) / (hi - lo)).clamp(0.0, 1.0);
-        (n * 127.0) as i8
+        (n * INT8_QUANT_MAX) as i8
     };
-    [q(w, 0.0, 10.0), q(e, -3.0, 3.0), q(l, 10.0, 10000.0)]
+    [
+        q(w, W_RANGE.0, W_RANGE.1),
+        q(e, E_RANGE.0, E_RANGE.1),
+        q(l, L_RANGE.0, L_RANGE.1),
+    ]
 }
 
 /// Dequantize an int8 value back to f64 given the original range.
 #[must_use]
 pub fn dequantize_i8(val: i8, lo: f64, hi: f64) -> f64 {
-    let n = f64::from(val) / 127.0;
+    let n = f64::from(val) / INT8_QUANT_MAX;
     n.mul_add(hi - lo, lo)
 }
 
@@ -160,9 +201,9 @@ pub fn classify_regime_cpu(disorder: f64, energy: f64, n_sites: usize) -> Regime
     let xi = crate::anderson::analytical_localization_length(disorder, energy);
     let l = crate::cast::usize_f64(n_sites);
     let ratio = xi / l;
-    if ratio < 0.5 {
+    if ratio < LOCALIZED_RATIO_THRESHOLD {
         RegimeClass::Localized
-    } else if ratio > 2.0 {
+    } else if ratio > EXTENDED_RATIO_THRESHOLD {
         RegimeClass::Extended
     } else {
         RegimeClass::Critical
@@ -181,6 +222,7 @@ pub fn train_classifier_weights(disorders: &[f64], n_sites: usize) -> [i8; 9] {
 
     for &w in disorders {
         let features = quantize_features(w, 0.0, crate::cast::usize_f64(n_sites));
+        #[expect(clippy::as_conversions, reason = "RegimeClass repr is 0..=2")]
         let class = classify_regime_cpu(w, 0.0, n_sites) as usize;
         counts[class] += 1;
         for (j, &f) in features.iter().enumerate() {
@@ -254,7 +296,7 @@ impl NpuInferMetrics {
     #[must_use]
     #[expect(clippy::cast_precision_loss)]
     pub fn total_us(&self) -> f64 {
-        (self.write_ns + self.read_ns) as f64 / 1000.0
+        (self.write_ns + self.read_ns) as f64 / NS_PER_US
     }
 }
 

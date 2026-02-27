@@ -3,13 +3,13 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: February 26, 2026 (V21: complete barracuda rewiring, dual-mode CI, cross-spring benchmark)
+**Last Updated**: February 27, 2026 (V31: GPU dispatch wiring, 37 dispatch targets, 12 metalForge workloads)
 
 ---
 
 ## Overview
 
-groundSpring delegates **27 functions** to barracuda (including `kinetics::hill`).
+groundSpring has **37 dispatch targets** — 32 delegated functions (including `kinetics::hill`, `spectral_recon::tikhonov_solve`, `wdm::finite_size_extrapolate`) plus 5 GPU-ready dispatch blocks wired in V31.
 Those barracuda functions were not built in isolation — they were refined and
 battle-tested through absorption from **five Springs**, each bringing domain-specific
 requirements that hardened the shared library.
@@ -153,7 +153,7 @@ same need independently**:
 
 ## groundSpring Delegation Lineage
 
-Each of groundSpring's 27 delegations has a traceable cross-spring history:
+Each of groundSpring's 32 delegations has a traceable cross-spring history:
 
 | # | groundSpring fn | barracuda fn | Primary Origin | Validated By |
 |---|----------------|--------------|---------------|-------------|
@@ -184,6 +184,8 @@ Each of groundSpring's 27 delegations has a traceable cross-spring history:
 | 25 | `evenness` | `stats::pielou_evenness` | S64 (wetSpring absorption) | groundSpring Exp 004 |
 | 26 | `rawr_mean` | `stats::rawr_mean` | S66 (groundSpring V15 request) | groundSpring Exp 007, Exp 013 |
 | 27 | `hill` | `stats::hill` | S68 (V20 catch-up) | groundSpring Exp 010, Exp 011 (bistable, multisignal) |
+| 28 | `tikhonov_solve` | `linalg::solve_f64_cpu` | hotSpring linalg (Gauss–Jordan) | groundSpring Exp 021 (spectral recon, Bazavov 2025) |
+| 29 | `finite_size_extrapolate` | `stats::regression::fit_linear` | S66 (regression absorption) | groundSpring Exp 026 (system-size convergence, WDM) |
 
 ---
 
@@ -396,3 +398,9 @@ The 700 barracuda WGSL shaders that groundSpring's delegations ultimately depend
 | Feb 26 | airSpring + groundSpring → ToadStool | stats::regression, hydrology, rawr_mean |
 | Feb 26 | **ToadStool S68** | **291 f32→f64 canonical, zero f32-only, universal precision** |
 | Feb 26 | **groundSpring V21** | **Complete barracuda rewiring, dual-mode CI** |
+| Feb 27 | **groundSpring V26** | **metalForge live hardware**: NPU DMA on AKD1000, Exp 028, groundspring-forge crate |
+| Feb 27 | **groundSpring V27** | **Barracuda evolution review**: 29 delegations, paper controls audit, three-tier validation |
+| Feb 27 | **groundSpring V28** | **Coverage evolution + PRNG readiness**: xoshiro128** at API parity, 368 tests + 196 Python integrity, CI baseline drift detection |
+| Feb 27 | **groundSpring V29** | **Three-tier validation buildout**: 391 Rust + 322 Python = 713 total, 32 delegations (26 CPU + 6 GPU), 23 three-tier parity integration tests, 3 new CPU delegations (kimura_fixation_prob, jackknife_mean_variance, daily_et0), 8 GPU-annotated modules with barracuda documentation |
+| Feb 27 | **groundSpring V30** | **biomeOS Neural API integration**: JSON-RPC 2.0 Unix socket client (`biomeos.rs`), `validate-anderson` routed through `capability.call`, pipeline graph, capability surface docs |
+| Feb 27 | **groundSpring V31** | **GPU dispatch wiring + metalForge expansion**: 5 modules wired for `barracuda-gpu` (freeze_out, band_structure, seismic, quasispecies, rare_biosphere), 12 metalForge workloads, 37 dispatch targets, 442 Rust (biomeos) / 410 default + 320 Python = 762 total |

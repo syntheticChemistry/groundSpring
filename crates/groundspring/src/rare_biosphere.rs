@@ -19,6 +19,15 @@
 //! - Anderson, Sogin, Baross (2015) FEMS Microbiol Ecol 91:fiv016
 //! - Chao (1984) Scand J Stat 11:265-270
 //! - Sogin et al. (2006) PNAS 103:12115-12120
+//!
+//! # barracuda delegation
+//!
+//! [`detection_power`] and [`detection_threshold`] are pure math with no
+//! RNG — barracuda CPU candidates. [`abundance_occupancy`] and
+//! [`tier_detection_rate`] are embarrassingly parallel across replicates
+//! — high-value GPU promotion targets via `BatchedMultinomialGpu`.
+//! [`chao1`] stays local (integer equality semantics differ from
+//! barracuda's float-based classifier).
 
 use crate::cast::{u64_f64, usize_f64};
 
@@ -87,6 +96,23 @@ pub fn detection_threshold(abundance: f64, target_power: f64) -> u64 {
 /// Returns a vector of length `community.len()` with values in \[0, 1\].
 #[must_use]
 pub fn abundance_occupancy(
+    community: &[f64],
+    depth: u64,
+    n_samples: usize,
+    base_seed: u64,
+) -> Vec<f64> {
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Ok(occ) = barracuda::ops::bio::batched_multinomial_occupancy(
+            community, depth, n_samples, base_seed,
+        ) {
+            return occ;
+        }
+    }
+    abundance_occupancy_cpu(community, depth, n_samples, base_seed)
+}
+
+fn abundance_occupancy_cpu(
     community: &[f64],
     depth: u64,
     n_samples: usize,
@@ -170,6 +196,30 @@ pub fn mean_chao1_at_depth(
 /// Tier detection rate: fraction of (species, replicate) pairs detected.
 #[must_use]
 pub fn tier_detection_rate(
+    community: &[f64],
+    tier_lo: usize,
+    tier_hi: usize,
+    depth: u64,
+    n_replicates: usize,
+    base_seed: u64,
+) -> f64 {
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Ok(rate) = barracuda::ops::bio::batched_multinomial_tier_rate(
+            community,
+            tier_lo,
+            tier_hi,
+            depth,
+            n_replicates,
+            base_seed,
+        ) {
+            return rate;
+        }
+    }
+    tier_detection_rate_cpu(community, tier_lo, tier_hi, depth, n_replicates, base_seed)
+}
+
+fn tier_detection_rate_cpu(
     community: &[f64],
     tier_lo: usize,
     tier_hi: usize,
@@ -288,5 +338,47 @@ mod tests {
         let (c2, s2) = mean_chao1_at_depth(&community, 100, 10, 42);
         assert!((c1 - c2).abs() < f64::EPSILON);
         assert!((s1 - s2).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn tier_detection_rate_deterministic() {
+        let community = vec![0.5, 0.3, 0.15, 0.04, 0.01];
+        let r1 = tier_detection_rate(&community, 0, 3, 200, 10, 42);
+        let r2 = tier_detection_rate(&community, 0, 3, 200, 10, 42);
+        assert!((r1 - r2).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn tier_detection_rate_abundant_near_one() {
+        let community = vec![0.5, 0.3, 0.15, 0.04, 0.01];
+        let rate = tier_detection_rate(&community, 0, 3, 5000, 50, 42);
+        assert!(rate > 0.95, "abundant species should be detected, rate={rate}");
+    }
+
+    #[test]
+    fn tier_detection_rate_rare_lower() {
+        let community = vec![0.5, 0.3, 0.15, 0.04, 0.01];
+        let abundant = tier_detection_rate(&community, 0, 3, 20, 50, 42);
+        let rare = tier_detection_rate(&community, 3, 5, 20, 50, 42);
+        assert!(
+            abundant >= rare,
+            "abundant tier ({abundant}) should be >= rare ({rare})"
+        );
+    }
+
+    #[test]
+    fn detection_threshold_edge_cases() {
+        assert_eq!(detection_threshold(0.0, 0.95), 0);
+        assert_eq!(detection_threshold(1.0, 0.95), 0);
+    }
+
+    #[test]
+    fn chao1_only_singletons() {
+        let counts = [1, 1, 1, 0, 0];
+        let est = chao1(&counts);
+        let s_obs = 3.0;
+        let f1 = 3.0;
+        let expected = s_obs + f1 * (f1 - 1.0) / 2.0;
+        assert!((est - expected).abs() < 1e-10);
     }
 }

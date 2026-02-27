@@ -20,6 +20,53 @@ use groundspring::validate::ValidationHarness;
 use groundspring_validate::{f64_field, f64_range, print_provenance_header, usize_field};
 use serde_json::Value;
 
+/// Compute Lyapunov exponent, optionally routing through biomeOS.
+///
+/// When `GROUNDSPRING_COMPUTE_PROVIDER=biomeos` and the socket is available,
+/// sends the computation through `capability.call("compute.execute", ...)`.
+/// Falls back to local `lyapunov_averaged` if biomeOS is unavailable.
+#[cfg(feature = "biomeos")]
+fn lyapunov_via_provider(
+    n_sites: usize,
+    disorder: f64,
+    energy: f64,
+    n_real: usize,
+    seed: u64,
+) -> f64 {
+    if groundspring::biomeos::is_enabled() {
+        if let Some(socket) = groundspring::biomeos::discover_socket() {
+            let params = format!(
+                r#"{{"op":"lyapunov_averaged","n_sites":{n_sites},"disorder":{disorder},"energy":{energy},"n_realizations":{n_real},"seed":{seed}}}"#,
+            );
+            match groundspring::biomeos::capability_call(&socket, "compute.execute", &params) {
+                Ok(result) => {
+                    if let Ok(val) = result.trim().parse::<f64>() {
+                        println!("    [biomeOS] routed via compute.execute");
+                        return val;
+                    }
+                    println!("    [biomeOS] parse error, sovereign fallback");
+                }
+                Err(e) => {
+                    println!("    [biomeOS] {e}, sovereign fallback");
+                }
+            }
+        }
+    }
+    lyapunov_averaged(n_sites, disorder, energy, n_real, seed)
+}
+
+/// Local-only Lyapunov computation (no biomeOS feature).
+#[cfg(not(feature = "biomeos"))]
+fn lyapunov_via_provider(
+    n_sites: usize,
+    disorder: f64,
+    energy: f64,
+    n_real: usize,
+    seed: u64,
+) -> f64 {
+    lyapunov_averaged(n_sites, disorder, energy, n_real, seed)
+}
+
 const BENCHMARK: &str =
     include_str!("../../../control/anderson_localization/benchmark_anderson_localization.json");
 
@@ -40,7 +87,7 @@ fn disorder_sweep(
 
     let mut gammas: Vec<(f64, f64)> = Vec::new();
     for &w in disorders {
-        let g = lyapunov_averaged(n_sites, w, energy, n_real, 42);
+        let g = lyapunov_via_provider(n_sites, w, energy, n_real, 42);
         let xi = localization_length(g);
         let xi_str = if xi < 1e6 {
             format!("{xi:.1}")
@@ -150,7 +197,7 @@ fn run() -> i32 {
     // finite-chain drift at 10⁵ sites.
     println!("\n--- Part 1: Clean System (W=0) ---");
 
-    let gamma_clean = lyapunov_averaged(n_sites, 0.0, energy, 1, 42);
+    let gamma_clean = lyapunov_via_provider(n_sites, 0.0, energy, 1, 42);
     println!("  Lyapunov exponent (W=0): {gamma_clean:.6}");
 
     h.check_approx(
@@ -174,7 +221,28 @@ fn run() -> i32 {
     let g2 = lyapunov_exponent(&p2, 0.0);
     h.check_true("Lyapunov deterministic", g1 == g2);
 
+    #[cfg(feature = "biomeos")]
+    biomeos_store_results(&h);
+
     h.summary()
+}
+
+#[cfg(feature = "biomeos")]
+fn biomeos_store_results(h: &ValidationHarness) {
+    if !groundspring::biomeos::is_enabled() {
+        return;
+    }
+    if let Some(socket) = groundspring::biomeos::discover_socket() {
+        let value = format!(
+            r#"{{"experiment":"exp008_anderson_localization","passed":{},"failed":{}}}"#,
+            h.passes(),
+            h.fails(),
+        );
+        match groundspring::biomeos::storage_put(&socket, "groundspring:results:exp008", &value) {
+            Ok(()) => println!("  [biomeOS] results stored in NestGate"),
+            Err(e) => println!("  [biomeOS] storage failed: {e}"),
+        }
+    }
 }
 
 fn main() {

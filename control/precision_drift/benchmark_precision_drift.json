@@ -5,10 +5,12 @@
     "Higham (2002) Accuracy and Stability of Numerical Algorithms, 2nd ed."
   ],
   "_provenance": {
-    "baseline_commit": "TBD",
+    "baseline_commit": "d166af6cc281255dd107e81c4462a7fe65c097b2",
     "baseline_date": "2026-02-26",
     "prng": "numpy.random.default_rng(42)",
-    "python_version": "3.10"
+    "python_version": "3.10",
+    "validation_script": "control/precision_drift/precision_drift.py",
+    "command": "python3 control/precision_drift/precision_drift.py"
   },
   "_description": "f32 vs f64 transport coefficient precision drift in WDM Green-Kubo integration",
   "model": {

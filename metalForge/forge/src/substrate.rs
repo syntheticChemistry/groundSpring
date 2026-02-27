@@ -122,11 +122,13 @@ impl fmt::Display for Substrate {
 
 impl Substrate {
     /// Check if this substrate has a specific capability.
+    #[must_use]
     pub fn has(&self, cap: &Capability) -> bool {
         self.capabilities.contains(cap)
     }
 
     /// Return capabilities as a summary string.
+    #[must_use]
     pub fn capability_summary(&self) -> String {
         let labels: Vec<&str> = self.capabilities.iter().map(Capability::label).collect();
         labels.join(", ")
@@ -135,6 +137,7 @@ impl Substrate {
 
 impl Capability {
     /// Human-readable label for display.
+    #[must_use]
     pub const fn label(&self) -> &'static str {
         match self {
             Self::F64Compute => "f64",
@@ -195,15 +198,84 @@ mod tests {
     #[test]
     fn display_shows_kind_and_name() {
         let gpu = test_gpu();
-        let s = format!("{gpu}");
+        let s = gpu.to_string();
         assert!(s.contains("Test GPU"));
         assert!(s.contains("GPU"));
     }
 
     #[test]
     fn substrate_kind_display() {
-        assert_eq!(format!("{}", SubstrateKind::Gpu), "GPU");
-        assert_eq!(format!("{}", SubstrateKind::Npu), "NPU");
-        assert_eq!(format!("{}", SubstrateKind::Cpu), "CPU");
+        assert_eq!(SubstrateKind::Gpu.to_string(), "GPU");
+        assert_eq!(SubstrateKind::Npu.to_string(), "NPU");
+        assert_eq!(SubstrateKind::Cpu.to_string(), "CPU");
+    }
+
+    #[test]
+    fn capability_labels() {
+        assert_eq!(Capability::F64Compute.label(), "f64");
+        assert_eq!(Capability::F32Compute.label(), "f32");
+        assert_eq!(Capability::QuantizedInference { bits: 8 }.label(), "quant");
+        assert_eq!(Capability::BatchInference { max_batch: 8 }.label(), "batch");
+        assert_eq!(Capability::WeightMutation.label(), "weight-mut");
+        assert_eq!(Capability::ScalarReduce.label(), "reduce");
+        assert_eq!(Capability::ShaderDispatch.label(), "shader");
+        assert_eq!(Capability::SimdVector.label(), "simd");
+        assert_eq!(Capability::TimestampQuery.label(), "timestamps");
+    }
+
+    #[test]
+    fn capability_summary_joins_labels() {
+        let s = Substrate {
+            kind: SubstrateKind::Cpu,
+            identity: Identity::named("CPU"),
+            properties: Properties::default(),
+            capabilities: vec![Capability::F64Compute, Capability::F32Compute],
+        };
+        let summary = s.capability_summary();
+        assert!(summary.contains("f64"));
+        assert!(summary.contains("f32"));
+    }
+
+    #[test]
+    fn display_with_driver_and_memory() {
+        let s = Substrate {
+            kind: SubstrateKind::Gpu,
+            identity: Identity {
+                name: String::from("RTX 4070"),
+                driver: Some(String::from("NVIDIA 550.67")),
+                ..Identity::named("RTX 4070")
+            },
+            properties: Properties {
+                memory_bytes: Some(12 * 1024 * 1024 * 1024),
+                ..Properties::default()
+            },
+            capabilities: vec![],
+        };
+        let display = s.to_string();
+        assert!(display.contains("RTX 4070"));
+        assert!(display.contains("NVIDIA 550.67"));
+        assert!(display.contains("MB"));
+    }
+
+    #[test]
+    fn identity_named_defaults() {
+        let id = Identity::named("Test");
+        assert_eq!(id.name, "Test");
+        assert!(id.driver.is_none());
+        assert!(id.backend.is_none());
+        assert!(id.adapter_index.is_none());
+        assert!(id.device_node.is_none());
+        assert!(id.pci_id.is_none());
+    }
+
+    #[test]
+    fn properties_default_values() {
+        let p = Properties::default();
+        assert!(p.memory_bytes.is_none());
+        assert!(p.core_count.is_none());
+        assert!(p.thread_count.is_none());
+        assert!(p.cache_kb.is_none());
+        assert!(!p.has_f64);
+        assert!(!p.has_timestamps);
     }
 }

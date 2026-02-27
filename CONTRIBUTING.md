@@ -33,7 +33,7 @@ control/             Python Phase 0 experiments (28 experiments across 9 domains
   freeze_out_inverse/ Exp 020: Freeze-out inverse (Bazavov 2016)
   spectral_recon/     Exp 021: Spectral reconstruction (Bazavov 2025)
 crates/
-  groundspring/            Rust library (24 modules)
+  groundspring/            Rust library (26 modules)
     src/stats/             RMSE, MBE, R², IA, hit rate, Pearson/Spearman, covariance,
                            norm_cdf/ppf, chi2_statistic, mean, std, percentile (3 submodules)
     src/decompose.rs       Bias-variance decomposition, noise floor
@@ -58,6 +58,8 @@ crates/
     src/jackknife.rs       Jackknife variance, bias correction, leave-one-out resampling
     src/freeze_out.rs     Freeze-out temperature inversion, hadron yield fitting
     src/spectral_recon.rs  Spectral reconstruction from Euclidean correlators
+    src/wdm.rs             WDM transport: precision drift, size convergence, vendor parity
+    src/npu.rs             NPU integration for AKD1000 neuromorphic inference (behind npu feature)
   groundspring-validate/   28 validation binaries (hotSpring pattern)
 metalForge/          Write → Absorb → Lean artifacts
   ABSORPTION_MANIFEST.md  Module-by-module absorption inventory
@@ -89,20 +91,17 @@ scripts/             Automation (baselines, benchmarks)
 ### Rust
 
 ```bash
-cargo test --workspace          # 280 tests (207 unit + 13 determinism + 14 proptest + 9 validate-lib + 21 integration + 1 doc/unused)
-cargo clippy --workspace        # zero warnings required
-cargo fmt --check               # clean
-cargo llvm-cov --workspace       # 98.93% workspace line coverage
+cargo test --workspace                         # 410 tests, all PASS
+cargo test --workspace --features biomeos      # 442 tests (adds 32 biomeos tests)
+cargo clippy --workspace -- -D warnings        # zero warnings × 4 modes
+cargo fmt --check                              # clean
+cargo llvm-cov --workspace                     # 99.37% workspace line coverage
 
-# Dual-mode CI: run both CPU-only and barracuda-delegated (CI validates both)
-cargo clippy --workspace -- -D warnings
+# Four-mode CI: default, barracuda-CPU, barracuda-GPU, biomeos
 cargo test --workspace
-cargo clippy --workspace --features barracuda -- -D warnings
 cargo test --workspace --features barracuda
-
-# With barracuda feature gates (requires toadstool checkout):
-cargo test --features barracuda     # 280 tests, CPU delegation (22 CPU)
-cargo test --features barracuda-gpu # 280 tests, CPU + spectral (22 CPU + 5 GPU)
+cargo test --workspace --features barracuda-gpu
+cargo test --workspace --features biomeos
 
 # Three-mode benchmark (local vs barracuda vs barracuda-gpu)
 bash scripts/three_mode_benchmark.sh
@@ -129,6 +128,18 @@ cargo run --bin validate-band-edge
 cargo run --bin validate-jackknife
 cargo run --bin validate-freeze-out
 cargo run --bin validate-spectral-recon
+cargo run --bin validate-et0-anderson
+cargo run --bin validate-notill
+cargo run --bin validate-aggregate
+cargo run --bin validate-precision-drift
+cargo run --bin validate-size-convergence
+cargo run --bin validate-vendor-parity
+cargo run --bin validate-npu-anderson
+
+# metalForge live hardware validation
+cargo run --bin validate-metalforge-inventory
+cargo run --bin validate-metalforge-gpu
+cargo run --bin validate-metalforge-cross-substrate
 
 # Performance benchmarks (Rust vs Python)
 python3 scripts/bench_rust_vs_python.py

@@ -528,6 +528,7 @@ dependencies = [
  "akida-driver",
  "barracuda",
  "proptest",
+ "tempfile",
 ]
 
 [[package]]

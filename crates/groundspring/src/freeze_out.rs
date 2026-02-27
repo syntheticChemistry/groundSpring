@@ -10,10 +10,12 @@
 //! a function of baryon chemical potential:
 //! `T_f(μ_B) = T₀ (1 - κ₂ (μ_B/T₀)²)`
 //!
-//! # `barracuda` delegation
+//! # barracuda delegation
 //!
-//! When the `barracuda` feature is enabled, `grid_fit_2d` will delegate
-//! to a batched GPU kernel for parallel chi-squared evaluation.
+//! [`grid_fit_2d`] is embarrassingly parallel — each (T₀, κ₂) grid
+//! point evaluates independently. GPU promotion via `barracuda-gpu`
+//! dispatches as a 2D workgroup with per-point chi-squared reduction.
+//! [`chi_squared`] and [`freeze_out_curve`] stay local (scalar ops).
 
 use crate::cast::usize_f64;
 
@@ -75,12 +77,37 @@ pub fn chi_squared_per_dof(chi2: f64, n_data: usize, n_params: usize) -> f64 {
 /// Panics if `observed` and `mu_b` have different lengths, or if
 /// grid ranges produce no points.
 #[must_use]
+pub fn grid_fit_2d(config: &GridFitConfig<'_>) -> GridFitResult {
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Ok(result) = barracuda::ops::grid::grid_fit_2d_f64(
+            config.observed,
+            config.mu_b,
+            config.sigma,
+            config.t0_lo,
+            config.t0_hi,
+            config.t0_step,
+            config.k2_lo,
+            config.k2_hi,
+            config.k2_step,
+        ) {
+            return GridFitResult {
+                t0: result.0,
+                kappa2: result.1,
+                chi_squared: result.2,
+                chi2_per_dof: chi_squared_per_dof(result.2, config.observed.len(), 2),
+            };
+        }
+    }
+    grid_fit_2d_cpu(config)
+}
+
 #[allow(
     clippy::similar_names,
     clippy::cast_possible_truncation,
     clippy::cast_sign_loss
 )]
-pub fn grid_fit_2d(config: &GridFitConfig<'_>) -> GridFitResult {
+fn grid_fit_2d_cpu(config: &GridFitConfig<'_>) -> GridFitResult {
     let n_data = config.observed.len();
     assert_eq!(n_data, config.mu_b.len());
 

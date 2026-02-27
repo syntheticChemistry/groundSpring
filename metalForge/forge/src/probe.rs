@@ -5,15 +5,38 @@
 use crate::substrate::{Capability, Identity, Properties, Substrate, SubstrateKind};
 use std::fs;
 
-/// Default device node for `BrainChip` AKD1000 NPU.
+/// Environment variable to override the NPU device node.
 ///
-/// Override with `GROUNDSPRING_NPU_DEVICE` for alternate installations.
+/// Capability-based: primals discover hardware at runtime, never hardcode
+/// paths. The default device node is platform-specific (Linux: `/dev/akida0`).
+const NPU_DEVICE_ENV: &str = "GROUNDSPRING_NPU_DEVICE";
+
+/// Platform-default device node for `BrainChip` AKD1000 NPU.
+///
+/// Only meaningful on Linux; other platforms must set [`NPU_DEVICE_ENV`].
+#[cfg(target_os = "linux")]
 const DEFAULT_NPU_DEVICE: &str = "/dev/akida0";
+
+#[cfg(not(target_os = "linux"))]
+const DEFAULT_NPU_DEVICE: &str = "";
+
+/// Platform-specific CPU information source.
+///
+/// Linux: `/proc/cpuinfo`. Other platforms return minimal defaults.
+#[cfg(target_os = "linux")]
+const PROCFS_CPUINFO: &str = "/proc/cpuinfo";
+
+/// Platform-specific memory information source.
+///
+/// Linux: `/proc/meminfo`. Other platforms return `None` for memory.
+#[cfg(target_os = "linux")]
+const PROCFS_MEMINFO: &str = "/proc/meminfo";
 
 /// Probe all GPU adapters via wgpu.
 ///
 /// Each adapter becomes a substrate with capabilities derived from its
 /// feature flags (`SHADER_F64` -> `F64Compute`, etc.).
+#[must_use]
 pub fn probe_gpus() -> Vec<Substrate> {
     let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
         backends: wgpu::Backends::all(),
@@ -65,12 +88,23 @@ pub fn probe_gpus() -> Vec<Substrate> {
     gpus
 }
 
-/// Probe CPU via `/proc/cpuinfo` and `/proc/meminfo`.
+/// Probe CPU via platform-specific discovery.
+///
+/// On Linux, reads `/proc/cpuinfo` and `/proc/meminfo`.
+/// On other platforms, returns a minimal CPU substrate with f64/f32
+/// capabilities (runtime discovery only, no hardcoded assumptions).
+#[must_use]
 pub fn probe_cpu() -> Substrate {
-    let cpuinfo = fs::read_to_string("/proc/cpuinfo").unwrap_or_default();
-    let (model, cores, threads, cache_kb, has_avx2) = parse_cpuinfo(&cpuinfo);
-    let meminfo = fs::read_to_string("/proc/meminfo").unwrap_or_default();
-    let mem_bytes = parse_meminfo(&meminfo);
+    #[cfg(target_os = "linux")]
+    let (cpuinfo_content, meminfo_content) = (
+        fs::read_to_string(PROCFS_CPUINFO).unwrap_or_default(),
+        fs::read_to_string(PROCFS_MEMINFO).unwrap_or_default(),
+    );
+    #[cfg(not(target_os = "linux"))]
+    let (cpuinfo_content, meminfo_content) = (String::new(), String::new());
+
+    let (model, cores, threads, cache_kb, has_avx2) = parse_cpuinfo(&cpuinfo_content);
+    let mem_bytes = parse_meminfo(&meminfo_content);
 
     let name = model.unwrap_or_else(|| String::from("Unknown CPU"));
 
@@ -97,11 +131,12 @@ pub fn probe_cpu() -> Substrate {
 ///
 /// Discovers `BrainChip` AKD1000 via device node (default: `/dev/akida0`,
 /// override with `GROUNDSPRING_NPU_DEVICE`).
+#[must_use]
 pub fn probe_npus() -> Vec<Substrate> {
     let mut npus = Vec::new();
 
     let npu_device =
-        std::env::var("GROUNDSPRING_NPU_DEVICE").unwrap_or_else(|_| DEFAULT_NPU_DEVICE.to_string());
+        std::env::var(NPU_DEVICE_ENV).unwrap_or_else(|_| DEFAULT_NPU_DEVICE.to_owned());
     let akida_path = std::path::Path::new(&npu_device);
     if akida_path.exists() {
         npus.push(Substrate {

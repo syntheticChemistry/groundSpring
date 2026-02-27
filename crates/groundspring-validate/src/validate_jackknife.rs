@@ -10,7 +10,7 @@
 //! - Bazavov et al. (2025) Phys Rev D 111, 094508
 //! - Quenouille (1956) Biometrika 43:353-360
 
-#![allow(clippy::cast_precision_loss, clippy::cast_possible_truncation)]
+#![expect(clippy::cast_precision_loss, clippy::cast_possible_truncation)]
 
 use groundspring::jackknife::{
     block_jackknife_variance, jackknife_bias, jackknife_mean_variance,
@@ -76,6 +76,7 @@ fn validate_block_and_bias(
     h: &mut ValidationHarness,
     gauss: &GaussCtx,
     corr: &CorrCtx,
+    bench: &Value,
     exp: &Value,
 ) {
     println!("\n--- Part 3: Jackknife bias correction ---");
@@ -84,16 +85,19 @@ fn validate_block_and_bias(
     let full_biased_var: f64 = gauss.data.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / n_f;
     let loo = leave_one_out_biased_variance(&gauss.data);
     let (bias, corrected) = jackknife_bias(&loo, full_biased_var);
-    let true_var = 4.0;
+    let true_std = f64_field(&bench["gaussian"], "true_std");
+    let true_var = true_std * true_std;
     let naive_err = (full_biased_var - true_var).abs();
     let corrected_err = (corrected - true_var).abs();
+    let error_ratio_max = f64_field(exp, "bias_correction_error_ratio_max");
     println!("  Biased var = {full_biased_var:.4}, bias = {bias:.6}, corrected = {corrected:.4}");
     h.check_true(
         "Bias correction reduces error",
-        corrected_err < naive_err * 1.5,
+        corrected_err < naive_err * error_ratio_max,
     );
 
     println!("\n--- Part 4: Block jackknife on correlated data ---");
+    let monotone_slack = f64_field(exp, "block_jk_monotone_slack");
     let mut block_vars = Vec::new();
     for &bs in &corr.block_sizes {
         let r = block_jackknife_variance(&corr.data, bs);
@@ -103,7 +107,7 @@ fn validate_block_and_bias(
     let monotone = block_vars
         .windows(2)
         .take(block_vars.len().saturating_sub(2))
-        .all(|w| w[0] <= w[1] * 1.5);
+        .all(|w| w[0] <= w[1] * monotone_slack);
     h.check_true("Block JK variance increases with block size", monotone);
     let (lo, hi) = f64_range(&exp["block_jk_large_block_var_range"]);
     h.check_range(
@@ -114,12 +118,19 @@ fn validate_block_and_bias(
     );
 }
 
-fn validate_comparison_and_determinism(h: &mut ValidationHarness, gauss: &GaussCtx, exp: &Value) {
+fn validate_comparison_and_determinism(
+    h: &mut ValidationHarness,
+    gauss: &GaussCtx,
+    bench: &Value,
+    exp: &Value,
+) {
     println!("\n--- Part 5: Jackknife vs bootstrap comparison ---");
     let jk = jackknife_mean_variance(&gauss.data);
-    let mut rng = Xorshift64::new(12345);
+    let boot_cfg = &bench["bootstrap_comparison"];
+    let boot_seed = u64_field(boot_cfg, "seed");
+    let n_boot = boot_cfg["n_bootstrap"].as_u64().expect("n_bootstrap") as usize;
+    let mut rng = Xorshift64::new(boot_seed);
     let n = gauss.data.len();
-    let n_boot = 500;
     let mut boot_means = Vec::with_capacity(n_boot);
     for _ in 0..n_boot {
         let mut s = 0.0;
@@ -212,8 +223,8 @@ fn run() -> i32 {
 
     validate_gaussian(&mut h, &gauss, exp);
     validate_exponential(&mut h, exp_cfg, exp);
-    validate_block_and_bias(&mut h, &gauss, &corr, exp);
-    validate_comparison_and_determinism(&mut h, &gauss, exp);
+    validate_block_and_bias(&mut h, &gauss, &corr, &bench, exp);
+    validate_comparison_and_determinism(&mut h, &gauss, &bench, exp);
 
     h.summary()
 }

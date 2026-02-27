@@ -146,4 +146,30 @@ mod tests {
         let v = json!(42.0);
         let _ = f64_range(&v);
     }
+
+    #[test]
+    fn print_provenance_header_does_not_panic() {
+        let bench = json!({
+            "_source": "Test experiment",
+            "_provenance": {
+                "baseline_commit": "abc1234",
+                "baseline_date": "2026-02-27"
+            }
+        });
+        print_provenance_header(&bench, "Test Title");
+    }
+
+    #[test]
+    fn print_provenance_header_handles_missing_fields() {
+        let bench = json!({"_source": null, "_provenance": {}});
+        print_provenance_header(&bench, "Fallback");
+    }
+
+    #[test]
+    fn f64_range_extracts_from_longer_array() {
+        let v = json!([1.0, 2.0, 3.0]);
+        let (lo, hi) = f64_range(&v);
+        assert!((lo - 1.0).abs() < f64::EPSILON);
+        assert!((hi - 2.0).abs() < f64::EPSILON);
+    }
 }

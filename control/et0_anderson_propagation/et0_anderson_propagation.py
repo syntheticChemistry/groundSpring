@@ -1,6 +1,6 @@
+#!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2026 ecoPrimals / Squirrel Team
-#!/usr/bin/env python3
 """
 groundSpring Experiment 022 — Soil Moisture → Anderson Uncertainty Propagation
 
@@ -86,7 +86,6 @@ from penman_monteith import (  # noqa: E402  # type: ignore[import-not-found]
     actual_vapour_pressure_rh,
     atmospheric_pressure,
     clear_sky_radiation,
-    daylight_hours,
     extraterrestrial_radiation,
     fao56_penman_monteith,
     mean_saturation_vapour_pressure,
@@ -96,7 +95,6 @@ from penman_monteith import (  # noqa: E402  # type: ignore[import-not-found]
     slope_vapour_pressure_curve,
     wind_speed_at_2m,
 )
-
 
 # ---------------------------------------------------------------------------
 # FAO-56 ET₀ with direct Rs input (benchmark uses rs_mj_m2_day)
@@ -303,7 +301,7 @@ def sensitivity_et0(
 ) -> dict:
     """One-at-a-time perturbation to rank FAO-56 input contributions."""
     unc = fao56["uncertainties"]
-    base_et0 = compute_et0_from_rs(
+    _base_et0 = compute_et0_from_rs(
         fao56["tmax_c"], fao56["tmin_c"],
         fao56["rhmax_pct"], fao56["rhmin_pct"],
         fao56["wind_10m_m_s"], fao56["rs_mj_m2_day"],

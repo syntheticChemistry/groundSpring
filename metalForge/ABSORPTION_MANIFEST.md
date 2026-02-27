@@ -6,7 +6,7 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: February 27, 2026 (V26 — MetalForge live hardware, NPU integration, 28 experiments, 288/288 checks)
+**Last updated**: February 27, 2026 (V31 — GPU dispatch wiring + metalForge workload expansion, 442 Rust + 320 Python = 762 total)
 
 ## Absorption Status Summary
 
@@ -57,7 +57,7 @@ Both shaders use xoshiro128** matching `barracuda::ops::prng_xoshiro_wgsl`.
 
 ---
 
-## Tier A — Lean (27 delegated)
+## Tier A — Lean (32 delegated)
 
 ### All delegated
 
@@ -89,6 +89,9 @@ Both shaders use xoshiro128** matching `barracuda::ops::prng_xoshiro_wgsl`.
 | `level_spacing_ratio` | `spectral::level_spacing_ratio` | `#[cfg(feature = "barracuda-gpu")]` sort adapter |
 | `almost_mathieu_eigenvalues` | `spectral::find_all_eigenvalues` | `#[cfg(feature = "barracuda-gpu")]` Sturm tridiag → **49.5× Exp 009** |
 | `evenness` | `stats::pielou_evenness` | `#[cfg(feature = "barracuda")]` u64→f64 + S≤1 adapter |
+| `hill` | `stats::hill` | `#[cfg(feature = "barracuda")]` domain guard (S68) |
+| `tikhonov_solve` | `linalg::solve_f64_cpu` | `#[cfg(feature = "barracuda-gpu")]` Gauss–Jordan fallback |
+| `finite_size_extrapolate` | `stats::regression::fit_linear` | `#[cfg(feature = "barracuda")]` linear regression (S66) |
 
 ---
 
@@ -154,7 +157,7 @@ NOTE:       Equation chain is superseded by barracuda Op::Fao56Et0 — when
 - [x] f64 precision throughout (no f32 truncation)
 - [x] PRNG matches barracuda (xoshiro128**)
 - [x] Handoff V14 posted in `wateringHole/handoffs/` (V13, V12, V11, V10, V9, V8 archived)
-- [x] All 27 barracuda delegations use `#[cfg]` or `if let Ok` with CPU fallback always compiled
+- [x] All 37 barracuda dispatch targets use `#[cfg]` or `if let Ok` with CPU fallback always compiled
 - [x] Mathematical parity: 28/28 PROVEN (Python ⇌ Rust, `data/parity_report.json`)
 - [x] PRNG alignment investigated: requires full rebaseline (documented in V8 handoff)
 - [x] ToadStool S64 catch-up: 6 new CPU delegations (metrics + shannon), 3 bug fixes
@@ -167,5 +170,17 @@ NOTE:       Equation chain is superseded by barracuda Op::Fao56Et0 — when
 - [x] V26 Live hardware: RTX 4070, Titan V, AKD1000 NPU (80 NPs, ~51 µs DMA), i9-12900K
 - [x] V26 Validation: 288/288 experiment checks + 31 metalForge checks (inventory 10, GPU 11, cross-substrate 10)
 - [x] Three-mode benchmark: 20.4s → 9.2s (2.2× overall, 47.7× quasiperiodic)
+- [x] V27 Barracuda evolution review: 29 delegations (23 CPU + 6 GPU), paper controls confirmed, three-tier validation
+- [x] V27 Handoff posted in `wateringHole/handoffs/` (V26, V23-V7 archived)
+- [x] V28 Coverage evolution: 368 tests + 196 Python integrity, xoshiro128** at API parity
+- [x] V28 CI baseline drift detection: `test_baseline_integrity.py` validates all 28 benchmark JSONs
+- [x] V28 Handoff posted: `GROUNDSPRING_TOADSTOOL_V28_BARRACUDA_EVOLUTION_HANDOFF_FEB27_2026.md`
+- [x] V29 Three-tier validation buildout: 391 Rust + 322 Python = 713 total, 32 delegations (26 CPU + 6 GPU)
+- [x] V30 biomeOS Neural API integration: JSON-RPC client, Anderson routing, pipeline graph
+- [x] V31 GPU dispatch wiring: 5 GPU-ready modules, 12 metalForge workloads, 442 Rust (biomeos) + 320 Python = 762 total
+- [x] V29 Three new barracuda CPU delegations: drift::kimura_fixation_prob, jackknife::jackknife_mean_variance, fao56::daily_et0
+- [x] V29 23 three-tier parity integration tests (three_tier_parity.rs) + Python parity tests (test_three_tier_parity.py)
+- [x] V29 8 GPU-annotated modules with barracuda delegation documentation
+- [x] V29 0 clippy warnings, 288/288 validation checks
 - [ ] Tolerance comparison: GPU output vs CPU reference
 - [ ] ToadStool absorption of groundSpring shaders confirmed

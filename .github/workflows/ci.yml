@@ -60,13 +60,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
       - run: pip install -e ".[dev]"
       - run: ruff check control/ tests/
       - run: mypy control/ tests/
-      - run: python -m pytest tests/ -v
+      - run: python -m pytest tests/test_common.py tests/test_determinism.py tests/test_baseline_integrity.py -v
+      - run: python -m pytest tests/test_experiments.py -v --timeout=300
 
   coverage:
     name: Coverage

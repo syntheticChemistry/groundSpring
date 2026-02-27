@@ -4,6 +4,119 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V31 GPU Dispatch Wiring + metalForge Workload Expansion (Feb 27, 2026)
+
+#### Added
+- **GPU dispatch wiring**: 5 modules now have `#[cfg(feature = "barracuda-gpu")]` dispatch blocks ready for ToadStool absorption: `freeze_out::grid_fit_2d` (2D parallel grid), `band_structure::find_band_edges` (per-energy parallel transfer matrix), `seismic::grid_search_inversion` (3D parallel grid), `quasispecies::quasispecies_simulation` (batched Wright-Fisher), `rare_biosphere::abundance_occupancy` + `tier_detection_rate` (batched multinomial).
+- **metalForge workloads**: 5 new workload definitions with GPU routing — `freeze_out_grid_fit`, `seismic_grid_search`, `band_edge_scan`, `quasispecies_wright_fisher`, `rare_biosphere_multinomial`. Total: 12 workloads (up from 7).
+- **GPU parity integration tests**: 10 new tests in `three_tier_parity.rs` verifying determinism and known-value parity for all GPU-wired functions.
+- **metalForge routing tests**: 5 new tests confirming GPU routing for new workloads.
+- Updated gillespie doc to clarify GPU is batch-only (not drop-in single-trajectory).
+
+#### Metrics
+- 442 Rust tests with `--features biomeos` (410 base + 32 biomeos), all PASS
+- 410 Rust tests in default mode (up from 391: +10 GPU parity + 5 metalForge routing + 4 dispatch parity), all PASS
+- 320 Python tests, all PASS + 2 skipped
+- 0 clippy warnings across all feature combinations
+- Total: 442 + 320 = 762 tests (up from 745)
+- 12 metalForge workloads (up from 7)
+- 37 barracuda dispatch targets: 26 CPU + 6 existing GPU + 5 new GPU-ready
+- 28/28 parity PROVEN (formal certificate: `data/parity_report.json`)
+- Performance: 11.5× Rust vs Python (excl. LAPACK-bound); Exp 005 Seismic 53.5×, Exp 011 Multi-Signal QS 44.7×
+
+### V30 biomeOS Neural API Integration (Feb 27, 2026)
+
+#### Added
+- **biomeOS Neural API client**: `crates/groundspring/src/biomeos.rs` — JSON-RPC 2.0 over Unix domain socket, following wetSpring's `NestGate` pattern. Provides `capability_call`, `direct_rpc_call`, `storage_put/get`, and `health` methods with sovereign fallback when socket is unavailable.
+- **`biomeos` feature gate**: Optional feature in `Cargo.toml` — no external deps, pure Rust Unix socket + JSON string handling.
+- **Concept docs**: `whitePaper/neuralAPI/README.md` (groundSpring as validation science primal) and `CAPABILITY_SURFACE.md` (5 provided + 3 consumed capabilities with registry format).
+- **Pipeline graph**: `graphs/groundspring_validation.toml` — biomeOS orchestration graph for Anderson localization (benchmark → Lyapunov → parity → provenance), follows `science_pipeline.toml` pattern.
+- **Anderson biomeOS routing**: `validate-anderson` optionally routes Lyapunov computation through `capability.call("compute.execute", ...)` when `GROUNDSPRING_COMPUTE_PROVIDER=biomeos`, with sovereign fallback. Also stores results in `NestGate` when available.
+- **Integration tests**: `biomeos_integration.rs` — 10 tests covering socket discovery (env var, XDG, temp), sovereign fallback, error handling, provider detection.
+
+#### Metrics
+- 423 Rust tests with `--features biomeos` (391 base + 22 biomeos unit + 10 biomeos integration), all PASS
+- 391 Rust tests in default mode (unchanged), all PASS
+- 322 Python tests (unchanged), 320 pass + 2 skip
+- 0 clippy warnings across all feature combinations
+- Total: 423 + 322 = 745 tests (up from 713)
+
+### V29 Three-Tier Validation Buildout + Barracuda CPU Delegation Wave (Feb 27, 2026)
+
+#### Added
+- **3 new barracuda CPU delegations**: `drift::kimura_fixation_prob` → `barracuda::stats::kimura_fixation`, `jackknife::jackknife_mean_variance` → `barracuda::stats::jackknife_mean_variance`, `fao56::daily_et0` → `barracuda::stats::hydrology::fao56_et0`. All use `if let Ok` pattern with always-compiled CPU fallback.
+- **GPU-ready annotations** for 8 undelegated modules: freeze_out (2D grid dispatch), band_structure (per-energy parallel), seismic (3D grid dispatch), quasispecies (batched WrightFisher), rare_biosphere (batched multinomial), gillespie (batched trajectories), transport (tridiag stays local — QL beats dense Jacobi), fao56 (batch ET₀)
+- **`three_tier_parity.rs`**: 23 integration tests validating CPU ↔ barracuda-CPU ↔ barracuda-GPU mathematical equivalence across drift, jackknife, fao56, rare_biosphere, quasispecies, band_structure, freeze_out, gillespie, transport, seismic
+- **`test_three_tier_parity.py`**: Python-side parity tests proving all 27 Rust validation binaries pass, all benchmark JSONs have provenance, and Rust is not slower than Python
+
+#### Changed
+- **BARRACUDA_EVOLUTION.md**: Tier A table expanded to 32 delegations (26 CPU + 6 GPU); Tier B table expanded with 4 new GPU dispatch candidates (freeze_out, band_structure, quasispecies, rare_biosphere); Phase 2a updated to 32, Phase 2b in progress
+- **PAPER_REVIEW_QUEUE.md**: Updated delegation counts, added three-tier parity note, 8 GPU-annotated modules
+- **Module docs**: All 8 newly annotated modules have barracuda delegation sections documenting CPU/GPU/metalForge progression
+
+#### Metrics
+- 391 Rust tests (272 unit + 13 determinism + 14 proptest + 23 three-tier parity + 29 forge + 12 validate-lib + 28 integration), all PASS
+- 322 Python tests (250 experiments + 72 three-tier parity), 320 pass + 2 skip (LAPACK-wins: quasiperiodic, drift)
+- 32 barracuda delegations (26 CPU + 6 GPU), 8 GPU-annotated modules
+- 0 clippy warnings, 288/288 validation checks
+- Total: 391 + 322 = 713 tests (up from 618)
+- 28/28 experiments green at CPU tier, GPU tier annotated, metalForge tier live (Exp 028)
+
+### V28 Coverage Evolution + PRNG Readiness + CI Drift Detection (Feb 27, 2026)
+
+#### Added
+- **`Xoshiro128StarStar` API parity**: `next_u64()` and `binomial()` methods added to GPU-aligned PRNG, matching full `Xorshift64` API surface. Ready for Phase 2b PRNG migration when barracuda feature gate activates
+- **`tests/test_baseline_integrity.py`**: 196 parametric tests verifying every benchmark JSON has complete provenance metadata (`_source`, `_provenance.baseline_date`, `_provenance.baseline_commit`, `_provenance.validation_script`), valid hex commit hashes, UTF-8 encoding, and that every experiment directory has both a benchmark file and a Python script
+- **Coverage tests**: 45 new Rust tests across 6 modules:
+  - `bistable.rs`: stochastic_integrate determinism/divergence/non-negativity, low-noise near-deterministic, derivative boundedness
+  - `multisignal.rs`: stochastic_integrate determinism/divergence/non-negativity, derivative boundedness
+  - `rare_biosphere.rs`: tier_detection_rate (determinism, abundant, rare), detection_threshold edge cases, chao1 only-singletons branch
+  - `prng.rs`: xoshiro next_u64/binomial determinism, binomial mean, normal with mean/std
+  - `inventory.rs`: count/first for absent kinds, print_summary, empty inventory
+  - `validate lib.rs`: print_provenance_header (complete + missing fields), f64_range longer array
+
+#### Changed
+- **CI workflow**: Split Python job into fast integrity checks (test_common + test_determinism + test_baseline_integrity) then full experiment runs with `--timeout=300`; `fetch-depth: 0` for provenance commit verification
+- **Root README**: Updated to 368 tests, xoshiro128** API parity, four-mode CI
+- **whitePaper/**: Updated baseCamp, experiments, STUDY, METHODOLOGY with V28 metrics
+- **wateringHole/**: V28 toadstool handoff (coverage evolution + PRNG readiness + three-tier paper controls)
+- **specs/**: Updated BARRACUDA_EVOLUTION (xoshiro128** at API parity), PAPER_REVIEW_QUEUE (three-tier matrix confirmed), BARRACUDA_REQUIREMENTS
+
+#### Metrics
+- 368 Rust tests (272 groundspring lib + 13 determinism + 14 proptest + 29 forge + 12 validate-lib + 28 binary), all PASS
+- 196 Python baseline integrity tests, all PASS
+- 288/288 validation checks, 28/28 mathematical parity
+- 0 clippy warnings × 3 modes, 0 `todo!()`/`unimplemented!()`, 0 `unwrap()` in production
+- All 28 benchmark JSONs have complete provenance, all hex commit hashes, all UTF-8
+- Xoshiro128StarStar: next_u64(), next_f64(), next_normal(), normal(), binomial() — full API parity with Xorshift64
+
+### V27 Docs + Handoff Audit: Barracuda Evolution Review (Feb 27, 2026)
+
+#### Changed
+- **Root README.md**: Updated to 323 tests, 29 delegations (23 CPU + 6 GPU), 99.37% coverage, three-mode CI
+- **CONTRIBUTING.md**: Updated test counts, module count (26), added Exp 022-028 validation binaries and metalForge binaries, three-mode CI
+- **whitePaper/baseCamp/README.md**: Updated validation summary (29 delegations, 323 tests, 99.37% coverage, V26 metalForge)
+- **whitePaper/experiments/README.md**: Updated to 323 tests, 29 delegations, 99.37% coverage, metalForge tier
+- **whitePaper/STUDY.md**: Updated abstract, Phase 2a summary, and timeline
+- **whitePaper/METHODOLOGY.md**: Updated test counts, coverage, delegation counts, added metalForge tier
+- **whitePaper/CROSS_SPRING_EVOLUTION.md**: Updated to 29 delegations
+- **wateringHole/README.md**: V27 and V26 as active handoffs, V23 archived
+- **wateringHole/CROSS_SPRING_SHADER_EVOLUTION.md**: Updated to 29 delegations, added #28 (tikhonov_solve) and #29 (finite_size_extrapolate), V26/V27 timeline entries
+- **specs/README.md**: Updated to 29 delegated, 323 tests
+- **specs/BARRACUDA_REQUIREMENTS.md**: Updated to 29 delegations (23 CPU + 6 GPU), 323 tests, 99.37% coverage, metalForge hardware
+- **specs/PAPER_REVIEW_QUEUE.md**: Updated delegation and test counts
+- **metalForge/ABSORPTION_MANIFEST.md**: Updated to 29 delegated, added hill/tikhonov/regression entries, V27 handoff checklist item
+- **CONTROL_EXPERIMENT_STATUS.md**: Added V27 entry, updated coverage to 99.37%
+
+#### Added
+- **V27 ToadStool handoff** (`wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V27_BARRACUDA_EVOLUTION_HANDOFF_FEB27_2026.md`): Comprehensive barracuda evolution review following hotSpring/wetSpring handoff pattern — 6 parts: barracuda usage, absorption requests, evolution learnings, paper controls (open data audit: 28/28 PASS), three-tier hardware validation matrix (CPU → GPU → metalForge), barracuda evolution summary (V7→V27)
+
+#### Metrics
+- 323 Rust tests, 288/288 validation checks, 29 barracuda delegations (23 CPU + 6 GPU)
+- 99.37% line coverage, 0 clippy warnings × 3 modes
+- 28/28 papers confirmed open data/systems — zero proprietary dependencies
+- Three-tier validation: CPU (288/288), GPU (6 delegations, 2.2× speedup), metalForge (31 checks, 3 live hardware substrates)
+
 ### V26 MetalForge Live Hardware: GPU + NPU + Cross-Substrate (Feb 27, 2026)
 
 #### Added

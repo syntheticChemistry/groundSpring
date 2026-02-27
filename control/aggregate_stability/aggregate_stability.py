@@ -1,6 +1,6 @@
+#!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2026 ecoPrimals / Squirrel Team
-#!/usr/bin/env python3
 """
 groundSpring Experiment 024 — Aggregate Stability Measurement Noise
 
@@ -44,7 +44,6 @@ from common import (
     print_summary,
     reset_counters,
 )
-
 
 # ---------------------------------------------------------------------------
 # WSA simulation and calibration

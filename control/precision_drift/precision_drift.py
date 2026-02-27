@@ -1,6 +1,6 @@
+#!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2026 ecoPrimals / Squirrel Team
-#!/usr/bin/env python3
 """
 groundSpring Experiment 025 — f32 vs f64 Transport Coefficient Precision Drift
 
@@ -35,7 +35,6 @@ from common import (
     print_summary,
     reset_counters,
 )
-
 
 # ---------------------------------------------------------------------------
 # VACF generation and integration
@@ -162,12 +161,6 @@ def main() -> int:
         for i in range(len(all_integral_f64))
         if all_integral_f64[i] != 0
     ]
-    all_f64_magnitudes = [
-        abs(all_integral_f64[i])
-        for i in range(len(all_integral_f64))
-        if all_integral_f64[i] != 0
-    ]
-
     # --- Validation checks ---
     print("\n--- Validation Checks ---")
 

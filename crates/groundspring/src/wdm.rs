@@ -8,6 +8,12 @@
 //!
 //! These functions support groundSpring's uncertainty quantification
 //! methodology applied to molecular dynamics transport coefficients.
+//!
+//! # barracuda delegation
+//!
+//! When the `barracuda` feature is enabled, [`finite_size_extrapolate`]
+//! delegates linear regression to `barracuda::stats::regression::fit_linear`.
+//! Falls back to the local least-squares implementation on error.
 
 /// Numerically integrate an autocorrelation function using the trapezoidal rule.
 ///
@@ -82,7 +88,6 @@ pub fn analytical_diffusion(c0: f64, tau: f64, d_dim: f64) -> f64 {
 ///
 /// Panics if `sizes` and `values` have different lengths or fewer than 2 points.
 #[must_use]
-#[allow(clippy::similar_names, clippy::suspicious_operation_groupings)]
 pub fn finite_size_extrapolate(sizes: &[f64], values: &[f64], d_dim: f64) -> (f64, f64, f64) {
     assert_eq!(
         sizes.len(),
@@ -91,33 +96,11 @@ pub fn finite_size_extrapolate(sizes: &[f64], values: &[f64], d_dim: f64) -> (f6
     );
     assert!(sizes.len() >= 2, "need at least 2 data points");
 
-    #[expect(clippy::cast_precision_loss)]
-    let n = sizes.len() as f64;
     let exponent = 1.0 / d_dim;
-
     let xs: Vec<f64> = sizes.iter().map(|&s| 1.0 / s.powf(exponent)).collect();
 
-    let x_mean: f64 = xs.iter().sum::<f64>() / n;
-    let y_mean: f64 = values.iter().sum::<f64>() / n;
-
-    let (mut ss_xy, mut ss_xx, mut ss_yy) = (0.0, 0.0, 0.0);
-    for (x, val) in xs.iter().zip(values.iter()) {
-        let dx = x - x_mean;
-        let dy = val - y_mean;
-        ss_xy += dx * dy;
-        ss_xx += dx * dx;
-        ss_yy += dy * dy;
-    }
-
-    let alpha = if ss_xx > 0.0 { ss_xy / ss_xx } else { 0.0 };
-    let d_inf = y_mean - alpha * x_mean;
-    let r_squared = if ss_yy > 0.0 {
-        (ss_xy * ss_xy) / (ss_xx * ss_yy)
-    } else {
-        1.0
-    };
-
-    (d_inf, alpha, r_squared)
+    let fit = crate::stats::fit_linear(&xs, values);
+    fit.map_or((0.0, 0.0, 0.0), |f| (f.intercept, f.slope, f.r_squared))
 }
 
 #[cfg(test)]
@@ -163,7 +146,7 @@ mod tests {
         let sizes = vec![100.0, 500.0, 1000.0, 5000.0, 10000.0];
         let values: Vec<f64> = sizes
             .iter()
-            .map(|&n: &f64| d_inf_true + alpha_true / n.powf(1.0 / 3.0))
+            .map(|&n: &f64| d_inf_true + alpha_true / n.cbrt())
             .collect();
         let (d_inf, alpha, r_sq) = finite_size_extrapolate(&sizes, &values, 3.0);
         assert!(
@@ -179,8 +162,8 @@ mod tests {
 
     #[test]
     fn empty_acf_returns_zero() {
-        assert_eq!(green_kubo_integrate(&[], 0.001), 0.0);
-        assert_eq!(green_kubo_integrate(&[1.0], 0.001), 0.0);
-        assert_eq!(green_kubo_integrate_f32(&[], 0.001), 0.0);
+        assert!(green_kubo_integrate(&[], 0.001).abs() < f64::EPSILON);
+        assert!(green_kubo_integrate(&[1.0], 0.001).abs() < f64::EPSILON);
+        assert!(green_kubo_integrate_f32(&[], 0.001).abs() < f64::EPSILON);
     }
 }

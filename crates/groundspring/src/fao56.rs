@@ -9,6 +9,13 @@
 //!
 //! Each function cites the exact FAO-56 equation number.  Intermediate
 //! values can be checked against the worked examples in Chapter 4.
+//!
+//! # barracuda delegation
+//!
+//! When the `barracuda` feature is enabled, [`daily_et0`] delegates to
+//! `barracuda::stats::hydrology::fao56_et0()`. Sub-functions remain
+//! local — they serve as the validation reference chain. GPU batched
+//! via `BatchedElementwiseF64::fao56_et0_batch` at `barracuda-gpu` tier.
 
 use std::f64::consts::PI;
 
@@ -227,8 +234,31 @@ pub struct DailyWeatherInputs {
 ///
 /// Implements the full FAO-56 Eq. 6 chain with RH data and wind
 /// height conversion (Example 18 pattern).
+///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::hydrology::fao56_et0()`.
 #[must_use]
 pub fn daily_et0(inp: &DailyWeatherInputs) -> f64 {
+    #[cfg(feature = "barracuda")]
+    {
+        if let Ok(et0) = barracuda::stats::hydrology::fao56_et0(
+            inp.tmax_c,
+            inp.tmin_c,
+            inp.rhmax_pct,
+            inp.rhmin_pct,
+            inp.wind_speed_10m_km_h,
+            inp.sunshine_hours,
+            inp.altitude_m,
+            inp.latitude_deg_n,
+            inp.day_of_year,
+        ) {
+            return et0;
+        }
+    }
+    daily_et0_cpu(inp)
+}
+
+fn daily_et0_cpu(inp: &DailyWeatherInputs) -> f64 {
     let tmean = f64::midpoint(inp.tmax_c, inp.tmin_c);
     let uz_ms = inp.wind_speed_10m_km_h / 3.6;
     let u2 = wind_speed_at_2m(uz_ms, 10.0);

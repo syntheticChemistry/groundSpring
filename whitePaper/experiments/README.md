@@ -5,12 +5,14 @@
 > (Phase 0), a Rust validation (Phase 1), and a barracuda delegation path
 > (Phase 2+).
 
-**Total**: 288/288 validation checks across 28 experiments, 9 domains. 314 Rust tests.
-**Rust vs Python**: 22× faster across all 28 experiments (Exp 009: 49.5× with barracuda-gpu Sturm).
+**Total**: 288/288 validation checks across 28 experiments, 9 domains. 442 Rust tests (biomeos) / 410 default + 320 Python tests = 762 total (includes three-tier parity + biomeOS integration tests).
+**Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across all 28 experiments.
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs.
-**Coverage**: 98.93% workspace line coverage. Zero clippy warnings.
-**BarraCUDA performance**: 14.9s (local) → 3.9s (barracuda-gpu). Exp 009: **49.5× from Sturm tridiag**.
-**Modules**: 28 (including `jackknife`, `freeze_out`, `spectral_recon`, `wdm`, `npu`).
+**Coverage**: Zero clippy warnings. Four-mode CI (default + barracuda + barracuda-gpu + biomeos).
+**BarraCUDA**: 37 dispatch targets (26 CPU + 6 GPU + 5 GPU-ready). Exp 009: **47.7× from Sturm tridiag**.
+**Modules**: 26 (including `jackknife`, `freeze_out`, `spectral_recon`, `wdm`, `npu`).
+**metalForge**: 3 live hardware binaries (RTX 4070, Titan V, AKD1000 NPU). Exp 028 NPU DMA at ~51µs.
+**Baseline integrity**: All 28 benchmark JSONs verified — provenance fields, hex commit hashes, UTF-8.
 
 ## Experiment Index
 
@@ -20,7 +22,7 @@
 | 002 | [Observation Gap](002_observation_gap.md) | Meteorological | ERA5/NOAA | PASS | 13/13 | GPU pending |
 | 003 | [Error Propagation FAO-56](003_error_propagation.md) | Agricultural | FAO-56 Paper 56 | PASS | 15/15 | Absorbed |
 | 004 | [Sequencing Noise](004_sequencing_noise.md) | Biological | Synthetic community | PASS | 15/15 | WGSL ready |
-| 005 | [Seismic Waves](005_seismic_waves.md) | Geological | NMSZ synthetic | PASS | 9/9 | GPU pending |
+| 005 | [Seismic Waves](005_seismic_waves.md) | Geological | NMSZ synthetic | PASS | 9/9 | **GPU-ready** (V31) |
 | 006 | [Signal Specificity](006_signal_specificity.md) | Biological | Massie 2012 PNAS | 12/12 | 12/12 | GillespieGpu |
 | 007 | [RAWR Resampling](007_rawr_resampling.md) | Statistics | Wang 2021 ISMB | 11/11 | 11/11 | Gap (RAWR) |
 | 008 | [Anderson Localization](008_anderson_localization.md) | Mathematics | Bourgain-Kachkovskiy 2018 | 8/8 | 8/8 | GPU delegated |
@@ -31,12 +33,12 @@
 | 013 | [Resampling Convergence](013_resampling_convergence.md) | Statistics | Lee & Liu 2024 IEEE BIBM | 10/10 | 8/8 | Uses bootstrap |
 | 014 | [Drift vs Selection](014_drift_selection.md) | Evolutionary biology | R. Anderson 2022 mBio | 7/7 | 7/7 | Wright-Fisher, Kimura |
 | 015 | [Uncertainty Bridge](015_uncertainty_bridge.md) | Cross-domain | Dong 2020 + Bourgain-Kachkovskiy 2018 | 8/8 | 8/8 | Sensor noise → Anderson ξ |
-| 016 | [Rare Biosphere Signal Detection](016_rare_biosphere.md) | Biological | R. Anderson 2015 FEMS | 11/11 | 10/10 | CPU-only |
-| 017 | [Quasispecies Threshold](017_quasispecies_threshold.md) | Evolutionary | Dolson 2023 J R Soc | 9/9 | 6/6 | CPU-only |
-| 018 | [Band Edge Structure](018_band_edge_structure.md) | Mathematical | Filonov-Kachkovskiy 2018 | 8/8 | 10/10 | CPU-only |
-| 019 | [Jackknife Error Estimation](019_jackknife_estimation.md) | Statistics | Bazavov 2025 Phys Rev D 111 | 9/9 | 9/9 | CPU-only |
-| 020 | [Freeze-Out Inverse](020_freeze_out_inverse.md) | Inverse problems | Bazavov 2016 Phys Rev D 93 | 8/8 | 8/8 | CPU-only |
-| 021 | [Spectral Function Reconstruction](021_spectral_recon.md) | Inverse problems | Bazavov 2025 arXiv 2501.12259 | 8/8 | 8/8 | CPU-only |
+| 016 | [Rare Biosphere Signal Detection](016_rare_biosphere.md) | Biological | R. Anderson 2015 FEMS | 11/11 | 10/10 | **GPU-ready** (V31) |
+| 017 | [Quasispecies Threshold](017_quasispecies_threshold.md) | Evolutionary | Dolson 2023 J R Soc | 9/9 | 6/6 | **GPU-ready** (V31) |
+| 018 | [Band Edge Structure](018_band_edge_structure.md) | Mathematical | Filonov-Kachkovskiy 2018 | 8/8 | 10/10 | **GPU-ready** (V31) |
+| 019 | [Jackknife Error Estimation](019_jackknife_estimation.md) | Statistics | Bazavov 2025 Phys Rev D 111 | 9/9 | 9/9 | CPU delegated |
+| 020 | [Freeze-Out Inverse](020_freeze_out_inverse.md) | Inverse problems | Bazavov 2016 Phys Rev D 93 | 8/8 | 8/8 | **GPU-ready** (V31) |
+| 021 | [Spectral Function Reconstruction](021_spectral_recon.md) | Inverse problems | Bazavov 2025 arXiv 2501.12259 | 8/8 | 8/8 | GPU delegated (tikhonov) |
 | 022 | [ET₀ → Anderson Propagation](022_et0_anderson_propagation.md) | Cross-spring | FAO-56 + Bourgain-Kachkovskiy 2018 | 7/7 | 7/7 | Uses fao56+anderson |
 | 023 | [No-Till vs Tilled Sampling](023_notill_sampling.md) | Cross-spring | R. Anderson 2015 FEMS | 7/7 | 7/7 | Uses rarefaction+rare_biosphere |
 | 024 | [Aggregate Stability Noise](024_aggregate_stability.md) | Cross-spring | Nimmo & Perkins 2002 | 8/8 | 8/8 | Uses decompose+stats |
@@ -53,14 +55,16 @@ Each experiment is validated at three levels:
 2. **GPU** — Barracuda GPU matches CPU within tolerance (`--features barracuda-gpu`)
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
-Current status: **CPU complete** (288/288), **27 barracuda delegations active**
-(15 stats/metrics + bootstrap + rawr_mean + hill + 5 anderson/spectral + hamiltonian + 2 ODE + eigenvalues).
-22 CPU delegated (`#[cfg(feature = "barracuda")]`), 5 GPU delegated
-(`#[cfg(feature = "barracuda-gpu")]`). All with graceful CPU fallback.
-98.93% line coverage. 28/28 mathematical parity proven.
-**metalForge tier**: groundspring-forge crate with live hardware validation (NPU DMA on AKD1000).
+Current status: **CPU complete** (288/288), **37 dispatch targets**
+(26 CPU delegated + 6 GPU delegated + 5 GPU-ready dispatch blocks).
+V31: 5 modules GPU-wired (`freeze_out`, `band_structure`, `seismic`, `quasispecies`, `rare_biosphere`).
+12 metalForge workloads. All delegations use sovereign fallback.
+28/28 mathematical parity proven. 442 Rust tests (biomeos) / 410 default + 320 Python tests = 762 total (includes three-tier parity + biomeOS integration).
+**PRNG readiness**: `Xoshiro128StarStar` at full API parity (`next_u64`, `next_f64`, `next_normal`, `normal`, `binomial`) — ready for Phase 2b GPU stream alignment.
+**metalForge tier**: groundspring-forge crate with live hardware validation
+(RTX 4070, Titan V, AKD1000 NPU). 3 validation binaries, 31 metalForge checks.
 
 Three-mode benchmarks: 20.4s → 9.2s (**2.2× speedup**); quasiperiodic 47.7×.
 Cross-spring evolution (hotSpring precision + Sturm, wetSpring bio-stats,
 airSpring metrics, neuralSpring dispatch) means the delegated code paths are
-validated by 2,490+ barracuda tests across the ecosystem.
+validated by 2,546+ barracuda tests across the ecosystem.

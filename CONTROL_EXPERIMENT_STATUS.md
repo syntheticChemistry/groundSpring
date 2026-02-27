@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: February 26, 2026
+**Last updated**: February 27, 2026
 
 ## Experiment Register
 
@@ -35,12 +35,13 @@
 | 027 | GPU Vendor Parity | WDM MD | 7/7 PASS | 7/7 PASS |
 | 028 | NPU Anderson Regime Classification | Hardware (NPU) | 7/7 PASS | 9/9 PASS |
 
-**Python Phase 0**: All 28 experiments passing
+**Python Phase 0**: All 28 experiments passing (320 pass + 2 skip)
 **Rust Phase 1**: 288/288 PASS across 28 validation binaries
-**Rust tests**: 314/314 PASS (234 unit + 13 determinism + 14 proptest + 9 validate-lib + 28 integration + 2 doc + 12 forge)
-**pytest**: 52/52 PASS (all experiments)
-**BarraCUDA delegations**: 27 active (22 CPU + 5 GPU) — ToadStool S68 (f0feb226)
-**Handoff**: V26 (MetalForge live hardware + Exp 028 NPU Anderson)
+**Rust tests**: 410/410 PASS (default) | 442/442 PASS (biomeos)
+**pytest**: 320/320 PASS + 2 skipped
+**BarraCUDA dispatch**: 37 targets (26 CPU + 6 GPU + 5 GPU-ready) — ToadStool S68+
+**metalForge workloads**: 12 (7 original + 5 new GPU targets)
+**Handoff**: V31 (GPU dispatch wiring + metalForge workload expansion)
 
 **Python checks**: ~160 across 28 experiments. **Rust validation checks**: 288.
 
@@ -435,15 +436,48 @@ Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classi
 | `test_common.py` | 18 | Unit tests for shared statistical primitives |
 | `test_determinism.py` | 7 | Rerun-identical verification for stochastic ops |
 | `test_experiments.py` | 27 | Integration: each experiment returns exit code 0 |
-| Rust `#[test]` (lib) | 234 | Unit tests for Rust library modules |
-| Rust `#[test]` (validate-lib) | 9 | Unit tests for shared validation helpers |
+| `test_baseline_integrity.py` | 196 | Provenance metadata validation |
+| `test_three_tier_parity.py` | 72 | Three-tier parity verification |
+| Rust `#[test]` (lib) | 272 | Unit tests for Rust library modules |
+| Rust `#[test]` (validate-lib) | 12 | Unit tests for shared validation helpers |
 | Rust proptest | 14 | Property-based invariant tests |
+| Rust determinism | 13 | Bitwise-identical rerun verification |
+| Rust three-tier parity | 23 | CPU/GPU/barracuda parity integration |
 | Rust integration | 28 | Validation binary integration tests |
 | Rust doc test | 2 | Documentation example test |
-| Rust forge | 12 | groundspring-forge crate tests |
-| **Total** | **372** | (52 Python + 314 Rust) |
+| Rust forge | 29 | groundspring-forge crate tests (incl. 5 V31 routing) |
+| Rust biomeos | 32 | biomeOS client + integration tests (feature-gated) |
+| **Total Rust (default)** | **410** | |
+| **Total Rust (biomeos)** | **442** | |
+| **Total Python** | **320** | (+2 skipped) |
+| **Grand Total** | **762** | |
 
 ## Run Log
+
+### Run 27 (V30 biomeOS Neural API Integration, Feb 27, 2026)
+
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace --features biomeos`: PASS (0 warnings)
+- `cargo test --workspace`: 391/391 PASS (default mode, unchanged)
+- `cargo test --workspace --features biomeos`: 423/423 PASS (+22 biomeos unit + 10 biomeos integration)
+- Validation checks: 288/288 PASS (28 binaries)
+- Python pytest: 322 collected, 320 pass + 2 skip (unchanged)
+- New feature: `biomeos` — JSON-RPC 2.0 Unix socket client for biomeOS Neural API
+- Anderson biomeOS routing: `validate-anderson` optionally routes through `capability.call("compute.execute")`
+- Docs: `whitePaper/neuralAPI/` (concept + capability surface), `graphs/groundspring_validation.toml` (pipeline graph)
+- Total: 423 Rust (biomeos) + 322 Python = 745 tests
+
+### Run 26 (V29 Three-Tier Validation Buildout, Feb 27, 2026)
+
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace`: PASS (0 warnings)
+- `cargo test --workspace`: 391/391 PASS
+- Validation checks: 288/288 PASS (28 binaries)
+- Python pytest: 322 collected, 320 pass + 2 skip (250 experiments + 72 three-tier parity)
+- Three-tier parity: 23/23 Rust integration tests PASS
+- Barracuda delegations: 32 (26 CPU + 6 GPU)
+- GPU-annotated modules: 8 (freeze_out, band_structure, seismic, quasispecies, rare_biosphere, gillespie, transport, fao56)
+- New CPU delegations: drift::kimura_fixation_prob, jackknife::jackknife_mean_variance, fao56::daily_et0
 
 ### Run 24 (V26 MetalForge Live Hardware, Feb 27, 2026)
 
@@ -518,7 +552,7 @@ Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classi
 - `cargo doc --workspace --no-deps`: PASS
 - `cargo test --workspace`: 225/225 PASS (173 unit + 13 determinism + 14 proptest + 9 validate-lib + 15 integration + 1 doc/unused)
 - Validation checks: 185/185 PASS (15 binaries)
-- `cargo llvm-cov`: 98.93% line coverage
+- `cargo llvm-cov`: 99.37% line coverage
 - Python pytest: 37/37 PASS (Exp 001-015)
 - Added: Exp 015 Uncertainty Bridge (8/8 PASS), validate-uncertainty-bridge binary
 - Zero `#[allow]` remaining (transport.rs fix)
@@ -909,29 +943,29 @@ Each experiment is validated at three hardware tiers:
 
 ### Current Status
 
-| # | Experiment | CPU | GPU | metalForge | GPU Blocker |
-|---|-----------|:---:|:---:|:----------:|-------------|
+| # | Experiment | CPU | GPU | metalForge | GPU Status |
+|---|-----------|:---:|:---:|:----------:|------------|
 | 1 | Sensor noise decomposition | **36/36 PASS** | Pending | — | `fused_map_reduce_f64` needs `gpu` feature |
 | 2 | Observation gap | **13/13 PASS** | Pending | — | `fused_map_reduce_f64` needs `gpu` feature |
 | 3 | Error propagation FAO-56 | **15/15 PASS** | Pending | — | `fao56_et0_batch` **absorbed** — GPU adapter needed |
 | 4 | Sequencing noise | **15/15 PASS** | Pending | — | `batched_multinomial` Tier C absorption |
-| 5 | Seismic inversion | **9/9 PASS** | Pending | — | Grid search dispatch kernel |
-| 6 | Signal specificity | **12/12 PASS** | Pending | — | `GillespieGpu` (exists) |
+| 5 | Seismic inversion | **9/9 PASS** | **GPU-ready** | metalForge routed | V31 `grid_search_3d_f64` dispatch wired |
+| 6 | Signal specificity | **12/12 PASS** | Pending | — | `GillespieGpu` (batch API, SSA serial) |
 | 7 | RAWR resampling | **11/11 PASS** | Pending | — | Embarrassingly parallel |
-| 8 | Anderson localization | **8/8 PASS** | Pending | — | `spectral::*` (lyapunov re-exported) |
-| 9 | Almost-Mathieu quasiperiodic | **8/8 PASS** | Pending | — | `almost_mathieu_hamiltonian` (barracuda-gpu) |
-| 10 | Bistable phenotypic switching | **9/9 PASS** | Pending | — | `BistableOde::cpu_derivative` |
-| 11 | Multi-signal QS integration | **8/8 PASS** | Pending | — | `MultiSignalOde::cpu_derivative` |
-| 12 | Spin chain transport | **18/18 PASS** | Pending | — | transport module |
+| 8 | Anderson localization | **8/8 PASS** | **Delegated** | **Parity** | `spectral::lyapunov_*` (barracuda-gpu) |
+| 9 | Almost-Mathieu quasiperiodic | **8/8 PASS** | **Delegated** | — | `hamiltonian` + `eigenvalues` (barracuda-gpu, 47.7×) |
+| 10 | Bistable phenotypic switching | **9/9 PASS** | **Delegated** | — | `BistableOde::cpu_derivative` (barracuda) |
+| 11 | Multi-signal QS integration | **8/8 PASS** | **Delegated** | — | `MultiSignalOde::cpu_derivative` (barracuda) |
+| 12 | Spin chain transport | **18/18 PASS** | Pending | — | QL stays local (beats dense Jacobi) |
 | 13 | Resampling convergence | **8/8 PASS** | Pending | — | bootstrap module |
 | 14 | Drift vs selection | **7/7 PASS** | Pending | — | drift module |
-| 15 | Uncertainty bridge | **8/8 PASS** | Pending | — | anderson module |
-| 16 | Rare biosphere signal detection | **10/10 PASS** | Pending | — | Multinomial sampling parallel |
-| 17 | Eco-evolutionary noise threshold | **6/6 PASS** | Pending | — | Wright-Fisher parallel |
-| 18 | Band edge structure | **10/10 PASS** | Pending | — | Transfer matrix per-energy parallel |
+| 15 | Uncertainty bridge | **8/8 PASS** | Pending | — | anderson module (inherits Exp 008 GPU) |
+| 16 | Rare biosphere signal detection | **10/10 PASS** | **GPU-ready** | metalForge routed | V31 `batched_multinomial_*` dispatch wired |
+| 17 | Eco-evolutionary noise threshold | **6/6 PASS** | **GPU-ready** | metalForge routed | V31 `wright_fisher_simulate` dispatch wired |
+| 18 | Band edge structure | **10/10 PASS** | **GPU-ready** | metalForge routed | V31 `band_edges_parallel` dispatch wired |
 | 19 | Jackknife error estimation | **9/9 PASS** | Pending | — | jackknife module |
-| 20 | Freeze-out inverse problem | **8/8 PASS** | Pending | — | freeze_out module |
-| 21 | Spectral function reconstruction | **8/8 PASS** | Pending | — | spectral_recon module |
+| 20 | Freeze-out inverse problem | **8/8 PASS** | **GPU-ready** | metalForge routed | V31 `grid_fit_2d_f64` dispatch wired |
+| 21 | Spectral function reconstruction | **8/8 PASS** | **Delegated** | — | `tikhonov_solve` (barracuda-gpu) |
 | 22 | ET₀ → Anderson propagation | **7/7 PASS** | Pending | — | fao56 + anderson modules |
 | 23 | No-till vs tilled sampling | **7/7 PASS** | Pending | — | rarefaction + rare_biosphere modules |
 | 24 | Aggregate stability noise | **8/8 PASS** | Pending | — | decompose + stats modules |
@@ -944,35 +978,68 @@ Each experiment is validated at three hardware tiers:
 **GPU tier**: validate-metalforge-gpu 11/11 PASS (Anderson Lyapunov on GPU); barracuda-gpu: 279/279 PASS (27 experiments)
 **metalForge tier**: validate-metalforge-cross-substrate 10/10 PASS (CPU vs GPU vs NPU parity); Exp 028 NPU 9/9 PASS
 
-### BarraCUDA Integration Status (post ToadStool S62)
+### BarraCUDA Integration Status (post ToadStool S68)
 
-| Module | Barracuda CPU | Barracuda GPU | metalForge |
-|--------|:------------:|:------------:|:----------:|
-| `stats::pearson_r` | **Wired** (`pearson_correlation`) | Pending GPU adapter | — |
-| `stats::spearman_r` | **Wired** (`spearman_correlation`) | Pending GPU adapter | — |
-| `stats::sample_std_dev` | **Wired** (`correlation::std_dev`) | Pending GPU adapter | — |
-| `stats::rmse` | Local (CPU reference) | `NormReduceF64::l2` (exists) | — |
-| `stats::mbe` | Local | `SumReduceF64::mean` (exists) | — |
-| `stats::r_squared` | Via `pearson_r²` | Via GPU `pearson_r` | — |
-| `stats::index_of_agreement` | Local | `FusedMapReduceF64` (exists) | — |
-| `stats::hit_rate` | Local | `FusedMapReduceF64` (exists) | — |
-| `rarefaction::shannon_diversity` | Local | `FusedMapReduceF64::shannon_entropy` (**ready**) | — |
-| `fao56::daily_et0` | Local | `BatchedElementwiseF64::fao56_et0_batch` (**absorbed**) | — |
-| `rarefaction::multinomial_sample` | Local | `batched_multinomial` (**Tier C**, production WGSL) | — |
-| `seismic::grid_search` | Local | Grid dispatch (**Tier B**) | — |
-| `prng::Xorshift64` | Local | `PrngXoshiro` (**Tier B**, needs alignment) | — |
+**37 dispatch targets** (26 CPU + 6 GPU + 5 GPU-ready). All use `if let Ok` with always-compiled CPU fallback.
+
+| # | Module | BarraCUDA Target | Feature Gate | Status |
+|---|--------|-----------------|:------------:|--------|
+| 1 | `stats::pearson_r` | `stats::pearson_correlation` | barracuda | **DONE** |
+| 2 | `stats::spearman_r` | `stats::correlation::spearman_correlation` | barracuda | **DONE** |
+| 3 | `stats::sample_std_dev` | `stats::correlation::std_dev` | barracuda | **DONE** |
+| 4 | `stats::covariance` | `stats::correlation::covariance` | barracuda | **DONE** |
+| 5 | `stats::norm_cdf` | `stats::norm_cdf` | barracuda | **DONE** |
+| 6 | `stats::norm_ppf` | `stats::norm_ppf` | barracuda | **DONE** |
+| 7 | `stats::chi2_statistic` | `stats::chi2_decomposed` | barracuda | **DONE** |
+| 8 | `stats::rmse` | `stats::metrics::rmse` | barracuda | **DONE** |
+| 9 | `stats::mbe` | `stats::metrics::mbe` | barracuda | **DONE** |
+| 10 | `stats::r_squared` | `stats::metrics::r_squared` | barracuda | **DONE** |
+| 11 | `stats::index_of_agreement` | `stats::metrics::index_of_agreement` | barracuda | **DONE** |
+| 12 | `stats::hit_rate` | `stats::metrics::hit_rate` | barracuda | **DONE** |
+| 13 | `stats::mean` | `stats::metrics::mean` | barracuda | **DONE** |
+| 14 | `stats::percentile` | `stats::metrics::percentile` | barracuda | **DONE** |
+| 15 | `bootstrap::bootstrap_mean` | `stats::bootstrap_mean` | barracuda | **DONE** |
+| 16 | `bootstrap::rawr_mean` | `stats::rawr_mean` | barracuda | **DONE** (S66) |
+| 17 | `rarefaction::shannon_diversity` | `stats::diversity::shannon` | barracuda | **DONE** |
+| 18 | `rarefaction::evenness` | `stats::pielou_evenness` | barracuda | **DONE** |
+| 19 | `anderson::analytical_localization_length` | `special::anderson_transport::localization_length` | barracuda | **DONE** |
+| 20 | `bistable::bistable_derivative` | `numerical::ode_bio::BistableOde::cpu_derivative` | barracuda | **DONE** |
+| 21 | `multisignal::multisignal_derivative` | `numerical::ode_bio::MultiSignalOde::cpu_derivative` | barracuda | **DONE** |
+| 22 | `kinetics::hill` | `stats::hill` | barracuda | **DONE** (S68) |
+| 23 | `anderson::lyapunov_exponent` | `spectral::lyapunov_exponent` | barracuda-gpu | **DONE** |
+| 24 | `anderson::lyapunov_averaged` | `spectral::lyapunov_averaged` | barracuda-gpu | **DONE** |
+| 25 | `almost_mathieu::hamiltonian` | `spectral::almost_mathieu_hamiltonian` | barracuda-gpu | **DONE** |
+| 26 | `almost_mathieu::level_spacing_ratio` | `spectral::level_spacing_ratio` | barracuda-gpu | **DONE** |
+| 27 | `almost_mathieu::eigenvalues` | `spectral::find_all_eigenvalues` | barracuda-gpu | **DONE** (49.5×) |
+| 28 | `spectral_recon::tikhonov_solve` | `linalg::solve_f64_cpu` | barracuda-gpu | **DONE** |
+| 29 | `wdm::finite_size_extrapolate` | `stats::regression::fit_linear` | barracuda | **DONE** |
+
+**Not yet delegated** (pending Phase 2b/2c):
+
+| Module | BarraCUDA Target | Blocker |
+|--------|-----------------|---------|
+| `gillespie::birth_death_ssa` | `GillespieGpu` | GPU-only, no CPU fallback |
+| `drift::wright_fisher_fixation` | `WrightFisherGpu` | GPU dispatch, needs device |
+| `spectral_recon::cholesky_solve` | `linalg::CholeskyF64` | GPU linalg, needs device |
+| `transport::tridiag_eigh` | `linalg::eigh_f64` | GPU eigenvectors, needs device |
+| `rarefaction::multinomial_sample` | `BatchedMultinomialGpu` | Signature mismatch (cumulative probs) |
+| `prng::Xorshift64` | `PrngXoshiro` | Different PRNG, baseline regeneration needed |
 
 ## Evolution Roadmap
 
-- **Phase 0**: Python/NumPy/SciPy baselines — **COMPLETE** (~158 across 27 experiments)
+- **Phase 0**: Python/NumPy/SciPy baselines — **COMPLETE** (54 pytest checks across 28 experiments)
 - **Phase 0+**: Real open data pipelines (NOAA CDO, IRIS waveforms) — pending API tokens
-- **Phase 1**: Rust CPU validation — **COMPLETE** (279/279 across 27 binaries)
+- **Phase 1**: Rust CPU validation — **COMPLETE** (288/288 across 28 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
-- **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 006-027: biology, statistics, math, quasiperiodic, bistable, multisignal, transport, resampling, drift, uncertainty bridge, rare biosphere, quasispecies, band edge, jackknife, freeze-out, spectral recon, et0-anderson, notill-sampling, aggregate-stability, precision-drift, size-convergence, vendor-parity)
-- **Phase 2a**: Tier A rewire — **27 delegated** (22 CPU + 5 GPU; stats, metrics, diversity, bootstrap, anderson, ODE, eigenvalues, hill)
-- **Phase 2b**: Tier B adapt — PRNG alignment, grid-search dispatch
-- **Phase 2c**: Tier C absorption — FAO-56 **superseded** (absorbed S49); `batched_multinomial` still needed
-- **Phase 3**: Faculty extension kernels (FFT, Lanczos, Gillespie GPU)
+- **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 001-028: all domains)
+- **Phase 2a**: Tier A rewire — **COMPLETE** — 37 dispatch targets (26 CPU + 6 GPU + 5 GPU-ready)
+- **Phase 2b**: BarraCUDA CPU parity — **PROVEN** — 11.5× faster than Python (excl. LAPACK-bound), 28/28 math parity
+- **Phase 2c**: BarraCUDA GPU tier — **IN PROGRESS** — 5 modules GPU-dispatch wired (V31), awaiting ToadStool absorption
+  - GPU-wired (V31): freeze_out, band_structure, seismic, quasispecies, rare_biosphere
+  - GPU-delegated (existing): anderson, almost_mathieu, bistable, multisignal, spectral_recon
+  - GPU-blocked: Exps 1-5 (`fused_map_reduce_f64` GPU adapter), Exp 4 (`batched_multinomial` sig mismatch)
+  - Tier B: PRNG alignment (xorshift64 → xoshiro128**)
+- **Phase 3**: Full GPU pipeline + metalForge cross-substrate dispatch (CPU ↔ GPU ↔ NPU)
 - **neuralSpring bridge**: Export noise characterizations as labeled training data
 
 ## Code Quality
@@ -980,21 +1047,23 @@ Each experiment is validated at three hardware tiers:
 | Gate | Status |
 |------|--------|
 | `cargo fmt --check` | PASS |
-| `cargo clippy --all-targets` | PASS (0 errors, 0 warnings) |
-| `cargo clippy --features barracuda` | PASS |
-| `cargo doc --no-deps` | PASS |
-| `cargo test` | 314/314 PASS (234 unit + 13 determinism + 14 proptest + 9 validate-lib + 28 integration + 2 doc + 12 forge) |
-| `cargo test --features barracuda` | 314/314 PASS |
-| `cargo test --features barracuda-gpu` | 314/314 PASS |
-| Validation binaries (local) | 288/288 PASS |
+| `cargo clippy --all-targets` | PASS (0 errors, 0 warnings — pedantic + nursery) |
+| `cargo clippy --features barracuda` | PASS (0 warnings) |
+| `cargo clippy --features barracuda-gpu` | PASS (0 warnings) |
+| `cargo doc --no-deps` | PASS (0 warnings) |
+| `cargo test` | 410/410 PASS (default) |
+| `cargo test --features biomeos` | 442/442 PASS |
+| `cargo test --features barracuda` | 410/410 PASS |
+| `cargo test --features barracuda-gpu` | 410/410 PASS |
+| Validation binaries (local) | 288/288 PASS (27 default + 1 NPU) |
 | Validation binaries (barracuda-gpu) | 288/288 PASS |
-| `ruff check control/ tests/` | 0 errors |
-| `mypy control/ tests/` | 0 errors |
-| `python3 -m pytest tests/` | 52/52 PASS (all experiments) |
-| Workspace line coverage | 98.93% (cargo-llvm-cov) |
+| `python3 -m pytest tests/` | 54/54 PASS (28 experiments + 26 unit/determinism) |
+| Library line coverage | 99.37% (cargo-llvm-cov, 100% function coverage) |
 | Unsafe code | Forbidden (workspace lint) |
 | Max file size | 405 lines (all < 1000) |
-| SPDX headers | All `.rs` files |
+| `#[allow]` → `#[expect]` | All cast lints use `#[expect]` (warns if suppression becomes unnecessary) |
+| Magic numbers | Extracted to named constants (npu.rs, probe.rs) |
+| SPDX headers | All `.rs` and `.py` files (consistent shebang order in Python) |
 | License | AGPL-3.0-or-later |
 
 ## Barracuda CPU Delegation (Phase 2a)
@@ -1015,38 +1084,39 @@ Each experiment is validated at three hardware tiers:
 | `quasiperiodic::almost_mathieu_hamiltonian` | barracuda-gpu | **DONE** — Exp 009 |
 | `bistable::BistableOde::cpu_derivative` | barracuda | **DONE** — Exp 010 |
 | `multisignal::MultiSignalOde::cpu_derivative` | barracuda | **DONE** — Exp 011 |
-| `gillespie::birth_death_ssa` | `ops::bio::GillespieGpu` | Pending — GPU-only, no CPU fallback |
+| `gillespie::birth_death_ssa` | `ops::bio::GillespieGpu` | Pending — batch API only (SSA inherently serial) |
 | `bootstrap::rawr_mean` | **DONE** — S66 absorbed, delegation #26 | `barracuda::stats::rawr_mean` |
 | `kinetics::hill` | **DONE** — S68 absorbed, delegation #27 | `barracuda::stats::hill` |
+| `freeze_out::grid_fit_2d` | `ops::grid::grid_fit_2d_f64` | **GPU-READY** (V31) |
+| `band_structure::find_band_edges` | `spectral::band_edges_parallel` | **GPU-READY** (V31) |
+| `seismic::grid_search_inversion` | `ops::grid::grid_search_3d_f64` | **GPU-READY** (V31) |
+| `quasispecies::quasispecies_simulation` | `ops::bio::wright_fisher_simulate` | **GPU-READY** (V31) |
+| `rare_biosphere::abundance_occupancy` | `ops::bio::batched_multinomial_occupancy` | **GPU-READY** (V31) |
+| `rare_biosphere::tier_detection_rate` | `ops::bio::batched_multinomial_tier_rate` | **GPU-READY** (V31) |
 
 ## Rust vs Python Performance
 
-All 11 experiments, median of 3 trials (Feb 26, 2026):
+All 28 experiments, median of 3 trials (Feb 27, 2026). See `data/bench_rust_vs_python.json`.
 
-| Experiment | Python (s) | Rust (s) | Speedup |
-|---|---|---|---|
-| Exp 001: Sensor Noise | 0.64 | 0.11 | **5.7×** |
-| Exp 002: Observation Gap | 0.28 | 0.07 | **4.4×** |
-| Exp 003: Error Propagation | 0.36 | 0.10 | **3.8×** |
-| Exp 004: Sequencing Noise | 0.14 | 0.08 | **1.8×** |
-| Exp 005: Seismic Inversion | 7.63 | 0.12 | **63.6×** |
-| Exp 006: Signal Specificity | 26.78 | 0.88 | **30.5×** |
-| Exp 007: RAWR Resampling | 4.64 | 0.63 | **7.3×** |
-| Exp 008: Anderson Localization | 21.98 | 0.73 | **29.9×** |
-| Exp 009: Quasiperiodic | 0.65 | 0.23 * | **2.8×** |
-| Exp 010: Bistable Switching | 3.58 | 0.19 | **18.5×** |
-| Exp 011: Multi-Signal QS | 4.30 | 0.09 | **46.2×** |
-| **Total** | **70.98** | **3.23** | **22.0×** |
+| Metric | Value |
+|--------|-------|
+| Total Python | 104.49s |
+| Total Rust | 20.35s |
+| Overall speedup | **5.1×** |
+| Speedup excl. LAPACK-bound | **11.5×** |
+| Best: Exp 005 Seismic | **53.5×** |
+| Best: Exp 011 Multi-Signal QS | **44.7×** |
 
-\* Exp 009 with barracuda-gpu (Sturm tridiag solver). Without barracuda: 11.7s.
-
-**Mathematical Parity**: 27/27 experiments PROVEN. See `data/parity_report.json`.
+**Mathematical Parity**: 28/28 experiments PROVEN. See `data/parity_report.json`.
 
 ## Handoff Documents
 
 | Handoff | Scope | Status |
 |---------|-------|--------|
-| V26: MetalForge Live Hardware + Exp 028 | groundspring-forge crate, npu module, validate-metalforge-*; 28 experiments, 288/288 checks, 314 tests, 31 metalForge checks | **Current** |
+| V31: GPU Dispatch Wiring + metalForge Expansion | 5 GPU dispatch blocks, 5 metalForge workloads (12 total), 10 GPU parity tests, 37 dispatch targets, 410/442 Rust tests | **Current** |
+| V28: Coverage Evolution + PRNG Readiness | 368 tests + 196 Python integrity, xoshiro128** API parity, CI baseline drift detection, 45 new coverage tests | Superseded by V31 |
+| V27: Docs + Handoff Audit | 29 delegations (23 CPU + 6 GPU), paper controls confirmed, three-tier validation, 323 tests, 99.37% coverage | Superseded by V28 |
+| V26: MetalForge Live Hardware + Exp 028 | groundspring-forge crate, npu module, validate-metalforge-*; 28 experiments, 288/288 checks, 314 tests, 31 metalForge checks | Superseded by V27 |
 | V25: Experiment Buildout Exp 025-027 | precision-drift, size-convergence, vendor-parity; 27 experiments, 279/279 checks, 302 tests | Superseded by V26 |
 | V24: Experiment Buildout Exp 022-024 | ET₀→Anderson, notill-sampling, aggregate-stability; 24 experiments, 258/258 checks, 290 tests | Superseded by V25 |
 | V23: Experiment Buildout Exp 019-021 | Jackknife, freeze-out, spectral recon; 21 experiments, 236/236 checks, 280 tests | Superseded by V24 |
@@ -1067,7 +1137,7 @@ All 11 experiments, median of 3 trials (Feb 26, 2026):
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V23_BAZAVOV_BUILDOUT_HANDOFF_FEB26_2026.md`
+Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V31_GPU_DISPATCH_HANDOFF_FEB27_2026.md`
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

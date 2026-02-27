@@ -81,6 +81,9 @@ fn run_computation_checks(h: &mut Harness) {
     println!("  CPU: γ = {cpu_gamma:.6}, ξ = {cpu_xi:.2}, {cpu_us} µs");
 
     h.check("CPU γ > 0 (localized regime)", cpu_gamma > 0.0);
+    // ξ range [5, 50]: For W=2, analytical ξ ≈ C/W² = 96/4 = 24.
+    // Finite-size (L=200) suppression gives numerical ξ < analytical.
+    // Range accepts 5× variation to cover PRNG seed effects.
     h.check("CPU ξ in [5, 50]", (5.0..=50.0).contains(&cpu_xi));
 
     let gpu_start = Instant::now();
@@ -106,9 +109,10 @@ fn run_computation_checks(h: &mut Harness) {
     let rel_diff = ((cpu_gamma - gpu_gamma) / cpu_gamma).abs();
     println!("\n  Parity: |CPU - GPU| / CPU = {rel_diff:.6}");
 
-    // CPU and GPU use different PRNG seeding so results differ —
-    // we check that both are physically plausible (same localization regime).
-    // Exact parity requires Phase 2b PRNG alignment.
+    // CPU and GPU use different PRNG seeding (xorshift64 vs xoshiro128**)
+    // so exact parity is not expected. Both must be in the same localization
+    // regime: ratio ∈ [0.3, 3.0] ensures ξ values agree within one order
+    // of magnitude. Exact parity requires Phase 2b PRNG alignment.
     h.check("Both in same localization regime", {
         let ratio = cpu_xi / gpu_xi;
         (0.3..=3.0).contains(&ratio)
@@ -122,9 +126,10 @@ fn run_computation_checks(h: &mut Harness) {
 
     let cpu_analytical_ratio = cpu_xi / analytical_xi;
     println!("  CPU/Analytical ratio = {cpu_analytical_ratio:.3}");
-    // Finite-size suppression means numerical ξ(L=200) < analytical ξ(L→∞).
-    // The barracuda analytical formula (perturbative, C≈105) gives a higher
-    // infinite-system value than the numerical L=200 result. Accept 5x range.
+    // Finite-size suppression: numerical ξ(L=200) < analytical ξ(L→∞).
+    // Derrida-Gardner C ≈ 96 (perturbative) gives analytical ξ(W=2) ≈ 24,
+    // while the L=200 transfer-matrix result is systematically lower.
+    // The 0.1–5.0 range accommodates this finite-size correction.
     h.check(
         "CPU ξ within 5x of analytical",
         (0.1..=5.0).contains(&cpu_analytical_ratio),

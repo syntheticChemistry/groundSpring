@@ -11,8 +11,8 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 0 baselines: **~288 quantitative checks passed** across 28 experiments, 9 domains.
 - Phase 1 Rust validation: **288/288 checks passed** across 28 validation binaries.
 - Mathematical parity: **28/28 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
-- Performance: **22× faster** (Rust vs Python, all 28 experiments with barracuda-gpu). Exp 009: **49.5× from Sturm tridiag**.
-- V21: Dual-mode CI validates both CPU-only and barracuda-delegated; `--features barracuda` compiles cleanly (zero warnings).
+- Performance: **11.5× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.7× from Sturm tridiag**.
+- V31: 37 dispatch targets (26 CPU + 6 GPU + 5 GPU-ready), 12 metalForge workloads. biomeOS Neural API (V30). Four-mode CI.
 
 ### Key Results
 
@@ -72,8 +72,8 @@ The `groundspring` crate provides 24 modules of pure safe Rust:
 | `fao56` | Exp 003 | **Absorbed** upstream | Equation chain → barracuda `Op::Fao56Et0`; MC wrapper pending |
 | `prng` | Exp 003, 004 | B (adapt) | Xorshift64 + Box-Muller, aligning to barracuda xoshiro |
 | `rarefaction` | Exp 004 | C (WGSL ready) | Batched multinomial shader production-quality |
-| `seismic` | Exp 005 | B (adapt) | Haversine, travel time, grid-search inversion |
-| `gillespie` | Exp 006 | GPU-ready | Gillespie SSA birth-death process → `GillespieGpu` |
+| `seismic` | Exp 005 | **GPU-ready** (V31) | Haversine, travel time, grid-search inversion |
+| `gillespie` | Exp 006 | Pending (batch API) | Gillespie SSA birth-death process (serial per-trajectory) |
 | `bootstrap` | Exp 007 | A Lean | Bootstrap + RAWR CIs → `barracuda::stats::bootstrap_mean` |
 | `anderson` | Exp 008-009 | A Lean | Lyapunov, level_spacing, eigenvalues → `barracuda::spectral`, analytical ξ → `barracuda::special`. **49.5× Exp 009.** |
 | `almost_mathieu` | Exp 009, 012 | A Lean | Almost-Mathieu Hamiltonian, flat QR eigenvalues, level spacing |
@@ -84,12 +84,12 @@ The `groundspring` crate provides 24 modules of pure safe Rust:
 | `kinetics` | Exp 010-011 | A Lean | Hill functions — shared by bistable + multisignal, barracuda delegation |
 | `cast` | All | N/A | Centralized numeric casts with documented safety |
 | `validate` | All | N/A | Generic `Write` harness (hotSpring pattern) |
-| `rare_biosphere` | Exp 016 | CPU-only | Chao1, detection power/threshold, abundance-occupancy |
-| `quasispecies` | Exp 017 | CPU-only | Error threshold, master frequency, Wright-Fisher mutation sim |
-| `band_structure` | Exp 018 | CPU-only | Transfer matrix, band edges, periodic Hamiltonian, eigenvalue fraction |
-| `jackknife` | Exp 019 | CPU-only | Delete-one jackknife, block jackknife, bias correction, bootstrap comparison |
-| `freeze_out` | Exp 020 | CPU-only | Freeze-out curve, chi-squared, 2D grid-search inverse |
-| `spectral_recon` | Exp 021 | CPU-only | Tikhonov regularization, kernel build, forward correlator, peak recovery |
+| `rare_biosphere` | Exp 016 | **GPU-ready** (V31) | Chao1, detection power/threshold, abundance-occupancy |
+| `quasispecies` | Exp 017 | **GPU-ready** (V31) | Error threshold, master frequency, Wright-Fisher mutation sim |
+| `band_structure` | Exp 018 | **GPU-ready** (V31) | Transfer matrix, band edges, periodic Hamiltonian, eigenvalue fraction |
+| `jackknife` | Exp 019 | CPU delegated | Delete-one jackknife, block jackknife, bias correction |
+| `freeze_out` | Exp 020 | **GPU-ready** (V31) | Freeze-out curve, chi-squared, 2D grid-search inverse |
+| `spectral_recon` | Exp 021 | GPU delegated | Tikhonov regularization (tikhonov_solve → barracuda linalg) |
 
 ### GPU Evolution (metalForge)
 
