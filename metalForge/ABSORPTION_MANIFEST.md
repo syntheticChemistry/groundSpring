@@ -6,7 +6,7 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: February 27, 2026 (V31 — GPU dispatch wiring + metalForge workload expansion, 442 Rust + 320 Python = 762 total)
+**Last updated**: February 27, 2026 (V35 — Titan V / NAK adaptive GPU dispatch, architecture-aware routing, 49 metalForge tests)
 
 ## Absorption Status Summary
 
@@ -168,6 +168,9 @@ NOTE:       Equation chain is superseded by barracuda Op::Fao56Et0 — when
 - [x] V26 MetalForge: groundspring-forge crate (probe, inventory, dispatch, workloads) with 12 tests
 - [x] V26 NPU: `npu.rs` module wrapping akida-driver for Anderson regime classification on AKD1000
 - [x] V26 Live hardware: RTX 4070, Titan V, AKD1000 NPU (80 NPs, ~51 µs DMA), i9-12900K
+- [x] V35 Titan V (NVK GV100): architecture-aware dispatch, NativeF64 capability, adaptive memory batching
+- [x] V35 f64 workloads route to Titan V (1:2 native f64) over RTX 4070 (1:64 DF64)
+- [x] V35 NAK shader compilation confirmed: f64, shader dispatch, timestamps all pass on Volta/NVK
 - [x] V26 Validation: 288/288 experiment checks + 31 metalForge checks (inventory 10, GPU 11, cross-substrate 10)
 - [x] Three-mode benchmark: 20.4s → 9.2s (2.2× overall, 47.7× quasiperiodic)
 - [x] V27 Barracuda evolution review: 29 delegations (23 CPU + 6 GPU), paper controls confirmed, three-tier validation

@@ -2,7 +2,7 @@
 
 //! Hardware probing — GPU via wgpu, NPU via device nodes, CPU via procfs.
 
-use crate::substrate::{Capability, Identity, Properties, Substrate, SubstrateKind};
+use crate::substrate::{Capability, GpuArch, Identity, Properties, Substrate, SubstrateKind};
 use std::fs;
 
 /// Environment variable to override the NPU device node.
@@ -49,6 +49,7 @@ pub fn probe_gpus() -> Vec<Substrate> {
     for (idx, adapter) in adapters.into_iter().enumerate() {
         let info = adapter.get_info();
         let features = adapter.features();
+        let limits = adapter.limits();
 
         if info.device_type == wgpu::DeviceType::Cpu {
             continue;
@@ -56,11 +57,21 @@ pub fn probe_gpus() -> Vec<Substrate> {
 
         let has_f64 = features.contains(wgpu::Features::SHADER_F64);
         let has_timestamps = features.contains(wgpu::Features::TIMESTAMP_QUERY);
+        let arch = GpuArch::from_name(&info.name);
+
+        let memory_bytes = if limits.max_buffer_size > 0 {
+            Some(limits.max_buffer_size)
+        } else {
+            None
+        };
 
         let mut capabilities = vec![Capability::F32Compute, Capability::ShaderDispatch];
         if has_f64 {
             capabilities.push(Capability::F64Compute);
             capabilities.push(Capability::ScalarReduce);
+        }
+        if arch.has_native_f64() && has_f64 {
+            capabilities.push(Capability::NativeF64);
         }
         if has_timestamps {
             capabilities.push(Capability::TimestampQuery);
@@ -77,8 +88,10 @@ pub fn probe_gpus() -> Vec<Substrate> {
                 pci_id: None,
             },
             properties: Properties {
+                memory_bytes,
                 has_f64,
                 has_timestamps,
+                gpu_arch: Some(arch),
                 ..Properties::default()
             },
             capabilities,

@@ -56,6 +56,84 @@ fn rmse_cpu(observed: &[f64], modeled: &[f64]) -> f64 {
     (sum_sq / usize_f64(n)).sqrt()
 }
 
+/// Mean Absolute Error between observed and modeled values.
+///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::mae` (absorbed from airSpring/groundSpring S64).
+/// Returns `0.0` for empty slices.
+///
+/// # Panics
+///
+/// Panics if `observed` and `modeled` have different lengths.
+#[must_use]
+pub fn mae(observed: &[f64], modeled: &[f64]) -> f64 {
+    assert_eq!(
+        observed.len(),
+        modeled.len(),
+        "observed and modeled must have equal length"
+    );
+    #[cfg(feature = "barracuda")]
+    return barracuda::stats::mae(observed, modeled);
+    #[cfg(not(feature = "barracuda"))]
+    mae_cpu(observed, modeled)
+}
+
+#[cfg(not(feature = "barracuda"))]
+fn mae_cpu(observed: &[f64], modeled: &[f64]) -> f64 {
+    let n = observed.len();
+    if n == 0 {
+        return 0.0;
+    }
+    observed
+        .iter()
+        .zip(modeled)
+        .map(|(o, m)| (o - m).abs())
+        .sum::<f64>()
+        / usize_f64(n)
+}
+
+/// Nash-Sutcliffe Efficiency (NSE).
+///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::nash_sutcliffe` (absorbed from airSpring/groundSpring S64).
+/// NSE = 1 is perfect; NSE = 0 means the model is no better than the mean;
+/// NSE < 0 means the model is worse than the mean.
+///
+/// # Panics
+///
+/// Panics if `observed` and `modeled` have different lengths.
+#[must_use]
+pub fn nash_sutcliffe(observed: &[f64], modeled: &[f64]) -> f64 {
+    assert_eq!(
+        observed.len(),
+        modeled.len(),
+        "observed and modeled must have equal length"
+    );
+    #[cfg(feature = "barracuda")]
+    return barracuda::stats::nash_sutcliffe(observed, modeled);
+    #[cfg(not(feature = "barracuda"))]
+    nash_sutcliffe_cpu(observed, modeled)
+}
+
+#[cfg(not(feature = "barracuda"))]
+fn nash_sutcliffe_cpu(observed: &[f64], modeled: &[f64]) -> f64 {
+    let n = observed.len();
+    if n == 0 {
+        return 0.0;
+    }
+    let mean_obs: f64 = observed.iter().sum::<f64>() / usize_f64(n);
+    let ss_res: f64 = observed
+        .iter()
+        .zip(modeled)
+        .map(|(o, m)| (o - m).powi(2))
+        .sum();
+    let ss_tot: f64 = observed.iter().map(|o| (o - mean_obs).powi(2)).sum();
+    if ss_tot == 0.0 {
+        return 0.0;
+    }
+    1.0 - ss_res / ss_tot
+}
+
 /// Mean Bias Error (modeled − observed).
 ///
 /// When the `barracuda` feature is enabled, delegates to
@@ -485,5 +563,55 @@ mod tests {
     fn sample_std_dev_empty() {
         let empty: [f64; 0] = [];
         assert!(sample_std_dev(&empty).abs() < 1e-12);
+    }
+
+    #[test]
+    fn mae_identical_is_zero() {
+        let x = [1.0, 2.0, 3.0];
+        assert!(mae(&x, &x).abs() < 1e-12);
+    }
+
+    #[test]
+    fn mae_known_value() {
+        let obs = [1.0, 2.0, 3.0];
+        let modeled = [1.5, 2.5, 3.5];
+        assert!((mae(&obs, &modeled) - 0.5).abs() < 1e-12);
+    }
+
+    #[test]
+    fn mae_empty() {
+        let empty: [f64; 0] = [];
+        assert!(mae(&empty, &empty).abs() < 1e-12);
+    }
+
+    #[test]
+    fn nse_perfect() {
+        let x = [1.0, 2.0, 3.0, 4.0];
+        assert!((nash_sutcliffe(&x, &x) - 1.0).abs() < 1e-12);
+    }
+
+    #[test]
+    fn nse_mean_model_is_zero() {
+        let obs = [1.0, 2.0, 3.0];
+        let modeled = [2.0, 2.0, 2.0];
+        assert!(nash_sutcliffe(&obs, &modeled).abs() < 1e-12);
+    }
+
+    #[test]
+    fn nse_empty() {
+        let empty: [f64; 0] = [];
+        assert!(nash_sutcliffe(&empty, &empty).abs() < 1e-12);
+    }
+
+    #[test]
+    fn nse_equals_r2_for_same_inputs() {
+        let obs = [1.0, 2.0, 3.0, 4.0, 5.0];
+        let modeled = [1.1, 2.2, 2.8, 4.3, 4.9];
+        let nse = nash_sutcliffe(&obs, &modeled);
+        let r2 = r_squared(&obs, &modeled);
+        assert!(
+            (nse - r2).abs() < 1e-10,
+            "NSE should equal R² for the same inputs: nse={nse}, r2={r2}"
+        );
     }
 }

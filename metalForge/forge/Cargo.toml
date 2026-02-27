@@ -18,6 +18,8 @@ wgpu = { version = "22", default-features = false, features = [
     "wgsl",
     "vulkan-portability",
 ] }
+pollster = "0.4"
+bytemuck = { version = "1", features = ["derive"] }
 
 [[bin]]
 name = "validate-metalforge-inventory"
@@ -26,6 +28,10 @@ path = "src/bin/validate_metalforge_inventory.rs"
 [[bin]]
 name = "validate-metalforge-gpu"
 path = "src/bin/validate_metalforge_gpu.rs"
+
+[[bin]]
+name = "validate-metalforge-titan-v"
+path = "src/bin/validate_metalforge_titan_v.rs"
 
 [[bin]]
 name = "validate-metalforge-cross-substrate"

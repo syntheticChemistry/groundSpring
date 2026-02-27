@@ -3,7 +3,7 @@
 //! Hardware inventory — collect all substrates on this machine.
 
 use crate::probe;
-use crate::substrate::Substrate;
+use crate::substrate::{AdaptiveBatch, Capability, GpuArch, Substrate, SubstrateKind};
 
 /// Full hardware inventory discovered at runtime.
 #[derive(Debug, Clone)]
@@ -35,15 +35,60 @@ impl Inventory {
         self.substrates.iter().find(|s| s.kind == kind)
     }
 
+    /// Find a GPU by architecture family (e.g. `GpuArch::Volta` for Titan V).
+    #[must_use]
+    pub fn find_gpu_by_arch(&self, arch: GpuArch) -> Option<&Substrate> {
+        self.substrates.iter().find(|s| {
+            s.kind == SubstrateKind::Gpu && s.properties.gpu_arch == Some(arch)
+        })
+    }
+
+    /// Find the best GPU for f64 workloads.
+    ///
+    /// Prefers native f64 GPUs (Volta 1:2 ratio) over DF64-only (Ada 1:64).
+    #[must_use]
+    pub fn best_f64_gpu(&self) -> Option<&Substrate> {
+        self.substrates
+            .iter()
+            .find(|s| s.kind == SubstrateKind::Gpu && s.has(&Capability::NativeF64))
+            .or_else(|| {
+                self.substrates
+                    .iter()
+                    .find(|s| s.kind == SubstrateKind::Gpu && s.has(&Capability::F64Compute))
+            })
+    }
+
+    /// Compute adaptive batch parameters for a GPU workload.
+    ///
+    /// Selects the best f64 GPU and returns batch sizing that fits
+    /// within its memory. For Volta/NAK, uses resident memory mode
+    /// (buffers stay on-device between dispatches).
+    #[must_use]
+    pub fn adaptive_batch(&self, element_bytes: usize) -> Option<AdaptiveBatch> {
+        let gpu = self.best_f64_gpu()?;
+        Some(AdaptiveBatch::for_gpu(&gpu.properties, element_bytes))
+    }
+
     /// Print a summary table of all discovered substrates.
     pub fn print_summary(&self) {
-        println!("  {:<4} {:<30} {:<30}", "Kind", "Name", "Capabilities");
-        println!("  {:<4} {:<30} {:<30}", "----", "----", "------------");
+        println!(
+            "  {:<4} {:<30} {:<8} {:<30}",
+            "Kind", "Name", "Arch", "Capabilities"
+        );
+        println!(
+            "  {:<4} {:<30} {:<8} {:<30}",
+            "----", "----", "----", "------------"
+        );
         for s in &self.substrates {
+            let arch_str = s
+                .properties
+                .gpu_arch
+                .map_or_else(|| "-".to_string(), |a| format!("{a:?}"));
             println!(
-                "  {:<4} {:<30} {:<30}",
+                "  {:<4} {:<30} {:<8} {:<30}",
                 s.kind.to_string(),
                 &s.identity.name,
+                arch_str,
                 s.capability_summary()
             );
         }

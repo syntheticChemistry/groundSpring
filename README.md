@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: February 27, 2026 | **License**: AGPL-3.0-or-later
-**Status**: 28 experiments, 442 Rust tests (biomeos) / 410 (default) + 320 Python tests = 762 total, 288/288 validation checks (+ 31 metalForge), 37 barracuda dispatch targets (26 CPU + 6 GPU + 5 GPU-ready), 12 metalForge workloads, biomeOS Neural API (V30), GPU dispatch wiring (V31), four-mode CI
+**Status**: 28 experiments, 442 Rust tests (biomeos) / 410 (default) + 320 Python tests = 762 total, 288/288 validation checks (+ 49 metalForge), 32 active barracuda delegations (25 CPU + 7 GPU) + 9 pending ToadStool absorption, 19 metalForge workloads, 5 substrates (2 GPU + 1 NPU + 1 CPU + 1 GL), architecture-aware GPU routing (f64→Titan V, f32→RTX 4070), V35 Titan V / NAK adaptive GPU dispatch, four-mode CI
 
 **The gap between what models predict and what instruments measure.**
 
@@ -86,7 +86,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | `freeze_out` | Freeze-out temperature inversion, hadron yield fitting | **GPU-ready** (V31 dispatch) |
 | `spectral_recon` | Spectral function reconstruction from Euclidean correlators | GPU delegated (tikhonov_solve) |
 | `npu` | NPU integration for Akida neuromorphic inference (behind `npu` feature) | NPU (AKD1000) |
-| `groundspring-forge` | Hardware discovery and cross-substrate dispatch (12 workloads) | metalForge crate |
+| `groundspring-forge` | Hardware discovery and cross-substrate dispatch (19 workloads, 5 substrates) | metalForge crate |
 
 ## Quick Start
 
@@ -109,6 +109,7 @@ cargo test --workspace --features npu          # npu module + Exp 028
 cargo run --bin validate-metalforge-inventory
 cargo run --bin validate-metalforge-gpu
 cargo run --bin validate-metalforge-cross-substrate
+cargo run --bin validate-metalforge-titan-v
 
 # Validation binaries (hotSpring pattern: exit 0 = pass, exit 1 = fail)
 cargo run --bin validate-decompose
@@ -207,27 +208,30 @@ Run parity report: `python3 scripts/parity_report.py`
 Barracuda CPU delegation is free. Barracuda-GPU adds the Sturm tridiag
 eigenvalue solver (from hotSpring S26 spectral), giving **47.7× speedup**
 for Exp 009. Cross-spring evolution (hotSpring precision, wetSpring bio-stats,
-airSpring metrics, neuralSpring dispatch) validated by 37 dispatch targets
-(26 CPU + 6 GPU + 5 GPU-ready). 12 metalForge workloads route to GPU/NPU/CPU.
+airSpring metrics, neuralSpring dispatch) validated by 32 active delegations
+(25 CPU + 7 GPU), with 9 pending ToadStool absorption (3 CPU + 6 GPU).
+19 metalForge workloads route across 5 substrates (GPU/NPU/CPU) with architecture-aware routing.
 
 ## Evolution Path
 
 ```
 Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration (Phase 2)  →  Mixed hardware (Phase 3)
    NumPy/SciPy                    Pure safe Rust                BarraCUDA / ToadStool            metalForge dispatch
-     ✓ Complete                     ✓ 288/288 PASS               ◐ 37 targets (26 CPU +            12 workloads
-   11.5× slower than Rust           28/28 parity proven            6 GPU + 5 GPU-ready)            GPU/NPU/CPU routing
+     ✓ Complete                     ✓ 288/288 PASS               ◐ 32 active (25 CPU +             19 workloads
+   11.5× slower than Rust           28/28 parity proven            7 GPU) + 9 pending              5 substrates, arch-aware
 
      Write locally              →  Hand off to barracuda      →  Lean on upstream              →  Cross-substrate parity
      (metalForge shaders)          (wateringHole/handoffs/)       (rewire to barracuda ops)        (metalForge forge crate)
 ```
 
 **Lean progress**: 32 functions delegate to barracuda with graceful sovereign fallback.
-26 CPU delegated via `#[cfg(feature = "barracuda")]`,
-6 GPU delegated via `#[cfg(feature = "barracuda-gpu")]`.
-5 additional GPU-ready dispatch blocks wired (V31): `grid_fit_2d`, `find_band_edges`,
-`grid_search_inversion`, `quasispecies_simulation`, `abundance_occupancy`, `tier_detection_rate`.
-FAO-56 equation chain absorbed upstream. Two production WGSL shaders ready for ToadStool absorption.
+25 CPU delegated via `#[cfg(feature = "barracuda")]`,
+7 GPU delegated via `#[cfg(feature = "barracuda-gpu")]`.
+9 additional delegations pending ToadStool absorption (commented out with `TODO(toadstool)`):
+3 CPU (`kimura_fixation`, `jackknife_mean_variance`, `fao56_et0`) +
+6 GPU (`grid_fit_2d`, `grid_search_3d`, `band_edges_parallel`, `wright_fisher_simulate`,
+`batched_multinomial_occupancy`, `batched_multinomial_tier_rate`).
+Two production WGSL shaders ready for ToadStool absorption.
 
 See `specs/BARRACUDA_EVOLUTION.md` for the full GPU promotion mapping.
 See `metalForge/` for absorption-ready shaders and the manifest.
@@ -313,4 +317,4 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring + dual-mode CI: February 26, 2026 | V22 experiment buildout (016-018): February 26, 2026 | V23 experiment buildout (019-021): February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V27 docs + handoff audit: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V31 GPU dispatch wiring + metalForge workloads: February 27, 2026*
+*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring + dual-mode CI: February 26, 2026 | V22 experiment buildout (016-018): February 26, 2026 | V23 experiment buildout (019-021): February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V27 docs + handoff audit: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V31 GPU dispatch wiring + metalForge workloads: February 27, 2026 | V32 ToadStool S68+ catch-up + forward declaration cleanup: February 27, 2026 | V33 delegation count expansion (32 active, 25 CPU + 7 GPU): February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch + architecture-aware routing: February 27, 2026*

@@ -4,6 +4,114 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V35 Titan V / NAK Adaptive GPU Dispatch + Architecture-Aware Routing (Feb 27, 2026)
+
+#### Added
+- **GPU architecture detection**: `GpuArch` enum (Volta, Turing, Ampere, Ada, Other) auto-detected from adapter name. Reports f64:f32 ratio, workgroup sizing, and native f64 capability.
+- **`NativeF64` capability**: GPUs with ≥ 1:4 f64:f32 ratio (Volta `GV100` = 1:2) get `NativeF64` capability, enabling architecture-aware dispatch.
+- **Adaptive memory batching**: `AdaptiveBatch::for_gpu()` computes max batch size, workgroup size, and resident-memory mode from GPU arch + VRAM. Falls back to arch-specific VRAM defaults when wgpu reports API limits (common on NVK/NAK).
+- **f64-preferring dispatch**: `dispatch::route()` prefers `NativeF64`-capable GPUs for f64 workloads. All 17 f64 workloads now route to Titan V (1:2 ratio) over RTX 4070 (1:64 ratio).
+- **GPU VRAM probing**: `probe_gpus()` populates `memory_bytes` from wgpu `Limits::max_buffer_size`.
+- **Inventory GPU methods**: `find_gpu_by_arch()`, `best_f64_gpu()`, `adaptive_batch()`.
+- **Arch-aware summary table**: `print_summary()` shows architecture column.
+- **14 new tests**: GPU arch detection, Volta f64 ratio, adaptive batch params, native f64 routing preference, f32 fallback routing.
+
+#### Validated
+- **Titan V (NVK `GV100`)**: Discovered via wgpu/Vulkan with NAK shader compilation — f64, shader dispatch, timestamps, native-f64 all confirmed.
+- **Hardware inventory**: 5 substrates (RTX 4070 Ada, Titan V Volta, RTX 4070 OpenGL, AKD1000 NPU, i9-12900K CPU) — 14/14 checks pass.
+- **f64 routing**: All 17 f64 workloads route to Titan V; 2 NPU workloads route to AKD1000; 19/19 routable.
+- **Full workspace**: 0 clippy warnings, 49 metalForge tests pass, all groundspring tests pass.
+
+#### Live GPU Compute (first direct shader execution)
+- **Anderson Lyapunov (L=200, W=2.0, 1024 realizations)** executed on both GPUs:
+  - Titan V (NVK/NAK): γ=0.0386, ξ=25.90, **797 µs** (f32 shader)
+  - RTX 4070 (NVVM): γ=0.0386, ξ=25.90, **274 µs** (f32 shader)
+  - CPU reference (f64): γ=0.0406, ξ=24.61, 6341 µs
+  - f32 vs f64 precision delta: 5.0% (γ relative diff) — validates DF64 need
+
+#### NAK f64 Gap Discovered
+- **NAK**: `SHADER_F64` advertised but ALU lowering not implemented (`from_nir.rs:1092: assert bit_size == 32`). DF64 emulation needed.
+- **NVVM**: `SHADER_F64` advertised but consumer Ada driver rejects f64 compute shaders. DF64 also needed.
+- **Solution**: ToadStool's DF64 (double-float on f32 cores) gives ~50-bit precision, bridging the gap.
+
+#### Metrics
+- 32 active barracuda delegations (25 CPU + 7 GPU), 9 pending ToadStool
+- 19 metalForge workloads, 49 metalForge tests, 5 discovered substrates
+- 3 WGSL compute shaders (anderson_lyapunov f64, anderson_lyapunov f32, mc_et0_propagate, batched_multinomial)
+- Titan V f64 throughput: 1:2 ratio (vs RTX 4070 1:64) — 32× native f64 advantage (pending NAK f64 ALU)
+
+### V34 Three-Tier Validation + Four-Stage Progression + metalForge Expansion (Feb 27, 2026)
+
+#### Added
+- **Three-tier parity certificate**: `scripts/three_tier_parity_report.sh` — proves default = barracuda-CPU = barracuda-GPU for all 27 validation binaries (279/279 checks × 3 modes).
+- **7 new metalForge workloads**: `gillespie_ssa_batch`, `spectral_recon_tikhonov`, `jackknife_leave_one_out`, `mc_et0_propagation`, `transport_eigenvalues`, `wright_fisher_batch`, `bootstrap_resampling`. Total: 19 workloads (14 GPU, 3 CPU, 2 NPU).
+- **7 new metalForge routing tests**: all new workloads verified for correct substrate routing (41/41 metalForge tests pass).
+
+#### Validated
+- **Four-stage progression verified**:
+  - Stage 1: Python 107.1s → Rust 20.5s (**5.2× faster**, 28/28 parity)
+  - Stage 2: Rust 22.0s → barracuda-CPU 22.8s (+3.6% overhead, 27/27 parity)
+  - Stage 3: barracuda-CPU → barracuda-GPU 9.8s (**2.2× total**, 47.4× peak)
+  - Stage 4: metalForge routes 19 workloads to GPU/CPU/NPU per-operation
+- **Three-tier parity**: `data/three_tier_parity_report.json` — 27/27 PROVEN
+- **Python↔Rust parity**: `data/parity_report.json` — 28/28 PROVEN
+
+#### Metrics
+- 32 active barracuda delegations (25 CPU + 7 GPU), 9 pending ToadStool
+- 19 metalForge workloads (14 GPU, 3 CPU, 2 NPU), 41 metalForge tests
+- Python: 107.1s → Rust: 20.5s → barracuda-GPU: 9.8s (10.9× end-to-end)
+
+### V33 Complete Rewiring + Three-Mode Benchmark + Cross-Spring Evolution (Feb 27, 2026)
+
+#### Added
+- **3 new barracuda delegations**:
+  - #30 `stats::mae` — Mean Absolute Error (CPU tier, from airSpring/groundSpring S64 absorption)
+  - #31 `stats::nash_sutcliffe` — Nash-Sutcliffe Efficiency (CPU tier, from airSpring/groundSpring S64 absorption)
+  - #32 `spectral::detect_bands` — GPU band detection from eigenvalue spectrum (barracuda-gpu tier, from hotSpring v0.6 spectral theory)
+- **`detect_band_ranges()` in `band_structure.rs`**: CPU fallback with gap-based band detection, GPU delegation via `barracuda::spectral::detect_bands`.
+- **7 new tests**: 4 unit tests (mae, nse, detect_bands) + 3 three-tier parity tests.
+- **Updated dispatch sentinel**: `dispatch_targets_at_least_32` (was `_37`/`_29`).
+
+#### Validated
+- **Three-mode benchmark** (default / barracuda / barracuda-gpu): 279/279 checks × 3 modes, all PASS.
+  - **Total GPU speedup: 2.2×** (22,030ms → 9,798ms)
+  - **Exp 009 quasiperiodic: 47.4×** (11,376ms → 240ms) — hotSpring Sturm tridiag eigenvalue solver
+  - **Exp 019 jackknife: 4.1×** (410ms → 100ms) — barracuda optimized jackknife
+  - **Exp 020 freeze-out: 1.7×** — barracuda chi² grid fit
+  - **Exp 026 size-convergence: 1.6×** — barracuda regression fit_linear
+- **28/28 parity proven** (Python ↔ Rust mathematical parity, `data/parity_report.json`).
+- **0 clippy warnings** (`cargo clippy --workspace --all-features -- -D warnings`).
+- Pre-existing `npu.rs` doc_markdown lint fixed (`MacKinnon` backticked).
+- Pre-existing `validate_npu_anderson.rs` unfulfilled lint expectation fixed.
+
+#### Cross-Spring Provenance (new delegations)
+| # | Function | barracuda fn | Origin | Evolved Through |
+|---|---------|-------------|--------|----------------|
+| 30 | `mae` | `stats::mae` | airSpring V009 → ToadStool S64 | airSpring ET₀ validation metrics → groundSpring error decomposition |
+| 31 | `nash_sutcliffe` | `stats::nash_sutcliffe` | airSpring V009 → ToadStool S64 | airSpring hydrology → groundSpring model agreement metrics |
+| 32 | `detect_band_ranges` | `spectral::detect_bands` | hotSpring v0.6 → ToadStool S26 | hotSpring spectral theory → groundSpring band structure analysis |
+
+#### Metrics
+- 32 active barracuda delegations (25 CPU + 7 GPU), 9 pending ToadStool
+- 279/279 validation checks in all three feature modes
+- cargo test --workspace: 0 failures
+- Three-mode total: default 22,030ms / barracuda 22,828ms / barracuda-gpu 9,798ms
+
+### V32 ToadStool S68+ Catch-Up + Forward Declaration Cleanup (Feb 27, 2026)
+
+#### Changed
+- **9 forward declarations commented out**: V29 wired 3 CPU delegations (`kimura_fixation`, `jackknife_mean_variance`, `fao56_et0`) and V31 wired 6 GPU delegations (`grid_fit_2d_f64`, `grid_search_3d_f64`, `band_edges_parallel`, `wright_fisher_simulate`, `batched_multinomial_occupancy`, `batched_multinomial_tier_rate`) that reference functions not yet in ToadStool barracuda. All 9 are now commented out with `TODO(toadstool)` markers. `--features barracuda` and `--features barracuda-gpu` now compile clean.
+- **Doc comments updated**: Module-level barracuda delegation docs in `drift.rs`, `jackknife.rs`, `fao56.rs` clarified as "pending ToadStool absorption" rather than "delegates to".
+- **ToadStool pin confirmed**: S68+ (`e96576ee`, Feb 27 2026) — universal precision architecture, 700 WGSL shaders, dual-layer DF64, zero f32-only shaders.
+
+#### Metrics
+- 29 active barracuda delegations (23 CPU + 6 GPU), all compile clean
+- 9 pending ToadStool delegations (3 CPU + 6 GPU), commented out
+- 410/410 Rust tests (default), 442/442 (biomeos), 320/320 Python — all PASS
+- `cargo clippy --workspace --all-features` — 0 warnings
+- `cargo check --features barracuda` — PASS (was FAIL before V32)
+- `cargo check --features barracuda-gpu` — PASS (was FAIL before V32)
+
 ### V31 GPU Dispatch Wiring + metalForge Workload Expansion (Feb 27, 2026)
 
 #### Added

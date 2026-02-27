@@ -10,10 +10,10 @@
 //!
 //! # barracuda delegation
 //!
-//! When the `barracuda` feature is enabled, [`jackknife_mean_variance`]
-//! delegates to `barracuda::stats::jackknife_mean_variance()`. The
-//! delete-one loop is embarrassingly parallel — GPU promotion via
-//! `barracuda-gpu` is a high-value target for large N.
+//! [`jackknife_mean_variance`] is a high-value delegation target for
+//! `barracuda::stats::jackknife_mean_variance()`. Pending `ToadStool`
+//! absorption (not yet in barracuda S68+). The delete-one loop is
+//! embarrassingly parallel — GPU promotion is a high-value target.
 
 use crate::cast::usize_f64;
 
@@ -41,16 +41,17 @@ pub struct JackknifeResult {
 /// Panics if `data` has fewer than 2 elements.
 #[must_use]
 pub fn jackknife_mean_variance(data: &[f64]) -> JackknifeResult {
-    #[cfg(feature = "barracuda")]
-    {
-        if let Ok((est, var)) = barracuda::stats::jackknife_mean_variance(data) {
-            return JackknifeResult {
-                estimate: est,
-                variance: var,
-                std_error: var.sqrt(),
-            };
-        }
-    }
+    // TODO(toadstool): uncomment when barracuda implements stats::jackknife_mean_variance
+    // #[cfg(feature = "barracuda")]
+    // {
+    //     if let Ok((est, var)) = barracuda::stats::jackknife_mean_variance(data) {
+    //         return JackknifeResult {
+    //             estimate: est,
+    //             variance: var,
+    //             std_error: var.sqrt(),
+    //         };
+    //     }
+    // }
     jackknife_mean_variance_cpu(data)
 }
 

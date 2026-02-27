@@ -3,13 +3,13 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: February 27, 2026 (V31: GPU dispatch wiring, 37 dispatch targets, 12 metalForge workloads)
+**Last Updated**: February 27, 2026 (V35: Titan V / NAK adaptive GPU dispatch, 32 active delegations + 9 pending, 19 metalForge workloads, 49 tests, arch-aware routing)
 
 ---
 
 ## Overview
 
-groundSpring has **37 dispatch targets** — 32 delegated functions (including `kinetics::hill`, `spectral_recon::tikhonov_solve`, `wdm::finite_size_extrapolate`) plus 5 GPU-ready dispatch blocks wired in V31.
+groundSpring has **32 active delegations** (25 CPU + 7 GPU) with **9 pending ToadStool absorption** (3 CPU + 6 GPU, commented out with `TODO(toadstool)`).
 Those barracuda functions were not built in isolation — they were refined and
 battle-tested through absorption from **five Springs**, each bringing domain-specific
 requirements that hardened the shared library.
@@ -131,7 +131,10 @@ and learnings** rather than GPU shaders:
 | Three-mode validation (local / barracuda / barracuda-gpu) | Proves correctness across feature configurations |
 | Zero-overhead benchmark methodology | Proves barracuda delegation is free for compute-heavy code |
 | Tolerance documentation standard | Every tolerance justified with mathematical basis |
-| 2 production WGSL shaders | `batched_multinomial.wgsl`, `mc_et0_propagate.wgsl` (pending absorption) |
+| 4 WGSL shaders | `batched_multinomial.wgsl`, `mc_et0_propagate.wgsl`, `anderson_lyapunov.wgsl` (f64), `anderson_lyapunov_f32.wgsl` |
+| Architecture-aware GPU dispatch | `GpuArch` detection, `NativeF64` capability, f64→Titan V routing |
+| NAK f64 gap discovery | `SHADER_F64` unreliable on both NAK and NVVM — DF64 required everywhere |
+| `AdaptiveBatch` memory management | Software-side VRAM batch sizing with architecture defaults |
 
 ---
 
@@ -153,7 +156,7 @@ same need independently**:
 
 ## groundSpring Delegation Lineage
 
-Each of groundSpring's 32 delegations has a traceable cross-spring history:
+Each of groundSpring's 32 active delegations has a traceable cross-spring history:
 
 | # | groundSpring fn | barracuda fn | Primary Origin | Validated By |
 |---|----------------|--------------|---------------|-------------|
@@ -186,6 +189,9 @@ Each of groundSpring's 32 delegations has a traceable cross-spring history:
 | 27 | `hill` | `stats::hill` | S68 (V20 catch-up) | groundSpring Exp 010, Exp 011 (bistable, multisignal) |
 | 28 | `tikhonov_solve` | `linalg::solve_f64_cpu` | hotSpring linalg (Gauss–Jordan) | groundSpring Exp 021 (spectral recon, Bazavov 2025) |
 | 29 | `finite_size_extrapolate` | `stats::regression::fit_linear` | S66 (regression absorption) | groundSpring Exp 026 (system-size convergence, WDM) |
+| 30 | `mae` | `stats::mae` | S64 (airSpring/groundSpring absorption) | V33 — Mean Absolute Error, cross-validated with airSpring ET₀ metrics |
+| 31 | `nash_sutcliffe` | `stats::nash_sutcliffe` | S64 (airSpring/groundSpring absorption) | V33 — Nash-Sutcliffe Efficiency, hydrology standard from airSpring |
+| 32 | `detect_band_ranges` | `spectral::detect_bands` | hotSpring v0.6 (spectral theory) | V33 — GPU band detection from eigenvalue spectrum (barracuda-gpu tier) |
 
 ---
 
@@ -242,8 +248,50 @@ compute_graph, esn_v2, tensor, gamma, rk45 all slimmed. Quality refinement.
 
 ## Benchmark: Cross-Spring Evolution Impact
 
-The cross-spring evolution (S50–S65) eliminated overhead and added the
-Sturm tridiag solver that transforms Exp 009:
+### V33 Three-Mode Benchmark (Feb 27, 2026)
+
+All 27 experiments timed in three feature modes, ToadStool S68+ (e96576ee):
+
+| Experiment | Default | Barracuda CPU | Barracuda GPU | GPU Speedup | Cross-Spring Origin |
+|-----------|---------|--------------|--------------|-------------|-------------------|
+| Exp 001 decompose | 86ms | 447ms | 134ms | 0.6× | airSpring metrics |
+| Exp 002 weather | 69ms | 142ms | 89ms | 0.8× | airSpring metrics |
+| Exp 003 fao56 | 84ms | 201ms | 103ms | 0.8× | airSpring hydrology |
+| Exp 004 rarefaction | 83ms | 95ms | 155ms | 0.5× | wetSpring diversity |
+| Exp 005 seismic | 130ms | 328ms | 196ms | 0.7× | groundSpring grid search |
+| Exp 006 signal | 863ms | 949ms | 1012ms | 0.9× | wetSpring bio-ODE |
+| Exp 007 rawr | 634ms | 597ms | 624ms | 1.0× | groundSpring V15 |
+| Exp 008 anderson | 805ms | 776ms | 741ms | 1.1× | hotSpring S26 spectral |
+| **Exp 009 quasiperiodic** | **11376ms** | 12071ms | **240ms** | **47.4×** | **hotSpring Sturm tridiag** |
+| Exp 010 bistable | 179ms | 289ms | 199ms | 0.9× | wetSpring bio-ODE S58 |
+| Exp 011 multisignal | 146ms | 122ms | 113ms | 1.3× | wetSpring bio-ODE S58 |
+| Exp 012 transport | 333ms | 332ms | 301ms | 1.1× | hotSpring spectral |
+| Exp 013 resampling | 121ms | 227ms | 132ms | 0.9× | groundSpring bootstrap |
+| Exp 014 drift | 1454ms | 1190ms | 1169ms | 1.2× | neuralSpring WF |
+| Exp 015 uncertainty | 144ms | 131ms | 122ms | 1.2× | hotSpring + groundSpring |
+| Exp 016 rare biosphere | 201ms | 245ms | 205ms | 1.0× | wetSpring diversity |
+| Exp 017 quasispecies | 110ms | 117ms | 120ms | 0.9× | wetSpring Eigen model |
+| Exp 018 band edge | 111ms | 189ms | 117ms | 0.9× | hotSpring spectral |
+| **Exp 019 jackknife** | **410ms** | **96ms** | **100ms** | **4.1×** | groundSpring V15 |
+| Exp 020 freeze-out | 219ms | 87ms | 127ms | 1.7× | groundSpring chi² |
+| Exp 021 spectral recon | 96ms | 80ms | 116ms | 0.8× | hotSpring linalg |
+| Exp 022 ET0 anderson | 105ms | 129ms | 125ms | 0.8× | airSpring + hotSpring |
+| Exp 023 no-till sampling | 131ms | 393ms | 118ms | 1.1× | airSpring agro |
+| Exp 024 aggregate stab | 95ms | 100ms | 88ms | 1.1× | airSpring agro |
+| Exp 025 precision drift | 3726ms | 3174ms | 3096ms | 1.2× | neuralSpring spectral |
+| Exp 026 size convergence | 176ms | 136ms | 111ms | 1.6× | hotSpring WDM |
+| Exp 027 vendor parity | 143ms | 185ms | 145ms | 1.0× | all Springs |
+| **TOTAL** | **22030ms** | **22828ms** | **9798ms** | **2.2×** | **cross-spring evolution** |
+
+**279/279 checks pass in all three modes. 28/28 Python↔Rust parity proven.**
+
+**Star performers** (GPU speedup from cross-spring absorption):
+- **Exp 009 quasiperiodic: 47.4×** — hotSpring's Sturm tridiag eigenvalue solver (S26)
+- **Exp 019 jackknife: 4.1×** — barracuda optimized jackknife (S64)
+- **Exp 020 freeze-out: 1.7×** — barracuda chi² grid fit (S64)
+- **Exp 026 size-convergence: 1.6×** — barracuda regression (S66)
+
+### Historical Evolution
 
 | Period | Total Runtime | Quasiperiodic | Overhead vs Local |
 |--------|-------------|---------------|-------------------|
@@ -251,12 +299,13 @@ Sturm tridiag solver that transforms Exp 009:
 | V9 (post-S62) | 2,076ms | (not benchmarked) | **~0%** |
 | V12 (S64) | 14,434ms | 11,355ms (dense QR) | **~0%** |
 | V13 (S64+Sturm) | 3,274ms (barracuda-gpu) | **234ms** (Sturm tridiag) | **−77%** (faster!) |
+| **V33 (S68+)** | **9,798ms total (GPU)** | **240ms** | **−55% overall** |
 
 The Sturm bisection eigenvalue solver (from hotSpring's S26 spectral module,
 absorbed into `barracuda::spectral::tridiag`) exploits the tridiagonal structure
 of the Almost-Mathieu Hamiltonian. Combined with `find_all_eigenvalues`, this
-replaces the O(n³) dense Givens QR with an O(n²) tridiag solver — closing
-the LAPACK gap that was Exp 009's only performance outlier.
+replaces the O(n³) dense Givens QR with an O(n²) tridiag solver — the single
+largest cross-spring speedup in the ecoPrimals ecosystem.
 
 ---
 
@@ -404,3 +453,5 @@ The 700 barracuda WGSL shaders that groundSpring's delegations ultimately depend
 | Feb 27 | **groundSpring V29** | **Three-tier validation buildout**: 391 Rust + 322 Python = 713 total, 32 delegations (26 CPU + 6 GPU), 23 three-tier parity integration tests, 3 new CPU delegations (kimura_fixation_prob, jackknife_mean_variance, daily_et0), 8 GPU-annotated modules with barracuda documentation |
 | Feb 27 | **groundSpring V30** | **biomeOS Neural API integration**: JSON-RPC 2.0 Unix socket client (`biomeos.rs`), `validate-anderson` routed through `capability.call`, pipeline graph, capability surface docs |
 | Feb 27 | **groundSpring V31** | **GPU dispatch wiring + metalForge expansion**: 5 modules wired for `barracuda-gpu` (freeze_out, band_structure, seismic, quasispecies, rare_biosphere), 12 metalForge workloads, 37 dispatch targets, 442 Rust (biomeos) / 410 default + 320 Python = 762 total |
+| Feb 27 | **groundSpring V32** | **ToadStool S68+ catch-up**: 9 forward declarations cleaned (3 CPU + 6 GPU, pending ToadStool absorption), 29 active delegations (23 CPU + 6 GPU), `--features barracuda` and `barracuda-gpu` compile clean, universal precision architecture (DF64, f32/f64/df64 per hardware) documented |
+| Feb 27 | **groundSpring V33** | **Complete rewiring + three-mode benchmark**: 3 new delegations (#30 MAE from airSpring, #31 NSE from airSpring, #32 detect_bands from hotSpring), 32 active (25 CPU + 7 GPU), 279/279 checks ×3 modes, 28/28 parity proven, **47.4× GPU speedup** (Exp 009 quasiperiodic via hotSpring Sturm), **2.2× total GPU speedup** |

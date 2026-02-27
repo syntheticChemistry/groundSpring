@@ -78,27 +78,21 @@ pub fn chi_squared_per_dof(chi2: f64, n_data: usize, n_params: usize) -> f64 {
 /// grid ranges produce no points.
 #[must_use]
 pub fn grid_fit_2d(config: &GridFitConfig<'_>) -> GridFitResult {
-    #[cfg(feature = "barracuda-gpu")]
-    {
-        if let Ok(result) = barracuda::ops::grid::grid_fit_2d_f64(
-            config.observed,
-            config.mu_b,
-            config.sigma,
-            config.t0_lo,
-            config.t0_hi,
-            config.t0_step,
-            config.k2_lo,
-            config.k2_hi,
-            config.k2_step,
-        ) {
-            return GridFitResult {
-                t0: result.0,
-                kappa2: result.1,
-                chi_squared: result.2,
-                chi2_per_dof: chi_squared_per_dof(result.2, config.observed.len(), 2),
-            };
-        }
-    }
+    // TODO(toadstool): uncomment when barracuda implements ops::grid::grid_fit_2d_f64
+    // Embarrassingly parallel 2D chi-squared grid search — high-value GPU target.
+    // #[cfg(feature = "barracuda-gpu")]
+    // {
+    //     if let Ok(result) = barracuda::ops::grid::grid_fit_2d_f64(
+    //         config.observed, config.mu_b, config.sigma,
+    //         config.t0_lo, config.t0_hi, config.t0_step,
+    //         config.k2_lo, config.k2_hi, config.k2_step,
+    //     ) {
+    //         return GridFitResult {
+    //             t0: result.0, kappa2: result.1, chi_squared: result.2,
+    //             chi2_per_dof: chi_squared_per_dof(result.2, config.observed.len(), 2),
+    //         };
+    //     }
+    // }
     grid_fit_2d_cpu(config)
 }
 

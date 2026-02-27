@@ -78,11 +78,22 @@ pub fn route<'a>(workload: &Workload, substrates: &'a [Substrate]) -> Option<Dec
         }
     }
 
-    let best = capable
-        .iter()
-        .find(|s| s.kind == SubstrateKind::Gpu)
-        .or_else(|| capable.iter().find(|s| s.kind == SubstrateKind::Npu))
-        .or_else(|| capable.iter().find(|s| s.kind == SubstrateKind::Cpu))?;
+    let needs_f64 = workload.required.contains(&Capability::F64Compute);
+
+    let best = if needs_f64 {
+        capable
+            .iter()
+            .find(|s| s.kind == SubstrateKind::Gpu && s.has(&Capability::NativeF64))
+            .or_else(|| capable.iter().find(|s| s.kind == SubstrateKind::Gpu))
+            .or_else(|| capable.iter().find(|s| s.kind == SubstrateKind::Npu))
+            .or_else(|| capable.iter().find(|s| s.kind == SubstrateKind::Cpu))?
+    } else {
+        capable
+            .iter()
+            .find(|s| s.kind == SubstrateKind::Gpu)
+            .or_else(|| capable.iter().find(|s| s.kind == SubstrateKind::Npu))
+            .or_else(|| capable.iter().find(|s| s.kind == SubstrateKind::Cpu))?
+    };
 
     Some(Decision {
         substrate: best,
@@ -188,5 +199,71 @@ mod tests {
         let d = route(&work, &subs).expect("should route");
         assert_eq!(d.substrate.kind, SubstrateKind::Cpu);
         assert_eq!(d.reason, Reason::Preferred);
+    }
+
+    #[test]
+    fn prefers_native_f64_gpu_for_f64_workloads() {
+        let ada_gpu = Substrate {
+            kind: SubstrateKind::Gpu,
+            identity: Identity::named("RTX 4070"),
+            properties: Properties::default(),
+            capabilities: vec![
+                Capability::F64Compute,
+                Capability::ShaderDispatch,
+                Capability::ScalarReduce,
+            ],
+        };
+        let volta_gpu = Substrate {
+            kind: SubstrateKind::Gpu,
+            identity: Identity::named("TITAN V"),
+            properties: Properties::default(),
+            capabilities: vec![
+                Capability::F64Compute,
+                Capability::ShaderDispatch,
+                Capability::ScalarReduce,
+                Capability::NativeF64,
+            ],
+        };
+        let cpu = make_cpu();
+        let subs = [ada_gpu, volta_gpu, cpu];
+
+        let work = Workload::new(
+            "Anderson transfer matrix",
+            vec![Capability::F64Compute, Capability::ShaderDispatch],
+        );
+        let d = route(&work, &subs).expect("should route");
+        assert!(d.substrate.identity.name.contains("TITAN V"));
+        assert_eq!(d.reason, Reason::BestAvailable);
+    }
+
+    #[test]
+    fn f32_workloads_still_pick_first_gpu() {
+        let ada_gpu = Substrate {
+            kind: SubstrateKind::Gpu,
+            identity: Identity::named("RTX 4070"),
+            properties: Properties::default(),
+            capabilities: vec![
+                Capability::F32Compute,
+                Capability::ShaderDispatch,
+            ],
+        };
+        let volta_gpu = Substrate {
+            kind: SubstrateKind::Gpu,
+            identity: Identity::named("TITAN V"),
+            properties: Properties::default(),
+            capabilities: vec![
+                Capability::F32Compute,
+                Capability::ShaderDispatch,
+                Capability::NativeF64,
+            ],
+        };
+        let subs = [ada_gpu, volta_gpu];
+
+        let work = Workload::new(
+            "f32 shader",
+            vec![Capability::F32Compute, Capability::ShaderDispatch],
+        );
+        let d = route(&work, &subs).expect("should route");
+        assert!(d.substrate.identity.name.contains("RTX 4070"));
     }
 }

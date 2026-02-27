@@ -1,14 +1,14 @@
 # Cross-Spring Evolution: How ecoPrimals Primals Build on Each Other
 
 **Date**: February 27, 2026
-**groundSpring HEAD**: V29
-**ToadStool HEAD**: `f0feb226` (S68)
+**groundSpring HEAD**: V35
+**ToadStool HEAD**: `f0feb226` (S68+)
 
 ---
 
 ## The Multi-Spring Architecture
 
-groundSpring's 32 barracuda delegations trace their lineage through 5 ecoPrimals
+groundSpring's 32 active barracuda delegations trace their lineage through 5 ecoPrimals
 Springs. Each Spring contributes domain-specific primitives that are absorbed into
 ToadStool's BarraCUDA crate, making them available to all other Springs. This
 document traces exactly which primitives came from where and who benefits.
@@ -241,4 +241,4 @@ from 14.89s → 3.93s.
 
 *This document is generated from groundSpring's validation infrastructure
 and ToadStool's absorption history. It reflects the state of the ecosystem
-at ToadStool S66 / groundSpring V14.*
+at ToadStool S68+ / groundSpring V35.*

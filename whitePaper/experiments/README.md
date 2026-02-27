@@ -9,9 +9,9 @@
 **Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across all 28 experiments.
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **Coverage**: Zero clippy warnings. Four-mode CI (default + barracuda + barracuda-gpu + biomeos).
-**BarraCUDA**: 37 dispatch targets (26 CPU + 6 GPU + 5 GPU-ready). Exp 009: **47.7× from Sturm tridiag**.
+**BarraCUDA**: 32 active delegations + 9 pending ToadStool (25 CPU + 7 GPU). Exp 009: **47.7× from Sturm tridiag**.
 **Modules**: 26 (including `jackknife`, `freeze_out`, `spectral_recon`, `wdm`, `npu`).
-**metalForge**: 3 live hardware binaries (RTX 4070, Titan V, AKD1000 NPU). Exp 028 NPU DMA at ~51µs.
+**metalForge**: 4 live hardware binaries (RTX 4070, Titan V, AKD1000 NPU). 49 metalForge checks, 5 substrates, architecture-aware routing. Exp 028 NPU DMA at ~51µs.
 **Baseline integrity**: All 28 benchmark JSONs verified — provenance fields, hex commit hashes, UTF-8.
 
 ## Experiment Index
@@ -55,14 +55,14 @@ Each experiment is validated at three levels:
 2. **GPU** — Barracuda GPU matches CPU within tolerance (`--features barracuda-gpu`)
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
-Current status: **CPU complete** (288/288), **37 dispatch targets**
-(26 CPU delegated + 6 GPU delegated + 5 GPU-ready dispatch blocks).
+Current status: **CPU complete** (288/288), **32 active delegations + 9 pending ToadStool**
+(25 CPU delegated + 7 GPU delegated).
 V31: 5 modules GPU-wired (`freeze_out`, `band_structure`, `seismic`, `quasispecies`, `rare_biosphere`).
-12 metalForge workloads. All delegations use sovereign fallback.
+19 metalForge workloads, 5 substrates, architecture-aware routing (V35). All delegations use sovereign fallback.
 28/28 mathematical parity proven. 442 Rust tests (biomeos) / 410 default + 320 Python tests = 762 total (includes three-tier parity + biomeOS integration).
 **PRNG readiness**: `Xoshiro128StarStar` at full API parity (`next_u64`, `next_f64`, `next_normal`, `normal`, `binomial`) — ready for Phase 2b GPU stream alignment.
 **metalForge tier**: groundspring-forge crate with live hardware validation
-(RTX 4070, Titan V, AKD1000 NPU). 3 validation binaries, 31 metalForge checks.
+(RTX 4070, Titan V, AKD1000 NPU). 4 validation binaries, 49 metalForge checks, 5 substrates.
 
 Three-mode benchmarks: 20.4s → 9.2s (**2.2× speedup**); quasiperiodic 47.7×.
 Cross-spring evolution (hotSpring precision + Sturm, wetSpring bio-stats,

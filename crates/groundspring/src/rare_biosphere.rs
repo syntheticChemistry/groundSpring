@@ -101,14 +101,17 @@ pub fn abundance_occupancy(
     n_samples: usize,
     base_seed: u64,
 ) -> Vec<f64> {
-    #[cfg(feature = "barracuda-gpu")]
-    {
-        if let Ok(occ) = barracuda::ops::bio::batched_multinomial_occupancy(
-            community, depth, n_samples, base_seed,
-        ) {
-            return occ;
-        }
-    }
+    // TODO(toadstool): uncomment when barracuda implements ops::bio::batched_multinomial_occupancy
+    // ToadStool has BatchedMultinomialGpu::dispatch() (low-level counts) but not the
+    // occupancy wrapper that converts counts → presence/absence fractions.
+    // #[cfg(feature = "barracuda-gpu")]
+    // {
+    //     if let Ok(occ) = barracuda::ops::bio::batched_multinomial_occupancy(
+    //         community, depth, n_samples, base_seed,
+    //     ) {
+    //         return occ;
+    //     }
+    // }
     abundance_occupancy_cpu(community, depth, n_samples, base_seed)
 }
 
@@ -203,19 +206,15 @@ pub fn tier_detection_rate(
     n_replicates: usize,
     base_seed: u64,
 ) -> f64 {
-    #[cfg(feature = "barracuda-gpu")]
-    {
-        if let Ok(rate) = barracuda::ops::bio::batched_multinomial_tier_rate(
-            community,
-            tier_lo,
-            tier_hi,
-            depth,
-            n_replicates,
-            base_seed,
-        ) {
-            return rate;
-        }
-    }
+    // TODO(toadstool): uncomment when barracuda implements ops::bio::batched_multinomial_tier_rate
+    // #[cfg(feature = "barracuda-gpu")]
+    // {
+    //     if let Ok(rate) = barracuda::ops::bio::batched_multinomial_tier_rate(
+    //         community, tier_lo, tier_hi, depth, n_replicates, base_seed,
+    //     ) {
+    //         return rate;
+    //     }
+    // }
     tier_detection_rate_cpu(community, tier_lo, tier_hi, depth, n_replicates, base_seed)
 }
 

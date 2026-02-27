@@ -9,7 +9,8 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V31 | [GROUNDSPRING_TOADSTOOL_V31_GPU_DISPATCH_HANDOFF_FEB27_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V31_GPU_DISPATCH_HANDOFF_FEB27_2026.md) | Feb 27, 2026 | GPU dispatch wiring: 5 modules wired for `barracuda-gpu`, 12 metalForge workloads, 37 dispatch targets, 762 total tests; supersedes V28 |
+| V37 | [GROUNDSPRING_TOADSTOOL_V37_BARRACUDA_EVOLUTION_HANDOFF_FEB27_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V37_BARRACUDA_EVOLUTION_HANDOFF_FEB27_2026.md) | Feb 27, 2026 | Comprehensive BarraCUDA evolution summary: 32 active delegations (25 CPU + 7 GPU), 9 pending absorption, 19 workloads, 49 metalForge tests, 5 substrates, NAK f64 gap analysis, absorption priorities (3 grid search ops, 2 bio batch ops, DF64 default), cross-spring learnings |
+| V35 | [GROUNDSPRING_TOADSTOOL_V35_TITANV_NAK_HANDOFF_FEB27_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V35_TITANV_NAK_HANDOFF_FEB27_2026.md) | Feb 27, 2026 | Titan V / NAK adaptive GPU dispatch: `GpuArch` detection, `NativeF64` capability, `AdaptiveBatch`, architecture-aware f64 routing, live GPU compute |
 
 ## Cross-Spring Documentation
 
@@ -36,6 +37,10 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V35 | Titan V / NAK adaptive GPU dispatch (companion to V37) |
+| V33 | Delegation count expansion (32 active, 25 CPU + 7 GPU) (superseded by V35) |
+| V32 | ToadStool S68+ catch-up (superseded by V33) |
+| V31 | GPU dispatch wiring + metalForge expansion (superseded by V32) |
 | V30 | biomeOS Neural API integration (superseded by V31) |
 | V29 | Three-tier validation buildout + 3 new CPU delegations (superseded by V30) |
 | V28 | Coverage evolution + PRNG readiness (superseded by V29) |

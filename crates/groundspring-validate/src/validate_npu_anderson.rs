@@ -7,7 +7,7 @@
 //! `BrainChip` AKD1000 NPU. CPU analytical classification provides
 //! ground truth; NPU DMA inference proves hardware portability.
 
-#![expect(clippy::cast_precision_loss, clippy::cast_possible_truncation)]
+#![expect(clippy::cast_precision_loss)]
 
 use groundspring::npu;
 use groundspring::validate::ValidationHarness;

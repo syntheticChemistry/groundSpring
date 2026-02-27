@@ -39,6 +39,145 @@ pub struct Identity {
     pub pci_id: Option<String>,
 }
 
+/// GPU architecture family, detected from adapter name.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum GpuArch {
+    /// NVIDIA Volta (`GV100`) — native f64 at 1:2 ratio, HBM2.
+    Volta,
+    /// NVIDIA Turing (`TU1xx`) — f64 at 1:32 ratio.
+    Turing,
+    /// NVIDIA Ampere (`GA1xx`) — f64 at 1:64 ratio (consumer).
+    Ampere,
+    /// NVIDIA Ada Lovelace (`AD1xx`) — f64 at 1:64 ratio, good NAK.
+    Ada,
+    /// AMD RDNA or other.
+    Other,
+}
+
+impl GpuArch {
+    /// f64:f32 throughput ratio for this architecture.
+    ///
+    /// Volta is special: `GV100` has 1:2 native f64 (SM 7.0 full-rate
+    /// double precision). Consumer Ampere/Ada only get 1:64.
+    /// `ToadStool`'s DF64 (double-float on FP32 cores) narrows this gap
+    /// to ~9.9× on FP32 cores, but native f64 is always preferred.
+    #[must_use]
+    pub const fn f64_ratio(self) -> u32 {
+        match self {
+            Self::Volta => 2,
+            Self::Turing => 32,
+            Self::Ampere | Self::Ada | Self::Other => 64,
+        }
+    }
+
+    /// Maximum recommended workgroup size for f64 workloads.
+    ///
+    /// Volta's SM architecture prefers 32-wide warps with 2 f64 units;
+    /// Ada/Ampere shaders should use larger workgroups to hide f64 latency.
+    /// NAK on Volta may have tighter limits than proprietary driver.
+    #[must_use]
+    pub const fn recommended_f64_workgroup(self) -> u32 {
+        match self {
+            Self::Turing => 128,
+            Self::Ampere | Self::Ada => 256,
+            Self::Volta | Self::Other => 64,
+        }
+    }
+
+    /// Whether this architecture has native f64 at production throughput.
+    ///
+    /// Only Volta (`GV100`/`GV100GL`) has ≥ 1:4 f64:f32 ratio.
+    /// All others need DF64 or accept severe throughput penalty.
+    #[must_use]
+    pub const fn has_native_f64(self) -> bool {
+        matches!(self, Self::Volta)
+    }
+
+    /// Conservative VRAM default when wgpu reports API limits instead of
+    /// actual device memory (common on NVK/NAK and some Mesa drivers).
+    #[must_use]
+    pub const fn default_vram_bytes(self) -> u64 {
+        match self {
+            Self::Volta | Self::Ada => 12 * 1024 * 1024 * 1024,
+            Self::Turing => 8 * 1024 * 1024 * 1024,
+            Self::Ampere => 10 * 1024 * 1024 * 1024,
+            Self::Other => 4 * 1024 * 1024 * 1024,
+        }
+    }
+
+    /// Detect architecture from GPU adapter name string.
+    #[must_use]
+    pub fn from_name(name: &str) -> Self {
+        let upper = name.to_uppercase();
+        if upper.contains("TITAN V") || upper.contains("GV100") || upper.contains("V100") {
+            Self::Volta
+        } else if upper.contains("RTX 20") || upper.contains("GTX 16") || upper.contains("TU1") {
+            Self::Turing
+        } else if upper.contains("RTX 30") || upper.contains("GA1") || upper.contains("A100") {
+            Self::Ampere
+        } else if upper.contains("RTX 40") || upper.contains("AD1") || upper.contains("L4") {
+            Self::Ada
+        } else {
+            Self::Other
+        }
+    }
+}
+
+/// Adaptive batch configuration for GPU memory management.
+///
+/// Older architectures (Volta/NAK) may lack hardware memory batching
+/// that newer GPUs handle automatically. This computes software-side
+/// batch sizes that keep the working set within GPU memory, enabling
+/// unidirectional streaming where data stays on-device between batches.
+#[derive(Debug, Clone)]
+pub struct AdaptiveBatch {
+    /// Maximum elements per dispatch batch.
+    pub max_batch_elements: usize,
+    /// Workgroup size for this GPU.
+    pub workgroup_size: u32,
+    /// Whether to use resident memory (keep buffers alive between dispatches).
+    pub use_resident_memory: bool,
+    /// Whether native f64 is available (vs DF64 emulation).
+    pub native_f64: bool,
+}
+
+impl AdaptiveBatch {
+    /// Compute adaptive batch parameters for a given GPU and workload.
+    ///
+    /// `element_bytes` is the memory footprint per work item (input + output).
+    /// The batch size is chosen to use at most 75% of GPU memory, leaving
+    /// headroom for shader scratch space and driver allocations.
+    ///
+    /// When wgpu reports unrealistically large `max_buffer_size` (common
+    /// on NVK/NAK), falls back to architecture-specific VRAM defaults.
+    #[must_use]
+    pub fn for_gpu(props: &Properties, element_bytes: usize) -> Self {
+        let arch = props.gpu_arch.unwrap_or(GpuArch::Other);
+        let reported = props.memory_bytes.unwrap_or(0);
+
+        let vram = if reported > 0 && reported <= 64 * 1024 * 1024 * 1024 {
+            reported
+        } else {
+            arch.default_vram_bytes()
+        };
+
+        #[allow(clippy::cast_possible_truncation)]
+        let usable = (vram / 4 * 3) as usize;
+        let max_elements = if element_bytes > 0 {
+            usable / element_bytes
+        } else {
+            1_000_000
+        };
+
+        Self {
+            max_batch_elements: max_elements,
+            workgroup_size: arch.recommended_f64_workgroup(),
+            use_resident_memory: arch.has_native_f64(),
+            native_f64: arch.has_native_f64(),
+        }
+    }
+}
+
 /// Measured properties of a substrate.
 #[derive(Debug, Clone, Default)]
 pub struct Properties {
@@ -54,6 +193,8 @@ pub struct Properties {
     pub has_f64: bool,
     /// Supports timestamp queries (GPU).
     pub has_timestamps: bool,
+    /// Detected GPU architecture (from adapter name).
+    pub gpu_arch: Option<GpuArch>,
 }
 
 /// The kind of compute device.
@@ -94,6 +235,9 @@ pub enum Capability {
     SimdVector,
     /// GPU timestamp query support.
     TimestampQuery,
+    /// Native f64 at production throughput (Volta 1:2 ratio).
+    /// Without this, f64 workloads use DF64 emulation (~9.9× on FP32 cores).
+    NativeF64,
 }
 
 impl fmt::Display for SubstrateKind {
@@ -149,6 +293,7 @@ impl Capability {
             Self::ShaderDispatch => "shader",
             Self::SimdVector => "simd",
             Self::TimestampQuery => "timestamps",
+            Self::NativeF64 => "native-f64",
         }
     }
 }
@@ -221,6 +366,65 @@ mod tests {
         assert_eq!(Capability::ShaderDispatch.label(), "shader");
         assert_eq!(Capability::SimdVector.label(), "simd");
         assert_eq!(Capability::TimestampQuery.label(), "timestamps");
+        assert_eq!(Capability::NativeF64.label(), "native-f64");
+    }
+
+    #[test]
+    fn gpu_arch_from_titan_v() {
+        assert_eq!(GpuArch::from_name("NVIDIA TITAN V"), GpuArch::Volta);
+        assert_eq!(GpuArch::from_name("Tesla V100-SXM2"), GpuArch::Volta);
+        assert_eq!(GpuArch::from_name("GV100GL"), GpuArch::Volta);
+    }
+
+    #[test]
+    fn gpu_arch_from_rtx_4070() {
+        assert_eq!(
+            GpuArch::from_name("NVIDIA GeForce RTX 4070"),
+            GpuArch::Ada
+        );
+        assert_eq!(GpuArch::from_name("NVIDIA L4"), GpuArch::Ada);
+    }
+
+    #[test]
+    fn volta_has_native_f64() {
+        assert!(GpuArch::Volta.has_native_f64());
+        assert!(!GpuArch::Ada.has_native_f64());
+        assert!(!GpuArch::Ampere.has_native_f64());
+    }
+
+    #[test]
+    fn volta_f64_ratio() {
+        assert_eq!(GpuArch::Volta.f64_ratio(), 2);
+        assert_eq!(GpuArch::Ada.f64_ratio(), 64);
+    }
+
+    #[test]
+    fn adaptive_batch_volta() {
+        let props = Properties {
+            memory_bytes: Some(12 * 1024 * 1024 * 1024),
+            gpu_arch: Some(GpuArch::Volta),
+            has_f64: true,
+            ..Properties::default()
+        };
+        let batch = AdaptiveBatch::for_gpu(&props, 64);
+        assert!(batch.native_f64);
+        assert!(batch.use_resident_memory);
+        assert_eq!(batch.workgroup_size, 64);
+        assert!(batch.max_batch_elements > 100_000_000);
+    }
+
+    #[test]
+    fn adaptive_batch_ada() {
+        let props = Properties {
+            memory_bytes: Some(12 * 1024 * 1024 * 1024),
+            gpu_arch: Some(GpuArch::Ada),
+            has_f64: true,
+            ..Properties::default()
+        };
+        let batch = AdaptiveBatch::for_gpu(&props, 64);
+        assert!(!batch.native_f64);
+        assert!(!batch.use_resident_memory);
+        assert_eq!(batch.workgroup_size, 256);
     }
 
     #[test]

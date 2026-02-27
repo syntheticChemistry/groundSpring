@@ -12,7 +12,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **288/288 checks passed** across 28 validation binaries.
 - Mathematical parity: **28/28 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.5× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.7× from Sturm tridiag**.
-- V31: 37 dispatch targets (26 CPU + 6 GPU + 5 GPU-ready), 12 metalForge workloads. biomeOS Neural API (V30). Four-mode CI.
+- V35: Titan V / NAK adaptive GPU dispatch. 32 active delegations + 9 pending ToadStool (25 CPU + 7 GPU), 19 metalForge workloads, 5 substrates, architecture-aware routing. biomeOS Neural API (V30). Four-mode CI.
 
 ### Key Results
 

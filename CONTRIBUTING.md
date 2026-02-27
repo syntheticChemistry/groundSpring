@@ -136,10 +136,11 @@ cargo run --bin validate-size-convergence
 cargo run --bin validate-vendor-parity
 cargo run --bin validate-npu-anderson
 
-# metalForge live hardware validation
+# metalForge live hardware validation (49 checks, 5 substrates)
 cargo run --bin validate-metalforge-inventory
 cargo run --bin validate-metalforge-gpu
 cargo run --bin validate-metalforge-cross-substrate
+cargo run --bin validate-metalforge-titan-v
 
 # Performance benchmarks (Rust vs Python)
 python3 scripts/bench_rust_vs_python.py

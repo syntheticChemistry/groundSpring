@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: February 27, 2026
 
-**Validation Summary**: 288/288 checks, 37 dispatch targets (26 CPU + 6 GPU + 5 GPU-ready), 442 Rust tests (biomeos) / 410 default + 320 Python tests = 762 total. All 28 experiments DONE. **11.5× faster** than Python (excl. LAPACK-bound). **28/28 mathematical parity proven**. V31: GPU dispatch wiring (5 modules), 12 metalForge workloads. V30: biomeOS Neural API. V29: three-tier parity. V26: metalForge live hardware (NPU DMA on AKD1000, RTX 4070, Titan V). 9 domains, 26 modules.
+**Validation Summary**: 288/288 checks (+ 49 metalForge), 32 active delegations + 9 pending ToadStool (25 CPU + 7 GPU), 442 Rust tests (biomeos) / 410 default + 320 Python tests = 762 total. All 28 experiments DONE. **11.5× faster** than Python (excl. LAPACK-bound). **28/28 mathematical parity proven**. V35: Titan V / NAK adaptive GPU dispatch, 19 metalForge workloads, 5 substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). V31: GPU dispatch wiring. V30: biomeOS Neural API. V26: metalForge live hardware (NPU DMA on AKD1000, RTX 4070, Titan V). 9 domains, 26 modules.
 
 ---
 

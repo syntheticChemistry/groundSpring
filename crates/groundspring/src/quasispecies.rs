@@ -79,19 +79,17 @@ pub fn quasispecies_simulation(
     n_generations: usize,
     seed: u64,
 ) -> Vec<f64> {
-    #[cfg(feature = "barracuda-gpu")]
-    {
-        if let Ok(freqs) = barracuda::ops::bio::wright_fisher_simulate(
-            pop_size,
-            genome_length,
-            sigma,
-            mu,
-            n_generations,
-            seed,
-        ) {
-            return freqs;
-        }
-    }
+    // TODO(toadstool): uncomment when barracuda implements ops::bio::wright_fisher_simulate
+    // ToadStool has WrightFisherGpu::dispatch() (per-generation step) but not the
+    // full multi-generation simulate wrapper needed here.
+    // #[cfg(feature = "barracuda-gpu")]
+    // {
+    //     if let Ok(freqs) = barracuda::ops::bio::wright_fisher_simulate(
+    //         pop_size, genome_length, sigma, mu, n_generations, seed,
+    //     ) {
+    //         return freqs;
+    //     }
+    // }
     quasispecies_simulation_cpu(pop_size, genome_length, sigma, mu, n_generations, seed)
 }
 

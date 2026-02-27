@@ -11,14 +11,14 @@ groundSpring Phase 0 (Python), Phase 1 (Rust), and Phase 2a (barracuda CPU) are 
 
 - 288/288 validation checks across 28 binaries
 - 28 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, almost_mathieu, bistable, multisignal, kinetics, transport, drift, rare_biosphere, quasispecies, band_structure, jackknife, freeze_out, spectral_recon, wdm (+cast, validate)
-- 442 Rust tests (biomeos) / 410 default + 320 Python tests = 762 total. 0 clippy warnings × 4 feature modes (default, barracuda, barracuda-gpu, biomeos). 37 dispatch targets (26 CPU + 6 GPU + 5 GPU-ready). 12 metalForge workloads. V31 GPU dispatch wiring. biomeOS Neural API (V30)
-- Two feature gates: `barracuda` (23 CPU delegations) and `barracuda-gpu` (6 GPU delegations including Sturm tridiag, tikhonov solve). Three-mode CI validates all configurations.
-- 32 active delegations (26 CPU + 6 GPU; includes `kinetics::hill`, `tikhonov_solve`, `finite_size_extrapolate`, `kimura_fixation_prob`, `jackknife_mean_variance`, `daily_et0`)
+- 442 Rust tests (biomeos) / 410 default + 320 Python tests = 762 total. 0 clippy warnings × 4 feature modes (default, barracuda, barracuda-gpu, biomeos). 32 active delegations + 9 pending ToadStool (25 CPU + 7 GPU) + 9 pending. 49 metalForge tests. V31 GPU dispatch wiring. biomeOS Neural API (V30)
+- Two feature gates: `barracuda` (25 active CPU delegations) and `barracuda-gpu` (7 GPU delegations including Sturm tridiag, tikhonov solve). Three-mode CI validates all configurations.
+- 32 active delegations (25 CPU + 7 GPU; includes `kinetics::hill`, `tikhonov_solve`, `finite_size_extrapolate`, `kimura_fixation_prob`, `jackknife_mean_variance`, `daily_et0`)
 - 2 production WGSL shaders in `metalForge/shaders/` (261 combined lines)
 - All matrices use flat row-major `Vec<f64>` — GPU-promotable layout
 - Rust is **11.5× faster** than Python (excl. LAPACK-bound); 5.1× overall. Exp 009: **47.7× from Sturm tridiag**
 - **28/28 mathematical parity proven** (Python ⇌ Rust; `data/parity_report.json`), all provenance fields stamped, 13 bitwise determinism tests
-- metalForge live hardware: RTX 4070, Titan V, AKD1000 NPU (80 NPs, ~51µs DMA), i9-12900K
+- metalForge live hardware: RTX 4070, Titan V, AKD1000 NPU (80 NPs, ~51µs DMA), i9-12900K. Architecture-aware routing: f64→Titan V (Volta), f32→RTX 4070 (Ada)
 
 See [BARRACUDA_EVOLUTION.md](BARRACUDA_EVOLUTION.md) for the module-by-module
 GPU promotion mapping.
@@ -88,7 +88,7 @@ NumPy ODE           ────────→  bistable + multisignal      →
 
 Phase 2a (DONE)                Phase 2b (GPU — V31 IN PROGRESS)
 ──────────────                 ────────────────────────────────
-37 targets (26 CPU+6 GPU+5 ready) →  5 modules GPU-dispatch wired (V31)
+32 active + 9 pending (25 CPU + 7 GPU) →  5 modules GPU-dispatch wired (V31). 49 metalForge tests
 prng::Xorshift64    ────────→  Tier B: align to barracuda xoshiro128**
 fao56::daily_et0    ────────→  Tier C: mc_et0_propagate.wgsl → barracuda
 rarefaction         ────────→  Tier C: batched_multinomial.wgsl → barracuda

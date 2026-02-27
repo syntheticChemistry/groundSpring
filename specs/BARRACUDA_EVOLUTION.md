@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: February 27, 2026 (V31 GPU dispatch wiring + metalForge workload expansion)
+**Last updated**: February 27, 2026 (V35 Titan V / NAK adaptive GPU dispatch)
 
 ## Philosophy
 
@@ -33,7 +33,7 @@ dispatch blocks: `freeze_out::grid_fit_2d` (2D parallel grid),
 `quasispecies::quasispecies_simulation` (batched Wright-Fisher via
 `barracuda::ops::bio::wright_fisher_simulate`), `rare_biosphere::abundance_occupancy`
 and `tier_detection_rate` (batched multinomial via `barracuda::ops::bio`).
-5 new metalForge workloads added (total 12). 37 barracuda dispatch targets (26 CPU + 6 GPU + 5 GPU-ready).
+49 metalForge tests, 5 discovered substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). 32 active barracuda delegations + 9 pending ToadStool (25 CPU + 7 GPU).
 These dispatch blocks compile only with `--features barracuda-gpu` and call
 expected barracuda functions — ToadStool absorbs them to activate GPU paths.
 
@@ -143,7 +143,7 @@ graph.
 > default, barracuda, barracuda-gpu. New `wdm` module. Total: **302 Rust tests**,
 > **279/279 validation checks**, **27/27 experiments** in three-mode parity.
 >
-> **V26 (Feb 27 2026)**: metalForge integration. Exp 028 (NPU Anderson regime
+> **V26 (Feb 27 2026)**: metalForge integration. Architecture-aware GPU routing (f64→Titan V, f32→RTX 4070). Exp 028 (NPU Anderson regime
 > classification) added. groundspring-forge crate built with live hardware
 > validation on RTX 4070, Titan V, AKD1000 NPU (80 NPs, ~51µs DMA), i9-12900K.
 > ToadStool `akida-driver` (pure Rust, zero mocks). Total: **314 Rust tests**,
@@ -432,8 +432,8 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (28/28 parity proven, timing data for all experiments) |
-| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) | **37 dispatch targets** (26 CPU + 6 GPU + 5 GPU-ready) |
-| Phase 2b | Tier B adapt (GPU dispatch wiring, PRNG alignment) | **V31** — 5 modules GPU-wired, 12 metalForge workloads; awaiting ToadStool absorption |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) | **32 active delegations + 9 pending ToadStool** (25 CPU + 7 GPU) + 9 pending |
+| Phase 2b | Tier B adapt (GPU dispatch wiring, PRNG alignment) | **V31–V35** — 5 modules GPU-wired, 49 metalForge tests, 5 substrates; arch-aware dispatch (f64→Titan V, f32→RTX 4070); 32 active (25 CPU + 7 GPU); awaiting ToadStool absorption |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |
 

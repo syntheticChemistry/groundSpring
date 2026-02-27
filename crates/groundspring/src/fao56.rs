@@ -12,10 +12,11 @@
 //!
 //! # barracuda delegation
 //!
-//! When the `barracuda` feature is enabled, [`daily_et0`] delegates to
-//! `barracuda::stats::hydrology::fao56_et0()`. Sub-functions remain
-//! local — they serve as the validation reference chain. GPU batched
-//! via `BatchedElementwiseF64::fao56_et0_batch` at `barracuda-gpu` tier.
+//! [`daily_et0`] is a delegation target for
+//! `barracuda::stats::hydrology::fao56_et0()`. Pending `ToadStool`
+//! absorption — barracuda S68+ has `hargreaves_et0` and
+//! `BatchedElementwiseF64::fao56_et0_batch` but no standalone scalar
+//! `fao56_et0`. Sub-functions remain local as the validation reference.
 
 use std::f64::consts::PI;
 
@@ -235,26 +236,29 @@ pub struct DailyWeatherInputs {
 /// Implements the full FAO-56 Eq. 6 chain with RH data and wind
 /// height conversion (Example 18 pattern).
 ///
-/// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::hydrology::fao56_et0()`.
+/// When `ToadStool` implements `barracuda::stats::hydrology::fao56_et0`,
+/// this will delegate to it. `ToadStool` currently has `hargreaves_et0`
+/// and `BatchedElementwiseF64::fao56_et0_batch` but no standalone scalar
+/// `fao56_et0` in `stats::hydrology`.
 #[must_use]
 pub fn daily_et0(inp: &DailyWeatherInputs) -> f64 {
-    #[cfg(feature = "barracuda")]
-    {
-        if let Ok(et0) = barracuda::stats::hydrology::fao56_et0(
-            inp.tmax_c,
-            inp.tmin_c,
-            inp.rhmax_pct,
-            inp.rhmin_pct,
-            inp.wind_speed_10m_km_h,
-            inp.sunshine_hours,
-            inp.altitude_m,
-            inp.latitude_deg_n,
-            inp.day_of_year,
-        ) {
-            return et0;
-        }
-    }
+    // TODO(toadstool): uncomment when barracuda implements stats::hydrology::fao56_et0
+    // #[cfg(feature = "barracuda")]
+    // {
+    //     if let Ok(et0) = barracuda::stats::hydrology::fao56_et0(
+    //         inp.tmax_c,
+    //         inp.tmin_c,
+    //         inp.rhmax_pct,
+    //         inp.rhmin_pct,
+    //         inp.wind_speed_10m_km_h,
+    //         inp.sunshine_hours,
+    //         inp.altitude_m,
+    //         inp.latitude_deg_n,
+    //         inp.day_of_year,
+    //     ) {
+    //         return et0;
+    //     }
+    // }
     daily_et0_cpu(inp)
 }
 

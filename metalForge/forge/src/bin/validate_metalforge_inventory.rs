@@ -5,7 +5,7 @@
 //! Exit 0 if all checks pass, exit 1 on any failure.
 
 use groundspring_forge::inventory::Inventory;
-use groundspring_forge::substrate::{Capability, SubstrateKind};
+use groundspring_forge::substrate::{AdaptiveBatch, Capability, GpuArch, SubstrateKind};
 
 struct Harness {
     pass: u32,
@@ -103,6 +103,66 @@ fn run_hardware_checks(inv: &Inventory, h: &mut Harness) {
     );
 }
 
+fn run_gpu_arch_checks(inv: &Inventory, h: &mut Harness) {
+    println!("\n--- GPU Architecture ---\n");
+
+    for s in &inv.substrates {
+        if s.kind != SubstrateKind::Gpu {
+            continue;
+        }
+        let arch = s
+            .properties
+            .gpu_arch
+            .map_or_else(|| "Unknown".to_string(), |a| format!("{a:?}"));
+        let f64_ratio = s
+            .properties
+            .gpu_arch
+            .map_or(0, GpuArch::f64_ratio);
+        let native = s.has(&Capability::NativeF64);
+        println!(
+            "  {} — arch={}, f64_ratio=1:{}, native_f64={}",
+            s.identity.name, arch, f64_ratio, native
+        );
+
+        let batch = AdaptiveBatch::for_gpu(&s.properties, 64);
+        println!(
+            "    adaptive: max_batch={}, workgroup={}, resident={}, native={}",
+            batch.max_batch_elements, batch.workgroup_size,
+            batch.use_resident_memory, batch.native_f64
+        );
+    }
+
+    let volta = inv.find_gpu_by_arch(GpuArch::Volta);
+    h.check(
+        "Volta GPU discovered (Titan V / V100)",
+        volta.is_some(),
+    );
+    if let Some(v) = volta {
+        h.check(
+            "Volta has NativeF64 capability",
+            v.has(&Capability::NativeF64),
+        );
+        h.check(
+            "Volta has ShaderDispatch",
+            v.has(&Capability::ShaderDispatch),
+        );
+    }
+
+    let best_f64 = inv.best_f64_gpu();
+    if let Some(gpu) = best_f64 {
+        println!(
+            "\n  Best f64 GPU: {} ({:?})",
+            gpu.identity.name,
+            gpu.properties.gpu_arch
+        );
+        let is_volta = gpu.properties.gpu_arch == Some(GpuArch::Volta);
+        h.check(
+            "Best f64 GPU prefers Volta (native 1:2 ratio)",
+            is_volta,
+        );
+    }
+}
+
 fn run_routing_checks(inv: &Inventory, h: &mut Harness) {
     println!("\n--- Workload Routing ---\n");
     let workloads = groundspring_forge::workloads::all();
@@ -138,6 +198,7 @@ fn main() {
 
     println!("\n--- Checks ---\n");
     run_hardware_checks(&inv, &mut h);
+    run_gpu_arch_checks(&inv, &mut h);
     run_routing_checks(&inv, &mut h);
 
     h.finish();

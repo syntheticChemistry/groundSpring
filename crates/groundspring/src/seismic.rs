@@ -122,39 +122,32 @@ pub fn grid_search_inversion<S: AsRef<str>>(
     stations: &[Station],
     config: &GridSearchConfig,
 ) -> InversionResult {
-    #[cfg(feature = "barracuda-gpu")]
-    {
-        let sta_lats: Vec<f64> = stations.iter().map(|s| s.lat).collect();
-        let sta_lons: Vec<f64> = stations.iter().map(|s| s.lon).collect();
-        let obs_map: std::collections::HashMap<&str, f64> = observed
-            .iter()
-            .map(|(code, t)| (code.as_ref(), *t))
-            .collect();
-        let obs_times: Vec<f64> = stations
-            .iter()
-            .filter_map(|s| obs_map.get(s.code.as_str()).copied())
-            .collect();
-
-        if let Ok(result) = barracuda::ops::grid::grid_search_3d_f64(
-            &sta_lats,
-            &sta_lons,
-            &obs_times,
-            config.vp,
-            config.lat_range,
-            config.lon_range,
-            config.depth_range,
-            config.grid_spacing_deg,
-            config.depth_spacing_km,
-        ) {
-            return InversionResult {
-                lat: result.0,
-                lon: result.1,
-                depth_km: result.2,
-                origin_time_s: result.3,
-                rms_residual_s: result.4,
-            };
-        }
-    }
+    // TODO(toadstool): uncomment when barracuda implements ops::grid::grid_search_3d_f64
+    // ToadStool ops::grid currently has FD gradients/Laplacians but no grid-search
+    // inversion. This is a high-value GPU target (embarrassingly parallel 3D scan).
+    // #[cfg(feature = "barracuda-gpu")]
+    // {
+    //     let sta_lats: Vec<f64> = stations.iter().map(|s| s.lat).collect();
+    //     let sta_lons: Vec<f64> = stations.iter().map(|s| s.lon).collect();
+    //     let obs_map: std::collections::HashMap<&str, f64> = observed
+    //         .iter()
+    //         .map(|(code, t)| (code.as_ref(), *t))
+    //         .collect();
+    //     let obs_times: Vec<f64> = stations
+    //         .iter()
+    //         .filter_map(|s| obs_map.get(s.code.as_str()).copied())
+    //         .collect();
+    //     if let Ok(result) = barracuda::ops::grid::grid_search_3d_f64(
+    //         &sta_lats, &sta_lons, &obs_times, config.vp,
+    //         config.lat_range, config.lon_range, config.depth_range,
+    //         config.grid_spacing_deg, config.depth_spacing_km,
+    //     ) {
+    //         return InversionResult {
+    //             lat: result.0, lon: result.1, depth_km: result.2,
+    //             origin_time_s: result.3, rms_residual_s: result.4,
+    //         };
+    //     }
+    // }
     grid_search_inversion_cpu(observed, stations, config)
 }
 

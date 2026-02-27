@@ -63,14 +63,16 @@ pub fn find_band_edges(
     e_hi: f64,
     n_points: usize,
 ) -> Vec<f64> {
-    #[cfg(feature = "barracuda-gpu")]
-    {
-        if let Ok(edges) =
-            barracuda::spectral::band_edges_parallel(potential, hopping, e_lo, e_hi, n_points)
-        {
-            return edges;
-        }
-    }
+    // TODO(toadstool): uncomment when barracuda implements spectral::band_edges_parallel
+    // Transfer matrix half-trace scan is embarrassingly parallel across energy points.
+    // #[cfg(feature = "barracuda-gpu")]
+    // {
+    //     if let Ok(edges) =
+    //         barracuda::spectral::band_edges_parallel(potential, hopping, e_lo, e_hi, n_points)
+    //     {
+    //         return edges;
+    //     }
+    // }
     find_band_edges_cpu(potential, hopping, e_lo, e_hi, n_points)
 }
 
@@ -143,6 +145,46 @@ pub fn periodic_hamiltonian(
     let diag: Vec<f64> = (0..n).map(|i| potential[i % period]).collect();
     let offdiag = vec![-hopping; n - 1];
     (diag, offdiag)
+}
+
+/// Detect band ranges from eigenvalue spectrum using gap detection.
+///
+/// When `barracuda-gpu` is enabled, delegates to
+/// `barracuda::spectral::detect_bands` (absorbed from hotSpring v0.6
+/// spectral theory). Returns `(lo, hi)` pairs defining each band.
+#[must_use]
+pub fn detect_band_ranges(eigenvalues: &[f64], gap_factor: f64) -> Vec<(f64, f64)> {
+    #[cfg(feature = "barracuda-gpu")]
+    return barracuda::spectral::detect_bands(eigenvalues, gap_factor);
+    #[cfg(not(feature = "barracuda-gpu"))]
+    detect_band_ranges_cpu(eigenvalues, gap_factor)
+}
+
+#[cfg(not(feature = "barracuda-gpu"))]
+fn detect_band_ranges_cpu(eigenvalues: &[f64], gap_factor: f64) -> Vec<(f64, f64)> {
+    if eigenvalues.is_empty() {
+        return Vec::new();
+    }
+    let mut sorted: Vec<f64> = eigenvalues.to_vec();
+    sorted.sort_by(f64::total_cmp);
+    let n = sorted.len();
+    if n == 1 {
+        return vec![(sorted[0], sorted[0])];
+    }
+
+    let mean_spacing = (sorted[n - 1] - sorted[0]) / usize_f64(n - 1);
+    let threshold = mean_spacing * gap_factor;
+
+    let mut bands = Vec::new();
+    let mut band_start = sorted[0];
+    for i in 1..n {
+        if sorted[i] - sorted[i - 1] > threshold {
+            bands.push((band_start, sorted[i - 1]));
+            band_start = sorted[i];
+        }
+    }
+    bands.push((band_start, sorted[n - 1]));
+    bands
 }
 
 /// Fraction of eigenvalues that lie within bands (|Tr/2| ≤ threshold).
@@ -245,5 +287,32 @@ mod tests {
         let eigenvalues = vec![0.0, 0.5, -0.5, 1.0, -1.0];
         let frac = eigenvalue_band_fraction(&eigenvalues, &[0.0], 1.0, 0.05);
         assert!((frac - 1.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn detect_band_ranges_single_band() {
+        let eigenvalues: Vec<f64> = (0..100).map(|i| -2.0 + 4.0 * i as f64 / 99.0).collect();
+        let bands = detect_band_ranges(&eigenvalues, 3.0);
+        assert_eq!(bands.len(), 1, "uniform spectrum should have 1 band");
+    }
+
+    #[test]
+    fn detect_band_ranges_two_bands() {
+        let mut eigenvalues = Vec::new();
+        for i in 0..50 {
+            eigenvalues.push(-2.0 + i as f64 * 0.01);
+        }
+        for i in 0..50 {
+            eigenvalues.push(1.0 + i as f64 * 0.01);
+        }
+        let bands = detect_band_ranges(&eigenvalues, 3.0);
+        assert_eq!(bands.len(), 2, "gapped spectrum should have 2 bands");
+        assert!(bands[0].1 < bands[1].0, "bands should be separated by gap");
+    }
+
+    #[test]
+    fn detect_band_ranges_empty() {
+        let bands = detect_band_ranges(&[], 3.0);
+        assert!(bands.is_empty());
     }
 }

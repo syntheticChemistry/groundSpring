@@ -39,9 +39,10 @@
 **Rust Phase 1**: 288/288 PASS across 28 validation binaries
 **Rust tests**: 410/410 PASS (default) | 442/442 PASS (biomeos)
 **pytest**: 320/320 PASS + 2 skipped
-**BarraCUDA dispatch**: 37 targets (26 CPU + 6 GPU + 5 GPU-ready) — ToadStool S68+
-**metalForge workloads**: 12 (7 original + 5 new GPU targets)
-**Handoff**: V31 (GPU dispatch wiring + metalForge workload expansion)
+**BarraCUDA dispatch**: 32 active (25 CPU + 7 GPU) + 9 pending ToadStool — pinned S68+
+**metalForge workloads**: 19 (12 original + 7 new cross-system targets), 49 tests
+**metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
+**Handoff**: V35 (Titan V / NAK adaptive GPU dispatch + architecture-aware routing; V33 delegation count expansion)
 
 **Python checks**: ~160 across 28 experiments. **Rust validation checks**: 288.
 
@@ -445,7 +446,7 @@ Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classi
 | Rust three-tier parity | 23 | CPU/GPU/barracuda parity integration |
 | Rust integration | 28 | Validation binary integration tests |
 | Rust doc test | 2 | Documentation example test |
-| Rust forge | 29 | groundspring-forge crate tests (incl. 5 V31 routing) |
+| Rust forge | 49 | groundspring-forge crate tests (incl. 14 V35 arch-aware routing) |
 | Rust biomeos | 32 | biomeOS client + integration tests (feature-gated) |
 | **Total Rust (default)** | **410** | |
 | **Total Rust (biomeos)** | **442** | |
@@ -475,7 +476,7 @@ Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classi
 - Validation checks: 288/288 PASS (28 binaries)
 - Python pytest: 322 collected, 320 pass + 2 skip (250 experiments + 72 three-tier parity)
 - Three-tier parity: 23/23 Rust integration tests PASS
-- Barracuda delegations: 32 (26 CPU + 6 GPU)
+- Barracuda delegations: 29 active (23 CPU + 6 GPU), 9 pending ToadStool
 - GPU-annotated modules: 8 (freeze_out, band_structure, seismic, quasispecies, rare_biosphere, gillespie, transport, fao56)
 - New CPU delegations: drift::kimura_fixation_prob, jackknife::jackknife_mean_variance, fao56::daily_et0
 
@@ -489,7 +490,7 @@ Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classi
 - Python pytest: 52/52 PASS (28 experiments)
 - Three-mode benchmark: 279/279 × 3 modes = all PASS
 - Added: Exp 028 NPU Anderson (9/9), groundspring-forge crate (12 tests), npu module (8 tests)
-- Live hardware: RTX 4070, Titan V, AKD1000 NPU (80 NPs, ~51µs/inference)
+- Live hardware: Titan V (Volta, native f64 @ 1:2), RTX 4070 (Ada), AKD1000 NPU (80 NPs, ~51µs/inference), i9-12900K
 
 ### Run 23 (V25 Experiment Buildout: Exp 025-027, Feb 26, 2026)
 
@@ -980,7 +981,7 @@ Each experiment is validated at three hardware tiers:
 
 ### BarraCUDA Integration Status (post ToadStool S68)
 
-**37 dispatch targets** (26 CPU + 6 GPU + 5 GPU-ready). All use `if let Ok` with always-compiled CPU fallback.
+**32 active delegations** (25 CPU + 7 GPU), **9 pending ToadStool absorption** (3 CPU + 6 GPU, commented out with `TODO(toadstool)`). All active delegations use `if let Ok` with always-compiled CPU fallback.
 
 | # | Module | BarraCUDA Target | Feature Gate | Status |
 |---|--------|-----------------|:------------:|--------|
@@ -1032,14 +1033,16 @@ Each experiment is validated at three hardware tiers:
 - **Phase 1**: Rust CPU validation — **COMPLETE** (288/288 across 28 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
 - **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 001-028: all domains)
-- **Phase 2a**: Tier A rewire — **COMPLETE** — 37 dispatch targets (26 CPU + 6 GPU + 5 GPU-ready)
-- **Phase 2b**: BarraCUDA CPU parity — **PROVEN** — 11.5× faster than Python (excl. LAPACK-bound), 28/28 math parity
-- **Phase 2c**: BarraCUDA GPU tier — **IN PROGRESS** — 5 modules GPU-dispatch wired (V31), awaiting ToadStool absorption
-  - GPU-wired (V31): freeze_out, band_structure, seismic, quasispecies, rare_biosphere
-  - GPU-delegated (existing): anderson, almost_mathieu, bistable, multisignal, spectral_recon
+- **Phase 2a**: Tier A rewire — **COMPLETE** — 32 active delegations (25 CPU + 7 GPU) + 9 pending ToadStool
+- **Phase 2b**: BarraCUDA CPU parity — **PROVEN** — 11.7× faster than Python (excl. LAPACK-bound), 28/28 math parity
+- **Phase 2c**: BarraCUDA GPU tier — **PROVEN** — 27/27 three-tier parity, 2.2× total GPU speedup, 47.4× peak (Exp 009)
+  - GPU-delegated: anderson, almost_mathieu, spectral_recon, detect_bands (7 active GPU delegations)
+  - GPU-ready (pending ToadStool): freeze_out, band_structure, seismic, quasispecies, rare_biosphere (6 commented TODO)
   - GPU-blocked: Exps 1-5 (`fused_map_reduce_f64` GPU adapter), Exp 4 (`batched_multinomial` sig mismatch)
   - Tier B: PRNG alignment (xorshift64 → xoshiro128**)
-- **Phase 3**: Full GPU pipeline + metalForge cross-substrate dispatch (CPU ↔ GPU ↔ NPU)
+- **Phase 3**: metalForge cross-substrate dispatch — **IN PROGRESS** — 19 workloads, 5 substrates (2 GPU + 1 NPU + 1 CPU + 1 GL), architecture-aware routing (Titan V for f64, RTX 4070 for f32, AKD1000 for int8)
+  - Live: Exp 028 NPU Anderson (AKD1000 DMA at ~51µs)
+  - Ready: 14 GPU workloads, 3 CPU workloads, 2 NPU workloads
 - **neuralSpring bridge**: Export noise characterizations as labeled training data
 
 ## Code Quality
@@ -1094,26 +1097,88 @@ Each experiment is validated at three hardware tiers:
 | `rare_biosphere::abundance_occupancy` | `ops::bio::batched_multinomial_occupancy` | **GPU-READY** (V31) |
 | `rare_biosphere::tier_detection_rate` | `ops::bio::batched_multinomial_tier_rate` | **GPU-READY** (V31) |
 
-## Rust vs Python Performance
+## Four-Stage Validation Progression
+
+The complete validation chain: Python (interpreted) → Rust (compiled) → barracuda-CPU (delegated) → barracuda-GPU (portable).
+Each stage produces **identical mathematical results** — proving the math is correct, portable, and increasingly fast.
+
+### Stage 1: Python → Rust (pure math, 5.2× faster)
 
 All 28 experiments, median of 3 trials (Feb 27, 2026). See `data/bench_rust_vs_python.json`.
 
 | Metric | Value |
 |--------|-------|
-| Total Python | 104.49s |
-| Total Rust | 20.35s |
-| Overall speedup | **5.1×** |
-| Speedup excl. LAPACK-bound | **11.5×** |
-| Best: Exp 005 Seismic | **53.5×** |
+| Total Python | 107.14s |
+| Total Rust | 20.49s |
+| Overall speedup | **5.2×** |
+| Speedup excl. LAPACK-bound | **11.7×** |
+| Best: Exp 005 Seismic | **53.0×** |
 | Best: Exp 011 Multi-Signal QS | **44.7×** |
 
 **Mathematical Parity**: 28/28 experiments PROVEN. See `data/parity_report.json`.
+
+### Stage 2: Rust → barracuda-CPU (pure math delegation, parity proven)
+
+barracuda CPU delegation adds ~3.6% overhead from call indirection.
+The key insight: **delegated code produces bitwise-identical results**.
+
+| Metric | Default | Barracuda CPU | Delta |
+|--------|---------|--------------|-------|
+| Total (27 exps) | 22,030ms | 22,828ms | +3.6% |
+| Checks | 279/279 | 279/279 | 0 mismatches |
+
+### Stage 3: barracuda-CPU → barracuda-GPU (portable math, 2.2× faster)
+
+ToadStool S68+ universal precision (DF64 on FP32 cores via `naga`-guided
+`df64_rewrite.rs`) allows GPU dispatch with f64-equivalent precision.
+Unidirectional streaming reduces dispatch round-trips.
+
+| Metric | Default | Barracuda GPU | Speedup |
+|--------|---------|--------------|---------|
+| Total (27 exps) | 22,030ms | 9,798ms | **2.2×** |
+| Exp 009 Quasiperiodic | 11,376ms | 240ms | **47.4×** |
+| Exp 019 Jackknife | 410ms | 100ms | **4.1×** |
+| Exp 020 Freeze-Out | 219ms | 127ms | **1.7×** |
+| Exp 026 Size Convergence | 176ms | 111ms | **1.6×** |
+| Checks | 279/279 | 279/279 | 0 mismatches |
+
+**Three-Tier Parity**: 27/27 experiments PROVEN. See `data/three_tier_parity_report.json`.
+
+### Stage 4: metalForge Cross-System (CPU ↔ GPU ↔ NPU)
+
+19 metalForge workloads route to optimal substrate per operation:
+
+| Substrate | Workloads | Routing |
+|-----------|-----------|---------|
+| GPU (F64 + Shader) | Anderson, Mathieu, Green-Kubo, freeze-out, seismic, band-edge, quasispecies, rare biosphere, Gillespie, spectral recon, jackknife, MC ET₀, Wright-Fisher, bootstrap | Highest speedup |
+| CPU (F64 only) | Bias-variance decompose, finite-size extrapolation, transport eigenvalues | Latency-dominated |
+| NPU (int8 quantized) | Anderson regime classify, diversity saturation predict | Specialized inference |
+
+Exp 028 (NPU Anderson) already validated live on AKD1000 at ~51µs per inference.
+
+### Complete Progression (28 experiments)
+
+```
+Python (interpreted)     107.1s   ─── math correctness (open data + open systems)
+  │  5.2× faster
+Rust (compiled)           20.5s   ─── pure safe Rust, same math (28/28 parity)
+  │  ~0% overhead
+barracuda-CPU             22.8s   ─── delegation proves portability (27/27 parity)
+  │  2.2× faster
+barracuda-GPU              9.8s   ─── GPU proves the math is truly portable
+  │                                    (47.4× peak, via hotSpring Sturm eigensolver)
+  │
+metalForge                        ─── cross-system: GPU → NPU → CPU per-workload
+                                       19 workloads, 3 substrates, sovereign fallback
+```
 
 ## Handoff Documents
 
 | Handoff | Scope | Status |
 |---------|-------|--------|
-| V31: GPU Dispatch Wiring + metalForge Expansion | 5 GPU dispatch blocks, 5 metalForge workloads (12 total), 10 GPU parity tests, 37 dispatch targets, 410/442 Rust tests | **Current** |
+| V35: Titan V / NAK Adaptive GPU Dispatch | `GpuArch` detection, `NativeF64`, `AdaptiveBatch`, 19 workloads, 49 metalForge tests, 5 substrates, arch-aware routing, NAK f64 gap confirmed, live GPU compute | **Current** |
+| V33: Delegation Count Expansion | 32 active delegations (25 CPU + 7 GPU), 9 pending ToadStool; V32 forward declarations cleaned, universal precision documented | Superseded by V35 |
+| V31: GPU Dispatch Wiring + metalForge Expansion | 5 GPU dispatch blocks, 5 metalForge workloads (12 total), 10 GPU parity tests | Superseded by V32 |
 | V28: Coverage Evolution + PRNG Readiness | 368 tests + 196 Python integrity, xoshiro128** API parity, CI baseline drift detection, 45 new coverage tests | Superseded by V31 |
 | V27: Docs + Handoff Audit | 29 delegations (23 CPU + 6 GPU), paper controls confirmed, three-tier validation, 323 tests, 99.37% coverage | Superseded by V28 |
 | V26: MetalForge Live Hardware + Exp 028 | groundspring-forge crate, npu module, validate-metalforge-*; 28 experiments, 288/288 checks, 314 tests, 31 metalForge checks | Superseded by V27 |
@@ -1137,7 +1202,7 @@ All 28 experiments, median of 3 trials (Feb 27, 2026). See `data/bench_rust_vs_p
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V31_GPU_DISPATCH_HANDOFF_FEB27_2026.md`
+Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V35_TITANV_NAK_HANDOFF_FEB27_2026.md`
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

@@ -41,14 +41,14 @@ const L_RANGE: (f64, f64) = (10.0, 10_000.0);
 ///
 /// When the localization length is less than half the system length,
 /// the wavefunction decays significantly within the sample.
-/// Reference: Kramer & MacKinnon (1993) Rep Prog Phys 56:1469, §3.1.
+/// Reference: Kramer & `MacKinnon` (1993) Rep Prog Phys 56:1469, §3.1.
 const LOCALIZED_RATIO_THRESHOLD: f64 = 0.5;
 
 /// ξ/L above this threshold → Extended regime.
 ///
 /// When ξ exceeds twice the system size, finite-size effects dominate
 /// and the system behaves as if extended.
-/// Reference: Kramer & MacKinnon (1993) Rep Prog Phys 56:1469, §3.1.
+/// Reference: Kramer & `MacKinnon` (1993) Rep Prog Phys 56:1469, §3.1.
 const EXTENDED_RATIO_THRESHOLD: f64 = 2.0;
 
 /// Nanoseconds per microsecond.

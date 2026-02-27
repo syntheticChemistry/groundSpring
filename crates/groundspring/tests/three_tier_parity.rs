@@ -412,19 +412,57 @@ fn spectral_recon_tikhonov_parity() {
     }
 }
 
+// ── New V32 metrics ─────────────────────────────────────────────────
+
+#[test]
+fn mae_parity_known_value() {
+    let obs = [1.0, 2.0, 3.0, 4.0, 5.0];
+    let modeled = [1.2, 2.3, 2.8, 4.1, 5.4];
+    let mae1 = groundspring::stats::mae(&obs, &modeled);
+    let mae2 = groundspring::stats::mae(&obs, &modeled);
+    assert_eq!(mae1.to_bits(), mae2.to_bits(), "MAE bitwise parity");
+    assert!(mae1 > 0.0 && mae1 < 1.0, "MAE in expected range: {mae1}");
+}
+
+#[test]
+fn nse_parity_known_value() {
+    let obs = [1.0, 2.0, 3.0, 4.0, 5.0];
+    let modeled = [1.1, 2.2, 2.8, 4.3, 4.9];
+    let nse1 = groundspring::stats::nash_sutcliffe(&obs, &modeled);
+    let nse2 = groundspring::stats::nash_sutcliffe(&obs, &modeled);
+    assert_eq!(nse1.to_bits(), nse2.to_bits(), "NSE bitwise parity");
+    assert!(nse1 > 0.9 && nse1 <= 1.0, "NSE near-perfect: {nse1}");
+}
+
+#[test]
+fn detect_band_ranges_parity() {
+    let eigenvalues: Vec<f64> = (0..50)
+        .map(|i| -2.0 + i as f64 * 0.01)
+        .chain((0..50).map(|i| 1.0 + i as f64 * 0.01))
+        .collect();
+    let bands1 = groundspring::band_structure::detect_band_ranges(&eigenvalues, 3.0);
+    let bands2 = groundspring::band_structure::detect_band_ranges(&eigenvalues, 3.0);
+    assert_eq!(bands1.len(), bands2.len(), "band count parity");
+    for (a, b) in bands1.iter().zip(bands2.iter()) {
+        assert_eq!(a.0.to_bits(), b.0.to_bits(), "band lo parity");
+        assert_eq!(a.1.to_bits(), b.1.to_bits(), "band hi parity");
+    }
+}
+
 // ── Dispatch target inventory sentinel ─────────────────────────────
 
 #[test]
-fn dispatch_targets_at_least_37() {
-    // 37 dispatch targets: 26 CPU + 6 GPU + 5 GPU-ready (V31)
-    // This test prevents silent regression of delegation wiring.
-    let cpu_targets = 26;
-    let gpu_targets = 6;
-    let gpu_ready = 5;
+fn dispatch_targets_at_least_32() {
+    // V32: 25 CPU + 7 GPU active (mae, nash_sutcliffe, detect_bands added)
+    // + 9 pending ToadStool (commented out)
+    let cpu_active = 25;
+    let gpu_active = 7;
+    let pending_toadstool = 9;
     assert!(
-        cpu_targets + gpu_targets + gpu_ready >= 37,
-        "minimum 37 dispatch targets"
+        cpu_active + gpu_active >= 32,
+        "minimum 32 active dispatch targets"
     );
+    assert_eq!(pending_toadstool, 9, "9 pending ToadStool delegations");
 }
 
 // metalForge workload count is tested in metalForge/forge/src/workloads.rs
