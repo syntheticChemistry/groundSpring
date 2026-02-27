@@ -12,7 +12,7 @@ use groundspring::seismic::{
     grid_search_inversion, haversine_km, travel_time_1d, GridSearchConfig, Station,
 };
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, print_provenance_header};
+use groundspring_validate::{f64_field, print_provenance_header, TOL_ANALYTICAL};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/seismic/benchmark_seismic.json");
@@ -169,7 +169,7 @@ fn run() -> i32 {
         "Zero distance",
         haversine_km(truth.lat, truth.lon, truth.lat, truth.lon),
         0.0,
-        1e-10,
+        TOL_ANALYTICAL,
     );
 
     let ny_london = haversine_km(40.7128, -74.0060, 51.5074, -0.1278);
@@ -179,7 +179,12 @@ fn run() -> i32 {
     println!("\n--- Travel Time ---");
 
     let tt_100 = travel_time_1d(100.0, 0.0, 6.0);
-    h.check_approx("100km/6.0km/s = 16.667s", tt_100, 100.0 / 6.0, 1e-10);
+    h.check_approx(
+        "100km/6.0km/s = 16.667s",
+        tt_100,
+        100.0 / 6.0,
+        TOL_ANALYTICAL,
+    );
 
     let t1 = travel_time_1d(100.0, 10.0, vp);
     let t2 = travel_time_1d(200.0, 10.0, vp);

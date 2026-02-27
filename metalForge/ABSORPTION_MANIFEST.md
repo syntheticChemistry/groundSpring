@@ -185,5 +185,6 @@ NOTE:       Equation chain is superseded by barracuda Op::Fao56Et0 — when
 - [x] V29 23 three-tier parity integration tests (three_tier_parity.rs) + Python parity tests (test_three_tier_parity.py)
 - [x] V29 8 GPU-annotated modules with barracuda delegation documentation
 - [x] V29 0 clippy warnings, 288/288 validation checks
-- [ ] Tolerance comparison: GPU output vs CPU reference
+- [x] Tolerance comparison: GPU output vs CPU reference (`forge::tolerance` module, 4 tiers, 19 workload specs, 14 tests)
+- [x] Remote substrate discovery: `forge::remote` module (parse remote inventory, merge into local, 12 tests)
 - [ ] ToadStool absorption of groundSpring shaders confirmed

@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: February 27, 2026 (V35 Titan V / NAK adaptive GPU dispatch)
+**Last updated**: February 27, 2026 (V39 NUCLEUS integration + NestGate + metalForge remote)
 
 ## Philosophy
 
@@ -231,6 +231,7 @@ graph.
 | `validate::ValidationHarness` | Harness, not compute. Equivalent to `barracuda::validation::ValidationHarness` but with groundSpring-specific method names |
 | `seismic::haversine_km` | Single scalar trig |
 | `seismic::travel_time_1d` | One sqrt + division |
+| `rare_biosphere::chao1` | Formula divergence: groundSpring = classic Chao 1984 `f₁²/(2f₂)`; barracuda = bias-corrected `f₁(f₁−1)/(2(f₂+1))` (Chao & Chiu 2016). Delegation would break Python baseline provenance |
 
 ### New Modules (Exp 012-021) — Future BarraCUDA Candidates
 

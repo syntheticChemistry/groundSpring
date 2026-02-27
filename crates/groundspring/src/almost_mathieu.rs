@@ -381,7 +381,7 @@ mod tests {
         let h = hamiltonian(n, 2.0, GOLDEN, 0.0);
         for i in 0..n {
             for j in 0..n {
-                let diff = if i > j { i - j } else { j - i };
+                let diff = i.abs_diff(j);
                 if diff > 1 {
                     assert!(
                         h[i * n + j].abs() < f64::EPSILON,

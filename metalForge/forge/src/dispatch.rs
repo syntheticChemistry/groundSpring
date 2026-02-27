@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Dispatch routing — route groundSpring workloads to capable substrates.
 //!
@@ -242,10 +243,7 @@ mod tests {
             kind: SubstrateKind::Gpu,
             identity: Identity::named("RTX 4070"),
             properties: Properties::default(),
-            capabilities: vec![
-                Capability::F32Compute,
-                Capability::ShaderDispatch,
-            ],
+            capabilities: vec![Capability::F32Compute, Capability::ShaderDispatch],
         };
         let volta_gpu = Substrate {
             kind: SubstrateKind::Gpu,

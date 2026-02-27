@@ -325,7 +325,9 @@ mod tests {
         let ic = [0.5, 1.0, 0.5, 1.0, 0.3];
         let a = stochastic_integrate(&ic, &p, 0.01, 1000, 0.1, 42);
         let b = stochastic_integrate(&ic, &p, 0.01, 1000, 0.1, 42);
-        assert_eq!(a, b);
+        for (x, y) in a.iter().zip(b.iter()) {
+            assert_eq!(x.to_bits(), y.to_bits(), "bitwise determinism");
+        }
     }
 
     #[test]
@@ -334,7 +336,10 @@ mod tests {
         let ic = [0.5, 1.0, 0.5, 1.0, 0.3];
         let a = stochastic_integrate(&ic, &p, 0.01, 1000, 0.1, 42);
         let b = stochastic_integrate(&ic, &p, 0.01, 1000, 0.1, 99);
-        assert_ne!(a, b);
+        assert!(a
+            .iter()
+            .zip(b.iter())
+            .any(|(x, y)| x.to_bits() != y.to_bits()));
     }
 
     #[test]
@@ -356,7 +361,10 @@ mod tests {
         let ic = [0.01, 0.01, 0.01, 0.01, 0.01];
         let result = stochastic_integrate(&ic, &p, 0.01, 5000, 1.0, 42);
         for (i, &val) in result.iter().enumerate() {
-            assert!(val >= 0.0, "state[{i}] = {val} < 0 after stochastic integration");
+            assert!(
+                val >= 0.0,
+                "state[{i}] = {val} < 0 after stochastic integration"
+            );
         }
     }
 

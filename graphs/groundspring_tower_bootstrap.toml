@@ -1,0 +1,124 @@
+# groundSpring Tower Atomic Bootstrap Pipeline
+# Deploys BearDog + Songbird locally on Eastgate for encrypted IPC
+# between all groundSpring primals. This is the foundation that
+# Node (Tower + ToadStool) and Nest (Tower + NestGate) build on.
+#
+# STATUS: Protocol defined (Feb 27, 2026)
+# Atomic: Tower (BearDog + Songbird)
+# Target: Eastgate (local, single machine)
+#
+# Run: biomeos nucleus start --mode tower --node-id eastgate
+#
+# After Tower is running, groundSpring's biomeos.rs client discovers
+# the Neural API socket and routes compute/storage through it.
+
+[graph]
+id = "groundspring_tower_bootstrap"
+description = "Tower atomic: BearDog + Songbird for encrypted IPC foundation"
+coordination = "Sequential"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 1: BEARDOG BOOTSTRAP (security + identity)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "beardog_start"
+output = "beardog_status"
+
+[nodes.operation]
+name = "rpc_call"
+target = "beardog"
+
+[nodes.operation.params]
+method = "tower.health"
+params = { node_id = "eastgate", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 10000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 2: SONGBIRD NUCLEATION (IPC socket mesh)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "songbird_nucleate"
+depends_on = ["beardog_start"]
+output = "songbird_status"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "ipc.nucleate"
+params = { node_id = "eastgate", primals = ["groundspring", "toadstool", "nestgate"] }
+
+[nodes.constraints]
+timeout_ms = 15000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 3: GROUNDSPRING REGISTRATION (register capabilities)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "register_capabilities"
+depends_on = ["songbird_nucleate"]
+output = "registration_status"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "registry.register"
+params = { primal = "groundspring", capabilities = [
+    "science.anderson_validation",
+    "science.tolerance_compare",
+    "science.uncertainty_budget",
+    "science.spectral_recon",
+    "science.freeze_out",
+    "science.jackknife",
+    "science.rare_biosphere",
+    "science.wdm_analysis",
+], family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 10000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 4: HEALTH VALIDATION
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "health_check"
+depends_on = ["register_capabilities"]
+output = "tower_healthy"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "health.check"
+params = { node_id = "eastgate", expected_primals = ["beardog", "songbird", "groundspring"] }
+
+[nodes.constraints]
+timeout_ms = 10000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 5: PROVENANCE (record Tower bootstrap for audit)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "store_bootstrap_record"
+depends_on = ["health_check"]
+output = "bootstrap_stored"
+
+[nodes.operation]
+name = "rpc_call"
+target = "nestgate"
+
+[nodes.operation.params]
+method = "storage.store"
+params = { key = "groundspring:tower:bootstrap:${TIMESTAMP}", value = "${BOOTSTRAP_SUMMARY_JSON}", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"

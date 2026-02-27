@@ -14,6 +14,7 @@
 use groundspring::decompose::decompose_error;
 use groundspring::stats;
 use groundspring::validate::ValidationHarness;
+use groundspring_validate::{TOL_ANALYTICAL, TOL_EXACT};
 
 fn run() -> i32 {
     let mut h = ValidationHarness::stdout("Rust Validation: Weather Model-Observation Gap");
@@ -35,14 +36,14 @@ fn run() -> i32 {
         "Hit rate known",
         stats::hit_rate(&obs_rain, &mod_rain, 0.1),
         0.75,
-        1e-12,
+        TOL_EXACT,
     );
 
     h.check_approx(
         "Hit rate perfect",
         stats::hit_rate(&obs_rain, &obs_rain, 0.1),
         1.0,
-        1e-12,
+        TOL_EXACT,
     );
 
     let all_zero = [0.0; 4];
@@ -50,7 +51,7 @@ fn run() -> i32 {
         "Hit rate all dry",
         stats::hit_rate(&all_zero, &all_zero, 0.1),
         1.0,
-        1e-12,
+        TOL_EXACT,
     );
 
     // ── Temperature-like paired data (constant bias) ────────────────
@@ -75,8 +76,8 @@ fn run() -> i32 {
     let r2 = stats::r_squared(&obs_temp, &mod_temp);
     let ia = stats::index_of_agreement(&obs_temp, &mod_temp);
 
-    h.check_approx("Temp RMSE = 2.0", rmse, 2.0, 1e-10);
-    h.check_approx("Temp MBE = +2.0", mbe, 2.0, 1e-10);
+    h.check_approx("Temp RMSE = 2.0", rmse, 2.0, TOL_ANALYTICAL);
+    h.check_approx("Temp MBE = +2.0", mbe, 2.0, TOL_ANALYTICAL);
     h.check_min("Temp R² > 0.95", r2, 0.95);
     h.check_min("Temp IA > 0.9", ia, 0.9);
 
@@ -88,9 +89,14 @@ fn run() -> i32 {
         "Pure bias: bias_fraction ≈ 1.0",
         d.bias_fraction,
         1.0,
-        1e-10,
+        TOL_ANALYTICAL,
     );
-    h.check_approx("Pure bias: random_std ≈ 0.0", d.random_std, 0.0, 1e-10);
+    h.check_approx(
+        "Pure bias: random_std ≈ 0.0",
+        d.random_std,
+        0.0,
+        TOL_ANALYTICAL,
+    );
 
     // ── Random noise case ───────────────────────────────────────────
     println!("\n--- Random Noise Case ---");
@@ -121,7 +127,7 @@ fn run() -> i32 {
         "Empty hit_rate = 0",
         stats::hit_rate(&empty, &empty, 0.1),
         0.0,
-        1e-12,
+        TOL_EXACT,
     );
 
     h.summary()

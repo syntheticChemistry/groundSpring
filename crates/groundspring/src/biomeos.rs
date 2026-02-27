@@ -230,12 +230,16 @@ fn rpc_call(socket: &Path, request: &str) -> Result<String> {
         .map_err(|e| BiomeOsError(format!("read from biomeOS: {e}")))?;
 
     if line.is_empty() {
-        return Err(BiomeOsError(
-            "biomeOS returned empty response".to_string(),
-        ));
+        return Err(BiomeOsError("biomeOS returned empty response".to_string()));
     }
 
     Ok(line)
+}
+
+/// Public JSON string escaping for sibling modules (e.g. `nestgate`).
+#[must_use]
+pub fn escape_json_pub(s: &str) -> String {
+    escape_json(s)
 }
 
 /// Minimal JSON string escaping for values embedded in RPC requests.
@@ -382,8 +386,7 @@ mod tests {
 
     #[test]
     fn extract_error_with_message() {
-        let response =
-            r#"{"jsonrpc":"2.0","error":{"code":-32600,"message":"not found"},"id":1}"#;
+        let response = r#"{"jsonrpc":"2.0","error":{"code":-32600,"message":"not found"},"id":1}"#;
         let err = extract_error(response);
         assert!(err.contains("not found"));
     }

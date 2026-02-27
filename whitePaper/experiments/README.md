@@ -5,13 +5,13 @@
 > (Phase 0), a Rust validation (Phase 1), and a barracuda delegation path
 > (Phase 2+).
 
-**Total**: 288/288 validation checks across 28 experiments, 9 domains. 442 Rust tests (biomeos) / 410 default + 320 Python tests = 762 total (includes three-tier parity + biomeOS integration tests).
+**Total**: 288/288 validation checks across 28 experiments, 9 domains. 498+ Rust tests (biomeos) / 410 default + 320 Python tests (includes three-tier parity, biomeOS integration, NestGate, metalForge remote discovery tests).
 **Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across all 28 experiments.
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **Coverage**: Zero clippy warnings. Four-mode CI (default + barracuda + barracuda-gpu + biomeos).
 **BarraCUDA**: 32 active delegations + 9 pending ToadStool (25 CPU + 7 GPU). Exp 009: **47.7× from Sturm tridiag**.
-**Modules**: 26 (including `jackknife`, `freeze_out`, `spectral_recon`, `wdm`, `npu`).
-**metalForge**: 4 live hardware binaries (RTX 4070, Titan V, AKD1000 NPU). 49 metalForge checks, 5 substrates, architecture-aware routing. Exp 028 NPU DMA at ~51µs.
+**Modules**: 28 (including `jackknife`, `freeze_out`, `spectral_recon`, `wdm`, `npu`, `biomeos`, `nestgate`).
+**metalForge**: 4 live hardware binaries (RTX 4070, Titan V, AKD1000 NPU). 49+ metalForge checks, 5+ substrates, architecture-aware routing, remote NUCLEUS discovery. Exp 028 NPU DMA at ~51µs.
 **Baseline integrity**: All 28 benchmark JSONs verified — provenance fields, hex commit hashes, UTF-8.
 
 ## Experiment Index
@@ -58,11 +58,12 @@ Each experiment is validated at three levels:
 Current status: **CPU complete** (288/288), **32 active delegations + 9 pending ToadStool**
 (25 CPU delegated + 7 GPU delegated).
 V31: 5 modules GPU-wired (`freeze_out`, `band_structure`, `seismic`, `quasispecies`, `rare_biosphere`).
-19 metalForge workloads, 5 substrates, architecture-aware routing (V35). All delegations use sovereign fallback.
-28/28 mathematical parity proven. 442 Rust tests (biomeos) / 410 default + 320 Python tests = 762 total (includes three-tier parity + biomeOS integration).
+19 metalForge workloads, 5+ substrates, architecture-aware routing (V35), remote NUCLEUS discovery (V39). All delegations use sovereign fallback.
+28/28 mathematical parity proven. 498+ Rust tests (biomeos) / 410 default + 320 Python tests.
 **PRNG readiness**: `Xoshiro128StarStar` at full API parity (`next_u64`, `next_f64`, `next_normal`, `normal`, `binomial`) — ready for Phase 2b GPU stream alignment.
 **metalForge tier**: groundspring-forge crate with live hardware validation
-(RTX 4070, Titan V, AKD1000 NPU). 4 validation binaries, 49 metalForge checks, 5 substrates.
+(RTX 4070, Titan V, AKD1000 NPU). 4 validation binaries, 49+ metalForge checks, 5+ substrates.
+**NUCLEUS integration (V39)**: NestGate data pipeline for NCBI/NOAA live data and provenance storage. metalForge remote substrate discovery for multi-gate dispatch. Tower/Node/Nest pipeline graphs for biomeOS orchestration.
 
 Three-mode benchmarks: 20.4s → 9.2s (**2.2× speedup**); quasiperiodic 47.7×.
 Cross-spring evolution (hotSpring precision + Sturm, wetSpring bio-stats,

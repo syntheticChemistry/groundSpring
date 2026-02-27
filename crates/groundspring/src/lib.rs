@@ -66,6 +66,9 @@ pub mod wdm;
 #[cfg(feature = "biomeos")]
 pub mod biomeos;
 
+#[cfg(feature = "biomeos")]
+pub mod nestgate;
+
 #[cfg(feature = "npu")]
 pub mod npu;
 

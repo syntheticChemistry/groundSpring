@@ -42,7 +42,7 @@
 **BarraCUDA dispatch**: 32 active (25 CPU + 7 GPU) + 9 pending ToadStool — pinned S68+
 **metalForge workloads**: 19 (12 original + 7 new cross-system targets), 49 tests
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
-**Handoff**: V35 (Titan V / NAK adaptive GPU dispatch + architecture-aware routing; V33 delegation count expansion)
+**Handoff**: V39 (NUCLEUS integration, NestGate data pipeline, metalForge remote discovery; V37 BarraCUDA evolution companion)
 
 **Python checks**: ~160 across 28 experiments. **Rust validation checks**: 288.
 
@@ -454,6 +454,39 @@ Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classi
 | **Grand Total** | **762** | |
 
 ## Run Log
+
+### Run 29 (baseCamp Update + NUCLEUS/NestGate/metalForge Extension, Feb 27, 2026)
+
+- `cargo fmt --all -- --check`: PASS
+- `cargo clippy --workspace --all-targets --features biomeos -- -D warnings`: PASS (0 warnings)
+- `cargo test --workspace --features biomeos`: 498+ tests PASS, 0 failures
+- gen3/baseCamp/06_notill_anderson.md: Added Exp 022-024 (ET₀→Anderson propagation, no-till vs tilled 16S, aggregate stability noise)
+- gen3/baseCamp/07_sovereign_wdm.md: Added Section 6.3 — WDM uncertainty budget (Exp 025-027: f32/f64 drift, size convergence, vendor parity)
+- gen3/baseCamp/README.md: Added Exp 022-024 to expansion paragraph
+- groundSpring/whitePaper/baseCamp/anderson.md: Three-tier table updated (CPU tier DONE for Exp 014/016)
+- groundSpring/whitePaper/baseCamp/README.md: Cross-Spring Impact table extended (Exp 022-028), Sub-thesis 07 (WDM) added
+- New graph: `graphs/groundspring_tower_bootstrap.toml` — Tower atomic (BearDog + Songbird) for Eastgate
+- New module: `crates/groundspring/src/nestgate.rs` — NestGate data pipeline (NCBI/NOAA via biomeOS, provenance key schemas, cache-through, 4 tests)
+- New module: `metalForge/forge/src/remote.rs` — Remote substrate discovery via biomeOS capability routing (parse, merge, 12 tests)
+- Extended: `metalForge/forge/src/inventory.rs` — `merge_remote()` method for NUCLEUS node substrates
+- Extended: `biomeos.rs` — public `escape_json_pub()` for sibling modules
+- ABSORPTION_MANIFEST.md: Remote substrate discovery marked complete
+
+### Run 28 (V38 Code Quality Evolution, Feb 27, 2026)
+
+- `cargo fmt --all -- --check`: PASS (24 formatting diffs resolved)
+- `cargo clippy --workspace --all-targets`: PASS (22 warnings resolved → 0)
+- `cargo doc --workspace --no-deps`: PASS
+- `cargo test --workspace`: 438/438 PASS
+- Validation checks: 288/288 PASS (28 binaries)
+- Python baseline integrity: 222/222 PASS
+- Clippy fixes: `abs_diff`, `cast_lossless` → `f64::from()`, `mul_add`, bitwise determinism tests
+- CI hardened: `--all` for fmt, `--all-targets` for clippy, `--fail-under-lines 90` for coverage
+- CI expanded: 6 missing validation binaries added (et0-anderson, notill-sampling, aggregate-stability, precision-drift, size-convergence, vendor-parity)
+- Copyright: 10 metalForge `.rs` files now have `Copyright (C) 2026 ecoPrimals / Squirrel Team`
+- Tolerances: 8 named constants (`TOL_EXACT` through `TOL_REGIME`) with mathematical justifications; 6 validation binaries updated
+- chao1 doc: clarified formula divergence (classic Chao 1984 vs barracuda's bias-corrected Chao & Chiu 2016)
+- Delegation audit: 32 active, 9 pending ToadStool, 0 new ops available
 
 ### Run 27 (V30 biomeOS Neural API Integration, Feb 27, 2026)
 
@@ -1176,7 +1209,9 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 
 | Handoff | Scope | Status |
 |---------|-------|--------|
-| V35: Titan V / NAK Adaptive GPU Dispatch | `GpuArch` detection, `NativeF64`, `AdaptiveBatch`, 19 workloads, 49 metalForge tests, 5 substrates, arch-aware routing, NAK f64 gap confirmed, live GPU compute | **Current** |
+| V39: NUCLEUS Integration + NestGate + metalForge Remote | NestGate data pipeline (NCBI/NOAA), metalForge remote substrate discovery, Tower/Node/Nest pipeline graphs, baseCamp sync, 498+ tests | **Current** |
+| V37: BarraCUDA Evolution | 32 active delegations (25 CPU + 7 GPU), 9 pending, NAK f64 gap, absorption priorities, cross-spring learnings | Active (companion) |
+| V35: Titan V / NAK Adaptive GPU Dispatch | `GpuArch` detection, `NativeF64`, `AdaptiveBatch`, 19 workloads, 49 metalForge tests, 5 substrates, arch-aware routing, NAK f64 gap confirmed, live GPU compute | Superseded by V37/V39 |
 | V33: Delegation Count Expansion | 32 active delegations (25 CPU + 7 GPU), 9 pending ToadStool; V32 forward declarations cleaned, universal precision documented | Superseded by V35 |
 | V31: GPU Dispatch Wiring + metalForge Expansion | 5 GPU dispatch blocks, 5 metalForge workloads (12 total), 10 GPU parity tests | Superseded by V32 |
 | V28: Coverage Evolution + PRNG Readiness | 368 tests + 196 Python integrity, xoshiro128** API parity, CI baseline drift detection, 45 new coverage tests | Superseded by V31 |
@@ -1202,7 +1237,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V35_TITANV_NAK_HANDOFF_FEB27_2026.md`
+Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V39_NUCLEUS_INTEGRATION_HANDOFF_FEB27_2026.md`
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

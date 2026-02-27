@@ -291,7 +291,9 @@ mod tests {
 
     #[test]
     fn detect_band_ranges_single_band() {
-        let eigenvalues: Vec<f64> = (0..100).map(|i| -2.0 + 4.0 * i as f64 / 99.0).collect();
+        let eigenvalues: Vec<f64> = (0..100)
+            .map(|i| f64::from(i).mul_add(4.0 / 99.0, -2.0))
+            .collect();
         let bands = detect_band_ranges(&eigenvalues, 3.0);
         assert_eq!(bands.len(), 1, "uniform spectrum should have 1 band");
     }
@@ -300,10 +302,10 @@ mod tests {
     fn detect_band_ranges_two_bands() {
         let mut eigenvalues = Vec::new();
         for i in 0..50 {
-            eigenvalues.push(-2.0 + i as f64 * 0.01);
+            eigenvalues.push(f64::from(i).mul_add(0.01, -2.0));
         }
         for i in 0..50 {
-            eigenvalues.push(1.0 + i as f64 * 0.01);
+            eigenvalues.push(f64::from(i).mul_add(0.01, 1.0));
         }
         let bands = detect_band_ranges(&eigenvalues, 3.0);
         assert_eq!(bands.len(), 2, "gapped spectrum should have 2 bands");

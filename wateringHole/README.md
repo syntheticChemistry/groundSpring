@@ -9,8 +9,8 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V37 | [GROUNDSPRING_TOADSTOOL_V37_BARRACUDA_EVOLUTION_HANDOFF_FEB27_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V37_BARRACUDA_EVOLUTION_HANDOFF_FEB27_2026.md) | Feb 27, 2026 | Comprehensive BarraCUDA evolution summary: 32 active delegations (25 CPU + 7 GPU), 9 pending absorption, 19 workloads, 49 metalForge tests, 5 substrates, NAK f64 gap analysis, absorption priorities (3 grid search ops, 2 bio batch ops, DF64 default), cross-spring learnings |
-| V35 | [GROUNDSPRING_TOADSTOOL_V35_TITANV_NAK_HANDOFF_FEB27_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V35_TITANV_NAK_HANDOFF_FEB27_2026.md) | Feb 27, 2026 | Titan V / NAK adaptive GPU dispatch: `GpuArch` detection, `NativeF64` capability, `AdaptiveBatch`, architecture-aware f64 routing, live GPU compute |
+| V39 | [GROUNDSPRING_TOADSTOOL_V39_NUCLEUS_INTEGRATION_HANDOFF_FEB27_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V39_NUCLEUS_INTEGRATION_HANDOFF_FEB27_2026.md) | Feb 27, 2026 | NUCLEUS integration: NestGate data pipeline (NCBI/NOAA), metalForge remote substrate discovery, Tower/Node/Nest pipeline graphs, baseCamp sync, 498+ tests |
+| V37 | [GROUNDSPRING_TOADSTOOL_V37_BARRACUDA_EVOLUTION_HANDOFF_FEB27_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V37_BARRACUDA_EVOLUTION_HANDOFF_FEB27_2026.md) | Feb 27, 2026 | Comprehensive BarraCUDA evolution summary: 32 active delegations (25 CPU + 7 GPU), 9 pending absorption, 19 workloads, 49 metalForge tests, 5 substrates, NAK f64 gap analysis, absorption priorities |
 
 ## Cross-Spring Documentation
 
@@ -37,7 +37,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
-| V35 | Titan V / NAK adaptive GPU dispatch (companion to V37) |
+| V35 | Titan V / NAK adaptive GPU dispatch (superseded by V37/V39) |
 | V33 | Delegation count expansion (32 active, 25 CPU + 7 GPU) (superseded by V35) |
 | V32 | ToadStool S68+ catch-up (superseded by V33) |
 | V31 | GPU dispatch wiring + metalForge expansion (superseded by V32) |

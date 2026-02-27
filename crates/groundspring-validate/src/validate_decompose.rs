@@ -11,7 +11,9 @@
 
 use groundspring::decompose::{decompose_error, noise_floor_reduction};
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, print_provenance_header};
+use groundspring_validate::{
+    f64_field, print_provenance_header, TOL_ANALYTICAL, TOL_DECOMPOSITION, TOL_LITERATURE,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/sensor_noise/benchmark_sensor_noise.json");
@@ -56,18 +58,23 @@ fn run() -> i32 {
 
             let d = decompose_error(mbe, rmse);
 
-            h.check_approx(&format!("{sensor} {soil} bias"), d.bias, mbe, 0.001);
+            h.check_approx(
+                &format!("{sensor} {soil} bias"),
+                d.bias,
+                mbe,
+                TOL_LITERATURE,
+            );
             h.check_approx(
                 &format!("{sensor} {soil} random_std"),
                 d.random_std,
                 exp_random_std,
-                0.001,
+                TOL_LITERATURE,
             );
             h.check_approx(
                 &format!("{sensor} {soil} bias_fraction"),
                 d.bias_fraction,
                 exp_bias_fraction,
-                0.005,
+                TOL_DECOMPOSITION,
             );
 
             let reconstructed = (d.bias_sq + d.variance).sqrt();
@@ -75,7 +82,7 @@ fn run() -> i32 {
                 &format!("{sensor} {soil} pythagorean"),
                 reconstructed,
                 rmse,
-                1e-10,
+                TOL_ANALYTICAL,
             );
         }
     }
@@ -100,7 +107,7 @@ fn run() -> i32 {
                 &format!("{sensor} {soil} nf pythagorean"),
                 reconstructed,
                 factory_rmse,
-                1e-10,
+                TOL_ANALYTICAL,
             );
         }
     }

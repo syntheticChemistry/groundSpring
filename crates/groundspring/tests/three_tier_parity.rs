@@ -66,7 +66,7 @@ fn jackknife_parity_small_sample() {
 
 #[test]
 fn jackknife_parity_bitwise_deterministic() {
-    let data: Vec<f64> = (0..100).map(|i| (i as f64) * 0.7 + 1.5).collect();
+    let data: Vec<f64> = (0..100).map(|i| f64::from(i).mul_add(0.7, 1.5)).collect();
     let r1 = groundspring::jackknife::jackknife_mean_variance(&data);
     let r2 = groundspring::jackknife::jackknife_mean_variance(&data);
     assert_eq!(r1.estimate.to_bits(), r2.estimate.to_bits());
@@ -144,7 +144,10 @@ fn quasispecies_master_freq_parity() {
     let xm = groundspring::quasispecies::master_frequency_analytical(10.0, 0.01, 100);
     assert!(xm > 0.1, "below threshold, master survives: {xm}");
     let xm_above = groundspring::quasispecies::master_frequency_analytical(10.0, 0.04, 100);
-    assert!(xm_above < f64::EPSILON, "above threshold, master gone: {xm_above}");
+    assert!(
+        xm_above < f64::EPSILON,
+        "above threshold, master gone: {xm_above}"
+    );
 }
 
 // ── band_structure ──────────────────────────────────────────────────
@@ -200,8 +203,7 @@ fn gillespie_steady_state_parity() {
 
 #[test]
 fn transport_eigh_parity_2x2() {
-    let (vals, _vecs) =
-        groundspring::transport::tridiag_eigh(&[0.0, 0.0], &[1.0]).expect("2x2");
+    let (vals, _vecs) = groundspring::transport::tridiag_eigh(&[0.0, 0.0], &[1.0]).expect("2x2");
     assert!((vals[0] - (-1.0)).abs() < 1e-12);
     assert!((vals[1] - 1.0).abs() < 1e-12);
 }
@@ -287,9 +289,21 @@ fn band_edges_bitwise_deterministic() {
 fn seismic_grid_search_parity_known_location() {
     use groundspring::seismic::{GridSearchConfig, Station};
     let stations = vec![
-        Station { code: "STA1".to_string(), lat: 40.0, lon: -74.0 },
-        Station { code: "STA2".to_string(), lat: 41.0, lon: -73.0 },
-        Station { code: "STA3".to_string(), lat: 40.5, lon: -73.5 },
+        Station {
+            code: "STA1".to_string(),
+            lat: 40.0,
+            lon: -74.0,
+        },
+        Station {
+            code: "STA2".to_string(),
+            lat: 41.0,
+            lon: -73.0,
+        },
+        Station {
+            code: "STA3".to_string(),
+            lat: 40.5,
+            lon: -73.5,
+        },
     ];
     let src_lat = 40.5;
     let src_lon = -73.5;
@@ -333,6 +347,7 @@ fn quasispecies_simulation_parity_below_threshold() {
     let mu_c = groundspring::quasispecies::error_threshold(10.0, 100);
     let freqs =
         groundspring::quasispecies::quasispecies_simulation(1000, 100, 10.0, mu_c * 0.5, 200, 42);
+    #[expect(clippy::cast_precision_loss, reason = "slice length < 2^52")]
     let avg: f64 = freqs.iter().skip(100).sum::<f64>() / freqs[100..].len() as f64;
     assert!(avg > 0.05, "below threshold, master persists: avg={avg}");
 }
@@ -393,8 +408,18 @@ fn anderson_lyapunov_averaged_parity() {
 
 #[test]
 fn almost_mathieu_eigenvalues_parity() {
-    let ev1 = groundspring::almost_mathieu::eigenvalues(10, 1.0, 0.5 * std::f64::consts::FRAC_1_SQRT_2, 0.0);
-    let ev2 = groundspring::almost_mathieu::eigenvalues(10, 1.0, 0.5 * std::f64::consts::FRAC_1_SQRT_2, 0.0);
+    let ev1 = groundspring::almost_mathieu::eigenvalues(
+        10,
+        1.0,
+        0.5 * std::f64::consts::FRAC_1_SQRT_2,
+        0.0,
+    );
+    let ev2 = groundspring::almost_mathieu::eigenvalues(
+        10,
+        1.0,
+        0.5 * std::f64::consts::FRAC_1_SQRT_2,
+        0.0,
+    );
     assert_eq!(ev1.len(), ev2.len());
     for (a, b) in ev1.iter().zip(ev2.iter()) {
         assert_eq!(a.to_bits(), b.to_bits(), "eigenvalue bitwise parity");
@@ -437,8 +462,8 @@ fn nse_parity_known_value() {
 #[test]
 fn detect_band_ranges_parity() {
     let eigenvalues: Vec<f64> = (0..50)
-        .map(|i| -2.0 + i as f64 * 0.01)
-        .chain((0..50).map(|i| 1.0 + i as f64 * 0.01))
+        .map(|i| f64::from(i).mul_add(0.01, -2.0))
+        .chain((0..50).map(|i| f64::from(i).mul_add(0.01, 1.0)))
         .collect();
     let bands1 = groundspring::band_structure::detect_band_ranges(&eigenvalues, 3.0);
     let bands2 = groundspring::band_structure::detect_band_ranges(&eigenvalues, 3.0);

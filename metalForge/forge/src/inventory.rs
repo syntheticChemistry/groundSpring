@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Hardware inventory — collect all substrates on this machine.
 
@@ -38,9 +39,9 @@ impl Inventory {
     /// Find a GPU by architecture family (e.g. `GpuArch::Volta` for Titan V).
     #[must_use]
     pub fn find_gpu_by_arch(&self, arch: GpuArch) -> Option<&Substrate> {
-        self.substrates.iter().find(|s| {
-            s.kind == SubstrateKind::Gpu && s.properties.gpu_arch == Some(arch)
-        })
+        self.substrates
+            .iter()
+            .find(|s| s.kind == SubstrateKind::Gpu && s.properties.gpu_arch == Some(arch))
     }
 
     /// Find the best GPU for f64 workloads.
@@ -67,6 +68,15 @@ impl Inventory {
     pub fn adaptive_batch(&self, element_bytes: usize) -> Option<AdaptiveBatch> {
         let gpu = self.best_f64_gpu()?;
         Some(AdaptiveBatch::for_gpu(&gpu.properties, element_bytes))
+    }
+
+    /// Merge remote substrates from NUCLEUS nodes into this inventory.
+    ///
+    /// Uses [`crate::remote::merge_remote`] to prefix remote device names
+    /// with their node ID (e.g. `TITAN V@biomegate`).
+    pub fn merge_remote(&mut self, remote: &[crate::remote::RemoteSubstrate]) {
+        let local = std::mem::take(&mut self.substrates);
+        self.substrates = crate::remote::merge_remote(local, remote);
     }
 
     /// Print a summary table of all discovered substrates.
@@ -160,9 +170,7 @@ mod tests {
 
     #[test]
     fn empty_inventory() {
-        let inv = Inventory {
-            substrates: vec![],
-        };
+        let inv = Inventory { substrates: vec![] };
         assert_eq!(inv.count(SubstrateKind::Cpu), 0);
         assert!(inv.first(SubstrateKind::Cpu).is_none());
         inv.print_summary();

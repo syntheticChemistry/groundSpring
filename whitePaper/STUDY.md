@@ -390,7 +390,121 @@ minimizes reconstruction RMSE. Most advanced inverse problem in groundSpring.
 
 Phase 0: 8/8 PASS (Python). Phase 1: 8/8 PASS (Rust).
 
-## 20. Evolution Path
+## 20. Experiments 022–024: Cross-Spring Uncertainty Budget
+
+These three experiments bridge groundSpring's foundational pillars — propagating
+uncertainty through coupled physical, biological, and mathematical systems to
+provide error bars for baseCamp Sub-thesis 06 (no-till soil health via Anderson
+localization).
+
+**Exp 022 (ET₀ → Anderson Propagation)**: How much does humidity-dominated
+ET₀ error affect localization length predictions? Monte Carlo propagation
+through the full chain: FAO-56 inputs → ET₀ → water balance θ(t) → effective
+disorder W_eff → Lyapunov γ → ξ = 1/γ. Result: ET₀ CV 0.043 propagates to
+ξ CV 0.040 (propagation ratio 0.94×). Humidity dominates at 51% of total
+ET₀ variance. The Anderson localization length is robust — localized regimes
+attenuate input uncertainty.
+
+Phase 0: 7/7 PASS (Python). Phase 1: 7/7 PASS (Rust).
+
+**Exp 023 (No-Till vs Tilled 16S Sampling)**: Does saturation depth differ
+between soil management regimes? Pre-computed synthetic communities (no-till:
+150 genera, log-normal; tilled: 100 genera, more dominant species) rarefied
+at 6 depths. No-till Shannon H'=3.88, tilled H'=1.57. Both saturate at ~500
+reads (5% threshold) but require D=1000 for reliable community
+distinguishability. Higher diversity demands deeper sampling — but the
+saturation threshold is the same order as Exp 004's 5,000-read genus saturation.
+
+Phase 0: 7/7 PASS (Python). Phase 1: 7/7 PASS (Rust).
+
+**Exp 024 (Aggregate Stability Measurement Noise)**: How precisely must WSA
+be measured to distinguish Anderson regimes? Tilled soil (WSA=0.35 → d_eff≈2)
+vs no-till (WSA=0.75 → d_eff≈3) with measurement bias 0.02 and noise σ=0.05.
+Bias-variance decomposition: noise floor 0.12–0.14 is well below the regime
+gap of 1.0 (d_eff = 2 vs 3). Anderson regimes are distinguishable with
+standard field measurement precision.
+
+Phase 0: 8/8 PASS (Python). Phase 1: 8/8 PASS (Rust).
+
+## 21. Experiments 025–027: WDM Simulation Uncertainty Budget
+
+These three experiments provide the error budget for baseCamp Sub-thesis 07:
+can warm dense matter transport coefficients be reproduced on consumer GPU
+hardware?
+
+**Exp 025 (f32 vs f64 Precision Drift)**: Does f32 accumulation introduce
+systematic bias in Green-Kubo transport coefficient calculations? Synthetic
+velocity autocorrelation functions (exponential decay + noise) integrated via
+trapezoidal rule in both f32 and f64. Result: f32 introduces measurable
+systematic bias (~28% of total error). Absolute errors scale with integral
+magnitude — longer autocorrelation tails accumulate more rounding error. This
+is the floating-point analog of Exp 001's sensor bias: a correctable systematic
+component that dominates the error budget.
+
+Phase 0: 7/7 PASS (Python). Phase 1: 7/7 PASS (Rust).
+
+**Exp 026 (System-size Convergence)**: At what system size N does consumer GPU
+transport converge to the thermodynamic limit? Synthetic D(N) = D∞ + α/N^(1/d)
+with noise, fit via linear regression on transformed coordinates. Finite-size
+correction fits with R² > 0.999; extrapolation within 1% of true D∞. Consumer
+GPUs (N≤10k particles) can produce publication-quality transport coefficients
+when combined with proper finite-size scaling.
+
+Phase 0: 7/7 PASS (Python). Phase 1: 7/7 PASS (Rust).
+
+**Exp 027 (GPU Vendor Parity)**: Do GPU vendor/driver differences affect
+transport coefficient results? Same Green-Kubo integration with simulated
+vendor perturbation (ε ~ 1e-10). Vendor differences at 1e-12 relative level;
+Pearson correlation 1.000000; χ²/DOF ≈ 0. IEEE 754 arithmetic is deterministic
+across vendors at the precision level that matters for physics. This validates
+the assumption underlying all metalForge cross-substrate dispatch: if the math
+is IEEE-compliant, the physics is portable.
+
+Phase 0: 7/7 PASS (Python). Phase 1: 7/7 PASS (Rust).
+
+## 22. Experiment 028: NPU Anderson Regime Classification
+
+**Paper**: Anderson (1958); BrainChip AKD1000 datasheet
+
+Can Anderson localization regimes be classified via int8-quantized features on
+a neuromorphic processor? This is the hardware portability proof: the same
+mathematical classification (Localized / Critical / Extended based on ξ(W))
+runs on CPU, GPU, and NPU — proving the math is truly substrate-agnostic.
+
+Features (W, E, L) quantized to int8 ([0, 127]) for NPU dispatch. Centroid
+classifier trained from 100 random disorder values, tested on 10 values across
+all three regimes. AKD1000 inference: ~51 µs/inference via DMA write/read.
+Quantization round-trip error < 25%. All three regime classes correctly
+identified.
+
+This experiment closes the metalForge validation loop: Exp 008 proves the math
+on CPU, Exp 009 proves it on GPU (47.4× faster), and Exp 028 proves it on NPU
+(different arithmetic, same physics). The Anderson localization problem is
+the first workload validated across all three substrate tiers.
+
+Phase 0: 7/7 PASS (Python). Phase 1: 9/9 PASS (Rust, 7 CPU + 2 NPU live).
+
+## 23. Extended Cross-Domain Synthesis
+
+The twenty-eight experiments span nine domains and three hardware substrates,
+but share a single framework: decompose error into correctable bias and
+irreducible noise, then propagate that uncertainty through coupled systems.
+
+| Domain | Experiments | Signal | Noise | Substrate |
+|--------|------------|--------|-------|-----------|
+| Agricultural sensing | 001, 022, 024 | Soil moisture θ | Calibration bias, random σ | CPU |
+| Meteorology | 002, 003, 022 | ET₀ | Representation noise, sensor σ | CPU |
+| Microbiome biology | 004, 016, 023 | Genus assignment | Sampling noise | CPU |
+| Seismology | 005 | Source location | Arrival time picks | CPU, GPU |
+| Stochastic biochemistry | 006, 010, 011 | c-di-GMP, HapR | Birth-death, ODE noise | CPU, GPU |
+| Spectral theory | 008, 009, 012, 015, 018 | Lyapunov γ, band edges | Disorder W | CPU, GPU |
+| Evolutionary dynamics | 014, 017 | Selection signal | Genetic drift, mutation | CPU |
+| Inverse problems | 019, 020, 021 | Reconstructed params | Noise amplification | CPU, GPU |
+| Precision/scale/hardware | 025, 026, 027, 028 | Transport coefficients | f32 bias, finite-size, vendor | CPU, GPU, NPU |
+
+The evolution path — Python baseline → Rust validation → barracuda CPU → barracuda GPU → metalForge cross-substrate — proves the same mathematical framework is portable across languages, compilers, and hardware architectures.
+
+## 24. Evolution Path
 
 - **Phase 0+**: Wire real NOAA CDO data for Exp 002; download IRIS waveforms for Exp 005
 - **Phase 2a (DONE)**: Tier A rewire — **32 active delegations + 9 pending ToadStool (25 CPU + 7 GPU)**. Rust is **11.5× faster** than Python (excl. LAPACK-bound; Exp 009: 47.7× from Sturm tridiag). 28/28 parity proven. V35: 410/442 Rust tests, 288/288 checks, 19 metalForge workloads, 5 substrates, architecture-aware GPU routing
@@ -399,7 +513,7 @@ Phase 0: 8/8 PASS (Python). Phase 1: 8/8 PASS (Rust).
 - **Phase 3**: Full GPU pipeline, metalForge cross-substrate validation
 - **neuralSpring bridge**: Export noise characterizations as labeled training data
 
-## 21. Next Phase: Faculty-Driven Paper Candidates
+## 25. Next Phase: Faculty-Driven Paper Candidates
 
 The faculty network identifies three directions that extend groundSpring's noise-characterization framework into new domains:
 

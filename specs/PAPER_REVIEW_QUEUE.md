@@ -247,7 +247,7 @@ Write → Absorb → Lean cycle:
 **GPU tier**: 5 modules wired with `#[cfg(feature = "barracuda-gpu")]` dispatch (freeze_out, band_structure, seismic, quasispecies, rare_biosphere). 3 modules previously wired (anderson, almost_mathieu, spectral_recon). Pending ToadStool absorption of GPU wrapper functions.
 **metalForge tier**: partially validated (groundspring-forge crate, Exp 028 NPU DMA on AKD1000).
 
-### Queued Papers (updated after ToadStool S51-S66 absorption wave)
+### GPU / metalForge Progression (updated V39 — S68+ absorption wave)
 
 | # | Paper (short) | CPU | GPU | metalForge | Blocker |
 |---|--------------|:---:|:---:|:----------:|---------|

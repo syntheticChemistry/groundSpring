@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Direct GPU compute validation on per-GPU adapters.
 //!
@@ -233,12 +234,7 @@ fn dispatch_f32(
     Some((gammas, dispatch_us))
 }
 
-fn run_gpu_compute(
-    adapter: &wgpu::Adapter,
-    gpu_name: &str,
-    h: &mut Harness,
-    cpu_gamma: f64,
-) {
+fn run_gpu_compute(adapter: &wgpu::Adapter, gpu_name: &str, h: &mut Harness, cpu_gamma: f64) {
     let info = adapter.get_info();
     let arch = groundspring_forge::substrate::GpuArch::from_name(&info.name);
     println!(
@@ -252,7 +248,11 @@ fn run_gpu_compute(
     let has_f64_feature = features.contains(wgpu::Features::SHADER_F64);
     println!(
         "    SHADER_F64 feature: {}",
-        if has_f64_feature { "advertised" } else { "not available" }
+        if has_f64_feature {
+            "advertised"
+        } else {
+            "not available"
+        }
     );
 
     let f64_works = has_f64_feature && probe_f64_pipeline(adapter);
@@ -277,11 +277,12 @@ fn run_gpu_compute(
         h.check(&format!("{gpu_name}: f32 shader compilation"), false);
         return;
     };
-    let precision = if f64_works { "f64 OK, using f32" } else { "f32 (f64 unavailable)" };
-    h.check(
-        &format!("{gpu_name}: {precision} pipeline OK"),
-        true,
-    );
+    let precision = if f64_works {
+        "f64 OK, using f32"
+    } else {
+        "f32 (f64 unavailable)"
+    };
+    h.check(&format!("{gpu_name}: {precision} pipeline OK"), true);
 
     let Some((gammas, dispatch_us)) = dispatch_f32(&device, &queue, &pipeline) else {
         h.check(&format!("{gpu_name}: compute dispatch"), false);
@@ -328,9 +329,7 @@ fn validate_f32_results(
     if cpu_xi.is_finite() && gpu_xi.is_finite() {
         let ratio = cpu_xi / gpu_xi;
         let rel_diff = ((gpu_gamma_avg - cpu_gamma) / cpu_gamma).abs();
-        println!(
-            "    ξ ratio (CPU/GPU) = {ratio:.4}, γ relative diff = {rel_diff:.6}"
-        );
+        println!("    ξ ratio (CPU/GPU) = {ratio:.4}, γ relative diff = {rel_diff:.6}");
         h.check(
             &format!("{gpu_name}: CPU/GPU ξ ratio {ratio:.3} in [0.3, 3.0]"),
             (0.3..=3.0).contains(&ratio),
@@ -342,9 +341,7 @@ fn validate_f32_results(
     // accumulated rounding in log/sqrt chain. Allow up to 5% zero values.
     let min_non_zero = N_REALIZATIONS as usize * 95 / 100;
     h.check(
-        &format!(
-            "{gpu_name}: ≥95% realizations γ > 0 ({non_zero}/{N_REALIZATIONS})"
-        ),
+        &format!("{gpu_name}: ≥95% realizations γ > 0 ({non_zero}/{N_REALIZATIONS})"),
         non_zero >= min_non_zero,
     );
 }

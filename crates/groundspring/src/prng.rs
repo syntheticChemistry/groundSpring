@@ -119,7 +119,10 @@ impl Xoshiro128StarStar {
     /// The seed is split into two 32-bit halves and mixed via `SplitMix32`
     /// to initialise the four-word state. A zero seed is replaced.
     #[must_use]
-    #[expect(clippy::cast_possible_truncation, reason = "deliberate u64→u32 seed split")]
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "deliberate u64→u32 seed split"
+    )]
     pub const fn new(seed: u64) -> Self {
         let seed = if seed == 0 {
             0x9E37_79B9_7F4A_7C15
@@ -358,7 +361,9 @@ mod tests {
         let p = 0.3;
         let trials = 500;
         let sum: u64 = (0..trials).map(|_| rng.binomial(n, p)).sum();
-        let mean = sum as f64 / trials as f64;
+        #[expect(clippy::cast_precision_loss, reason = "test counter; value < 2^52")]
+        let mean = sum as f64 / f64::from(trials);
+        #[expect(clippy::cast_precision_loss, reason = "test parameter; value < 2^52")]
         let expected = n as f64 * p;
         assert!(
             (mean - expected).abs() < 15.0,

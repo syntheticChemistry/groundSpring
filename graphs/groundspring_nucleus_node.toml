@@ -1,0 +1,95 @@
+# groundSpring Node Atomic Pipeline
+# Node = Tower + ToadStool — science validation with GPU compute.
+#
+# This graph runs all 28 experiments through ToadStool GPU dispatch,
+# compares against CPU references, and reports parity.
+# Tower provides secure inter-primal communication (BearDog encryption,
+# Songbird TLS). ToadStool provides barracuda GPU dispatch.
+#
+# STATUS: Protocol defined (Feb 27, 2026)
+# Atomic: Node (Tower + ToadStool)
+# Experiments: 28 (288 validation checks)
+# Substrates: CPU (reference) + GPU (barracuda dispatch)
+
+[graph]
+id = "groundspring_node_atomic"
+description = "Node atomic: 28-experiment validation through ToadStool GPU dispatch"
+coordination = "Parallel"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 1: TOWER BOOTSTRAP (secure communication layer)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "tower_bootstrap"
+output = "tower_ready"
+
+[nodes.operation]
+name = "rpc_call"
+target = "beardog"
+
+[nodes.operation.params]
+method = "tower.health"
+params = {}
+
+[nodes.constraints]
+timeout_ms = 10000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 2: TOADSTOOL READINESS (compute layer)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "toadstool_ready"
+depends_on = ["tower_bootstrap"]
+output = "compute_available"
+
+[nodes.operation]
+name = "rpc_call"
+target = "toadstool"
+
+[nodes.operation.params]
+method = "toadstool.health"
+params = { check_gpu = true, check_barracuda = true }
+
+[nodes.constraints]
+timeout_ms = 30000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 3: VALIDATION DISPATCH (28 experiments, parallel where possible)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "validate_all_experiments"
+depends_on = ["toadstool_ready"]
+output = "validation_results"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "science.validate_suite"
+params = { experiments = "all", mode = "barracuda-gpu", expected_checks = 288 }
+
+[nodes.constraints]
+timeout_ms = 600000
+fallback = "local"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 4: PARITY CERTIFICATE (28/28 PROVEN)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "parity_certificate"
+depends_on = ["validate_all_experiments"]
+output = "parity_report"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "science.parity_report"
+params = { format = "json", include_timing = true, include_tolerances = true }
+
+[nodes.constraints]
+timeout_ms = 30000

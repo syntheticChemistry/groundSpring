@@ -10,6 +10,38 @@
 
 use serde_json::Value;
 
+/// f64 identity — values computed by the same deterministic path on
+/// identical inputs.  Only IEEE 754 rounding distinguishes them.
+pub const TOL_EXACT: f64 = 1e-12;
+
+/// Exact arithmetic (add / mul / div) on f64 inputs with at most one
+/// transcendental (sqrt, ln) introducing ~1 ULP accumulated error.
+pub const TOL_ANALYTICAL: f64 = 1e-10;
+
+/// Literature values reported to 3–4 significant decimals (e.g.
+/// Dong et al. 2020 sensor MBE/RMSE calibrations).
+pub const TOL_LITERATURE: f64 = 0.001;
+
+/// Bias–variance decomposition fractions where the Pythagorean identity
+/// RMSE² = MBE² + σ² amplifies rounding near the fourth decimal.
+pub const TOL_DECOMPOSITION: f64 = 0.005;
+
+/// Finite-sample mean estimators from stochastic algorithms (Gillespie,
+/// Monte Carlo) where sampling noise is O(1/√N).
+pub const TOL_STOCHASTIC_MEAN: f64 = 0.01;
+
+/// ODE equilibrium values and meteorological parameters where physical
+/// measurement precision is ~0.1 unit.
+pub const TOL_EQUILIBRIUM: f64 = 0.1;
+
+/// Rarefaction taxon proportions at moderate sequencing depth — multinomial
+/// sampling variance at N ≈ 50 000.
+pub const TOL_RAREFACTION_PROP: f64 = 0.05;
+
+/// Coarse stochastic regime classification (e.g. "all taxa detected")
+/// tolerating ±0.5 in count-like quantities.
+pub const TOL_REGIME: f64 = 0.5;
+
 /// Extract an `f64` from a JSON object, panicking with a clear message on
 /// missing or non-numeric fields.
 ///

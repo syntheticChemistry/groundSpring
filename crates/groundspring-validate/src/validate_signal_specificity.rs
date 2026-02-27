@@ -13,7 +13,9 @@ use groundspring::gillespie::{
     birth_death_ssa, steady_state_mean, time_averaged_mean, time_averaged_variance,
 };
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, f64_range, print_provenance_header, usize_field};
+use groundspring_validate::{
+    f64_field, f64_range, print_provenance_header, usize_field, TOL_STOCHASTIC_MEAN,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str =
@@ -52,13 +54,13 @@ fn validate_analytical(h: &mut ValidationHarness, net: &EnzymeNetwork, pred: &Va
         "Analytical mean",
         ss_mean,
         f64_field(pred, "steady_state_mean"),
-        0.01,
+        TOL_STOCHASTIC_MEAN,
     );
     h.check_approx(
         "Analytical std",
         ss_std,
         f64_field(pred, "steady_state_std"),
-        0.01,
+        TOL_STOCHASTIC_MEAN,
     );
 
     (ss_mean, ss_std)

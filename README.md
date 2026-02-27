@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: February 27, 2026 | **License**: AGPL-3.0-or-later
-**Status**: 28 experiments, 442 Rust tests (biomeos) / 410 (default) + 320 Python tests = 762 total, 288/288 validation checks (+ 49 metalForge), 32 active barracuda delegations (25 CPU + 7 GPU) + 9 pending ToadStool absorption, 19 metalForge workloads, 5 substrates (2 GPU + 1 NPU + 1 CPU + 1 GL), architecture-aware GPU routing (f64→Titan V, f32→RTX 4070), V35 Titan V / NAK adaptive GPU dispatch, four-mode CI
+**Status**: 28 experiments, 498+ Rust tests (biomeos) / 410 (default) + 320 Python tests, 288/288 validation checks (+ 49 metalForge), 32 active barracuda delegations (25 CPU + 7 GPU) + 9 pending ToadStool absorption, 19 metalForge workloads, 5 substrates, architecture-aware GPU routing (f64→Titan V, f32→RTX 4070), NestGate data pipeline (NCBI/NOAA), metalForge remote substrate discovery, NUCLEUS Tower/Node/Nest pipeline graphs, four-mode CI
 
 **The gap between what models predict and what instruments measure.**
 
@@ -85,8 +85,10 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | `jackknife` | Jackknife variance, bias correction, leave-one-out resampling | CPU delegated |
 | `freeze_out` | Freeze-out temperature inversion, hadron yield fitting | **GPU-ready** (V31 dispatch) |
 | `spectral_recon` | Spectral function reconstruction from Euclidean correlators | GPU delegated (tikhonov_solve) |
+| `biomeos` | biomeOS Neural API client: JSON-RPC 2.0, capability routing, NestGate storage (behind `biomeos` feature) | N/A |
+| `nestgate` | NestGate data pipeline: NCBI/NOAA providers, provenance key schemas, cache-through (behind `biomeos` feature) | N/A |
 | `npu` | NPU integration for Akida neuromorphic inference (behind `npu` feature) | NPU (AKD1000) |
-| `groundspring-forge` | Hardware discovery and cross-substrate dispatch (19 workloads, 5 substrates) | metalForge crate |
+| `groundspring-forge` | Hardware discovery, cross-substrate dispatch, remote NUCLEUS discovery (19 workloads, 5+ substrates) | metalForge crate |
 
 ## Quick Start
 
@@ -274,15 +276,16 @@ groundSpring/
 │   ├── spectral_recon/            # Exp 021: Spectral function reconstruction (Bazavov 2025)
 │   └── npu_anderson/              # Exp 028: NPU Anderson regime classification
 ├── crates/
-│   ├── groundspring/                # Phase 1 Rust library (26 modules incl. npu)
+│   ├── groundspring/                # Phase 1 Rust library (28 modules incl. biomeos, nestgate, npu)
 │   └── groundspring-validate/       # 28 validation binaries (hotSpring pattern)
 ├── metalForge/                      # Write → Absorb → Lean artifacts
-│   ├── forge/                       # groundspring-forge crate: hardware discovery, dispatch
+│   ├── forge/                       # groundspring-forge crate: hardware discovery, dispatch, remote
 │   ├── npu/akida/                   # AKD1000 NPU integration, HARDWARE.md
 │   ├── ABSORPTION_MANIFEST.md       # Module-by-module absorption inventory
 │   └── shaders/                     # Production WGSL shaders for ToadStool absorption
+├── graphs/                          # biomeOS pipeline graphs (Tower bootstrap, Node, cross-substrate)
 ├── .github/workflows/ci.yml         # GitHub Actions CI
-├── wateringHole/                    # Handoff directory
+├── wateringHole/                    # Handoff directory (V39 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md       # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md    # GPU kernel gap analysis
@@ -317,4 +320,4 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring + dual-mode CI: February 26, 2026 | V22 experiment buildout (016-018): February 26, 2026 | V23 experiment buildout (019-021): February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V27 docs + handoff audit: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V31 GPU dispatch wiring + metalForge workloads: February 27, 2026 | V32 ToadStool S68+ catch-up + forward declaration cleanup: February 27, 2026 | V33 delegation count expansion (32 active, 25 CPU + 7 GPU): February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch + architecture-aware routing: February 27, 2026*
+*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026*

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! GPU live validation: run Anderson computation on GPU via barracuda-gpu
 //! and compare with CPU reference. Reports substrate, timing, and parity.

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! groundSpring `MetalForge` — hardware discovery and cross-substrate dispatch.
 //!
@@ -12,5 +13,7 @@
 pub mod dispatch;
 pub mod inventory;
 pub mod probe;
+pub mod remote;
 pub mod substrate;
+pub mod tolerance;
 pub mod workloads;

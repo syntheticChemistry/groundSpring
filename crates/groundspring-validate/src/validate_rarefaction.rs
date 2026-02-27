@@ -10,7 +10,9 @@ use groundspring::rarefaction::{
     evenness, multinomial_sample, rarefaction_at_depth, shannon_diversity, taxa_detected,
 };
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::print_provenance_header;
+use groundspring_validate::{
+    print_provenance_header, TOL_ANALYTICAL, TOL_RAREFACTION_PROP, TOL_REGIME,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str =
@@ -40,7 +42,7 @@ fn run() -> i32 {
         "Shannon uniform(4)",
         shannon_diversity(&uniform),
         expected_uniform,
-        1e-10,
+        TOL_ANALYTICAL,
     );
 
     let single = [1000_u64, 0, 0, 0];
@@ -48,10 +50,10 @@ fn run() -> i32 {
         "Shannon single species",
         shannon_diversity(&single),
         0.0,
-        1e-10,
+        TOL_ANALYTICAL,
     );
 
-    h.check_approx("Evenness uniform", evenness(&uniform), 1.0, 1e-10);
+    h.check_approx("Evenness uniform", evenness(&uniform), 1.0, TOL_ANALYTICAL);
 
     // ── Multinomial sampling ────────────────────────────────────────
     println!("\n--- Multinomial Sampling ---");
@@ -79,7 +81,7 @@ fn run() -> i32 {
             &format!("Taxon {i} proportion"),
             observed_frac,
             expected_frac,
-            0.05,
+            TOL_RAREFACTION_PROP,
         );
     }
 
@@ -116,7 +118,7 @@ fn run() -> i32 {
         "All 10 taxa at 50k depth",
         high.genera_mean,
         expected_all,
-        0.5,
+        TOL_REGIME,
     );
 
     h.summary()

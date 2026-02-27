@@ -4,6 +4,28 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V39 NUCLEUS Integration + NestGate Data Pipeline + metalForge Remote Discovery (Feb 27, 2026)
+
+#### Added
+- **`nestgate` module** (`crates/groundspring/src/nestgate.rs`): NestGate data pipeline for experiment data and provenance. Provenance key schemas (`groundspring:results:`, `groundspring:parity:`, `groundspring:data:`), NCBI search/fetch via `ncbi_live_provider`, NOAA GHCND/FAO-56 via `noaa_cdo_live_provider`, cache-through helper. Behind `biomeos` feature. 4 tests.
+- **`remote` module** (`metalForge/forge/src/remote.rs`): Remote substrate discovery via biomeOS capability routing. Parses remote NUCLEUS node inventory JSON, merges into local inventory with node ID prefix (e.g. `TITAN V@biomegate`). GPU arch parsing from canonical names (Volta, Ada, etc.). 12 tests.
+- **Tower bootstrap graph** (`graphs/groundspring_tower_bootstrap.toml`): biomeOS pipeline for Tower atomic (BearDog + Songbird) on Eastgate — security, IPC nucleation, capability registration, health check, provenance.
+- **`Inventory::merge_remote()`**: Extend metalForge inventory with remote NUCLEUS substrates.
+- **`biomeos::escape_json_pub()`**: Public JSON escaping for sibling modules.
+
+#### Updated
+- **gen3/baseCamp/06_notill_anderson.md**: Added Exp 022-024 (ET₀→Anderson, no-till 16S, aggregate stability) to Cross-Spring Integration table.
+- **gen3/baseCamp/07_sovereign_wdm.md**: Added Section 6.3 — WDM uncertainty budget (Exp 025-027: precision drift, size convergence, vendor parity).
+- **gen3/baseCamp/README.md**: Expansion paragraph now includes Exp 022-024 for Paper 06.
+- **groundSpring/whitePaper/baseCamp/anderson.md**: Three-tier table CPU tier DONE (Exp 014/016), metalForge tier in progress.
+- **groundSpring/whitePaper/baseCamp/README.md**: Cross-Spring Impact table extended (Exp 022-028), Sub-thesis 07 (WDM) added.
+- **ABSORPTION_MANIFEST.md**: Remote substrate discovery marked complete.
+
+#### Validated
+- `cargo fmt --all -- --check`: PASS
+- `cargo clippy --workspace --all-targets --features biomeos -- -D warnings`: 0 warnings
+- `cargo test --workspace --features biomeos`: 498+ tests PASS, 0 failures
+
 ### V35 Titan V / NAK Adaptive GPU Dispatch + Architecture-Aware Routing (Feb 27, 2026)
 
 #### Added

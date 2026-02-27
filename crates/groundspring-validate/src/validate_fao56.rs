@@ -11,7 +11,7 @@
 use groundspring::fao56::{self, DailyWeatherInputs};
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, print_provenance_header, u64_field};
+use groundspring_validate::{f64_field, print_provenance_header, u64_field, TOL_EQUILIBRIUM};
 use serde_json::Value;
 
 const BENCHMARK: &str =
@@ -324,7 +324,7 @@ fn run() -> i32 {
     println!("\n--- Part 2: Intermediate Values ---");
 
     let tmean = f64::midpoint(base.tmax_c, base.tmin_c);
-    h.check_approx("T_mean", tmean, 16.9, 0.1);
+    h.check_approx("T_mean", tmean, 16.9, TOL_EQUILIBRIUM);
 
     let es = fao56::mean_saturation_vapour_pressure(base.tmax_c, base.tmin_c);
     h.check_range("e_s (kPa)", es, 1.8, 2.2);

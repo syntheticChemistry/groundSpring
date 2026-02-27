@@ -67,8 +67,8 @@ QCD." arXiv 2501.12259.
 | Tier | Validation | Status |
 |------|-----------|--------|
 | CPU | Python baseline matches Rust | **DONE** (25/25 across Exp 019-021) |
-| GPU | barracuda GPU matches CPU | Queued (grid search, jackknife parallel) |
-| metalForge | Cross-substrate agreement | After GPU tier |
+| GPU | barracuda GPU matches CPU | Partial — `tikhonov_solve` GPU delegated; `grid_fit_2d` and `jackknife_mean_variance` pending ToadStool |
+| metalForge | Cross-substrate agreement | In progress — 19 workloads defined, `forge::tolerance` module (4 tiers) |
 
 ## Cross-Spring
 

@@ -59,6 +59,11 @@ Each faculty extension paper is validated at three tiers:
 | Exp 014 (drift selection) | R. Anderson → **Exp 016** (rare biosphere) | wetSpring (rare taxa) |
 | Exp 001 + 004 | R. Anderson (drift vs selection) | wetSpring (rare biosphere) |
 | Exp 008 + 009 | Kachkovskiy → **Exp 018** (band edge) | hotSpring (spectral) |
+| Exp 002 + 008 + 015 | Cross-spring → **Exp 022** (ET₀→Anderson propagation) | airSpring (ET₀) → groundSpring (ξ) |
+| Exp 004 + 016 | Cross-spring → **Exp 023** (no-till vs tilled 16S) | wetSpring (16S pipeline) |
+| Exp 008 + 015 | Cross-spring → **Exp 024** (aggregate stability noise) | airSpring (soil structure) |
+| Exp 019-021 | WDM → **Exp 025** (f32/f64 drift), **Exp 026** (size convergence), **Exp 027** (vendor parity) | hotSpring (WDM simulation) |
+| Exp 008 + 015 | metalForge → **Exp 028** (NPU Anderson classification) | hotSpring (Akida driver), airSpring (edge IoT) |
 
 ## Sub-Theses
 
@@ -66,6 +71,7 @@ groundSpring contributes to several Gen3 cross-spring sub-theses:
 
 | Sub-thesis | groundSpring Role |
 |-----------|-------------------|
-| 06: No-Till Soil Health | Uncertainty budget: sensor noise → QS regime prediction confidence |
+| 06: No-Till Soil Health | Uncertainty budget: sensor noise → QS regime prediction confidence. Exp 022-024 cross-spring validation |
+| 07: Sovereign WDM | Inverse problem math (Exp 019-021), WDM uncertainty budget (Exp 025-027: f32/f64 drift, size convergence, vendor parity) |
 | 01: Anderson-QS | Error propagation through Anderson localization geometry |
 | 05: Cross-Species Signal | Noise floor for detecting cross-species QS signal |

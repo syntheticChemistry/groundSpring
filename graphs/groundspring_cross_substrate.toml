@@ -1,0 +1,133 @@
+# groundSpring Cross-Substrate Validation Pipeline
+# Validates mathematical parity across CPU, GPU, and NPU substrates
+# using metalForge dispatch and NUCLEUS atomic coordination.
+#
+# STATUS: Protocol defined (Feb 27, 2026)
+# Atomic: Node (Tower + ToadStool) — requires GPU compute
+# Optional: Nest (Tower + NestGate) — provenance storage
+#
+# Pipeline: discover substrates → run CPU reference → dispatch GPU → dispatch NPU
+#           → compare all three → store provenance
+
+[graph]
+id = "groundspring_cross_substrate"
+description = "Three-tier validation: CPU reference → GPU parity → NPU parity → provenance"
+coordination = "Sequential"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 1: SUBSTRATE DISCOVERY (metalForge)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "discover_substrates"
+output = "substrate_inventory"
+
+[nodes.operation]
+name = "metalforge_discover"
+
+[nodes.operation.params]
+probe_gpu = true
+probe_npu = true
+probe_cpu = true
+
+[nodes.constraints]
+timeout_ms = 30000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 2: CPU REFERENCE (always available, sovereign fallback)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "cpu_reference"
+depends_on = ["discover_substrates"]
+output = "cpu_results"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "compute.execute"
+params = { substrate = "cpu", op = "anderson_localization_sweep", disorder_strengths = [0.5, 2.0, 8.0], n_sites = 1000, seed = 42 }
+
+[nodes.constraints]
+timeout_ms = 120000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 3: GPU DISPATCH (ToadStool via barracuda)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "gpu_dispatch"
+depends_on = ["discover_substrates"]
+output = "gpu_results"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "compute.execute"
+params = { substrate = "gpu", op = "anderson_localization_sweep", disorder_strengths = [0.5, 2.0, 8.0], n_sites = 1000, seed = 42 }
+
+[nodes.constraints]
+timeout_ms = 120000
+fallback = "skip"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 4: NPU DISPATCH (AKD1000 via ToadStool akida-driver)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "npu_dispatch"
+depends_on = ["cpu_reference"]
+output = "npu_results"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "compute.execute"
+params = { substrate = "npu", op = "anderson_regime_classify", disorder_strengths = [0.5, 2.0, 8.0], quantization_bits = 8 }
+
+[nodes.constraints]
+timeout_ms = 30000
+fallback = "skip"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 5: TOLERANCE COMPARISON (metalForge tolerance module)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "tolerance_compare"
+depends_on = ["cpu_reference", "gpu_dispatch", "npu_dispatch"]
+output = "comparison_summary"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "science.tolerance_compare"
+params = { cpu_key = "cpu_results", gpu_key = "gpu_results", npu_key = "npu_results", tier_gpu = "exact", tier_npu = "quantized" }
+
+[nodes.constraints]
+timeout_ms = 10000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 6: PROVENANCE STORAGE (NestGate)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "store_provenance"
+depends_on = ["tolerance_compare"]
+output = "provenance_stored"
+
+[nodes.operation]
+name = "rpc_call"
+target = "nestgate"
+
+[nodes.operation.params]
+method = "storage.store"
+params = { key = "groundspring:cross_substrate:${RUN_ID}", value = "${COMPARISON_SUMMARY_JSON}", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 30000
+fallback = "local"

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Substrate abstraction — runtime-discovered compute devices.
 //!
@@ -378,10 +379,7 @@ mod tests {
 
     #[test]
     fn gpu_arch_from_rtx_4070() {
-        assert_eq!(
-            GpuArch::from_name("NVIDIA GeForce RTX 4070"),
-            GpuArch::Ada
-        );
+        assert_eq!(GpuArch::from_name("NVIDIA GeForce RTX 4070"), GpuArch::Ada);
         assert_eq!(GpuArch::from_name("NVIDIA L4"), GpuArch::Ada);
     }
 
