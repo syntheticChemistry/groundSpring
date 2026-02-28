@@ -39,11 +39,19 @@
   },
   "expected_results": {
     "free_lattice_two_edges": true,
+    "edge_tolerance": 0.05,
+    "edge_tolerance_rationale": "Band edges from transfer matrix with 2000-point energy scan have ~0.002 discretization; 0.05 provides 25x margin.",
     "period_2_gap_opens": true,
     "gap_width_proportional_to_dv": true,
     "gap_width_tolerance": 0.15,
+    "gap_monotonicity_slack": 0.01,
+    "gap_monotonicity_slack_rationale": "Finite scan resolution (2000 points over [-4,4]) introduces ~0.004 discretization; 0.01 provides 2.5x margin.",
     "n_bands_equals_period": true,
+    "eigenvalue_band_fraction_min": 0.95,
+    "eigenvalue_band_fraction_min_rationale": "95% of finite-system eigenvalues should fall within transfer-matrix band regions; remaining 5% are edge effects from finite chain (100 periods).",
     "eigenvalues_within_bands": true,
+    "eigenvalue_band_margin": 0.05,
+    "eigenvalue_band_margin_rationale": "Margin around band edges to account for finite-size broadening of the density of states.",
     "deterministic_reproducible": true
   }
 }

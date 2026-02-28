@@ -152,6 +152,150 @@ fn rawr_mean_cpu(data: &[f64], n_replicates: usize, confidence: f64, seed: u64) 
     percentile_ci(&means, n_replicates, confidence)
 }
 
+/// Percentile bootstrap confidence interval for the median.
+///
+/// More robust than [`bootstrap_mean`] for skewed or heavy-tailed data.
+///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::bootstrap_median` (absorbed in `ToadStool` S64).
+///
+/// # Panics
+///
+/// Panics if `data` is empty or `confidence` is outside (0, 1).
+#[must_use]
+pub fn bootstrap_median(
+    data: &[f64],
+    n_replicates: usize,
+    confidence: f64,
+    seed: u64,
+) -> BootstrapResult {
+    assert!(!data.is_empty(), "data must not be empty");
+    assert!(
+        (0.0..1.0).contains(&(1.0 - confidence)),
+        "confidence must be in (0, 1)"
+    );
+
+    #[cfg(feature = "barracuda")]
+    {
+        if let Ok(ci) = barracuda::stats::bootstrap_median(data, n_replicates, confidence, seed) {
+            return BootstrapResult {
+                estimate: ci.estimate,
+                ci_lower: ci.lower,
+                ci_upper: ci.upper,
+                std_error: ci.std_error,
+            };
+        }
+    }
+
+    bootstrap_median_cpu(data, n_replicates, confidence, seed)
+}
+
+fn bootstrap_median_cpu(
+    data: &[f64],
+    n_replicates: usize,
+    confidence: f64,
+    seed: u64,
+) -> BootstrapResult {
+    let n = data.len();
+    let mut rng = Xorshift64::new(seed);
+    let mut medians = Vec::with_capacity(n_replicates);
+    let mut resample = Vec::with_capacity(n);
+
+    for _ in 0..n_replicates {
+        resample.clear();
+        for _ in 0..n {
+            #[expect(
+                clippy::cast_possible_truncation,
+                reason = "n fits in u64 on all targets"
+            )]
+            let idx = (rng.next_u64() % (n as u64)) as usize;
+            resample.push(data[idx]);
+        }
+        resample.sort_unstable_by(f64::total_cmp);
+        let median = if n.is_multiple_of(2) {
+            f64::midpoint(resample[n / 2 - 1], resample[n / 2])
+        } else {
+            resample[n / 2]
+        };
+        medians.push(median);
+    }
+
+    percentile_ci(&medians, n_replicates, confidence)
+}
+
+/// Percentile bootstrap confidence interval for the standard deviation.
+///
+/// Useful for quantifying uncertainty in variability estimates from
+/// small samples (common in field ecology and lattice QCD).
+///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::bootstrap_std` (absorbed in `ToadStool` S64).
+///
+/// # Panics
+///
+/// Panics if `data` has fewer than 2 elements or `confidence` is outside (0, 1).
+#[must_use]
+pub fn bootstrap_std(
+    data: &[f64],
+    n_replicates: usize,
+    confidence: f64,
+    seed: u64,
+) -> BootstrapResult {
+    assert!(data.len() >= 2, "need at least 2 data points for std");
+    assert!(
+        (0.0..1.0).contains(&(1.0 - confidence)),
+        "confidence must be in (0, 1)"
+    );
+
+    #[cfg(feature = "barracuda")]
+    {
+        if let Ok(ci) = barracuda::stats::bootstrap_std(data, n_replicates, confidence, seed) {
+            return BootstrapResult {
+                estimate: ci.estimate,
+                ci_lower: ci.lower,
+                ci_upper: ci.upper,
+                std_error: ci.std_error,
+            };
+        }
+    }
+
+    bootstrap_std_cpu(data, n_replicates, confidence, seed)
+}
+
+fn bootstrap_std_cpu(
+    data: &[f64],
+    n_replicates: usize,
+    confidence: f64,
+    seed: u64,
+) -> BootstrapResult {
+    let n = data.len();
+    let n_f = crate::cast::usize_f64(n);
+    let mut rng = Xorshift64::new(seed);
+    let mut stds = Vec::with_capacity(n_replicates);
+
+    let mut resample_buf = Vec::with_capacity(n);
+    for _ in 0..n_replicates {
+        resample_buf.clear();
+        for _ in 0..n {
+            #[expect(
+                clippy::cast_possible_truncation,
+                reason = "n fits in u64 on all targets"
+            )]
+            let idx = (rng.next_u64() % (n as u64)) as usize;
+            resample_buf.push(data[idx]);
+        }
+        let sample_mean = resample_buf.iter().sum::<f64>() / n_f;
+        let var = resample_buf
+            .iter()
+            .map(|&x| (x - sample_mean).powi(2))
+            .sum::<f64>()
+            / n_f;
+        stds.push(var.sqrt());
+    }
+
+    percentile_ci(&stds, n_replicates, confidence)
+}
+
 /// Compute the percentile confidence interval from a pre-filled
 /// replicate distribution.  Shared by both bootstrap and RAWR.
 fn percentile_ci(means: &[f64], n_replicates: usize, confidence: f64) -> BootstrapResult {
@@ -240,6 +384,53 @@ mod tests {
         assert!(
             b_width > 0.0 && r_width > 0.0,
             "both methods must produce non-degenerate CIs"
+        );
+    }
+
+    #[test]
+    fn bootstrap_median_deterministic() {
+        let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+        let r1 = bootstrap_median(&data, 500, 0.95, 42);
+        let r2 = bootstrap_median(&data, 500, 0.95, 42);
+        assert_eq!(r1.estimate, r2.estimate);
+        assert_eq!(r1.ci_lower, r2.ci_lower);
+    }
+
+    #[test]
+    fn bootstrap_median_robust_to_outlier() {
+        let data = vec![1.0, 2.0, 3.0, 4.0, 5.0, 1000.0];
+        let median_r = bootstrap_median(&data, 1000, 0.95, 42);
+        let mean_r = bootstrap_mean(&data, 1000, 0.95, 42);
+        assert!(
+            median_r.estimate < mean_r.estimate,
+            "median ({}) should be less than mean ({}) with outlier",
+            median_r.estimate,
+            mean_r.estimate
+        );
+    }
+
+    #[test]
+    fn bootstrap_std_deterministic() {
+        let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+        let r1 = bootstrap_std(&data, 500, 0.95, 42);
+        let r2 = bootstrap_std(&data, 500, 0.95, 42);
+        assert_eq!(r1.estimate, r2.estimate);
+    }
+
+    #[test]
+    fn bootstrap_std_positive() {
+        let data = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
+        let r = bootstrap_std(&data, 500, 0.95, 42);
+        assert!(
+            r.estimate > 0.0,
+            "std should be positive, got {}",
+            r.estimate
+        );
+        assert!(
+            r.ci_lower < r.ci_upper,
+            "CI should have width: [{}, {}]",
+            r.ci_lower,
+            r.ci_upper
         );
     }
 

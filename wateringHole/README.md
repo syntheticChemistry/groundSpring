@@ -9,7 +9,7 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V46 | [GROUNDSPRING_TOADSTOOL_V46_IDIOMATIC_RUST_EVOLUTION_HANDOFF_FEB28_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V46_IDIOMATIC_RUST_EVOLUTION_HANDOFF_FEB28_2026.md) | Feb 28, 2026 | Idiomatic Rust evolution: `linalg` module extraction, typed `InputError`, capability-based UID discovery, `Result` APIs, 39 active delegations (30 CPU + 9 GPU) + 7 pending, absorption guidance for ToadStool |
+| V47 | [GROUNDSPRING_TOADSTOOL_V47_LIBRARY_BUILDOUT_BARRACUDA_CPU_HANDOFF_FEB28_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V47_LIBRARY_BUILDOUT_BARRACUDA_CPU_HANDOFF_FEB28_2026.md) | Feb 28, 2026 | Library buildout: 7 new barracuda CPU delegations (simpson, bray_curtis, rarefaction_curve, monod, bootstrap_median, bootstrap_std, moving_window_stats), 46 active (37 CPU + 9 GPU) + 7 pending, absorption guidance |
 
 ## Cross-Spring Documentation
 

@@ -292,7 +292,7 @@ mod tests {
     }
 
     #[test]
-    #[allow(clippy::float_cmp)]
+    #[expect(clippy::float_cmp, reason = "bitwise determinism test")]
     fn rk4_deterministic() {
         let p = default_params();
         let state = [0.5, 1.0, 1.0, 0.5, 0.3, 0.5, 0.2];

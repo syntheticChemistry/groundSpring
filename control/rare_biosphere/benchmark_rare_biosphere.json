@@ -66,6 +66,9 @@
     "detection_rate_very_rare_at_5000_min": 0.99,
     "all_detected_at_50000": true,
     "occupancy_correlated_with_abundance": true,
+    "spearman_occupancy_min": 0.2,
+    "spearman_occupancy_min_rationale": "Community has only 5 distinct abundance levels, creating massive rank ties that cap achievable rho; 0.2 confirms positive association.",
+    "detection_power_target": 0.95,
     "singleton_fraction_decreases_with_depth": true,
     "deterministic_reproducible": true
   }

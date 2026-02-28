@@ -9,6 +9,145 @@
 
 use crate::cast::{u64_f64, usize_f64};
 
+/// Simpson diversity index: `1 − Σ pᵢ²`.  Higher = more diverse (0 to 1).
+///
+/// Takes raw count data.  A perfectly even community of S species gives
+/// `1 − 1/S`; a single-species community gives 0.
+///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::simpson` (identical formula, absorbed from
+/// wetSpring's skbio-compatible path in `ToadStool` S64).
+#[must_use]
+pub fn simpson_diversity(counts: &[u64]) -> f64 {
+    #[cfg(feature = "barracuda")]
+    {
+        let f_counts: Vec<f64> = counts.iter().map(|&c| u64_f64(c)).collect();
+        barracuda::stats::simpson(&f_counts)
+    }
+    #[cfg(not(feature = "barracuda"))]
+    simpson_diversity_cpu(counts)
+}
+
+#[cfg(not(feature = "barracuda"))]
+fn simpson_diversity_cpu(counts: &[u64]) -> f64 {
+    let total: u64 = counts.iter().sum();
+    if total == 0 {
+        return 0.0;
+    }
+    let total_f = u64_f64(total);
+    let sum_p2: f64 = counts
+        .iter()
+        .filter(|&&c| c > 0)
+        .map(|&c| {
+            let p = u64_f64(c) / total_f;
+            p * p
+        })
+        .sum();
+    1.0 - sum_p2
+}
+
+/// Bray-Curtis dissimilarity: `Σ|aᵢ − bᵢ| / Σ(aᵢ + bᵢ)`.  Range \[0, 1\].
+///
+/// Returns 0.0 for identical communities, 1.0 for completely disjoint
+/// communities.  Takes `f64` abundance vectors (count or relative).
+///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::bray_curtis` (absorbed from wetSpring in S64).
+///
+/// # Panics
+///
+/// Panics if `a` and `b` have different lengths.
+#[must_use]
+pub fn bray_curtis(a: &[f64], b: &[f64]) -> f64 {
+    assert_eq!(a.len(), b.len(), "length mismatch");
+    #[cfg(feature = "barracuda")]
+    return barracuda::stats::bray_curtis(a, b);
+    #[cfg(not(feature = "barracuda"))]
+    bray_curtis_cpu(a, b)
+}
+
+#[cfg(not(feature = "barracuda"))]
+fn bray_curtis_cpu(a: &[f64], b: &[f64]) -> f64 {
+    let mut num = 0.0;
+    let mut den = 0.0;
+    for (&ai, &bi) in a.iter().zip(b) {
+        num += (ai - bi).abs();
+        den += ai + bi;
+    }
+    if den == 0.0 {
+        0.0
+    } else {
+        num / den
+    }
+}
+
+/// Analytical (hypergeometric) rarefaction curve: expected species at
+/// each subsampling depth.
+///
+/// Implements `E[S_n] = S − Σ C(N−Nᵢ, n) / C(N, n)` via log-space
+/// computation for numerical stability at large counts.  No RNG needed.
+///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::rarefaction_curve` (absorbed from wetSpring S64).
+#[must_use]
+pub fn analytical_rarefaction(counts: &[u64], depths: &[u64]) -> Vec<f64> {
+    #[cfg(feature = "barracuda")]
+    {
+        let f_counts: Vec<f64> = counts.iter().map(|&c| u64_f64(c)).collect();
+        let f_depths: Vec<f64> = depths.iter().map(|&d| u64_f64(d)).collect();
+        barracuda::stats::rarefaction_curve(&f_counts, &f_depths)
+    }
+    #[cfg(not(feature = "barracuda"))]
+    analytical_rarefaction_cpu(counts, depths)
+}
+
+#[cfg(not(feature = "barracuda"))]
+fn analytical_rarefaction_cpu(counts: &[u64], depths: &[u64]) -> Vec<f64> {
+    let total: u64 = counts.iter().sum();
+    if total == 0 {
+        return vec![0.0; depths.len()];
+    }
+    let s_obs = usize_f64(counts.iter().filter(|&&c| c > 0).count());
+
+    depths
+        .iter()
+        .map(|&depth| {
+            if depth == 0 {
+                return 0.0;
+            }
+            if depth >= total {
+                return s_obs;
+            }
+            let mut expected = 0.0;
+            for &c in counts {
+                if c == 0 {
+                    continue;
+                }
+                let absent_log = log_hypergeometric_absent(total, c, depth);
+                expected += 1.0 - absent_log.exp();
+            }
+            expected
+        })
+        .collect()
+}
+
+/// `log(C(N−Nᵢ, n) / C(N, n))` in log-space for numerical stability.
+#[cfg(not(feature = "barracuda"))]
+fn log_hypergeometric_absent(big_n: u64, ni: u64, n: u64) -> f64 {
+    if ni >= big_n {
+        return f64::NEG_INFINITY;
+    }
+    let remainder = big_n - ni;
+    if n > remainder {
+        return f64::NEG_INFINITY;
+    }
+    let mut log_ratio = 0.0_f64;
+    for k in 0..n {
+        log_ratio += u64_f64(remainder - k).ln() - u64_f64(big_n - k).ln();
+    }
+    log_ratio
+}
+
 /// Shannon diversity index H' = −Σ(pᵢ ln pᵢ).
 ///
 /// When the `barracuda` feature is enabled, delegates to
@@ -290,5 +429,97 @@ mod tests {
     fn taxa_detected_all_present() {
         let counts = [1, 2, 3];
         assert_eq!(taxa_detected(&counts), 3);
+    }
+
+    #[test]
+    fn simpson_uniform() {
+        let counts = [100, 100, 100, 100];
+        assert!((simpson_diversity(&counts) - 0.75).abs() < 1e-10);
+    }
+
+    #[test]
+    fn simpson_single_species() {
+        let counts = [1000, 0, 0, 0];
+        assert!(simpson_diversity(&counts).abs() < 1e-10);
+    }
+
+    #[test]
+    fn simpson_empty() {
+        let counts: [u64; 0] = [];
+        assert!(simpson_diversity(&counts).abs() < 1e-10);
+    }
+
+    #[test]
+    fn simpson_bounded() {
+        let counts = [50, 30, 20];
+        let d = simpson_diversity(&counts);
+        assert!(d > 0.0 && d < 1.0, "Simpson should be in (0,1), got {d}");
+    }
+
+    #[test]
+    fn bray_curtis_identical() {
+        let a = [10.0, 20.0, 30.0];
+        assert!(bray_curtis(&a, &a).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn bray_curtis_disjoint() {
+        let a = [10.0, 0.0, 0.0];
+        let b = [0.0, 0.0, 10.0];
+        assert!((bray_curtis(&a, &b) - 1.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn bray_curtis_symmetry() {
+        let a = [10.0, 20.0, 30.0, 0.0, 5.0];
+        let b = [15.0, 10.0, 25.0, 5.0, 0.0];
+        assert!((bray_curtis(&a, &b) - bray_curtis(&b, &a)).abs() < 1e-15);
+    }
+
+    #[test]
+    fn bray_curtis_bounded() {
+        let a = [10.0, 20.0, 30.0];
+        let b = [15.0, 10.0, 25.0];
+        let bc = bray_curtis(&a, &b);
+        assert!(
+            (0.0..=1.0).contains(&bc),
+            "Bray-Curtis should be in [0,1], got {bc}"
+        );
+    }
+
+    #[test]
+    fn analytical_rarefaction_full_depth() {
+        let counts = [10, 20, 30, 5];
+        let total: u64 = counts.iter().sum();
+        let curve = analytical_rarefaction(&counts, &[total]);
+        assert!((curve[0] - 4.0).abs() < 1e-10);
+    }
+
+    #[test]
+    fn analytical_rarefaction_monotonic() {
+        let counts = [50, 30, 20, 10, 5, 3, 2, 1];
+        let depths: Vec<u64> = (1..=120).collect();
+        let curve = analytical_rarefaction(&counts, &depths);
+        for i in 1..curve.len() {
+            assert!(
+                curve[i] >= curve[i - 1] - 1e-10,
+                "not monotonic at depth {}",
+                depths[i]
+            );
+        }
+    }
+
+    #[test]
+    fn analytical_rarefaction_zero_depth() {
+        let counts = [10, 20, 30];
+        let curve = analytical_rarefaction(&counts, &[0]);
+        assert!(curve[0].abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn analytical_rarefaction_empty_community() {
+        let counts: [u64; 0] = [];
+        let curve = analytical_rarefaction(&counts, &[10, 20]);
+        assert!(curve.iter().all(|&v| v.abs() < f64::EPSILON));
     }
 }

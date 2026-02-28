@@ -17,7 +17,9 @@ use groundspring::spectral_recon::{
     build_kernel, forward_correlator, gaussian_peak, peak_index, rmse, tikhonov_solve,
 };
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, f64_range, print_provenance_header, u64_field};
+use groundspring_validate::{
+    f64_field, f64_range, print_provenance_header, u64_field, usize_field,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str =
@@ -136,12 +138,16 @@ fn validate_noisy_recon(h: &mut ValidationHarness, ctx: &GridCtx, bench: &Value,
         println!("  λ = {lam:.0e}: RMSE = {r:.6}");
         rmses.push(r);
     }
-    let opt_idx = 2;
+    let opt_idx = usize_field(exp, "optimal_lambda_index");
     let opt_rmse = rmses[opt_idx];
-    h.check_true("Small lambda amplifies noise", rmses[0] >= opt_rmse * 0.5);
+    let tradeoff_ratio = f64_field(exp, "regularization_tradeoff_ratio_min");
+    h.check_true(
+        "Small lambda amplifies noise",
+        rmses[0] >= opt_rmse * tradeoff_ratio,
+    );
     h.check_true(
         "Large lambda over-smooths",
-        *rmses.last().unwrap_or(&0.0) >= opt_rmse * 0.5,
+        *rmses.last().unwrap_or(&0.0) >= opt_rmse * tradeoff_ratio,
     );
     let (lo, hi) = f64_range(&exp["optimal_lambda_rmse_range"]);
     h.check_range("Optimal lambda RMSE in range", opt_rmse, lo, hi);

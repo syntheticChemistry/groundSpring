@@ -184,8 +184,12 @@ fn validate_replicates_and_determinism(
     let r_hi = grid_fit_2d(&cfg_hi).expect("observed and mu_b have equal length");
     let err_low = (r_low.t0 - ctx.true_t0).abs() + (r_low.kappa2 - ctx.true_k2).abs();
     let err_hi = (r_hi.t0 - ctx.true_t0).abs() + (r_hi.kappa2 - ctx.true_k2).abs();
+    let noise_slack = f64_field(exp, "noise_degradation_slack");
     println!("  Low-noise err = {err_low:.4}, high-noise err = {err_hi:.4}");
-    h.check_true("Lower noise improves recovery", err_low <= err_hi + 0.5);
+    h.check_true(
+        "Lower noise improves recovery",
+        err_low <= err_hi + noise_slack,
+    );
 
     println!("\n--- Part 6: Determinism ---");
     let mut r1 = Xorshift64::new(ctx.seed);
@@ -203,7 +207,10 @@ fn validate_replicates_and_determinism(
     h.check_true("Observations deterministic", o1 == o2);
 }
 
-#[allow(clippy::similar_names)]
+#[expect(
+    clippy::similar_names,
+    reason = "t0/k2 and lo/hi are domain-standard names"
+)]
 fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Freeze-Out Inverse Problem");

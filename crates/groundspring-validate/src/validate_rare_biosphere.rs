@@ -93,10 +93,11 @@ fn validate_detection(
     );
 
     println!("\n--- Part 3: Detection Thresholds ---");
-    let d_003 = detection_threshold(0.003, 0.95);
-    let d_004 = detection_threshold(0.004, 0.95);
-    let d_008 = detection_threshold(0.008, 0.95);
-    let d_030 = detection_threshold(0.030, 0.95);
+    let power_target = f64_field(exp, "detection_power_target");
+    let d_003 = detection_threshold(0.003, power_target);
+    let d_004 = detection_threshold(0.004, power_target);
+    let d_008 = detection_threshold(0.008, power_target);
+    let d_030 = detection_threshold(0.030, power_target);
     println!(
         "  p=0.003: D*={d_003}  p=0.004: D*={d_004}  p=0.008: D*={d_008}  p=0.030: D*={d_030}"
     );
@@ -109,6 +110,7 @@ fn validate_detection(
 struct OccupancyCtx<'a> {
     community: &'a [f64],
     model: &'a Value,
+    exp: &'a Value,
     dom: (usize, usize),
     vr: (usize, usize),
     depths: &'a [u64],
@@ -135,10 +137,12 @@ fn validate_occupancy_and_singletons(h: &mut ValidationHarness, ctx: &OccupancyC
     h.check_true("Occupancy correlated with abundance", dom_occ > vr_occ);
 
     let rho = groundspring::stats::spearman_r(ctx.community, &occupancy);
+    let rho_min = f64_field(ctx.exp, "spearman_occupancy_min");
     println!("  Spearman(abundance, occupancy) = {rho:.3}");
-    // Threshold 0.2: community has only 5 distinct abundance levels, creating
-    // massive rank ties that cap achievable ρ. Positive association is the claim.
-    h.check_true("Spearman ρ(abundance, occupancy) > 0.2", rho > 0.2);
+    h.check_true(
+        &format!("Spearman ρ(abundance, occupancy) > {rho_min}"),
+        rho > rho_min,
+    );
 
     println!("\n--- Part 5: Singleton Fraction ---");
     let sf_low = singleton_fraction(
@@ -207,6 +211,7 @@ fn run() -> i32 {
         &OccupancyCtx {
             community: &community,
             model,
+            exp,
             dom,
             vr,
             depths: &depths,

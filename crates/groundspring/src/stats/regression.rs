@@ -139,6 +139,9 @@ pub fn fit_quadratic(xs: &[f64], ys: &[f64]) -> Option<NonlinearFit> {
     fit_quadratic_cpu(xs, ys)
 }
 
+/// Below this threshold, Cramer's rule treats the system as singular.
+const SINGULARITY_THRESHOLD: f64 = 1e-30;
+
 /// 3×3 determinant via cofactor expansion.
 #[expect(
     clippy::suboptimal_flops,
@@ -153,7 +156,7 @@ fn det3(m: [[f64; 3]; 3]) -> f64 {
 /// Solve a 3×3 system Mx = rhs via Cramer's rule.
 fn cramer3(m: [[f64; 3]; 3], rhs: [f64; 3]) -> Option<[f64; 3]> {
     let d = det3(m);
-    if d.abs() < 1e-30 {
+    if d.abs() < SINGULARITY_THRESHOLD {
         return None;
     }
     let mut result = [0.0; 3];

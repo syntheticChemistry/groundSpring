@@ -117,7 +117,7 @@ mod tests {
     }
 
     #[test]
-    #[allow(clippy::float_cmp)]
+    #[expect(clippy::float_cmp, reason = "bitwise determinism test")]
     fn integrate_deterministic() {
         let state = [0.5, 1.0, 0.5, 1.0, 0.3];
         let a = rk4_step(&state, 0.01, |s| {

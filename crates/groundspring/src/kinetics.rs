@@ -35,6 +35,29 @@ pub fn hill(x: f64, k: f64, n: f64) -> f64 {
     }
 }
 
+/// Monod saturation kinetics: `r·x / (K + x)`.
+///
+/// The unsaturated growth rate model used in microbial ecology and
+/// wastewater modeling.  Returns 0 for non-positive `x`, saturates
+/// to `r` as `x → ∞`.
+///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::monod` (absorbed in `ToadStool` S66 from
+/// wetSpring bio metrics).
+#[must_use]
+#[inline]
+pub fn monod(x: f64, r: f64, k: f64) -> f64 {
+    if x <= 0.0 {
+        return 0.0;
+    }
+    #[cfg(feature = "barracuda")]
+    return barracuda::stats::monod(x, r, k);
+    #[cfg(not(feature = "barracuda"))]
+    {
+        r * x / (k + x)
+    }
+}
+
 /// Repressing Hill function: `K^n / (K^n + x^n)`.
 ///
 /// Returns 1 for non-positive `x`, decays to 0 as `x → ∞`.
@@ -97,6 +120,37 @@ mod tests {
         assert!(
             (sum - 1.0).abs() < 1e-12,
             "hill + hill_repress should be 1, got {sum}"
+        );
+    }
+
+    #[test]
+    fn monod_zero_input() {
+        assert!(monod(0.0, 1.0, 1.0).abs() < f64::EPSILON);
+        assert!(monod(-1.0, 1.0, 1.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn monod_half_saturation() {
+        let v = monod(1.0, 2.0, 1.0);
+        assert!(
+            (v - 1.0).abs() < 1e-12,
+            "monod(K, r, K) should be r/2, got {v}"
+        );
+    }
+
+    #[test]
+    fn monod_saturation() {
+        let v = monod(1000.0, 1.0, 1.0);
+        assert!(v > 0.999, "monod should saturate near r, got {v}");
+    }
+
+    #[test]
+    fn monod_scales_with_r() {
+        let v1 = monod(5.0, 1.0, 1.0);
+        let v2 = monod(5.0, 3.0, 1.0);
+        assert!(
+            (v2 / v1 - 3.0).abs() < 1e-12,
+            "monod should scale linearly with r"
         );
     }
 }

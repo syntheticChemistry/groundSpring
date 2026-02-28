@@ -56,6 +56,10 @@ fn discover_uid() -> String {
             }
         }
     }
+    // Last-resort fallback: most single-user Linux systems use UID 1000.
+    // This path only triggers if $UID is unset AND /proc/self/status is
+    // unreadable (e.g. non-Linux or restricted procfs). The socket path
+    // will fail at connect time if the UID is wrong, producing a clear error.
     String::from("1000")
 }
 

@@ -33,7 +33,7 @@ dispatch blocks: `freeze_out::grid_fit_2d` (2D parallel grid),
 `quasispecies::quasispecies_simulation` (batched Wright-Fisher via
 `barracuda::ops::bio::wright_fisher_simulate`), `rare_biosphere::abundance_occupancy`
 and `tier_detection_rate` (batched multinomial via `barracuda::ops::bio`).
-49 metalForge tests, 5 discovered substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). 39 active barracuda delegations + 7 pending ToadStool (30 CPU + 9 GPU).
+49 metalForge tests, 5 discovered substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). 46 active barracuda delegations + 7 pending ToadStool (37 CPU + 9 GPU).
 These dispatch blocks compile only with `--features barracuda-gpu` and call
 expected barracuda functions — ToadStool absorbs them to activate GPU paths.
 
@@ -237,6 +237,13 @@ graph.
 | `stats::regression::fit_exponential` | `stats::regression::fit_exponential` | **DONE** (CPU delegated) | S66 absorption — log-linearized |
 | `stats::regression::fit_logarithmic` | `stats::regression::fit_logarithmic` | **DONE** (CPU delegated) | S66 absorption — ln-linearized |
 | `band_structure::detect_band_ranges` | `spectral::detect_bands` | **DONE** (barracuda-gpu) | hotSpring v0.6 spectral theory — gap detection |
+| `kinetics::monod` | `stats::metrics::monod` | **DONE** (CPU delegated) | S66 absorption — Monod saturation kinetics |
+| `rarefaction::simpson_diversity` | `stats::diversity::simpson` | **DONE** (CPU delegated) | S64 absorption — Simpson index (1 − Σpᵢ²) |
+| `rarefaction::bray_curtis` | `stats::diversity::bray_curtis` | **DONE** (CPU delegated) | S64 absorption — Bray-Curtis dissimilarity |
+| `rarefaction::analytical_rarefaction` | `stats::diversity::rarefaction_curve` | **DONE** (CPU delegated) | S64 absorption — hypergeometric expected species |
+| `bootstrap::bootstrap_median` | `stats::bootstrap_median` | **DONE** (CPU delegated) | S64 absorption — robust CI for median |
+| `bootstrap::bootstrap_std` | `stats::bootstrap_std` | **DONE** (CPU delegated) | S64 absorption — CI for standard deviation |
+| `stats::moving_window_stats` | `stats::moving_window_stats_f64` | **DONE** (CPU delegated) | S66 absorption — sliding window mean/var/min/max |
 
 ### Tier B — Adapt (needs alignment or wrapper)
 
@@ -475,10 +482,45 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (28/28 parity proven, timing data for all experiments) |
-| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) | **39 active delegations + 7 pending ToadStool** (30 CPU + 9 GPU) |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) | **46 active delegations + 7 pending ToadStool** (37 CPU + 9 GPU) |
 | Phase 2b | Tier B adapt (GPU dispatch wiring, PRNG alignment) | **V31–V35** — 5 modules GPU-wired, 49 metalForge tests, 5 substrates; arch-aware dispatch (f64→Titan V, f32→RTX 4070); awaiting ToadStool absorption for 9 pending |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |
+
+## Module → Shader → Pipeline Stage Mapping
+
+Explicit mapping from groundSpring Rust module to WGSL shader (if applicable)
+and pipeline stage for GPU promotion readiness.
+
+| Rust Module | WGSL Shader | Pipeline Stage | GPU Status |
+|---|---|---|---|
+| `anderson` | `anderson_lyapunov.wgsl` (ref) | spectral/localization | **Delegated** — `barracuda::spectral::lyapunov_*` |
+| `almost_mathieu` | — | spectral/eigenvalue | **Delegated** — `barracuda::spectral::find_all_eigenvalues` (49.5×) |
+| `band_structure` | — | spectral/band-detect | **Delegated** — `barracuda::spectral::detect_bands` |
+| `spectral_recon` | — | linalg/solve | **Delegated** — `barracuda::linalg::solve_f64_cpu` |
+| `rare_biosphere` | `batched_multinomial.wgsl` | bio/multinomial | **GPU live** — `BatchedMultinomialGpu` |
+| `rarefaction` | `batched_multinomial.wgsl` | bio/multinomial | Partial — `abundance_occupancy` delegated; `multinomial_sample` pending |
+| `fao56` | `mc_et0_propagate.wgsl` | agri/et0-mc | Shader exists; batch ET₀ absorbed; MC wrapper pending |
+| `freeze_out` | — | grid/fit-2d | **GPU-ready** — `TODO(toadstool): grid_fit_2d_f64` |
+| `seismic` | — | grid/search-3d | **GPU-ready** — `TODO(toadstool): grid_search_3d_f64` |
+| `quasispecies` | — | bio/wright-fisher | **GPU-ready** — `TODO(toadstool): wright_fisher_simulate` |
+| `bistable` | — | ode/biosystems | **Delegated** — `BistableOde::cpu_derivative` |
+| `multisignal` | — | ode/biosystems | **Delegated** — `MultiSignalOde::cpu_derivative` |
+| `kinetics` | — | bio/hill | **Delegated** — `barracuda::stats::hill` |
+| `bootstrap` | — | stats/bootstrap | **Delegated** — `barracuda::stats::bootstrap_mean`, `rawr_mean` |
+| `stats::agreement` | — | stats/metrics | **Delegated** — rmse, mae, mbe, nse, r², ia, hit_rate |
+| `stats::correlation` | — | stats/correlation | **Delegated** — pearson, spearman, covariance |
+| `stats::regression` | — | stats/regression | **Delegated** — linear, quadratic, exponential, logarithmic |
+| `stats::metrics` | — | stats/central | **Delegated** — mean, std_dev, percentile |
+| `stats::distributions` | — | stats/distributions | **Delegated** — norm_cdf, norm_ppf, chi2 |
+| `gillespie` | — | bio/ssa | Pending — SSA inherently serial; GPU batches trajectories |
+| `drift` | — | bio/population | Pending — `TODO(toadstool): kimura_fixation` |
+| `jackknife` | — | stats/jackknife | Pending — `TODO(toadstool): jackknife_mean_variance` |
+| `transport` | — | linalg/tridiag | CPU-optimal — QL beats dense Jacobi |
+| `wdm` | — | transport/green-kubo | Uses delegated `stats::fit_linear` + `numerical::trapz` |
+| `decompose` | — | stats/decompose | Uses delegated rmse + mbe |
+| `prng` | — | util/prng | Tier B — xorshift64 → xoshiro128** alignment pending |
+| `linalg` | — | linalg/tridiag | CPU-only — implicit QL eigensolver |
 
 ## Cross-Reference
 

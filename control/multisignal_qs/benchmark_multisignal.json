@@ -55,7 +55,10 @@
     "dual_signal_hapr_exceeds_ai2_only": true,
     "dual_hapr_represses_biofilm": true,
     "deterministic_trajectories_agree": true,
+    "determinism_tolerance": 1e-10,
     "dual_lower_variance": true,
+    "dual_signal_variance_ratio_max": 1.5,
+    "dual_signal_variance_ratio_max_rationale": "Dual-signal c-di-GMP std must be at most 1.5x single-signal std; signal integration reduces noise.",
     "low_noise_cdg_agreement_tol": 0.5
   }
 }

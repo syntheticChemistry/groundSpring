@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: February 28, 2026
-**Status**: Phase 0 + Phase 1 + Phase 2a complete + GPU dispatch (V46) — 292/292 PASS, 39 active delegations + 7 pending ToadStool (30 CPU + 9 GPU), 49 metalForge tests, arch-aware GPU dispatch, 11.5× faster (excl. LAPACK-bound), 28/28 parity proven
+**Status**: Phase 0 + Phase 1 + Phase 2a complete + GPU dispatch (V46) — 292/292 PASS, 46 active delegations + 7 pending ToadStool (37 CPU + 9 GPU), 49 metalForge tests, arch-aware GPU dispatch, 11.5× faster (excl. LAPACK-bound), 28/28 parity proven
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -36,7 +36,7 @@
 | Exp 019 | Jackknife error estimation — subpercent precision (Bazavov 2025 Phys Rev D) |
 | Exp 020 | Freeze-out inverse problem — inferring freeze-out conditions (Bazavov 2016) |
 | Exp 021 | Spectral function reconstruction — signal recovery from noisy lattice data (Bazavov 2025) |
-| Barracuda | 39 active delegations + 7 pending ToadStool (30 CPU + 9 GPU). 49 metalForge tests, arch-aware GPU routing |
+| Barracuda | 46 active delegations + 7 pending ToadStool (37 CPU + 9 GPU). 49 metalForge tests, arch-aware GPU routing |
 | Performance | 11.5× faster than Python (excl. LAPACK-bound); 5.1× overall |
 | Faculty | Bazavov, Waters, Liu, Kachkovskiy, R. Anderson, Dolson |
 

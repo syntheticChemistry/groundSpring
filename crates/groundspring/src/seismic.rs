@@ -151,11 +151,6 @@ pub fn grid_search_inversion<S: AsRef<str>>(
     grid_search_inversion_cpu(observed, stations, config)
 }
 
-#[allow(
-    clippy::similar_names,
-    clippy::cast_possible_truncation,
-    clippy::cast_sign_loss
-)]
 fn grid_search_inversion_cpu<S: AsRef<str>>(
     observed: &[(S, f64)],
     stations: &[Station],

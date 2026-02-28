@@ -131,8 +131,8 @@ cargo run --bin validate-jackknife
 cargo run --bin validate-freeze-out
 cargo run --bin validate-spectral-recon
 cargo run --bin validate-et0-anderson
-cargo run --bin validate-notill
-cargo run --bin validate-aggregate
+cargo run --bin validate-notill-sampling
+cargo run --bin validate-aggregate-stability
 cargo run --bin validate-precision-drift
 cargo run --bin validate-size-convergence
 cargo run --bin validate-vendor-parity

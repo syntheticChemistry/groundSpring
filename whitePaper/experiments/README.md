@@ -9,7 +9,7 @@
 **Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across all 28 experiments.
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **Coverage**: Zero clippy warnings. Four-mode CI (default + barracuda + barracuda-gpu + biomeos).
-**BarraCUDA**: 39 active delegations + 7 pending ToadStool (30 CPU + 9 GPU). Exp 009: **47.7× from Sturm tridiag**.
+**BarraCUDA**: 46 active delegations + 7 pending ToadStool (37 CPU + 9 GPU). Exp 009: **47.7× from Sturm tridiag**.
 **Modules**: 30 (including `linalg`, `error`, `jackknife`, `freeze_out`, `spectral_recon`, `wdm`, `npu`, `biomeos`, `nestgate`).
 **metalForge**: 4 live hardware binaries (RTX 4070, Titan V, AKD1000 NPU). 49+ metalForge checks, 5+ substrates, architecture-aware routing, remote NUCLEUS discovery. Exp 028 NPU DMA at ~51µs.
 **Baseline integrity**: All 28 benchmark JSONs verified — provenance fields, hex commit hashes, UTF-8.
@@ -55,8 +55,8 @@ Each experiment is validated at three levels:
 2. **GPU** — Barracuda GPU matches CPU within tolerance (`--features barracuda-gpu`)
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
-Current status: **CPU complete** (292/292), **39 active delegations + 7 pending ToadStool**
-(30 CPU delegated + 9 GPU delegated).
+Current status: **CPU complete** (292/292), **46 active delegations + 7 pending ToadStool**
+(37 CPU delegated + 9 GPU delegated).
 V31: 5 modules GPU-wired (`freeze_out`, `band_structure`, `seismic`, `quasispecies`, `rare_biosphere`).
 V44: `linalg` module extracted, typed `InputError` errors, 5 APIs evolved to `Result`.
 19 metalForge workloads, 5+ substrates, architecture-aware routing (V35), remote NUCLEUS discovery (V39). All delegations use sovereign fallback.

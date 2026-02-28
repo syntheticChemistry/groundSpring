@@ -8,7 +8,7 @@
 #
 # STATUS: Protocol defined (Feb 27, 2026)
 # Atomic: Node (Tower + ToadStool)
-# Experiments: 28 (288 validation checks)
+# Experiments: 28 (292 validation checks)
 # Substrates: CPU (reference) + GPU (barracuda dispatch)
 
 [graph]
@@ -69,7 +69,7 @@ name = "capability_call"
 
 [nodes.operation.params]
 capability = "science.validate_suite"
-params = { experiments = "all", mode = "barracuda-gpu", expected_checks = 288 }
+params = { experiments = "all", mode = "barracuda-gpu", expected_checks = 292 }
 
 [nodes.constraints]
 timeout_ms = 600000

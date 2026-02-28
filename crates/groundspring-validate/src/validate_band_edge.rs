@@ -39,9 +39,20 @@ fn validate_free_and_periodic(
     h.check_true("Free lattice: 2 band edges", free_edges.len() == 2);
     let lo = pred["free_band_edges"][0].as_f64().expect("lo");
     let hi = pred["free_band_edges"][1].as_f64().expect("hi");
+    let edge_tol = f64_field(exp, "edge_tolerance");
     if free_edges.len() == 2 {
-        h.check_range("Lower edge ≈ -2t", free_edges[0], lo - 0.05, lo + 0.05);
-        h.check_range("Upper edge ≈ +2t", free_edges[1], hi - 0.05, hi + 0.05);
+        h.check_range(
+            "Lower edge ≈ -2t",
+            free_edges[0],
+            lo - edge_tol,
+            lo + edge_tol,
+        );
+        h.check_range(
+            "Upper edge ≈ +2t",
+            free_edges[1],
+            hi - edge_tol,
+            hi + edge_tol,
+        );
     }
 
     println!("\n--- Part 2: Period-2 Gap ---");
@@ -72,6 +83,7 @@ fn validate_free_and_periodic(
 fn validate_proportionality_and_finite(
     h: &mut ValidationHarness,
     ctx: &BandCtx<'_>,
+    exp: &Value,
     n_periods: usize,
     dvs: &[f64],
 ) {
@@ -88,19 +100,25 @@ fn validate_proportionality_and_finite(
         gap_widths.push(gw);
         println!("  ΔV={dv:.1}: gap = {gw:.3}");
     }
-    let monotone = gap_widths.windows(2).all(|w| w[0] <= w[1] + 0.01);
+    let gap_slack = f64_field(exp, "gap_monotonicity_slack");
+    let monotone = gap_widths.windows(2).all(|w| w[0] <= w[1] + gap_slack);
     h.check_true("Gap width increases with ΔV", monotone);
 
     println!("\n--- Part 5: Finite System ---");
     let (diag, offdiag) = periodic_hamiltonian(ctx.pot_2, ctx.t_hop, n_periods);
     let (eigenvalues, _) = tridiag_eigh(&diag, &offdiag).expect("eigendecomposition");
-    let frac = eigenvalue_band_fraction(&eigenvalues, ctx.pot_2, ctx.t_hop, 0.05);
+    let band_margin = f64_field(exp, "eigenvalue_band_margin");
+    let frac = eigenvalue_band_fraction(&eigenvalues, ctx.pot_2, ctx.t_hop, band_margin);
+    let frac_min = f64_field(exp, "eigenvalue_band_fraction_min");
     println!(
         "  {} eigenvalues, {:.1}% in bands",
         eigenvalues.len(),
         frac * 100.0
     );
-    h.check_true("≥95% eigenvalues within bands", frac >= 0.95);
+    h.check_true(
+        &format!("≥{:.0}% eigenvalues within bands", frac_min * 100.0),
+        frac >= frac_min,
+    );
 }
 
 fn run() -> i32 {
@@ -152,7 +170,7 @@ fn run() -> i32 {
     };
 
     validate_free_and_periodic(&mut h, &ctx, pred, exp);
-    validate_proportionality_and_finite(&mut h, &ctx, n_periods, &dvs);
+    validate_proportionality_and_finite(&mut h, &ctx, exp, n_periods, &dvs);
 
     println!("\n--- Part 6: Determinism ---");
     let t1 = transfer_matrix_half_trace(0.5, &pot_2, t_hop);

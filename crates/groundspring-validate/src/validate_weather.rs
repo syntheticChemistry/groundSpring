@@ -21,7 +21,9 @@ fn run() -> i32 {
 
     println!("{}", "=".repeat(72));
     println!("groundSpring Rust Validation: Weather Model-Observation Gap");
-    println!("  Verifies stats + hit_rate on weather-domain data");
+    println!("  Provenance: analytical-only — no benchmark JSON or Python baseline");
+    println!("  Expected values derived from closed-form identities on constructed inputs");
+    println!("  (e.g. constant +2 °C bias ⟹ MBE = 2.0, RMSE = 2.0)");
     println!("{}", "=".repeat(72));
 
     // ── Hit rate analytical cases ───────────────────────────────────

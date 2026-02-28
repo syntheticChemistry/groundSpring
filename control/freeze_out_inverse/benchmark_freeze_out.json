@@ -44,6 +44,8 @@
     "chi2_per_dof_max": 6.0,
     "poly_eval_exact": true,
     "noise_degrades_precision": true,
+    "noise_degradation_slack": 0.5,
+    "noise_degradation_slack_rationale": "Low-noise recovery is expected to be better, but grid discretization (step=0.25 MeV, 0.0001 kappa2) can create ties. 0.5 absorbs grid-step aliasing.",
     "grid_finds_minimum": true,
     "replicate_coverage_min": 0.70,
     "determinism": true

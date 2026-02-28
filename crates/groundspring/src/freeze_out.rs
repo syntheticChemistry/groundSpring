@@ -115,10 +115,11 @@ pub fn grid_fit_2d(config: &GridFitConfig<'_>) -> Result<GridFitResult, crate::e
     Ok(grid_fit_2d_cpu(config))
 }
 
-#[allow(
+#[expect(
     clippy::similar_names,
     clippy::cast_possible_truncation,
-    clippy::cast_sign_loss
+    clippy::cast_sign_loss,
+    reason = "t0/k2 and lo/hi are domain-standard names; loop index fits in f64"
 )]
 fn grid_fit_2d_cpu(config: &GridFitConfig<'_>) -> GridFitResult {
     let n_data = config.observed.len();

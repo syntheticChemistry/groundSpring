@@ -135,9 +135,10 @@ fn run() -> i32 {
     println!("\n--- Part 3: Determinism ---");
 
     let repeat = integrate(&ic, &params, dt, n_steps);
+    let det_tol = f64_field(exp, "determinism_tolerance");
     h.check_true(
         "Deterministic trajectories agree",
-        (0..7).all(|i| (final_dual[i] - repeat[i]).abs() < 1e-10),
+        (0..7).all(|i| (final_dual[i] - repeat[i]).abs() < det_tol),
     );
 
     // ── Part 4: SNR — dual-signal has lower variance ───────────────────
@@ -155,10 +156,11 @@ fn run() -> i32 {
 
     let dual_std = groundspring::stats::std_dev(&dual_cdgs);
     let cai1_std = groundspring::stats::std_dev(&cai1_cdgs);
+    let var_ratio_max = f64_field(exp, "dual_signal_variance_ratio_max");
     println!("  Dual σ(c-di-GMP)={dual_std:.4}, CAI-1 only σ={cai1_std:.4}");
     h.check_true(
-        "Dual-signal has lower c-di-GMP variance",
-        dual_std <= cai1_std * 1.5,
+        &format!("Dual-signal σ ≤ {var_ratio_max}× single-signal σ"),
+        dual_std <= cai1_std * var_ratio_max,
     );
 
     // ── Part 5: Low noise agreement ───────────────────────────────────

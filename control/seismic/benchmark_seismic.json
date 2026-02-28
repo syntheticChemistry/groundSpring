@@ -118,6 +118,14 @@
       "rms_residual_s_max": 2.0
     }
   },
+  "haversine_reference": {
+    "_description": "Great-circle NY-London (WGS-84): 5570 km. Range absorbs spherical vs ellipsoidal model difference.",
+    "ny_london_range": [5520.0, 5620.0],
+    "ny_lat": 40.7128,
+    "ny_lon": -74.006,
+    "london_lat": 51.5074,
+    "london_lon": -0.1278
+  },
   "noise_characterization": {
     "_description": "Types of noise in seismic data",
     "cultural_noise": {

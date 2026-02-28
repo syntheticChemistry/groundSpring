@@ -159,10 +159,6 @@ fn run() -> i32 {
     let grid = &bench["inversion_config"]["grid_search"];
 
     // ── Haversine ───────────────────────────────────────────────────
-    // Tol 1e-10: identity check (same point → 0 km), limited only by
-    // trig rounding; 1e-10 is ~6 orders above machine epsilon.
-    // Range 5520–5620: great-circle NY–London is 5570 km (WGS-84);
-    // ±50 km absorbs spherical vs ellipsoidal model difference.
     println!("\n--- Haversine Distance ---");
 
     h.check_approx(
@@ -172,8 +168,15 @@ fn run() -> i32 {
         TOL_ANALYTICAL,
     );
 
-    let ny_london = haversine_km(40.7128, -74.0060, 51.5074, -0.1278);
-    h.check_range("NY-London ~5570 km", ny_london, 5520.0, 5620.0);
+    let hav = &bench["haversine_reference"];
+    let ny_london = haversine_km(
+        f64_field(hav, "ny_lat"),
+        f64_field(hav, "ny_lon"),
+        f64_field(hav, "london_lat"),
+        f64_field(hav, "london_lon"),
+    );
+    let (hav_lo, hav_hi) = groundspring_validate::f64_range(&hav["ny_london_range"]);
+    h.check_range("NY-London ~5570 km", ny_london, hav_lo, hav_hi);
 
     // ── Travel time ─────────────────────────────────────────────────
     println!("\n--- Travel Time ---");

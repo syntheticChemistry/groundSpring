@@ -11,7 +11,7 @@
 //!
 //! ## Modules
 //!
-//! - [`stats`] — Core statistical metrics (RMSE, MBE, R², IA, hit rate)
+//! - [`stats`] — Core statistical metrics (RMSE, MBE, R², IA, hit rate, moving window)
 //! - [`decompose`] — Bias-variance error decomposition
 //! - [`drift`] — Drift vs selection in finite populations (Wright-Fisher)
 //! - [`prng`] — Deterministic pseudo-random number generation

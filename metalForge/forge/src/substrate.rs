@@ -162,7 +162,10 @@ impl AdaptiveBatch {
             arch.default_vram_bytes()
         };
 
-        #[allow(clippy::cast_possible_truncation)]
+        #[expect(
+            clippy::cast_possible_truncation,
+            reason = "VRAM fits in usize on 64-bit"
+        )]
         let usable = (vram / 4 * 3) as usize;
         let max_elements = if element_bytes > 0 {
             usable / element_bytes

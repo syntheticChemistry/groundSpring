@@ -12,7 +12,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **292/292 checks passed** across 28 validation binaries.
 - Mathematical parity: **28/28 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.5× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.7× from Sturm tridiag**.
-- V46: Idiomatic Rust evolution. 39 active delegations + 7 pending ToadStool (30 CPU + 9 GPU), `linalg` module, typed `InputError`, 19 metalForge workloads, 5 substrates, architecture-aware routing. biomeOS Neural API. Four-mode CI.
+- V47: Library buildout. 46 active delegations + 7 pending ToadStool (37 CPU + 9 GPU), `linalg` module, typed `InputError`, 19 metalForge workloads, 5 substrates, architecture-aware routing. biomeOS Neural API. Four-mode CI. New: simpson, bray_curtis, rarefaction_curve, monod, bootstrap_median/std, moving_window_stats.
 
 ### Key Results
 
@@ -27,13 +27,13 @@ This white paper documents groundSpring's systematic approach to quantifying the
 | 007: RAWR Resampling | Statistics | 11/11 | 11/11 PASS | RAWR competitive or better than bootstrap across all test cases |
 | 008: Anderson Localization | Math (spectral) | 8/8 | 8/8 PASS | Thouless scaling ξ ≈ 104/W²; all states localized for W > 0 |
 | 009: Quasiperiodic | Math (spectral) | 8/8 | 8/8 PASS | Aubry-André transition at λ=2; Herman's formula confirmed |
-| 010: Bistable Switching | Biology (c-di-GMP) | 10/10 | 9/9 PASS | Two stable attractors; noise-induced transitions |
-| 011: Multi-Signal QS | Biology (QS) | 9/9 | 8/8 PASS | Dual signaling sharpens regulation; lower variance |
+| 010: Bistable Switching | Biology (c-di-GMP) | 10/10 | 10/10 PASS | Two stable attractors; noise-induced transitions |
+| 011: Multi-Signal QS | Biology (QS) | 9/9 | 9/9 PASS | Dual signaling sharpens regulation; lower variance |
 | 012: Spin Chain Transport | Math (spectral) | 18/18 | 18/18 PASS | Ballistic→localized transport transition (Kachkovskiy 2016) |
 | 013: Resampling Convergence | Statistics | 10/10 | 8/8 PASS | Bootstrap/RAWR converge by ~2000 replicates (Lee & Liu 2024) |
 | 014: Drift vs Selection | Evolutionary Bio | 7/7 | 7/7 PASS | N×s threshold: drift dominates at small N (R. Anderson 2022) |
 | 015: Uncertainty Bridge | Cross-domain | 8/8 | 8/8 PASS | Sensor noise → Anderson ξ; CV(ξ) ranking preserved; bias correction minimal at saturated disorder |
-| 016: Rare Biosphere | Microbial ecology | 11/11 | 10/10 PASS | Sequencing depth determines rare taxa signal boundary; Chao1 corrects undersampling; D*≈998 for rarest taxa |
+| 016: Rare Biosphere | Microbial ecology | 11/11 | 12/12 PASS | Sequencing depth determines rare taxa signal boundary; Chao1 corrects undersampling; D*≈998 for rarest taxa |
 | 017: Quasispecies Threshold | Evolutionary dynamics | 9/9 | 6/6 PASS | Eigen's error threshold μ_c≈0.023 predicts mutation-driven information collapse; sharp phase transition |
 | 018: Band Edge Structure | Mathematical physics | 8/8 | 10/10 PASS | Transfer matrix reproduces tight-binding band-gap structure; period-p potential → p bands |
 | 019: Jackknife Estimation | Statistics | 9/9 | 9/9 PASS | Delete-one jackknife variance, bias correction, block jackknife; extends Exp 007 RAWR |

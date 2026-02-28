@@ -4,6 +4,49 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V47 Library Buildout + BarraCUDA CPU Expansion (Feb 28, 2026)
+
+#### Added
+- **`rarefaction::simpson_diversity`**: Simpson diversity index (1 − Σpᵢ²) with `barracuda::stats::simpson` delegation (S64)
+- **`rarefaction::bray_curtis`**: Bray-Curtis dissimilarity with `barracuda::stats::bray_curtis` delegation (S64)
+- **`rarefaction::analytical_rarefaction`**: Hypergeometric expected species with `barracuda::stats::rarefaction_curve` delegation (S64)
+- **`kinetics::monod`**: Monod saturation kinetics with `barracuda::stats::monod` delegation (S66)
+- **`bootstrap::bootstrap_median`**: Robust CI for median with `barracuda::stats::bootstrap_median` delegation (S64)
+- **`bootstrap::bootstrap_std`**: CI for standard deviation with `barracuda::stats::bootstrap_std` delegation (S64)
+- **`stats::moving_window`**: New submodule — sliding window mean/variance/min/max with `barracuda::stats::moving_window_stats_f64` delegation (S66)
+- 26 new unit tests across 4 modules
+
+#### Changed
+- **Delegation count**: 39 → **46 active** (37 CPU + 9 GPU), 7 pending ToadStool unchanged
+- **Test count**: 296 → **322** library tests; 436+ workspace (default)
+
+#### Validated
+- `cargo fmt --check`: PASS
+- `cargo clippy -D warnings`: 0 warnings
+- `cargo clippy -W pedantic`: 0 warnings
+- `cargo doc --no-deps`: clean
+- `cargo test --workspace`: all PASS (default + barracuda)
+- 28 validation binaries: 292/292 PASS
+
+### V46 Idiomatic Rust Evolution (Feb 28, 2026)
+
+#### Changed
+- **`#[allow]` → `#[expect]`**: All 7 remaining `#[allow]` annotations migrated to `#[expect]` with documented reasons; removed stale suppression in `seismic.rs`
+- **Hardcoded thresholds evolved**: 6 validation binaries updated to read thresholds from benchmark JSONs (`rare_biosphere`, `multisignal`, `seismic`, `spectral_recon`, `band_edge`, `freeze_out`)
+- **Named constant**: `SINGULARITY_THRESHOLD` extracted in `regression.rs`
+- **`validate_weather.rs`**: Structured analytical provenance header added
+- **`validate_nucleus_pipeline.rs`**: UID fallback documented with rationale
+
+#### Added
+- 6 benchmark JSON files updated with previously hardcoded thresholds and rationales
+- Module → WGSL Shader → Pipeline Stage mapping table in `BARRACUDA_EVOLUTION.md`
+
+### V45 Validation Gap Closure (Feb 28, 2026)
+
+#### Added
+- +4 validation checks (292/292 total): Exp 010 low-noise agreement, Exp 011 dual-signal variance, Exp 016 Spearman occupancy + multinomial determinism
+- All Python checks now covered in Rust
+
 ### V44 Deep-Debt Evolution — linalg Extraction, Typed Errors, Capability Discovery (Feb 28, 2026)
 
 #### Added

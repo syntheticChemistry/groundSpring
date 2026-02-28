@@ -37,10 +37,10 @@
 
 **Python Phase 0**: All 28 experiments passing (320 pass + 2 skip)
 **Rust Phase 1**: 292/292 PASS across 28 validation binaries
-**Rust tests**: 462/462 PASS (barracuda-gpu) | 410/410 PASS (default) | 442/442 PASS (biomeos)
+**Rust tests**: 488/488 PASS (barracuda-gpu) | 436/436 PASS (default) | 468/468 PASS (biomeos)
 **pytest**: 320/320 PASS + 2 skipped
 **Three-tier parity**: 27/27 PROVEN (default = barracuda-CPU = barracuda-GPU) — certificate in `data/three_tier_parity_report.json`
-**BarraCUDA dispatch**: 39 active (30 CPU + 9 GPU) + 7 pending `ToadStool` — pinned S68+ (V42 GPU rewiring)
+**BarraCUDA dispatch**: 46 active (37 CPU + 9 GPU) + 7 pending `ToadStool` — pinned S68+ (V46 library buildout)
 **metalForge workloads**: 19 (12 original + 7 new cross-system targets), 49 tests
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
 **GPU tier validation (V43)**: 39/39 GPU tier checks + 26/26 pure-GPU workload checks, 17/19 workloads route to Titan V
@@ -456,6 +456,28 @@ Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classi
 | **Grand Total** | **762** | |
 
 ## Run Log
+
+### Run 33 (V47 Deep Debt: Hardcode Evolution + #[expect] Migration, Feb 28, 2026)
+
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace --all-targets -- -D warnings`: PASS (0 warnings)
+- `cargo clippy --workspace --all-targets -- -W clippy::pedantic`: PASS (0 warnings)
+- `cargo doc --workspace --no-deps`: PASS (0 warnings)
+- `cargo test --workspace` (default): 452 tests, 292/292 validation checks, all PASS
+- **Hardcode evolution**: 8 validation binaries evolved to read thresholds from benchmark JSON instead of inline magic numbers:
+  - `validate_rare_biosphere`: `0.2` Spearman → `exp.spearman_occupancy_min`; `0.95` detection → `exp.detection_power_target`
+  - `validate_multisignal`: `1e-10` determinism → `exp.determinism_tolerance`; `1.5` variance → `exp.dual_signal_variance_ratio_max`
+  - `validate_seismic`: `5520/5620` NY-London → `haversine_reference.ny_london_range` + lat/lon from JSON
+  - `validate_spectral_recon`: `opt_idx = 2` → `exp.optimal_lambda_index`; `0.5` ratio → `exp.regularization_tradeoff_ratio_min`
+  - `validate_band_edge`: `0.05` edge tol → `exp.edge_tolerance`; `0.01` slack → `exp.gap_monotonicity_slack`; `0.95` fraction → `exp.eigenvalue_band_fraction_min`; `0.05` margin → `exp.eigenvalue_band_margin`
+  - `validate_freeze_out`: `0.5` slack → `exp.noise_degradation_slack`
+  - `validate_weather`: Added structured analytical provenance header
+  - `validate_nucleus_pipeline`: Documented `"1000"` UID fallback with rationale
+- **Benchmark JSON evolution**: 6 JSONs updated with documented threshold fields + rationale strings
+- **`#[allow]` → `#[expect]` migration**: All 7 remaining `#[allow]` annotations migrated to `#[expect]` with `reason` parameters. Migration caught 1 stale suppression in `seismic.rs` (lints no longer fire — dead `#[allow]` removed)
+- **Named constants**: `SINGULARITY_THRESHOLD` extracted in `regression.rs` (was magic `1e-30`)
+- **Specs evolution**: `specs/BARRACUDA_EVOLUTION.md` — added explicit Module → WGSL Shader → Pipeline Stage mapping table (27 entries covering all library modules)
+- **Code quality gate**: 0 unsafe, 0 unwrap in library, 0 `#[allow]` annotations (all `#[expect]`), 0 mocks in production, 0 stale lint suppressions, 6 external deps all justified
 
 ### Run 32 (V46 Idiomatic Rust Evolution, Feb 28, 2026)
 
@@ -1060,7 +1082,7 @@ Each experiment is validated at three hardware tiers:
 
 ### BarraCUDA Integration Status (post ToadStool S68)
 
-**39 active delegations** (30 CPU + 9 GPU), **7 pending ToadStool absorption** (3 CPU + 4 GPU, commented out with `TODO(toadstool)`). V42 GPU rewiring: wired `abundance_occupancy` + `tier_detection_rate` → `BatchedMultinomialGpu` (real GPU dispatch). V40 audit: added mae, nash_sutcliffe, 4 regression fits, detect_band_ranges; moved 3 overclaimed (kimura, jackknife, fao56) to pending. All active delegations use `if let Ok` with always-compiled CPU fallback.
+**46 active delegations** (37 CPU + 9 GPU), **7 pending ToadStool absorption** (3 CPU + 4 GPU, commented out with `TODO(toadstool)`). V42 GPU rewiring: wired `abundance_occupancy` + `tier_detection_rate` → `BatchedMultinomialGpu` (real GPU dispatch). V40 audit: added mae, nash_sutcliffe, 4 regression fits, detect_band_ranges; moved 3 overclaimed (kimura, jackknife, fao56) to pending. All active delegations use `if let Ok` with always-compiled CPU fallback.
 
 | # | Module | BarraCUDA Target | Feature Gate | Status |
 |---|--------|-----------------|:------------:|--------|
@@ -1112,7 +1134,7 @@ Each experiment is validated at three hardware tiers:
 - **Phase 1**: Rust CPU validation — **COMPLETE** (292/292 across 28 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
 - **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 001-028: all domains)
-- **Phase 2a**: Tier A rewire — **COMPLETE** — 39 active delegations (30 CPU + 9 GPU) + 7 pending ToadStool (V42 GPU rewiring)
+- **Phase 2a**: Tier A rewire — **COMPLETE** — 46 active delegations (37 CPU + 9 GPU) + 7 pending ToadStool (V42 GPU rewiring)
 - **Phase 2b**: BarraCUDA CPU parity — **PROVEN** — 11.7× faster than Python (excl. LAPACK-bound), 28/28 math parity
 - **Phase 2c**: BarraCUDA GPU tier — **PROVEN** — 27/27 three-tier parity, 2.2× total GPU speedup, 47.4× peak (Exp 009)
   - GPU-delegated: anderson, almost_mathieu, spectral_recon, detect_bands (7 active GPU delegations)
@@ -1143,8 +1165,9 @@ Each experiment is validated at three hardware tiers:
 | Library line coverage | 99.37% (cargo-llvm-cov, 100% function coverage) |
 | Unsafe code | Forbidden (workspace lint) |
 | Max file size | 405 lines (all < 1000) |
-| `#[allow]` → `#[expect]` | All cast lints use `#[expect]` (warns if suppression becomes unnecessary) |
-| Magic numbers | Extracted to named constants (npu.rs, probe.rs) |
+| `#[allow]` → `#[expect]` | **Zero `#[allow]` remaining** — all lint suppressions use `#[expect]` with `reason` (warns if suppression becomes unnecessary); migration caught 1 stale suppression in seismic.rs |
+| Magic numbers | Extracted to named constants (npu.rs, probe.rs, regression.rs `SINGULARITY_THRESHOLD`) |
+| Validation thresholds | All hardcoded thresholds evolved to benchmark JSON with rationale strings |
 | SPDX headers | All `.rs` and `.py` files (consistent shebang order in Python) |
 | License | AGPL-3.0-or-later |
 
@@ -1258,12 +1281,15 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 
 | Handoff | Scope | Status |
 |---------|-------|--------|
-| V46: Idiomatic Rust Evolution | `stats::agreement` domain split from `metrics` (R²/NSE deduplicated via `coefficient_of_efficiency`), `.windows(3).fold()` iterator modernization, `NESTGATE_DEFAULT_PORT` constant, zero clippy/doc warnings. Full audit: 0 unsafe, 0 unwrap in library, 0 mocks in production, 6 external deps justified. | **Current** |
+| V47: Library Buildout + BarraCUDA CPU Expansion | 7 new barracuda CPU delegations: `simpson_diversity`, `bray_curtis`, `analytical_rarefaction`, `monod`, `bootstrap_median`, `bootstrap_std`, `moving_window_stats`. 322 lib tests (+26 new), 0 clippy warnings (pedantic), 0 doc warnings. Total: 46 active delegations (37 CPU + 9 GPU). | **Current** |
+| V46: Idiomatic Rust Evolution | `stats::agreement` domain split from `metrics` (R²/NSE deduplicated via `coefficient_of_efficiency`), `.windows(3).fold()` iterator modernization, `NESTGATE_DEFAULT_PORT` constant, zero clippy/doc warnings. Full audit: 0 unsafe, 0 unwrap in library, 0 mocks in production, 6 external deps justified. | Superseded by V47 |
+| V47: Library Buildout + BarraCUDA CPU Expansion | 7 new CPU delegations (simpson, bray_curtis, rarefaction_curve, monod, bootstrap_median, bootstrap_std, moving_window_stats), 46 active (37 CPU + 9 GPU), 322 lib tests, stats::moving_window submodule | Active |
+| V46: Idiomatic Rust Evolution | `#[allow]` → `#[expect]`, hardcoded thresholds evolved to benchmark JSONs, named constants, analytical provenance | Superseded by V47 |
 | V45: Validation Gap Closure | +4 checks (292/292): Exp 010 low-noise agreement, Exp 011 dual-signal variance, Exp 016 Spearman occupancy + multinomial determinism. All Python checks now covered in Rust. | Superseded by V46 |
 | V44: Deep-Debt Evolution | `linalg` module extraction, `InputError` typed errors, 5 `assert!` → `Result` APIs, capability-based UID discovery, idiomatic casts, enriched derives, absorption guidance for ToadStool | Superseded by V45 |
 | V43: Three-Tier Parity + Pure GPU Workloads | 27/27 three-tier parity PROVEN, 39/39 GPU tier checks, 26/26 pure-GPU workload checks, 17/19 metalForge dispatch to Titan V, 462 Rust tests, full certificate in `data/three_tier_parity_report.json` | Superseded by V44 |
 | V39: NUCLEUS Integration + NestGate + metalForge Remote | NestGate data pipeline (NCBI/NOAA), metalForge remote substrate discovery, Tower/Node/Nest pipeline graphs, baseCamp sync, 498+ tests | Active |
-| V37: BarraCUDA Evolution | 39 active delegations (30 CPU + 9 GPU, V42 GPU rewiring), 7 pending, NAK f64 gap, absorption priorities, cross-spring learnings | Active (companion) |
+| V37: BarraCUDA Evolution | 39 active delegations (30 CPU + 9 GPU, V42 GPU rewiring), 7 pending, NAK f64 gap, absorption priorities, cross-spring learnings | Superseded by V47 |
 | V35: Titan V / NAK Adaptive GPU Dispatch | `GpuArch` detection, `NativeF64`, `AdaptiveBatch`, 19 workloads, 49 metalForge tests, 5 substrates, arch-aware routing, NAK f64 gap confirmed, live GPU compute | Superseded by V37/V39 |
 | V33: Delegation Count Expansion | 39 active (30 CPU + 9 GPU, V42 GPU rewiring), 7 pending ToadStool | Superseded by V42 |
 | V31: GPU Dispatch Wiring + metalForge Expansion | 5 GPU dispatch blocks, 5 metalForge workloads (12 total), 10 GPU parity tests | Superseded by V32 |
@@ -1290,7 +1316,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V46_IDIOMATIC_RUST_EVOLUTION_HANDOFF_FEB28_2026.md`
+Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V47_LIBRARY_BUILDOUT_BARRACUDA_CPU_HANDOFF_FEB28_2026.md`
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

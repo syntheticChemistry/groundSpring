@@ -52,6 +52,9 @@
     "peak_positive": true,
     "small_lambda_amplifies_noise": true,
     "large_lambda_over_smooths": true,
+    "regularization_tradeoff_ratio_min": 0.5,
+    "regularization_tradeoff_ratio_min_rationale": "Both under- and over-regularized RMSE must be at least 0.5x optimal RMSE, confirming a genuine trade-off.",
+    "optimal_lambda_index": 2,
     "optimal_lambda_rmse_range": [0.0, 0.5],
     "determinism": true
   }
