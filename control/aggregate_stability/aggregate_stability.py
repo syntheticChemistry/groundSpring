@@ -89,7 +89,7 @@ def regime_distinguishable(
     n_high = np.percentile(d_eff_notill, 97.5)
     # Regimes distinguishable if the intervals don't overlap by more than gap_threshold
     overlap = min(t_high, n_high) - max(t_low, n_low)
-    return overlap < gap_threshold
+    return bool(overlap < gap_threshold)
 
 
 # ---------------------------------------------------------------------------

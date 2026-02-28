@@ -172,9 +172,9 @@ impl Xoshiro128StarStar {
     }
 
     /// Combine two 32-bit outputs into a raw `u64`.
-    pub const fn next_u64(&mut self) -> u64 {
-        let hi = self.next_u32() as u64;
-        let lo = self.next_u32() as u64;
+    pub fn next_u64(&mut self) -> u64 {
+        let hi = u64::from(self.next_u32());
+        let lo = u64::from(self.next_u32());
         (hi << 32) | lo
     }
 

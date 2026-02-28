@@ -44,7 +44,7 @@ def synthetic_vacf_noisy(
     decay = np.exp(-t / tau)
     signal = c0 * decay
     noise = noise_amplitude * rng.standard_normal(n_steps) * decay
-    return signal + noise
+    return np.asarray(signal + noise)
 
 
 def green_kubo_integrate(vacf: np.ndarray, dt: float) -> float:

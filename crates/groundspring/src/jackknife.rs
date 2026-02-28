@@ -10,12 +10,13 @@
 //!
 //! # barracuda delegation
 //!
-//! [`jackknife_mean_variance`] is a high-value delegation target for
-//! `barracuda::stats::jackknife_mean_variance()`. Pending `ToadStool`
-//! absorption (not yet in barracuda S68+). The delete-one loop is
-//! embarrassingly parallel — GPU promotion is a high-value target.
+//! [`jackknife_mean_variance`] is a pending delegation target for
+//! `barracuda::stats::jackknife_mean_variance()` — not yet in barracuda
+//! as of S68+. The delete-one loop is embarrassingly parallel and a
+//! high-value GPU target.
 
 use crate::cast::usize_f64;
+use crate::error::InputError;
 
 /// Result of a jackknife computation.
 #[derive(Debug, Clone)]
@@ -36,28 +37,34 @@ pub struct JackknifeResult {
 /// Jackknife variance formula:
 /// `var_JK = (N-1)/N * Σ(θ̂_i - θ̄_JK)²`
 ///
-/// # Panics
+/// # Errors
 ///
-/// Panics if `data` has fewer than 2 elements.
-#[must_use]
-pub fn jackknife_mean_variance(data: &[f64]) -> JackknifeResult {
-    // TODO(toadstool): uncomment when barracuda implements stats::jackknife_mean_variance
+/// Returns [`InputError::InsufficientData`] if `data` has fewer than 2 elements.
+pub fn jackknife_mean_variance(data: &[f64]) -> Result<JackknifeResult, InputError> {
+    // TODO(toadstool): wire when barracuda adds stats::jackknife_mean_variance
+    // Status S68+: not yet absorbed. Handoff item — embarrassingly parallel.
     // #[cfg(feature = "barracuda")]
     // {
     //     if let Ok((est, var)) = barracuda::stats::jackknife_mean_variance(data) {
-    //         return JackknifeResult {
+    //         return Ok(JackknifeResult {
     //             estimate: est,
     //             variance: var,
     //             std_error: var.sqrt(),
-    //         };
+    //         });
     //     }
     // }
     jackknife_mean_variance_cpu(data)
 }
 
-fn jackknife_mean_variance_cpu(data: &[f64]) -> JackknifeResult {
+fn jackknife_mean_variance_cpu(data: &[f64]) -> Result<JackknifeResult, InputError> {
     let n = data.len();
-    assert!(n >= 2, "need at least 2 data points");
+    if n < 2 {
+        return Err(InputError::InsufficientData {
+            name: "data",
+            min: 2,
+            got: n,
+        });
+    }
 
     let full_sum: f64 = data.iter().sum();
     let full_mean = full_sum / usize_f64(n);
@@ -80,11 +87,11 @@ fn jackknife_mean_variance_cpu(data: &[f64]) -> JackknifeResult {
             .map(|&m| (m - jk_grand_mean).powi(2))
             .sum::<f64>();
 
-    JackknifeResult {
+    Ok(JackknifeResult {
         estimate: full_mean,
         variance: jk_var,
         std_error: jk_var.sqrt(),
-    }
+    })
 }
 
 /// Jackknife bias estimate for an arbitrary statistic.
@@ -131,15 +138,30 @@ pub fn leave_one_out_biased_variance(data: &[f64]) -> Vec<f64> {
 /// For AR(1) data with autocorrelation φ, block jackknife with
 /// `block_size ≈ 1/(1-φ)` captures the correct variance.
 ///
-/// # Panics
+/// # Errors
 ///
-/// Panics if `block_size` is 0 or exceeds `data.len()`.
-#[must_use]
-pub fn block_jackknife_variance(data: &[f64], block_size: usize) -> JackknifeResult {
-    assert!(block_size > 0, "block_size must be positive");
+/// Returns [`InputError::InsufficientData`] if `block_size` is 0 or
+/// yields fewer than 2 blocks.
+pub fn block_jackknife_variance(
+    data: &[f64],
+    block_size: usize,
+) -> Result<JackknifeResult, InputError> {
+    if block_size == 0 {
+        return Err(InputError::InsufficientData {
+            name: "block_size",
+            min: 1,
+            got: 0,
+        });
+    }
     let n = data.len();
     let n_blocks = n / block_size;
-    assert!(n_blocks >= 2, "need at least 2 blocks");
+    if n_blocks < 2 {
+        return Err(InputError::InsufficientData {
+            name: "blocks (data.len() / block_size)",
+            min: 2,
+            got: n_blocks,
+        });
+    }
 
     let trimmed_len = n_blocks * block_size;
     let trimmed = &data[..trimmed_len];
@@ -164,11 +186,11 @@ pub fn block_jackknife_variance(data: &[f64], block_size: usize) -> JackknifeRes
             .map(|&m| (m - jk_grand_mean).powi(2))
             .sum::<f64>();
 
-    JackknifeResult {
+    Ok(JackknifeResult {
         estimate: full_mean,
         variance: jk_var,
         std_error: jk_var.sqrt(),
-    }
+    })
 }
 
 #[cfg(test)]
@@ -180,7 +202,7 @@ mod tests {
     fn jk_mean_gaussian() {
         let mut rng = Xorshift64::new(42);
         let data: Vec<f64> = (0..200).map(|_| rng.normal(5.0, 2.0)).collect();
-        let r = jackknife_mean_variance(&data);
+        let r = jackknife_mean_variance(&data).unwrap();
         assert!(
             (r.estimate - 5.0).abs() < 0.5,
             "mean should be near 5.0, got {}",
@@ -196,10 +218,16 @@ mod tests {
     #[test]
     fn jk_deterministic() {
         let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
-        let r1 = jackknife_mean_variance(&data);
-        let r2 = jackknife_mean_variance(&data);
+        let r1 = jackknife_mean_variance(&data).unwrap();
+        let r2 = jackknife_mean_variance(&data).unwrap();
         assert_eq!(r1.estimate.to_bits(), r2.estimate.to_bits());
         assert_eq!(r1.variance.to_bits(), r2.variance.to_bits());
+    }
+
+    #[test]
+    fn jk_insufficient_data_returns_error() {
+        assert!(jackknife_mean_variance(&[]).is_err());
+        assert!(jackknife_mean_variance(&[1.0]).is_err());
     }
 
     #[test]
@@ -235,8 +263,8 @@ mod tests {
             data[i] = phi.mul_add(data[i - 1] - 10.0, 10.0) + rng.normal(0.0, innovation_std);
         }
 
-        let v1 = block_jackknife_variance(&data, 1).variance;
-        let v40 = block_jackknife_variance(&data, 40).variance;
+        let v1 = block_jackknife_variance(&data, 1).unwrap().variance;
+        let v40 = block_jackknife_variance(&data, 40).unwrap().variance;
         assert!(
             v40 > v1 * 0.5,
             "block JK(40) should give comparable or larger variance than JK(1): v1={v1}, v40={v40}"
@@ -246,7 +274,7 @@ mod tests {
     #[test]
     fn jk_std_error_positive() {
         let data = vec![1.0, 3.0, 5.0, 7.0, 9.0];
-        let r = jackknife_mean_variance(&data);
+        let r = jackknife_mean_variance(&data).unwrap();
         assert!(r.std_error > 0.0);
     }
 }

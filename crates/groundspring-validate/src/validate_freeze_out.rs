@@ -56,7 +56,7 @@ fn validate_chi2_and_grid(h: &mut ValidationHarness, ctx: &ModelCtx, grid: &Valu
         .iter()
         .map(|&t| t + rng.normal(0.0, ctx.noise_std))
         .collect();
-    let c2 = chi_squared(&obs, &ctx.true_curve, ctx.noise_std);
+    let c2 = chi_squared(&obs, &ctx.true_curve, ctx.noise_std).expect("equal lengths");
     let n_dof = ctx.mu_b.len() - 2;
     let c2_dof = chi_squared_per_dof(c2, ctx.mu_b.len(), 2);
     println!("  chi2 = {c2:.3}, chi2/dof = {c2_dof:.3} (dof = {n_dof})");

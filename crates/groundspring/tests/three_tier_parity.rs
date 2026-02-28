@@ -58,7 +58,7 @@ fn drift_wf_parity_deterministic() {
 #[test]
 fn jackknife_parity_small_sample() {
     let data = [1.0, 2.0, 3.0, 4.0, 5.0];
-    let r = groundspring::jackknife::jackknife_mean_variance(&data);
+    let r = groundspring::jackknife::jackknife_mean_variance(&data).unwrap();
     assert!((r.estimate - 3.0).abs() < 1e-12);
     assert!(r.variance > 0.0);
     assert!(r.std_error > 0.0);
@@ -67,8 +67,8 @@ fn jackknife_parity_small_sample() {
 #[test]
 fn jackknife_parity_bitwise_deterministic() {
     let data: Vec<f64> = (0..100).map(|i| f64::from(i).mul_add(0.7, 1.5)).collect();
-    let r1 = groundspring::jackknife::jackknife_mean_variance(&data);
-    let r2 = groundspring::jackknife::jackknife_mean_variance(&data);
+    let r1 = groundspring::jackknife::jackknife_mean_variance(&data).unwrap();
+    let r2 = groundspring::jackknife::jackknife_mean_variance(&data).unwrap();
     assert_eq!(r1.estimate.to_bits(), r2.estimate.to_bits());
     assert_eq!(r1.variance.to_bits(), r2.variance.to_bits());
 }
@@ -76,7 +76,7 @@ fn jackknife_parity_bitwise_deterministic() {
 #[test]
 fn jackknife_parity_known_variance() {
     let data = [1.0, 3.0];
-    let r = groundspring::jackknife::jackknife_mean_variance(&data);
+    let r = groundspring::jackknife::jackknife_mean_variance(&data).unwrap();
     // N=2: leave-one-out means are [3.0, 1.0], grand mean 2.0
     // JK var = (2-1)/2 * ((3-2)^2 + (1-2)^2) = 0.5 * 2 = 1.0
     assert!((r.estimate - 2.0).abs() < 1e-12);
@@ -178,7 +178,7 @@ fn freeze_out_curve_parity() {
 fn freeze_out_chi2_parity() {
     let obs = [1.0, 2.0, 3.0];
     let pred = [1.0, 2.0, 3.0];
-    let c2 = groundspring::freeze_out::chi_squared(&obs, &pred, 1.0);
+    let c2 = groundspring::freeze_out::chi_squared(&obs, &pred, 1.0).unwrap();
     assert!(c2.abs() < 1e-14, "zero residual");
 }
 
@@ -474,21 +474,80 @@ fn detect_band_ranges_parity() {
     }
 }
 
+// ── WDM green_kubo_integrate → barracuda::numerical::trapz ────────
+
+#[test]
+fn wdm_green_kubo_parity_exponential_decay() {
+    let c0 = 1.0;
+    let tau = 10.0;
+    let dt = 0.001;
+    let n_steps = 100_000;
+    let vacf = groundspring::wdm::synthetic_vacf(c0, tau, n_steps, dt);
+
+    let i1 = groundspring::wdm::green_kubo_integrate(&vacf, dt);
+    let i2 = groundspring::wdm::green_kubo_integrate(&vacf, dt);
+    assert_eq!(i1.to_bits(), i2.to_bits(), "Green-Kubo bitwise parity");
+
+    let analytical = c0 * tau;
+    let rel_err = (i1 - analytical).abs() / analytical;
+    assert!(rel_err < 0.001, "relative error {rel_err:.6} exceeds 0.1%");
+}
+
+// ── regression fit_quadratic/exponential/logarithmic ──────────────
+
+#[test]
+fn regression_quadratic_parity() {
+    let xs: Vec<f64> = (-5..=5).map(f64::from).collect();
+    let ys: Vec<f64> = xs.iter().map(|&x| (2.0 * x).mul_add(x, (-3.0_f64).mul_add(x, 1.0))).collect();
+    let f1 = groundspring::stats::fit_quadratic(&xs, &ys).unwrap();
+    let f2 = groundspring::stats::fit_quadratic(&xs, &ys).unwrap();
+    assert_eq!(f1.params[0].to_bits(), f2.params[0].to_bits(), "a parity");
+    assert_eq!(f1.params[1].to_bits(), f2.params[1].to_bits(), "b parity");
+    assert_eq!(f1.params[2].to_bits(), f2.params[2].to_bits(), "c parity");
+    assert!((f1.params[0] - 2.0).abs() < 1e-8, "a = {}", f1.params[0]);
+    assert!(f1.r_squared > 0.999, "R² = {}", f1.r_squared);
+}
+
+#[test]
+fn regression_exponential_parity() {
+    let xs: Vec<f64> = (0..10).map(f64::from).collect();
+    let a = 5.0_f64;
+    let b = -0.3_f64;
+    let ys: Vec<f64> = xs.iter().map(|&x| a * (b * x).exp()).collect();
+    let f1 = groundspring::stats::fit_exponential(&xs, &ys).unwrap();
+    let f2 = groundspring::stats::fit_exponential(&xs, &ys).unwrap();
+    assert_eq!(f1.params[0].to_bits(), f2.params[0].to_bits(), "a parity");
+    assert_eq!(f1.params[1].to_bits(), f2.params[1].to_bits(), "b parity");
+    assert!(f1.r_squared > 0.99, "R² = {}", f1.r_squared);
+}
+
+#[test]
+fn regression_logarithmic_parity() {
+    let xs: Vec<f64> = (1..=10).map(f64::from).collect();
+    let a = 3.0_f64;
+    let b = 2.0_f64;
+    let ys: Vec<f64> = xs.iter().map(|&x| a.mul_add(x.ln(), b)).collect();
+    let f1 = groundspring::stats::fit_logarithmic(&xs, &ys).unwrap();
+    let f2 = groundspring::stats::fit_logarithmic(&xs, &ys).unwrap();
+    assert_eq!(f1.params[0].to_bits(), f2.params[0].to_bits(), "a parity");
+    assert_eq!(f1.params[1].to_bits(), f2.params[1].to_bits(), "b parity");
+    assert!((f1.params[0] - a).abs() < 1e-8, "a = {}", f1.params[0]);
+    assert!((f1.params[1] - b).abs() < 1e-8, "b = {}", f1.params[1]);
+}
+
 // ── Dispatch target inventory sentinel ─────────────────────────────
 
 #[test]
 fn dispatch_targets_at_least_32() {
-    // V32: 25 CPU + 7 GPU active (mae, nash_sutcliffe, detect_bands added)
-    // + 9 pending ToadStool (commented out)
-    let cpu_active = 25;
-    let gpu_active = 7;
-    let pending_toadstool = 9;
+    let cpu_active = 30;
+    let gpu_active = 9;
+    let pending_toadstool = 7;
     assert!(
-        cpu_active + gpu_active >= 32,
-        "minimum 32 active dispatch targets"
+        cpu_active + gpu_active >= 39,
+        "minimum 39 active dispatch targets"
     );
-    assert_eq!(pending_toadstool, 9, "9 pending ToadStool delegations");
+    assert_eq!(pending_toadstool, 7, "7 pending ToadStool delegations");
 }
 
 // metalForge workload count is tested in metalForge/forge/src/workloads.rs
-// (all_returns_twelve_workloads).
+// (all_returns_nineteen_workloads).

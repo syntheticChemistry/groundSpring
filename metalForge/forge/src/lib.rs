@@ -11,6 +11,7 @@
 //! - **f64 scalar** -> CPU (decomposition, extrapolation, PRNG)
 
 pub mod dispatch;
+pub mod harness;
 pub mod inventory;
 pub mod probe;
 pub mod remote;

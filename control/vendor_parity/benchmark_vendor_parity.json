@@ -10,7 +10,8 @@
     "prng": "numpy.random.default_rng(42)",
     "python_version": "3.10",
     "validation_script": "control/vendor_parity/vendor_parity.py",
-    "command": "python3 control/vendor_parity/vendor_parity.py"
+    "command": "python3 control/vendor_parity/vendor_parity.py",
+    "generated_by": "Python Monte Carlo simulation (reference VACF integration, 50 seeds, f64 baseline)"
   },
   "_description": "GPU vendor parity validation for WDM transport coefficient computation",
   "model": {
@@ -27,11 +28,11 @@
     "seed_b": 1042
   },
   "expected_results": {
-    "max_relative_difference": 1e-5,
-    "mean_relative_difference_max": 1e-6,
+    "max_relative_difference": 1e-05,
+    "mean_relative_difference_max": 1e-06,
     "vendor_correlation_min": 0.999999,
     "bias_fraction_max": 0.1,
-    "max_absolute_difference": 1e-6,
+    "max_absolute_difference": 1e-06,
     "all_within_tolerance": true,
     "chi2_per_dof_max": 5.0
   }

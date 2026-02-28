@@ -50,7 +50,7 @@ def hill(x: float, k: float, n: float) -> float:
     if x <= 0:
         return 0.0
     xn = x ** n
-    return xn / (k ** n + xn)
+    return float(xn / (k ** n + xn))
 
 
 # ---------------------------------------------------------------------------

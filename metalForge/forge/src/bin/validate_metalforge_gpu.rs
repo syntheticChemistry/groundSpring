@@ -4,38 +4,19 @@
 //! GPU live validation: run Anderson computation on GPU via barracuda-gpu
 //! and compare with CPU reference. Reports substrate, timing, and parity.
 //!
+//! # Provenance
+//!
+//! - **Expected values**: Analytical — Derrida-Gardner localization length
+//!   ξ(W,E) = C/W² with C ≈ 96 (perturbative, 1D Anderson at band centre).
+//!   Finite-size (L=200) suppression gives numerical ξ < analytical ξ(L→∞).
+//! - **Tolerance**: ξ ∈ \[5, 50\] for W=2 (5× variation for PRNG seed effects).
+//!   CPU/GPU ξ ratio ∈ \[0.3, 3.0\] (different PRNG streams pre-alignment).
+//! - **Commit**: See `metalForge/ABSORPTION_MANIFEST.md` for shader provenance.
+//!
 //! Exit 0 if all checks pass, exit 1 on any failure.
 
+use groundspring_forge::harness::Harness;
 use std::time::Instant;
-
-struct Harness {
-    pass: u32,
-    fail: u32,
-}
-
-impl Harness {
-    const fn new() -> Self {
-        Self { pass: 0, fail: 0 }
-    }
-
-    fn check(&mut self, name: &str, ok: bool) {
-        if ok {
-            println!("  PASS  {name}");
-            self.pass += 1;
-        } else {
-            println!("  FAIL  {name}");
-            self.fail += 1;
-        }
-    }
-
-    fn finish(self) {
-        let total = self.pass + self.fail;
-        println!("\n=== {}/{total} checks passed ===", self.pass);
-        if self.fail > 0 {
-            std::process::exit(1);
-        }
-    }
-}
 
 fn run_gpu_probe_checks(h: &mut Harness) {
     use groundspring_forge::inventory::Inventory;

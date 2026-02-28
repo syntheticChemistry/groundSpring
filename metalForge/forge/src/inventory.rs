@@ -175,4 +175,141 @@ mod tests {
         assert!(inv.first(SubstrateKind::Cpu).is_none());
         inv.print_summary();
     }
+
+    fn gpu_substrate(name: &str, caps: Vec<Capability>) -> Substrate {
+        let arch = GpuArch::from_name(name);
+        Substrate {
+            kind: SubstrateKind::Gpu,
+            identity: Identity::named(name),
+            properties: Properties {
+                gpu_arch: Some(arch),
+                ..Properties::default()
+            },
+            capabilities: caps,
+        }
+    }
+
+    #[test]
+    fn find_gpu_by_arch_volta() {
+        let inv = Inventory {
+            substrates: vec![
+                gpu_substrate("NVIDIA TITAN V", vec![Capability::NativeF64]),
+                gpu_substrate("NVIDIA RTX 4070", vec![Capability::F64Compute]),
+            ],
+        };
+        let volta = inv.find_gpu_by_arch(GpuArch::Volta);
+        assert!(volta.is_some());
+        assert!(volta.unwrap().identity.name.contains("TITAN V"));
+        assert!(inv.find_gpu_by_arch(GpuArch::Turing).is_none());
+    }
+
+    #[test]
+    fn best_f64_gpu_prefers_native() {
+        let inv = Inventory {
+            substrates: vec![
+                gpu_substrate("NVIDIA RTX 4070", vec![Capability::F64Compute]),
+                gpu_substrate(
+                    "NVIDIA TITAN V",
+                    vec![Capability::NativeF64, Capability::F64Compute],
+                ),
+            ],
+        };
+        let best = inv.best_f64_gpu().unwrap();
+        assert!(best.identity.name.contains("TITAN V"));
+    }
+
+    #[test]
+    fn best_f64_gpu_falls_back_to_non_native() {
+        let inv = Inventory {
+            substrates: vec![gpu_substrate(
+                "NVIDIA RTX 4070",
+                vec![Capability::F64Compute],
+            )],
+        };
+        let best = inv.best_f64_gpu().unwrap();
+        assert!(best.identity.name.contains("RTX 4070"));
+    }
+
+    #[test]
+    fn best_f64_gpu_none_when_no_gpu() {
+        let inv = Inventory {
+            substrates: vec![Substrate {
+                kind: SubstrateKind::Cpu,
+                identity: Identity::named("Test CPU"),
+                properties: Properties::default(),
+                capabilities: vec![Capability::F64Compute],
+            }],
+        };
+        assert!(inv.best_f64_gpu().is_none());
+    }
+
+    #[test]
+    fn adaptive_batch_returns_some_for_gpu() {
+        let inv = Inventory {
+            substrates: vec![gpu_substrate(
+                "NVIDIA TITAN V",
+                vec![Capability::NativeF64, Capability::F64Compute],
+            )],
+        };
+        let batch = inv.adaptive_batch(8);
+        assert!(batch.is_some());
+        let b = batch.unwrap();
+        assert!(b.max_batch_elements > 0);
+    }
+
+    #[test]
+    fn adaptive_batch_returns_none_without_gpu() {
+        let inv = Inventory {
+            substrates: vec![Substrate {
+                kind: SubstrateKind::Cpu,
+                identity: Identity::named("Test CPU"),
+                properties: Properties::default(),
+                capabilities: vec![Capability::F64Compute],
+            }],
+        };
+        assert!(inv.adaptive_batch(8).is_none());
+    }
+
+    #[test]
+    fn merge_remote_adds_substrates() {
+        let mut inv = Inventory {
+            substrates: vec![Substrate {
+                kind: SubstrateKind::Cpu,
+                identity: Identity::named("local CPU"),
+                properties: Properties::default(),
+                capabilities: vec![Capability::F64Compute],
+            }],
+        };
+
+        let remote = vec![crate::remote::RemoteSubstrate {
+            substrate: Substrate {
+                kind: SubstrateKind::Gpu,
+                identity: Identity::named("NVIDIA TITAN V"),
+                properties: Properties::default(),
+                capabilities: vec![Capability::NativeF64],
+            },
+            origin: crate::remote::RemoteOrigin {
+                node_id: "biomegate".to_string(),
+                is_lan: true,
+                estimated_latency_ms: 1,
+            },
+        }];
+
+        inv.merge_remote(&remote);
+        assert!(inv.count(SubstrateKind::Gpu) >= 1);
+        assert!(inv.count(SubstrateKind::Cpu) >= 1);
+    }
+
+    #[test]
+    fn multiple_gpus_counted() {
+        let inv = Inventory {
+            substrates: vec![
+                gpu_substrate("NVIDIA TITAN V", vec![Capability::NativeF64]),
+                gpu_substrate("NVIDIA RTX 4070", vec![Capability::F64Compute]),
+                gpu_substrate("NVIDIA RTX 3090", vec![Capability::F64Compute]),
+            ],
+        };
+        assert_eq!(inv.count(SubstrateKind::Gpu), 3);
+        assert!(inv.first(SubstrateKind::Gpu).is_some());
+    }
 }

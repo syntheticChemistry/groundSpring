@@ -124,6 +124,86 @@ fn biomeos_error_display() {
     assert_eq!(err.to_string(), "biomeOS: test error");
 }
 
+// ── Live NUCLEUS Integration ─────────────────────────────────────────
+// These tests require a running NUCLEUS. Run with:
+//   cargo test --features biomeos -- --ignored nucleus
+
+fn live_socket() -> Option<std::path::PathBuf> {
+    let xdg = std::env::var("XDG_RUNTIME_DIR").ok()?;
+    let p = std::path::PathBuf::from(xdg).join("biomeos/neural-api.sock");
+    p.exists().then_some(p)
+}
+
+#[test]
+#[ignore = "requires running NUCLEUS"]
+fn nucleus_capability_call_toadstool_health() {
+    let socket = live_socket().expect("Neural API socket not found");
+    let result = biomeos::capability_call(&socket, "compute.health", "{}");
+    let response = result.expect("capability.call compute.health failed");
+    assert!(
+        response.contains("healthy") || response.contains("toadstool"),
+        "expected ToadStool health, got: {response}"
+    );
+}
+
+#[test]
+#[ignore = "requires running NUCLEUS"]
+fn nucleus_capability_call_squirrel_health() {
+    let socket = live_socket().expect("Neural API socket not found");
+    let result = biomeos::capability_call(&socket, "ai.health", "{}");
+    let response = result.expect("capability.call ai.health failed");
+    assert!(
+        response.contains("healthy"),
+        "expected Squirrel health, got: {response}"
+    );
+}
+
+#[test]
+#[ignore = "requires running NUCLEUS"]
+fn nucleus_topology_primals() {
+    let socket = live_socket().expect("Neural API socket not found");
+    let result = biomeos::health(&socket);
+    result.expect("Neural API topology.metrics failed");
+}
+
+#[test]
+#[ignore = "requires running NUCLEUS"]
+fn nucleus_capability_list() {
+    let socket = live_socket().expect("Neural API socket not found");
+    let request = r#"{"jsonrpc":"2.0","method":"capability.list","params":{},"id":1}"#;
+    let response = biomeos::raw_rpc_call(&socket, request)
+        .expect("capability.list failed");
+    assert!(
+        response.contains("compute") && response.contains("crypto"),
+        "expected compute and crypto capabilities, got: {response}"
+    );
+}
+
+#[test]
+#[ignore = "requires running NUCLEUS"]
+fn nucleus_toadstool_compute_submit() {
+    let socket = live_socket().expect("Neural API socket not found");
+    let params = r#"{"transform":{"operation":"eigendecompose","input":{"disorder_strength":2.0,"lattice_size":50}}}"#;
+    let result = biomeos::capability_call(&socket, "compute.submit", params);
+    let response = result.expect("compute.submit through Neural API failed");
+    assert!(
+        response.contains("job_id"),
+        "expected job_id in ToadStool response, got: {response}"
+    );
+}
+
+#[test]
+#[ignore = "requires running NUCLEUS"]
+fn nucleus_toadstool_compute_capabilities() {
+    let socket = live_socket().expect("Neural API socket not found");
+    let result = biomeos::capability_call(&socket, "compute.capabilities", "{}");
+    let response = result.expect("compute.capabilities through Neural API failed");
+    assert!(
+        response.contains("compute_units") || response.contains("supported_workload_types"),
+        "expected ToadStool capabilities, got: {response}"
+    );
+}
+
 // ── XDG Discovery ────────────────────────────────────────────────────
 
 #[test]

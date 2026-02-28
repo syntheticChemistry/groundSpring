@@ -101,16 +101,20 @@ fn resolve_socket(explicit: Option<&str>, xdg_runtime: Option<&str>) -> Option<P
 
 /// Route a request through biomeOS Neural API `capability.call`.
 ///
-/// This is the primary integration point: groundSpring sends a capability name
-/// and parameters, and the Neural API routes it to the appropriate primal.
+/// The Neural API uses semantic routing: `capability` is the base category
+/// (e.g. `"compute"`, `"crypto"`) and `operation` is the specific method
+/// (e.g. `"health"`, `"execute"`). The translation registry maps
+/// `capability.operation` to the target primal's actual RPC method.
 ///
 /// # Errors
 ///
 /// Returns `Err` if the socket is unavailable or the RPC fails.
 pub fn capability_call(socket: &Path, capability: &str, params_json: &str) -> Result<String> {
+    let (cap, op) = capability.split_once('.').unwrap_or((capability, "call"));
     let request = format!(
-        r#"{{"jsonrpc":"2.0","method":"capability.call","params":{{"capability":"{}","params":{},"family_id":"{}"}},"id":1}}"#,
-        escape_json(capability),
+        r#"{{"jsonrpc":"2.0","method":"capability.call","params":{{"capability":"{}","operation":"{}","args":{},"family_id":"{}"}},"id":1}}"#,
+        escape_json(cap),
+        escape_json(op),
         params_json,
         FAMILY_ID,
     );
@@ -122,10 +126,11 @@ pub fn capability_call(socket: &Path, capability: &str, params_json: &str) -> Re
     }
 }
 
-/// Direct JSON-RPC call to a specific biomeOS primal.
+/// Direct JSON-RPC call to a specific biomeOS primal via capability routing.
 ///
-/// Use this for targeted calls (e.g., `storage.store` to `NestGate`) when you
-/// know the target primal, bypassing capability-based routing.
+/// Routes through the Neural API's `capability.call` using the target primal
+/// name as the capability category. For example, calling `nestgate` with method
+/// `storage.store` becomes `capability.call("nestgate", "storage.store", args)`.
 ///
 /// # Errors
 ///
@@ -137,7 +142,7 @@ pub fn direct_rpc_call(
     params_json: &str,
 ) -> Result<String> {
     let request = format!(
-        r#"{{"jsonrpc":"2.0","method":"rpc_call","params":{{"target":"{}","method":"{}","params":{},"family_id":"{}"}},"id":1}}"#,
+        r#"{{"jsonrpc":"2.0","method":"capability.call","params":{{"capability":"{}","operation":"{}","args":{},"family_id":"{}"}},"id":1}}"#,
         escape_json(target),
         escape_json(method),
         params_json,
@@ -184,17 +189,31 @@ pub fn storage_get(socket: &Path, key: &str) -> Result<String> {
 
 /// Health check: verify the Neural API is alive.
 ///
+/// Uses `topology.metrics` since the Neural API doesn't expose a bare `health` method.
+///
 /// # Errors
 ///
 /// Returns `Err` if the socket is unavailable or the health check fails.
 pub fn health(socket: &Path) -> Result<()> {
-    let request = r#"{"jsonrpc":"2.0","method":"health","params":{},"id":0}"#;
+    let request = r#"{"jsonrpc":"2.0","method":"topology.metrics","params":{},"id":1}"#;
     let response = rpc_call(socket, request)?;
     if response.contains("\"error\"") {
         Err(BiomeOsError(extract_error(&response)))
     } else {
         Ok(())
     }
+}
+
+/// Send an arbitrary JSON-RPC request over a Unix socket and read the response.
+///
+/// For use by integration tests and advanced consumers that need to send
+/// raw JSON-RPC to the Neural API.
+///
+/// # Errors
+///
+/// Returns `Err` if the socket is unavailable or the RPC fails.
+pub fn raw_rpc_call(socket: &Path, request: &str) -> Result<String> {
+    rpc_call(socket, request)
 }
 
 /// Send a JSON-RPC request over a Unix socket and read the response.
@@ -271,6 +290,9 @@ fn extract_error(response: &str) -> String {
 }
 
 /// Extract the `result` field from a JSON-RPC response.
+///
+/// Handles string, object, array, number, and boolean result values by
+/// tracking brace/bracket nesting for complex JSON structures.
 fn extract_result(response: &str) -> Result<String> {
     if let Some(start) = response.find("\"result\"") {
         if let Some(colon) = response[start..].find(':') {
@@ -282,14 +304,52 @@ fn extract_result(response: &str) -> Result<String> {
                     return Ok(raw.replace("\\n", "\n").replace("\\\"", "\""));
                 }
             }
-            if let Some(end) = trimmed.find('}') {
-                return Ok(trimmed[..end].to_string());
+            if trimmed.starts_with('{') || trimmed.starts_with('[') {
+                return extract_balanced(trimmed);
+            }
+            if let Some(end) = trimmed.find([',', '}']) {
+                return Ok(trimmed[..end].trim().to_string());
             }
         }
     }
     Err(BiomeOsError(
         "could not extract result from biomeOS response".to_string(),
     ))
+}
+
+/// Extract a balanced JSON object or array from the start of `s`.
+fn extract_balanced(s: &str) -> Result<String> {
+    let open = s.as_bytes()[0];
+    let close = if open == b'{' { b'}' } else { b']' };
+    let mut depth: u32 = 0;
+    let mut in_string = false;
+    let mut escape = false;
+    for (i, byte) in s.bytes().enumerate() {
+        if escape {
+            escape = false;
+            continue;
+        }
+        if byte == b'\\' && in_string {
+            escape = true;
+            continue;
+        }
+        if byte == b'"' {
+            in_string = !in_string;
+            continue;
+        }
+        if in_string {
+            continue;
+        }
+        if byte == open {
+            depth += 1;
+        } else if byte == close {
+            depth -= 1;
+            if depth == 0 {
+                return Ok(s[..=i].to_string());
+            }
+        }
+    }
+    Err(BiomeOsError("unbalanced JSON in result".to_string()))
 }
 
 #[cfg(test)]

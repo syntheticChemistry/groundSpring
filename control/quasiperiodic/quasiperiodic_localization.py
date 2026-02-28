@@ -63,7 +63,7 @@ def almost_mathieu_potential(
     but incommensurate with the lattice when α is irrational.
     """
     indices = np.arange(n, dtype=np.float64)
-    return coupling * np.cos(2.0 * np.pi * alpha * indices + theta)
+    return np.asarray(coupling * np.cos(2.0 * np.pi * alpha * indices + theta))
 
 
 def lyapunov_exponent(potential: np.ndarray, energy: float) -> float:

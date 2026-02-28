@@ -8,39 +8,20 @@
 //! - GPU: `groundspring::anderson::lyapunov_averaged` (via barracuda-gpu dispatch)
 //! - NPU: `groundspring::npu::npu_classify_regime` (int8 quantized DMA)
 //!
+//! # Provenance
+//!
+//! - **CPU reference**: Analytical Derrida-Gardner ξ(W,E) — monotonically
+//!   decreasing with disorder strength W.
+//! - **GPU reference**: Transfer-matrix Lyapunov average over 200 realizations.
+//! - **NPU reference**: Int8 quantized inference on AKD1000 (80 NPs, ~51µs DMA).
+//! - **Tolerances**: CPU/GPU ξ ratio ∈ \[0.1, 10\] at W=10 (finite-size + PRNG);
+//!   NPU latency < 500µs; regime label must be valid `{Localized, Critical, Extended}`.
+//!
 //! Exit 0 if all checks pass, exit 1 on any failure.
 
 use groundspring::npu;
+use groundspring_forge::harness::Harness;
 use std::time::Instant;
-
-struct Harness {
-    pass: u32,
-    fail: u32,
-}
-
-impl Harness {
-    const fn new() -> Self {
-        Self { pass: 0, fail: 0 }
-    }
-
-    fn check(&mut self, name: &str, ok: bool) {
-        if ok {
-            println!("  PASS  {name}");
-            self.pass += 1;
-        } else {
-            println!("  FAIL  {name}");
-            self.fail += 1;
-        }
-    }
-
-    fn finish(self) {
-        let total = self.pass + self.fail;
-        println!("\n=== {}/{total} checks passed ===", self.pass);
-        if self.fail > 0 {
-            std::process::exit(1);
-        }
-    }
-}
 
 #[expect(clippy::cast_precision_loss)]
 const fn to_f64(n: usize) -> f64 {

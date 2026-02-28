@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: February 27, 2026 (V39 NUCLEUS integration + NestGate + metalForge remote)
+**Last updated**: February 28, 2026 (V43 three-tier parity proven + pure GPU workload validation)
 
 ## Philosophy
 
@@ -33,7 +33,7 @@ dispatch blocks: `freeze_out::grid_fit_2d` (2D parallel grid),
 `quasispecies::quasispecies_simulation` (batched Wright-Fisher via
 `barracuda::ops::bio::wright_fisher_simulate`), `rare_biosphere::abundance_occupancy`
 and `tier_detection_rate` (batched multinomial via `barracuda::ops::bio`).
-49 metalForge tests, 5 discovered substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). 32 active barracuda delegations + 9 pending ToadStool (25 CPU + 7 GPU).
+49 metalForge tests, 5 discovered substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). 39 active barracuda delegations + 7 pending ToadStool (30 CPU + 9 GPU).
 These dispatch blocks compile only with `--features barracuda-gpu` and call
 expected barracuda functions — ToadStool absorbs them to activate GPU paths.
 
@@ -123,7 +123,7 @@ graph.
 > row-major `Vec<f64>` (GPU-promotable layout). 13 bitwise determinism tests
 > added. All 15 benchmark JSONs have DOIs and stamped `baseline_commit`.
 > CI now runs all 15 validation binaries. 225 tests, 98.93% llvm-cov.
-> **V20 (Feb 26 2026)**: Hill delegation #27 LIVE. ToadStool S68 (f0feb226). 700 shaders (zero f32-only), 2,546+ tests, 21,599 workspace tests. `hill_repress` → `1.0 - hill()`.
+> **V20 (Feb 26 2026)**: Hill delegation #27 LIVE. `ToadStool` S68 (f0feb226). 700 shaders (zero f32-only), 2,546+ tests, 21,599 workspace tests. `hill_repress` → `1.0 - hill()`.
 >
 > **V21 (Feb 26 2026)**: Complete barracuda rewiring. `--features barracuda` compiles cleanly (zero warnings both modes). Dual-mode CI: `cargo clippy` and `cargo test` run with and without barracuda feature. 225/225 tests pass in both CPU-only and barracuda-delegated modes. Domain guard fix for hill (biological convention before delegation). 17 `_cpu` functions properly gated behind `#[cfg(not(feature = "barracuda"))]`. CPU delegation overhead: +1.7% total.
 >
@@ -150,17 +150,51 @@ graph.
 > **288/288 validation checks**, **28/28 experiments**. Three-mode benchmark:
 > 20.4s → 9.2s (**2.2× speedup**); quasiperiodic 47.7×.
 >
-> **V29 (Feb 27 2026)**: Three-tier validation buildout. New barracuda CPU
-> delegations wired: `drift::kimura_fixation_prob` → `barracuda::stats::kimura_fixation`,
-> `jackknife::jackknife_mean_variance` → `barracuda::stats::jackknife_mean_variance`,
-> `fao56::daily_et0` → `barracuda::stats::hydrology::fao56_et0`.
+> **V29 (Feb 27 2026)**: Three-tier validation buildout. `TODO(toadstool)` stubs
+> prepared for 3 CPU delegations (kimura_fixation_prob, jackknife_mean_variance,
+> daily_et0) and 6 GPU dispatch targets. These remain pending — barracuda does
+> not yet export these functions as of S68+.
 > GPU-ready annotations added to 8 undelegated modules (freeze_out, band_structure,
 > seismic, quasispecies, rare_biosphere, gillespie, transport, fao56) documenting
 > embarrassingly parallel dispatch targets.
 > 23 three-tier parity integration tests added (`three_tier_parity.rs`).
 > Python parity + performance test added (`test_three_tier_parity.py`).
-> Total: **391 Rust tests + 322 Python tests = 713**, all green.
-> Delegation count: **32** (26 CPU + 6 GPU). 0 clippy warnings.
+> Total: **391 Rust tests + 322 Python tests = 713**, all green. 0 clippy warnings.
+>
+> **V40 (Feb 28 2026)**: `ToadStool` S68+ inventory audit. Delegation count
+> corrected: **37 active** (30 CPU + 7 GPU) + **9 pending** *(→ V42: 39/7)*. Three previously
+> overclaimed delegations (kimura_fixation_prob, jackknife_mean_variance,
+> daily_et0) moved from Tier A to Tier B — barracuda does not export these
+> functions. Seven undocumented delegations added to Tier A: `mae`,
+> `nash_sutcliffe`, `fit_linear`, `fit_quadratic`, `fit_exponential`,
+> `fit_logarithmic`, `detect_band_ranges`. All 9 `TODO(toadstool)` comments
+> updated to reflect S68+ state (what exists: `WrightFisherGpu`,
+> `BatchedMultinomialGpu`, `hargreaves_et0`; what's missing: wrappers,
+> scalar forms). `ToadStool` S68+ evolution: 700 WGSL shaders, **zero
+> f32-only** (all f64 canonical → downcast), dual-layer universal precision
+> (op_preamble + naga IR rewrite), DF64 as default path for consumer GPUs.
+> All tests pass in all modes (default, barracuda, barracuda-gpu, biomeos).
+> 0 clippy warnings × 4 modes.
+>
+> **V42 (Feb 28 2026)**: GPU rewiring + cross-spring benchmark. Two real GPU
+> delegations wired: `abundance_occupancy` → `BatchedMultinomialGpu` and
+> `tier_detection_rate` → `BatchedMultinomialGpu` (wetSpring bio shader,
+> neuralSpring metalForge provenance, S64+). Added `pollster` as optional
+> dependency for `barracuda-gpu` feature, `gpu.rs` device singleton for
+> lazy `WgpuDevice` creation. Delegation count: **39 active** (30 CPU + 9
+> GPU) + **7 pending**. New `benchmark-cross-spring` binary maps shader
+> provenance across all 5 springs and benchmarks three-mode execution.
+> `CROSS_SPRING_EVOLUTION.md` documents the full shader ecosystem.
+> 17/17 benchmark checks pass in all modes. 0 clippy warnings × 4 modes.
+>
+> **V43 (Feb 28 2026)**: Three-tier parity certificate + pure GPU workload validation.
+> Full three-tier parity report: 27/27 experiments PROVEN (default = barracuda-CPU =
+> barracuda-GPU). Certificate: `data/three_tier_parity_report.json`. New validation
+> binaries: `validate-gpu-tier` (39/39 checks × 3 modes — stats, regression, bootstrap,
+> diversity, Hill kinetics, Anderson, Almost-Mathieu, bistable ODE, spectral recon,
+> rare biosphere, band structure), `validate-pure-gpu-workloads` (26/26 checks —
+> hardware discovery, dispatch routing, pure math parity, timing). metalForge routes
+> 17/19 workloads to Titan V. 462 Rust tests, 0 warnings, 0 failures.
 
 ### Tier A — Lean (rewire to existing barracuda ops)
 
@@ -196,22 +230,30 @@ graph.
 | `kinetics::hill_repress` | `stats::hill` (1 − hill) | **DONE** (CPU delegated) | Composes `1.0 - hill(x, k, n)` — gets barracuda delegation for free |
 | `spectral_recon::tikhonov_solve` | `linalg::solve_f64_cpu` | **DONE** (barracuda-gpu) | Gauss–Jordan with partial pivoting; falls back to local Cholesky |
 | `wdm::finite_size_extrapolate` | `stats::regression::fit_linear` | **DONE** (CPU delegated) | Linear regression on transformed 1/N^(1/d) coordinates |
-| `drift::kimura_fixation_prob` | `stats::kimura_fixation` | **DONE** (CPU delegated) | Analytical fixation probability, `if let Ok` with CPU fallback |
-| `jackknife::jackknife_mean_variance` | `stats::jackknife_mean_variance` | **DONE** (CPU delegated) | Delete-one jackknife, embarrassingly parallel GPU target |
-| `fao56::daily_et0` | `stats::hydrology::fao56_et0` | **DONE** (CPU delegated) | Full FAO-56 Penman-Monteith chain, batch GPU via `fao56_et0_batch` |
+| `stats::mae` | `stats::metrics::mae` | **DONE** (CPU delegated) | S66 absorption — Mean Absolute Error |
+| `stats::nash_sutcliffe` | `stats::nash_sutcliffe` | **DONE** (CPU delegated) | S64 absorption — Nash-Sutcliffe Efficiency |
+| `stats::regression::fit_linear` | `stats::regression::fit_linear` | **DONE** (CPU delegated) | S66 absorption — OLS slope+intercept |
+| `stats::regression::fit_quadratic` | `stats::regression::fit_quadratic` | **DONE** (CPU delegated) | S66 absorption — 3×3 Cramer |
+| `stats::regression::fit_exponential` | `stats::regression::fit_exponential` | **DONE** (CPU delegated) | S66 absorption — log-linearized |
+| `stats::regression::fit_logarithmic` | `stats::regression::fit_logarithmic` | **DONE** (CPU delegated) | S66 absorption — ln-linearized |
+| `band_structure::detect_band_ranges` | `spectral::detect_bands` | **DONE** (barracuda-gpu) | hotSpring v0.6 spectral theory — gap detection |
 
 ### Tier B — Adapt (needs alignment or wrapper)
 
 | groundSpring Module | BarraCUDA Target | Blocker | Action |
 |---|---|---|---|
+| `drift::kimura_fixation_prob` | `stats::kimura_fixation` | Not yet in barracuda S68+ | Handoff item — pure scalar, trivial kernel |
+| `jackknife::jackknife_mean_variance` | `stats::jackknife_mean_variance` | Not yet in barracuda S68+ | Handoff item — embarrassingly parallel |
+| `fao56::daily_et0` | `stats::hydrology::fao56_et0` | Scalar not in barracuda (batch GPU exists) | Handoff item — `hargreaves_et0` available |
 | `prng::Xorshift64` | `ops::PrngXoshiro` (f64) | Different PRNG algorithm | Align to xoshiro; retain xorshift as CPU reference |
 | `seismic::grid_search_inversion` | Parallel 3D grid dispatch | No existing grid-search op | GPU: dispatch as (lat,lon,depth) workgroup; reduce min RMS |
 | `rarefaction::multinomial_sample` | `ops::PrngXoshiro` + binary search | No batched multinomial | Production WGSL in metalForge |
 | `gillespie::birth_death_ssa` | `ops::bio::GillespieGpu` | GPU-only (batched trajectories) | Serial per-trajectory, parallel across replicates |
 | `freeze_out::grid_fit_2d` | Parallel 2D grid dispatch | No existing grid-search op | GPU: dispatch as (T₀,κ₂) workgroup; reduce min χ² |
 | `band_structure::find_band_edges` | Per-energy parallel dispatch | No existing per-energy op | GPU: one thread per energy, L sequential 2×2 multiplies |
-| `quasispecies::quasispecies_simulation` | `ops::bio::WrightFisherGpu` | Batched replicate dispatch | GPU: parallel across replicates, serial per-generation |
-| `rare_biosphere::abundance_occupancy` | `BatchedMultinomialGpu` | Batched replicate dispatch | GPU: parallel multinomial across replicates |
+| `quasispecies::quasispecies_simulation` | `ops::bio::WrightFisherGpu` | Needs multi-gen wrapper (S66 per-step exists) | GPU: parallel across replicates, serial per-generation |
+| `rare_biosphere::abundance_occupancy` | `BatchedMultinomialGpu` | Needs occupancy wrapper (S64 low-level exists) | GPU: parallel multinomial across replicates |
+| `rare_biosphere::tier_detection_rate` | `BatchedMultinomialGpu` | Needs tier-rate wrapper | GPU: tier-sliced multinomial |
 | ~~`bootstrap::rawr_mean`~~ | ~~New: `ops::rawr_weighted_mean_f64`~~ | **RESOLVED** — absorbed as `stats::rawr_mean` in S66 | Moved to Tier A (#26) |
 | `anderson::anderson_potential` | `spectral::anderson_potential` | Requires `barracuda-gpu` feature | Align PRNG seeds |
 
@@ -433,8 +475,8 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (28/28 parity proven, timing data for all experiments) |
-| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) | **32 active delegations + 9 pending ToadStool** (25 CPU + 7 GPU) + 9 pending |
-| Phase 2b | Tier B adapt (GPU dispatch wiring, PRNG alignment) | **V31–V35** — 5 modules GPU-wired, 49 metalForge tests, 5 substrates; arch-aware dispatch (f64→Titan V, f32→RTX 4070); 32 active (25 CPU + 7 GPU); awaiting ToadStool absorption |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) | **39 active delegations + 7 pending ToadStool** (30 CPU + 9 GPU) |
+| Phase 2b | Tier B adapt (GPU dispatch wiring, PRNG alignment) | **V31–V35** — 5 modules GPU-wired, 49 metalForge tests, 5 substrates; arch-aware dispatch (f64→Titan V, f32→RTX 4070); awaiting ToadStool absorption for 9 pending |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |
 

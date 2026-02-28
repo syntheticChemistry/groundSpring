@@ -16,11 +16,11 @@
 //!
 //! # barracuda delegation
 //!
-//! [`kimura_fixation_prob`] is a high-value CPU delegation target for
-//! `barracuda::stats::kimura_fixation` (analytical, no RNG — pure math).
-//! Pending `ToadStool` absorption (not yet in barracuda S68+).
-//! [`wright_fisher_fixation`] remains local (serial RNG loop, GPU batched
-//! via `barracuda::ops::bio::WrightFisherGpu` at GPU tier).
+//! [`kimura_fixation_prob`] is a pending delegation target for
+//! `barracuda::stats::kimura_fixation` — not yet in barracuda as of S68+.
+//! [`wright_fisher_fixation`] remains local (serial RNG loop); `ToadStool`
+//! S66+ has `WrightFisherGpu` for per-generation GPU dispatch but no
+//! multi-trial wrapper.
 
 use crate::cast::usize_f64;
 use crate::prng::Xorshift64;
@@ -85,11 +85,12 @@ pub fn wright_fisher_fixation(
 ///
 /// For neutral evolution (s=0), returns `initial_freq`.
 ///
-/// When `ToadStool` implements `barracuda::stats::kimura_fixation`,
-/// this will delegate to it (pure math, no RNG — high-value CPU target).
+/// Pending delegation to `barracuda::stats::kimura_fixation` — not yet
+/// in barracuda as of `ToadStool` S68+ (pure math, no RNG).
 #[must_use]
 pub fn kimura_fixation_prob(pop_size: usize, selection: f64, initial_freq: f64) -> f64 {
-    // TODO(toadstool): uncomment when barracuda implements stats::kimura_fixation
+    // TODO(toadstool): wire when barracuda adds stats::kimura_fixation
+    // Status S68+: not yet absorbed. Handoff item — pure scalar, trivial kernel.
     // #[cfg(feature = "barracuda")]
     // {
     //     if let Ok(p) = barracuda::stats::kimura_fixation(pop_size, selection, initial_freq) {

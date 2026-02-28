@@ -27,4 +27,6 @@ pub use metrics::{
     hit_rate, index_of_agreement, mae, mbe, mean, nash_sutcliffe, percentile, r_squared, rmse,
     sample_std_dev, std_dev,
 };
-pub use regression::{fit_linear, LinearFit};
+pub use regression::{
+    fit_exponential, fit_linear, fit_logarithmic, fit_quadratic, LinearFit, NonlinearFit,
+};

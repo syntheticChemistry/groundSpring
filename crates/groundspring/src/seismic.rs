@@ -122,9 +122,9 @@ pub fn grid_search_inversion<S: AsRef<str>>(
     stations: &[Station],
     config: &GridSearchConfig,
 ) -> InversionResult {
-    // TODO(toadstool): uncomment when barracuda implements ops::grid::grid_search_3d_f64
-    // ToadStool ops::grid currently has FD gradients/Laplacians but no grid-search
-    // inversion. This is a high-value GPU target (embarrassingly parallel 3D scan).
+    // TODO(toadstool): wire when barracuda adds ops::grid::grid_search_3d_f64
+    // Status S68+: not yet absorbed. ToadStool ops::grid has FD gradients/Laplacians
+    // but no grid-search inversion. High-value GPU target (parallel 3D scan). Handoff item.
     // #[cfg(feature = "barracuda-gpu")]
     // {
     //     let sta_lats: Vec<f64> = stations.iter().map(|s| s.lat).collect();

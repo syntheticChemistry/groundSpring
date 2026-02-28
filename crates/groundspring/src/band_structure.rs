@@ -63,8 +63,9 @@ pub fn find_band_edges(
     e_hi: f64,
     n_points: usize,
 ) -> Vec<f64> {
-    // TODO(toadstool): uncomment when barracuda implements spectral::band_edges_parallel
-    // Transfer matrix half-trace scan is embarrassingly parallel across energy points.
+    // TODO(toadstool): wire when barracuda adds spectral::band_edges_parallel
+    // Status S68+: not yet absorbed. Transfer matrix half-trace scan is
+    // embarrassingly parallel across energy points. Handoff item.
     // #[cfg(feature = "barracuda-gpu")]
     // {
     //     if let Ok(edges) =

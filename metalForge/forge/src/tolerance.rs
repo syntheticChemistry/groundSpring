@@ -68,6 +68,11 @@ pub struct WorkloadTolerance {
 /// Compare a GPU result against a CPU reference within the given tolerance.
 ///
 /// Returns `Ok(relative_diff)` if within tolerance, `Err(relative_diff)` if not.
+///
+/// # Errors
+///
+/// Returns `Err(relative_diff)` when the relative difference exceeds the
+/// tolerance tier's threshold.
 pub fn compare(cpu: f64, gpu: f64, tier: ToleranceTier) -> Result<f64, f64> {
     let tol = tier.relative_tolerance();
     let diff = if cpu.abs() > 1e-15 {
@@ -83,6 +88,11 @@ pub fn compare(cpu: f64, gpu: f64, tier: ToleranceTier) -> Result<f64, f64> {
 }
 
 /// Compare slices of GPU and CPU results, returning per-element results.
+///
+/// # Panics
+///
+/// Panics if `cpu` and `gpu` have different lengths.
+#[must_use]
 pub fn compare_all(cpu: &[f64], gpu: &[f64], tier: ToleranceTier) -> Vec<Result<f64, f64>> {
     assert_eq!(
         cpu.len(),

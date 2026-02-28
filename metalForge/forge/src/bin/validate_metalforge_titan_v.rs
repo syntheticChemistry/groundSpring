@@ -10,7 +10,18 @@
 //!
 //! This validates NAK shader compilation on Volta/Titan V end-to-end and
 //! measures the f32 precision delta against CPU f64 ground truth.
+//!
+//! # Provenance
+//!
+//! - **CPU reference**: `groundspring::anderson::lyapunov_averaged` — transfer
+//!   matrix method, L=200 sites, W=2.0, E=0, 1024 realizations, seed 42.
+//! - **Tolerance**: ξ ∈ \[5, 50\] per Derrida-Gardner analytical (ξ ≈ 24 at W=2).
+//!   CPU/GPU ξ ratio ∈ \[0.3, 3.0\] (f32 precision + PRNG stream difference).
+//!   ≥95% realizations must have γ > 0 (f32 can zero a few via log/sqrt rounding).
+//! - **Shaders**: `metalForge/shaders/anderson_lyapunov.wgsl` (f64),
+//!   `anderson_lyapunov_f32.wgsl` (f32 fallback).
 
+use groundspring_forge::harness::Harness;
 use std::time::Instant;
 use wgpu::util::DeviceExt;
 
@@ -21,35 +32,6 @@ const ENERGY: f64 = 0.0;
 
 const SHADER_F64: &str = include_str!("../../../shaders/anderson_lyapunov.wgsl");
 const SHADER_F32: &str = include_str!("../../../shaders/anderson_lyapunov_f32.wgsl");
-
-struct Harness {
-    pass: u32,
-    fail: u32,
-}
-
-impl Harness {
-    const fn new() -> Self {
-        Self { pass: 0, fail: 0 }
-    }
-
-    fn check(&mut self, name: &str, ok: bool) {
-        if ok {
-            println!("  PASS  {name}");
-            self.pass += 1;
-        } else {
-            println!("  FAIL  {name}");
-            self.fail += 1;
-        }
-    }
-
-    fn finish(self) {
-        let total = self.pass + self.fail;
-        println!("\n=== {}/{total} checks passed ===", self.pass);
-        if self.fail > 0 {
-            std::process::exit(1);
-        }
-    }
-}
 
 #[repr(C)]
 #[derive(Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]

@@ -12,11 +12,12 @@
 //!
 //! # barracuda delegation
 //!
-//! [`daily_et0`] is a delegation target for
-//! `barracuda::stats::hydrology::fao56_et0()`. Pending `ToadStool`
-//! absorption — barracuda S68+ has `hargreaves_et0` and
+//! [`daily_et0`] is a pending delegation target for
+//! `barracuda::stats::hydrology::fao56_et0()` — scalar form not yet in
+//! barracuda as of S68+. `ToadStool` has `hargreaves_et0` (temperature-only),
+//! `crop_coefficient`, `soil_water_balance`, and GPU batch
 //! `BatchedElementwiseF64::fao56_et0_batch` but no standalone scalar
-//! `fao56_et0`. Sub-functions remain local as the validation reference.
+//! Penman-Monteith. Sub-functions remain local as the validation reference.
 
 use std::f64::consts::PI;
 
@@ -236,13 +237,16 @@ pub struct DailyWeatherInputs {
 /// Implements the full FAO-56 Eq. 6 chain with RH data and wind
 /// height conversion (Example 18 pattern).
 ///
-/// When `ToadStool` implements `barracuda::stats::hydrology::fao56_et0`,
-/// this will delegate to it. `ToadStool` currently has `hargreaves_et0`
-/// and `BatchedElementwiseF64::fao56_et0_batch` but no standalone scalar
-/// `fao56_et0` in `stats::hydrology`.
+/// Pending delegation to `barracuda::stats::hydrology::fao56_et0` — not
+/// yet in barracuda as of S68+ (scalar). `ToadStool` has `hargreaves_et0`
+/// (temperature-only), `crop_coefficient`, `soil_water_balance`, and
+/// `BatchedElementwiseF64::fao56_et0_batch` (GPU batch) but no standalone
+/// scalar Penman-Monteith.
 #[must_use]
 pub fn daily_et0(inp: &DailyWeatherInputs) -> f64 {
-    // TODO(toadstool): uncomment when barracuda implements stats::hydrology::fao56_et0
+    // TODO(toadstool): wire when barracuda adds stats::hydrology::fao56_et0 (scalar)
+    // Status S68+: hargreaves_et0 available; fao56_et0_batch (GPU) available;
+    // scalar fao56_et0 not yet absorbed.
     // #[cfg(feature = "barracuda")]
     // {
     //     if let Ok(et0) = barracuda::stats::hydrology::fao56_et0(

@@ -36,10 +36,19 @@
 //! - [`wdm`] — Warm Dense Matter transport analysis (Green-Kubo, finite-size extrapolation)
 //! - `biomeos` — biomeOS Neural API client (behind `biomeos` feature)
 //! - `npu` — NPU integration for Akida neuromorphic inference (behind `npu` feature)
+//! - [`error`] — Typed input validation errors (`InputError`)
+//! - [`linalg`] — Linear algebra primitives (tridiagonal eigensolver)
 //! - [`validate`] — Validation harness (pass/fail with counters)
+
+pub mod error;
 
 pub mod almost_mathieu;
 pub mod anderson;
+// NOTE: `linalg` is intentionally listed before its consumers (transport,
+// band_structure) to make the dependency direction visible in `lib.rs`.
+// `transport` re-exports `linalg::{tridiag_eigh, EighError}` for backward
+// compatibility; new code should prefer `linalg::` directly.
+pub mod linalg;
 pub mod band_structure;
 pub mod bistable;
 pub mod bootstrap;
@@ -62,6 +71,9 @@ pub mod stats;
 pub mod transport;
 pub mod validate;
 pub mod wdm;
+
+#[cfg(feature = "barracuda-gpu")]
+pub(crate) mod gpu;
 
 #[cfg(feature = "biomeos")]
 pub mod biomeos;

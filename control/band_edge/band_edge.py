@@ -99,7 +99,7 @@ def build_periodic_hamiltonian(
     diag = np.array([potential[i % period] for i in range(n)])
     offdiag = np.full(n - 1, -hopping)
     h = np.diag(diag) + np.diag(offdiag, 1) + np.diag(offdiag, -1)
-    return h
+    return np.asarray(h)
 
 
 def main() -> int:

@@ -12,7 +12,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **288/288 checks passed** across 28 validation binaries.
 - Mathematical parity: **28/28 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.5× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.7× from Sturm tridiag**.
-- V35: Titan V / NAK adaptive GPU dispatch. 32 active delegations + 9 pending ToadStool (25 CPU + 7 GPU), 19 metalForge workloads, 5 substrates, architecture-aware routing. biomeOS Neural API (V30). Four-mode CI.
+- V44: Deep-debt evolution. 39 active delegations + 7 pending ToadStool (30 CPU + 9 GPU), `linalg` module, typed `InputError`, 19 metalForge workloads, 5 substrates, architecture-aware routing. biomeOS Neural API. Four-mode CI.
 
 ### Key Results
 
@@ -63,7 +63,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 ## Phase 1 Rust Library
 
-The `groundspring` crate provides 24 modules of pure safe Rust:
+The `groundspring` crate provides 30 modules of pure safe Rust:
 
 | Module | Experiment | GPU Tier | Notes |
 |--------|-----------|----------|-------|

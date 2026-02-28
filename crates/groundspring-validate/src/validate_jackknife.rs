@@ -31,7 +31,7 @@ struct GaussCtx {
 
 fn validate_gaussian(h: &mut ValidationHarness, ctx: &GaussCtx, exp: &Value) {
     println!("\n--- Part 1: Jackknife on Gaussian data ---");
-    let r = jackknife_mean_variance(&ctx.data);
+    let r = jackknife_mean_variance(&ctx.data).expect("gaussian data >= 2 elements");
     println!("  JK mean = {:.4}, JK var = {:.6}", r.estimate, r.variance);
     h.check_max(
         "Jackknife mean near true mean",
@@ -52,7 +52,7 @@ fn validate_exponential(h: &mut ValidationHarness, exp_cfg: &Value, exp: &Value)
     let data: Vec<f64> = (0..n)
         .map(|_| -rng.next_f64().max(f64::MIN_POSITIVE).ln() / rate)
         .collect();
-    let r = jackknife_mean_variance(&data);
+    let r = jackknife_mean_variance(&data).expect("exponential data >= 2 elements");
     let true_mean = 1.0 / rate;
     println!(
         "  JK mean = {:.4} (true = {true_mean:.4}), JK var = {:.6}",
@@ -100,7 +100,7 @@ fn validate_block_and_bias(
     let monotone_slack = f64_field(exp, "block_jk_monotone_slack");
     let mut block_vars = Vec::new();
     for &bs in &corr.block_sizes {
-        let r = block_jackknife_variance(&corr.data, bs);
+        let r = block_jackknife_variance(&corr.data, bs).expect("block_size valid");
         println!("  block_size={bs:3}: var = {:.6}", r.variance);
         block_vars.push(r.variance);
     }
@@ -125,7 +125,7 @@ fn validate_comparison_and_determinism(
     exp: &Value,
 ) {
     println!("\n--- Part 5: Jackknife vs bootstrap comparison ---");
-    let jk = jackknife_mean_variance(&gauss.data);
+    let jk = jackknife_mean_variance(&gauss.data).expect("gaussian data >= 2 elements");
     let boot_cfg = &bench["bootstrap_comparison"];
     let boot_seed = u64_field(boot_cfg, "seed");
     let n_boot = boot_cfg["n_bootstrap"].as_u64().expect("n_bootstrap") as usize;
@@ -156,8 +156,8 @@ fn validate_comparison_and_determinism(
     h.check_range("Jackknife/bootstrap variance ratio", ratio, lo, hi);
 
     println!("\n--- Part 6: Determinism ---");
-    let r1 = jackknife_mean_variance(&gauss.data);
-    let r2 = jackknife_mean_variance(&gauss.data);
+    let r1 = jackknife_mean_variance(&gauss.data).expect("gaussian data >= 2");
+    let r2 = jackknife_mean_variance(&gauss.data).expect("gaussian data >= 2");
     h.check_true(
         "Jackknife deterministic",
         r1.estimate.to_bits() == r2.estimate.to_bits()

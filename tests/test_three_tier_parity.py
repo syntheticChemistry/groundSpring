@@ -24,6 +24,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from typing import ClassVar
 
 import pytest
 
@@ -156,7 +157,7 @@ class TestRustFasterThanPython:
     # Quasiperiodic uses dense Givens QR (O(n³)) locally; Python uses
     # LAPACK (O(n²)). With barracuda-gpu (Sturm tridiag), Rust is 49.5×
     # faster. Drift can also be marginal due to short Python runtime.
-    KNOWN_LAPACK_WINS = {"quasiperiodic", "drift_selection"}
+    KNOWN_LAPACK_WINS: ClassVar[set[str]] = {"quasiperiodic", "drift_selection"}
 
     @pytest.mark.parametrize(
         "py_dir,py_script,rust_bin",

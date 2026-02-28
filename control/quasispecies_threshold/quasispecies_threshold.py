@@ -48,7 +48,7 @@ from common import (
 
 def error_threshold(sigma: float, genome_length: int) -> float:
     """Analytical error threshold: mu_c = 1 - sigma^(-1/L)."""
-    return 1.0 - sigma ** (-1.0 / genome_length)
+    return float(1.0 - sigma ** (-1.0 / genome_length))
 
 
 def master_frequency_analytical(sigma: float, mu: float, genome_length: int) -> float:

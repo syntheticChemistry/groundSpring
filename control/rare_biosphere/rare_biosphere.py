@@ -170,14 +170,17 @@ def main() -> int:
     # ------------------------------------------------------------------
     print("\n--- Part 2: Detection Power by Tier ---")
 
+    dom_lo, dom_hi = tiers["dominant"]
+    vr_lo, vr_hi = tiers["very_rare"]
+
     dom_rate = tier_detection_rate(
-        community, *tiers["dominant"], 100, n_reps, base_seed + 1000,
+        community, dom_lo, dom_hi, 100, n_reps, base_seed + 1000,
     )
     vr_rate_100 = tier_detection_rate(
-        community, *tiers["very_rare"], 100, n_reps, base_seed + 2000,
+        community, vr_lo, vr_hi, 100, n_reps, base_seed + 2000,
     )
     vr_rate_5000 = tier_detection_rate(
-        community, *tiers["very_rare"], 5000, n_reps, base_seed + 3000,
+        community, vr_lo, vr_hi, 5000, n_reps, base_seed + 3000,
     )
 
     p_dom = detection_power(0.06, 100)
@@ -253,7 +256,7 @@ def main() -> int:
     rho, _ = spearmanr(community, occupancy)
     print(f"  Spearman(abundance, occupancy) = {rho:.3f}")
 
-    check_true("Occupancy positively correlated with abundance", rho > 0.5)
+    check_true("Occupancy positively correlated with abundance", bool(rho > 0.5))
 
     # ------------------------------------------------------------------
     # Part 5: Singleton discrimination

@@ -3,14 +3,13 @@
 **Purpose**: Handoff documents from groundSpring to ToadStool/BarraCUDA team,
 following the wateringHole inter-primal standard.
 
-**Last Updated**: February 27, 2026
+**Last Updated**: February 28, 2026
 
 ## Active Handoffs
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V39 | [GROUNDSPRING_TOADSTOOL_V39_NUCLEUS_INTEGRATION_HANDOFF_FEB27_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V39_NUCLEUS_INTEGRATION_HANDOFF_FEB27_2026.md) | Feb 27, 2026 | NUCLEUS integration: NestGate data pipeline (NCBI/NOAA), metalForge remote substrate discovery, Tower/Node/Nest pipeline graphs, baseCamp sync, 498+ tests |
-| V37 | [GROUNDSPRING_TOADSTOOL_V37_BARRACUDA_EVOLUTION_HANDOFF_FEB27_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V37_BARRACUDA_EVOLUTION_HANDOFF_FEB27_2026.md) | Feb 27, 2026 | Comprehensive BarraCUDA evolution summary: 32 active delegations (25 CPU + 7 GPU), 9 pending absorption, 19 workloads, 49 metalForge tests, 5 substrates, NAK f64 gap analysis, absorption priorities |
+| V44 | [GROUNDSPRING_TOADSTOOL_V44_DEEP_DEBT_EVOLUTION_HANDOFF_FEB28_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V44_DEEP_DEBT_EVOLUTION_HANDOFF_FEB28_2026.md) | Feb 28, 2026 | Deep-debt evolution: `linalg` module extraction, typed `InputError`, capability-based UID discovery, `Result` APIs, 39 active delegations (30 CPU + 9 GPU) + 7 pending, absorption guidance for ToadStool |
 
 ## Cross-Spring Documentation
 
@@ -37,6 +36,9 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V43 | Three-tier parity proven (27/27), pure GPU workloads (26/26), 39 active delegations (superseded by V44) |
+| V39 | NUCLEUS integration, NestGate data pipeline, metalForge remote (superseded by V43) |
+| V37 | Comprehensive barracuda evolution: 39 delegations, NAK f64 gap (superseded by V43) |
 | V35 | Titan V / NAK adaptive GPU dispatch (superseded by V37/V39) |
 | V33 | Delegation count expansion (32 active, 25 CPU + 7 GPU) (superseded by V35) |
 | V32 | ToadStool S68+ catch-up (superseded by V33) |

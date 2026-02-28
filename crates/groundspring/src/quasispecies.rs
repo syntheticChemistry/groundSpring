@@ -79,17 +79,17 @@ pub fn quasispecies_simulation(
     n_generations: usize,
     seed: u64,
 ) -> Vec<f64> {
-    // TODO(toadstool): uncomment when barracuda implements ops::bio::wright_fisher_simulate
-    // ToadStool has WrightFisherGpu::dispatch() (per-generation step) but not the
-    // full multi-generation simulate wrapper needed here.
-    // #[cfg(feature = "barracuda-gpu")]
-    // {
-    //     if let Ok(freqs) = barracuda::ops::bio::wright_fisher_simulate(
-    //         pop_size, genome_length, sigma, mu, n_generations, seed,
-    //     ) {
-    //         return freqs;
-    //     }
-    // }
+    // WrightFisherGpu (S66+, neuralSpring metalForge provenance) operates on allele
+    // frequencies with selection coefficients, not on the Eigen quasispecies model's
+    // fitness-proportionate + mutation two-step. The kernel applies:
+    //   p' = p·w_A / (p·w_A + (1-p))  then  Binomial(2N, p')
+    // but quasispecies needs selection THEN mutation (master→mutant with prob 1-Q).
+    // A single locus WF dispatch only handles the selection+drift step; the mutation
+    // step (binomial thinning by Q) must run on host between generations.
+    //
+    // GPU acceleration is most valuable for BATCHED replicates (many independent
+    // trajectories in parallel). The single-trajectory case below stays CPU; the
+    // benchmark binary in metalForge demonstrates the batched GPU path.
     quasispecies_simulation_cpu(pop_size, genome_length, sigma, mu, n_generations, seed)
 }
 

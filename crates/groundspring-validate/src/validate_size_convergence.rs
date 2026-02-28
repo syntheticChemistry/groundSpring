@@ -83,7 +83,8 @@ fn run() -> i32 {
         .collect();
 
     // Fit finite-size extrapolation
-    let (d_inf_fit, alpha_fit, r_squared) = finite_size_extrapolate(&system_sizes, &d_mean, d_dim);
+    let (d_inf_fit, alpha_fit, r_squared) =
+        finite_size_extrapolate(&system_sizes, &d_mean, d_dim).expect("sizes >= 2");
 
     // Extrapolation relative error
     let extrapolation_rel_err = if d_inf_true == 0.0 {

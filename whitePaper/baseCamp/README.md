@@ -3,9 +3,9 @@
 **Purpose**: Per-faculty research briefings for groundSpring noise characterization
 reproductions and extensions.
 
-**Last Updated**: February 27, 2026
+**Last Updated**: February 28, 2026
 
-**Validation Summary**: 288/288 checks (+ 49 metalForge), 32 active delegations + 9 pending ToadStool (25 CPU + 7 GPU), 442 Rust tests (biomeos) / 410 default + 320 Python tests = 762 total. All 28 experiments DONE. **11.5× faster** than Python (excl. LAPACK-bound). **28/28 mathematical parity proven**. V35: Titan V / NAK adaptive GPU dispatch, 19 metalForge workloads, 5 substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). V31: GPU dispatch wiring. V30: biomeOS Neural API. V26: metalForge live hardware (NPU DMA on AKD1000, RTX 4070, Titan V). 9 domains, 26 modules.
+**Validation Summary**: 288/288 checks (+ 49 metalForge + 13 metalForge validation + 9 NestGate NCBI + 15 NUCLEUS pipeline), **39 active delegations + 7 pending ToadStool (30 CPU + 9 GPU)**, 470+ workspace Rust tests (barracuda-gpu) + 320 Python tests. All 28 experiments DONE. **11.5× faster** than Python (excl. LAPACK-bound). **28/28 mathematical parity proven**. 44 three-tier parity tests, 6 live NUCLEUS integration tests, clippy::pedantic clean. V44: deep-debt evolution — `linalg` module (tridiag eigensolver shared primitive), `error` module (`InputError` typed validation), 5 APIs evolved from `assert!` → `Result`, capability-based UID discovery (zero `unsafe`), enriched derives, idiomatic casts. V43: three-tier parity proven (27/27), pure GPU workloads (26/26). V42: GPU rewiring (abundance_occupancy + tier_detection_rate → `BatchedMultinomialGpu`). ToadStool S68+: 700 WGSL, zero f32-only, dual-layer DF64. 9 domains, 30 modules.
 
 ---
 

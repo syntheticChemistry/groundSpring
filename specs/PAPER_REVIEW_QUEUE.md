@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: February 27, 2026
+**Last Updated**: February 28, 2026
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---
@@ -39,7 +39,8 @@
 
 **Phase 0**: ~261 checks (Python). **Phase 1**: 288/288 PASS (Rust). **Speedup**: 22× (all 28 experiments).
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs.
-**GPU dispatch (V31–V35)**: 5 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere. 19 metalForge workloads, 5 substrates. 32 active delegations + 9 pending ToadStool.
+**GPU dispatch (V31–V43)**: 5 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere. 19 metalForge workloads, 5 substrates. 39 active delegations + 7 pending `ToadStool`.
+**Three-tier parity (V43)**: 27/27 PROVEN (default = barracuda-CPU = barracuda-GPU). GPU tier: 39/39 checks. Pure GPU: 26/26 checks. metalForge dispatch: 17/19 → Titan V.
 **Exp 015** bridges Papers 22-24 (Sub-thesis 06): sensor noise → Anderson ξ → QS regime uncertainty.
 
 ---
@@ -240,7 +241,7 @@ Write → Absorb → Lean cycle:
 | 28 | NPU Anderson regime classification | **9/9** | — | **Live** (AKD1000 DMA) | int8 centroid classifier on NPU |
 
 **CPU tier**: 288/288 PASS across 28 validation binaries.
-**Barracuda**: 32 active delegations + 9 pending ToadStool (25 CPU + 7 GPU). **Performance**: 11.5× faster than Python (excl. LAPACK-bound); 5.1× overall. **Tests**: 442 Rust (biomeos) / 410 default + 320 Python = 762 total. **biomeOS**: Neural API integration (V30). **GPU dispatch (V31–V35)**: 5 modules wired for barracuda-gpu, 19 metalForge workloads, 5 substrates, architecture-aware routing.
+**Barracuda**: 39 active delegations + 7 pending `ToadStool` (30 CPU + 9 GPU). **Performance**: 11.5× faster than Python (excl. LAPACK-bound); 5.1× overall. **Tests**: 470+ Rust workspace (barracuda-gpu) + 320 Python. **biomeOS**: Neural API integration (V30). **GPU dispatch (V31–V44)**: 5 modules wired for barracuda-gpu, 19 metalForge workloads, 5 substrates, architecture-aware routing. V44: `linalg` module, typed `InputError`.
 **Mathematical parity**: 28/28 PROVEN. See `data/parity_report.json`.
 **Three-tier parity**: 23 integration tests validate CPU ↔ barracuda-CPU ↔ barracuda-GPU equivalence.
 **PRNG readiness**: Xoshiro128** at full API parity — Phase 2b migration unblocked.
@@ -321,8 +322,8 @@ Papers 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 18, 21 — can proceed to GPU tier on
 ### Tier 1: BarraCUDA CPU (current — 288/288 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
-29 active delegations + 9 pending ToadStool (23 CPU + 6 GPU) + 9 pending. 11.5× faster than Python (excl. LAPACK-bound).
-410 Rust tests (442 with biomeos) + 320 Python = 762 total. 28/28 mathematical parity proven. 99.37% line coverage.
+39 active delegations + 7 pending `ToadStool` (30 CPU + 9 GPU). 11.5× faster than Python (excl. LAPACK-bound).
+470+ Rust workspace tests + 320 Python. 28/28 mathematical parity proven. 99.37% line coverage.
 All 28 experiments validated.
 
 ### Tier 2: BarraCUDA GPU (next)

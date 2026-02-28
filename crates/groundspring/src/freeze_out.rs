@@ -46,18 +46,29 @@ pub fn freeze_out_curve(t0: f64, kappa2: f64, mu_b: f64) -> f64 {
 ///
 /// `χ² = Σ((obs_i - pred_i) / σ)²`
 ///
-/// # Panics
+/// # Errors
 ///
-/// Panics if `observed` and `predicted` have different lengths.
-#[must_use]
-pub fn chi_squared(observed: &[f64], predicted: &[f64], sigma: f64) -> f64 {
-    assert_eq!(observed.len(), predicted.len());
+/// Returns [`InputError::LengthMismatch`] if `observed` and `predicted`
+/// have different lengths.
+pub fn chi_squared(
+    observed: &[f64],
+    predicted: &[f64],
+    sigma: f64,
+) -> Result<f64, crate::error::InputError> {
+    if observed.len() != predicted.len() {
+        return Err(crate::error::InputError::LengthMismatch {
+            first: "observed",
+            first_len: observed.len(),
+            second: "predicted",
+            second_len: predicted.len(),
+        });
+    }
     let inv_sigma2 = 1.0 / (sigma * sigma);
-    observed
+    Ok(observed
         .iter()
         .zip(predicted.iter())
         .map(|(&o, &p)| (o - p).powi(2) * inv_sigma2)
-        .sum()
+        .sum())
 }
 
 /// Chi-squared per degree of freedom.
@@ -78,8 +89,9 @@ pub fn chi_squared_per_dof(chi2: f64, n_data: usize, n_params: usize) -> f64 {
 /// grid ranges produce no points.
 #[must_use]
 pub fn grid_fit_2d(config: &GridFitConfig<'_>) -> GridFitResult {
-    // TODO(toadstool): uncomment when barracuda implements ops::grid::grid_fit_2d_f64
-    // Embarrassingly parallel 2D chi-squared grid search — high-value GPU target.
+    // TODO(toadstool): wire when barracuda adds ops::grid::grid_fit_2d_f64
+    // Status S68+: not yet absorbed. Embarrassingly parallel 2D chi-squared
+    // grid search — high-value GPU target. Handoff item.
     // #[cfg(feature = "barracuda-gpu")]
     // {
     //     if let Ok(result) = barracuda::ops::grid::grid_fit_2d_f64(
@@ -121,7 +133,8 @@ fn grid_fit_2d_cpu(config: &GridFitConfig<'_>) -> GridFitResult {
             for (j, &mu) in config.mu_b.iter().enumerate() {
                 pred[j] = freeze_out_curve(t0, k2, mu);
             }
-            let c2 = chi_squared(config.observed, &pred, config.sigma);
+            let c2 = chi_squared(config.observed, &pred, config.sigma)
+                .expect("grid_fit_2d_cpu: observed and pred have same length");
             if c2 < best_chi2 {
                 best_chi2 = c2;
                 best_t0 = t0;
@@ -140,6 +153,7 @@ fn grid_fit_2d_cpu(config: &GridFitConfig<'_>) -> GridFitResult {
 }
 
 /// Configuration for a 2D grid-search fit.
+#[derive(Debug, Clone, Copy)]
 pub struct GridFitConfig<'a> {
     /// Observed data points.
     pub observed: &'a [f64],
@@ -186,7 +200,7 @@ mod tests {
     fn chi2_zero_at_truth() {
         let obs = vec![1.0, 2.0, 3.0];
         let pred = vec![1.0, 2.0, 3.0];
-        let c2 = chi_squared(&obs, &pred, 1.0);
+        let c2 = chi_squared(&obs, &pred, 1.0).unwrap();
         assert!(c2.abs() < 1e-14);
     }
 

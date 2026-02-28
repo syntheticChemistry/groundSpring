@@ -199,5 +199,5 @@ Same as all ecoPrimals springs:
 
 - **Phase 0 (Python)**: ~288 quantitative checks passed across 28 experiments, 9 domains.
 - **Phase 1 (Rust)**: 288/288 checks passed across 28 validation binaries. 442 Rust tests (with biomeOS feature) / 410 default. 99.37% coverage.
-- **Phase 2a (Barracuda)**: 32 active delegations + 9 pending ToadStool (25 CPU + 7 GPU). 11.5× faster than Python (excl. LAPACK-bound). Exp 009: 47.7× from Sturm tridiag. 28/28 parity proven.
+- **Phase 2a (Barracuda)**: 39 active delegations + 7 pending ToadStool (30 CPU + 9 GPU). 11.5× faster than Python (excl. LAPACK-bound). Exp 009: 47.7× from Sturm tridiag. 28/28 parity proven. V44: `linalg` module, typed `InputError`, capability-based discovery.
 - **metalForge**: 4 live hardware binaries (RTX 4070, Titan V, AKD1000 NPU). 49 metalForge checks, 19 workloads, 5 substrates, architecture-aware routing (V35).

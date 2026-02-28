@@ -3,39 +3,17 @@
 
 //! Validation binary: discover all substrates and assert minimum hardware.
 //!
+//! # Provenance
+//!
+//! Expected values are hardware capability assertions — not derived from
+//! Python baselines. Checks confirm runtime discovery matches the physical
+//! hardware manifest: GPU (wgpu), NPU (AKD1000 device node), CPU (procfs).
+//!
 //! Exit 0 if all checks pass, exit 1 on any failure.
 
+use groundspring_forge::harness::Harness;
 use groundspring_forge::inventory::Inventory;
 use groundspring_forge::substrate::{AdaptiveBatch, Capability, GpuArch, SubstrateKind};
-
-struct Harness {
-    pass: u32,
-    fail: u32,
-}
-
-impl Harness {
-    const fn new() -> Self {
-        Self { pass: 0, fail: 0 }
-    }
-
-    fn check(&mut self, name: &str, ok: bool) {
-        if ok {
-            println!("  PASS  {name}");
-            self.pass += 1;
-        } else {
-            println!("  FAIL  {name}");
-            self.fail += 1;
-        }
-    }
-
-    fn finish(self) {
-        let total = self.pass + self.fail;
-        println!("\n=== {}/{total} checks passed ===", self.pass);
-        if self.fail > 0 {
-            std::process::exit(1);
-        }
-    }
-}
 
 fn run_hardware_checks(inv: &Inventory, h: &mut Harness) {
     let gpu_count = inv.count(SubstrateKind::Gpu);

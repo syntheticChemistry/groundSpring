@@ -361,16 +361,22 @@ fn sample_std_dev_cpu(values: &[f64]) -> f64 {
 /// When the `barracuda` feature is enabled, delegates to
 /// `barracuda::stats::percentile`.
 ///
-/// # Panics
+/// # Errors
 ///
-/// Panics if `p` is not in the range 0.0–100.0.
-#[must_use]
-pub fn percentile(values: &[f64], p: f64) -> f64 {
-    assert!((0.0..=100.0).contains(&p), "percentile must be 0–100");
+/// Returns [`InputError::OutOfRange`] if `p` is not in `[0.0, 100.0]`.
+pub fn percentile(values: &[f64], p: f64) -> Result<f64, crate::error::InputError> {
+    if !(0.0..=100.0).contains(&p) {
+        return Err(crate::error::InputError::OutOfRange {
+            name: "p",
+            lo: 0.0,
+            hi: 100.0,
+            got: p,
+        });
+    }
     #[cfg(feature = "barracuda")]
-    return barracuda::stats::percentile(values, p);
+    return Ok(barracuda::stats::percentile(values, p));
     #[cfg(not(feature = "barracuda"))]
-    percentile_cpu(values, p)
+    Ok(percentile_cpu(values, p))
 }
 
 #[cfg(not(feature = "barracuda"))]
@@ -445,7 +451,7 @@ mod tests {
     #[test]
     fn percentile_median() {
         let vals = [1.0, 2.0, 3.0, 4.0, 5.0];
-        assert!((percentile(&vals, 50.0) - 3.0).abs() < 1e-12);
+        assert!((percentile(&vals, 50.0).unwrap() - 3.0).abs() < 1e-12);
     }
 
     #[test]
@@ -526,19 +532,33 @@ mod tests {
     }
 
     #[test]
+    fn std_dev_known_value() {
+        let vals = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
+        let s = std_dev(&vals);
+        // population σ = sqrt(Σ(x-μ)²/N) = sqrt(32/8) = 2.0 exactly
+        assert!((s - 2.0).abs() < 1e-12, "population σ should be 2.0, got {s}");
+    }
+
+    #[test]
     fn percentile_empty() {
         let empty: [f64; 0] = [];
-        assert!(percentile(&empty, 50.0).abs() < 1e-12);
+        assert!(percentile(&empty, 50.0).unwrap().abs() < 1e-12);
     }
 
     #[test]
     fn percentile_interpolation() {
         let vals = [1.0, 2.0, 3.0, 4.0];
-        let p25 = percentile(&vals, 25.0);
+        let p25 = percentile(&vals, 25.0).unwrap();
         assert!(
             (p25 - 1.75).abs() < 1e-12,
             "P25 of [1,2,3,4] = 1.75, got {p25}"
         );
+    }
+
+    #[test]
+    fn percentile_out_of_range() {
+        assert!(percentile(&[1.0], -1.0).is_err());
+        assert!(percentile(&[1.0], 101.0).is_err());
     }
 
     #[test]

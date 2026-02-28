@@ -527,6 +527,7 @@ version = "0.1.0"
 dependencies = [
  "akida-driver",
  "barracuda",
+ "pollster 0.4.0",
  "proptest",
  "tempfile",
 ]
@@ -538,6 +539,7 @@ dependencies = [
  "bytemuck",
  "groundspring",
  "pollster 0.4.0",
+ "serde_json",
  "wgpu",
 ]
 

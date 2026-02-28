@@ -10,7 +10,8 @@
     "prng": "numpy.random.default_rng(42)",
     "python_version": "3.10",
     "validation_script": "control/precision_drift/precision_drift.py",
-    "command": "python3 control/precision_drift/precision_drift.py"
+    "command": "python3 control/precision_drift/precision_drift.py",
+    "generated_by": "Python Monte Carlo simulation (f32 vs f64 VACF integration, 50 seeds \u00d7 2 precisions)"
   },
   "_description": "f32 vs f64 transport coefficient precision drift in WDM Green-Kubo integration",
   "model": {
@@ -18,7 +19,13 @@
     "dt": 0.001,
     "d_dim": 3,
     "n_steps": 200000,
-    "tau_values": [5.0, 10.0, 20.0, 50.0, 100.0],
+    "tau_values": [
+      5.0,
+      10.0,
+      20.0,
+      50.0,
+      100.0
+    ],
     "noise_amplitude": 0.001,
     "n_realizations": 100,
     "seed": 42
@@ -26,7 +33,10 @@
   "expected_results": {
     "f64_analytical_max_error": 0.001,
     "f32_relative_error_max": 0.005,
-    "mean_relative_error_range": [-0.005, 0.005],
+    "mean_relative_error_range": [
+      -0.005,
+      0.005
+    ],
     "bias_fraction_min": 0.01,
     "max_diffusion_absolute_error": 0.1,
     "error_magnitude_correlation_min": -0.5,

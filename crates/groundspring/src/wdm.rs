@@ -11,18 +11,44 @@
 //!
 //! # barracuda delegation
 //!
-//! When the `barracuda` feature is enabled, [`finite_size_extrapolate`]
-//! delegates linear regression to `barracuda::stats::regression::fit_linear`.
-//! Falls back to the local least-squares implementation on error.
+//! When the `barracuda` feature is enabled:
+//! - [`green_kubo_integrate`] delegates to `barracuda::numerical::trapz`
+//!   (trapezoidal rule on explicit x-y arrays). Falls back on error.
+//! - [`finite_size_extrapolate`] delegates linear regression to
+//!   `barracuda::stats::regression::fit_linear` via [`crate::stats::fit_linear`].
 
 /// Numerically integrate an autocorrelation function using the trapezoidal rule.
 ///
 /// Computes ∫₀ᵀ acf(t) dt where T = (len-1) × dt.
+///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::numerical::trapz` which uses the same trapezoidal rule
+/// but on explicit (x, y) arrays. Falls back to the local implementation
+/// on error.
 #[must_use]
 pub fn green_kubo_integrate(acf: &[f64], dt: f64) -> f64 {
     if acf.len() < 2 {
         return 0.0;
     }
+
+    #[cfg(feature = "barracuda")]
+    {
+        let x: Vec<f64> = (0..acf.len())
+            .map(|i| {
+                #[expect(clippy::cast_precision_loss)]
+                let t = i as f64 * dt;
+                t
+            })
+            .collect();
+        if let Ok(val) = barracuda::numerical::trapz(acf, &x) {
+            return val;
+        }
+    }
+
+    green_kubo_integrate_cpu(acf, dt)
+}
+
+fn green_kubo_integrate_cpu(acf: &[f64], dt: f64) -> f64 {
     let n = acf.len();
     let mut sum = 0.5 * (acf[0] + acf[n - 1]);
     for &val in &acf[1..n - 1] {
@@ -84,23 +110,36 @@ pub fn analytical_diffusion(c0: f64, tau: f64, d_dim: f64) -> f64 {
 ///
 /// Reference: Yeh & Hummer (2004) J. Phys. Chem. B 108, 15873.
 ///
-/// # Panics
+/// # Errors
 ///
-/// Panics if `sizes` and `values` have different lengths or fewer than 2 points.
-#[must_use]
-pub fn finite_size_extrapolate(sizes: &[f64], values: &[f64], d_dim: f64) -> (f64, f64, f64) {
-    assert_eq!(
-        sizes.len(),
-        values.len(),
-        "sizes and values must have the same length"
-    );
-    assert!(sizes.len() >= 2, "need at least 2 data points");
+/// Returns [`InputError::LengthMismatch`] if `sizes` and `values` differ
+/// in length, or [`InputError::InsufficientData`] if fewer than 2 points.
+pub fn finite_size_extrapolate(
+    sizes: &[f64],
+    values: &[f64],
+    d_dim: f64,
+) -> Result<(f64, f64, f64), crate::error::InputError> {
+    if sizes.len() != values.len() {
+        return Err(crate::error::InputError::LengthMismatch {
+            first: "sizes",
+            first_len: sizes.len(),
+            second: "values",
+            second_len: values.len(),
+        });
+    }
+    if sizes.len() < 2 {
+        return Err(crate::error::InputError::InsufficientData {
+            name: "sizes",
+            min: 2,
+            got: sizes.len(),
+        });
+    }
 
     let exponent = 1.0 / d_dim;
     let xs: Vec<f64> = sizes.iter().map(|&s| 1.0 / s.powf(exponent)).collect();
 
     let fit = crate::stats::fit_linear(&xs, values);
-    fit.map_or((0.0, 0.0, 0.0), |f| (f.intercept, f.slope, f.r_squared))
+    Ok(fit.map_or((0.0, 0.0, 0.0), |f| (f.intercept, f.slope, f.r_squared)))
 }
 
 #[cfg(test)]
@@ -148,7 +187,7 @@ mod tests {
             .iter()
             .map(|&n: &f64| d_inf_true + alpha_true / n.cbrt())
             .collect();
-        let (d_inf, alpha, r_sq) = finite_size_extrapolate(&sizes, &values, 3.0);
+        let (d_inf, alpha, r_sq) = finite_size_extrapolate(&sizes, &values, 3.0).unwrap();
         assert!(
             (d_inf - d_inf_true).abs() < 0.001,
             "D_inf: {d_inf} vs {d_inf_true}"

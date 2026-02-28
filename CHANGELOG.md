@@ -4,6 +4,31 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V44 Deep-Debt Evolution — linalg Extraction, Typed Errors, Capability Discovery (Feb 28, 2026)
+
+#### Added
+- **`linalg` module** (`crates/groundspring/src/linalg.rs`): Extracted tridiagonal eigensolver (`tridiag_eigh`, `EighError`) from `transport.rs` into shared linear algebra primitive. Used by both `transport` (wavepacket MSD) and `band_structure` (periodic Hamiltonian). `transport` re-exports for backward compatibility. `EighError` now derives `Clone`, `PartialEq`, `Eq`.
+- **`error` module** (`crates/groundspring/src/error.rs`): Typed input validation errors (`InputError`) with three variants: `LengthMismatch`, `InsufficientData`, `OutOfRange`. Display implementation, full test suite.
+- **`std_dev` test**: Known-value test for `stats::std_dev` (was untested).
+- **`percentile_out_of_range` test**: Error condition test for `stats::percentile`.
+- **`jackknife_insufficient_data` test**: Error condition test for `jackknife_mean_variance`.
+- **Capability-based UID discovery**: `biomeos_socket_dir()` + `discover_uid()` in metalForge validation binaries — uses `$XDG_RUNTIME_DIR`, `$UID`, then `/proc/self/status` parsing. Zero `libc`, zero `unsafe`.
+
+#### Changed
+- **`jackknife_mean_variance`**: `assert!(n >= 2)` → `Result<JackknifeResult, InputError>`
+- **`block_jackknife_variance`**: `assert!` → `Result<JackknifeResult, InputError>`
+- **`finite_size_extrapolate`**: `assert_eq!` + `assert!` → `Result<(f64, f64, f64), InputError>`
+- **`chi_squared`**: `assert_eq!` → `Result<f64, InputError>`
+- **`percentile`**: `assert!` → `Result<f64, InputError>`
+- **`GridFitConfig<'a>`**: Added `Debug`, `Clone`, `Copy` derives
+- **`prng::next_u64`**: `as u64` → `u64::from()` (idiomatic)
+- **`lib.rs`**: New `error` and `linalg` module declarations with documentation
+
+#### Validated
+- `cargo test --workspace` (default, barracuda, barracuda-gpu): all PASS
+- `cargo clippy --workspace --all-targets --features barracuda-gpu`: 0 warnings
+- 0 unsafe, 0 mocks in production, 0 deprecated patterns
+
 ### V39 NUCLEUS Integration + NestGate Data Pipeline + metalForge Remote Discovery (Feb 27, 2026)
 
 #### Added

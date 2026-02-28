@@ -118,7 +118,7 @@ def propagate_sensor_noise(
         "gamma_std": float(np.std(gamma_samples)),
         "xi_mean": float(np.mean(xi_samples)),
         "xi_std": float(np.std(xi_samples)),
-        "xi_cv": float(np.std(xi_samples) / max(np.mean(xi_samples), 1e-10)),
+        "xi_cv": float(np.std(xi_samples)) / max(float(np.mean(xi_samples)), 1e-10),
     }
 
 

@@ -24,8 +24,9 @@
 //!
 //! [`detection_power`] and [`detection_threshold`] are pure math with no
 //! RNG — barracuda CPU candidates. [`abundance_occupancy`] and
-//! [`tier_detection_rate`] are embarrassingly parallel across replicates
-//! — high-value GPU promotion targets via `BatchedMultinomialGpu`.
+//! [`tier_detection_rate`] delegate to `BatchedMultinomialGpu` when
+//! `barracuda-gpu` is enabled (V42 GPU rewiring, wetSpring bio shader
+//! provenance via neuralSpring metalForge S64+).
 //! [`chao1`] stays local (integer equality semantics differ from
 //! barracuda's float-based classifier).
 
@@ -102,18 +103,55 @@ pub fn abundance_occupancy(
     n_samples: usize,
     base_seed: u64,
 ) -> Vec<f64> {
-    // TODO(toadstool): uncomment when barracuda implements ops::bio::batched_multinomial_occupancy
-    // ToadStool has BatchedMultinomialGpu::dispatch() (low-level counts) but not the
-    // occupancy wrapper that converts counts → presence/absence fractions.
-    // #[cfg(feature = "barracuda-gpu")]
-    // {
-    //     if let Ok(occ) = barracuda::ops::bio::batched_multinomial_occupancy(
-    //         community, depth, n_samples, base_seed,
-    //     ) {
-    //         return occ;
-    //     }
-    // }
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Some(occ) = abundance_occupancy_gpu(community, depth, n_samples, base_seed) {
+            return occ;
+        }
+    }
     abundance_occupancy_cpu(community, depth, n_samples, base_seed)
+}
+
+/// GPU-accelerated occupancy via `BatchedMultinomialGpu` (wetSpring bio shader S64+).
+///
+/// Converts community → cumulative probabilities, runs batched GPU multinomial,
+/// then reduces counts → presence/absence fractions on host.
+#[cfg(feature = "barracuda-gpu")]
+fn abundance_occupancy_gpu(
+    community: &[f64],
+    depth: u64,
+    n_samples: usize,
+    base_seed: u64,
+) -> Option<Vec<f64>> {
+    use crate::cast::usize_f64;
+    use barracuda::ops::bio::BatchedMultinomialGpu;
+
+    let device = crate::gpu::get_device()?;
+
+    let cumulative = community_to_cumulative(community);
+    let mut seeds = generate_xoshiro_seeds(n_samples, base_seed);
+
+    let gpu = BatchedMultinomialGpu::new(device).ok()?;
+    #[expect(clippy::cast_possible_truncation)]
+    let counts = gpu
+        .sample(&cumulative, &mut seeds, depth as u32, n_samples as u32)
+        .ok()?;
+
+    let n_taxa = community.len();
+    let n_f = usize_f64(n_samples);
+    let mut occupancy = vec![0.0_f64; n_taxa];
+    for rep in 0..n_samples {
+        let row = &counts[rep * n_taxa..(rep + 1) * n_taxa];
+        for (i, &c) in row.iter().enumerate() {
+            if c > 0 {
+                occupancy[i] += 1.0;
+            }
+        }
+    }
+    for occ in &mut occupancy {
+        *occ /= n_f;
+    }
+    Some(occupancy)
 }
 
 fn abundance_occupancy_cpu(
@@ -207,16 +245,53 @@ pub fn tier_detection_rate(
     n_replicates: usize,
     base_seed: u64,
 ) -> f64 {
-    // TODO(toadstool): uncomment when barracuda implements ops::bio::batched_multinomial_tier_rate
-    // #[cfg(feature = "barracuda-gpu")]
-    // {
-    //     if let Ok(rate) = barracuda::ops::bio::batched_multinomial_tier_rate(
-    //         community, tier_lo, tier_hi, depth, n_replicates, base_seed,
-    //     ) {
-    //         return rate;
-    //     }
-    // }
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Some(rate) =
+            tier_detection_rate_gpu(community, tier_lo, tier_hi, depth, n_replicates, base_seed)
+        {
+            return rate;
+        }
+    }
     tier_detection_rate_cpu(community, tier_lo, tier_hi, depth, n_replicates, base_seed)
+}
+
+/// GPU-accelerated tier detection via `BatchedMultinomialGpu` (wetSpring bio shader S64+).
+#[cfg(feature = "barracuda-gpu")]
+fn tier_detection_rate_gpu(
+    community: &[f64],
+    tier_lo: usize,
+    tier_hi: usize,
+    depth: u64,
+    n_replicates: usize,
+    base_seed: u64,
+) -> Option<f64> {
+    use crate::cast::usize_f64;
+    use barracuda::ops::bio::BatchedMultinomialGpu;
+
+    let device = crate::gpu::get_device()?;
+
+    let cumulative = community_to_cumulative(community);
+    let mut seeds = generate_xoshiro_seeds(n_replicates, base_seed);
+
+    let gpu = BatchedMultinomialGpu::new(device).ok()?;
+    #[expect(clippy::cast_possible_truncation)]
+    let counts = gpu
+        .sample(&cumulative, &mut seeds, depth as u32, n_replicates as u32)
+        .ok()?;
+
+    let n_taxa = community.len();
+    let n_species = tier_hi - tier_lo;
+    let mut detections = 0usize;
+    for rep in 0..n_replicates {
+        let row = &counts[rep * n_taxa..(rep + 1) * n_taxa];
+        for &count in &row[tier_lo..tier_hi] {
+            if count > 0 {
+                detections += 1;
+            }
+        }
+    }
+    Some(usize_f64(detections) / usize_f64(n_species * n_replicates))
 }
 
 fn tier_detection_rate_cpu(
@@ -245,6 +320,37 @@ fn tier_detection_rate_cpu(
     }
 
     usize_f64(detections) / usize_f64(n_species * n_replicates)
+}
+
+/// Convert a community probability vector to cumulative probabilities
+/// for `BatchedMultinomialGpu`.
+#[cfg(feature = "barracuda-gpu")]
+fn community_to_cumulative(community: &[f64]) -> Vec<f64> {
+    let total: f64 = community.iter().sum();
+    let mut cumulative = Vec::with_capacity(community.len());
+    let mut running = 0.0;
+    for &p in community {
+        running += p / total;
+        cumulative.push(running);
+    }
+    if let Some(last) = cumulative.last_mut() {
+        *last = 1.0;
+    }
+    cumulative
+}
+
+/// Generate xoshiro128** seed array: `n_reps * 4` u32 values.
+#[cfg(feature = "barracuda-gpu")]
+fn generate_xoshiro_seeds(n_reps: usize, base_seed: u64) -> Vec<u32> {
+    use crate::prng::Xorshift64;
+    let mut rng = Xorshift64::new(base_seed);
+    let mut seeds = Vec::with_capacity(n_reps * 4);
+    for _ in 0..n_reps * 4 {
+        #[expect(clippy::cast_possible_truncation)]
+        let s = rng.next_u64() as u32;
+        seeds.push(s.max(1));
+    }
+    seeds
 }
 
 #[cfg(test)]

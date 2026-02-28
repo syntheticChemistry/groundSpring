@@ -85,7 +85,8 @@ class TestExperimentCompleteness:
 
     @pytest.fixture(params=_experiment_dirs(), ids=lambda p: p.name)
     def experiment_dir(self, request: pytest.FixtureRequest) -> Path:
-        return request.param
+        result: Path = request.param
+        return result
 
     def test_has_benchmark_json(self, experiment_dir: Path) -> None:
         benchmarks = list(experiment_dir.glob("benchmark_*.json"))

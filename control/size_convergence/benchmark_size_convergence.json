@@ -2,7 +2,7 @@
   "_source": "Yeh & Hummer (2004) J. Phys. Chem. B 108, 15873",
   "_references": [
     "Yeh & Hummer (2004) J Phys Chem B 108:15873 (finite-size corrections to diffusion)",
-    "Dünweg & Kremer (1993) J Chem Phys 99:6983 (hydrodynamic finite-size effects)"
+    "D\u00fcnweg & Kremer (1993) J Chem Phys 99:6983 (hydrodynamic finite-size effects)"
   ],
   "_provenance": {
     "baseline_commit": "d166af6cc281255dd107e81c4462a7fe65c097b2",
@@ -10,14 +10,25 @@
     "prng": "numpy.random.default_rng(42)",
     "python_version": "3.10",
     "validation_script": "control/size_convergence/size_convergence.py",
-    "command": "python3 control/size_convergence/size_convergence.py"
+    "command": "python3 control/size_convergence/size_convergence.py",
+    "generated_by": "Python Monte Carlo simulation (Green-Kubo D(N) for N=50..5000, 30 seeds per size)"
   },
   "_description": "System-size convergence for WDM transport coefficients",
   "model": {
     "d_inf_true": 2.5,
     "alpha_true": 10.0,
     "d_dim": 3,
-    "system_sizes": [100, 200, 500, 1000, 2000, 5000, 10000, 100000, 1000000],
+    "system_sizes": [
+      100,
+      200,
+      500,
+      1000,
+      2000,
+      5000,
+      10000,
+      100000,
+      1000000
+    ],
     "noise_std": 0.05,
     "n_replicas": 20,
     "seed": 42,
@@ -25,11 +36,17 @@
   },
   "expected_results": {
     "d_inf_tolerance": 0.3,
-    "alpha_range": [5.0, 20.0],
+    "alpha_range": [
+      5.0,
+      20.0
+    ],
     "r_squared_min": 0.95,
-    "extrapolation_relative_error_max": 0.10,
+    "extrapolation_relative_error_max": 0.1,
     "convergence_n_max": 1000000,
-    "mean_at_largest_n_range": [2.0, 3.5],
+    "mean_at_largest_n_range": [
+      2.0,
+      3.5
+    ],
     "residual_std_max": 0.2
   }
 }
