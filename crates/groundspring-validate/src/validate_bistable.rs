@@ -55,6 +55,51 @@ fn ic_from_json(model: &Value, key: &str) -> [f64; 5] {
     ic
 }
 
+struct SimCtx<'a> {
+    ic_low: &'a [f64; 5],
+    params: &'a BistableParams,
+    dt: f64,
+    n_steps: usize,
+    final_low: &'a [f64; 5],
+    final_high_cdg: f64,
+}
+
+fn validate_stochastic(h: &mut ValidationHarness, ctx: &SimCtx<'_>, exp: &Value) {
+    // ── Part 5: Stochastic switching ──────────────────────────────────
+    println!("\n--- Part 5: Stochastic Switching ---");
+
+    let n_trials = 50;
+    let threshold = f64::midpoint(ctx.final_low[3], ctx.final_high_cdg);
+    let mut crossings = 0u32;
+    for trial in 0..n_trials {
+        let s = stochastic_integrate(ctx.ic_low, ctx.params, ctx.dt, ctx.n_steps, 0.5, 42 + trial);
+        if s[3] > threshold {
+            crossings += 1;
+        }
+    }
+    #[expect(clippy::cast_precision_loss)]
+    let rate = f64::from(crossings) / n_trials as f64;
+    println!("  Switching rate: {crossings}/{n_trials} = {rate:.3}");
+
+    let (r_lo, r_hi) = f64_range(&exp["stochastic_switching_rate_range"]);
+    h.check_range("Stochastic switching rate", rate, r_lo, r_hi);
+
+    // ── Part 6: Low noise agreement ──────────────────────────────────
+    println!("\n--- Part 6: Low Noise Agreement ---");
+
+    let low_noise = stochastic_integrate(ctx.ic_low, ctx.params, ctx.dt, ctx.n_steps, 0.01, 99);
+    let cdg_diff = (ctx.final_low[3] - low_noise[3]).abs();
+    println!(
+        "  Deterministic cdg={:.3}, low-noise stochastic={:.3}",
+        ctx.final_low[3], low_noise[3]
+    );
+    h.check_max(
+        "Low noise c-di-GMP agrees with deterministic",
+        cdg_diff,
+        f64_field(exp, "low_noise_agreement_tol"),
+    );
+}
+
 fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Bistable Switching");
@@ -156,25 +201,18 @@ fn run() -> i32 {
         (0..5).all(|i| (final_low[i] - repeat[i]).abs() < 1e-10),
     );
 
-    // ── Part 5: Stochastic switching ──────────────────────────────────
-    println!("\n--- Part 5: Stochastic Switching ---");
-
-    let n_trials = 50;
-    let threshold = f64::midpoint(final_low[3], final_high[3]);
-    let mut crossings = 0u32;
-    for trial in 0..n_trials {
-        let s = stochastic_integrate(&ic_low, &params, dt, n_steps, 0.5, 42 + trial);
-        if s[3] > threshold {
-            crossings += 1;
-        }
-    }
-    #[expect(clippy::cast_precision_loss)]
-    let rate = f64::from(crossings) / n_trials as f64;
-    println!("  Switching rate: {crossings}/{n_trials} = {rate:.3}");
-
-    let (r_lo, r_hi) = f64_range(&exp["stochastic_switching_rate_range"]);
-    h.check_range("Stochastic switching rate", rate, r_lo, r_hi);
-
+    validate_stochastic(
+        &mut h,
+        &SimCtx {
+            ic_low: &ic_low,
+            params: &params,
+            dt,
+            n_steps,
+            final_low: &final_low,
+            final_high_cdg: final_high[3],
+        },
+        exp,
+    );
     h.summary()
 }
 

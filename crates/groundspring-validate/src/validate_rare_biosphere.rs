@@ -134,6 +134,12 @@ fn validate_occupancy_and_singletons(h: &mut ValidationHarness, ctx: &OccupancyC
     println!("  Dominant occupancy: {dom_occ:.3}, Very rare: {vr_occ:.3}");
     h.check_true("Occupancy correlated with abundance", dom_occ > vr_occ);
 
+    let rho = groundspring::stats::spearman_r(ctx.community, &occupancy);
+    println!("  Spearman(abundance, occupancy) = {rho:.3}");
+    // Threshold 0.2: community has only 5 distinct abundance levels, creating
+    // massive rank ties that cap achievable ρ. Positive association is the claim.
+    h.check_true("Spearman ρ(abundance, occupancy) > 0.2", rho > 0.2);
+
     println!("\n--- Part 5: Singleton Fraction ---");
     let sf_low = singleton_fraction(
         ctx.community,
@@ -210,6 +216,13 @@ fn run() -> i32 {
     );
 
     println!("\n--- Part 6: Determinism ---");
+    let counts_a = groundspring::rarefaction::multinomial_sample(&community, 1000, 88888);
+    let counts_b = groundspring::rarefaction::multinomial_sample(&community, 1000, 88888);
+    h.check_true(
+        "Multinomial deterministic (same seed)",
+        counts_a == counts_b,
+    );
+
     let (c1, _) = mean_chao1_at_depth(&community, 1000, 10, 77777);
     let (c2, _) = mean_chao1_at_depth(&community, 1000, 10, 77777);
     h.check_true("Chao1 deterministic", (c1 - c2).abs() < f64::EPSILON);

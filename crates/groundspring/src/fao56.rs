@@ -285,6 +285,10 @@ fn daily_et0_cpu(inp: &DailyWeatherInputs) -> f64 {
     let rso = clear_sky_radiation(inp.altitude_m, ra);
     let rns = net_shortwave_radiation(rs);
 
+    // FAO-56 §3.5.2: when Rso = 0 (e.g. polar night), use 0.7 as the
+    // Rs/Rso ratio — the midpoint of the FAO-56 cloudiness factor range
+    // [0.33, 1.0], matching the "moderately cloudy" assumption for missing
+    // radiation data (Allen et al. 1998, Eq. 39 notes).
     let rs_rso = if rso > 0.0 { (rs / rso).min(1.0) } else { 0.7 };
     let rnl = net_longwave_radiation(inp.tmax_c, inp.tmin_c, ea, rs_rso);
     let rn = rns - rnl;

@@ -9,7 +9,7 @@
 
 groundSpring Phase 0 (Python), Phase 1 (Rust), and Phase 2a (barracuda CPU) are **complete**.
 
-- 288/288 validation checks across 28 binaries
+- 292/292 validation checks across 28 binaries
 - 28 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, almost_mathieu, bistable, multisignal, kinetics, transport, drift, rare_biosphere, quasispecies, band_structure, jackknife, freeze_out, spectral_recon, wdm (+cast, validate)
 - 444 Rust tests (biomeos) / 410 default + 320 Python tests = 764 total. 0 clippy warnings × 4 feature modes (default, barracuda, barracuda-gpu, biomeos). 39 active delegations + 7 pending ToadStool (30 CPU + 9 GPU). 49 metalForge tests. V42 GPU rewiring + cross-spring benchmark. biomeOS Neural API (V30)
 - Two feature gates: `barracuda` (30 active CPU delegations) and `barracuda-gpu` (9 GPU delegations including Sturm tridiag, tikhonov solve, detect_bands, BatchedMultinomialGpu). Three-mode CI validates all configurations.

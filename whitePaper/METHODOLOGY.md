@@ -170,7 +170,7 @@ Phase 1 ports each experiment's core algorithm to idiomatic Rust in the
 groundSpring follows the **Write → Absorb → Lean** cycle (hotSpring pattern):
 
 1. Write CPU implementations + production WGSL shaders (`metalForge/shaders/`)
-2. Validate CPU against Python baselines (288/288 checks)
+2. Validate CPU against Python baselines (292/292 checks)
 3. Hand off WGSL to ToadStool/BarraCUDA with binding layout documentation
 4. BarraCUDA absorbs as upstream op
 5. groundSpring rewires behind `#[cfg(feature = "barracuda")]`
@@ -198,6 +198,6 @@ Same as all ecoPrimals springs:
 ## Grand Total
 
 - **Phase 0 (Python)**: ~288 quantitative checks passed across 28 experiments, 9 domains.
-- **Phase 1 (Rust)**: 288/288 checks passed across 28 validation binaries. 442 Rust tests (with biomeOS feature) / 410 default. 99.37% coverage.
-- **Phase 2a (Barracuda)**: 39 active delegations + 7 pending ToadStool (30 CPU + 9 GPU). 11.5× faster than Python (excl. LAPACK-bound). Exp 009: 47.7× from Sturm tridiag. 28/28 parity proven. V44: `linalg` module, typed `InputError`, capability-based discovery.
+- **Phase 1 (Rust)**: 292/292 checks passed across 28 validation binaries. 442 Rust tests (with biomeOS feature) / 410 default. 99.37% coverage.
+- **Phase 2a (Barracuda)**: 39 active delegations + 7 pending ToadStool (30 CPU + 9 GPU). 11.5× faster than Python (excl. LAPACK-bound). Exp 009: 47.7× from Sturm tridiag. 28/28 parity proven. V46: `linalg` module, typed `InputError`, capability-based discovery.
 - **metalForge**: 4 live hardware binaries (RTX 4070, Titan V, AKD1000 NPU). 49 metalForge checks, 19 workloads, 5 substrates, architecture-aware routing (V35).

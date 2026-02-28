@@ -199,7 +199,10 @@ fn validate_compute_dispatch(socket: &Path, harness: &mut Harness) {
             }
         }
         Ok(resp) => {
-            println!("  Unexpected submit response: {}", &resp[..resp.len().min(200)]);
+            println!(
+                "  Unexpected submit response: {}",
+                &resp[..resp.len().min(200)]
+            );
             harness.check("compute.submit (Anderson eigendecompose)", false);
         }
         Err(e) => {
@@ -309,7 +312,11 @@ fn validate_crypto_routing(_neural_socket: &Path, harness: &mut Harness) {
     println!();
 }
 
-fn rpc_to_socket(socket_path: &str, method: &str, params: &str) -> std::result::Result<String, String> {
+fn rpc_to_socket(
+    socket_path: &str,
+    method: &str,
+    params: &str,
+) -> std::result::Result<String, String> {
     use std::io::{BufRead, BufReader, Write};
 
     let stream = std::os::unix::net::UnixStream::connect(socket_path)
@@ -320,9 +327,7 @@ fn rpc_to_socket(socket_path: &str, method: &str, params: &str) -> std::result::
     stream
         .set_write_timeout(Some(std::time::Duration::from_secs(5)))
         .ok();
-    let request = format!(
-        r#"{{"jsonrpc":"2.0","method":"{method}","params":{params},"id":1}}"#,
-    );
+    let request = format!(r#"{{"jsonrpc":"2.0","method":"{method}","params":{params},"id":1}}"#,);
     (&stream)
         .write_all(request.as_bytes())
         .map_err(|e| format!("write: {e}"))?;
@@ -351,10 +356,7 @@ fn validate_groundspring_registration(socket: &Path, harness: &mut Harness) {
                 "science.et0_propagation",
             ];
             for cap in science_caps {
-                harness.check(
-                    &format!("{cap} registered"),
-                    resp.contains(cap),
-                );
+                harness.check(&format!("{cap} registered"), resp.contains(cap));
             }
             let total: usize = resp.matches("science.").count();
             println!("  Total science.* capabilities: {total}");

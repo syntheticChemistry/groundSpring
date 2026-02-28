@@ -17,8 +17,12 @@ use std::io::{BufRead, BufReader, Read, Write};
 use std::net::TcpStream;
 use std::time::Duration;
 
+/// Default NestGate port when not specified in `NESTGATE_URL` env var.
+const NESTGATE_DEFAULT_PORT: u16 = 8090;
+
 fn nestgate_url() -> String {
-    std::env::var("NESTGATE_URL").unwrap_or_else(|_| "http://127.0.0.1:8090".to_string())
+    std::env::var("NESTGATE_URL")
+        .unwrap_or_else(|_| format!("http://127.0.0.1:{NESTGATE_DEFAULT_PORT}"))
 }
 
 fn biomeos_socket_dir() -> String {
@@ -64,9 +68,7 @@ fn http_get(url: &str) -> Result<String, String> {
         Duration::from_secs(5),
     )
     .map_err(|e| format!("connect: {e}"))?;
-    stream
-        .set_read_timeout(Some(Duration::from_secs(10)))
-        .ok();
+    stream.set_read_timeout(Some(Duration::from_secs(10))).ok();
 
     let req = format!("GET {path} HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\n\r\n");
     stream
@@ -100,14 +102,14 @@ fn parse_url(url: &str) -> Result<(String, u16, String), String> {
     let stripped = url
         .strip_prefix("http://")
         .ok_or("only http:// supported")?;
-    let (host_port, path) = stripped
-        .split_once('/')
-        .map_or((stripped, "/"), |(h, p)| (h, p.strip_prefix('/').map_or(p, |_| p)));
+    let (host_port, path) = stripped.split_once('/').map_or((stripped, "/"), |(h, p)| {
+        (h, p.strip_prefix('/').map_or(p, |_| p))
+    });
     let path = format!("/{path}");
     let (host, port) = host_port
         .split_once(':')
-        .map_or((host_port, 8090_u16), |(h, p)| {
-            (h, p.parse().unwrap_or(8090))
+        .map_or((host_port, NESTGATE_DEFAULT_PORT), |(h, p)| {
+            (h, p.parse().unwrap_or(NESTGATE_DEFAULT_PORT))
         });
     Ok((host.to_string(), port, path))
 }
@@ -119,15 +121,10 @@ fn primal_health(socket_path: &str) -> Result<String, String> {
 fn primal_health_method(socket_path: &str, method: &str) -> Result<String, String> {
     let stream = std::os::unix::net::UnixStream::connect(socket_path)
         .map_err(|e| format!("connect {socket_path}: {e}"))?;
-    stream
-        .set_read_timeout(Some(Duration::from_secs(5)))
-        .ok();
-    stream
-        .set_write_timeout(Some(Duration::from_secs(5)))
-        .ok();
-    let request = format!(
-        "{{\"jsonrpc\":\"2.0\",\"method\":\"{method}\",\"params\":{{}},\"id\":1}}\n"
-    );
+    stream.set_read_timeout(Some(Duration::from_secs(5))).ok();
+    stream.set_write_timeout(Some(Duration::from_secs(5))).ok();
+    let request =
+        format!("{{\"jsonrpc\":\"2.0\",\"method\":\"{method}\",\"params\":{{}},\"id\":1}}\n");
     (&stream)
         .write_all(request.as_bytes())
         .map_err(|e| format!("write: {e}"))?;
@@ -329,10 +326,7 @@ fn validate_accession_catalog(harness: &mut Harness) {
     println!("  Data sources: NCBI SRA, PubMed, OSU OARDC, Open-Meteo ERA5");
     println!();
 
-    harness.check(
-        "NestGate NCBI provider ready for SRA fetch",
-        true,
-    );
+    harness.check("NestGate NCBI provider ready for SRA fetch", true);
     println!("  NCBILiveProvider: esearch + esummary + efetch");
     println!("  Missing: SRA Toolkit for bulk FASTQ download (evolution item)");
     println!();

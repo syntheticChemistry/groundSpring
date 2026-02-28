@@ -32,7 +32,11 @@ fn run_mathieu_checks(harness: &mut Harness) {
     let gamma_loc = groundspring::anderson::lyapunov_exponent(&pot_loc, 0.0);
     let cpu_loc_us = cpu_start.elapsed().as_micros();
 
-    let xi_loc = if gamma_loc > 0.0 { 1.0 / gamma_loc } else { f64::INFINITY };
+    let xi_loc = if gamma_loc > 0.0 {
+        1.0 / gamma_loc
+    } else {
+        f64::INFINITY
+    };
     println!("  Lyapunov γ = {gamma_loc:.6}, ξ = {xi_loc:.2}, {cpu_loc_us} µs");
 
     harness.check("Localized γ > 0", gamma_loc > 0.0);
@@ -49,7 +53,10 @@ fn run_mathieu_checks(harness: &mut Harness) {
     let disp_loc_us = disp_start.elapsed().as_micros();
 
     println!("  Level spacing ratio r = {r_loc:.4}, {disp_loc_us} µs");
-    harness.check("r(λ=2.5) ∈ Poisson [0.30, 0.45]", (0.30..=0.45).contains(&r_loc));
+    harness.check(
+        "r(λ=2.5) ∈ Poisson [0.30, 0.45]",
+        (0.30..=0.45).contains(&r_loc),
+    );
 
     println!("\n--- Extended regime (λ=1.0) ---\n");
 
@@ -63,7 +70,8 @@ fn run_mathieu_checks(harness: &mut Harness) {
     println!("  Lyapunov γ = {gamma_ext:.6}, {cpu_ext_us} µs");
     harness.check("Extended γ near 0 (γ < 0.1)", gamma_ext < 0.1);
 
-    let n_evals_ext = groundspring::almost_mathieu::eigenvalues(dim, lambda_ext, alpha, theta).len();
+    let n_evals_ext =
+        groundspring::almost_mathieu::eigenvalues(dim, lambda_ext, alpha, theta).len();
     println!("  Eigenvalues computed: {n_evals_ext}");
     harness.check("Extended eigenvalues complete", n_evals_ext == dim);
 

@@ -31,6 +31,13 @@
 #[cfg(not(feature = "barracuda-gpu"))]
 const QR_MAX_ITERATIONS: usize = 100;
 
+/// Threshold below which a matrix element is treated as zero in Givens
+/// rotations. Chosen to be well below f64 precision (~1e-16) so that
+/// only truly negligible entries are skipped, avoiding unnecessary
+/// rotation of near-zero sub-diagonals without losing significant digits.
+#[cfg(not(feature = "barracuda-gpu"))]
+const GIVENS_ZERO_THRESHOLD: f64 = 1e-30;
+
 /// Generate the quasiperiodic Almost-Mathieu potential.
 ///
 /// `V(i) = λ cos(2παi + θ)` where `λ` is the coupling strength, `α` the
@@ -67,22 +74,18 @@ pub fn level_spacing_ratio(eigenvalues: &mut [f64]) -> f64 {
 
 #[cfg(not(feature = "barracuda-gpu"))]
 fn level_spacing_ratio_cpu(eigenvalues: &[f64]) -> f64 {
-    let n = eigenvalues.len();
-    if n < 3 {
+    if eigenvalues.len() < 3 {
         return 0.0;
     }
-    let mut sum = 0.0;
-    let mut count = 0usize;
-    for i in 0..n - 2 {
-        let d1 = eigenvalues[i + 1] - eigenvalues[i];
-        let d2 = eigenvalues[i + 2] - eigenvalues[i + 1];
-        let small = d1.min(d2);
-        let large = d1.max(d2);
+    let (sum, count) = eigenvalues.windows(3).fold((0.0, 0usize), |(s, c), w| {
+        let (d1, d2) = (w[1] - w[0], w[2] - w[1]);
+        let (small, large) = (d1.min(d2), d1.max(d2));
         if large > 0.0 {
-            sum += small / large;
-            count += 1;
+            (s + small / large, c + 1)
+        } else {
+            (s, c)
         }
-    }
+    });
     if count == 0 {
         return 0.0;
     }
@@ -185,13 +188,13 @@ fn eigenvalues_qr_dense(n: usize, matrix: &[f64]) -> Vec<f64> {
 fn givens_qr_flat(q: &mut [f64], r: &mut [f64], n: usize) {
     for col in 0..n.saturating_sub(1) {
         for row in (col + 1)..n {
-            if r[row * n + col].abs() < 1e-30 {
+            if r[row * n + col].abs() < GIVENS_ZERO_THRESHOLD {
                 continue;
             }
             let diag = r[col * n + col];
             let below = r[row * n + col];
             let hyp = diag.hypot(below);
-            if hyp < 1e-30 {
+            if hyp < GIVENS_ZERO_THRESHOLD {
                 continue;
             }
             let cos = diag / hyp;

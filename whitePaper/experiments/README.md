@@ -5,7 +5,7 @@
 > (Phase 0), a Rust validation (Phase 1), and a barracuda delegation path
 > (Phase 2+).
 
-**Total**: 288/288 validation checks across 28 experiments, 9 domains. 470+ Rust workspace tests (barracuda-gpu) + 320 Python tests (includes three-tier parity, biomeOS integration, NestGate, metalForge remote discovery tests).
+**Total**: 292/292 validation checks across 28 experiments, 9 domains. 470+ Rust workspace tests (barracuda-gpu) + 320 Python tests (includes three-tier parity, biomeOS integration, NestGate, metalForge remote discovery tests).
 **Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across all 28 experiments.
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **Coverage**: Zero clippy warnings. Four-mode CI (default + barracuda + barracuda-gpu + biomeos).
@@ -55,7 +55,7 @@ Each experiment is validated at three levels:
 2. **GPU** — Barracuda GPU matches CPU within tolerance (`--features barracuda-gpu`)
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
-Current status: **CPU complete** (288/288), **39 active delegations + 7 pending ToadStool**
+Current status: **CPU complete** (292/292), **39 active delegations + 7 pending ToadStool**
 (30 CPU delegated + 9 GPU delegated).
 V31: 5 modules GPU-wired (`freeze_out`, `band_structure`, `seismic`, `quasispecies`, `rare_biosphere`).
 V44: `linalg` module extracted, typed `InputError` errors, 5 APIs evolved to `Result`.

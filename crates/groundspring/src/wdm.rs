@@ -112,8 +112,8 @@ pub fn analytical_diffusion(c0: f64, tau: f64, d_dim: f64) -> f64 {
 ///
 /// # Errors
 ///
-/// Returns [`InputError::LengthMismatch`] if `sizes` and `values` differ
-/// in length, or [`InputError::InsufficientData`] if fewer than 2 points.
+/// Returns [`crate::error::InputError::LengthMismatch`] if `sizes` and `values` differ
+/// in length, or [`crate::error::InputError::InsufficientData`] if fewer than 2 points.
 pub fn finite_size_extrapolate(
     sizes: &[f64],
     values: &[f64],
@@ -138,8 +138,14 @@ pub fn finite_size_extrapolate(
     let exponent = 1.0 / d_dim;
     let xs: Vec<f64> = sizes.iter().map(|&s| 1.0 / s.powf(exponent)).collect();
 
-    let fit = crate::stats::fit_linear(&xs, values);
-    Ok(fit.map_or((0.0, 0.0, 0.0), |f| (f.intercept, f.slope, f.r_squared)))
+    let fit = crate::stats::fit_linear(&xs, values).ok_or(
+        crate::error::InputError::InsufficientData {
+            name: "sizes",
+            min: 2,
+            got: sizes.len(),
+        },
+    )?;
+    Ok((fit.intercept, fit.slope, fit.r_squared))
 }
 
 #[cfg(test)]

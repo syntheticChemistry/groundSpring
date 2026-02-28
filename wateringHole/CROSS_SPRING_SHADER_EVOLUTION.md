@@ -3,7 +3,7 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: February 28, 2026 (V44: deep-debt evolution, 39 active delegations + 7 pending, 30 CPU + 9 GPU, 19 metalForge workloads, 49 tests, arch-aware routing)
+**Last Updated**: February 28, 2026 (V46: idiomatic Rust evolution, 39 active delegations + 7 pending, 30 CPU + 9 GPU, 19 metalForge workloads, 49 tests, arch-aware routing)
 
 ---
 

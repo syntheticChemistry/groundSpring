@@ -171,8 +171,7 @@ fn nucleus_topology_primals() {
 fn nucleus_capability_list() {
     let socket = live_socket().expect("Neural API socket not found");
     let request = r#"{"jsonrpc":"2.0","method":"capability.list","params":{},"id":1}"#;
-    let response = biomeos::raw_rpc_call(&socket, request)
-        .expect("capability.list failed");
+    let response = biomeos::raw_rpc_call(&socket, request).expect("capability.list failed");
     assert!(
         response.contains("compute") && response.contains("crypto"),
         "expected compute and crypto capabilities, got: {response}"

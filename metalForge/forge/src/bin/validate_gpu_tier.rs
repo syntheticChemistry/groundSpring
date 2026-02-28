@@ -99,7 +99,10 @@ fn validate_regression_parity(h: &mut Harness) {
     let fit = groundspring::stats::fit_linear(&x, &y);
     h.check("Linear fit succeeds", fit.is_some());
     if let Some(ref f) = fit {
-        println!("  slope={:.6}, intercept={:.6}, R²={:.10}", f.slope, f.intercept, f.r_squared);
+        println!(
+            "  slope={:.6}, intercept={:.6}, R²={:.10}",
+            f.slope, f.intercept, f.r_squared
+        );
         h.check("Slope ≈ 2.5", (f.slope - 2.5).abs() < 1e-10);
         h.check("Intercept ≈ 1.0", (f.intercept - 1.0).abs() < 1e-10);
         h.check("R² ≈ 1.0", (f.r_squared - 1.0).abs() < 1e-10);
@@ -120,7 +123,10 @@ fn validate_bootstrap_parity(h: &mut Harness) {
     let ci1 = groundspring::bootstrap::rawr_mean(&data, 500, 0.05, 42);
     let ci2 = groundspring::bootstrap::rawr_mean(&data, 500, 0.05, 42);
 
-    println!("  CI: [{:.6}, {:.6}], estimate={:.6}", ci1.ci_lower, ci1.ci_upper, ci1.estimate);
+    println!(
+        "  CI: [{:.6}, {:.6}], estimate={:.6}",
+        ci1.ci_lower, ci1.ci_upper, ci1.estimate
+    );
 
     h.check("RAWR CI valid", ci1.ci_lower < ci1.ci_upper);
     h.check(
@@ -158,7 +164,10 @@ fn validate_kinetics_parity(h: &mut Harness) {
     println!("  hill(1.0, K=0.5, n=2) = {hill_val:.6}");
     println!("  hill_repress(1.0, K=0.5, n=2) = {repress:.6}");
 
-    h.check("Hill + repress = 1.0", (hill_val + repress - 1.0).abs() < 1e-12);
+    h.check(
+        "Hill + repress = 1.0",
+        (hill_val + repress - 1.0).abs() < 1e-12,
+    );
     h.check("Hill(x>>K) ≈ 1.0", (hill_val - 0.8).abs() < 0.1);
 
     let hill2 = groundspring::kinetics::hill(1.0, 0.5, 2.0);
@@ -215,7 +224,10 @@ fn validate_almost_mathieu_parity(h: &mut Harness) {
 
     h.check(
         "Eigenvalues deterministic",
-        eigenvalues.iter().zip(&eigenvalues2).all(|(a, b)| a.to_bits() == b.to_bits()),
+        eigenvalues
+            .iter()
+            .zip(&eigenvalues2)
+            .all(|(a, b)| a.to_bits() == b.to_bits()),
     );
 
     let mut ev_for_r = eigenvalues;
@@ -243,7 +255,10 @@ fn validate_bistable_ode_parity(h: &mut Harness) {
     let deriv2 = groundspring::bistable::bistable_derivative(&y, &params);
     h.check(
         "ODE deterministic",
-        deriv.iter().zip(&deriv2).all(|(a, b)| a.to_bits() == b.to_bits()),
+        deriv
+            .iter()
+            .zip(&deriv2)
+            .all(|(a, b)| a.to_bits() == b.to_bits()),
     );
 }
 
@@ -259,9 +274,7 @@ fn validate_spectral_recon_parity(h: &mut Harness) {
             (-tau * omega).exp()
         })
         .collect();
-    let g: Vec<f64> = (0..n_tau)
-        .map(|i| (-f64::from(i) * 0.1).exp())
-        .collect();
+    let g: Vec<f64> = (0..n_tau).map(|i| (-f64::from(i) * 0.1).exp()).collect();
     let n_tau = n_tau as usize;
     let n_omega = n_omega as usize;
 
@@ -271,10 +284,15 @@ fn validate_spectral_recon_parity(h: &mut Harness) {
     println!("  n_tau={n_tau}, n_omega={n_omega}, rho[0]={:.6}", rho[0]);
 
     h.check("Spectral function non-empty", !rho.is_empty());
-    h.check("Spectral function has values", rho.iter().any(|&r| r.abs() > 0.0));
+    h.check(
+        "Spectral function has values",
+        rho.iter().any(|&r| r.abs() > 0.0),
+    );
     h.check(
         "Tikhonov deterministic",
-        rho.iter().zip(&rho2).all(|(a, b)| a.to_bits() == b.to_bits()),
+        rho.iter()
+            .zip(&rho2)
+            .all(|(a, b)| a.to_bits() == b.to_bits()),
     );
 }
 
@@ -319,23 +337,31 @@ fn validate_band_structure_parity(h: &mut Harness) {
     let potential = &[0.5, -0.5];
     let hopping = 1.0;
 
-    let (diag, offdiag) = groundspring::band_structure::periodic_hamiltonian(potential, hopping, n_periods);
-    let (eigenvalues, _) = groundspring::transport::tridiag_eigh(&diag, &offdiag)
-        .expect("eigendecomposition");
+    let (diag, offdiag) =
+        groundspring::band_structure::periodic_hamiltonian(potential, hopping, n_periods);
+    let (eigenvalues, _) =
+        groundspring::transport::tridiag_eigh(&diag, &offdiag).expect("eigendecomposition");
     let bands = groundspring::band_structure::detect_band_ranges(&eigenvalues, 2.0);
-    let frac = groundspring::band_structure::eigenvalue_band_fraction(&eigenvalues, potential, hopping, 0.05);
+    let frac = groundspring::band_structure::eigenvalue_band_fraction(
+        &eigenvalues,
+        potential,
+        hopping,
+        0.05,
+    );
 
     println!(
         "  {} eigenvalues, {} bands, {:.1}% in bands",
-        eigenvalues.len(), bands.len(), frac * 100.0
+        eigenvalues.len(),
+        bands.len(),
+        frac * 100.0
     );
 
     h.check("Eigenvalues computed", !eigenvalues.is_empty());
     h.check("At least 1 band detected", !bands.is_empty());
     h.check("≥95% eigenvalues within bands", frac >= 0.95);
 
-    let (eigenvalues2, _) = groundspring::transport::tridiag_eigh(&diag, &offdiag)
-        .expect("eigendecomposition");
+    let (eigenvalues2, _) =
+        groundspring::transport::tridiag_eigh(&diag, &offdiag).expect("eigendecomposition");
     h.check(
         "Band structure deterministic",
         eigenvalues

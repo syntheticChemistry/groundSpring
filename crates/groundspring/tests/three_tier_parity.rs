@@ -236,7 +236,7 @@ fn freeze_out_grid_fit_recovers_noiseless() {
         k2_hi: 0.020,
         k2_step: 0.001,
     };
-    let r = grid_fit_2d(&cfg);
+    let r = grid_fit_2d(&cfg).unwrap();
     assert!((r.t0 - t0).abs() < 1.0);
     assert!((r.kappa2 - k2).abs() < 0.002);
 }
@@ -260,8 +260,8 @@ fn freeze_out_grid_fit_bitwise_deterministic() {
         k2_hi: 0.016,
         k2_step: 0.001,
     };
-    let r1 = grid_fit_2d(&cfg);
-    let r2 = grid_fit_2d(&cfg);
+    let r1 = grid_fit_2d(&cfg).unwrap();
+    let r2 = grid_fit_2d(&cfg).unwrap();
     assert_eq!(r1.chi_squared.to_bits(), r2.chi_squared.to_bits());
 }
 
@@ -498,7 +498,10 @@ fn wdm_green_kubo_parity_exponential_decay() {
 #[test]
 fn regression_quadratic_parity() {
     let xs: Vec<f64> = (-5..=5).map(f64::from).collect();
-    let ys: Vec<f64> = xs.iter().map(|&x| (2.0 * x).mul_add(x, (-3.0_f64).mul_add(x, 1.0))).collect();
+    let ys: Vec<f64> = xs
+        .iter()
+        .map(|&x| (2.0 * x).mul_add(x, (-3.0_f64).mul_add(x, 1.0)))
+        .collect();
     let f1 = groundspring::stats::fit_quadratic(&xs, &ys).unwrap();
     let f2 = groundspring::stats::fit_quadratic(&xs, &ys).unwrap();
     assert_eq!(f1.params[0].to_bits(), f2.params[0].to_bits(), "a parity");

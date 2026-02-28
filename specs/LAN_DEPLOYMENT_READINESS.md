@@ -23,7 +23,7 @@
 ### Validation Results
 
 - 498+ Rust tests: ALL PASS (default + biomeos features)
-- 288/288 experiment checks: ALL PASS
+- 292/292 experiment checks: ALL PASS
 - 44 three-tier parity tests: ALL PASS
 - metalForge GPU: 11/11
 - metalForge spectral: 6/6

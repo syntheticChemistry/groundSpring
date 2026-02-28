@@ -9,7 +9,7 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V44 | [GROUNDSPRING_TOADSTOOL_V44_DEEP_DEBT_EVOLUTION_HANDOFF_FEB28_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V44_DEEP_DEBT_EVOLUTION_HANDOFF_FEB28_2026.md) | Feb 28, 2026 | Deep-debt evolution: `linalg` module extraction, typed `InputError`, capability-based UID discovery, `Result` APIs, 39 active delegations (30 CPU + 9 GPU) + 7 pending, absorption guidance for ToadStool |
+| V46 | [GROUNDSPRING_TOADSTOOL_V46_IDIOMATIC_RUST_EVOLUTION_HANDOFF_FEB28_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V46_IDIOMATIC_RUST_EVOLUTION_HANDOFF_FEB28_2026.md) | Feb 28, 2026 | Idiomatic Rust evolution: `linalg` module extraction, typed `InputError`, capability-based UID discovery, `Result` APIs, 39 active delegations (30 CPU + 9 GPU) + 7 pending, absorption guidance for ToadStool |
 
 ## Cross-Spring Documentation
 
@@ -36,6 +36,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V44 | Deep-debt evolution: linalg module, typed InputError, 39 active delegations (superseded by V46) |
 | V43 | Three-tier parity proven (27/27), pure GPU workloads (26/26), 39 active delegations (superseded by V44) |
 | V39 | NUCLEUS integration, NestGate data pipeline, metalForge remote (superseded by V43) |
 | V37 | Comprehensive barracuda evolution: 39 delegations, NAK f64 gap (superseded by V43) |

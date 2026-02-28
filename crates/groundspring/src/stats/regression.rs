@@ -140,7 +140,10 @@ pub fn fit_quadratic(xs: &[f64], ys: &[f64]) -> Option<NonlinearFit> {
 }
 
 /// 3×3 determinant via cofactor expansion.
-#[expect(clippy::suboptimal_flops, reason = "Sarrus rule is clearer than nested mul_add for 3×3")]
+#[expect(
+    clippy::suboptimal_flops,
+    reason = "Sarrus rule is clearer than nested mul_add for 3×3"
+)]
 fn det3(m: [[f64; 3]; 3]) -> f64 {
     m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1])
         - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
@@ -175,11 +178,7 @@ fn fit_quadratic_cpu(xs: &[f64], ys: &[f64]) -> Option<NonlinearFit> {
     let sxy: f64 = xs.iter().zip(ys).map(|(&x, &y)| x * y).sum();
     let sx2y: f64 = xs.iter().zip(ys).map(|(&x, &y)| x * x * y).sum();
 
-    let m = [
-        [sx4, sx3, sx2],
-        [sx3, sx2, sx],
-        [sx2, sx, n],
-    ];
+    let m = [[sx4, sx3, sx2], [sx3, sx2, sx], [sx2, sx, n]];
     let rhs = [sx2y, sxy, sy];
     let [a, b, c] = cramer3(m, rhs)?;
 
@@ -193,7 +192,11 @@ fn fit_quadratic_cpu(xs: &[f64], ys: &[f64]) -> Option<NonlinearFit> {
             (y - pred).powi(2)
         })
         .sum();
-    let r_squared = if ss_tot > 0.0 { 1.0 - ss_res / ss_tot } else { 1.0 };
+    let r_squared = if ss_tot > 0.0 {
+        1.0 - ss_res / ss_tot
+    } else {
+        1.0
+    };
 
     Some(NonlinearFit {
         model: "quadratic",
@@ -262,7 +265,11 @@ fn fit_exponential_cpu(xs: &[f64], ys: &[f64]) -> Option<NonlinearFit> {
             (y - pred).powi(2)
         })
         .sum();
-    let r_squared = if ss_tot > 0.0 { 1.0 - ss_res / ss_tot } else { 1.0 };
+    let r_squared = if ss_tot > 0.0 {
+        1.0 - ss_res / ss_tot
+    } else {
+        1.0
+    };
 
     Some(NonlinearFit {
         model: "exponential",
@@ -326,7 +333,11 @@ fn fit_logarithmic_cpu(xs: &[f64], ys: &[f64]) -> Option<NonlinearFit> {
         .iter()
         .map(|&(x, y)| (y - a.mul_add(x.ln(), b)).powi(2))
         .sum();
-    let r_squared = if ss_tot > 0.0 { 1.0 - ss_res / ss_tot } else { 1.0 };
+    let r_squared = if ss_tot > 0.0 {
+        1.0 - ss_res / ss_tot
+    } else {
+        1.0
+    };
 
     Some(NonlinearFit {
         model: "logarithmic",
@@ -384,10 +395,17 @@ mod tests {
     #[test]
     fn quadratic_perfect_parabola() {
         let xs: Vec<f64> = (-5..=5).map(f64::from).collect();
-        let ys: Vec<f64> = xs.iter().map(|&x| (2.0 * x).mul_add(x, (-3.0f64).mul_add(x, 1.0))).collect();
+        let ys: Vec<f64> = xs
+            .iter()
+            .map(|&x| (2.0 * x).mul_add(x, (-3.0f64).mul_add(x, 1.0)))
+            .collect();
         let fit = fit_quadratic(&xs, &ys).unwrap();
         assert!((fit.params[0] - 2.0).abs() < 1e-8, "a: {}", fit.params[0]);
-        assert!((fit.params[1] - (-3.0)).abs() < 1e-8, "b: {}", fit.params[1]);
+        assert!(
+            (fit.params[1] - (-3.0)).abs() < 1e-8,
+            "b: {}",
+            fit.params[1]
+        );
         assert!((fit.params[2] - 1.0).abs() < 1e-8, "c: {}", fit.params[2]);
         assert!(fit.r_squared > 0.999);
     }

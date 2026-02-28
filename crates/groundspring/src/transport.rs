@@ -237,5 +237,4 @@ mod tests {
         assert!(msd.abs() < 1e-10, "MSD at t=0 should be 0, got {msd}");
         assert!((norm - 1.0).abs() < 1e-10);
     }
-
 }

@@ -66,8 +66,11 @@ fn main() {
     h.check("At least 1 GPU discovered", n_gpu >= 1);
     h.check("CPU fallback available", cpu_count >= 1);
 
-    println!("\n  Best f64 GPU: {}", inv.best_f64_gpu()
-        .map_or("none", |g| g.identity.name.as_str()));
+    println!(
+        "\n  Best f64 GPU: {}",
+        inv.best_f64_gpu()
+            .map_or("none", |g| g.identity.name.as_str())
+    );
 
     println!("\n--- Workload Dispatch Routing ---\n");
     validate_dispatch_routing(&mut h, &inv);
@@ -142,7 +145,11 @@ fn validate_anderson_parity(h: &mut Harness) {
     let n_r = 500;
 
     let gamma = groundspring::anderson::lyapunov_averaged(n_sites, disorder, energy, n_r, 42);
-    let xi = if gamma > 0.0 { 1.0 / gamma } else { f64::INFINITY };
+    let xi = if gamma > 0.0 {
+        1.0 / gamma
+    } else {
+        f64::INFINITY
+    };
     let analytical = groundspring::anderson::analytical_localization_length(disorder, energy);
 
     println!("    γ={gamma:.6}, ξ={xi:.2}, analytical={analytical:.2}");
@@ -173,7 +180,10 @@ fn validate_stats_parity(h: &mut Harness) {
 
     h.check("Stats RMSE > 0", rmse > 0.0);
     h.check("Stats NSE > 0.9", nse > 0.9);
-    h.check("Stats bitwise deterministic", rmse.to_bits() == rmse2.to_bits());
+    h.check(
+        "Stats bitwise deterministic",
+        rmse.to_bits() == rmse2.to_bits(),
+    );
 }
 
 fn validate_bootstrap_parity(h: &mut Harness) {
@@ -184,7 +194,10 @@ fn validate_bootstrap_parity(h: &mut Harness) {
     let ci = groundspring::bootstrap::rawr_mean(&data, 500, 0.05, 42);
     let ci2 = groundspring::bootstrap::rawr_mean(&data, 500, 0.05, 42);
 
-    println!("    estimate={:.6}, CI=[{:.6}, {:.6}]", ci.estimate, ci.ci_lower, ci.ci_upper);
+    println!(
+        "    estimate={:.6}, CI=[{:.6}, {:.6}]",
+        ci.estimate, ci.ci_lower, ci.ci_upper
+    );
 
     h.check("RAWR CI valid", ci.ci_lower < ci.ci_upper);
     h.check(
@@ -217,12 +230,19 @@ fn validate_spectral_parity(h: &mut Harness) {
     let eigs = groundspring::almost_mathieu::eigenvalues(n, coupling, alpha, 0.0);
     let eigs2 = groundspring::almost_mathieu::eigenvalues(n, coupling, alpha, 0.0);
 
-    println!("    {} eigenvalues, range=[{:.4}, {:.4}]", eigs.len(), eigs[0], eigs[eigs.len() - 1]);
+    println!(
+        "    {} eigenvalues, range=[{:.4}, {:.4}]",
+        eigs.len(),
+        eigs[0],
+        eigs[eigs.len() - 1]
+    );
 
     h.check("Eigenvalues computed", eigs.len() == n);
     h.check(
         "Eigenvalues deterministic",
-        eigs.iter().zip(&eigs2).all(|(a, b)| a.to_bits() == b.to_bits()),
+        eigs.iter()
+            .zip(&eigs2)
+            .all(|(a, b)| a.to_bits() == b.to_bits()),
     );
 }
 
@@ -236,7 +256,10 @@ fn validate_regression_parity(h: &mut Harness) {
     let fit2 = groundspring::stats::fit_linear(&x, &y);
 
     if let (Some(ref f), Some(ref f2)) = (&fit, &fit2) {
-        println!("    slope={:.6}, intercept={:.6}, R²={:.10}", f.slope, f.intercept, f.r_squared);
+        println!(
+            "    slope={:.6}, intercept={:.6}, R²={:.10}",
+            f.slope, f.intercept, f.r_squared
+        );
         h.check("Slope ≈ 2.5", (f.slope - 2.5).abs() < 1e-10);
         h.check("Intercept ≈ 1.0", (f.intercept - 1.0).abs() < 1e-10);
         h.check(
@@ -309,7 +332,10 @@ fn run_timing_comparison(h: &mut Harness) {
     let div_us = t2.elapsed().as_micros();
 
     let x: Vec<f64> = (0..10_000).map(|i| f64::from(i) * 0.001).collect();
-    let y: Vec<f64> = x.iter().map(|&xi| std::f64::consts::PI.mul_add(xi, std::f64::consts::E)).collect();
+    let y: Vec<f64> = x
+        .iter()
+        .map(|&xi| std::f64::consts::PI.mul_add(xi, std::f64::consts::E))
+        .collect();
     let t3 = Instant::now();
     let _fit = groundspring::stats::fit_linear(&x, &y);
     let reg_us = t3.elapsed().as_micros();

@@ -42,8 +42,10 @@ fn run_spectral_checks(harness: &mut Harness) {
         .collect();
 
     let kernel = groundspring::spectral_recon::build_kernel(&tau, &omega);
-    let rho_true = groundspring::spectral_recon::gaussian_peak(&omega, true_centre, true_width, 1.0);
-    let g_data = groundspring::spectral_recon::forward_correlator(&kernel, &rho_true, n_tau, n_omega);
+    let rho_true =
+        groundspring::spectral_recon::gaussian_peak(&omega, true_centre, true_width, 1.0);
+    let g_data =
+        groundspring::spectral_recon::forward_correlator(&kernel, &rho_true, n_tau, n_omega);
 
     println!("\n--- CPU-only Tikhonov (local Cholesky) ---\n");
     let cpu_start = Instant::now();
@@ -54,7 +56,10 @@ fn run_spectral_checks(harness: &mut Harness) {
     let peak_cpu = groundspring::spectral_recon::peak_index(&rho_cpu);
 
     println!("  RMSE(G, G_rec) = {rmse_cpu:.2e}");
-    println!("  Peak at ω = {:.2} (true = {true_centre:.1})", omega[peak_cpu]);
+    println!(
+        "  Peak at ω = {:.2} (true = {true_centre:.1})",
+        omega[peak_cpu]
+    );
     println!("  Time: {cpu_us} µs");
 
     harness.check("CPU RMSE < 1e-6", rmse_cpu < 1e-6);

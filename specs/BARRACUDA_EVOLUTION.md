@@ -471,7 +471,7 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase | Milestone | Status |
 |---|---|---|
 | Phase 0 | Python baselines | **Done** (~261 checks across 28 experiments) |
-| Phase 1a | Rust CPU validation | **Done** (288/288 PASS across 28 binaries) |
+| Phase 1a | Rust CPU validation | **Done** (292/292 PASS across 28 binaries) |
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (28/28 parity proven, timing data for all experiments) |

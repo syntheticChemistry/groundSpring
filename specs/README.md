@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: February 28, 2026
-**Status**: Phase 0 + Phase 1 + Phase 2a complete + GPU dispatch (V44) — 288/288 PASS, 39 active delegations + 7 pending ToadStool (30 CPU + 9 GPU), 49 metalForge tests, arch-aware GPU dispatch, 11.5× faster (excl. LAPACK-bound), 28/28 parity proven
+**Status**: Phase 0 + Phase 1 + Phase 2a complete + GPU dispatch (V46) — 292/292 PASS, 39 active delegations + 7 pending ToadStool (30 CPU + 9 GPU), 49 metalForge tests, arch-aware GPU dispatch, 11.5× faster (excl. LAPACK-bound), 28/28 parity proven
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -11,7 +11,7 @@
 | Metric | Value |
 |--------|-------|
 | Phase 0 (Python) | 28/28 experiments PASS across 9 scientific domains (~288 checks) |
-| Phase 1 (Rust) | 288/288 PASS — 28 validation binaries |
+| Phase 1 (Rust) | 292/292 PASS — 28 validation binaries |
 | Mathematical Parity | 28/28 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
 | Rust tests | 442 with biomeos / 410 default (+ 320 Python = 762 total) |
 | metalForge | 2 production WGSL shaders (mc_et0_propagate, batched_multinomial) |

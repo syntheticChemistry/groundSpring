@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: February 28, 2026 | **License**: AGPL-3.0-or-later
-**Status**: 28 experiments, 296+ Rust unit tests / 470+ workspace tests (barracuda-gpu) + 320 Python tests, 288/288 validation checks (+ 49 metalForge), 39 active barracuda delegations (30 CPU + 9 GPU) + 7 pending ToadStool absorption, 19 metalForge workloads, 5 substrates, architecture-aware GPU routing (f64→Titan V, f32→RTX 4070), NestGate data pipeline (NCBI/NOAA), metalForge remote substrate discovery, NUCLEUS Tower/Node/Nest pipeline graphs, four-mode CI, typed error handling (`InputError`), `linalg` module (tridiag eigensolver), zero unsafe
+**Status**: 28 experiments, 296+ Rust unit tests / 470+ workspace tests (barracuda-gpu) + 320 Python tests, 292/292 validation checks (+ 49 metalForge), 39 active barracuda delegations (30 CPU + 9 GPU) + 7 pending ToadStool absorption, 19 metalForge workloads, 5 substrates, architecture-aware GPU routing (f64→Titan V, f32→RTX 4070), NestGate data pipeline (NCBI/NOAA), metalForge remote substrate discovery, NUCLEUS Tower/Node/Nest pipeline graphs, four-mode CI, typed error handling (`InputError`), `linalg` module (tridiag eigensolver), `stats::agreement` module (R²/NSE deduplicated), zero unsafe
 
 **The gap between what models predict and what instruments measure.**
 
@@ -38,13 +38,13 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | 007: RAWR Resampling | Statistics | 11/11 PASS | 11/11 PASS | Bayesian bootstrap vs naive bootstrap |
 | 008: Anderson Localization | Mathematics | 8/8 PASS | 8/8 PASS | Lyapunov exponents in disordered media |
 | 009: Almost-Mathieu Quasiperiodic | Mathematics | PASS | 8/8 PASS | Aubry-André metal-insulator transition |
-| 010: Bistable Phenotypic Switching | Biological | PASS | 9/9 PASS | Fernandez 2020 PNAS bifurcation |
-| 011: Multi-Signal QS Integration | Biological | PASS | 8/8 PASS | Srivastava 2011 dual-signal integration |
+| 010: Bistable Phenotypic Switching | Biological | PASS | 10/10 PASS | Fernandez 2020 PNAS bifurcation |
+| 011: Multi-Signal QS Integration | Biological | PASS | 9/9 PASS | Srivastava 2011 dual-signal integration |
 | 012: Spin Chain Transport | Mathematics | 18/18 PASS | 18/18 PASS | Kachkovskiy 2016 wavepacket MSD, transport exponent |
 | 013: Resampling Convergence | Statistics | 8/8 PASS | 8/8 PASS | Lee & Liu 2024 bootstrap convergence |
 | 014: Drift vs Selection | Biological | 7/7 PASS | 7/7 PASS | R. Anderson 2022 Wright-Fisher, Kimura fixation |
 | 015: Uncertainty Bridge | Cross-domain | 8/8 PASS | 8/8 PASS | Sensor noise → Anderson ξ propagation |
-| 016: Rare Biosphere | Biological | 11/11 PASS | 10/10 PASS | Sequencing depth determines rare taxa signal boundary |
+| 016: Rare Biosphere | Biological | 11/11 PASS | 12/12 PASS | Sequencing depth determines rare taxa signal boundary |
 | 017: Quasispecies Threshold | Evolutionary | 9/9 PASS | 6/6 PASS | Eigen's error threshold predicts mutation-driven information collapse |
 | 018: Band Edge Structure | Mathematical | 8/8 PASS | 10/10 PASS | Transfer matrix reproduces tight-binding band-gap structure |
 | 019: Jackknife Error Estimation | Inverse Problems & Spectral Reconstruction | 9/9 PASS | 9/9 PASS | Bazavov 2025 Phys Rev D 111, 094508 — jackknife variance, bias correction |
@@ -58,13 +58,17 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | 027: GPU Vendor Parity | WDM MD | 7/7 PASS | 7/7 PASS | Cross-vendor transport coefficient agreement |
 | 028: NPU Anderson Regime | Hardware (NPU) | 7/7 PASS | 9/9 PASS | Anderson regime classification on AKD1000 via int8 DMA |
 
-**Phase 1 total: 288/288 PASS across 28 validation binaries.**
+**Phase 1 total: 292/292 PASS across 28 validation binaries.**
 
 ## Library Modules
 
 | Module | Purpose | GPU Tier |
 |--------|---------|----------|
-| `stats` | RMSE, MBE, R², IA, hit rate, mean, percentile, Pearson/Spearman, std, covariance, norm_cdf/ppf, χ² | 22 CPU delegated, GPU pending adapter |
+| `stats::agreement` | RMSE, MAE, MBE, NSE, R², IA, hit rate (R²/NSE deduplicated via shared `coefficient_of_efficiency`) | 7 CPU delegated |
+| `stats::metrics` | mean, std_dev, sample_std_dev, percentile | 3 CPU delegated |
+| `stats::correlation` | Pearson/Spearman correlation, covariance | 3 CPU delegated |
+| `stats::distributions` | norm_cdf, norm_ppf, χ² | 3 CPU delegated |
+| `stats::regression` | Linear, quadratic, exponential, logarithmic fits | 4 CPU delegated |
 | `decompose` | Bias-variance decomposition, noise floor | CPU-only (scalar) |
 | `fao56` | FAO-56 Penman-Monteith equation chain | **Absorbed** (barracuda `Op::Fao56Et0`) |
 | `prng` | Xorshift64 PRNG, Box-Muller normal | B (align to xoshiro) |
@@ -221,7 +225,7 @@ airSpring metrics, neuralSpring dispatch) validated by 39 active delegations
 ```
 Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration (Phase 2)  →  Mixed hardware (Phase 3)
    NumPy/SciPy                    Pure safe Rust                BarraCUDA / ToadStool            metalForge dispatch
-     ✓ Complete                     ✓ 288/288 PASS               ◐ 39 active (30 CPU +             19 workloads
+     ✓ Complete                     ✓ 292/292 PASS               ◐ 39 active (30 CPU +             19 workloads
    11.5× slower than Rust           28/28 parity proven            9 GPU) + 7 pending              5 substrates, arch-aware
 
      Write locally              →  Hand off to barracuda      →  Lean on upstream              →  Cross-substrate parity
@@ -287,7 +291,7 @@ groundSpring/
 │   └── shaders/                     # Production WGSL shaders for ToadStool absorption
 ├── graphs/                          # biomeOS pipeline graphs (Tower bootstrap, Node, cross-substrate)
 ├── .github/workflows/ci.yml         # GitHub Actions CI
-├── wateringHole/                    # Handoff directory (V44 current)
+├── wateringHole/                    # Handoff directory (V46 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md       # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md    # GPU kernel gap analysis
@@ -322,4 +326,4 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026 | V43 three-tier parity proven + pure GPU workloads: February 28, 2026 | V44 deep-debt evolution — linalg extraction, typed errors, capability-based discovery: February 28, 2026*
+*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026 | V43 three-tier parity proven + pure GPU workloads: February 28, 2026 | V44 deep-debt evolution — linalg extraction, typed errors, capability-based discovery: February 28, 2026 | V45 validation gap closure — 292/292 checks: February 28, 2026 | V46 idiomatic Rust evolution — agreement.rs domain split, R²/NSE dedup, iterator modernization, zero clippy/doc warnings: February 28, 2026*

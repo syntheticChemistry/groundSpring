@@ -48,8 +48,8 @@ pub fn freeze_out_curve(t0: f64, kappa2: f64, mu_b: f64) -> f64 {
 ///
 /// # Errors
 ///
-/// Returns [`InputError::LengthMismatch`] if `observed` and `predicted`
-/// have different lengths.
+/// Returns [`crate::error::InputError::LengthMismatch`] if `observed` and
+/// `predicted` have different lengths.
 pub fn chi_squared(
     observed: &[f64],
     predicted: &[f64],
@@ -83,12 +83,19 @@ pub fn chi_squared_per_dof(chi2: f64, n_data: usize, n_params: usize) -> f64 {
 /// Evaluates the freeze-out model on a regular grid and returns the
 /// parameters with lowest chi-squared.
 ///
-/// # Panics
+/// # Errors
 ///
-/// Panics if `observed` and `mu_b` have different lengths, or if
-/// grid ranges produce no points.
-#[must_use]
-pub fn grid_fit_2d(config: &GridFitConfig<'_>) -> GridFitResult {
+/// Returns [`crate::error::InputError::LengthMismatch`] if
+/// `config.observed` and `config.mu_b` have different lengths.
+pub fn grid_fit_2d(config: &GridFitConfig<'_>) -> Result<GridFitResult, crate::error::InputError> {
+    if config.observed.len() != config.mu_b.len() {
+        return Err(crate::error::InputError::LengthMismatch {
+            first: "observed",
+            first_len: config.observed.len(),
+            second: "mu_b",
+            second_len: config.mu_b.len(),
+        });
+    }
     // TODO(toadstool): wire when barracuda adds ops::grid::grid_fit_2d_f64
     // Status S68+: not yet absorbed. Embarrassingly parallel 2D chi-squared
     // grid search — high-value GPU target. Handoff item.
@@ -99,13 +106,13 @@ pub fn grid_fit_2d(config: &GridFitConfig<'_>) -> GridFitResult {
     //         config.t0_lo, config.t0_hi, config.t0_step,
     //         config.k2_lo, config.k2_hi, config.k2_step,
     //     ) {
-    //         return GridFitResult {
+    //         return Ok(GridFitResult {
     //             t0: result.0, kappa2: result.1, chi_squared: result.2,
     //             chi2_per_dof: chi_squared_per_dof(result.2, config.observed.len(), 2),
-    //         };
+    //         });
     //     }
     // }
-    grid_fit_2d_cpu(config)
+    Ok(grid_fit_2d_cpu(config))
 }
 
 #[allow(
@@ -115,7 +122,7 @@ pub fn grid_fit_2d(config: &GridFitConfig<'_>) -> GridFitResult {
 )]
 fn grid_fit_2d_cpu(config: &GridFitConfig<'_>) -> GridFitResult {
     let n_data = config.observed.len();
-    assert_eq!(n_data, config.mu_b.len());
+    let inv_sigma2 = 1.0 / (config.sigma * config.sigma);
 
     let mut best_chi2 = f64::INFINITY;
     let mut best_t0 = config.t0_lo;
@@ -133,8 +140,12 @@ fn grid_fit_2d_cpu(config: &GridFitConfig<'_>) -> GridFitResult {
             for (j, &mu) in config.mu_b.iter().enumerate() {
                 pred[j] = freeze_out_curve(t0, k2, mu);
             }
-            let c2 = chi_squared(config.observed, &pred, config.sigma)
-                .expect("grid_fit_2d_cpu: observed and pred have same length");
+            let c2: f64 = config
+                .observed
+                .iter()
+                .zip(pred.iter())
+                .map(|(&o, &p)| (o - p).powi(2) * inv_sigma2)
+                .sum();
             if c2 < best_chi2 {
                 best_chi2 = c2;
                 best_t0 = t0;
@@ -222,7 +233,7 @@ mod tests {
             k2_hi: 0.020,
             k2_step: 0.001,
         };
-        let r = grid_fit_2d(&cfg);
+        let r = grid_fit_2d(&cfg).unwrap();
         assert!((r.t0 - t0).abs() < 1.0, "T0: got {}", r.t0);
         assert!((r.kappa2 - k2).abs() < 0.002, "k2: got {}", r.kappa2);
     }

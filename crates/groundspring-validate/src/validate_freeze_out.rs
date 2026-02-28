@@ -80,7 +80,7 @@ fn validate_chi2_and_grid(h: &mut ValidationHarness, ctx: &ModelCtx, grid: &Valu
         k2_hi,
         k2_step: f64_field(grid, "kappa2_step"),
     };
-    let r = grid_fit_2d(&cfg);
+    let r = grid_fit_2d(&cfg).expect("observed and mu_b have equal length");
     println!(
         "  Best T0 = {:.2} (true {:.2}), kappa2 = {:.4} (true {:.4})",
         r.t0, ctx.true_t0, r.kappa2, ctx.true_k2
@@ -130,7 +130,7 @@ fn validate_replicates_and_determinism(
             k2_hi,
             k2_step,
         };
-        let r = grid_fit_2d(&cfg);
+        let r = grid_fit_2d(&cfg).expect("observed and mu_b have equal length");
         if (r.t0 - ctx.true_t0).abs() <= t0_tol && (r.kappa2 - ctx.true_k2).abs() <= k2_tol {
             hits += 1;
         }
@@ -180,8 +180,8 @@ fn validate_replicates_and_determinism(
         k2_hi,
         k2_step,
     };
-    let r_low = grid_fit_2d(&cfg_low);
-    let r_hi = grid_fit_2d(&cfg_hi);
+    let r_low = grid_fit_2d(&cfg_low).expect("observed and mu_b have equal length");
+    let r_hi = grid_fit_2d(&cfg_hi).expect("observed and mu_b have equal length");
     let err_low = (r_low.t0 - ctx.true_t0).abs() + (r_low.kappa2 - ctx.true_k2).abs();
     let err_hi = (r_hi.t0 - ctx.true_t0).abs() + (r_hi.kappa2 - ctx.true_k2).abs();
     println!("  Low-noise err = {err_low:.4}, high-noise err = {err_hi:.4}");

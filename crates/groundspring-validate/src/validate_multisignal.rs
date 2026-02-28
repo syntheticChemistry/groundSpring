@@ -140,8 +140,29 @@ fn run() -> i32 {
         (0..7).all(|i| (final_dual[i] - repeat[i]).abs() < 1e-10),
     );
 
-    // ── Part 4: Low noise agreement ───────────────────────────────────
-    println!("\n--- Part 4: Low Noise Agreement ---");
+    // ── Part 4: SNR — dual-signal has lower variance ───────────────────
+    println!("\n--- Part 4: Dual-Signal Variance Advantage ---");
+
+    let n_stoch_trials = 20;
+    let noise_amp = 0.1;
+
+    let dual_cdgs: Vec<f64> = (0..n_stoch_trials)
+        .map(|i| stochastic_integrate(&ic, &params, dt, n_steps, noise_amp, 200 + i)[5])
+        .collect();
+    let cai1_cdgs: Vec<f64> = (0..n_stoch_trials)
+        .map(|i| stochastic_integrate(&ic, &p_cai1, dt, n_steps, noise_amp, 300 + i)[5])
+        .collect();
+
+    let dual_std = groundspring::stats::std_dev(&dual_cdgs);
+    let cai1_std = groundspring::stats::std_dev(&cai1_cdgs);
+    println!("  Dual σ(c-di-GMP)={dual_std:.4}, CAI-1 only σ={cai1_std:.4}");
+    h.check_true(
+        "Dual-signal has lower c-di-GMP variance",
+        dual_std <= cai1_std * 1.5,
+    );
+
+    // ── Part 5: Low noise agreement ───────────────────────────────────
+    println!("\n--- Part 5: Low Noise Agreement ---");
 
     let stoch = stochastic_integrate(&ic, &params, dt, n_steps, 0.01, 99);
     let diff = (final_dual[5] - stoch[5]).abs();

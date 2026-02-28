@@ -11,7 +11,7 @@
 
 use groundspring::npu;
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, usize_field};
+use groundspring_validate::{f64_field, print_provenance_header, usize_field};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/npu_anderson/benchmark_npu_anderson.json");
@@ -219,6 +219,7 @@ fn main() {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Exp 028 — NPU Anderson Regime Classification");
 
+    print_provenance_header(&bench, "NPU Anderson Regime Classification");
     println!("--- CPU Classification ---\n");
     run_cpu_checks(&bench, &mut h);
     run_npu_checks(&bench, &mut h);

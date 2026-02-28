@@ -4,7 +4,7 @@
 #
 # groundSpring — Three-Mode Benchmark
 #
-# Builds and times 28 validation binaries in three feature modes:
+# Builds and times 27 validation binaries (+ 1 NPU-gated) in three feature modes:
 #   1. default   (no barracuda)
 #   2. barracuda (CPU delegations only)
 #   3. barracuda-gpu (CPU + GPU delegations)

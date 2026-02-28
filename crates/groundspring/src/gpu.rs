@@ -22,9 +22,7 @@ pub fn get_device() -> Option<Arc<WgpuDevice>> {
         .get_or_init(|| {
             // Auto::new() returns pooled Arc<WgpuDevice> from barracuda's LazyLock pool.
             // WgpuDevice::new() returns a fresh device; we wrap in Arc for sharing.
-            pollster::block_on(WgpuDevice::new())
-                .ok()
-                .map(Arc::new)
+            pollster::block_on(WgpuDevice::new()).ok().map(Arc::new)
         })
         .clone()
 }

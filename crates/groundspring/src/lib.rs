@@ -48,7 +48,6 @@ pub mod anderson;
 // band_structure) to make the dependency direction visible in `lib.rs`.
 // `transport` re-exports `linalg::{tridiag_eigh, EighError}` for backward
 // compatibility; new code should prefer `linalg::` directly.
-pub mod linalg;
 pub mod band_structure;
 pub mod bistable;
 pub mod bootstrap;
@@ -59,6 +58,7 @@ pub mod freeze_out;
 pub mod gillespie;
 pub mod jackknife;
 pub mod kinetics;
+pub mod linalg;
 pub mod multisignal;
 pub mod ode;
 pub mod prng;

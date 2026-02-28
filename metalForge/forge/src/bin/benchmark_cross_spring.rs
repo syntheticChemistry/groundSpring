@@ -80,9 +80,7 @@ fn bench_stats_metrics(h: &mut Harness) {
     let us = t0.elapsed().as_micros();
 
     println!("  n = {n} paired observations");
-    println!(
-        "  RMSE={rmse:.6}, MBE={mbe:.6}, MAE={mae:.6}, NSE={nse:.6}, R²={r2:.6}, IA={ia:.6}"
-    );
+    println!("  RMSE={rmse:.6}, MBE={mbe:.6}, MAE={mae:.6}, NSE={nse:.6}, R²={r2:.6}, IA={ia:.6}");
     println!("  Time: {us} µs (6 metrics in one pass)");
 
     h.check("RMSE > 0", rmse > 0.0);
@@ -94,7 +92,9 @@ fn bench_stats_metrics(h: &mut Harness) {
 fn bench_bootstrap_rawr(h: &mut Harness) {
     println!("\n--- Bootstrap RAWR (groundSpring → S66) ---\n");
 
-    let data: Vec<f64> = (0..5000).map(|i| (f64::from(i) * 0.1).sin() * 10.0).collect();
+    let data: Vec<f64> = (0..5000)
+        .map(|i| (f64::from(i) * 0.1).sin() * 10.0)
+        .collect();
 
     let t0 = Instant::now();
     let ci = groundspring::bootstrap::rawr_mean(&data, 1000, 0.05, 42);
@@ -127,7 +127,10 @@ fn bench_regression(h: &mut Harness) {
     let n = 1000;
     let x: Vec<f64> = (0..n).map(|i| f64::from(i) * 0.01).collect();
     let y_linear: Vec<f64> = x.iter().map(|&xi| 2.5f64.mul_add(xi, 1.0)).collect();
-    let y_quadratic: Vec<f64> = x.iter().map(|&xi| (0.5 * xi).mul_add(xi, 2.0 * xi) + 1.0).collect();
+    let y_quadratic: Vec<f64> = x
+        .iter()
+        .map(|&xi| (0.5 * xi).mul_add(xi, 2.0 * xi) + 1.0)
+        .collect();
     let y_exp: Vec<f64> = x.iter().map(|&xi| 3.0 * (0.5 * xi).exp()).collect();
 
     let t0 = Instant::now();
@@ -198,16 +201,24 @@ fn bench_anderson(h: &mut Harness) {
     let n_realizations = 500;
 
     let t0 = Instant::now();
-    let gamma = groundspring::anderson::lyapunov_averaged(n_sites, disorder, energy, n_realizations, 42);
+    let gamma =
+        groundspring::anderson::lyapunov_averaged(n_sites, disorder, energy, n_realizations, 42);
     let us = t0.elapsed().as_micros();
-    let xi = if gamma > 0.0 { 1.0 / gamma } else { f64::INFINITY };
+    let xi = if gamma > 0.0 {
+        1.0 / gamma
+    } else {
+        f64::INFINITY
+    };
 
     println!("  L={n_sites}, W={disorder}, E={energy}, R={n_realizations}");
     println!("  γ = {gamma:.6}, ξ = {xi:.2}");
     println!("  Time: {us} µs");
 
     h.check("γ > 0 (localized regime)", gamma > 0.0);
-    h.check("ξ ∈ [5, 50] (finite-size range)", (5.0..=50.0).contains(&xi));
+    h.check(
+        "ξ ∈ [5, 50] (finite-size range)",
+        (5.0..=50.0).contains(&xi),
+    );
 
     let analytical_xi = groundspring::anderson::analytical_localization_length(disorder, energy);
     println!("  Analytical ξ(W=2) = {analytical_xi:.2} (hotSpring special functions)");
@@ -218,29 +229,42 @@ fn bench_rarefaction_occupancy(h: &mut Harness) {
     println!("\n--- Rare Biosphere Occupancy (groundSpring + neuralSpring GPU shader) ---\n");
 
     let community = vec![
-        0.30, 0.20, 0.15, 0.10, 0.08, 0.06, 0.04, 0.03, 0.02, 0.01, 0.005, 0.003, 0.001,
-        0.0005, 0.0005,
+        0.30, 0.20, 0.15, 0.10, 0.08, 0.06, 0.04, 0.03, 0.02, 0.01, 0.005, 0.003, 0.001, 0.0005,
+        0.0005,
     ];
     let depth = 1000_u64;
     let n_samples = 200;
 
     let t0 = Instant::now();
-    let occupancy = groundspring::rare_biosphere::abundance_occupancy(&community, depth, n_samples, 42);
+    let occupancy =
+        groundspring::rare_biosphere::abundance_occupancy(&community, depth, n_samples, 42);
     let us = t0.elapsed().as_micros();
 
-    println!("  S = {} species, depth = {depth}, n_samples = {n_samples}", community.len());
-    println!("  Occupancy (top-5): {:.3}, {:.3}, {:.3}, {:.3}, {:.3}",
-        occupancy[0], occupancy[1], occupancy[2], occupancy[3], occupancy[4]);
-    println!("  Occupancy (rare-5): {:.3}, {:.3}, {:.3}, {:.3}, {:.3}",
-        occupancy[10], occupancy[11], occupancy[12], occupancy[13], occupancy[14]);
+    println!(
+        "  S = {} species, depth = {depth}, n_samples = {n_samples}",
+        community.len()
+    );
+    println!(
+        "  Occupancy (top-5): {:.3}, {:.3}, {:.3}, {:.3}, {:.3}",
+        occupancy[0], occupancy[1], occupancy[2], occupancy[3], occupancy[4]
+    );
+    println!(
+        "  Occupancy (rare-5): {:.3}, {:.3}, {:.3}, {:.3}, {:.3}",
+        occupancy[10], occupancy[11], occupancy[12], occupancy[13], occupancy[14]
+    );
     println!("  Time: {us} µs");
 
     h.check("Dominant species detected in ~100%", occupancy[0] > 0.95);
-    h.check("Rare species (<0.1%) detected less often", occupancy[14] < occupancy[0]);
+    h.check(
+        "Rare species (<0.1%) detected less often",
+        occupancy[14] < occupancy[0],
+    );
 
     let t1 = Instant::now();
-    let tier_abundant = groundspring::rare_biosphere::tier_detection_rate(&community, 0, 5, depth, n_samples, 42);
-    let tier_rare = groundspring::rare_biosphere::tier_detection_rate(&community, 10, 15, depth, n_samples, 42);
+    let tier_abundant =
+        groundspring::rare_biosphere::tier_detection_rate(&community, 0, 5, depth, n_samples, 42);
+    let tier_rare =
+        groundspring::rare_biosphere::tier_detection_rate(&community, 10, 15, depth, n_samples, 42);
     let tier_us = t1.elapsed().as_micros();
 
     println!("\n  Tier detection: abundant={tier_abundant:.4}, rare={tier_rare:.4}  {tier_us} µs");

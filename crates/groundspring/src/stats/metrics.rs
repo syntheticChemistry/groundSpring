@@ -1,297 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
-//! Error metrics, descriptive statistics and agreement indices.
+//! Descriptive statistics: mean, standard deviation, percentile.
 //!
-//! Contains the canonical implementations of RMSE, MBE, R², Index of
-//! Agreement, hit rate, percentile and basic descriptive statistics
-//! (mean, population σ, sample σ).
-//!
-//! # barracuda delegation
-//!
-//! When the `barracuda` feature is enabled, each metric delegates to the
-//! corresponding `barracuda::stats` function.  CPU implementations are
-//! always compiled and serve as the fallback when the feature is off or
-//! when the barracuda call returns an error.
+//! Single-distribution functions that operate on one `&[f64]` slice.
+//! For paired-observation agreement metrics (RMSE, MBE, R², etc.),
+//! see the sibling [`super::agreement`] module.
 
 #[cfg(not(feature = "barracuda"))]
 use crate::cast::f64_usize;
 use crate::cast::usize_f64;
-
-// ── Error / agreement metrics ───────────────────────────────────────────
-
-/// Root Mean Square Error between observed and modeled values.
-///
-/// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::rmse`.
-/// Returns `0.0` for empty slices.
-///
-/// # Panics
-///
-/// Panics if `observed` and `modeled` have different lengths.
-#[must_use]
-pub fn rmse(observed: &[f64], modeled: &[f64]) -> f64 {
-    assert_eq!(
-        observed.len(),
-        modeled.len(),
-        "observed and modeled must have equal length"
-    );
-    #[cfg(feature = "barracuda")]
-    return barracuda::stats::rmse(observed, modeled);
-    #[cfg(not(feature = "barracuda"))]
-    rmse_cpu(observed, modeled)
-}
-
-#[cfg(not(feature = "barracuda"))]
-fn rmse_cpu(observed: &[f64], modeled: &[f64]) -> f64 {
-    let n = observed.len();
-    if n == 0 {
-        return 0.0;
-    }
-    let sum_sq: f64 = observed
-        .iter()
-        .zip(modeled)
-        .map(|(o, m)| (o - m).powi(2))
-        .sum();
-    (sum_sq / usize_f64(n)).sqrt()
-}
-
-/// Mean Absolute Error between observed and modeled values.
-///
-/// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::mae` (absorbed from airSpring/groundSpring S64).
-/// Returns `0.0` for empty slices.
-///
-/// # Panics
-///
-/// Panics if `observed` and `modeled` have different lengths.
-#[must_use]
-pub fn mae(observed: &[f64], modeled: &[f64]) -> f64 {
-    assert_eq!(
-        observed.len(),
-        modeled.len(),
-        "observed and modeled must have equal length"
-    );
-    #[cfg(feature = "barracuda")]
-    return barracuda::stats::mae(observed, modeled);
-    #[cfg(not(feature = "barracuda"))]
-    mae_cpu(observed, modeled)
-}
-
-#[cfg(not(feature = "barracuda"))]
-fn mae_cpu(observed: &[f64], modeled: &[f64]) -> f64 {
-    let n = observed.len();
-    if n == 0 {
-        return 0.0;
-    }
-    observed
-        .iter()
-        .zip(modeled)
-        .map(|(o, m)| (o - m).abs())
-        .sum::<f64>()
-        / usize_f64(n)
-}
-
-/// Nash-Sutcliffe Efficiency (NSE).
-///
-/// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::nash_sutcliffe` (absorbed from airSpring/groundSpring S64).
-/// NSE = 1 is perfect; NSE = 0 means the model is no better than the mean;
-/// NSE < 0 means the model is worse than the mean.
-///
-/// # Panics
-///
-/// Panics if `observed` and `modeled` have different lengths.
-#[must_use]
-pub fn nash_sutcliffe(observed: &[f64], modeled: &[f64]) -> f64 {
-    assert_eq!(
-        observed.len(),
-        modeled.len(),
-        "observed and modeled must have equal length"
-    );
-    #[cfg(feature = "barracuda")]
-    return barracuda::stats::nash_sutcliffe(observed, modeled);
-    #[cfg(not(feature = "barracuda"))]
-    nash_sutcliffe_cpu(observed, modeled)
-}
-
-#[cfg(not(feature = "barracuda"))]
-fn nash_sutcliffe_cpu(observed: &[f64], modeled: &[f64]) -> f64 {
-    let n = observed.len();
-    if n == 0 {
-        return 0.0;
-    }
-    let mean_obs: f64 = observed.iter().sum::<f64>() / usize_f64(n);
-    let ss_res: f64 = observed
-        .iter()
-        .zip(modeled)
-        .map(|(o, m)| (o - m).powi(2))
-        .sum();
-    let ss_tot: f64 = observed.iter().map(|o| (o - mean_obs).powi(2)).sum();
-    if ss_tot == 0.0 {
-        return 0.0;
-    }
-    1.0 - ss_res / ss_tot
-}
-
-/// Mean Bias Error (modeled − observed).
-///
-/// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::mbe`.
-/// Positive MBE indicates the model overestimates.
-///
-/// # Panics
-///
-/// Panics if `observed` and `modeled` have different lengths.
-#[must_use]
-pub fn mbe(observed: &[f64], modeled: &[f64]) -> f64 {
-    assert_eq!(
-        observed.len(),
-        modeled.len(),
-        "observed and modeled must have equal length"
-    );
-    #[cfg(feature = "barracuda")]
-    return barracuda::stats::mbe(observed, modeled);
-    #[cfg(not(feature = "barracuda"))]
-    mbe_cpu(observed, modeled)
-}
-
-#[cfg(not(feature = "barracuda"))]
-fn mbe_cpu(observed: &[f64], modeled: &[f64]) -> f64 {
-    let n = observed.len();
-    if n == 0 {
-        return 0.0;
-    }
-    let sum: f64 = observed.iter().zip(modeled).map(|(o, m)| m - o).sum();
-    sum / usize_f64(n)
-}
-
-/// Coefficient of determination (R²).
-///
-/// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::r_squared`.
-/// Returns `0.0` when total sum of squares is zero (constant observation).
-///
-/// # Panics
-///
-/// Panics if `observed` and `modeled` have different lengths.
-#[must_use]
-pub fn r_squared(observed: &[f64], modeled: &[f64]) -> f64 {
-    assert_eq!(
-        observed.len(),
-        modeled.len(),
-        "observed and modeled must have equal length"
-    );
-    #[cfg(feature = "barracuda")]
-    return barracuda::stats::r_squared(observed, modeled);
-    #[cfg(not(feature = "barracuda"))]
-    r_squared_cpu(observed, modeled)
-}
-
-#[cfg(not(feature = "barracuda"))]
-fn r_squared_cpu(observed: &[f64], modeled: &[f64]) -> f64 {
-    let n = observed.len();
-    if n == 0 {
-        return 0.0;
-    }
-    let mean_obs: f64 = observed.iter().sum::<f64>() / usize_f64(n);
-    let ss_res: f64 = observed
-        .iter()
-        .zip(modeled)
-        .map(|(o, m)| (o - m).powi(2))
-        .sum();
-    let ss_tot: f64 = observed.iter().map(|o| (o - mean_obs).powi(2)).sum();
-    if ss_tot == 0.0 {
-        return 0.0;
-    }
-    1.0 - ss_res / ss_tot
-}
-
-/// Index of Agreement (Willmott 1981).
-///
-/// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::index_of_agreement`.
-/// Ranges from 0.0 (no agreement) to 1.0 (perfect agreement).
-///
-/// # Panics
-///
-/// Panics if `observed` and `modeled` have different lengths.
-#[must_use]
-pub fn index_of_agreement(observed: &[f64], modeled: &[f64]) -> f64 {
-    assert_eq!(
-        observed.len(),
-        modeled.len(),
-        "observed and modeled must have equal length"
-    );
-    #[cfg(feature = "barracuda")]
-    return barracuda::stats::index_of_agreement(observed, modeled);
-    #[cfg(not(feature = "barracuda"))]
-    index_of_agreement_cpu(observed, modeled)
-}
-
-#[cfg(not(feature = "barracuda"))]
-fn index_of_agreement_cpu(observed: &[f64], modeled: &[f64]) -> f64 {
-    let n = observed.len();
-    if n == 0 {
-        return 0.0;
-    }
-    let mean_obs: f64 = observed.iter().sum::<f64>() / usize_f64(n);
-    let numerator: f64 = observed
-        .iter()
-        .zip(modeled)
-        .map(|(o, m)| (o - m).powi(2))
-        .sum();
-    let denominator: f64 = observed
-        .iter()
-        .zip(modeled)
-        .map(|(o, m)| ((m - mean_obs).abs() + (o - mean_obs).abs()).powi(2))
-        .sum();
-    if denominator == 0.0 {
-        return 0.0;
-    }
-    1.0 - numerator / denominator
-}
-
-/// Fraction of days where observed and modeled agree on occurrence.
-///
-/// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::hit_rate`.
-/// A day "occurs" if the value exceeds `threshold`.  Returns the
-/// fraction of days where both agree (both above or both at-or-below).
-///
-/// Returns `0.0` for empty slices.
-///
-/// # Panics
-///
-/// Panics if `observed` and `modeled` have different lengths.
-#[must_use]
-pub fn hit_rate(observed: &[f64], modeled: &[f64], threshold: f64) -> f64 {
-    assert_eq!(
-        observed.len(),
-        modeled.len(),
-        "observed and modeled must have equal length"
-    );
-    #[cfg(feature = "barracuda")]
-    return barracuda::stats::hit_rate(observed, modeled, threshold);
-    #[cfg(not(feature = "barracuda"))]
-    hit_rate_cpu(observed, modeled, threshold)
-}
-
-#[cfg(not(feature = "barracuda"))]
-fn hit_rate_cpu(observed: &[f64], modeled: &[f64], threshold: f64) -> f64 {
-    let n = observed.len();
-    if n == 0 {
-        return 0.0;
-    }
-    let agree = observed
-        .iter()
-        .zip(modeled)
-        .filter(|(&o, &m)| (o > threshold) == (m > threshold))
-        .count();
-    usize_f64(agree) / usize_f64(n)
-}
-
-// ── Descriptive statistics ──────────────────────────────────────────────
 
 /// Arithmetic mean of a slice.
 ///
@@ -363,7 +81,7 @@ fn sample_std_dev_cpu(values: &[f64]) -> f64 {
 ///
 /// # Errors
 ///
-/// Returns [`InputError::OutOfRange`] if `p` is not in `[0.0, 100.0]`.
+/// Returns [`crate::error::InputError::OutOfRange`] if `p` is not in `[0.0, 100.0]`.
 pub fn percentile(values: &[f64], p: f64) -> Result<f64, crate::error::InputError> {
     if !(0.0..=100.0).contains(&p) {
         return Err(crate::error::InputError::OutOfRange {
@@ -397,121 +115,9 @@ fn percentile_cpu(values: &[f64], p: f64) -> f64 {
     }
 }
 
-// ── Tests ───────────────────────────────────────────────────────────────
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    // Tolerance key (applies to all metrics tests):
-    //   1e-12  — exact arithmetic identity, limited only by f64 rounding
-    //   1e-10  — known analytical value with at most one intermediate sqrt
-    //   0.01   — Bessel-corrected known value rounded to 3 decimal places
-
-    #[test]
-    fn rmse_identical_is_zero() {
-        let x = [1.0, 2.0, 3.0];
-        assert!((rmse(&x, &x)).abs() < 1e-12);
-    }
-
-    #[test]
-    fn rmse_known_value() {
-        let obs = [1.0, 2.0, 3.0];
-        let modeled = [1.1, 2.1, 3.1];
-        // sqrt(mean([0.01, 0.01, 0.01])) = 0.1 exactly
-        assert!((rmse(&obs, &modeled) - 0.1).abs() < 1e-10);
-    }
-
-    #[test]
-    fn mbe_overestimate_positive() {
-        let obs = [1.0, 2.0, 3.0];
-        let modeled = [1.5, 2.5, 3.5];
-        assert!((mbe(&obs, &modeled) - 0.5).abs() < 1e-12);
-    }
-
-    #[test]
-    fn r2_perfect() {
-        let x = [1.0, 2.0, 3.0, 4.0];
-        assert!((r_squared(&x, &x) - 1.0).abs() < 1e-12);
-    }
-
-    #[test]
-    fn r2_mean_model_is_zero() {
-        let obs = [1.0, 2.0, 3.0];
-        let modeled = [2.0, 2.0, 2.0];
-        assert!(r_squared(&obs, &modeled).abs() < 1e-12);
-    }
-
-    #[test]
-    fn ia_perfect() {
-        let x = [1.0, 2.0, 3.0, 4.0];
-        assert!((index_of_agreement(&x, &x) - 1.0).abs() < 1e-12);
-    }
-
-    #[test]
-    fn percentile_median() {
-        let vals = [1.0, 2.0, 3.0, 4.0, 5.0];
-        assert!((percentile(&vals, 50.0).unwrap() - 3.0).abs() < 1e-12);
-    }
-
-    #[test]
-    fn hit_rate_perfect() {
-        let obs = [0.0, 5.0, 0.0, 3.0];
-        assert!((hit_rate(&obs, &obs, 0.1) - 1.0).abs() < 1e-12);
-    }
-
-    #[test]
-    fn hit_rate_known_value() {
-        let obs = [0.0, 5.0, 0.0, 3.0];
-        let modeled = [0.0, 4.0, 0.0, 0.0];
-        // 3/4 agree on threshold 0.1 → 0.75
-        assert!((hit_rate(&obs, &modeled, 0.1) - 0.75).abs() < 1e-12);
-    }
-
-    #[test]
-    fn hit_rate_empty() {
-        let empty: [f64; 0] = [];
-        assert!(hit_rate(&empty, &empty, 0.1).abs() < 1e-12);
-    }
-
-    #[test]
-    fn rmse_empty() {
-        let empty: [f64; 0] = [];
-        assert!(rmse(&empty, &empty).abs() < 1e-12);
-    }
-
-    #[test]
-    fn mbe_empty() {
-        let empty: [f64; 0] = [];
-        assert!(mbe(&empty, &empty).abs() < 1e-12);
-    }
-
-    #[test]
-    fn r2_empty() {
-        let empty: [f64; 0] = [];
-        assert!(r_squared(&empty, &empty).abs() < 1e-12);
-    }
-
-    #[test]
-    fn r2_constant_observation() {
-        let obs = [3.0, 3.0, 3.0];
-        let modeled = [3.1, 2.9, 3.0];
-        // ss_tot = 0 → R² = 0 by convention
-        assert!(r_squared(&obs, &modeled).abs() < 1e-12);
-    }
-
-    #[test]
-    fn ia_empty() {
-        let empty: [f64; 0] = [];
-        assert!(index_of_agreement(&empty, &empty).abs() < 1e-12);
-    }
-
-    #[test]
-    fn ia_constant_denominator_zero() {
-        let obs = [5.0, 5.0, 5.0];
-        let modeled = [5.0, 5.0, 5.0];
-        assert!((index_of_agreement(&obs, &modeled)).abs() < 1e-12);
-    }
 
     #[test]
     fn mean_empty() {
@@ -535,8 +141,16 @@ mod tests {
     fn std_dev_known_value() {
         let vals = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
         let s = std_dev(&vals);
-        // population σ = sqrt(Σ(x-μ)²/N) = sqrt(32/8) = 2.0 exactly
-        assert!((s - 2.0).abs() < 1e-12, "population σ should be 2.0, got {s}");
+        assert!(
+            (s - 2.0).abs() < 1e-12,
+            "population σ should be 2.0, got {s}"
+        );
+    }
+
+    #[test]
+    fn percentile_median() {
+        let vals = [1.0, 2.0, 3.0, 4.0, 5.0];
+        assert!((percentile(&vals, 50.0).unwrap() - 3.0).abs() < 1e-12);
     }
 
     #[test]
@@ -567,7 +181,6 @@ mod tests {
         let pop = std_dev(&vals);
         let samp = sample_std_dev(&vals);
         assert!(samp > pop, "sample std > population std");
-        // mean=5, Σ(x-μ)²=32, s²=32/7≈4.571, s≈2.138
         assert!(
             (samp - 2.138).abs() < 0.01,
             "known sample σ ≈ 2.138, got {samp}"
@@ -583,55 +196,5 @@ mod tests {
     fn sample_std_dev_empty() {
         let empty: [f64; 0] = [];
         assert!(sample_std_dev(&empty).abs() < 1e-12);
-    }
-
-    #[test]
-    fn mae_identical_is_zero() {
-        let x = [1.0, 2.0, 3.0];
-        assert!(mae(&x, &x).abs() < 1e-12);
-    }
-
-    #[test]
-    fn mae_known_value() {
-        let obs = [1.0, 2.0, 3.0];
-        let modeled = [1.5, 2.5, 3.5];
-        assert!((mae(&obs, &modeled) - 0.5).abs() < 1e-12);
-    }
-
-    #[test]
-    fn mae_empty() {
-        let empty: [f64; 0] = [];
-        assert!(mae(&empty, &empty).abs() < 1e-12);
-    }
-
-    #[test]
-    fn nse_perfect() {
-        let x = [1.0, 2.0, 3.0, 4.0];
-        assert!((nash_sutcliffe(&x, &x) - 1.0).abs() < 1e-12);
-    }
-
-    #[test]
-    fn nse_mean_model_is_zero() {
-        let obs = [1.0, 2.0, 3.0];
-        let modeled = [2.0, 2.0, 2.0];
-        assert!(nash_sutcliffe(&obs, &modeled).abs() < 1e-12);
-    }
-
-    #[test]
-    fn nse_empty() {
-        let empty: [f64; 0] = [];
-        assert!(nash_sutcliffe(&empty, &empty).abs() < 1e-12);
-    }
-
-    #[test]
-    fn nse_equals_r2_for_same_inputs() {
-        let obs = [1.0, 2.0, 3.0, 4.0, 5.0];
-        let modeled = [1.1, 2.2, 2.8, 4.3, 4.9];
-        let nse = nash_sutcliffe(&obs, &modeled);
-        let r2 = r_squared(&obs, &modeled);
-        assert!(
-            (nse - r2).abs() < 1e-10,
-            "NSE should equal R² for the same inputs: nse={nse}, r2={r2}"
-        );
     }
 }

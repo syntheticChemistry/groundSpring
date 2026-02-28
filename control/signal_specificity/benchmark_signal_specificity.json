@@ -11,7 +11,7 @@
     "real_data_accession": "PNAS open access: doi:10.1073/pnas.1115663109",
     "prng_algorithm": "xorshift64 (Marsaglia 2003), seed=42",
     "baseline_date": "2026-02-25",
-    "baseline_commit": "f634ef0",
+    "baseline_commit": "f634ef0b32d2bcfbad8d77d4cbfa2c8dd96a93b2",
     "validation_script": "control/signal_specificity/signal_specificity.py",
     "command": "python3 control/signal_specificity/signal_specificity.py"
   },

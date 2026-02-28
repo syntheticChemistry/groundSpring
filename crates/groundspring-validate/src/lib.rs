@@ -95,6 +95,9 @@ pub fn f64_range(arr: &Value) -> (f64, f64) {
 }
 
 /// Print the standard provenance header shared by all validation binaries.
+///
+/// Displays source, baseline commit/date, and (when present) the script,
+/// command, and author that generated the baseline — full chain of custody.
 pub fn print_provenance_header(bench: &Value, title: &str) {
     println!("{}", "=".repeat(72));
     println!("groundSpring Rust Validation: {title}");
@@ -102,15 +105,30 @@ pub fn print_provenance_header(bench: &Value, title: &str) {
         "  Source: {}",
         bench["_source"].as_str().unwrap_or("unknown")
     );
+    let prov = &bench["_provenance"];
     println!(
         "  Provenance: commit {}, {}",
-        bench["_provenance"]["baseline_commit"]
-            .as_str()
-            .unwrap_or("unknown"),
-        bench["_provenance"]["baseline_date"]
-            .as_str()
-            .unwrap_or("unknown"),
+        prov["baseline_commit"].as_str().unwrap_or("unknown"),
+        prov["baseline_date"].as_str().unwrap_or("unknown"),
     );
+    if let Some(script) = prov["validation_script"]
+        .as_str()
+        .or_else(|| bench["validation_script"].as_str())
+    {
+        println!("  Script: {script}");
+    }
+    if let Some(cmd) = prov["command"]
+        .as_str()
+        .or_else(|| bench["command"].as_str())
+    {
+        println!("  Command: {cmd}");
+    }
+    if let Some(author) = prov["generated_by"]
+        .as_str()
+        .or_else(|| bench["generated_by"].as_str())
+    {
+        println!("  Author: {author}");
+    }
     println!("{}", "=".repeat(72));
 }
 

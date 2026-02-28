@@ -21,9 +21,9 @@
 | 16 | Almost-Mathieu quasiperiodic localization | Mathematics | 8/8 | 8/8 | Aubry-André transition at λ=2; Herman's formula verified; level statistics distinguish phases |
 | 17 | Spin chain transport | Mathematics | 18/18 | 18/18 | Energy transport through disordered XY chains (Kachkovskiy 2016) |
 | 20 | Drift vs selection | Evolutionary biology | 7/7 | 7/7 | Wright-Fisher fixation, Kimura probability (R. Anderson 2022) |
-| 10 | Bistable phenotypic switching | Biology | 10/10 | 9/9 | Two stable attractors (0.035 vs 1.634 c-di-GMP); noise-induced transitions; 18.5× faster |
-| 11 | Multi-signal QS integration | Biology | 9/9 | 8/8 | Dual signaling sharpens regulation; lower HapR variance; 46.2× faster |
-| 21 | Rare biosphere signal detection | Microbial ecology | 11/11 | 10/10 | Sequencing depth determines rare taxa signal boundary (R. Anderson 2015) |
+| 10 | Bistable phenotypic switching | Biology | 10/10 | 10/10 | Two stable attractors (0.035 vs 1.634 c-di-GMP); noise-induced transitions; 18.5× faster |
+| 11 | Multi-signal QS integration | Biology | 9/9 | 9/9 | Dual signaling sharpens regulation; lower HapR variance; 46.2× faster |
+| 21 | Rare biosphere signal detection | Microbial ecology | 11/11 | 12/12 | Sequencing depth determines rare taxa signal boundary (R. Anderson 2015) |
 | 14 | Eco-evolutionary noise threshold | Evolutionary dynamics | 9/9 | 6/6 | Eigen's error threshold predicts mutation-driven information collapse (Dolson 2023) |
 | 18 | Band edge structure | Mathematical physics | 8/8 | 10/10 | Transfer matrix reproduces tight-binding band-gap structure (Filonov-Kachkovskiy 2018) |
 | 19 | Jackknife error estimation | Statistics/Error Estimation | 9/9 | 9/9 | Subpercent precision error bars (Bazavov 2025 Phys Rev D 111, 094508) |
@@ -37,7 +37,7 @@
 | 27 | GPU vendor parity for WDM observables | WDM MD | 7/7 | 7/7 | Vendor differences at 1e-12 relative level; correlation 1.000000 |
 | 28 | NPU Anderson regime classification | Hardware (NPU) | 7/7 | 9/9 | int8 DMA classification on AKD1000 at ~51µs |
 
-**Phase 0**: ~261 checks (Python). **Phase 1**: 288/288 PASS (Rust). **Speedup**: 22× (all 28 experiments).
+**Phase 0**: ~261 checks (Python). **Phase 1**: 292/292 PASS (Rust). **Speedup**: 22× (all 28 experiments).
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **GPU dispatch (V31–V43)**: 5 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere. 19 metalForge workloads, 5 substrates. 39 active delegations + 7 pending `ToadStool`.
 **Three-tier parity (V43)**: 27/27 PROVEN (default = barracuda-CPU = barracuda-GPU). GPU tier: 39/39 checks. Pure GPU: 26/26 checks. metalForge dispatch: 17/19 → Titan V.
@@ -60,8 +60,8 @@
 | # | Paper | Journal | Year | Faculty | Why | Status |
 |---|-------|---------|------|---------|-----|--------|
 | 9 | Massie et al. "Quantification of High Specificity Cyclic di-GMP Signaling" | PNAS 109:12746-51 | 2012 | Waters | How cells resolve signal from noise with 60+ competing enzymes. Biological Exp 001 | **Active** (Exp 006: 12/12 Py, 12/12 Rust) |
-| 10 | Fernandez et al. "V. cholerae adapts by c-di-GMP regulation of cell shape" | PNAS 117:29046-29054 | 2020 | Waters | Bistable switching — when does noise push a system across a threshold? Bifurcation analysis | **Active** (Exp 010: 10/10 Py, 9/9 Rust) |
-| 11 | Srivastava et al. "Integration of Cyclic di-GMP and Quorum Sensing" | J Bacteriology 193:6331-41 | 2011 | Waters | Multi-input signal fusion in noisy environment. Biological analog of sensor fusion | **Active** (Exp 011: 9/9 Py, 8/8 Rust) |
+| 10 | Fernandez et al. "V. cholerae adapts by c-di-GMP regulation of cell shape" | PNAS 117:29046-29054 | 2020 | Waters | Bistable switching — when does noise push a system across a threshold? Bifurcation analysis | **Active** (Exp 010: 10/10 Py, 10/10 Rust) |
+| 11 | Srivastava et al. "Integration of Cyclic di-GMP and Quorum Sensing" | J Bacteriology 193:6331-41 | 2011 | Waters | Multi-input signal fusion in noisy environment. Biological analog of sensor fusion | **Active** (Exp 011: 9/9 Py, 9/9 Rust) |
 
 ### Statistical Confidence & Resampling (Liu)
 
@@ -110,7 +110,7 @@ founding question: **when does signal propagate and when does noise win?**
 |---|-------|---------|------|---------|-----|--------|
 | 19 | Anderson (2021) "Tracking Microbial Evolution in the Subseafloor Biosphere" | mSystems 6:e00731-21 | 2021 | R. Anderson | Formalizes when stochastic forces dominate over deterministic selection in low-biomass environments. Cites Lenski LTEE (§1.2 of CONSTRAINED_EVOLUTION_FORMAL.md). Introduces Muller's ratchet as consequence of extreme energy limitation. Directly maps to groundSpring's signal vs noise framework | Reference |
 | 20 | Anderson et al. (2022) "Microbial population dynamics are dominated by stochastic forces in a low biomass subseafloor habitat" | mBio 13:e00354-22 | 2022 | R. Anderson | **Empirical proof** that drift dominates selection in energy-limited subsurface. Quantitative genomic evidence for stochastic > deterministic evolution. The biological equivalent of groundSpring Exp 001's finding that noise dominates signal in some sensor configurations | **Active** (Exp 014: 7/7 Py, 7/7 Rust) |
-| 21 | Anderson, Sogin, Baross (2015) "Biogeography and ecology of the rare and abundant microbial lineages" | FEMS Microbiol Ecol 91:fiu016 | 2015 | R. Anderson | Rare biosphere problem — when does a detected microbial lineage represent real biological signal vs. sequencing noise? Directly extends groundSpring Exp 004's genus saturation analysis | **Active** (Exp 016: 11/11 Py, 10/10 Rust) |
+| 21 | Anderson, Sogin, Baross (2015) "Biogeography and ecology of the rare and abundant microbial lineages" | FEMS Microbiol Ecol 91:fiu016 | 2015 | R. Anderson | Rare biosphere problem — when does a detected microbial lineage represent real biological signal vs. sequencing noise? Directly extends groundSpring Exp 004's genus saturation analysis | **Active** (Exp 016: 11/11 Py, 12/12 Rust) |
 
 **Why this is groundSpring's evolutionary validation**: groundSpring decomposes
 measurement error into bias and noise across physics, agriculture, meteorology,
@@ -227,8 +227,8 @@ Write → Absorb → Lean cycle:
 | 7 | Jackknife error estimation | **9/9** | Embarrassingly parallel (N leave-one-out subsets) | After GPU | Jackknife GPU kernel candidate |
 | 8 | Freeze-out inverse problem | **8/8** | Grid search embarrassingly parallel | After GPU | Grid dispatch candidate |
 | 9 | Enzymatic signal specificity | **12/12** | `GillespieGpu` (ready) | After GPU | GPU-only (no CPU) |
-| 10 | Bistable phenotypic switching | **9/9** | `BistableOde` (ready) | After GPU | `BistableOde::cpu_derivative` |
-| 11 | Multi-signal QS integration | **8/8** | `MultiSignalOde` (ready) | After GPU | `MultiSignalOde::cpu_derivative` |
+| 10 | Bistable phenotypic switching | **10/10** | `BistableOde` (ready) | After GPU | `BistableOde::cpu_derivative` |
+| 11 | Multi-signal QS integration | **9/9** | `MultiSignalOde` (ready) | After GPU | `MultiSignalOde::cpu_derivative` |
 | 12 | RAWR resampling | **11/11** | Embarrassingly parallel | After GPU | `bootstrap_mean` (CPU) |
 | 13 | Resampling convergence | **8/8** | Embarrassingly parallel | After GPU | Uses `bootstrap` module |
 | 15 | Anderson localization | **8/8** | `spectral::*` (ready) | After GPU | 2 lyapunov (barracuda-gpu) |
@@ -237,10 +237,10 @@ Write → Absorb → Lean cycle:
 | 20 | Drift vs selection | **7/7** | Embarrassingly parallel | After GPU | wright_fisher_fixation, kimura_fixation_prob candidates |
 | 14 | Eco-evolutionary noise threshold | **6/6** | Embarrassingly parallel | After GPU | Simulation-only (multinomial+mutation) |
 | 18 | Band edge structure | **10/10** | Transfer matrix per-energy parallel | After GPU | tridiag_eigh candidate |
-| 21 | Rare biosphere signal detection | **10/10** | Embarrassingly parallel | After GPU | Chao1, multinomial sampling |
+| 21 | Rare biosphere signal detection | **12/12** | Embarrassingly parallel | After GPU | Chao1, multinomial sampling |
 | 28 | NPU Anderson regime classification | **9/9** | — | **Live** (AKD1000 DMA) | int8 centroid classifier on NPU |
 
-**CPU tier**: 288/288 PASS across 28 validation binaries.
+**CPU tier**: 292/292 PASS across 28 validation binaries.
 **Barracuda**: 39 active delegations + 7 pending `ToadStool` (30 CPU + 9 GPU). **Performance**: 11.5× faster than Python (excl. LAPACK-bound); 5.1× overall. **Tests**: 470+ Rust workspace (barracuda-gpu) + 320 Python. **biomeOS**: Neural API integration (V30). **GPU dispatch (V31–V44)**: 5 modules wired for barracuda-gpu, 19 metalForge workloads, 5 substrates, architecture-aware routing. V44: `linalg` module, typed `InputError`.
 **Mathematical parity**: 28/28 PROVEN. See `data/parity_report.json`.
 **Three-tier parity**: 23 integration tests validate CPU ↔ barracuda-CPU ↔ barracuda-GPU equivalence.
@@ -319,7 +319,7 @@ Papers 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 18, 21 — can proceed to GPU tier on
 
 ## Hardware Evolution: CPU → GPU → metalForge
 
-### Tier 1: BarraCUDA CPU (current — 288/288 PASS)
+### Tier 1: BarraCUDA CPU (current — 292/292 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
 39 active delegations + 7 pending `ToadStool` (30 CPU + 9 GPU). 11.5× faster than Python (excl. LAPACK-bound).
