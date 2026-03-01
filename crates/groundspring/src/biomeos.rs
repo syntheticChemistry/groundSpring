@@ -39,15 +39,18 @@ use std::time::Duration;
 
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 const READ_TIMEOUT: Duration = Duration::from_secs(30);
-const FAMILY_ID: &str = "groundspring";
+
+/// Family identifier for all biomeOS interactions.
+///
+/// Used in JSON-RPC requests and provenance key namespacing to identify
+/// this spring within the ecosystem. Other modules (e.g. `nestgate`)
+/// should reference this constant rather than duplicating the literal.
+pub const FAMILY_ID: &str = "groundspring";
 
 /// Socket names the NUCLEUS startup scripts create, in priority order.
 /// `start_nucleus.sh` creates `neural-api.sock` (no family suffix) and
 /// optionally symlinks `neural-api-{family_id}.sock`.
-const NUCLEUS_SOCKET_NAMES: &[&str] = &[
-    "neural-api.sock",
-    "neural-api-default.sock",
-];
+const NUCLEUS_SOCKET_NAMES: &[&str] = &["neural-api.sock", "neural-api-default.sock"];
 
 /// Error type for `biomeOS` client operations.
 #[derive(Debug)]
@@ -194,6 +197,9 @@ pub fn capability_call(socket: &Path, capability: &str, params_json: &str) -> Re
 /// Use `direct_rpc_call` only when you must bypass capability discovery and
 /// target a known primal directly (e.g. hardware-specific operations).
 ///
+/// Internally delegates to [`capability_call`] with `"{target}.{method}"`
+/// as the capability string.
+///
 /// # Errors
 ///
 /// Returns `Err` if the socket is unavailable or the RPC fails.
@@ -203,19 +209,8 @@ pub fn direct_rpc_call(
     method: &str,
     params_json: &str,
 ) -> Result<String> {
-    let request = format!(
-        r#"{{"jsonrpc":"2.0","method":"capability.call","params":{{"capability":"{}","operation":"{}","args":{},"family_id":"{}"}},"id":1}}"#,
-        escape_json(target),
-        escape_json(method),
-        params_json,
-        FAMILY_ID,
-    );
-    let response = rpc_call(socket, &request)?;
-    if response.contains("\"error\"") {
-        Err(BiomeOsError(extract_error(&response)))
-    } else {
-        extract_result(&response)
-    }
+    let capability = format!("{target}.{method}");
+    capability_call(socket, &capability, params_json)
 }
 
 /// Store a value via biomeOS capability-based storage routing.
@@ -266,17 +261,11 @@ pub fn storage_get(socket: &Path, key: &str) -> Result<String> {
 ///
 /// Returns `Err` if biomeOS is unavailable or `ToadStool` rejects the request.
 pub fn compute_execute(socket: &Path, op: &str, params_json: &str) -> Result<String> {
-    let merged = if params_json.starts_with('{') && params_json.len() > 2 {
-        let inner = &params_json[1..params_json.len() - 1];
-        format!(r#"{{"op":"{}",{inner},"family_id":"{}"}}"#, escape_json(op), FAMILY_ID)
-    } else {
-        format!(
-            r#"{{"op":"{}","family_id":"{}"}}"#,
-            escape_json(op),
-            FAMILY_ID,
-        )
-    };
-    capability_call(socket, "compute.execute", &merged)
+    capability_call(
+        socket,
+        "compute.execute",
+        &merge_compute_params(op, params_json),
+    )
 }
 
 /// Submit a compute job asynchronously via `compute.submit`.
@@ -287,17 +276,30 @@ pub fn compute_execute(socket: &Path, op: &str, params_json: &str) -> Result<Str
 ///
 /// Returns `Err` if biomeOS is unavailable or the submission fails.
 pub fn compute_submit(socket: &Path, op: &str, params_json: &str) -> Result<String> {
-    let merged = if params_json.starts_with('{') && params_json.len() > 2 {
+    capability_call(
+        socket,
+        "compute.submit",
+        &merge_compute_params(op, params_json),
+    )
+}
+
+/// Merge an operation name and caller-supplied JSON params into a single
+/// JSON object that includes `op` and `family_id`.
+fn merge_compute_params(op: &str, params_json: &str) -> String {
+    if params_json.starts_with('{') && params_json.len() > 2 {
         let inner = &params_json[1..params_json.len() - 1];
-        format!(r#"{{"op":"{}",{inner},"family_id":"{}"}}"#, escape_json(op), FAMILY_ID)
+        format!(
+            r#"{{"op":"{}",{inner},"family_id":"{}"}}"#,
+            escape_json(op),
+            FAMILY_ID
+        )
     } else {
         format!(
             r#"{{"op":"{}","family_id":"{}"}}"#,
             escape_json(op),
             FAMILY_ID,
         )
-    };
-    capability_call(socket, "compute.submit", &merged)
+    }
 }
 
 /// Query `ToadStool` compute capabilities.
@@ -543,7 +545,11 @@ mod tests {
         let sock = biomeos.join("neural-api-default.sock");
         std::fs::write(&sock, "").unwrap();
         let result = resolve_socket(None, Some(dir.path().to_str().unwrap()));
-        assert_eq!(result, Some(sock), "should find legacy neural-api-default.sock");
+        assert_eq!(
+            result,
+            Some(sock),
+            "should find legacy neural-api-default.sock"
+        );
     }
 
     #[test]
@@ -556,7 +562,11 @@ mod tests {
         std::fs::write(&primary, "").unwrap();
         std::fs::write(&legacy, "").unwrap();
         let result = resolve_socket(None, Some(dir.path().to_str().unwrap()));
-        assert_eq!(result, Some(primary), "should prefer neural-api.sock over default");
+        assert_eq!(
+            result,
+            Some(primary),
+            "should prefer neural-api.sock over default"
+        );
     }
 
     #[test]

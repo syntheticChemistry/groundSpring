@@ -57,6 +57,29 @@ const TETENS_A: f64 = 0.6108;
 const TETENS_B: f64 = 17.27;
 const TETENS_C: f64 = 237.3;
 
+/// Inverse latent heat of vaporization at ~20 °C (kg MJ⁻¹).
+/// FAO-56 Eq. 6: converts energy (MJ m⁻²) to water depth (mm).
+/// λ ≈ 2.45 MJ kg⁻¹ → 1/λ ≈ 0.408.
+const PM_LAMBDA_INV: f64 = 0.408;
+
+/// Wind function numerator coefficient for 24-hour grass reference.
+/// FAO-56 Eq. 6: `PM_WIND_NUM` / (`T_mean` + `PM_KELVIN_OFFSET`).
+const PM_WIND_NUM: f64 = 900.0;
+
+/// Approximate Celsius-to-Kelvin offset used in the wind function.
+/// FAO-56 Eq. 6 denominator: (`T_mean` + 273).
+const PM_KELVIN_OFFSET: f64 = 273.0;
+
+/// Wind function denominator coefficient for 24-hour grass reference.
+/// FAO-56 Eq. 6: γ (1 + 0.34 u₂).
+const PM_WIND_DENOM: f64 = 0.34;
+
+/// Hargreaves empirical coefficient (Hargreaves & Samani, 1985).
+const HARGREAVES_COEFF: f64 = 0.0023;
+
+/// Hargreaves temperature offset (°C) (Hargreaves & Samani, 1985).
+const HARGREAVES_TEMP_OFFSET: f64 = 17.8;
+
 // ── Sub-functions ───────────────────────────────────────────────────
 
 /// Saturation vapour pressure at temperature `t_c` (kPa).
@@ -226,9 +249,11 @@ pub fn penman_monteith(
     delta: f64,
     gamma: f64,
 ) -> f64 {
-    let numerator =
-        (0.408 * delta).mul_add(rn - g, gamma * (900.0 / (tmean_c + 273.0)) * u2 * vpd_kpa);
-    let denominator = gamma.mul_add(0.34_f64.mul_add(u2, 1.0), delta);
+    let numerator = (PM_LAMBDA_INV * delta).mul_add(
+        rn - g,
+        gamma * (PM_WIND_NUM / (tmean_c + PM_KELVIN_OFFSET)) * u2 * vpd_kpa,
+    );
+    let denominator = gamma.mul_add(PM_WIND_DENOM.mul_add(u2, 1.0), delta);
     numerator / denominator
 }
 
@@ -401,7 +426,7 @@ pub fn hargreaves_et0(tmax_c: f64, tmin_c: f64, latitude_deg_n: f64, day_of_year
 fn hargreaves_et0_cpu(ra: f64, tmax_c: f64, tmin_c: f64) -> f64 {
     let tmean = f64::midpoint(tmax_c, tmin_c);
     let td = (tmax_c - tmin_c).max(0.0);
-    0.0023 * (tmean + 17.8) * td.sqrt() * ra
+    HARGREAVES_COEFF * (tmean + HARGREAVES_TEMP_OFFSET) * td.sqrt() * ra
 }
 
 /// Compute Hargreaves ET₀ for a batch of days.
@@ -467,12 +492,7 @@ fn hargreaves_et0_batch_gpu(ra: &[f64], tmax: &[f64], tmin: &[f64]) -> Option<Ve
 /// Delegates to `barracuda::stats::hydrology::crop_coefficient` when
 /// the `barracuda` feature is enabled (airSpring → `ToadStool` S70+).
 #[must_use]
-pub fn crop_coefficient(
-    kc_prev: f64,
-    kc_next: f64,
-    day_in_stage: u32,
-    stage_length: u32,
-) -> f64 {
+pub fn crop_coefficient(kc_prev: f64, kc_next: f64, day_in_stage: u32, stage_length: u32) -> f64 {
     #[cfg(feature = "barracuda")]
     return barracuda::stats::hydrology::crop_coefficient(
         kc_prev,
@@ -709,10 +729,7 @@ mod tests {
     #[test]
     fn soil_water_balance_basic() {
         let theta = soil_water_balance(100.0, 10.0, 5.0, 8.0, 200.0);
-        assert!(
-            (theta - 107.0).abs() < 0.01,
-            "100+10+5-8=107, got {theta}"
-        );
+        assert!((theta - 107.0).abs() < 0.01, "100+10+5-8=107, got {theta}");
     }
 
     #[test]
@@ -727,9 +744,6 @@ mod tests {
     #[test]
     fn soil_water_balance_floor_at_zero() {
         let theta = soil_water_balance(5.0, 0.0, 0.0, 20.0, 200.0);
-        assert!(
-            theta >= 0.0,
-            "should not go negative, got {theta}"
-        );
+        assert!(theta >= 0.0, "should not go negative, got {theta}");
     }
 }

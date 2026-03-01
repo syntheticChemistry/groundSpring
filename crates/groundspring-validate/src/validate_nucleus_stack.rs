@@ -33,7 +33,10 @@ fn main() {
     println!("\n--- Phase A: Socket Discovery ---");
     let socket = biomeos::auto_connect();
     let nucleus_live = socket.is_some();
-    println!("  auto_connect:         {}", if nucleus_live { "CONNECTED" } else { "OFFLINE" });
+    println!(
+        "  auto_connect:         {}",
+        if nucleus_live { "CONNECTED" } else { "OFFLINE" }
+    );
     h.check_true(
         "auto_connect and is_nucleus_available agree",
         nucleus_live == biomeos::is_nucleus_available(),
@@ -66,7 +69,10 @@ fn validate_tower(h: &mut ValidationHarness, socket: &std::path::Path) {
     println!("\n--- Phase B: Tower (BearDog + Songbird) ---");
 
     let health_ok = biomeos::health(socket).is_ok();
-    println!("  topology.metrics: {}", if health_ok { "OK" } else { "FAIL" });
+    println!(
+        "  topology.metrics: {}",
+        if health_ok { "OK" } else { "FAIL" }
+    );
     h.check_true("Neural API health check", health_ok);
 
     match biomeos::capability_call(
@@ -104,8 +110,10 @@ fn validate_node(h: &mut ValidationHarness, socket: &std::path::Path) {
     match biomeos::capability_call(socket, "compute.health", "{}") {
         Ok(result) => {
             println!("  compute.health: OK");
-            let has_gpu = result.contains("gpu") || result.contains("GPU")
-                || result.contains("wgpu") || result.contains("healthy");
+            let has_gpu = result.contains("gpu")
+                || result.contains("GPU")
+                || result.contains("wgpu")
+                || result.contains("healthy");
             println!("  GPU info present: {has_gpu}");
             h.check_true("ToadStool health responds", true);
         }
@@ -171,7 +179,10 @@ fn validate_nest(h: &mut ValidationHarness, socket: &std::path::Path) {
             match biomeos::storage_get(socket, test_key) {
                 Ok(retrieved) => {
                     println!("  storage.get:  OK ({} bytes)", retrieved.len());
-                    h.check_true("Storage round-trip preserves data", retrieved.contains("exp031"));
+                    h.check_true(
+                        "Storage round-trip preserves data",
+                        retrieved.contains("exp031"),
+                    );
                 }
                 Err(e) => {
                     println!("  storage.get:  FAIL ({e})");
@@ -218,11 +229,26 @@ fn validate_local_compute(h: &mut ValidationHarness) {
 fn validate_sovereign_fallback(h: &mut ValidationHarness) {
     let fake = std::path::PathBuf::from("/tmp/groundspring_exp031_nonexistent.sock");
 
-    h.check_true("health() Err on missing socket", biomeos::health(&fake).is_err());
-    h.check_true("storage_put() Err on missing socket", biomeos::storage_put(&fake, "t", "{}").is_err());
-    h.check_true("storage_get() Err on missing socket", biomeos::storage_get(&fake, "t").is_err());
-    h.check_true("compute_execute() Err on missing socket", biomeos::compute_execute(&fake, "t", "{}").is_err());
-    h.check_true("capability_call() Err on missing socket", biomeos::capability_call(&fake, "data.x", "{}").is_err());
+    h.check_true(
+        "health() Err on missing socket",
+        biomeos::health(&fake).is_err(),
+    );
+    h.check_true(
+        "storage_put() Err on missing socket",
+        biomeos::storage_put(&fake, "t", "{}").is_err(),
+    );
+    h.check_true(
+        "storage_get() Err on missing socket",
+        biomeos::storage_get(&fake, "t").is_err(),
+    );
+    h.check_true(
+        "compute_execute() Err on missing socket",
+        biomeos::compute_execute(&fake, "t", "{}").is_err(),
+    );
+    h.check_true(
+        "capability_call() Err on missing socket",
+        biomeos::capability_call(&fake, "data.x", "{}").is_err(),
+    );
 
     let gamma = local_lyapunov(500, 2.0, 0.0, 10, 42);
     h.check_true("Local Lyapunov works offline", gamma > 0.0);

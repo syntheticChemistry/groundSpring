@@ -4,6 +4,68 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V58 Deep-Debt Completion + Hardcoding Evolution + Documentation (Mar 1, 2026)
+
+#### Changed
+- **`biomeos::FAMILY_ID` made public**: All ecosystem interactions now derive their family
+  identifier from a single constant rather than scattered string literals
+- **`nestgate.rs` hardcoding eliminated**: 9 hardcoded `"groundspring"` literals in key
+  generation functions (`result_key`, `parity_key`, `data_key`, `record_lifecycle_event`)
+  and RPC params (`ncbi_search`, `ncbi_fetch`, `noaa_ghcnd`, `iris_stations`, `iris_events`)
+  now reference `biomeos::FAMILY_ID`
+- **`biomeos.rs` DRY refactoring**: Extracted `merge_compute_params()` helper eliminating
+  duplicate 10-line blocks from `compute_execute`/`compute_submit`; simplified
+  `direct_rpc_call` to delegate to `capability_call`
+- **Root docs updated**: README.md reflects 61 delegations, 32 modules, 613 workspace tests
+- **V58 handoff created**: Cross-spring evolution + deep-debt completion for ToadStool team
+
+#### Validated
+- Comprehensive audit: zero unsafe, zero production mocks, zero production unwrap/panic,
+  zero primal coupling in code logic, zero production TODO/FIXME
+- All `# Panics` documentation in place for all asserting public functions
+- All external dependencies assessed (wgpu, pollster, bytemuck, serde_json, proptest, tempfile)
+  — all necessary, minimal, no pure-Rust replacements available
+- `cargo clippy -W clippy::pedantic`: zero warnings
+- All quality gates green (fmt/clippy/doc/test) for all feature modes
+- 613 workspace tests PASS
+
+### V57 Cross-Spring Evolution — ESN, Lanczos, 2D/3D Anderson, Chi2 (Mar 1, 2026)
+
+#### Added
+- **`esn` module**: Echo State Network regime classification; `RegimeLabel` enum,
+  rule-based `classify_by_spacing_ratio` and `classify_by_lyapunov`, `spectral_features`
+  extraction, GPU-accelerated `EsnClassifier` (barracuda-gpu feature); cross-spring
+  lineage: wetSpring ESN reservoir → hotSpring spectral features → neuralSpring GPU fixes
+- **`lanczos` module** (barracuda-gpu): Sparse eigensolver wrapping
+  `barracuda::spectral::lanczos` and `lanczos_eigenvalues`; `sparse_eigenvalues` and
+  `eigenvalues_from_csr` for 2D/3D Anderson Hamiltonians; cross-spring lineage:
+  hotSpring Lanczos iteration → barracuda SpMV shader
+- **`anderson::disorder_sweep`**: GPU-accelerated disorder sweep via
+  `barracuda::spectral::anderson_sweep_averaged` with CPU fallback; returns `Vec<SweepPoint>`
+- **`anderson::anderson_2d_eigenvalues`** (barracuda-gpu): 2D Anderson lattice eigenvalues
+  via `barracuda::spectral::anderson_2d` + Lanczos
+- **`anderson::anderson_3d_eigenvalues`** (barracuda-gpu): 3D Anderson lattice eigenvalues
+  via `barracuda::spectral::anderson_3d` + Lanczos
+- **`freeze_out::chi2_analysis`**: Decomposed chi-squared analysis via
+  `barracuda::stats::chi2::chi2_decomposed_weighted` with CPU fallback; returns
+  `Chi2Analysis` with per-datum contributions, residuals, pulls, p-value
+- **Benchmark expansion**: `bench_anderson_sweep`, `bench_chi2_analysis`,
+  `bench_esn_classification` added to `benchmark_cross_spring` with provenance table
+- **Parity tests**: 6 new tests in `three_tier_parity_physics.rs`
+
+#### Changed
+- **Delegation count**: 57 → **61 active** (38 CPU + 19 GPU + 4 cross-spring S59+)
+- **`specs/BARRACUDA_EVOLUTION.md`**: Updated to V57, 61 delegations, all Tier B items
+  resolved; new module → shader mapping for `lanczos` and `esn`
+
+#### Validated
+- `cargo fmt --check`: PASS
+- `cargo clippy -- -D warnings`: 0 warnings
+- `cargo doc --no-deps`: clean
+- `cargo test -p groundspring`: 486 tests PASS
+- `cargo test -p groundspring-validate`: all 33 validation binaries PASS
+- `cargo test -p groundspring-forge`: 85 tests PASS
+
 ### V56 NUCLEUS Live Validation + Docs Cleanup + ToadStool Handoff (Mar 1, 2026)
 
 #### Added

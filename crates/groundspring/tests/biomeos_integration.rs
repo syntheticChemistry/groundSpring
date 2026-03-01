@@ -146,12 +146,11 @@ fn is_nucleus_available_does_not_panic() {
 //   cargo test --features biomeos -- --ignored nucleus
 
 fn live_socket() -> Option<std::path::PathBuf> {
-    biomeos::auto_connect()
-        .or_else(|| {
-            let xdg = std::env::var("XDG_RUNTIME_DIR").ok()?;
-            let p = std::path::PathBuf::from(xdg).join("biomeos/neural-api.sock");
-            p.exists().then_some(p)
-        })
+    biomeos::auto_connect().or_else(|| {
+        let xdg = std::env::var("XDG_RUNTIME_DIR").ok()?;
+        let p = std::path::PathBuf::from(xdg).join("biomeos/neural-api.sock");
+        p.exists().then_some(p)
+    })
 }
 
 #[test]
@@ -250,8 +249,8 @@ fn nucleus_nestgate_provenance_store() {
     nestgate::store_result(&socket, 99, "integration_test", result_json)
         .expect("store_result failed");
 
-    let retrieved = nestgate::get_result(&socket, 99, "integration_test")
-        .expect("get_result failed");
+    let retrieved =
+        nestgate::get_result(&socket, 99, "integration_test").expect("get_result failed");
     assert!(
         retrieved.contains("283"),
         "expected stored result, got: {retrieved}"

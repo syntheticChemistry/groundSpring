@@ -21,6 +21,16 @@
 //! per realization; barracuda uses `base_seed + r * 1000`.  Results diverge
 //! when the feature gate is active — this is expected and documented in
 //! `specs/BARRACUDA_EVOLUTION.md` as Phase 2b alignment work.
+//!
+//! ## Cross-spring evolved capabilities (S59+)
+//!
+//! - `anderson_2d_eigenvalues` — 2D Anderson Hamiltonian via Lanczos.
+//!   Requires `barracuda-gpu`. hotSpring S26 Lanczos → `ToadStool` S59.
+//! - `anderson_3d_eigenvalues` — 3D Anderson with true metal-insulator
+//!   transition at `W_c` ≈ 16.5. Requires `barracuda-gpu`.
+//! - [`disorder_sweep`] — GPU-accelerated disorder parameter sweep with
+//!   automatic level spacing ratio averaging. Feeds ESN regime classifier
+//!   (see [`crate::esn`]).
 
 use crate::prng::Xorshift64;
 
@@ -172,6 +182,162 @@ fn lyapunov_averaged_cpu(
     total / crate::cast::usize_f64(n_realizations)
 }
 
+/// Result of a single point in a disorder parameter sweep.
+#[derive(Debug, Clone, Copy)]
+pub struct SweepPoint {
+    /// Disorder strength W.
+    pub disorder: f64,
+    /// Mean level spacing ratio ⟨r⟩ averaged over realizations.
+    pub mean_ratio: f64,
+    /// Standard error of ⟨r⟩.
+    pub std_error: f64,
+}
+
+/// GPU-accelerated disorder parameter sweep for Anderson localization.
+///
+/// Sweeps disorder strength from `w_min` to `w_max` in `n_points` steps,
+/// computing the mean level spacing ratio ⟨r⟩ at each point averaged
+/// over `n_realizations` disorder realizations.
+///
+/// When `barracuda-gpu` is enabled, delegates to
+/// `barracuda::spectral::anderson_sweep_averaged` which runs the full
+/// sweep on GPU with parallel disorder realizations.
+///
+/// Cross-spring lineage: hotSpring Exp003 (nuclear structure level
+/// statistics) → `barracuda::spectral` S59 GPU sweep → groundSpring
+/// Exp008/015/022 uncertainty propagation validation.
+#[must_use]
+pub fn disorder_sweep(
+    n_sites: usize,
+    w_min: f64,
+    w_max: f64,
+    n_points: usize,
+    n_realizations: usize,
+    base_seed: u64,
+) -> Vec<SweepPoint> {
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        let points = barracuda::spectral::anderson_sweep_averaged(
+            n_sites,
+            w_min,
+            w_max,
+            n_points,
+            n_realizations,
+            base_seed,
+        );
+        return points
+            .into_iter()
+            .map(|p| SweepPoint {
+                disorder: p.w,
+                mean_ratio: p.r_mean,
+                std_error: p.r_stderr,
+            })
+            .collect();
+    }
+    #[cfg(not(feature = "barracuda-gpu"))]
+    disorder_sweep_cpu(n_sites, w_min, w_max, n_points, n_realizations, base_seed)
+}
+
+#[cfg(not(feature = "barracuda-gpu"))]
+fn disorder_sweep_cpu(
+    n_sites: usize,
+    w_min: f64,
+    w_max: f64,
+    n_points: usize,
+    n_realizations: usize,
+    base_seed: u64,
+) -> Vec<SweepPoint> {
+    use crate::cast::usize_f64;
+
+    let step = if n_points > 1 {
+        (w_max - w_min) / usize_f64(n_points - 1)
+    } else {
+        0.0
+    };
+
+    (0..n_points)
+        .map(|i| {
+            let w = usize_f64(i).mul_add(step, w_min);
+            let gamma = lyapunov_averaged(
+                n_sites,
+                w,
+                0.0,
+                n_realizations,
+                base_seed + (i as u64) * 10_000,
+            );
+            SweepPoint {
+                disorder: w,
+                mean_ratio: gamma,
+                std_error: 0.0,
+            }
+        })
+        .collect()
+}
+
+/// Eigenvalues of a 2D Anderson Hamiltonian via Lanczos iteration.
+///
+/// Constructs an `(lx × ly)` square lattice with on-site disorder
+/// `V ∈ [-W/2, W/2]` and nearest-neighbor hopping, then extracts
+/// eigenvalues using the Lanczos algorithm.
+///
+/// The 2D Anderson model has no localization transition in the
+/// thermodynamic limit (all states localized for any W > 0), but
+/// finite-size systems show a crossover that ESN classifiers can detect.
+///
+/// Cross-spring lineage: hotSpring spectral theory (S26 Lanczos) +
+/// ToadStool S59 `anderson_2d` → groundSpring higher-dimensional
+/// localization studies.
+///
+/// # Arguments
+///
+/// * `lx`, `ly` — Lattice dimensions (total sites = lx × ly)
+/// * `disorder` — Disorder strength W
+/// * `n_eigenvalues` — Number of Lanczos iterations (eigenvalue count)
+/// * `seed` — PRNG seed for disorder potential
+#[cfg(feature = "barracuda-gpu")]
+#[must_use]
+pub fn anderson_2d_eigenvalues(
+    lx: usize,
+    ly: usize,
+    disorder: f64,
+    n_eigenvalues: usize,
+    seed: u64,
+) -> Vec<f64> {
+    let csr = barracuda::spectral::anderson_2d(lx, ly, disorder, seed);
+    crate::lanczos::eigenvalues_from_csr(&csr, n_eigenvalues, seed.wrapping_add(1))
+}
+
+/// Eigenvalues of a 3D Anderson Hamiltonian via Lanczos iteration.
+///
+/// The 3D Anderson model exhibits a **true metal-insulator transition**
+/// at critical disorder W_c ≈ 16.5 (Slevin & Ohtsuki 1999). Below W_c,
+/// states at the band center are extended; above W_c, all states are
+/// localized.
+///
+/// Cross-spring lineage: hotSpring `anderson_3d` (S59, correlated
+/// disorder variant for WDM transport) → ToadStool GPU sparse eigensolver
+/// → groundSpring 3D localization validation.
+///
+/// # Arguments
+///
+/// * `lx`, `ly`, `lz` — Lattice dimensions (total sites = lx × ly × lz)
+/// * `disorder` — Disorder strength W
+/// * `n_eigenvalues` — Number of Lanczos iterations (eigenvalue count)
+/// * `seed` — PRNG seed for disorder potential
+#[cfg(feature = "barracuda-gpu")]
+#[must_use]
+pub fn anderson_3d_eigenvalues(
+    lx: usize,
+    ly: usize,
+    lz: usize,
+    disorder: f64,
+    n_eigenvalues: usize,
+    seed: u64,
+) -> Vec<f64> {
+    let csr = barracuda::spectral::anderson_3d(lx, ly, lz, disorder, seed);
+    crate::lanczos::eigenvalues_from_csr(&csr, n_eigenvalues, seed.wrapping_add(1))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -260,5 +426,66 @@ mod tests {
             (60.0..140.0).contains(&c),
             "Thouless coefficient C={c}, expected ~96"
         );
+    }
+
+    #[test]
+    fn disorder_sweep_monotonic_lyapunov() {
+        let sweep = disorder_sweep(1000, 0.5, 4.0, 5, 5, 42);
+        assert_eq!(sweep.len(), 5);
+        assert!(sweep[0].disorder < sweep[4].disorder);
+        assert!(
+            sweep[0].mean_ratio < sweep[4].mean_ratio,
+            "Lyapunov should increase with disorder: γ(W=0.5)={} vs γ(W=4)={}",
+            sweep[0].mean_ratio,
+            sweep[4].mean_ratio
+        );
+    }
+
+    #[test]
+    fn disorder_sweep_single_point() {
+        let sweep = disorder_sweep(500, 2.0, 2.0, 1, 3, 42);
+        assert_eq!(sweep.len(), 1);
+        assert!((sweep[0].disorder - 2.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn sweep_point_debug_display() {
+        let p = SweepPoint {
+            disorder: 2.0,
+            mean_ratio: 0.45,
+            std_error: 0.01,
+        };
+        let dbg = format!("{p:?}");
+        assert!(dbg.contains("2.0"));
+    }
+
+    #[cfg(feature = "barracuda-gpu")]
+    #[test]
+    fn anderson_2d_eigenvalue_count() {
+        let eigs = anderson_2d_eigenvalues(5, 5, 2.0, 10, 42);
+        assert_eq!(eigs.len(), 10, "should return n_eigenvalues eigenvalues");
+    }
+
+    #[cfg(feature = "barracuda-gpu")]
+    #[test]
+    fn anderson_3d_eigenvalue_count() {
+        let eigs = anderson_3d_eigenvalues(3, 3, 3, 2.0, 10, 42);
+        assert_eq!(eigs.len(), 10, "should return n_eigenvalues eigenvalues");
+    }
+
+    #[cfg(feature = "barracuda-gpu")]
+    #[test]
+    fn anderson_2d_eigenvalues_bounded() {
+        let lx = 5;
+        let ly = 5;
+        let w = 3.0;
+        let eigs = anderson_2d_eigenvalues(lx, ly, w, 20, 42);
+        let spectral_bound = 4.0 + w / 2.0;
+        for &e in &eigs {
+            assert!(
+                e.abs() <= spectral_bound + 0.5,
+                "2D eigenvalue {e} exceeds bound {spectral_bound}"
+            );
+        }
     }
 }

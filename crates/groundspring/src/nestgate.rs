@@ -10,12 +10,13 @@
 //!
 //! # Key Schema
 //!
-//! Provenance keys follow a hierarchical namespace:
+//! Provenance keys follow a hierarchical namespace, prefixed with
+//! [`biomeos::FAMILY_ID`] for self-identifying provenance:
 //! ```text
-//! groundspring:results:<exp_id>:<run_id>     — validation results
-//! groundspring:data:<source>:<query_id>       — cached live data
-//! groundspring:parity:<exp_id>:<substrate>    — cross-substrate parity records
-//! groundspring:tower:<event>:<timestamp>      — NUCLEUS lifecycle events
+//! {FAMILY_ID}:results:<exp_id>:<run_id>     — validation results
+//! {FAMILY_ID}:data:<source>:<query_id>       — cached live data
+//! {FAMILY_ID}:parity:<exp_id>:<substrate>    — cross-substrate parity records
+//! {FAMILY_ID}:tower:<event>:<timestamp>      — NUCLEUS lifecycle events
 //! ```
 //!
 //! # Data Providers
@@ -37,26 +38,29 @@ use crate::biomeos::{self, Result};
 
 /// Build a provenance key for storing validation results.
 ///
-/// Format: `groundspring:results:exp{exp_id:03}:{run_id}`
+/// Format: `{FAMILY_ID}:results:exp{exp_id:03}:{run_id}`
 #[must_use]
 pub fn result_key(exp_id: u32, run_id: &str) -> String {
-    format!("groundspring:results:exp{exp_id:03}:{run_id}")
+    let fam = biomeos::FAMILY_ID;
+    format!("{fam}:results:exp{exp_id:03}:{run_id}")
 }
 
 /// Build a provenance key for cross-substrate parity records.
 ///
-/// Format: `groundspring:parity:exp{exp_id:03}:{substrate}`
+/// Format: `{FAMILY_ID}:parity:exp{exp_id:03}:{substrate}`
 #[must_use]
 pub fn parity_key(exp_id: u32, substrate: &str) -> String {
-    format!("groundspring:parity:exp{exp_id:03}:{substrate}")
+    let fam = biomeos::FAMILY_ID;
+    format!("{fam}:parity:exp{exp_id:03}:{substrate}")
 }
 
 /// Build a key for cached live data from external sources.
 ///
-/// Format: `groundspring:data:{source}:{query_id}`
+/// Format: `{FAMILY_ID}:data:{source}:{query_id}`
 #[must_use]
 pub fn data_key(source: &str, query_id: &str) -> String {
-    format!("groundspring:data:{source}:{query_id}")
+    let fam = biomeos::FAMILY_ID;
+    format!("{fam}:data:{source}:{query_id}")
 }
 
 // ─── Provenance Storage ──────────────────────────────────────────────────────
@@ -103,9 +107,10 @@ pub fn store_parity(socket: &Path, exp_id: u32, substrate: &str, parity_json: &s
 /// Returns `Err` if the data provider is unavailable or the NCBI query fails.
 pub fn ncbi_search(socket: &Path, database: &str, query: &str) -> Result<String> {
     let params = format!(
-        r#"{{"database":"{}","query":"{}","family_id":"groundspring"}}"#,
+        r#"{{"database":"{}","query":"{}","family_id":"{}"}}"#,
         biomeos::escape_json_pub(database),
         biomeos::escape_json_pub(query),
+        biomeos::FAMILY_ID,
     );
     biomeos::capability_call(socket, "data.ncbi_search", &params)
 }
@@ -117,9 +122,10 @@ pub fn ncbi_search(socket: &Path, database: &str, query: &str) -> Result<String>
 /// Returns `Err` if the data provider is unavailable or the fetch fails.
 pub fn ncbi_fetch(socket: &Path, database: &str, accession: &str) -> Result<String> {
     let params = format!(
-        r#"{{"database":"{}","accession":"{}","family_id":"groundspring"}}"#,
+        r#"{{"database":"{}","accession":"{}","family_id":"{}"}}"#,
         biomeos::escape_json_pub(database),
         biomeos::escape_json_pub(accession),
+        biomeos::FAMILY_ID,
     );
     biomeos::capability_call(socket, "data.ncbi_fetch", &params)
 }
@@ -146,11 +152,12 @@ pub fn noaa_ghcnd(
         .map(|d| format!("\"{}\"", biomeos::escape_json_pub(d)))
         .collect();
     let params = format!(
-        r#"{{"station_id":"{}","start_date":"{}","end_date":"{}","datatypes":[{}],"family_id":"groundspring"}}"#,
+        r#"{{"station_id":"{}","start_date":"{}","end_date":"{}","datatypes":[{}],"family_id":"{}"}}"#,
         biomeos::escape_json_pub(station_id),
         biomeos::escape_json_pub(start_date),
         biomeos::escape_json_pub(end_date),
         dt_json.join(","),
+        biomeos::FAMILY_ID,
     );
     biomeos::capability_call(socket, "data.noaa_ghcnd", &params)
 }
@@ -195,8 +202,9 @@ pub fn iris_stations(
     min_lon: f64,
     max_lon: f64,
 ) -> Result<String> {
+    let fam = biomeos::FAMILY_ID;
     let params = format!(
-        r#"{{"min_lat":{min_lat},"max_lat":{max_lat},"min_lon":{min_lon},"max_lon":{max_lon},"family_id":"groundspring"}}"#,
+        r#"{{"min_lat":{min_lat},"max_lat":{max_lat},"min_lon":{min_lon},"max_lon":{max_lon},"family_id":"{fam}"}}"#,
     );
     biomeos::capability_call(socket, "data.iris_stations", &params)
 }
@@ -229,8 +237,9 @@ pub struct IrisEventQuery<'a> {
 pub fn iris_events(socket: &Path, query: &IrisEventQuery<'_>) -> Result<String> {
     let start = biomeos::escape_json_pub(query.start_date);
     let end = biomeos::escape_json_pub(query.end_date);
+    let fam = biomeos::FAMILY_ID;
     let params = format!(
-        r#"{{"min_lat":{},"max_lat":{},"min_lon":{},"max_lon":{},"start_date":"{start}","end_date":"{end}","min_magnitude":{},"family_id":"groundspring"}}"#,
+        r#"{{"min_lat":{},"max_lat":{},"min_lon":{},"max_lon":{},"start_date":"{start}","end_date":"{end}","min_magnitude":{},"family_id":"{fam}"}}"#,
         query.min_lat, query.max_lat, query.min_lon, query.max_lon, query.min_magnitude,
     );
     biomeos::capability_call(socket, "data.iris_events", &params)
@@ -247,16 +256,13 @@ pub fn iris_events(socket: &Path, query: &IrisEventQuery<'_>) -> Result<String> 
 /// # Errors
 ///
 /// Returns `Err` if `NestGate` is unavailable.
-pub fn record_lifecycle_event(
-    socket: &Path,
-    event: &str,
-    details_json: &str,
-) -> Result<()> {
+pub fn record_lifecycle_event(socket: &Path, event: &str, details_json: &str) -> Result<()> {
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_secs())
         .unwrap_or(0);
-    let key = format!("groundspring:tower:{event}:{now}");
+    let fam = biomeos::FAMILY_ID;
+    let key = format!("{fam}:tower:{event}:{now}");
     biomeos::storage_put(socket, &key, details_json)
 }
 
@@ -338,7 +344,10 @@ mod tests {
 
     #[test]
     fn lifecycle_key_format() {
-        let key = format!("groundspring:tower:{}:{}", "nucleus_connected", 1_709_164_800);
+        let key = format!(
+            "groundspring:tower:{}:{}",
+            "nucleus_connected", 1_709_164_800
+        );
         assert!(key.starts_with("groundspring:tower:nucleus_connected:"));
     }
 }

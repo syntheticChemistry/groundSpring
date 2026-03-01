@@ -26,14 +26,16 @@
 //! - [`gillespie`] — Gillespie SSA for stochastic chemical kinetics
 //! - [`jackknife`] — Delete-one and block jackknife resampling
 //! - [`bootstrap`] — Bootstrap and RAWR resampling confidence intervals
-//! - [`anderson`] — Anderson localization / Lyapunov exponents
+//! - [`anderson`] — Anderson localization / Lyapunov exponents (1D, 2D, 3D)
 //! - [`almost_mathieu`] — Almost-Mathieu quasiperiodic localization / level spacing
 //! - [`band_structure`] — Band structure of periodic tight-binding chains
 //! - [`bistable`] — Bistable phenotypic switching (c-di-GMP circuit)
+//! - [`esn`] — Echo State Network regime classifier (cross-spring: hotSpring ESN)
 //! - [`multisignal`] — Multi-signal QS integration (CAI-1 + AI-2)
 //! - [`quasispecies`] — Eigen quasispecies model and error threshold
 //! - [`transport`] — Wavepacket transport in tight-binding chains
 //! - [`wdm`] — Warm Dense Matter transport analysis (Green-Kubo, finite-size extrapolation)
+//! - `lanczos` — Lanczos eigensolver for large sparse systems (behind `barracuda-gpu`)
 //! - `biomeos` — biomeOS Neural API client (behind `biomeos` feature)
 //! - `npu` — NPU integration for Akida neuromorphic inference (behind `npu` feature)
 //! - [`error`] — Typed input validation errors (`InputError`)
@@ -53,6 +55,7 @@ pub mod bistable;
 pub mod bootstrap;
 pub mod decompose;
 pub mod drift;
+pub mod esn;
 pub mod fao56;
 pub mod freeze_out;
 pub mod gillespie;
@@ -71,6 +74,9 @@ pub mod stats;
 pub mod transport;
 pub mod validate;
 pub mod wdm;
+
+#[cfg(feature = "barracuda-gpu")]
+pub mod lanczos;
 
 #[cfg(feature = "barracuda-gpu")]
 pub(crate) mod gpu;
@@ -133,5 +139,39 @@ pub(crate) mod cast {
     #[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     pub const fn f64_usize(x: f64) -> usize {
         x as usize
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn gpu_available_without_feature_is_false() {
+        let available = gpu_available();
+        #[cfg(not(feature = "barracuda-gpu"))]
+        assert!(!available);
+        #[cfg(feature = "barracuda-gpu")]
+        let _ = available;
+    }
+
+    #[test]
+    fn cast_usize_f64_exact_for_small() {
+        assert!((cast::usize_f64(0) - 0.0).abs() < f64::EPSILON);
+        assert!((cast::usize_f64(1) - 1.0).abs() < f64::EPSILON);
+        assert!((cast::usize_f64(1_000_000) - 1e6).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn cast_u64_f64_exact_for_small() {
+        assert!((cast::u64_f64(0) - 0.0).abs() < f64::EPSILON);
+        assert!((cast::u64_f64(42) - 42.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn cast_f64_usize_truncates() {
+        assert_eq!(cast::f64_usize(3.7), 3);
+        assert_eq!(cast::f64_usize(0.0), 0);
+        assert_eq!(cast::f64_usize(100.999), 100);
     }
 }

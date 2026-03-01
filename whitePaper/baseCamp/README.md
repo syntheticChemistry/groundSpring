@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: March 1, 2026
 
-**Validation Summary**: 347/347 validation checks (292 core + 55 NUCLEUS + 49 metalForge), **57 active delegations (38 CPU + 19 GPU), 1 evolution candidate — ToadStool S70+++**, 622 workspace tests (biomeos) + 375 Python tests. All 32 experiments PASS. **17.9× GPU speedup** on lib tests. **28/28 mathematical parity proven**. 95 three-tier parity tests, 9 CPU vs GPU explicit parity tests, zero clippy warnings (all feature modes). V56: biomeOS Neural API live — Tower + Node + Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); 4 NUCLEUS experiments (Exp 029–032). 10 domains, 30 modules.
+**Validation Summary**: 347/347 validation checks (292 core + 55 NUCLEUS + 49 metalForge), **61 active delegations (38 CPU + 19 GPU + 4 cross-spring S59+), 1 evolution candidate — ToadStool S70+++**, 613 workspace tests + 375 Python tests. All 32 experiments PASS. **28/28 mathematical parity proven**. Zero clippy warnings (pedantic), zero unsafe, zero production mocks. V58: Cross-spring evolution (ESN, Lanczos, 2D/3D Anderson, chi2), deep-debt completion, FAMILY_ID evolution. 10 domains, 32 modules.
 
 ---
 

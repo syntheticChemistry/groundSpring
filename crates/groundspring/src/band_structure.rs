@@ -91,9 +91,13 @@ fn refine_edges_brent(
     n_points: usize,
     coarse_edges: &[f64],
 ) -> Vec<f64> {
+    /// Brent root-finder convergence tolerance for band edge refinement.
+    /// Set to machine-precision scale (1e-12) since the transfer matrix
+    /// trace is an exact algebraic function of energy.
+    const BRENT_TOL: f64 = 1e-12;
+    const BRENT_MAX_ITER: usize = 100;
+
     let step = (e_hi - e_lo) / usize_f64(n_points - 1);
-    let tol = 1e-12;
-    let max_iter = 100;
 
     coarse_edges
         .iter()
@@ -101,7 +105,7 @@ fn refine_edges_brent(
             let a = (edge - step).max(e_lo);
             let b = (edge + step).min(e_hi);
             let f = |e: f64| transfer_matrix_half_trace(e, potential, hopping).abs() - 1.0;
-            barracuda::optimize::brent(f, a, b, tol, max_iter)
+            barracuda::optimize::brent(f, a, b, BRENT_TOL, BRENT_MAX_ITER)
                 .map_or(edge, |result| result.root)
         })
         .collect()

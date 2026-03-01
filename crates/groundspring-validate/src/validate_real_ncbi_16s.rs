@@ -32,7 +32,11 @@ fn main() {
     println!("{}", "=".repeat(72));
 
     let socket = biomeos::auto_connect();
-    let data_source = if socket.is_some() { "LIVE NCBI SRA" } else { "SYNTHETIC" };
+    let data_source = if socket.is_some() {
+        "LIVE NCBI SRA"
+    } else {
+        "SYNTHETIC"
+    };
     println!("  Data source: {data_source}");
     println!();
 
@@ -43,8 +47,11 @@ fn main() {
         },
         |sock| match fetch_ncbi_community_structure(sock) {
             Ok(c) => {
-                println!("  Fetched real community: {} taxa, {} reads",
-                    c.len(), c.iter().sum::<u64>());
+                println!(
+                    "  Fetched real community: {} taxa, {} reads",
+                    c.len(),
+                    c.iter().sum::<u64>()
+                );
                 c
             }
             Err(e) => {
@@ -64,7 +71,8 @@ fn main() {
     h.check_true("Total reads > 1000", total_reads > 1000);
 
     let half_depth = total_reads / 2;
-    let proportions_for_rare: Vec<f64> = community.iter()
+    let proportions_for_rare: Vec<f64> = community
+        .iter()
         .map(|&c| c as f64 / total_reads as f64)
         .collect();
     let rarefied = rarefaction::multinomial_sample(&proportions_for_rare, half_depth, 42);
@@ -72,10 +80,7 @@ fn main() {
 
     println!("  Full depth taxa:       {n_taxa}");
     println!("  Rarefied (50%) taxa:   {rarefied_taxa}");
-    h.check_true(
-        "Rarefied taxa <= full taxa",
-        rarefied_taxa <= n_taxa,
-    );
+    h.check_true("Rarefied taxa <= full taxa", rarefied_taxa <= n_taxa);
     h.check_true(
         "Rarefaction removes some taxa",
         rarefied_taxa < n_taxa || n_taxa < 20,
@@ -87,7 +92,10 @@ fn main() {
     h.check_min("Chao1 estimated richness", chao1, n_taxa as f64 - 0.5);
 
     let rare_threshold = total_reads as f64 * 0.001;
-    let rare_count = community.iter().filter(|&&c| (c as f64) < rare_threshold).count();
+    let rare_count = community
+        .iter()
+        .filter(|&&c| (c as f64) < rare_threshold)
+        .count();
     let abundant_count = n_taxa - rare_count;
 
     println!();
@@ -109,12 +117,14 @@ fn main() {
         h.check_min("Abundant detection power", power_abundant, 0.9);
     }
 
-    let proportions: Vec<f64> = community.iter()
+    let proportions: Vec<f64> = community
+        .iter()
         .filter(|&&c| c > 0)
         .map(|&c| c as f64 / total_reads as f64)
         .collect();
 
-    let shannon: f64 = -proportions.iter()
+    let shannon: f64 = -proportions
+        .iter()
         .map(|&p| if p > 0.0 { p * p.ln() } else { 0.0 })
         .sum::<f64>();
 
@@ -135,7 +145,9 @@ fn main() {
 }
 
 #[cfg(feature = "biomeos")]
-fn fetch_ncbi_community_structure(socket: &std::path::Path) -> groundspring::biomeos::Result<Vec<u64>> {
+fn fetch_ncbi_community_structure(
+    socket: &std::path::Path,
+) -> groundspring::biomeos::Result<Vec<u64>> {
     use groundspring::nestgate;
 
     let raw = nestgate::ncbi_search(socket, "sra", "soil metagenome 16S amplicon")?;
@@ -148,7 +160,9 @@ fn fetch_ncbi_community_structure(socket: &std::path::Path) -> groundspring::bio
         }
     }
 
-    Err(groundspring::biomeos::BiomeOsError("No NCBI results to seed community".to_string()))
+    Err(groundspring::biomeos::BiomeOsError(
+        "No NCBI results to seed community".to_string(),
+    ))
 }
 
 #[cfg(feature = "biomeos")]
@@ -163,7 +177,11 @@ fn synthetic_community() -> Vec<u64> {
 /// a few dominant taxa and a long tail of rare taxa. This uses a log-series
 /// approximation for ecological realism.
 #[cfg(feature = "biomeos")]
-#[allow(clippy::cast_precision_loss, clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+#[allow(
+    clippy::cast_precision_loss,
+    clippy::cast_possible_truncation,
+    clippy::cast_sign_loss
+)]
 fn generate_realistic_community(
     rng: &mut groundspring::prng::Xorshift64,
     n_taxa: usize,

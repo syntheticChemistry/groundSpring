@@ -9,7 +9,7 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V56 | [GROUNDSPRING_TOADSTOOL_V56_NUCLEUS_INTEGRATION_HANDOFF_MAR01_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V56_NUCLEUS_INTEGRATION_HANDOFF_MAR01_2026.md) | Mar 1, 2026 | NUCLEUS integration: biomeOS Neural API, NestGate data pipelines, Exp 029–032, ToadStool-as-Node learnings, capability alignment |
+| V58 | [GROUNDSPRING_TOADSTOOL_V58_CROSS_SPRING_EVOLUTION_DEEP_DEBT_HANDOFF_MAR01_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V58_CROSS_SPRING_EVOLUTION_DEEP_DEBT_HANDOFF_MAR01_2026.md) | Mar 1, 2026 | Cross-spring evolution (ESN, Lanczos, 2D/3D Anderson, chi2), deep-debt completion, FAMILY_ID evolution, 61 delegations |
 
 ## Cross-Spring Documentation
 
@@ -36,6 +36,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V56 | NUCLEUS integration: biomeOS Neural API, NestGate pipelines, Exp 029–032 (superseded by V58) |
 | V55 | barracuda evolution review: 57-delegation inventory, cross-spring lineage (superseded by V56) |
 | V54 | Full control validation: 283/283, 95/95 parity, Rust 11.6× (superseded by V55) |
 | V53 | Complete rewiring, GPU grid adapters, cross-spring lineage (superseded by V54) |

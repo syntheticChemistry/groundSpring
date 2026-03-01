@@ -30,7 +30,11 @@ fn main() {
     println!("{}", "=".repeat(72));
 
     let socket = biomeos::auto_connect();
-    let data_source = if socket.is_some() { "LIVE NOAA GHCND" } else { "SYNTHETIC" };
+    let data_source = if socket.is_some() {
+        "LIVE NOAA GHCND"
+    } else {
+        "SYNTHETIC"
+    };
     println!("  Data source: {data_source}");
     println!();
 
@@ -56,12 +60,8 @@ fn main() {
 
     for day in &weather_days {
         let pm = fao56::daily_et0(day);
-        let harg = fao56::hargreaves_et0(
-            day.tmax_c,
-            day.tmin_c,
-            day.latitude_deg_n,
-            day.day_of_year,
-        );
+        let harg =
+            fao56::hargreaves_et0(day.tmax_c, day.tmin_c, day.latitude_deg_n, day.day_of_year);
 
         pm_values.push(pm);
         harg_values.push(harg);

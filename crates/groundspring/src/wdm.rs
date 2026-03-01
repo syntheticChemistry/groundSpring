@@ -210,5 +210,33 @@ mod tests {
         assert!(green_kubo_integrate(&[], 0.001).abs() < f64::EPSILON);
         assert!(green_kubo_integrate(&[1.0], 0.001).abs() < f64::EPSILON);
         assert!(green_kubo_integrate_f32(&[], 0.001).abs() < f64::EPSILON);
+        assert!(green_kubo_integrate_f32(&[1.0], 0.001).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn finite_size_extrapolate_length_mismatch() {
+        let sizes = vec![100.0, 500.0];
+        let values = vec![1.0];
+        let result = finite_size_extrapolate(&sizes, &values, 3.0);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn finite_size_extrapolate_insufficient_data() {
+        let sizes = vec![100.0];
+        let values = vec![1.0];
+        let result = finite_size_extrapolate(&sizes, &values, 3.0);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn finite_size_extrapolate_two_points_minimal() {
+        let sizes = vec![100.0, 1000.0];
+        let values = vec![3.0, 2.5];
+        let result = finite_size_extrapolate(&sizes, &values, 3.0);
+        assert!(result.is_ok());
+        let (d_inf, _alpha, r_sq) = result.unwrap();
+        assert!(d_inf.is_finite());
+        assert!((r_sq - 1.0).abs() < 1e-10, "two-point fit R² = 1.0");
     }
 }

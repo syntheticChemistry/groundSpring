@@ -24,7 +24,6 @@ use groundspring::validate::ValidationHarness;
 #[cfg(feature = "biomeos")]
 #[allow(clippy::cast_precision_loss)]
 fn main() {
-
     let mut h = ValidationHarness::stdout("Exp 032: IRIS Seismic via NUCLEUS");
 
     println!("{}", "=".repeat(72));
@@ -32,7 +31,11 @@ fn main() {
     println!("{}", "=".repeat(72));
 
     let socket = biomeos::auto_connect();
-    let data_source = if socket.is_some() { "LIVE IRIS FDSN" } else { "SYNTHETIC" };
+    let data_source = if socket.is_some() {
+        "LIVE IRIS FDSN"
+    } else {
+        "SYNTHETIC"
+    };
     println!("  Data source: {data_source}");
     println!();
 
@@ -103,12 +106,13 @@ fn validate_distances(h: &mut ValidationHarness, stations: &[Station]) {
         let d01 = seismic::haversine_km(s0.lat, s0.lon, s1.lat, s1.lon);
         let d02 = seismic::haversine_km(s0.lat, s0.lon, s2.lat, s2.lon);
         let d12 = seismic::haversine_km(s1.lat, s1.lon, s2.lat, s2.lon);
-        let triangle_ok = d01 <= d02 + d12 + 0.01
-            && d02 <= d01 + d12 + 0.01
-            && d12 <= d01 + d02 + 0.01;
+        let triangle_ok =
+            d01 <= d02 + d12 + 0.01 && d02 <= d01 + d12 + 0.01 && d12 <= d01 + d02 + 0.01;
         h.check_true("Triangle inequality holds", triangle_ok);
-        println!("  Triangle: {}-{} {d01:.1}, {}-{} {d02:.1}, {}-{} {d12:.1}",
-            s0.code, s1.code, s0.code, s2.code, s1.code, s2.code);
+        println!(
+            "  Triangle: {}-{} {d01:.1}, {}-{} {d02:.1}, {}-{} {d12:.1}",
+            s0.code, s1.code, s0.code, s2.code, s1.code, s2.code
+        );
     }
 }
 
@@ -128,8 +132,10 @@ fn validate_travel_times(h: &mut ValidationHarness, stations: &[Station]) {
     let depth = 10.0; // shallow event
 
     let tt = seismic::travel_time_1d(d_km, depth, vp);
-    println!("  P-wave travel time ({}-{}): {tt:.2} s (d={d_km:.1} km, vp={vp} km/s)",
-        s0.code, s1.code);
+    println!(
+        "  P-wave travel time ({}-{}): {tt:.2} s (d={d_km:.1} km, vp={vp} km/s)",
+        s0.code, s1.code
+    );
 
     h.check_true("Travel time > 0", tt > 0.0);
     h.check_true("Travel time proportional to distance", {
@@ -138,15 +144,14 @@ fn validate_travel_times(h: &mut ValidationHarness, stations: &[Station]) {
     });
 
     let expected_tt = d_km.hypot(depth) / vp;
-    h.check_true("Travel time matches raypath/velocity",
-        (tt - expected_tt).abs() < 0.01);
+    h.check_true(
+        "Travel time matches raypath/velocity",
+        (tt - expected_tt).abs() < 0.01,
+    );
 }
 
 #[cfg(feature = "biomeos")]
-fn validate_events(
-    h: &mut ValidationHarness,
-    socket: Option<&std::path::PathBuf>,
-) {
+fn validate_events(h: &mut ValidationHarness, socket: Option<&std::path::PathBuf>) {
     use groundspring::nestgate;
 
     println!("\n--- Earthquake Events ---");
@@ -180,24 +185,17 @@ fn validate_events(
 }
 
 #[cfg(feature = "biomeos")]
-fn store_provenance(
-    stations: &[Station],
-    socket: Option<&std::path::PathBuf>,
-    data_source: &str,
-) {
+fn store_provenance(stations: &[Station], socket: Option<&std::path::PathBuf>, data_source: &str) {
     if let Some(sock) = socket {
         let n = stations.len();
-        let result_json = format!(
-            r#"{{"experiment":"exp032","data_source":"{data_source}","n_stations":{n}}}"#,
-        );
+        let result_json =
+            format!(r#"{{"experiment":"exp032","data_source":"{data_source}","n_stations":{n}}}"#,);
         let _ = groundspring::nestgate::store_result(sock, 32, "latest", &result_json);
     }
 }
 
 #[cfg(feature = "biomeos")]
-fn fetch_iris_stations(
-    socket: &std::path::Path,
-) -> groundspring::biomeos::Result<Vec<Station>> {
+fn fetch_iris_stations(socket: &std::path::Path) -> groundspring::biomeos::Result<Vec<Station>> {
     use groundspring::nestgate;
 
     let raw = nestgate::iris_stations(socket, 34.0, 40.0, -92.0, -87.0)?;
@@ -207,8 +205,14 @@ fn fetch_iris_stations(
         if let Some(rows) = parsed.get("stations").and_then(|s| s.as_array()) {
             for row in rows {
                 let code = row.get("station").and_then(|s| s.as_str()).unwrap_or("???");
-                let lat = row.get("latitude").and_then(serde_json::Value::as_f64).unwrap_or(0.0);
-                let lon = row.get("longitude").and_then(serde_json::Value::as_f64).unwrap_or(0.0);
+                let lat = row
+                    .get("latitude")
+                    .and_then(serde_json::Value::as_f64)
+                    .unwrap_or(0.0);
+                let lon = row
+                    .get("longitude")
+                    .and_then(serde_json::Value::as_f64)
+                    .unwrap_or(0.0);
                 if lat.abs() > 0.01 {
                     stations.push(Station {
                         code: code.to_string(),
@@ -233,9 +237,25 @@ fn fetch_iris_stations(
 #[cfg(feature = "biomeos")]
 fn synthetic_stations() -> Vec<Station> {
     vec![
-        Station { code: "NMSZ01".to_string(), lat: 36.5, lon: -89.5 },
-        Station { code: "NMSZ02".to_string(), lat: 35.8, lon: -90.0 },
-        Station { code: "NMSZ03".to_string(), lat: 37.1, lon: -88.8 },
-        Station { code: "NMSZ04".to_string(), lat: 36.0, lon: -89.2 },
+        Station {
+            code: "NMSZ01".to_string(),
+            lat: 36.5,
+            lon: -89.5,
+        },
+        Station {
+            code: "NMSZ02".to_string(),
+            lat: 35.8,
+            lon: -90.0,
+        },
+        Station {
+            code: "NMSZ03".to_string(),
+            lat: 37.1,
+            lon: -88.8,
+        },
+        Station {
+            code: "NMSZ04".to_string(),
+            lat: 36.0,
+            lon: -89.2,
+        },
     ]
 }

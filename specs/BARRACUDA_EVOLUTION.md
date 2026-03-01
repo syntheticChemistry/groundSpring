@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 1, 2026 (V56 — 57 delegations, 95 three-tier parity tests, ToadStool S70+++, biomeOS NUCLEUS integration)
+**Last updated**: March 1, 2026 (V57 — 61 delegations, 486 tests, ToadStool S70+++ cross-spring evolution, biomeOS NUCLEUS integration)
 
 ## Philosophy
 
@@ -33,7 +33,7 @@ dispatch blocks: `freeze_out::grid_fit_2d` (2D parallel grid),
 `quasispecies::quasispecies_simulation` (batched Wright-Fisher via
 `barracuda::ops::bio::wright_fisher_simulate`), `rare_biosphere::abundance_occupancy`
 and `tier_detection_rate` (batched multinomial via `barracuda::ops::bio`).
-49 metalForge tests, 5 discovered substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). 57 active barracuda delegations (38 CPU + 19 GPU), 1 evolution candidate — ToadStool S70+++. V51: GPU stats dispatch + batch APIs + CPU/GPU parity proof.
+49 metalForge tests, 5 discovered substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). 61 active barracuda delegations (38 CPU + 19 GPU + 4 cross-spring S59+), 1 evolution candidate — ToadStool S70+++. V51: GPU stats dispatch + batch APIs + CPU/GPU parity proof.
 These dispatch blocks compile only with `--features barracuda-gpu` and call
 expected barracuda functions — ToadStool absorbs them to activate GPU paths.
 
@@ -195,6 +195,37 @@ graph.
 > rare biosphere, band structure), `validate-pure-gpu-workloads` (26/26 checks —
 > hardware discovery, dispatch routing, pure math parity, timing). metalForge routes
 > 17/19 workloads to Titan V. 462 Rust tests, 0 warnings, 0 failures.
+>
+> **V57 (March 1, 2026)**: Cross-spring evolution wave. 4 new capabilities
+> wired from ToadStool S59+ cross-spring ecosystem:
+>
+> 1. **`anderson::disorder_sweep`** → `barracuda::spectral::anderson_sweep_averaged`
+>    (hotSpring S59 GPU-accelerated disorder sweep with `⟨r⟩` averaging).
+>    CPU fallback uses local `lyapunov_averaged` per sweep point.
+> 2. **`anderson::anderson_2d_eigenvalues`** → `barracuda::spectral::anderson_2d`
+>    + `barracuda::spectral::lanczos` (hotSpring S26 Lanczos + S59 sparse SpMV).
+>    2D Anderson lattice with Lanczos eigenvalue extraction. `barracuda-gpu` only.
+> 3. **`anderson::anderson_3d_eigenvalues`** → `barracuda::spectral::anderson_3d`
+>    + `barracuda::spectral::lanczos`. 3D Anderson with true metal-insulator
+>    transition at `W_c ≈ 16.5`. `barracuda-gpu` only.
+> 4. **`freeze_out::chi2_analysis`** → `barracuda::stats::chi2::chi2_decomposed_weighted`
+>    (hotSpring nuclear fit quality S59). Per-datum residuals, pulls, contributions,
+>    p-value via regularized incomplete gamma. CPU fallback computes all except p-value.
+>
+> New modules:
+> - **`lanczos`** — Lanczos eigensolver wrapper for large sparse systems (`barracuda-gpu`).
+>   Cross-spring: hotSpring S26 nuclear structure Lanczos → ToadStool `spmv_csr_f64.wgsl`.
+> - **`esn`** — Echo State Network regime classifier. Cross-spring: wetSpring bio
+>   (microbial dynamics) → hotSpring MD (plasma regime) → ToadStool S59
+>   `esn_v2` → groundSpring Anderson regime classification. Rule-based
+>   (`classify_by_spacing_ratio`, `classify_by_lyapunov`) and ML-based
+>   (`EsnClassifier` wrapping `barracuda::esn_v2::ESN`). Complements NPU path (Exp 028).
+>
+> Benchmark updates: `benchmark_cross_spring` now benchmarks disorder sweep,
+> chi² decomposed analysis, and ESN regime classification with full provenance.
+>
+> Total: **61 delegations** (38 CPU + 19 GPU + 4 cross-spring S59+),
+> **486 Rust tests**, 0 clippy warnings, clean `cargo doc`.
 
 ### Tier A — Lean (rewire to existing barracuda ops)
 
@@ -238,6 +269,10 @@ graph.
 | `stats::regression::fit_logarithmic` | `stats::regression::fit_logarithmic` | **DONE** (CPU delegated) | S66 absorption — ln-linearized |
 | `band_structure::detect_band_ranges` | `spectral::detect_bands` | **DONE** (barracuda-gpu) | hotSpring v0.6 spectral theory — gap detection |
 | `kinetics::monod` | `stats::metrics::monod` | **DONE** (CPU delegated) | S66 absorption — Monod saturation kinetics |
+| `freeze_out::chi2_analysis` | `stats::chi2::chi2_decomposed_weighted` | **DONE** (CPU delegated) | S59 cross-spring — per-datum residuals, pulls, p-value |
+| `anderson::disorder_sweep` | `spectral::anderson_sweep_averaged` | **DONE** (barracuda-gpu + CPU fallback) | S59 cross-spring — GPU disorder sweep with ⟨r⟩ |
+| `anderson::anderson_2d_eigenvalues` | `spectral::anderson_2d` + `spectral::lanczos` | **DONE** (barracuda-gpu) | S59 cross-spring — 2D Anderson Lanczos |
+| `anderson::anderson_3d_eigenvalues` | `spectral::anderson_3d` + `spectral::lanczos` | **DONE** (barracuda-gpu) | S59 cross-spring — 3D metal-insulator transition |
 | `rarefaction::simpson_diversity` | `stats::diversity::simpson` | **DONE** (CPU delegated) | S64 absorption — Simpson index (1 − Σpᵢ²) |
 | `rarefaction::bray_curtis` | `stats::diversity::bray_curtis` | **DONE** (CPU delegated) | S64 absorption — Bray-Curtis dissimilarity |
 | `rarefaction::analytical_rarefaction` | `stats::diversity::rarefaction_curve` | **DONE** (CPU delegated) | S64 absorption — hypergeometric expected species |
@@ -249,9 +284,9 @@ graph.
 
 | groundSpring Module | BarraCUDA Target | Blocker | Action |
 |---|---|---|---|
-| `drift::kimura_fixation_prob` | `stats::kimura_fixation` | Not yet in barracuda S68+ | Handoff item — pure scalar, trivial kernel |
-| `jackknife::jackknife_mean_variance` | `stats::jackknife_mean_variance` | Not yet in barracuda S68+ | Handoff item — embarrassingly parallel |
-| `fao56::daily_et0` | `stats::hydrology::fao56_et0` | Scalar not in barracuda (batch GPU exists) | Handoff item — `hargreaves_et0` available |
+| ~~`drift::kimura_fixation_prob`~~ | ~~`stats::kimura_fixation`~~ | **RESOLVED** — now in barracuda S70+ | Moved to Tier A |
+| ~~`jackknife::jackknife_mean_variance`~~ | ~~`stats::jackknife_mean_variance`~~ | **RESOLVED** — now in barracuda S70+ | Moved to Tier A |
+| ~~`fao56::daily_et0`~~ | ~~`stats::hydrology::fao56_et0`~~ | **RESOLVED** — now in barracuda S70+ | Moved to Tier A |
 | `prng::Xorshift64` | `ops::PrngXoshiro` (f64) | Different PRNG algorithm | Align to xoshiro; retain xorshift as CPU reference |
 | `seismic::grid_search_inversion` | Parallel 3D grid dispatch | No existing grid-search op | GPU: dispatch as (lat,lon,depth) workgroup; reduce min RMS |
 | `rarefaction::multinomial_sample` | `ops::PrngXoshiro` + binary search | No batched multinomial | Production WGSL in metalForge |
@@ -322,6 +357,12 @@ graph.
 | `stats::mae` | `stats::metrics` | S66 — Mean Absolute Error |
 | `WrightFisherGpu` | `ops::bio` | S66 — Batched drift+selection GPU (future Exp 014 GPU delegation) |
 | `eigh_f64` / `BatchedEighGpu` | `linalg` | S66 — Dense symmetric eigendecomposition (future Exp 012 GPU delegation) |
+| `anderson_2d` / `anderson_3d` | `spectral` | S59 — Higher-dim Anderson Hamiltonians (CSR sparse) — **DONE** |
+| `anderson_sweep_averaged` | `spectral` | S59 — GPU disorder sweep with ⟨r⟩ averaging — **DONE** |
+| `lanczos` / `lanczos_eigenvalues` | `spectral` | S59 — Lanczos tridiagonalization for sparse systems — **DONE** |
+| `chi2_decomposed_weighted` | `stats::chi2` | S59 — Per-datum chi² with p-value via regularized Γ — **DONE** |
+| `esn_v2::ESN` | `esn_v2` | S59 — Echo State Network (GPU reservoir update) — **DONE** (wrapper) |
+| `SpectralCsrMatrix` | `spectral` | S59 — Sparse CSR for Lanczos input — used internally |
 
 ## Feature Gate
 
@@ -482,7 +523,7 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (28/28 parity proven, timing data for all experiments) |
-| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs | **57 active delegations** (38 CPU + 19 GPU), 1 evolution candidate — ToadStool S70+++ |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **61 active delegations** (38 CPU + 19 GPU + 4 cross-spring), **486 tests** — ToadStool S70+++ |
 | Phase 2b | Tier B adapt (GPU dispatch wiring, PRNG alignment) | **V31–V35** — 5 modules GPU-wired, 49 metalForge tests, 5 substrates; arch-aware dispatch (f64→Titan V, f32→RTX 4070); awaiting ToadStool absorption for 9 pending |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |
@@ -521,6 +562,8 @@ and pipeline stage for GPU promotion readiness.
 | `decompose` | — | stats/decompose | Uses delegated rmse + mbe |
 | `prng` | — | util/prng | Tier B — xorshift64 → xoshiro128** alignment pending |
 | `linalg` | — | linalg/tridiag | CPU-only — implicit QL eigensolver |
+| `lanczos` | `spmv_csr_f64.wgsl` | spectral/sparse-eigh | **Delegated** — `barracuda::spectral::lanczos` (hotSpring S26 provenance) |
+| `esn` | `esn_reservoir_update_f64.wgsl` | ml/regime-classify | **Delegated** — `barracuda::esn_v2::ESN` (wetSpring → hotSpring → groundSpring) |
 
 ## Cross-Reference
 
