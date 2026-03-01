@@ -96,12 +96,69 @@ pub fn grid_fit_2d(config: &GridFitConfig<'_>) -> Result<GridFitResult, crate::e
             second_len: config.mu_b.len(),
         });
     }
-    // barracuda::ops::grid::grid_fit_2d (S70+) is a bilinear surface fit,
-    // not a chi-squared parameter-space minimizer. groundSpring's grid_fit_2d
-    // evaluates a polynomial forward model at each (T₀, κ₂) point. A GPU
-    // adapter would need to upload the forward model as a shader — candidate
-    // for future evolution, not a drop-in delegation.
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Some(result) = grid_fit_2d_gpu(config) {
+            return Ok(result);
+        }
+    }
     Ok(grid_fit_2d_cpu(config))
+}
+
+/// GPU-accelerated freeze-out grid fit: pre-evaluate chi-squared on CPU,
+/// then use barracuda's `grid_search_3d` for parallel argmin over the 2D
+/// parameter space (z-dimension = 1).
+///
+/// Cross-spring lineage: `grid_search_3d_f64.wgsl` — groundSpring forward
+/// model (Bazavov freeze-out polynomial) + barracuda `ComputeDispatch` (absorbed S70+).
+#[cfg(feature = "barracuda-gpu")]
+fn grid_fit_2d_gpu(config: &GridFitConfig<'_>) -> Option<GridFitResult> {
+    use crate::cast::f64_usize;
+
+    let device = crate::gpu::get_device()?;
+
+    let n_data = config.observed.len();
+    let inv_sigma2 = 1.0 / (config.sigma * config.sigma);
+
+    let nt0 = f64_usize(((config.t0_hi - config.t0_lo) / config.t0_step).ceil()) + 1;
+    let nk2 = f64_usize(((config.k2_hi - config.k2_lo) / config.k2_step).ceil()) + 1;
+
+    let t0_grid: Vec<f64> = (0..nt0)
+        .map(|i| usize_f64(i).mul_add(config.t0_step, config.t0_lo))
+        .collect();
+    let k2_grid: Vec<f64> = (0..nk2)
+        .map(|i| usize_f64(i).mul_add(config.k2_step, config.k2_lo))
+        .collect();
+    let z_grid = vec![0.0_f64];
+
+    let mut chi2_values = Vec::with_capacity(nt0 * nk2);
+    let mut pred = vec![0.0; n_data];
+
+    for &t0_val in &t0_grid {
+        for &k2_val in &k2_grid {
+            for (j, &mu) in config.mu_b.iter().enumerate() {
+                pred[j] = freeze_out_curve(t0_val, k2_val, mu);
+            }
+            let c2: f64 = config
+                .observed
+                .iter()
+                .zip(pred.iter())
+                .map(|(&o, &p)| (o - p).powi(2) * inv_sigma2)
+                .sum();
+            chi2_values.push(c2);
+        }
+    }
+
+    let result =
+        barracuda::ops::grid::grid_search_3d(&device, &t0_grid, &k2_grid, &z_grid, &chi2_values)
+            .ok()?;
+
+    Some(GridFitResult {
+        t0: t0_grid[result.min_ix as usize],
+        kappa2: k2_grid[result.min_iy as usize],
+        chi_squared: result.min_value,
+        chi2_per_dof: chi_squared_per_dof(result.min_value, n_data, 2),
+    })
 }
 
 #[expect(

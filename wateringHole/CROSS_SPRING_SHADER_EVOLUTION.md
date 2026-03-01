@@ -3,26 +3,38 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: February 28, 2026 (V52: ToadStool S70+ catch-up, 52 active delegations, 35 CPU + 17 GPU, 0 pending, 19 metalForge workloads, 49 tests, arch-aware routing)
+**Last Updated**: February 28, 2026 (V53: complete rewiring + GPU grid adapters, 57 active delegations, 38 CPU + 19 GPU, 1 evolution candidate, 19 metalForge workloads, 49 tests, arch-aware routing)
 
 ---
 
 ## Overview
 
-groundSpring has **52 active delegations** (35 CPU + 17 GPU) with **0 pending**.
+groundSpring has **57 active delegations** (38 CPU + 19 GPU) with **1 evolution candidate** (band_edges — algorithm mismatch).
 Those barracuda functions were not built in isolation — they were refined and
 battle-tested through absorption from **five Springs**, each bringing domain-specific
 requirements that hardened the shared library.
 
 ```
-hotSpring (nuclear physics)     → f64 precision, spectral theory, DF64, Sturm eigensolve
-wetSpring (metagenomics)        → bio-stats, Shannon entropy, log_f64 fix, ODE systems
-neuralSpring (ML/agents)        → spectral diagnostics, dispatch, xoshiro PRNG
-airSpring (agriculture)         → error metrics (RMSE, MBE, R², IoA, hit rate)
-groundSpring (noise validation) → error handling patterns, validation harness
+hotSpring (nuclear physics)     → f64 precision, DF64 core-streaming, spectral (Lanczos,
+                                  Anderson, Hofstadter), Sturm eigensolve, lattice QCD
+                                  (SU(3), CG, Wilson, HMC), nuclear HFB, MD forces,
+                                  Hermite/Laguerre, ESN multi-head transport
+wetSpring (metagenomics)        → bio-stats (Shannon, Simpson, Bray-Curtis, DADA2, HMM,
+                                  ANI, dN/dS, Smith-Waterman, Felsenstein, Gillespie),
+                                  diversity fusion, ODE generic solver, NMF, kriging,
+                                  RTX 4070 f64 pow/exp/log precision discovery
+neuralSpring (ML/agents)        → AlphaFold2 Evoformer, HMM forward/backward/Viterbi,
+                                  evolutionary (batch fitness, swarm NN, stencil cooperation),
+                                  SimpleMLP, spectral density, matmul GPU, RK45 adaptive
+airSpring (agriculture)         → FAO-56 ET₀ (8 methods), Hargreaves, Van Genuchten, dual Kc,
+                                  seasonal pipeline, Brent root-finding, anderson coupling,
+                                  Richards PDE (Crank-Nicolson + cyclic reduction), kriging
+groundSpring (noise validation) → jackknife, evolution (Kimura fixation, quasispecies),
+                                  diversity (Chao1, detection power), hydrology (fao56_et0),
+                                  grid search/fit ops, batched multinomial, MC ET₀ propagation
                                   ↓
-                          BarraCUDA S68 + DF64
-                    2,546+ tests, 700 WGSL shaders (S68, zero f32-only)
+                          BarraCUDA S70+++ (ToadStool 1dd7e338)
+                    500+ tests, 700+ WGSL shaders (zero f32-only, DF64 universal precision)
 ```
 
 ---
@@ -156,7 +168,7 @@ same need independently**:
 
 ## groundSpring Delegation Lineage
 
-Each of groundSpring's 52 active delegations has a traceable cross-spring history:
+Each of groundSpring's 57 active delegations has a traceable cross-spring history:
 
 | # | groundSpring fn | barracuda fn | Primary Origin | Validated By |
 |---|----------------|--------------|---------------|-------------|

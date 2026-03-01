@@ -40,8 +40,8 @@
 **Rust tests**: 569/569 PASS (barracuda-gpu workspace)
 **pytest**: 375/375 PASS + 2 skipped
 **Three-tier parity**: 95 tests — CPU vs barracuda-CPU vs barracuda-GPU proven
-**BarraCUDA dispatch**: 52 active (35 CPU + 17 GPU), 0 pending — pinned ToadStool S70+ (`1dd7e338`)
-**V52 new CPU delegations**: kimura_fixation_prob, jackknife_mean_variance, fao56_et0 (scalar), chao1_classic
+**BarraCUDA dispatch**: 57 active (38 CPU + 19 GPU), 1 evolution candidate — pinned ToadStool S70+++ (`1dd7e338`)
+**V53 new delegations**: GPU grid adapters (seismic grid_search_3d, freeze-out grid_search_3d), CPU (error_threshold, detection_power, detection_threshold)
 **GPU stats dispatch (V51)**: mean, std_dev, rmse, mbe, pearson_r via SumReduceF64/VarianceReduceF64/FusedMapReduceF64/CorrelationF64
 **Batch GPU APIs (V51)**: GillespieGpu, WrightFisherGpu, BatchedElementwiseF64
 **metalForge workloads**: 19 (17 GPU + 2 NPU), 49 tests
@@ -476,7 +476,7 @@ GPU tier buildout: wired 5 core stats functions for GPU dispatch via barracuda r
 
 **Provenance upgrade**: Seismic and observation gap benchmarks updated with NestGate capability routing for Phase 0+ real data download.
 
-**Dispatch targets**: 52 active (35 CPU + 17 GPU), 0 pending. V52: 4 new CPU delegations from ToadStool S70+ catch-up.
+**Dispatch targets**: 57 active (38 CPU + 19 GPU), 1 evolution candidate. V53: GPU grid adapters + 3 new CPU delegations.
 
 - **Rust tests**: 569 (all 3 modes) — PASS
 - **Python tests**: 375 (+3 skip) — PASS
@@ -595,7 +595,7 @@ Each experiment is validated at three hardware tiers:
 
 ### BarraCUDA Integration Status (post ToadStool S68)
 
-**52 active delegations** (35 CPU + 17 GPU), **0 pending**. ToadStool S70+ absorbed all 4 remaining CPU candidates (kimura_fixation_prob, jackknife_mean_variance, fao56_et0 scalar, chao1_classic). 3 GPU grid ops exist in barracuda with interface mismatch — reclassified as evolution candidates. V51: GPU stats dispatch + batch GPU APIs. All active delegations use `if let Ok` / `#[cfg]` with always-compiled CPU fallback.
+**57 active delegations** (38 CPU + 19 GPU), **1 evolution candidate** (band_edges — algorithm mismatch). V53: GPU grid adapters (seismic + freeze-out pre-evaluate on CPU, argmin on GPU via `grid_search_3d`), 3 new CPU delegations (error_threshold, detection_power, detection_threshold). All active delegations use `if let Ok` / `#[cfg]` with always-compiled CPU fallback.
 
 | # | Module | BarraCUDA Target | Feature Gate | Status |
 |---|--------|-----------------|:------------:|--------|
@@ -647,7 +647,7 @@ Each experiment is validated at three hardware tiers:
 - **Phase 1**: Rust CPU validation — **COMPLETE** (292/292 across 28 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
 - **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 001-028: all domains)
-- **Phase 2a**: Tier A rewire — **COMPLETE** — 52 active delegations (35 CPU + 17 GPU), 0 pending (V52 ToadStool S70+ catch-up)
+- **Phase 2a**: Tier A rewire — **COMPLETE** — 57 active delegations (38 CPU + 19 GPU), 1 evolution candidate (V53 complete rewiring + GPU grid adapters)
 - **Phase 2b**: BarraCUDA CPU parity — **PROVEN** — 11.7× faster than Python (excl. LAPACK-bound), 28/28 math parity
 - **Phase 2c**: BarraCUDA GPU tier — **PROVEN** — 27/27 three-tier parity, 2.2× total GPU speedup, 47.4× peak (Exp 009)
   - GPU-delegated: anderson, almost_mathieu, spectral_recon, detect_bands (7 active GPU delegations)
@@ -794,7 +794,8 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 
 | Handoff | Scope | Status |
 |---------|-------|--------|
-| V52: ToadStool S70+ Catch-Up | 4 new CPU delegations (kimura, jackknife, fao56_et0, chao1), 52 active (35 CPU + 17 GPU), 0 pending. ToadStool pinned S70+ (1dd7e338). | **Current** |
+| V53: Complete Rewiring + GPU Grid Adapters | GPU grid adapters (seismic, freeze-out), 3 new CPU delegations, 57 active (38 CPU + 19 GPU), 1 evolution candidate. 12-workload benchmark. | **Current** |
+| V52: ToadStool S70+ Catch-Up | 4 new CPU delegations (kimura, jackknife, fao56_et0, chao1), 52 active. | Superseded by V53 |
 | V51: GPU Stats Dispatch + CPU/GPU Parity Proof | GPU stats dispatch, batch GPU APIs, 9 parity tests, bench-cpu-vs-gpu. 48 active. | Superseded by V52 |
 | V47: Library Buildout + BarraCUDA CPU Expansion | 7 new barracuda CPU delegations, 46 active (37 CPU + 9 GPU), 322 lib tests | Superseded by V51 |
 | V46: Idiomatic Rust Evolution | `stats::agreement` domain split, `#[allow]` → `#[expect]`, hardcoded thresholds → benchmark JSONs, named constants | Superseded by V47 |

@@ -182,6 +182,178 @@ fn bench_diversity(iters: u32) -> BenchEntry {
     }
 }
 
+fn bench_kimura(iters: u32) -> BenchEntry {
+    let cpu_ms = bench(
+        || {
+            let mut total = 0.0_f64;
+            for n in [100, 500, 1000, 5000, 10_000] {
+                for &s in &[0.001, 0.01, 0.1] {
+                    total += groundspring::drift::kimura_fixation_prob(n, s, 0.01);
+                }
+            }
+            std::hint::black_box(total);
+        },
+        iters * 100,
+    );
+
+    BenchEntry {
+        name: "Kimura fixation (15 configs)",
+        cpu_ms,
+        gpu_ms: None,
+        speedup: None,
+    }
+}
+
+fn bench_jackknife(iters: u32) -> BenchEntry {
+    let data: Vec<f64> = (0..500).map(|i| (f64::from(i) * 0.3).sin()).collect();
+
+    let cpu_ms = bench(
+        || {
+            let r = groundspring::jackknife::jackknife_mean_variance(&data).unwrap();
+            std::hint::black_box(r);
+        },
+        iters,
+    );
+
+    BenchEntry {
+        name: "Jackknife mean/var (500 points)",
+        cpu_ms,
+        gpu_ms: None,
+        speedup: None,
+    }
+}
+
+fn bench_chao1(iters: u32) -> BenchEntry {
+    let counts: Vec<u64> = (0_u64..200)
+        .map(|i| {
+            if i < 50 {
+                1
+            } else if i < 100 {
+                2
+            } else {
+                i * 3
+            }
+        })
+        .collect();
+
+    let cpu_ms = bench(
+        || {
+            let r = groundspring::rare_biosphere::chao1(&counts);
+            std::hint::black_box(r);
+        },
+        iters * 1000,
+    );
+
+    BenchEntry {
+        name: "Chao1 richness (200 taxa)",
+        cpu_ms,
+        gpu_ms: None,
+        speedup: None,
+    }
+}
+
+fn bench_fao56_scalar(iters: u32) -> BenchEntry {
+    let inp = groundspring::fao56::example_18_inputs();
+
+    let cpu_ms = bench(
+        || {
+            let r = groundspring::fao56::daily_et0(&inp);
+            std::hint::black_box(r);
+        },
+        iters * 100,
+    );
+
+    BenchEntry {
+        name: "FAO-56 scalar ET₀ (1 station-day)",
+        cpu_ms,
+        gpu_ms: None,
+        speedup: None,
+    }
+}
+
+fn bench_seismic(iters: u32) -> BenchEntry {
+    let stations = vec![
+        groundspring::seismic::Station {
+            code: "STA1".into(),
+            lat: 37.0,
+            lon: -89.0,
+        },
+        groundspring::seismic::Station {
+            code: "STA2".into(),
+            lat: 37.5,
+            lon: -88.0,
+        },
+        groundspring::seismic::Station {
+            code: "STA3".into(),
+            lat: 38.0,
+            lon: -89.5,
+        },
+        groundspring::seismic::Station {
+            code: "STA4".into(),
+            lat: 37.2,
+            lon: -88.5,
+        },
+    ];
+    let observed = vec![("STA1", 5.0), ("STA2", 4.5), ("STA3", 6.0), ("STA4", 4.8)];
+    let config = groundspring::seismic::GridSearchConfig {
+        lat_range: (36.0, 39.0),
+        lon_range: (-90.0, -87.0),
+        depth_range: (0.0, 30.0),
+        grid_spacing_deg: 0.1,
+        depth_spacing_km: 5.0,
+        vp: 6.0,
+    };
+
+    let cpu_ms = bench(
+        || {
+            let r = groundspring::seismic::grid_search_inversion(&observed, &stations, &config);
+            std::hint::black_box(r);
+        },
+        iters,
+    );
+
+    BenchEntry {
+        name: "Seismic inversion (31×31×7 grid)",
+        cpu_ms,
+        gpu_ms: None,
+        speedup: None,
+    }
+}
+
+fn bench_freeze_out(iters: u32) -> BenchEntry {
+    let mu_b: Vec<f64> = (0..20).map(|i| f64::from(i) * 25.0).collect();
+    let observed: Vec<f64> = mu_b
+        .iter()
+        .map(|&m| (-0.013_f64).mul_add((m / 155.0).powi(2), 1.0) * 155.0)
+        .collect();
+    let config = groundspring::freeze_out::GridFitConfig {
+        observed: &observed,
+        mu_b: &mu_b,
+        sigma: 2.0,
+        t0_lo: 140.0,
+        t0_hi: 170.0,
+        t0_step: 0.5,
+        k2_lo: 0.005,
+        k2_hi: 0.025,
+        k2_step: 0.0005,
+    };
+
+    let cpu_ms = bench(
+        || {
+            let r = groundspring::freeze_out::grid_fit_2d(&config).unwrap();
+            std::hint::black_box(r);
+        },
+        iters,
+    );
+
+    BenchEntry {
+        name: "Freeze-out grid fit (61×41 grid)",
+        cpu_ms,
+        gpu_ms: None,
+        speedup: None,
+    }
+}
+
 fn print_results(entries: &[BenchEntry]) {
     println!(
         "\n{:<45} {:>10} {:>14} {:>10}",
@@ -235,6 +407,12 @@ fn main() {
         bench_gillespie(iters),
         bench_wright_fisher(iters),
         bench_fao56(iters),
+        bench_fao56_scalar(iters),
+        bench_kimura(iters),
+        bench_jackknife(iters),
+        bench_chao1(iters),
+        bench_seismic(iters),
+        bench_freeze_out(iters),
         bench_rare_biosphere(iters),
         bench_anderson(iters),
         bench_diversity(iters),

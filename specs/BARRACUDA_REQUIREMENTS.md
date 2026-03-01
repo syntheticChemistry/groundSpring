@@ -11,9 +11,9 @@ groundSpring Phase 0 (Python), Phase 1 (Rust), and Phase 2a (barracuda CPU) are 
 
 - 292/292 validation checks across 28 binaries
 - 28 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, almost_mathieu, bistable, multisignal, kinetics, transport, drift, rare_biosphere, quasispecies, band_structure, jackknife, freeze_out, spectral_recon, wdm (+cast, validate)
-- 569 Rust workspace tests + 375 Python tests = 944 total. 0 clippy warnings (pedantic + nursery). 52 active delegations (35 CPU + 17 GPU), 0 pending — ToadStool S70+. 49 metalForge tests. V51 GPU stats dispatch + CPU/GPU parity proof. GPU reduce ops + batch APIs
+- 569 Rust workspace tests + 375 Python tests = 944 total. 0 clippy warnings (pedantic + nursery). 57 active delegations (38 CPU + 19 GPU), 1 evolution candidate — ToadStool S70+++. 49 metalForge tests. V51 GPU stats dispatch + CPU/GPU parity proof. GPU reduce ops + batch APIs
 - Two feature gates: `barracuda` (30 active CPU delegations) and `barracuda-gpu` (9 GPU delegations including Sturm tridiag, tikhonov solve, detect_bands, BatchedMultinomialGpu). Three-mode CI validates all configurations.
-- 52 active delegations (35 CPU + 17 GPU; includes GPU stats dispatch, batch APIs, regression suite, kimura, jackknife, fao56_et0, chao1_classic — ToadStool S70+)
+- 57 active delegations (38 CPU + 19 GPU; includes GPU grid adapters, GPU stats dispatch, batch APIs, regression suite, kimura, jackknife, fao56_et0, chao1, error_threshold, detection_power, detection_threshold — ToadStool S70+++)
 - 2 production WGSL shaders in `metalForge/shaders/` (261 combined lines)
 - All matrices use flat row-major `Vec<f64>` — GPU-promotable layout
 - Rust is **11.5× faster** than Python (excl. LAPACK-bound); 5.1× overall. Exp 009: **47.7× from Sturm tridiag**
@@ -88,7 +88,7 @@ NumPy ODE           ────────→  bistable + multisignal      →
 
 Phase 2a (DONE)                Phase 2b (GPU — V31 IN PROGRESS)
 ──────────────                 ────────────────────────────────
-52 active (35 CPU + 17 GPU) → 13 modules GPU-dispatch wired (V51), 4 new CPU delegations (V52 S70+ catch-up). 49 metalForge tests
+57 active (38 CPU + 19 GPU) → GPU grid adapters + 3 new CPU delegations (V53), 12-workload benchmark. 49 metalForge tests
 prng::Xorshift64    ────────→  Tier B: align to barracuda xoshiro128**
 fao56::daily_et0    ────────→  Tier C: mc_et0_propagate.wgsl → barracuda
 rarefaction         ────────→  Tier C: batched_multinomial.wgsl → barracuda

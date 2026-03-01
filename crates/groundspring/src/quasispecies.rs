@@ -42,6 +42,12 @@ use crate::prng::Xorshift64;
 /// subpopulation. Above it, the population randomizes.
 #[must_use]
 pub fn error_threshold(sigma: f64, genome_length: usize) -> f64 {
+    #[cfg(feature = "barracuda")]
+    {
+        if let Some(mu_c) = barracuda::stats::evolution::error_threshold(sigma, genome_length) {
+            return mu_c;
+        }
+    }
     1.0 - sigma.powf(-1.0 / usize_f64(genome_length))
 }
 

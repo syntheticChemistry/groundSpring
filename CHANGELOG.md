@@ -4,6 +4,29 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V53 Complete Rewiring + GPU Grid Adapters + Cross-Spring Lineage (Feb 28, 2026)
+
+#### Added
+- **GPU adapter**: `seismic::grid_search_inversion` → pre-evaluate RMS on CPU, `barracuda::ops::grid::grid_search_3d` for parallel argmin
+- **GPU adapter**: `freeze_out::grid_fit_2d` → pre-evaluate chi-squared on CPU, `barracuda::ops::grid::grid_search_3d` for parallel argmin
+- **CPU delegation**: `quasispecies::error_threshold` → `barracuda::stats::evolution::error_threshold` (S70+, Option adapter)
+- **CPU delegation**: `rare_biosphere::detection_power` → `barracuda::stats::evolution::detection_power` (S70+, infallible)
+- **CPU delegation**: `rare_biosphere::detection_threshold` → `barracuda::stats::evolution::detection_threshold` (S70+, infallible)
+- **Benchmark expansion**: 6 new workloads added to `bench-cpu-vs-gpu` (kimura, jackknife, chao1, fao56 scalar, seismic, freeze-out) → 12 total
+- **Cross-spring lineage documentation**: expanded shader evolution with per-Spring contribution details
+
+#### Changed
+- **Delegation count**: 52 → **57 active** (38 CPU + 19 GPU), **1 evolution candidate** (was 3)
+- 2 GPU grid ops (grid_search_inversion, grid_fit_2d) reclassified from evolution candidates to active GPU delegations
+- Only `band_edges` remains as evolution candidate (transfer matrix vs eigenvalue algorithm mismatch)
+
+#### Validated
+- `cargo fmt --check`: PASS
+- `cargo clippy --all-targets -W pedantic -W nursery`: 0 warnings × 3 modes
+- `cargo doc --no-deps`: clean
+- `cargo test --workspace --features barracuda`: all PASS
+- `bench-cpu-vs-gpu`: 12 workloads measured
+
 ### V52 ToadStool S70+ Catch-Up — 4 New CPU Delegations, Zero Pending (Feb 28, 2026)
 
 #### Added

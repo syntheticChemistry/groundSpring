@@ -1169,16 +1169,16 @@ fn gpu_stats_deterministic() {
 
 #[test]
 fn dispatch_targets_at_least_32() {
-    let cpu_active = 35;
-    let gpu_active = 17;
-    let evolution_candidates = 3;
+    let cpu_active = 38;
+    let gpu_active = 19;
+    let evolution_candidates = 1;
     assert!(
-        cpu_active + gpu_active >= 52,
-        "minimum 52 active dispatch targets"
+        cpu_active + gpu_active >= 57,
+        "minimum 57 active dispatch targets"
     );
     assert_eq!(
-        evolution_candidates, 3,
-        "3 evolution candidates — grid ops with interface mismatch (grid_fit_2d, grid_search_3d, band_edges)"
+        evolution_candidates, 1,
+        "1 evolution candidate — band_edges (algorithm mismatch: eigenvalue extraction vs transfer matrix scan)"
     );
 }
 

@@ -78,14 +78,21 @@ fn chao1_cpu(counts: &[u64]) -> f64 {
 /// Uses log-exp form for numerical stability at large depths.
 #[must_use]
 pub fn detection_power(abundance: f64, depth: u64) -> f64 {
-    if abundance <= 0.0 {
-        return 0.0;
+    #[cfg(feature = "barracuda")]
+    {
+        barracuda::stats::evolution::detection_power(abundance, depth)
     }
-    if abundance >= 1.0 {
-        return 1.0;
+    #[cfg(not(feature = "barracuda"))]
+    {
+        if abundance <= 0.0 {
+            return 0.0;
+        }
+        if abundance >= 1.0 {
+            return 1.0;
+        }
+        let log_miss = (1.0 - abundance).ln();
+        1.0 - (log_miss * u64_f64(depth)).exp()
     }
-    let log_miss = (1.0 - abundance).ln();
-    1.0 - (log_miss * u64_f64(depth)).exp()
 }
 
 /// Minimum sequencing depth to detect a taxon at `abundance` with
@@ -94,13 +101,20 @@ pub fn detection_power(abundance: f64, depth: u64) -> f64 {
 /// `D* = ⌈ ln(1 − P_target) / ln(1 − p) ⌉`
 #[must_use]
 pub fn detection_threshold(abundance: f64, target_power: f64) -> u64 {
-    if abundance <= 0.0 || abundance >= 1.0 {
-        return 0;
+    #[cfg(feature = "barracuda")]
+    {
+        barracuda::stats::evolution::detection_threshold(abundance, target_power)
     }
-    let d = (1.0 - target_power).log(1.0 - abundance);
-    #[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-    let result = d.ceil() as u64;
-    result
+    #[cfg(not(feature = "barracuda"))]
+    {
+        if abundance <= 0.0 || abundance >= 1.0 {
+            return 0;
+        }
+        let d = (1.0 - target_power).log(1.0 - abundance);
+        #[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+        let result = d.ceil() as u64;
+        result
+    }
 }
 
 /// Compute detection frequency (occupancy) for each species across
