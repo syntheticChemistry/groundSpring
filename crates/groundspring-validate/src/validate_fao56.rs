@@ -11,7 +11,9 @@
 use groundspring::fao56::{self, DailyWeatherInputs};
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, print_provenance_header, u64_field, TOL_EQUILIBRIUM};
+use groundspring_validate::{
+    array_field, f64_field, print_provenance_header, u64_field, TOL_EQUILIBRIUM,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str =
@@ -194,8 +196,8 @@ fn validate_monte_carlo(
     expected_et0: f64,
     mc_expected: &Value,
 ) {
-    let et0_mean_range = mc_expected["et0_mean_range"].as_array().expect("range");
-    let et0_std_range = mc_expected["et0_std_range"].as_array().expect("range");
+    let et0_mean_range = array_field(mc_expected, "et0_mean_range");
+    let et0_std_range = array_field(mc_expected, "et0_std_range");
     println!("\n--- Part 4: Monte Carlo (N={n_mc}) ---");
 
     let mc = monte_carlo_et0(base, unc, n_mc, mc_seed);
@@ -293,9 +295,7 @@ fn run() -> i32 {
 
     let unc = Uncertainties::from_json(&bench["input_uncertainties"]);
 
-    let ranking: Vec<&str> = bench["sensitivity_analysis"]["expected_ranking"]
-        .as_array()
-        .expect("ranking")
+    let ranking: Vec<&str> = array_field(&bench["sensitivity_analysis"], "expected_ranking")
         .iter()
         .map(|v| v.as_str().expect("ranking item"))
         .collect();

@@ -14,7 +14,7 @@ use groundspring::band_structure::{
 };
 use groundspring::transport::tridiag_eigh;
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, print_provenance_header, usize_field};
+use groundspring_validate::{array_field, f64_field, print_provenance_header, usize_field};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/band_edge/benchmark_band_edge.json");
@@ -135,27 +135,21 @@ fn run() -> i32 {
     let exp = &bench["expected_results"];
 
     let t_hop = f64_field(model, "hopping");
-    let pot_2: Vec<f64> = model["period_2_potential"]
-        .as_array()
-        .expect("pot2")
+    let pot_2: Vec<f64> = array_field(model, "period_2_potential")
         .iter()
         .map(|v| v.as_f64().expect("f64"))
         .collect();
-    let pot_3: Vec<f64> = model["period_3_potential"]
-        .as_array()
-        .expect("pot3")
+    let pot_3: Vec<f64> = array_field(model, "period_3_potential")
         .iter()
         .map(|v| v.as_f64().expect("f64"))
         .collect();
     let n_scan = usize_field(model, "n_energy_scan");
-    let e_range = model["energy_range"].as_array().expect("energy_range");
+    let e_range = array_field(model, "energy_range");
     let e_lo = e_range[0].as_f64().expect("e_lo");
     let e_hi = e_range[1].as_f64().expect("e_hi");
     let n_periods = usize_field(model, "n_periods_finite");
 
-    let dvs: Vec<f64> = model["period_2_gap_widths_to_test"]
-        .as_array()
-        .expect("dvs")
+    let dvs: Vec<f64> = array_field(model, "period_2_gap_widths_to_test")
         .iter()
         .map(|v| v.as_f64().expect("f64"))
         .collect();

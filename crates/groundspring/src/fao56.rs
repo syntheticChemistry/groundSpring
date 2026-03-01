@@ -32,6 +32,31 @@ const SIGMA: f64 = 4.903e-9;
 /// Default grass albedo.  FAO-56 Eq. 38.
 const ALBEDO: f64 = 0.23;
 
+/// Ångström regression coefficient `a_s` (fraction of `R_a` reaching earth on overcast days).
+/// FAO-56 Eq. 35 default.
+const ANGSTROM_A: f64 = 0.25;
+
+/// Ångström regression coefficient `b_s` (additional fraction on clear days).
+/// FAO-56 Eq. 35 default.
+const ANGSTROM_B: f64 = 0.50;
+
+/// Clear-sky altitude coefficient (m⁻¹). FAO-56 Eq. 37: `R_so` = (0.75 + 2e-5·z)·`R_a`.
+const CLEAR_SKY_BASE: f64 = 0.75;
+const CLEAR_SKY_ALT_COEFF: f64 = 2e-5;
+
+/// Net longwave humidity factor coefficients. FAO-56 Eq. 39.
+const LW_HUMIDITY_INTERCEPT: f64 = 0.34;
+const LW_HUMIDITY_SLOPE: f64 = 0.14;
+
+/// Net longwave cloudiness factor coefficients. FAO-56 Eq. 39.
+const LW_CLOUD_SLOPE: f64 = 1.35;
+const LW_CLOUD_INTERCEPT: f64 = -0.35;
+
+/// Tetens formula coefficients. FAO-56 Eq. 11.
+const TETENS_A: f64 = 0.6108;
+const TETENS_B: f64 = 17.27;
+const TETENS_C: f64 = 237.3;
+
 // ── Sub-functions ───────────────────────────────────────────────────
 
 /// Saturation vapour pressure at temperature `t_c` (kPa).
@@ -39,7 +64,7 @@ const ALBEDO: f64 = 0.23;
 /// FAO-56 Eq. 11: e°(T) = 0.6108 exp(17.27 T / (T + 237.3))
 #[must_use]
 pub fn saturation_vapour_pressure(t_c: f64) -> f64 {
-    0.6108 * (17.27 * t_c / (t_c + 237.3)).exp()
+    TETENS_A * (TETENS_B * t_c / (t_c + TETENS_C)).exp()
 }
 
 /// Slope of the saturation vapour pressure curve (kPa °C⁻¹).
@@ -48,7 +73,7 @@ pub fn saturation_vapour_pressure(t_c: f64) -> f64 {
 #[must_use]
 pub fn slope_vapour_pressure_curve(t_c: f64) -> f64 {
     let es = saturation_vapour_pressure(t_c);
-    4098.0 * es / (t_c + 237.3).powi(2)
+    4098.0 * es / (t_c + TETENS_C).powi(2)
 }
 
 /// Atmospheric pressure from elevation (kPa).
@@ -156,7 +181,7 @@ pub fn daylight_hours(latitude_deg: f64, day_of_year: u16) -> f64 {
 /// FAO-56 Eq. 35 (Ångström): `R_s` = (`a_s` + `b_s` n/N) `R_a`
 #[must_use]
 pub fn solar_radiation_from_sunshine(n: f64, big_n: f64, ra: f64) -> f64 {
-    (0.25 + 0.50 * n / big_n) * ra
+    (ANGSTROM_A + ANGSTROM_B * n / big_n) * ra
 }
 
 /// Clear-sky solar radiation (MJ m⁻² day⁻¹).
@@ -164,7 +189,7 @@ pub fn solar_radiation_from_sunshine(n: f64, big_n: f64, ra: f64) -> f64 {
 /// FAO-56 Eq. 37: `R_so` = (0.75 + 2×10⁻⁵ z) `R_a`
 #[must_use]
 pub fn clear_sky_radiation(altitude_m: f64, ra: f64) -> f64 {
-    altitude_m.mul_add(2e-5, 0.75) * ra
+    altitude_m.mul_add(CLEAR_SKY_ALT_COEFF, CLEAR_SKY_BASE) * ra
 }
 
 /// Net shortwave radiation (MJ m⁻² day⁻¹).
@@ -183,8 +208,8 @@ pub fn net_longwave_radiation(tmax_c: f64, tmin_c: f64, ea_kpa: f64, rs_over_rso
     let tmax_k4 = (tmax_c + 273.16_f64).powi(4);
     let tmin_k4 = (tmin_c + 273.16_f64).powi(4);
     let avg_k4 = f64::midpoint(tmax_k4, tmin_k4);
-    let humidity_factor = 0.14_f64.mul_add(-ea_kpa.sqrt(), 0.34);
-    let cloudiness_factor = 1.35_f64.mul_add(rs_over_rso, -0.35);
+    let humidity_factor = LW_HUMIDITY_SLOPE.mul_add(-ea_kpa.sqrt(), LW_HUMIDITY_INTERCEPT);
+    let cloudiness_factor = LW_CLOUD_SLOPE.mul_add(rs_over_rso, LW_CLOUD_INTERCEPT);
     SIGMA * avg_k4 * humidity_factor * cloudiness_factor
 }
 
@@ -294,6 +319,55 @@ fn daily_et0_cpu(inp: &DailyWeatherInputs) -> f64 {
     let rn = rns - rnl;
 
     penman_monteith(rn, 0.0, tmean, u2, vpd, delta, gamma)
+}
+
+/// Compute ET₀ for a batch of station-days.
+///
+/// When the `barracuda-gpu` feature is enabled and a GPU is available,
+/// dispatches the entire batch to `BatchedElementwiseF64::fao56_et0_batch`
+/// on the GPU. Falls back to sequential CPU calls to [`daily_et0`] otherwise.
+#[must_use]
+pub fn daily_et0_batch(inputs: &[DailyWeatherInputs]) -> Vec<f64> {
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Some(results) = daily_et0_batch_gpu(inputs) {
+            return results;
+        }
+    }
+    inputs.iter().map(daily_et0).collect()
+}
+
+#[cfg(feature = "barracuda-gpu")]
+fn daily_et0_batch_gpu(inputs: &[DailyWeatherInputs]) -> Option<Vec<f64>> {
+    use barracuda::ops::batched_elementwise_f64::{BatchedElementwiseF64, StationDayInput};
+
+    let device = crate::gpu::get_device()?;
+    let gpu = BatchedElementwiseF64::new(device).ok()?;
+
+    let station_days: Vec<StationDayInput> = inputs
+        .iter()
+        .map(|inp| {
+            let ra = extraterrestrial_radiation(inp.latitude_deg_n, inp.day_of_year);
+            let big_n = daylight_hours(inp.latitude_deg_n, inp.day_of_year);
+            let n = inp.sunshine_hours.min(big_n).max(0.0);
+            let rs = solar_radiation_from_sunshine(n, big_n, ra);
+            let wind_ms = inp.wind_speed_10m_km_h / 3.6;
+            let u2 = wind_speed_at_2m(wind_ms, 10.0);
+            (
+                inp.tmax_c,
+                inp.tmin_c,
+                inp.rhmax_pct,
+                inp.rhmin_pct,
+                u2,
+                rs,
+                inp.altitude_m,
+                inp.latitude_deg_n,
+                u32::from(inp.day_of_year),
+            )
+        })
+        .collect();
+
+    gpu.fao56_et0_batch(&station_days).ok()
 }
 
 /// FAO-56 Example 18 reference inputs (Uccle, Belgium, 6 July).

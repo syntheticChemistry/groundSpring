@@ -8,7 +8,7 @@
   "_provenance": {
     "generated_by": "Synthetic NMSZ scenario with IASP91 velocity model",
     "data_origin": "Station coordinates from IRIS FDSN metadata (NM network, New Madrid Seismic Zone). Velocity model from IASP91 Table 1 upper crust. Synthetic scenario, not a real event.",
-    "real_data_accession": "IRIS FDSN: network=NM (pending real waveform download for Phase 0+)",
+    "real_data_accession": "IRIS FDSN: network=NM (synthetic scenario; real waveform download via NestGate data.iris_fetch in Phase 0+)",
     "baseline_date": "2026-02-16",
     "baseline_commit": "ab6e3d463f4a6c7f512d74aec2bcb08491b5e05b",
     "validation_script": "control/seismic/seismic_inversion.py",

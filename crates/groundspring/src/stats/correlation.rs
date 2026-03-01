@@ -17,11 +17,10 @@ use super::metrics::mean;
 
 /// Pearson correlation coefficient.
 ///
-/// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::pearson_correlation`.
-/// Returns `0.0` when total sum of squares is zero for either variable,
-/// or when the `barracuda` delegate reports an error (matching the local
-/// fallback semantics for degenerate inputs).
+/// When `barracuda-gpu` is enabled, dispatches to `CorrelationF64` GPU
+/// kernel. Otherwise delegates to `barracuda::stats::pearson_correlation`
+/// (CPU) or the local implementation.
+/// Returns `0.0` when total sum of squares is zero for either variable.
 ///
 /// # Panics
 ///
@@ -29,11 +28,28 @@ use super::metrics::mean;
 #[must_use]
 pub fn pearson_r(x: &[f64], y: &[f64]) -> f64 {
     assert_eq!(x.len(), y.len(), "x and y must have equal length");
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Some(r) = pearson_r_gpu(x, y) {
+            return r;
+        }
+    }
     #[cfg(feature = "barracuda")]
     if let Ok(r) = barracuda::stats::pearson_correlation(x, y) {
         return if r.is_nan() { 0.0 } else { r };
     }
     pearson_r_cpu(x, y)
+}
+
+#[cfg(feature = "barracuda-gpu")]
+fn pearson_r_gpu(x: &[f64], y: &[f64]) -> Option<f64> {
+    if x.is_empty() {
+        return Some(0.0);
+    }
+    let device = crate::gpu::get_device()?;
+    let gpu = barracuda::ops::correlation_f64_wgsl::CorrelationF64::new(device).ok()?;
+    let r = gpu.correlation(x, y).ok()?;
+    Some(if r.is_nan() { 0.0 } else { r })
 }
 
 fn pearson_r_cpu(x: &[f64], y: &[f64]) -> f64 {
@@ -94,18 +110,20 @@ fn spearman_r_cpu(x: &[f64], y: &[f64]) -> f64 {
 fn rank(data: &[f64]) -> Vec<f64> {
     let mut indexed: Vec<(usize, f64)> = data.iter().copied().enumerate().collect();
     indexed.sort_by(|a, b| f64::total_cmp(&a.1, &b.1));
+
     let mut ranks = vec![0.0; data.len()];
-    let mut i = 0;
-    while i < indexed.len() {
-        let mut j = i;
-        while j < indexed.len() && f64::total_cmp(&indexed[j].1, &indexed[i].1).is_eq() {
-            j += 1;
+    let mut start = 0;
+    while start < indexed.len() {
+        let tie_end = indexed[start..]
+            .iter()
+            .position(|item| f64::total_cmp(&item.1, &indexed[start].1).is_ne())
+            .map_or(indexed.len(), |offset| start + offset);
+
+        let avg_rank = usize_f64(start + tie_end + 1) / 2.0;
+        for &(orig_idx, _) in &indexed[start..tie_end] {
+            ranks[orig_idx] = avg_rank;
         }
-        let avg_rank = usize_f64(i + j + 1) / 2.0;
-        for item in &indexed[i..j] {
-            ranks[item.0] = avg_rank;
-        }
-        i = j;
+        start = tie_end;
     }
     ranks
 }

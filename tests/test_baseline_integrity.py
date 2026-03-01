@@ -22,6 +22,8 @@ REQUIRED_PROVENANCE_FIELDS = {
     "baseline_date",
     "baseline_commit",
     "validation_script",
+    "command",
+    "real_data_accession",
 }
 
 SKIP_DIRS = {"__pycache__", "common.py"}
@@ -74,6 +76,19 @@ class TestBenchmarkProvenance:
             assert all(
                 c in "0123456789abcdef" for c in commit
             ), f"{path.name}: baseline_commit '{commit}' is not a hex hash"
+
+    def test_has_doi(self, benchmark: tuple[Path, dict]) -> None:
+        path, data = benchmark
+        assert "_doi" in data or "_doi_era5" in data or "_doi_ghcnd" in data, (
+            f"{path.name} missing _doi field"
+        )
+
+    def test_has_real_data_accession(self, benchmark: tuple[Path, dict]) -> None:
+        path, data = benchmark
+        prov = data.get("_provenance", {})
+        assert "real_data_accession" in prov, (
+            f"{path.name} provenance missing real_data_accession"
+        )
 
     def test_json_is_valid_utf8(self, benchmark: tuple[Path, dict]) -> None:
         path, _ = benchmark

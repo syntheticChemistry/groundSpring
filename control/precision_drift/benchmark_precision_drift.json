@@ -4,6 +4,7 @@
     "IEEE 754-2019 IEEE Standard for Floating-Point Arithmetic",
     "Higham (2002) Accuracy and Stability of Numerical Algorithms, 2nd ed."
   ],
+  "_doi": "10.1109/IEEESTD.2019.8766229",
   "_provenance": {
     "baseline_commit": "d166af6cc281255dd107e81c4462a7fe65c097b2",
     "baseline_date": "2026-02-26",
@@ -11,7 +12,8 @@
     "python_version": "3.10",
     "validation_script": "control/precision_drift/precision_drift.py",
     "command": "python3 control/precision_drift/precision_drift.py",
-    "generated_by": "Python Monte Carlo simulation (f32 vs f64 VACF integration, 50 seeds \u00d7 2 precisions)"
+    "generated_by": "Python Monte Carlo simulation (f32 vs f64 VACF integration, 50 seeds \u00d7 2 precisions)",
+    "real_data_accession": "N/A (synthetic precision comparison)"
   },
   "_description": "f32 vs f64 transport coefficient precision drift in WDM Green-Kubo integration",
   "model": {

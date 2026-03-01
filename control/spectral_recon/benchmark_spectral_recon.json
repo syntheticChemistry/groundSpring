@@ -13,7 +13,8 @@
     "baseline_date": "2026-02-26",
     "baseline_commit": "6e73709291d5dacfd527dd414a62aa8ade7e8f57",
     "validation_script": "control/spectral_recon/spectral_recon.py",
-    "command": "python3 control/spectral_recon/spectral_recon.py"
+    "command": "python3 control/spectral_recon/spectral_recon.py",
+    "real_data_accession": "N/A (analytical Gaussian spectral peak with synthetic noise)"
   },
   "_description": "Spectral function reconstruction from noisy Euclidean correlator via Tikhonov regularization. Validates kernel construction, forward model, Cholesky solver, peak recovery, and regularization parameter scan.",
   "_groundspring_question": "Can Tikhonov regularization recover the location and shape of a spectral peak from a noisy integral transform?",

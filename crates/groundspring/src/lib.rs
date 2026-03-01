@@ -75,6 +75,18 @@ pub mod wdm;
 #[cfg(feature = "barracuda-gpu")]
 pub(crate) mod gpu;
 
+/// Returns `true` when the `barracuda-gpu` feature is enabled *and* a GPU device
+/// is available at runtime.
+#[must_use]
+pub fn gpu_available() -> bool {
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        gpu::get_device().is_some()
+    }
+    #[cfg(not(feature = "barracuda-gpu"))]
+    false
+}
+
 #[cfg(feature = "biomeos")]
 pub mod biomeos;
 

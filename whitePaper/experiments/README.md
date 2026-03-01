@@ -5,13 +5,13 @@
 > (Phase 0), a Rust validation (Phase 1), and a barracuda delegation path
 > (Phase 2+).
 
-**Total**: 292/292 validation checks across 28 experiments, 9 domains. 470+ Rust workspace tests (barracuda-gpu) + 320 Python tests (includes three-tier parity, biomeOS integration, NestGate, metalForge remote discovery tests).
+**Total**: 292/292 validation checks across 28 experiments, 9 domains. 569 Rust workspace tests + 375 Python tests = 944 total.
 **Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across all 28 experiments.
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs.
-**Coverage**: Zero clippy warnings. Four-mode CI (default + barracuda + barracuda-gpu + biomeos).
-**BarraCUDA**: 46 active delegations + 7 pending ToadStool (37 CPU + 9 GPU). Exp 009: **47.7× from Sturm tridiag**.
+**Coverage**: Zero clippy warnings (pedantic + nursery). 95 three-tier parity tests + 9 CPU vs GPU parity.
+**BarraCUDA**: 48 active delegations + 6 pending ToadStool (31 CPU + 17 GPU). GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r). Batch GPU APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64). Exp 009: **47.7× from Sturm tridiag**.
 **Modules**: 30 (including `linalg`, `error`, `jackknife`, `freeze_out`, `spectral_recon`, `wdm`, `npu`, `biomeos`, `nestgate`).
-**metalForge**: 4 live hardware binaries (RTX 4070, Titan V, AKD1000 NPU). 49+ metalForge checks, 5+ substrates, architecture-aware routing, remote NUCLEUS discovery. Exp 028 NPU DMA at ~51µs.
+**metalForge**: 19 workloads (17 GPU + 2 NPU), 49+ metalForge checks, 5+ substrates, architecture-aware routing. Exp 028 NPU DMA at ~51µs.
 **Baseline integrity**: All 28 benchmark JSONs verified — provenance fields, hex commit hashes, UTF-8.
 
 ## Experiment Index
@@ -55,16 +55,13 @@ Each experiment is validated at three levels:
 2. **GPU** — Barracuda GPU matches CPU within tolerance (`--features barracuda-gpu`)
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
-Current status: **CPU complete** (292/292), **46 active delegations + 7 pending ToadStool**
-(37 CPU delegated + 9 GPU delegated).
-V31: 5 modules GPU-wired (`freeze_out`, `band_structure`, `seismic`, `quasispecies`, `rare_biosphere`).
-V44: `linalg` module extracted, typed `InputError` errors, 5 APIs evolved to `Result`.
-19 metalForge workloads, 5+ substrates, architecture-aware routing (V35), remote NUCLEUS discovery (V39). All delegations use sovereign fallback.
-28/28 mathematical parity proven. 470+ Rust workspace tests (barracuda-gpu) + 320 Python tests.
-**PRNG readiness**: `Xoshiro128StarStar` at full API parity (`next_u64`, `next_f64`, `next_normal`, `normal`, `binomial`) — ready for Phase 2b GPU stream alignment.
+Current status: **CPU complete** (292/292), **48 active delegations + 6 pending ToadStool**
+(31 CPU + 17 GPU). V51: GPU stats dispatch + batch GPU APIs + 9 CPU vs GPU parity tests.
+19 metalForge workloads (17 GPU + 2 NPU), architecture-aware routing (V35), remote NUCLEUS discovery (V39). All delegations use sovereign fallback.
+28/28 mathematical parity proven. 569 Rust workspace tests + 375 Python tests = 944 total.
+**bench-cpu-vs-gpu**: Dedicated binary for CPU vs GPU performance comparison across 6 workloads.
 **metalForge tier**: groundspring-forge crate with live hardware validation
 (RTX 4070, Titan V, AKD1000 NPU). 4 validation binaries, 49+ metalForge checks, 5+ substrates.
-**NUCLEUS integration (V39)**: NestGate data pipeline for NCBI/NOAA live data and provenance storage. metalForge remote substrate discovery for multi-gate dispatch. Tower/Node/Nest pipeline graphs for biomeOS orchestration.
 
 Three-mode benchmarks: 20.4s → 9.2s (**2.2× speedup**); quasiperiodic 47.7×.
 Cross-spring evolution (hotSpring precision + Sturm, wetSpring bio-stats,

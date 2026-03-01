@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
-//! `NestGate` data pipeline for experiment data and provenance.
+//! Data pipeline for experiment data and provenance via biomeOS capabilities.
 //!
-//! Wraps biomeOS `direct_rpc_call` to interact with `NestGate`'s live data
-//! providers (NCBI, NOAA CDO) and provenance storage. All functions require
-//! a running biomeOS Tower atomic with `NestGate` available.
+//! Routes through biomeOS capability-based discovery — groundSpring declares
+//! what capability it needs (`storage.store`, `data.ncbi_search`, etc.) and
+//! biomeOS discovers which primal provides it at runtime. No hardcoded primal
+//! references; only self-knowledge and capability semantics.
 //!
 //! # Key Schema
 //!
@@ -92,47 +93,47 @@ pub fn store_parity(socket: &Path, exp_id: u32, substrate: &str, parity_json: &s
 
 // ─── NCBI Data Provider ─────────────────────────────────────────────────────
 
-/// Search NCBI genomes via `NestGate`'s `ncbi_live_provider`.
+/// Search NCBI genomes via biomeOS `data.ncbi_search` capability.
 ///
-/// Sends `data.ncbi_search` to `NestGate` with the given query term and database.
-/// Returns the raw JSON response from `NestGate` (`ESearch` result).
+/// Routes through capability-based discovery — biomeOS determines which
+/// primal handles NCBI data access at runtime.
 ///
 /// # Errors
 ///
-/// Returns `Err` if `NestGate` is unavailable or the NCBI query fails.
+/// Returns `Err` if the data provider is unavailable or the NCBI query fails.
 pub fn ncbi_search(socket: &Path, database: &str, query: &str) -> Result<String> {
     let params = format!(
         r#"{{"database":"{}","query":"{}","family_id":"groundspring"}}"#,
         biomeos::escape_json_pub(database),
         biomeos::escape_json_pub(query),
     );
-    biomeos::direct_rpc_call(socket, "nestgate", "data.ncbi_search", &params)
+    biomeos::capability_call(socket, "data.ncbi_search", &params)
 }
 
-/// Fetch a sequence from NCBI via `NestGate`'s `ncbi_live_provider`.
+/// Fetch a sequence from NCBI via biomeOS `data.ncbi_fetch` capability.
 ///
 /// # Errors
 ///
-/// Returns `Err` if `NestGate` is unavailable or the fetch fails.
+/// Returns `Err` if the data provider is unavailable or the fetch fails.
 pub fn ncbi_fetch(socket: &Path, database: &str, accession: &str) -> Result<String> {
     let params = format!(
         r#"{{"database":"{}","accession":"{}","family_id":"groundspring"}}"#,
         biomeos::escape_json_pub(database),
         biomeos::escape_json_pub(accession),
     );
-    biomeos::direct_rpc_call(socket, "nestgate", "data.ncbi_fetch", &params)
+    biomeos::capability_call(socket, "data.ncbi_fetch", &params)
 }
 
 // ─── NOAA CDO Data Provider ──────────────────────────────────────────────────
 
-/// Fetch GHCND daily observations from NOAA CDO via `NestGate`.
+/// Fetch GHCND daily observations via biomeOS `data.noaa_ghcnd` capability.
 ///
 /// Returns daily weather data for the specified station, date range, and
 /// variable set. Used by Exp 002 (ET₀ validation with live weather data).
 ///
 /// # Errors
 ///
-/// Returns `Err` if `NestGate` is unavailable or the NOAA API call fails.
+/// Returns `Err` if the data provider is unavailable or the NOAA API call fails.
 pub fn noaa_ghcnd(
     socket: &Path,
     station_id: &str,
@@ -151,17 +152,17 @@ pub fn noaa_ghcnd(
         biomeos::escape_json_pub(end_date),
         dt_json.join(","),
     );
-    biomeos::direct_rpc_call(socket, "nestgate", "data.noaa_ghcnd", &params)
+    biomeos::capability_call(socket, "data.noaa_ghcnd", &params)
 }
 
-/// Fetch FAO-56 weather variables from NOAA CDO via `NestGate`.
+/// Fetch FAO-56 weather variables via biomeOS `data.noaa_ghcnd` capability.
 ///
 /// Convenience wrapper that requests the specific GHCND variables needed
 /// for Penman-Monteith ET₀ calculation: TMAX, TMIN, AWND, RHAV/RHMN/RHMX.
 ///
 /// # Errors
 ///
-/// Returns `Err` if `NestGate` is unavailable or the NOAA API call fails.
+/// Returns `Err` if the data provider is unavailable or the NOAA API call fails.
 pub fn noaa_fao56_variables(
     socket: &Path,
     station_id: &str,

@@ -8,7 +8,7 @@
 
 ## The Multi-Spring Architecture
 
-groundSpring's 46 active barracuda delegations trace their lineage through 5 ecoPrimals
+groundSpring's 48 active barracuda delegations trace their lineage through 5 ecoPrimals
 Springs. Each Spring contributes domain-specific primitives that are absorbed into
 ToadStool's BarraCUDA crate, making them available to all other Springs. This
 document traces exactly which primitives came from where and who benefits.

@@ -11,7 +11,7 @@
 use groundspring::bootstrap::{bootstrap_mean, rawr_mean};
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, print_provenance_header, usize_field};
+use groundspring_validate::{f64_field, print_provenance_header, usize_field, TOL_DETERMINISM};
 use serde_json::Value;
 
 const BENCHMARK: &str =
@@ -181,11 +181,11 @@ fn run() -> i32 {
 
     let w1 = ci_width(&det_data, 500, 0.95, 7777, false);
     let w2 = ci_width(&det_data, 500, 0.95, 7777, false);
-    h.check_true("Bootstrap deterministic", (w1 - w2).abs() < 1e-15);
+    h.check_true("Bootstrap deterministic", (w1 - w2).abs() < TOL_DETERMINISM);
 
     let w3 = ci_width(&det_data, 500, 0.95, 8888, true);
     let w4 = ci_width(&det_data, 500, 0.95, 8888, true);
-    h.check_true("RAWR deterministic", (w3 - w4).abs() < 1e-15);
+    h.check_true("RAWR deterministic", (w3 - w4).abs() < TOL_DETERMINISM);
 
     h.summary()
 }

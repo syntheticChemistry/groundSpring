@@ -3,13 +3,13 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: February 28, 2026 (V46: idiomatic Rust evolution, 46 active delegations + 7 pending, 37 CPU + 9 GPU, 19 metalForge workloads, 49 tests, arch-aware routing)
+**Last Updated**: February 28, 2026 (V51: GPU stats dispatch + CPU/GPU parity proof, 48 active delegations + 6 pending, 31 CPU + 17 GPU, 19 metalForge workloads, 49 tests, arch-aware routing)
 
 ---
 
 ## Overview
 
-groundSpring has **46 active delegations** (37 CPU + 9 GPU) with **7 pending ToadStool absorption** (3 CPU + 4 GPU, commented out with `TODO(toadstool)`).
+groundSpring has **48 active delegations** (31 CPU + 17 GPU) with **6 pending ToadStool absorption** (commented out with `TODO(toadstool)`).
 Those barracuda functions were not built in isolation — they were refined and
 battle-tested through absorption from **five Springs**, each bringing domain-specific
 requirements that hardened the shared library.
@@ -156,7 +156,7 @@ same need independently**:
 
 ## groundSpring Delegation Lineage
 
-Each of groundSpring's 46 active delegations has a traceable cross-spring history:
+Each of groundSpring's 48 active delegations has a traceable cross-spring history:
 
 | # | groundSpring fn | barracuda fn | Primary Origin | Validated By |
 |---|----------------|--------------|---------------|-------------|

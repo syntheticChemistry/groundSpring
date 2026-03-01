@@ -94,7 +94,7 @@ scripts/             Automation (baselines, benchmarks)
 
 ```bash
 cargo test --workspace                         # 410 tests, all PASS
-cargo test --workspace --features biomeos      # 442 tests (adds 32 biomeos tests)
+cargo test --workspace --features barracuda-gpu # 569 tests (GPU dispatch active)
 cargo clippy --workspace -- -D warnings        # zero warnings × 4 modes
 cargo fmt --check                              # clean
 cargo llvm-cov --workspace                     # 99.37% workspace line coverage

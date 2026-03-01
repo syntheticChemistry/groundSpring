@@ -4,6 +4,7 @@
     "Yeh & Hummer (2004) J Phys Chem B 108:15873 (finite-size corrections to diffusion)",
     "D\u00fcnweg & Kremer (1993) J Chem Phys 99:6983 (hydrodynamic finite-size effects)"
   ],
+  "_doi": "10.1021/jp0477147",
   "_provenance": {
     "baseline_commit": "d166af6cc281255dd107e81c4462a7fe65c097b2",
     "baseline_date": "2026-02-26",
@@ -11,7 +12,8 @@
     "python_version": "3.10",
     "validation_script": "control/size_convergence/size_convergence.py",
     "command": "python3 control/size_convergence/size_convergence.py",
-    "generated_by": "Python Monte Carlo simulation (Green-Kubo D(N) for N=50..5000, 30 seeds per size)"
+    "generated_by": "Python Monte Carlo simulation (Green-Kubo D(N) for N=50..5000, 30 seeds per size)",
+    "real_data_accession": "N/A (synthetic finite-size scaling simulation)"
   },
   "_description": "System-size convergence for WDM transport coefficients",
   "model": {

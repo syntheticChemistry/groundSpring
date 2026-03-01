@@ -18,9 +18,12 @@
 //!
 //! [`kimura_fixation_prob`] is a pending delegation target for
 //! `barracuda::stats::kimura_fixation` — not yet in barracuda as of S68+.
-//! [`wright_fisher_fixation`] remains local (serial RNG loop); `ToadStool`
-//! S66+ has `WrightFisherGpu` for per-generation GPU dispatch but no
-//! multi-trial wrapper.
+//! [`wright_fisher_fixation`] is a single serial trial (Stays Local).
+//! [`wright_fisher_fixation_batch`] dispatches many independent trials to
+//! `barracuda::ops::bio::WrightFisherGpu` when `barracuda-gpu` is enabled,
+//! running all populations through all generations on GPU in parallel, then
+//! classifying fixation/loss from the final allele frequencies. Falls back
+//! to a sequential CPU loop otherwise.
 
 use crate::cast::usize_f64;
 use crate::prng::Xorshift64;
@@ -100,19 +103,190 @@ pub fn kimura_fixation_prob(pop_size: usize, selection: f64, initial_freq: f64) 
     kimura_fixation_prob_cpu(pop_size, selection, initial_freq)
 }
 
+/// Below this 4Ns threshold, selection is effectively neutral and we return
+/// `initial_freq` directly to avoid numerical instability in the Kimura formula.
+const NEUTRAL_SELECTION_THRESHOLD: f64 = 1e-10;
+
+/// Denominator zero-guard for the Kimura exponential ratio.
+const KIMURA_DENOM_EPSILON: f64 = 1e-15;
+
 fn kimura_fixation_prob_cpu(pop_size: usize, selection: f64, initial_freq: f64) -> f64 {
     let four_ns = 4.0 * usize_f64(pop_size) * selection;
-    if four_ns.abs() < 1e-10 {
+    if four_ns.abs() < NEUTRAL_SELECTION_THRESHOLD {
         return initial_freq;
     }
 
     let numerator = 1.0 - (-four_ns * initial_freq).exp();
     let denominator = 1.0 - (-four_ns).exp();
-    if denominator.abs() < 1e-15 {
+    if denominator.abs() < KIMURA_DENOM_EPSILON {
         return initial_freq;
     }
 
     numerator / denominator
+}
+
+/// Run many independent Wright-Fisher trials and return fixation count.
+///
+/// When the `barracuda-gpu` feature is enabled and a GPU is available,
+/// dispatches all trials to `WrightFisherGpu`, running every generation
+/// on the GPU. Falls back to sequential CPU execution otherwise.
+///
+/// Returns the number of trials in which the advantaged allele fixed.
+#[must_use]
+pub fn wright_fisher_fixation_batch(
+    pop_size: usize,
+    selection: f64,
+    initial_freq: f64,
+    n_trials: usize,
+    base_seed: u64,
+) -> usize {
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Some(count) = wf_batch_gpu(pop_size, selection, initial_freq, n_trials, base_seed) {
+            return count;
+        }
+    }
+    wf_batch_cpu(pop_size, selection, initial_freq, n_trials, base_seed)
+}
+
+fn wf_batch_cpu(
+    pop_size: usize,
+    selection: f64,
+    initial_freq: f64,
+    n_trials: usize,
+    base_seed: u64,
+) -> usize {
+    (0..n_trials)
+        .filter(|&i| {
+            wright_fisher_fixation(
+                pop_size,
+                selection,
+                initial_freq,
+                base_seed.wrapping_add(i as u64),
+            )
+        })
+        .count()
+}
+
+#[cfg(feature = "barracuda-gpu")]
+fn wf_batch_gpu(
+    pop_size: usize,
+    selection: f64,
+    initial_freq: f64,
+    n_trials: usize,
+    base_seed: u64,
+) -> Option<usize> {
+    use barracuda::ops::bio::WrightFisherGpu;
+    use wgpu::util::DeviceExt;
+
+    let wgpu_dev = crate::gpu::get_device()?;
+    let d = wgpu_dev.device();
+    let q = wgpu_dev.queue();
+
+    #[expect(clippy::cast_possible_truncation)]
+    let n_pops = n_trials as u32;
+    let n_loci: u32 = 1;
+    #[expect(clippy::cast_possible_truncation)]
+    let two_n = (2 * pop_size) as u32;
+    let max_gens = 10 * (2 * pop_size);
+
+    let freq_init: Vec<f64> = vec![initial_freq; n_trials];
+    let sel_vec: Vec<f64> = vec![selection];
+
+    let mut prng_state = Vec::with_capacity(n_trials * 4);
+    let mut rng = crate::prng::Xorshift64::new(base_seed);
+    for _ in 0..n_trials {
+        for _ in 0..4 {
+            #[expect(clippy::cast_possible_truncation)]
+            prng_state.push(rng.next_u64() as u32);
+        }
+    }
+
+    let freq_in_buf = d.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some("wf_freq_in"),
+        contents: bytemuck::cast_slice(&freq_init),
+        usage: wgpu::BufferUsages::STORAGE
+            | wgpu::BufferUsages::COPY_DST
+            | wgpu::BufferUsages::COPY_SRC,
+    });
+    let freq_out_buf = d.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some("wf_freq_out"),
+        contents: bytemuck::cast_slice(&freq_init),
+        usage: wgpu::BufferUsages::STORAGE
+            | wgpu::BufferUsages::COPY_SRC
+            | wgpu::BufferUsages::COPY_DST,
+    });
+    let sel_buf = d.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some("wf_selection"),
+        contents: bytemuck::cast_slice(&sel_vec),
+        usage: wgpu::BufferUsages::STORAGE,
+    });
+    let prng_buf = d.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some("wf_prng"),
+        contents: bytemuck::cast_slice(&prng_state),
+        usage: wgpu::BufferUsages::STORAGE,
+    });
+
+    let gpu = WrightFisherGpu::new(wgpu_dev.clone());
+
+    // Ping-pong buffers across generations.
+    for gen in 0..max_gens {
+        if gen % 2 == 0 {
+            gpu.dispatch(
+                &freq_in_buf,
+                &sel_buf,
+                &freq_out_buf,
+                &prng_buf,
+                n_pops,
+                n_loci,
+                two_n,
+            );
+        } else {
+            gpu.dispatch(
+                &freq_out_buf,
+                &sel_buf,
+                &freq_in_buf,
+                &prng_buf,
+                n_pops,
+                n_loci,
+                two_n,
+            );
+        }
+    }
+
+    // Read back final frequencies.
+    let final_buf = if max_gens.is_multiple_of(2) {
+        &freq_in_buf
+    } else {
+        &freq_out_buf
+    };
+    let staging = d.create_buffer(&wgpu::BufferDescriptor {
+        label: Some("wf_staging"),
+        size: (n_trials * 8) as u64,
+        usage: wgpu::BufferUsages::MAP_READ | wgpu::BufferUsages::COPY_DST,
+        mapped_at_creation: false,
+    });
+    let mut encoder = d.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+        label: Some("wf_readback"),
+    });
+    encoder.copy_buffer_to_buffer(final_buf, 0, &staging, 0, (n_trials * 8) as u64);
+    q.submit(std::iter::once(encoder.finish()));
+
+    let slice = staging.slice(..);
+    let (tx, rx) = std::sync::mpsc::channel();
+    slice.map_async(wgpu::MapMode::Read, move |r| {
+        tx.send(r).ok();
+    });
+    d.poll(wgpu::Maintain::Wait);
+    rx.recv().ok()?.ok()?;
+
+    let data = slice.get_mapped_range();
+    let freqs: &[f64] = bytemuck::cast_slice(&data);
+    let fixation_count = freqs.iter().filter(|&&f| f >= 1.0).count();
+    drop(data);
+    staging.unmap();
+
+    Some(fixation_count)
 }
 
 /// Track Shannon diversity under pure neutral drift (multi-species Wright-Fisher).

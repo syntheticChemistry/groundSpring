@@ -15,7 +15,8 @@ use groundspring::freeze_out::{
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    f64_field, f64_range, print_provenance_header, u64_field, usize_field,
+    f64_field, f64_range, print_provenance_header, u64_field, usize_field, TOL_ANALYTICAL,
+    TOL_EXACT,
 };
 use serde_json::Value;
 
@@ -36,7 +37,7 @@ fn validate_forward(h: &mut ValidationHarness, ctx: &ModelCtx) {
     println!("\n--- Part 1: Forward model correctness ---");
     let t_at_0 = freeze_out_curve(ctx.true_t0, ctx.true_k2, 0.0);
     println!("  T_f(0) = {t_at_0:.4} (expect {:.4})", ctx.true_t0);
-    h.check_true("T_f(0) = T0", (t_at_0 - ctx.true_t0).abs() < 1e-12);
+    h.check_true("T_f(0) = T0", (t_at_0 - ctx.true_t0).abs() < TOL_EXACT);
 
     let t_at_400 = freeze_out_curve(ctx.true_t0, ctx.true_k2, 400.0);
     let r = 400.0 / ctx.true_t0;
@@ -44,7 +45,7 @@ fn validate_forward(h: &mut ValidationHarness, ctx: &ModelCtx) {
     println!("  T_f(400) = {t_at_400:.4} (expect {expected:.4})");
     h.check_true(
         "T_f(400) matches formula",
-        (t_at_400 - expected).abs() < 1e-10,
+        (t_at_400 - expected).abs() < TOL_ANALYTICAL,
     );
 }
 

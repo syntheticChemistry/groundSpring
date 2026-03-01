@@ -13,7 +13,8 @@
     "validation_script": "control/et0_anderson_propagation/et0_anderson_propagation.py",
     "command": "python3 control/et0_anderson_propagation/et0_anderson_propagation.py",
     "prng_algorithm": "numpy.random.default_rng (PCG64)",
-    "data_origin": "FAO-56 Example 18 (Uccle, Belgium) + Anderson analytical model"
+    "data_origin": "FAO-56 Example 18 (Uccle, Belgium) + Anderson analytical model",
+    "real_data_accession": "N/A (analytical FAO-56 worked example + Anderson model)"
   },
   "fao56_inputs": {
     "description": "FAO-56 Example 18 baseline with documented uncertainties",

@@ -4,6 +4,37 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V51 GPU Stats Dispatch + CPU/GPU Parity Proof + Docs Cleanup (Feb 28, 2026)
+
+#### Added
+- **GPU stats dispatch**: 5 core statistical functions wired for GPU execution:
+  - `stats::mean` → `SumReduceF64::mean`
+  - `stats::std_dev` → `VarianceReduceF64::population_std`
+  - `stats::rmse` → `FusedMapReduceF64` (sum of squared residuals)
+  - `stats::mbe` → `SumReduceF64::mean` (mean of residuals)
+  - `stats::pearson_r` → `CorrelationF64::pearson`
+- **Batch GPU APIs**: 3 batch functions with GPU dispatch:
+  - `gillespie::birth_death_ssa_batch` → `GillespieGpu`
+  - `drift::wright_fisher_fixation_batch` → `WrightFisherGpu`
+  - `fao56::daily_et0_batch` → `BatchedElementwiseF64::fao56_et0_batch`
+- **9 CPU vs GPU parity tests** in `three_tier_parity.rs`
+- **`groundspring::gpu_available()`**: Public API for GPU runtime detection
+- **`bench-cpu-vs-gpu`** binary in `groundspring-validate`
+- `wgpu` + `bytemuck` as optional dependencies (gated by `barracuda-gpu`)
+
+#### Changed
+- **Delegation count**: 46 → **48 active** (31 CPU + 17 GPU), 7 → **6 pending** ToadStool
+- **Test count**: 322 → **569** workspace tests; **95** three-tier parity tests
+- **metalForge routing**: 19 workloads confirmed — 17 GPU + 2 NPU
+- **Benchmark provenance**: seismic + observation_gap `real_data_accession` updated for NestGate paths
+
+#### Validated
+- `cargo fmt --check`: PASS
+- `cargo clippy --all-targets -W pedantic -W nursery`: 0 warnings
+- `cargo doc --no-deps -D warnings`: clean
+- `cargo test --workspace --features barracuda-gpu`: 569/569 PASS
+- 292/292 validation checks across 28 experiments
+
 ### V47 Library Buildout + BarraCUDA CPU Expansion (Feb 28, 2026)
 
 #### Added

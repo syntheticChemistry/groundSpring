@@ -16,6 +16,7 @@ workspace = true
 default = []
 biomeos = ["groundspring/biomeos"]
 npu = ["groundspring/npu"]
+barracuda-gpu = ["groundspring/barracuda-gpu"]
 
 [dependencies]
 groundspring = { path = "../groundspring" }
@@ -133,3 +134,7 @@ path = "src/validate_vendor_parity.rs"
 name = "validate-npu-anderson"
 path = "src/validate_npu_anderson.rs"
 required-features = ["npu"]
+
+[[bin]]
+name = "bench-cpu-vs-gpu"
+path = "src/bench_cpu_vs_gpu.rs"

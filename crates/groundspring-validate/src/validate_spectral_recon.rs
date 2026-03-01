@@ -18,7 +18,7 @@ use groundspring::spectral_recon::{
 };
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    f64_field, f64_range, print_provenance_header, u64_field, usize_field,
+    f64_field, f64_range, print_provenance_header, u64_field, usize_field, TOL_EXACT,
 };
 use serde_json::Value;
 
@@ -68,7 +68,7 @@ fn setup_grid(bench: &Value) -> GridCtx {
 
 fn validate_forward(h: &mut ValidationHarness, ctx: &GridCtx, exp: &Value) {
     println!("\n--- Part 1: Noiseless forward model ---");
-    let rho_rt = tikhonov_solve(&ctx.kernel, &ctx.g_exact, 1e-12, ctx.n_tau, ctx.n_omega);
+    let rho_rt = tikhonov_solve(&ctx.kernel, &ctx.g_exact, TOL_EXACT, ctx.n_tau, ctx.n_omega);
     let g_rt = forward_correlator(&ctx.kernel, &rho_rt, ctx.n_tau, ctx.n_omega);
     let r = rmse(&ctx.g_exact, &g_rt);
     println!("  Noiseless roundtrip RMSE = {r:.2e}");
@@ -81,7 +81,7 @@ fn validate_forward(h: &mut ValidationHarness, ctx: &GridCtx, exp: &Value) {
 
 fn validate_cholesky(h: &mut ValidationHarness, ctx: &GridCtx, exp: &Value) {
     println!("\n--- Part 2: Cholesky residual ---");
-    let rho_nl = tikhonov_solve(&ctx.kernel, &ctx.g_exact, 1e-12, ctx.n_tau, ctx.n_omega);
+    let rho_nl = tikhonov_solve(&ctx.kernel, &ctx.g_exact, TOL_EXACT, ctx.n_tau, ctx.n_omega);
     let g_nl = forward_correlator(&ctx.kernel, &rho_nl, ctx.n_tau, ctx.n_omega);
     let max_res: f64 = ctx
         .g_exact

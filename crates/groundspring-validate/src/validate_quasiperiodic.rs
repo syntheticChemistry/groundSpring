@@ -20,7 +20,9 @@ use groundspring::almost_mathieu::{
 };
 use groundspring::anderson::lyapunov_exponent;
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, f64_range, print_provenance_header, usize_field};
+use groundspring_validate::{
+    f64_field, f64_range, print_provenance_header, usize_field, TOL_GRID_MATCH,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/quasiperiodic/benchmark_quasiperiodic.json");
@@ -53,7 +55,7 @@ fn coupling_sweep(
 
     let g1 = gammas
         .iter()
-        .find(|(l, _)| (*l - 1.0).abs() < 0.01)
+        .find(|(l, _)| (*l - 1.0).abs() < TOL_GRID_MATCH)
         .expect("λ=1")
         .1;
     harness.check_max(
@@ -64,7 +66,7 @@ fn coupling_sweep(
 
     let g3 = gammas
         .iter()
-        .find(|(l, _)| (*l - 3.0).abs() < 0.01)
+        .find(|(l, _)| (*l - 3.0).abs() < TOL_GRID_MATCH)
         .expect("λ=3")
         .1;
     harness.check_approx(
@@ -76,7 +78,7 @@ fn coupling_sweep(
 
     let g4 = gammas
         .iter()
-        .find(|(l, _)| (*l - 4.0).abs() < 0.01)
+        .find(|(l, _)| (*l - 4.0).abs() < TOL_GRID_MATCH)
         .expect("λ=4")
         .1;
     harness.check_approx(
@@ -95,7 +97,7 @@ fn critical_and_monotonicity(harness: &mut ValidationHarness, gammas: &[(f64, f6
 
     let g2 = gammas
         .iter()
-        .find(|(l, _)| (*l - 2.0).abs() < 0.01)
+        .find(|(l, _)| (*l - 2.0).abs() < TOL_GRID_MATCH)
         .expect("λ=2")
         .1;
     println!("  Lyapunov at critical coupling (λ=2): {g2:.6}");

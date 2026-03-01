@@ -12,7 +12,9 @@
 
 use groundspring::bistable::{integrate, stochastic_integrate, BistableParams};
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, f64_range, print_provenance_header};
+use groundspring_validate::{
+    array_field, f64_field, f64_range, print_provenance_header, TOL_ANALYTICAL,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/bistable_switching/benchmark_bistable.json");
@@ -45,7 +47,7 @@ fn params_from_json(model: &Value) -> BistableParams {
 }
 
 fn ic_from_json(model: &Value, key: &str) -> [f64; 5] {
-    let arr = model[key].as_array().expect("IC array");
+    let arr = array_field(model, key);
     let mut ic = [0.0; 5];
     for (i, val) in ic.iter_mut().enumerate() {
         *val = arr[i]
@@ -198,7 +200,7 @@ fn run() -> i32 {
     let repeat = integrate(&ic_low, &params, dt, n_steps);
     h.check_true(
         "Deterministic trajectories agree",
-        (0..5).all(|i| (final_low[i] - repeat[i]).abs() < 1e-10),
+        (0..5).all(|i| (final_low[i] - repeat[i]).abs() < TOL_ANALYTICAL),
     );
 
     validate_stochastic(

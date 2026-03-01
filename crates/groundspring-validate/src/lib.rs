@@ -42,6 +42,21 @@ pub const TOL_RAREFACTION_PROP: f64 = 0.05;
 /// tolerating ±0.5 in count-like quantities.
 pub const TOL_REGIME: f64 = 0.5;
 
+/// Deterministic rerun tolerance — same code, same inputs, same seed.
+/// Stricter than `TOL_EXACT` because no algorithmic variation is expected.
+pub const TOL_DETERMINISM: f64 = 1e-15;
+
+/// Grid-search matching tolerance for locating a disorder/coupling value
+/// in a sweep array (e.g. `(w - target).abs() < TOL_GRID_MATCH`).
+pub const TOL_GRID_MATCH: f64 = 0.01;
+
+/// Monotonicity slack for physical quantities that should decrease but
+/// may exhibit minor non-monotonicity from finite sampling.
+pub const TOL_MONOTONIC_SLACK: f64 = 0.15;
+
+/// Division-safe epsilon to avoid NaN in `x / y.max(EPS_SAFE_DIV)`.
+pub const EPS_SAFE_DIV: f64 = 1e-10;
+
 /// Extract an `f64` from a JSON object, panicking with a clear message on
 /// missing or non-numeric fields.
 ///
@@ -92,6 +107,59 @@ pub fn f64_range(arr: &Value) -> (f64, f64) {
         a[0].as_f64().expect("range lower bound"),
         a[1].as_f64().expect("range upper bound"),
     )
+}
+
+/// Extract a string field from a JSON object.
+///
+/// # Panics
+///
+/// Panics if `v[key]` is absent or not a string.
+#[must_use]
+pub fn str_field<'a>(v: &'a Value, key: &str) -> &'a str {
+    v[key]
+        .as_str()
+        .unwrap_or_else(|| panic!("missing str field: {key}"))
+}
+
+/// Extract a JSON array field from a JSON object.
+///
+/// # Panics
+///
+/// Panics if `v[key]` is absent or not an array.
+#[must_use]
+pub fn array_field<'a>(v: &'a Value, key: &str) -> &'a Vec<Value> {
+    v[key]
+        .as_array()
+        .unwrap_or_else(|| panic!("missing array field: {key}"))
+}
+
+/// Extract a `Vec<f64>` from a JSON array field.
+///
+/// # Panics
+///
+/// Panics if `v[key]` is absent, not an array, or contains non-numeric elements.
+#[must_use]
+pub fn f64_vec(v: &Value, key: &str) -> Vec<f64> {
+    array_field(v, key)
+        .iter()
+        .enumerate()
+        .map(|(i, el)| {
+            el.as_f64()
+                .unwrap_or_else(|| panic!("{key}[{i}] is not a number"))
+        })
+        .collect()
+}
+
+/// Extract a `bool` from a JSON object.
+///
+/// # Panics
+///
+/// Panics if `v[key]` is absent or not a boolean.
+#[must_use]
+pub fn bool_field(v: &Value, key: &str) -> bool {
+    v[key]
+        .as_bool()
+        .unwrap_or_else(|| panic!("missing bool field: {key}"))
 }
 
 /// Print the standard provenance header shared by all validation binaries.

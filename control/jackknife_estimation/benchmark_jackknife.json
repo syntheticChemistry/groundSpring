@@ -13,7 +13,8 @@
     "baseline_date": "2026-02-26",
     "baseline_commit": "6e73709291d5dacfd527dd414a62aa8ade7e8f57",
     "validation_script": "control/jackknife_estimation/jackknife_estimation.py",
-    "command": "python3 control/jackknife_estimation/jackknife_estimation.py"
+    "command": "python3 control/jackknife_estimation/jackknife_estimation.py",
+    "real_data_accession": "N/A (synthetic samples from known distributions)"
   },
   "_description": "Jackknife resampling for variance estimation, bias correction, and comparison with bootstrap. Validates the delete-one jackknife against analytical variance of the mean, tests bias correction on a biased estimator, and compares block jackknife variance with bootstrap on correlated data.",
   "_groundspring_question": "Does jackknife error estimation achieve subpercent accuracy for variance of smooth statistics on known distributions?",

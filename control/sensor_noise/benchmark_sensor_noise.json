@@ -7,7 +7,8 @@
     "baseline_commit": "ab6e3d463f4a6c7f512d74aec2bcb08491b5e05b",
     "validation_script": "control/sensor_noise/sensor_noise_decomposition.py",
     "command": "python3 control/sensor_noise/sensor_noise_decomposition.py",
-    "notes": "Expected values are analytically derived, not from a Python run. MBE and RMSE from published paper; random_std and bias_fraction computed from those."
+    "notes": "Expected values are analytically derived, not from a Python run. MBE and RMSE from published paper; random_std and bias_fraction computed from those.",
+    "real_data_accession": "Dong et al. 2020 (10.3390/agriculture10120598) Table 3"
   },
   "_doi": "10.3390/agriculture10120598",
   "_note": "Values reused from airSpring benchmark_dong2020.json \u2014 same data, groundSpring perspective",

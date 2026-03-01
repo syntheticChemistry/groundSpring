@@ -17,7 +17,9 @@ use groundspring::anderson::{
     anderson_potential, localization_length, lyapunov_averaged, lyapunov_exponent,
 };
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, f64_range, print_provenance_header, usize_field};
+use groundspring_validate::{
+    f64_field, f64_range, print_provenance_header, usize_field, TOL_GRID_MATCH,
+};
 use serde_json::Value;
 
 /// Compute Lyapunov exponent, optionally routing through biomeOS.
@@ -115,7 +117,7 @@ fn disorder_sweep(
 
     let gamma_8 = gammas
         .iter()
-        .find(|(w, _)| (*w - 8.0).abs() < 0.01)
+        .find(|(w, _)| (*w - 8.0).abs() < TOL_GRID_MATCH)
         .expect("disorder W=8.0 not in sweep")
         .1;
     h.check_min(
@@ -136,7 +138,7 @@ fn thouless_and_localization(h: &mut ValidationHarness, gammas: &[(f64, f64)], e
 
     let gamma_1 = gammas
         .iter()
-        .find(|(w, _)| (*w - 1.0).abs() < 0.01)
+        .find(|(w, _)| (*w - 1.0).abs() < TOL_GRID_MATCH)
         .expect("disorder W=1.0 not in sweep")
         .1;
     let xi_1 = localization_length(gamma_1);

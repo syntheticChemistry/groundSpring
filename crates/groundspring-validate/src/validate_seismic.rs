@@ -12,7 +12,7 @@ use groundspring::seismic::{
     grid_search_inversion, haversine_km, travel_time_1d, GridSearchConfig, Station,
 };
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, print_provenance_header, TOL_ANALYTICAL};
+use groundspring_validate::{array_field, f64_field, print_provenance_header, TOL_ANALYTICAL};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/seismic/benchmark_seismic.json");
@@ -80,9 +80,9 @@ fn validate_inversion(
 ) {
     println!("\n--- Grid-Search Inversion (no noise) ---");
 
-    let lat_range = grid["lat_range"].as_array().expect("lat_range");
-    let lon_range = grid["lon_range"].as_array().expect("lon_range");
-    let depth_range = grid["depth_range_km"].as_array().expect("depth_range_km");
+    let lat_range = array_field(grid, "lat_range");
+    let lon_range = array_field(grid, "lon_range");
+    let depth_range = array_field(grid, "depth_range_km");
 
     let config = GridSearchConfig {
         lat_range: (
@@ -138,9 +138,7 @@ fn run() -> i32 {
         depth_km: f64_field(src, "depth_km"),
     };
 
-    let stations: Vec<Station> = bench["test_scenario"]["stations"]
-        .as_array()
-        .expect("stations array")
+    let stations: Vec<Station> = array_field(&bench["test_scenario"], "stations")
         .iter()
         .map(|s| Station {
             code: s["code"].as_str().expect("station code").into(),

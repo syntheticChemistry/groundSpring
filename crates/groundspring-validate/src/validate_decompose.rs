@@ -12,7 +12,8 @@
 use groundspring::decompose::{decompose_error, noise_floor_reduction};
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    f64_field, print_provenance_header, TOL_ANALYTICAL, TOL_DECOMPOSITION, TOL_LITERATURE,
+    array_field, f64_field, print_provenance_header, TOL_ANALYTICAL, TOL_DECOMPOSITION,
+    TOL_LITERATURE,
 };
 use serde_json::Value;
 
@@ -24,18 +25,14 @@ fn run() -> i32 {
 
     print_provenance_header(&bench, "Bias-Variance Decomposition");
 
-    let sensors: Vec<&str> = bench["sensors"]
-        .as_array()
-        .expect("sensors array")
+    let sensors: Vec<&str> = array_field(&bench, "sensors")
         .iter()
-        .map(|v| v.as_str().expect("sensor string"))
+        .map(|v| v.as_str().expect("sensor name"))
         .collect();
 
-    let soils: Vec<&str> = bench["soil_types"]
-        .as_array()
-        .expect("soil_types array")
+    let soils: Vec<&str> = array_field(&bench, "soil_types")
         .iter()
-        .map(|v| v.as_str().expect("soil string"))
+        .map(|v| v.as_str().expect("soil type"))
         .collect();
 
     // ── Bias-Variance Decomposition ─────────────────────────────────

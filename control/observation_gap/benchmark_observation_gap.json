@@ -11,7 +11,7 @@
   "_provenance": {
     "generated_by": "Literature ranges for ERA5 vs GHCND agreement",
     "data_origin": "Currently synthetic. Real data pending: NOAA CDO GHCND station USW00014836 and Open-Meteo ERA5 for same period.",
-    "real_data_accession": "GHCND:USW00014836 (pending download via NOAA CDO token)",
+    "real_data_accession": "GHCND:USW00014836 (synthetic validation; real download via NestGate data.noaa_ghcnd in Phase 0+)",
     "baseline_date": "2026-02-16",
     "baseline_commit": "ab6e3d463f4a6c7f512d74aec2bcb08491b5e05b",
     "validation_script": "control/observation_gap/observation_gap.py",

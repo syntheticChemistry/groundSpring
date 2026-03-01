@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: February 28, 2026 | **License**: AGPL-3.0-or-later
-**Status**: 28 experiments, 322+ Rust unit tests / 490+ workspace tests (barracuda-gpu) + 320 Python tests, 292/292 validation checks (+ 49 metalForge), 46 active barracuda delegations (37 CPU + 9 GPU) + 7 pending ToadStool absorption, 19 metalForge workloads, 5 substrates, architecture-aware GPU routing (f64→Titan V, f32→RTX 4070), NestGate data pipeline (NCBI/NOAA), metalForge remote substrate discovery, NUCLEUS Tower/Node/Nest pipeline graphs, four-mode CI, typed error handling (`InputError`), `linalg` module (tridiag eigensolver), `stats::agreement` module (R²/NSE deduplicated), `stats::moving_window` module, zero unsafe
+**Status**: 28 experiments, 569 Rust workspace tests + 375 Python tests, 292/292 validation checks (+ 49 metalForge), 48 active barracuda delegations (31 CPU + 17 GPU) + 6 pending ToadStool absorption, GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r via FusedMapReduceF64/SumReduceF64/VarianceReduceF64/CorrelationF64), batch GPU APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64), 19 metalForge workloads (17 GPU + 2 NPU), 5 substrates, architecture-aware GPU routing (f64→Titan V, f32→RTX 4070), capability-based primal routing, NestGate data pipeline (NCBI/NOAA), NUCLEUS Tower/Node/Nest pipeline graphs, CPU vs GPU benchmark binary, zero unsafe
 
 **The gap between what models predict and what instruments measure.**
 
@@ -64,24 +64,24 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 
 | Module | Purpose | GPU Tier |
 |--------|---------|----------|
-| `stats::agreement` | RMSE, MAE, MBE, NSE, R², IA, hit rate (R²/NSE deduplicated via shared `coefficient_of_efficiency`) | 7 CPU delegated |
-| `stats::metrics` | mean, std_dev, sample_std_dev, percentile | 3 CPU delegated |
-| `stats::correlation` | Pearson/Spearman correlation, covariance | 3 CPU delegated |
+| `stats::agreement` | RMSE, MAE, MBE, NSE, R², IA, hit rate (R²/NSE deduplicated via shared `coefficient_of_efficiency`) | **GPU dispatched** (rmse, mbe via FusedMapReduceF64/SumReduceF64) + CPU delegated |
+| `stats::metrics` | mean, std_dev, sample_std_dev, percentile | **GPU dispatched** (mean via SumReduceF64, std_dev via VarianceReduceF64) + CPU delegated |
+| `stats::correlation` | Pearson/Spearman correlation, covariance | **GPU dispatched** (pearson_r via CorrelationF64) + CPU delegated |
 | `stats::distributions` | norm_cdf, norm_ppf, χ² | 3 CPU delegated |
 | `stats::regression` | Linear, quadratic, exponential, logarithmic fits | 4 CPU delegated |
 | `decompose` | Bias-variance decomposition, noise floor | CPU-only (scalar) |
-| `fao56` | FAO-56 Penman-Monteith equation chain | **Absorbed** (barracuda `Op::Fao56Et0`) |
+| `fao56` | FAO-56 Penman-Monteith equation chain | **Absorbed** (barracuda `Op::Fao56Et0`) + **GPU batch** (BatchedElementwiseF64) |
 | `prng` | Xorshift64 PRNG, Box-Muller normal | B (align to xoshiro) |
 | `rarefaction` | Multinomial sampling, Shannon/Simpson diversity, Bray-Curtis, evenness, analytical rarefaction | C (WGSL production ready) |
 | `seismic` | Haversine, travel time, grid-search inversion | **GPU-ready** (V31 dispatch) |
-| `gillespie` | Gillespie SSA for stochastic chemical kinetics | Pending (batch API needed, SSA serial) |
+| `gillespie` | Gillespie SSA for stochastic chemical kinetics | **GPU dispatched** (batch via GillespieGpu) |
 | `bootstrap` | Bootstrap (mean/median/std) + RAWR confidence intervals | A Lean (`barracuda::stats`) |
 | `anderson` | Anderson localization, Lyapunov exponents, analytical ξ(W,E) | A Lean (`barracuda::spectral` + `special`) |
 | `almost_mathieu` | Almost-Mathieu quasiperiodic localization, level spacing | A Lean (`barracuda::spectral`) |
 | `linalg` | Tridiag eigensolver (implicit QL with Wilkinson shifts) — shared by transport + band_structure | B (adapt) |
 | `transport` | Wavepacket MSD, transport exponent (re-exports `linalg::tridiag_eigh` for compat) | B (adapt) |
 | `error` | Typed input validation errors (`InputError`: `LengthMismatch`, `InsufficientData`, `OutOfRange`) | N/A |
-| `drift` | Wright-Fisher fixation, Kimura fixation probability, neutral diversity trajectory | B (adapt) |
+| `drift` | Wright-Fisher fixation, Kimura fixation probability, neutral diversity trajectory | **GPU dispatched** (batch via WrightFisherGpu) + B (adapt) |
 | `cast` | Centralized numeric casts with documented safety | N/A |
 | `kinetics` | Hill + Monod kinetics (shared bistable + multi-signal) | A Lean (barracuda::stats::hill, monod) |
 | `validate` | Generic Write harness (hotSpring pattern) | N/A |
@@ -101,9 +101,9 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace                         # 436 tests, all PASS
-cargo test --workspace --features biomeos      # 468 tests (adds biomeOS client + integration)
-cargo clippy --workspace -- -D warnings        # zero warnings × 4 modes
+cargo test --workspace                         # 569 tests, all PASS
+cargo test --workspace --features barracuda-gpu # 569 tests (GPU dispatch active)
+cargo clippy --workspace --all-targets -- -D warnings -W clippy::pedantic -W clippy::nursery
 cargo fmt --check                              # clean
 
 # Barracuda-delegated mode (validates cross-spring math)
@@ -213,34 +213,34 @@ Run parity report: `python3 scripts/parity_report.py`
 | Barracuda CPU | 21,512 | 12,734 | ~0% overhead |
 | **Barracuda-GPU** | **9,236** | **244** | **−55% (2.2× faster)** |
 
-Barracuda CPU delegation is free. Barracuda-GPU adds the Sturm tridiag
-eigenvalue solver (from hotSpring S26 spectral), giving **47.7× speedup**
-for Exp 009. Cross-spring evolution (hotSpring precision, wetSpring bio-stats,
-airSpring metrics, neuralSpring dispatch) validated by 46 active delegations
-(37 CPU + 9 GPU), with 7 pending ToadStool absorption (3 CPU + 4 GPU).
-19 metalForge workloads route across 5 substrates (GPU/NPU/CPU) with architecture-aware routing.
+Barracuda CPU delegation is free. Barracuda-GPU adds Sturm tridiag
+eigenvalue solver (from hotSpring S26 spectral), GPU reduce ops
+(FusedMapReduceF64, SumReduceF64, VarianceReduceF64, CorrelationF64),
+and batch dispatch APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64),
+giving **47.7× speedup** for Exp 009. Cross-spring evolution validated
+by 48 active delegations (31 CPU + 17 GPU), with 6 pending ToadStool
+absorption. 19 metalForge workloads route across 5 substrates
+(17 GPU + 2 NPU) with architecture-aware routing.
 
 ## Evolution Path
 
 ```
 Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration (Phase 2)  →  Mixed hardware (Phase 3)
    NumPy/SciPy                    Pure safe Rust                BarraCUDA / ToadStool            metalForge dispatch
-     ✓ Complete                     ✓ 292/292 PASS               ◐ 46 active (37 CPU +             19 workloads
-   11.5× slower than Rust           28/28 parity proven            9 GPU) + 7 pending              5 substrates, arch-aware
+     ✓ Complete                     ✓ 292/292 PASS               ◐ 48 active (31 CPU +             19 workloads
+   11.5× slower than Rust           28/28 parity proven           17 GPU) + 6 pending              17 GPU + 2 NPU
 
      Write locally              →  Hand off to barracuda      →  Lean on upstream              →  Cross-substrate parity
      (metalForge shaders)          (wateringHole/handoffs/)       (rewire to barracuda ops)        (metalForge forge crate)
 ```
 
-**Lean progress**: 46 functions delegate to barracuda with graceful sovereign fallback.
-37 CPU delegated via `#[cfg(feature = "barracuda")]` (including simpson, bray_curtis,
-rarefaction_curve, monod, bootstrap_median, bootstrap_std, moving_window_stats),
-9 GPU delegated via `#[cfg(feature = "barracuda-gpu")]`.
-7 additional delegations pending ToadStool absorption (commented out with `TODO(toadstool)`):
-3 CPU (`kimura_fixation`, `jackknife_mean_variance`, `fao56_et0`) +
-4 GPU (`grid_fit_2d`, `grid_search_3d`, `band_edges_parallel`,
-`batched_multinomial` signature alignment).
-Two production WGSL shaders ready for ToadStool absorption.
+**Lean progress**: 48 functions delegate to barracuda with graceful sovereign fallback.
+31 CPU delegated via `#[cfg(feature = "barracuda")]`, 17 GPU delegated via
+`#[cfg(feature = "barracuda-gpu")]` including GPU stats dispatch (mean, std_dev,
+rmse, mbe, pearson_r) and batch APIs (birth_death_ssa_batch, wright_fisher_fixation_batch,
+daily_et0_batch). 6 additional delegations pending ToadStool absorption
+(commented out with `TODO(toadstool)`): kimura_fixation, jackknife_mean_variance,
+fao56_et0 scalar, grid_fit_2d, grid_search_3d, band_edges_parallel.
 
 See `specs/BARRACUDA_EVOLUTION.md` for the full GPU promotion mapping.
 See `metalForge/` for absorption-ready shaders and the manifest.
@@ -292,7 +292,7 @@ groundSpring/
 │   └── shaders/                     # Production WGSL shaders for ToadStool absorption
 ├── graphs/                          # biomeOS pipeline graphs (Tower bootstrap, Node, cross-substrate)
 ├── .github/workflows/ci.yml         # GitHub Actions CI
-├── wateringHole/                    # Handoff directory (V46 current)
+├── wateringHole/                    # Handoff directory (V51 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md       # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md    # GPU kernel gap analysis
@@ -327,4 +327,4 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026 | V43 three-tier parity proven + pure GPU workloads: February 28, 2026 | V44 deep-debt evolution — linalg extraction, typed errors, capability-based discovery: February 28, 2026 | V45 validation gap closure — 292/292 checks: February 28, 2026 | V46 idiomatic Rust evolution — agreement.rs domain split, R²/NSE dedup, iterator modernization: February 28, 2026 | V47 library buildout — 7 new barracuda CPU delegations (simpson, bray_curtis, rarefaction_curve, monod, bootstrap_median, bootstrap_std, moving_window_stats), 46 active delegations: February 28, 2026*
+*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026 | V43 three-tier parity proven + pure GPU workloads: February 28, 2026 | V44 deep-debt evolution — linalg extraction, typed errors, capability-based discovery: February 28, 2026 | V45 validation gap closure — 292/292 checks: February 28, 2026 | V46 idiomatic Rust evolution — agreement.rs domain split, R²/NSE dedup, iterator modernization: February 28, 2026 | V47 library buildout — 7 new barracuda CPU delegations, 46 active: February 28, 2026 | V51 GPU stats dispatch + CPU/GPU parity proof — 48 active (31 CPU + 17 GPU), 9 CPU vs GPU parity tests, bench-cpu-vs-gpu binary: February 28, 2026*

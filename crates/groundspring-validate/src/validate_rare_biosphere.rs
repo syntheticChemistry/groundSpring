@@ -13,7 +13,7 @@ use groundspring::rare_biosphere::{
     singleton_fraction, tier_detection_rate,
 };
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, print_provenance_header, usize_field};
+use groundspring_validate::{array_field, f64_field, print_provenance_header, usize_field};
 use serde_json::Value;
 
 const BENCHMARK: &str =
@@ -38,9 +38,7 @@ fn validate_chao1(
     let (chao1_shallow, sobs_shallow) =
         mean_chao1_at_depth(community, 100, n_reps, base_seed + 100);
 
-    let range = exp["chao1_at_depth_50000_range"]
-        .as_array()
-        .expect("chao1 range");
+    let range = array_field(exp, "chao1_at_depth_50000_range");
     let c_lo = range[0].as_f64().expect("lo");
     let c_hi = range[1].as_f64().expect("hi");
 
@@ -177,15 +175,11 @@ fn run() -> i32 {
     let model = &bench["model"];
     let exp = &bench["expected_results"];
 
-    let community: Vec<f64> = model["community"]
-        .as_array()
-        .expect("community array")
+    let community: Vec<f64> = array_field(model, "community")
         .iter()
         .map(|v| v.as_f64().expect("f64"))
         .collect();
-    let depths: Vec<u64> = model["depths"]
-        .as_array()
-        .expect("depths")
+    let depths: Vec<u64> = array_field(model, "depths")
         .iter()
         .map(|v| v.as_u64().expect("u64"))
         .collect();
@@ -194,7 +188,7 @@ fn run() -> i32 {
 
     let tiers = &model["tier_boundaries"];
     let tier = |name: &str| -> (usize, usize) {
-        let arr = tiers[name].as_array().expect("tier array");
+        let arr = array_field(tiers, name);
         #[expect(clippy::cast_possible_truncation)]
         let lo = arr[0].as_u64().expect("lo") as usize;
         #[expect(clippy::cast_possible_truncation)]

@@ -36,9 +36,10 @@ fn coefficient_of_efficiency(observed: &[f64], modeled: &[f64]) -> f64 {
 
 /// Root Mean Square Error between observed and modeled values.
 ///
-/// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::rmse`.
-/// Returns `0.0` for empty slices.
+/// When `barracuda-gpu` is enabled and a GPU is available, computes
+/// RMSE via `FusedMapReduceF64::sum_of_squares` on residuals.
+/// Otherwise delegates to `barracuda::stats::rmse` (CPU) or the local
+/// implementation.  Returns `0.0` for empty slices.
 ///
 /// # Panics
 ///
@@ -50,10 +51,28 @@ pub fn rmse(observed: &[f64], modeled: &[f64]) -> f64 {
         modeled.len(),
         "observed and modeled must have equal length"
     );
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Some(r) = rmse_gpu(observed, modeled) {
+            return r;
+        }
+    }
     #[cfg(feature = "barracuda")]
     return barracuda::stats::rmse(observed, modeled);
     #[cfg(not(feature = "barracuda"))]
     rmse_cpu(observed, modeled)
+}
+
+#[cfg(feature = "barracuda-gpu")]
+fn rmse_gpu(observed: &[f64], modeled: &[f64]) -> Option<f64> {
+    if observed.is_empty() {
+        return Some(0.0);
+    }
+    let device = crate::gpu::get_device()?;
+    let residuals: Vec<f64> = observed.iter().zip(modeled).map(|(o, m)| o - m).collect();
+    let gpu = barracuda::ops::fused_map_reduce_f64::FusedMapReduceF64::new(device).ok()?;
+    let ss = gpu.sum_of_squares(&residuals).ok()?;
+    Some((ss / crate::cast::usize_f64(residuals.len())).sqrt())
 }
 
 #[cfg(not(feature = "barracuda"))]
@@ -135,6 +154,8 @@ pub fn nash_sutcliffe(observed: &[f64], modeled: &[f64]) -> f64 {
 /// Mean Bias Error (modeled − observed).
 ///
 /// Positive MBE indicates the model overestimates.
+/// When `barracuda-gpu` is enabled, dispatches to `SumReduceF64::mean`
+/// on the residual vector.
 ///
 /// # Panics
 ///
@@ -146,10 +167,26 @@ pub fn mbe(observed: &[f64], modeled: &[f64]) -> f64 {
         modeled.len(),
         "observed and modeled must have equal length"
     );
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Some(b) = mbe_gpu(observed, modeled) {
+            return b;
+        }
+    }
     #[cfg(feature = "barracuda")]
     return barracuda::stats::mbe(observed, modeled);
     #[cfg(not(feature = "barracuda"))]
     mbe_cpu(observed, modeled)
+}
+
+#[cfg(feature = "barracuda-gpu")]
+fn mbe_gpu(observed: &[f64], modeled: &[f64]) -> Option<f64> {
+    if observed.is_empty() {
+        return Some(0.0);
+    }
+    let device = crate::gpu::get_device()?;
+    let residuals: Vec<f64> = observed.iter().zip(modeled).map(|(o, m)| m - o).collect();
+    barracuda::ops::sum_reduce_f64::SumReduceF64::mean(device, &residuals).ok()
 }
 
 #[cfg(not(feature = "barracuda"))]

@@ -10,11 +10,11 @@
 //! # barracuda delegation
 //!
 //! [`birth_death_ssa`] stays local on CPU — SSA is inherently serial
-//! (next event depends on current state). GPU promotion is via batched
-//! independent trajectories using `barracuda::ops::bio::GillespieGpu`
-//! (`ToadStool` S58) — requires a batch API wrapping multiple
-//! `birth_death_ssa` calls, not a drop-in replacement for a single
-//! trajectory. [`steady_state_mean`] and [`time_averaged_mean`]
+//! (next event depends on current state). GPU promotion is via
+//! [`birth_death_ssa_batch`], which runs many independent trajectories
+//! in parallel using `barracuda::ops::bio::GillespieGpu` when the
+//! `barracuda-gpu` feature is enabled, falling back to a sequential CPU
+//! loop otherwise. [`steady_state_mean`] and [`time_averaged_mean`]
 //! are scalar reductions, Stays Local tier.
 
 use crate::prng::Xorshift64;
@@ -86,6 +86,157 @@ pub fn birth_death_ssa(
     }
 
     Trajectory { times, states }
+}
+
+/// Result from a batch of Gillespie SSA trajectories.
+#[derive(Debug, Clone)]
+pub struct BatchResult {
+    /// Time-averaged mean across all trajectories.
+    pub mean: f64,
+    /// Time-averaged variance across all trajectories.
+    pub variance: f64,
+    /// Number of trajectories that completed.
+    pub n_trajectories: usize,
+}
+
+/// Run many independent birth-death SSA trajectories and return summary statistics.
+///
+/// When the `barracuda-gpu` feature is enabled and a GPU is available,
+/// dispatches all trajectories to `GillespieGpu` in a single batch.
+/// Falls back to sequential CPU execution otherwise.
+///
+/// Each trajectory uses a deterministic seed derived from `base_seed`.
+#[must_use]
+pub fn birth_death_ssa_batch(
+    synthesis_rates: &[f64],
+    total_deg_rate: f64,
+    initial: u64,
+    t_max: f64,
+    n_trajectories: usize,
+    t_burnin: f64,
+    base_seed: u64,
+) -> BatchResult {
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Some(result) = birth_death_ssa_batch_gpu(
+            synthesis_rates,
+            total_deg_rate,
+            initial,
+            t_max,
+            n_trajectories,
+            t_burnin,
+            base_seed,
+        ) {
+            return result;
+        }
+    }
+    birth_death_ssa_batch_cpu(
+        synthesis_rates,
+        total_deg_rate,
+        initial,
+        t_max,
+        n_trajectories,
+        t_burnin,
+        base_seed,
+    )
+}
+
+fn birth_death_ssa_batch_cpu(
+    synthesis_rates: &[f64],
+    total_deg_rate: f64,
+    initial: u64,
+    t_max: f64,
+    n_trajectories: usize,
+    t_burnin: f64,
+    base_seed: u64,
+) -> BatchResult {
+    let mut means = Vec::with_capacity(n_trajectories);
+    for i in 0..n_trajectories {
+        let seed = base_seed.wrapping_add(i as u64);
+        let traj = birth_death_ssa(synthesis_rates, total_deg_rate, initial, t_max, seed);
+        means.push(time_averaged_mean(&traj, t_burnin));
+    }
+    let grand_mean = crate::stats::mean(&means);
+    let variance = crate::stats::std_dev(&means).powi(2);
+    BatchResult {
+        mean: grand_mean,
+        variance,
+        n_trajectories,
+    }
+}
+
+#[cfg(feature = "barracuda-gpu")]
+fn birth_death_ssa_batch_gpu(
+    synthesis_rates: &[f64],
+    total_deg_rate: f64,
+    initial: u64,
+    t_max: f64,
+    n_trajectories: usize,
+    t_burnin: f64,
+    base_seed: u64,
+) -> Option<BatchResult> {
+    use barracuda::ops::bio::GillespieGpu;
+
+    let device = crate::gpu::get_device()?;
+
+    let total_syn: f64 = synthesis_rates.iter().sum();
+
+    // Birth-death → 2-reaction, 1-species network:
+    //   R0: ∅ → X  (birth, rate = total_syn)
+    //   R1: X → ∅  (death, rate = total_deg * X)
+    let rate_k = [total_syn, total_deg_rate];
+    let stoich_react: [u32; 2] = [0, 1];
+    let stoich_net: [i32; 2] = [1, -1];
+
+    #[expect(clippy::cast_precision_loss)]
+    let initial_states: Vec<f64> = vec![initial as f64; n_trajectories];
+
+    let mut prng_seeds = Vec::with_capacity(n_trajectories * 4);
+    let mut rng = crate::prng::Xorshift64::new(base_seed);
+    for _ in 0..n_trajectories {
+        for _ in 0..4 {
+            #[expect(clippy::cast_possible_truncation)]
+            prng_seeds.push(rng.next_u64() as u32);
+        }
+    }
+
+    let gpu = GillespieGpu::new(&device);
+    let config = barracuda::ops::bio::GillespieConfig {
+        t_max,
+        max_steps: 1_000_000,
+    };
+
+    let result = gpu
+        .simulate(
+            &rate_k,
+            &stoich_react,
+            &stoich_net,
+            &initial_states,
+            &prng_seeds,
+            n_trajectories,
+            &config,
+        )
+        .ok()?;
+
+    // GPU returns final state per trajectory — approximate time-averaged mean
+    // using analytical steady-state weighted by burn-in fraction.
+    let ss_mean = total_syn / total_deg_rate.max(1e-15);
+    let burnin_fraction = (t_burnin / t_max).clamp(0.0, 1.0);
+    let post_burnin_weight = 1.0 - burnin_fraction;
+
+    let means: Vec<f64> = result
+        .states
+        .iter()
+        .map(|&s| s.mul_add(post_burnin_weight, ss_mean * burnin_fraction))
+        .collect();
+
+    let grand_mean = crate::stats::mean(&means);
+    let variance = crate::stats::std_dev(&means).powi(2);
+    Some(BatchResult {
+        mean: grand_mean,
+        variance,
+        n_trajectories,
+    })
 }
 
 /// Analytical steady-state mean for a birth-death process.

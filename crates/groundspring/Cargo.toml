@@ -15,7 +15,7 @@ workspace = true
 [features]
 default = []
 barracuda = ["dep:barracuda"]
-barracuda-gpu = ["barracuda", "barracuda/gpu", "dep:pollster"]
+barracuda-gpu = ["barracuda", "barracuda/gpu", "dep:pollster", "dep:wgpu", "dep:bytemuck"]
 biomeos = []
 npu = ["dep:akida-driver"]
 
@@ -23,6 +23,8 @@ npu = ["dep:akida-driver"]
 barracuda = { path = "../../../phase1/toadstool/crates/barracuda", optional = true, default-features = false }
 akida-driver = { path = "../../../phase1/toadstool/crates/neuromorphic/akida-driver", optional = true }
 pollster = { version = "0.4", optional = true }
+wgpu = { version = "22", optional = true, default-features = false, features = ["wgsl", "vulkan-portability"] }
+bytemuck = { version = "1", optional = true, features = ["derive"] }
 
 [dev-dependencies]
 proptest = "1"

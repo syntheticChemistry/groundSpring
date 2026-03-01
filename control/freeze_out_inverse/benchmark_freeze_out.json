@@ -12,7 +12,8 @@
     "baseline_date": "2026-02-26",
     "baseline_commit": "6e73709291d5dacfd527dd414a62aa8ade7e8f57",
     "validation_script": "control/freeze_out_inverse/freeze_out_inverse.py",
-    "command": "python3 control/freeze_out_inverse/freeze_out_inverse.py"
+    "command": "python3 control/freeze_out_inverse/freeze_out_inverse.py",
+    "real_data_accession": "N/A (analytical freeze-out curve with synthetic noise)"
   },
   "_description": "Chi-squared fitting inverse problem: recover freeze-out curve parameters from noisy observables using grid search. Validates polynomial forward model, chi-squared statistic, 2D grid search recovery, and noise degradation.",
   "_groundspring_question": "Can grid-search chi-squared fitting recover known parameters from noisy polynomial observables at subpercent precision?",

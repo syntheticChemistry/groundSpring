@@ -9,7 +9,7 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V47 | [GROUNDSPRING_TOADSTOOL_V47_LIBRARY_BUILDOUT_BARRACUDA_CPU_HANDOFF_FEB28_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V47_LIBRARY_BUILDOUT_BARRACUDA_CPU_HANDOFF_FEB28_2026.md) | Feb 28, 2026 | Library buildout: 7 new barracuda CPU delegations (simpson, bray_curtis, rarefaction_curve, monod, bootstrap_median, bootstrap_std, moving_window_stats), 46 active (37 CPU + 9 GPU) + 7 pending, absorption guidance |
+| V51 | [GROUNDSPRING_TOADSTOOL_V51_GPU_STATS_DISPATCH_PARITY_HANDOFF_FEB28_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V51_GPU_STATS_DISPATCH_PARITY_HANDOFF_FEB28_2026.md) | Feb 28, 2026 | GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r), batch GPU APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64), 9 CPU vs GPU parity tests, bench-cpu-vs-gpu binary. 48 active (31 CPU + 17 GPU) + 6 pending |
 
 ## Cross-Spring Documentation
 
@@ -36,6 +36,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V47 | Library buildout: 7 new CPU delegations, 46 active (37 CPU + 9 GPU) (superseded by V51) |
 | V44 | Deep-debt evolution: linalg module, typed InputError, 39 active delegations (superseded by V46) |
 | V43 | Three-tier parity proven (27/27), pure GPU workloads (26/26), 39 active delegations (superseded by V44) |
 | V39 | NUCLEUS integration, NestGate data pipeline, metalForge remote (superseded by V43) |

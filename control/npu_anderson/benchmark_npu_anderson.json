@@ -1,5 +1,6 @@
 {
     "_source": "Exp 028 — NPU Anderson Regime Classification",
+    "_doi": "10.1103/PhysRev.109.1492",
     "_provenance": {
         "method": "Analytical ξ(W, E=0) = C/W² classification with int8 quantization",
         "reference": "Anderson 1958; Derrida-Gardner 1984; BrainChip AKD1000 datasheet",

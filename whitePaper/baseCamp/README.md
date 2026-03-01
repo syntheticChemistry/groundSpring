@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: February 28, 2026
 
-**Validation Summary**: 292/292 checks (+ 49 metalForge + 13 metalForge validation + 9 NestGate NCBI + 15 NUCLEUS pipeline), **46 active delegations + 7 pending ToadStool (37 CPU + 9 GPU)**, 490+ workspace Rust tests (barracuda-gpu) + 320 Python tests. All 28 experiments DONE. **11.5× faster** than Python (excl. LAPACK-bound). **28/28 mathematical parity proven**. 44 three-tier parity tests, 6 live NUCLEUS integration tests, zero clippy/doc warnings. V46: idiomatic Rust evolution — `stats::agreement` domain split (R²/NSE deduplicated), `.windows(3).fold()` iterator modernization, `NESTGATE_DEFAULT_PORT` constant, full codebase audit (0 unsafe, 0 mocks, 0 unwrap in library). V45: validation gap closure (+4 checks → 292/292). V44: deep-debt evolution — `linalg` module, `InputError` typed errors, 5 APIs `assert!` → `Result`, capability-based discovery. V43: three-tier parity proven (27/27), pure GPU workloads (26/26). ToadStool S68+: 700 WGSL, zero f32-only, dual-layer DF64. 9 domains, 30 modules.
+**Validation Summary**: 292/292 checks (+ 49 metalForge), **48 active delegations + 6 pending ToadStool (31 CPU + 17 GPU)**, 569 workspace Rust tests + 375 Python tests = 944 total. All 28 experiments DONE. **11.5× faster** than Python (excl. LAPACK-bound). **28/28 mathematical parity proven**. 95 three-tier parity tests, 9 CPU vs GPU explicit parity tests, zero clippy/doc warnings. V51: GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r) + batch GPU APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64) + CPU vs GPU benchmark binary. 9 domains, 30 modules.
 
 ---
 

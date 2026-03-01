@@ -126,11 +126,12 @@ pub fn capability_call(socket: &Path, capability: &str, params_json: &str) -> Re
     }
 }
 
-/// Direct JSON-RPC call to a specific biomeOS primal via capability routing.
+/// Direct JSON-RPC call targeting a specific biomeOS primal by name.
 ///
-/// Routes through the Neural API's `capability.call` using the target primal
-/// name as the capability category. For example, calling `nestgate` with method
-/// `storage.store` becomes `capability.call("nestgate", "storage.store", args)`.
+/// **Prefer [`capability_call`] for normal use** — it routes by capability,
+/// letting biomeOS discover which primal provides the service at runtime.
+/// Use `direct_rpc_call` only when you must bypass capability discovery and
+/// target a known primal directly (e.g. hardware-specific operations).
 ///
 /// # Errors
 ///
@@ -156,7 +157,10 @@ pub fn direct_rpc_call(
     }
 }
 
-/// Store a value in `NestGate` via biomeOS.
+/// Store a value via biomeOS capability-based storage routing.
+///
+/// Routes through `storage.store` capability — biomeOS discovers which
+/// primal handles storage at runtime (no hardcoded primal references).
 ///
 /// # Errors
 ///
@@ -168,11 +172,14 @@ pub fn storage_put(socket: &Path, key: &str, value: &str) -> Result<()> {
         escape_json(value),
         FAMILY_ID,
     );
-    direct_rpc_call(socket, "nestgate", "storage.store", &params)?;
+    capability_call(socket, "storage.store", &params)?;
     Ok(())
 }
 
-/// Retrieve a value from `NestGate` via biomeOS.
+/// Retrieve a value via biomeOS capability-based storage routing.
+///
+/// Routes through `storage.retrieve` capability — biomeOS discovers which
+/// primal handles storage at runtime.
 ///
 /// # Errors
 ///
@@ -184,7 +191,7 @@ pub fn storage_get(socket: &Path, key: &str) -> Result<String> {
         escape_json(key),
         FAMILY_ID,
     );
-    direct_rpc_call(socket, "nestgate", "storage.retrieve", &params)
+    capability_call(socket, "storage.retrieve", &params)
 }
 
 /// Health check: verify the Neural API is alive.

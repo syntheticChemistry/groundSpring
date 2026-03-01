@@ -5,6 +5,7 @@
     "Kemper & Rosenau (1986) Aggregate stability wet sieving",
     "Bourgain & Kachkovskiy (2018) GAFA 29:3-43"
   ],
+  "_doi": "10.2136/sssabookser5.4.c14",
   "_provenance": {
     "generated_by": "groundSpring Exp 024 aggregate stability noise decomposition",
     "baseline_date": "2026-02-26",
@@ -12,7 +13,8 @@
     "validation_script": "control/aggregate_stability/aggregate_stability.py",
     "command": "python3 control/aggregate_stability/aggregate_stability.py",
     "prng_algorithm": "numpy.random.default_rng (PCG64)",
-    "data_origin": "Synthetic WSA values based on published ranges (Nimmo & Perkins 2002)"
+    "data_origin": "Synthetic WSA values based on published ranges (Nimmo & Perkins 2002)",
+    "real_data_accession": "N/A (synthetic based on published WSA ranges)"
   },
   "soil_states": {
     "tilled": {

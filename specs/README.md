@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: February 28, 2026
-**Status**: Phase 0 + Phase 1 + Phase 2a complete + GPU dispatch (V46) — 292/292 PASS, 46 active delegations + 7 pending ToadStool (37 CPU + 9 GPU), 49 metalForge tests, arch-aware GPU dispatch, 11.5× faster (excl. LAPACK-bound), 28/28 parity proven
+**Status**: Phase 0 + Phase 1 + Phase 2a complete + GPU stats dispatch (V51) — 292/292 PASS, 48 active delegations + 6 pending ToadStool (31 CPU + 17 GPU), 569 workspace tests, 95 three-tier parity tests, 49 metalForge tests, GPU stats (mean/std_dev/rmse/mbe/pearson_r) + batch APIs (GillespieGpu/WrightFisherGpu/BatchedElementwiseF64), 11.5× faster (excl. LAPACK-bound), 28/28 parity proven
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -13,7 +13,7 @@
 | Phase 0 (Python) | 28/28 experiments PASS across 9 scientific domains (~288 checks) |
 | Phase 1 (Rust) | 292/292 PASS — 28 validation binaries |
 | Mathematical Parity | 28/28 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
-| Rust tests | 442 with biomeos / 410 default (+ 320 Python = 762 total) |
+| Rust tests | 569 workspace (barracuda-gpu) + 375 Python = 944 total |
 | metalForge | 2 production WGSL shaders (mc_et0_propagate, batched_multinomial) |
 | Exp 001 | Sensor noise decomposition — EC5 bias-dominated, CS616 mixed |
 | Exp 002 | Observation gap ERA5 vs station — methodology validated |
@@ -36,7 +36,7 @@
 | Exp 019 | Jackknife error estimation — subpercent precision (Bazavov 2025 Phys Rev D) |
 | Exp 020 | Freeze-out inverse problem — inferring freeze-out conditions (Bazavov 2016) |
 | Exp 021 | Spectral function reconstruction — signal recovery from noisy lattice data (Bazavov 2025) |
-| Barracuda | 46 active delegations + 7 pending ToadStool (37 CPU + 9 GPU). 49 metalForge tests, arch-aware GPU routing |
+| Barracuda | 48 active (31 CPU + 17 GPU) + 6 pending ToadStool. GPU stats dispatch + batch APIs. 49 metalForge tests |
 | Performance | 11.5× faster than Python (excl. LAPACK-bound); 5.1× overall |
 | Faculty | Bazavov, Waters, Liu, Kachkovskiy, R. Anderson, Dolson |
 

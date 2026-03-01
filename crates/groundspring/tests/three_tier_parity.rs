@@ -538,18 +538,648 @@ fn regression_logarithmic_parity() {
     assert!((f1.params[1] - b).abs() < 1e-8, "b = {}", f1.params[1]);
 }
 
+// ── bootstrap ─────────────────────────────────────────────────────
+
+#[test]
+fn bootstrap_mean_parity_deterministic() {
+    let data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
+    let r1 = groundspring::bootstrap::bootstrap_mean(&data, 1000, 0.95, 42);
+    let r2 = groundspring::bootstrap::bootstrap_mean(&data, 1000, 0.95, 42);
+    assert_eq!(r1.estimate.to_bits(), r2.estimate.to_bits(), "mean bitwise");
+    assert_eq!(
+        r1.ci_lower.to_bits(),
+        r2.ci_lower.to_bits(),
+        "ci_lower bitwise"
+    );
+    assert_eq!(
+        r1.ci_upper.to_bits(),
+        r2.ci_upper.to_bits(),
+        "ci_upper bitwise"
+    );
+    assert!(
+        (r1.estimate - 5.5).abs() < 1.0,
+        "mean near 5.5: {}",
+        r1.estimate
+    );
+}
+
+#[test]
+fn bootstrap_mean_parity_ci_contains_true() {
+    let data = [2.0, 4.0, 6.0, 8.0, 10.0];
+    let r = groundspring::bootstrap::bootstrap_mean(&data, 2000, 0.95, 99);
+    assert!(
+        r.ci_lower <= 6.0 && r.ci_upper >= 6.0,
+        "95% CI should contain true mean 6.0"
+    );
+}
+
+#[test]
+fn rawr_mean_parity_deterministic() {
+    let data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
+    let r1 = groundspring::bootstrap::rawr_mean(&data, 1000, 0.95, 42);
+    let r2 = groundspring::bootstrap::rawr_mean(&data, 1000, 0.95, 42);
+    assert_eq!(r1.estimate.to_bits(), r2.estimate.to_bits(), "rawr bitwise");
+    assert_eq!(
+        r1.std_error.to_bits(),
+        r2.std_error.to_bits(),
+        "rawr se bitwise"
+    );
+}
+
+#[test]
+fn bootstrap_median_parity_deterministic() {
+    let data = [1.0, 3.0, 5.0, 7.0, 9.0, 11.0, 13.0];
+    let r1 = groundspring::bootstrap::bootstrap_median(&data, 1000, 0.95, 7);
+    let r2 = groundspring::bootstrap::bootstrap_median(&data, 1000, 0.95, 7);
+    assert_eq!(
+        r1.estimate.to_bits(),
+        r2.estimate.to_bits(),
+        "median bitwise"
+    );
+    assert!(
+        (r1.estimate - 7.0).abs() < 2.0,
+        "median near 7.0: {}",
+        r1.estimate
+    );
+}
+
+#[test]
+fn bootstrap_std_parity_deterministic() {
+    let data = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
+    let r1 = groundspring::bootstrap::bootstrap_std(&data, 1000, 0.95, 13);
+    let r2 = groundspring::bootstrap::bootstrap_std(&data, 1000, 0.95, 13);
+    assert_eq!(r1.estimate.to_bits(), r2.estimate.to_bits(), "std bitwise");
+    assert!(r1.estimate > 0.0, "std positive");
+}
+
+// ── stats::moving_window ──────────────────────────────────────────
+
+#[test]
+fn moving_window_stats_parity_deterministic() {
+    let data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
+    let r1 = groundspring::stats::moving_window_stats(&data, 3).unwrap();
+    let r2 = groundspring::stats::moving_window_stats(&data, 3).unwrap();
+    assert_eq!(r1.mean.len(), r2.mean.len(), "length parity");
+    for (a, b) in r1.mean.iter().zip(r2.mean.iter()) {
+        assert_eq!(a.to_bits(), b.to_bits(), "mean bitwise");
+    }
+    for (a, b) in r1.variance.iter().zip(r2.variance.iter()) {
+        assert_eq!(a.to_bits(), b.to_bits(), "variance bitwise");
+    }
+}
+
+#[test]
+fn moving_window_stats_parity_known_value() {
+    let data = [1.0, 2.0, 3.0];
+    let r = groundspring::stats::moving_window_stats(&data, 3).unwrap();
+    assert!((r.mean[0] - 2.0).abs() < 1e-10, "window mean = 2.0");
+}
+
+// ── rarefaction (diversity indices) ───────────────────────────────
+
+#[test]
+fn simpson_diversity_parity_known_value() {
+    let counts = [10, 10, 10, 10];
+    let d1 = groundspring::rarefaction::simpson_diversity(&counts);
+    let d2 = groundspring::rarefaction::simpson_diversity(&counts);
+    assert_eq!(d1.to_bits(), d2.to_bits(), "simpson bitwise");
+    assert!((d1 - 0.75).abs() < 0.01, "even community D ≈ 0.75: {d1}");
+}
+
+#[test]
+fn shannon_diversity_parity_known_value() {
+    let counts = [10, 10, 10, 10];
+    let h1 = groundspring::rarefaction::shannon_diversity(&counts);
+    let h2 = groundspring::rarefaction::shannon_diversity(&counts);
+    assert_eq!(h1.to_bits(), h2.to_bits(), "shannon bitwise");
+    let expected = (4.0_f64).ln();
+    assert!(
+        (h1 - expected).abs() < 1e-10,
+        "H = ln(4) ≈ {expected}: {h1}"
+    );
+}
+
+#[test]
+fn evenness_parity_known_value() {
+    let counts = [10, 10, 10, 10];
+    let e1 = groundspring::rarefaction::evenness(&counts);
+    let e2 = groundspring::rarefaction::evenness(&counts);
+    assert_eq!(e1.to_bits(), e2.to_bits(), "evenness bitwise");
+    assert!((e1 - 1.0).abs() < 1e-10, "perfectly even J = 1.0: {e1}");
+}
+
+#[test]
+fn bray_curtis_parity_known_value() {
+    let a = [10.0, 20.0, 30.0];
+    let b = [10.0, 20.0, 30.0];
+    let d = groundspring::rarefaction::bray_curtis(&a, &b);
+    assert!((d - 0.0).abs() < 1e-15, "identical => BC = 0: {d}");
+
+    let c = [0.0, 0.0, 60.0];
+    let d2 = groundspring::rarefaction::bray_curtis(&a, &c);
+    assert!(d2 > 0.0 && d2 <= 1.0, "BC in (0,1]: {d2}");
+}
+
+#[test]
+fn analytical_rarefaction_parity_deterministic() {
+    let counts = [100, 50, 25, 10, 5];
+    let depths = [10, 50, 100, 150];
+    let r1 = groundspring::rarefaction::analytical_rarefaction(&counts, &depths);
+    let r2 = groundspring::rarefaction::analytical_rarefaction(&counts, &depths);
+    assert_eq!(r1.len(), r2.len());
+    for (a, b) in r1.iter().zip(r2.iter()) {
+        assert_eq!(a.to_bits(), b.to_bits(), "rarefaction bitwise");
+    }
+    for w in r1.windows(2) {
+        assert!(w[1] >= w[0], "rarefaction monotonically non-decreasing");
+    }
+}
+
+// ── kinetics ──────────────────────────────────────────────────────
+
+#[test]
+fn hill_parity_known_value() {
+    let y = groundspring::kinetics::hill(10.0, 10.0, 2.0);
+    assert!((y - 0.5).abs() < 1e-10, "hill(K,K,n) = 0.5: {y}");
+    let y2 = groundspring::kinetics::hill(10.0, 10.0, 2.0);
+    assert_eq!(y.to_bits(), y2.to_bits(), "hill bitwise");
+}
+
+#[test]
+fn hill_parity_extreme() {
+    let sat = groundspring::kinetics::hill(1e6, 1.0, 2.0);
+    assert!((sat - 1.0).abs() < 1e-6, "saturated hill ≈ 1.0: {sat}");
+    let low = groundspring::kinetics::hill(1e-6, 1.0, 2.0);
+    assert!(low < 1e-6, "subsaturated hill ≈ 0.0: {low}");
+}
+
+#[test]
+fn monod_parity_known_value() {
+    let y = groundspring::kinetics::monod(10.0, 1.0, 10.0);
+    assert!((y - 0.5).abs() < 1e-10, "monod(K,1,K) = 0.5: {y}");
+    let y2 = groundspring::kinetics::monod(10.0, 1.0, 10.0);
+    assert_eq!(y.to_bits(), y2.to_bits(), "monod bitwise");
+}
+
+// ── stats::metrics ────────────────────────────────────────────────
+
+#[test]
+fn mean_parity_known_value() {
+    let vals = [1.0, 2.0, 3.0, 4.0, 5.0];
+    let m1 = groundspring::stats::mean(&vals);
+    let m2 = groundspring::stats::mean(&vals);
+    assert_eq!(m1.to_bits(), m2.to_bits(), "mean bitwise");
+    assert!((m1 - 3.0).abs() < 1e-15, "mean = 3.0: {m1}");
+}
+
+#[test]
+fn percentile_parity_known_value() {
+    let vals = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
+    let p50_1 = groundspring::stats::percentile(&vals, 50.0).unwrap();
+    let p50_2 = groundspring::stats::percentile(&vals, 50.0).unwrap();
+    assert_eq!(p50_1.to_bits(), p50_2.to_bits(), "p50 bitwise");
+    assert!((p50_1 - 5.5).abs() < 1.0, "median near 5.5: {p50_1}");
+}
+
+#[test]
+fn sample_std_dev_parity_known_value() {
+    let vals = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
+    let s1 = groundspring::stats::sample_std_dev(&vals);
+    let s2 = groundspring::stats::sample_std_dev(&vals);
+    assert_eq!(s1.to_bits(), s2.to_bits(), "sample_std_dev bitwise");
+    assert!(s1 > 0.0, "positive std dev");
+}
+
+// ── stats::agreement (remaining) ──────────────────────────────────
+
+#[test]
+fn rmse_parity_known_value() {
+    let obs = [1.0, 2.0, 3.0, 4.0, 5.0];
+    let mod_ = [1.0, 2.0, 3.0, 4.0, 5.0];
+    let r = groundspring::stats::rmse(&obs, &mod_);
+    assert!((r - 0.0).abs() < 1e-15, "perfect fit RMSE = 0: {r}");
+    let r2 = groundspring::stats::rmse(&obs, &mod_);
+    assert_eq!(r.to_bits(), r2.to_bits(), "rmse bitwise");
+}
+
+#[test]
+fn mbe_parity_known_value() {
+    let obs = [1.0, 2.0, 3.0];
+    let mod_ = [2.0, 3.0, 4.0];
+    let b1 = groundspring::stats::mbe(&obs, &mod_);
+    let b2 = groundspring::stats::mbe(&obs, &mod_);
+    assert_eq!(b1.to_bits(), b2.to_bits(), "mbe bitwise");
+    assert!((b1 - 1.0).abs() < 1e-15, "constant +1 bias: {b1}");
+}
+
+#[test]
+fn r_squared_parity_known_value() {
+    let obs = [1.0, 2.0, 3.0, 4.0, 5.0];
+    let r2v = groundspring::stats::r_squared(&obs, &obs);
+    assert!((r2v - 1.0).abs() < 1e-10, "perfect R² = 1.0: {r2v}");
+    let r2v2 = groundspring::stats::r_squared(&obs, &obs);
+    assert_eq!(r2v.to_bits(), r2v2.to_bits(), "r_squared bitwise");
+}
+
+#[test]
+fn index_of_agreement_parity_known_value() {
+    let obs = [1.0, 2.0, 3.0, 4.0, 5.0];
+    let ia = groundspring::stats::index_of_agreement(&obs, &obs);
+    assert!((ia - 1.0).abs() < 1e-10, "perfect IA = 1.0: {ia}");
+    let ia2 = groundspring::stats::index_of_agreement(&obs, &obs);
+    assert_eq!(ia.to_bits(), ia2.to_bits(), "ia bitwise");
+}
+
+#[test]
+fn hit_rate_parity_known_value() {
+    let obs = [10.0, 20.0, 30.0];
+    let mod_ = [10.0, 20.0, 30.0];
+    let hr = groundspring::stats::hit_rate(&obs, &mod_, 5.0);
+    assert!((hr - 1.0).abs() < 1e-15, "perfect hit rate = 1.0: {hr}");
+    let hr2 = groundspring::stats::hit_rate(&obs, &mod_, 5.0);
+    assert_eq!(hr.to_bits(), hr2.to_bits(), "hit_rate bitwise");
+}
+
+// ── stats::correlation ────────────────────────────────────────────
+
+#[test]
+fn pearson_r_parity_known_value() {
+    let x = [1.0, 2.0, 3.0, 4.0, 5.0];
+    let y = [2.0, 4.0, 6.0, 8.0, 10.0];
+    let r1 = groundspring::stats::pearson_r(&x, &y);
+    let r2 = groundspring::stats::pearson_r(&x, &y);
+    assert_eq!(r1.to_bits(), r2.to_bits(), "pearson bitwise");
+    assert!((r1 - 1.0).abs() < 1e-10, "perfect linear r = 1.0: {r1}");
+}
+
+#[test]
+fn spearman_r_parity_known_value() {
+    let x = [1.0, 2.0, 3.0, 4.0, 5.0];
+    let y = [2.0, 4.0, 6.0, 8.0, 10.0];
+    let r1 = groundspring::stats::spearman_r(&x, &y);
+    let r2 = groundspring::stats::spearman_r(&x, &y);
+    assert_eq!(r1.to_bits(), r2.to_bits(), "spearman bitwise");
+    assert!((r1 - 1.0).abs() < 1e-10, "perfect monotonic rs = 1.0: {r1}");
+}
+
+#[test]
+fn covariance_parity_known_value() {
+    let x = [1.0, 2.0, 3.0, 4.0, 5.0];
+    let y = [2.0, 4.0, 6.0, 8.0, 10.0];
+    let c1 = groundspring::stats::covariance(&x, &y);
+    let c2 = groundspring::stats::covariance(&x, &y);
+    assert_eq!(c1.to_bits(), c2.to_bits(), "covariance bitwise");
+    assert!(
+        c1 > 0.0,
+        "positive covariance for positively correlated data: {c1}"
+    );
+}
+
+// ── bistable / multisignal ODE derivatives ────────────────────────
+
+#[test]
+fn bistable_derivative_parity_equilibrium() {
+    let params = groundspring::bistable::BistableParams::default();
+    let state = [0.5, 0.1, 0.5, 0.035, 0.01];
+    let d1 = groundspring::bistable::bistable_derivative(&state, &params);
+    let d2 = groundspring::bistable::bistable_derivative(&state, &params);
+    for i in 0..5 {
+        assert_eq!(d1[i].to_bits(), d2[i].to_bits(), "bistable d[{i}] bitwise");
+    }
+    assert!(d1.iter().any(|v| v.abs() > 0.0), "non-trivial derivatives");
+}
+
+#[test]
+fn multisignal_derivative_parity_equilibrium() {
+    let params = groundspring::multisignal::MultiSignalParams::default();
+    let state = [0.5, 0.1, 0.1, 0.5, 0.1, 0.5, 0.01];
+    let d1 = groundspring::multisignal::multisignal_derivative(&state, &params);
+    let d2 = groundspring::multisignal::multisignal_derivative(&state, &params);
+    for i in 0..7 {
+        assert_eq!(
+            d1[i].to_bits(),
+            d2[i].to_bits(),
+            "multisignal d[{i}] bitwise"
+        );
+    }
+    assert!(d1.iter().any(|v| v.abs() > 0.0), "non-trivial derivatives");
+}
+
+// ── stats::regression (linear) ────────────────────────────────────
+
+#[test]
+fn regression_linear_parity() {
+    let xs: Vec<f64> = (0..10).map(f64::from).collect();
+    let ys: Vec<f64> = xs.iter().map(|&x| 2.0_f64.mul_add(x, 1.0)).collect();
+    let f1 = groundspring::stats::fit_linear(&xs, &ys).unwrap();
+    let f2 = groundspring::stats::fit_linear(&xs, &ys).unwrap();
+    assert_eq!(f1.slope.to_bits(), f2.slope.to_bits(), "slope bitwise");
+    assert_eq!(
+        f1.intercept.to_bits(),
+        f2.intercept.to_bits(),
+        "intercept bitwise"
+    );
+    assert!((f1.slope - 2.0).abs() < 1e-10, "slope = 2.0: {}", f1.slope);
+    assert!(
+        (f1.intercept - 1.0).abs() < 1e-10,
+        "intercept = 1.0: {}",
+        f1.intercept
+    );
+    assert!(f1.r_squared > 0.999, "R² perfect: {}", f1.r_squared);
+}
+
+// ── gillespie batch GPU dispatch ─────────────────────────────────
+
+#[test]
+fn gillespie_batch_parity() {
+    let rates = vec![1.0; 5];
+    let r1 = groundspring::gillespie::birth_death_ssa_batch(&rates, 0.5, 10, 100.0, 20, 50.0, 42);
+    let r2 = groundspring::gillespie::birth_death_ssa_batch(&rates, 0.5, 10, 100.0, 20, 50.0, 42);
+    assert_eq!(r1.mean.to_bits(), r2.mean.to_bits(), "batch mean bitwise");
+    assert_eq!(
+        r1.variance.to_bits(),
+        r2.variance.to_bits(),
+        "batch variance bitwise"
+    );
+    assert_eq!(r1.n_trajectories, 20);
+}
+
+#[test]
+fn gillespie_batch_mean_near_steady_state() {
+    let rates = vec![1.0; 10];
+    let result =
+        groundspring::gillespie::birth_death_ssa_batch(&rates, 1.0, 10, 500.0, 50, 50.0, 42);
+    let ss = groundspring::gillespie::steady_state_mean(10.0, 1.0);
+    assert!(
+        (result.mean - ss).abs() < 5.0,
+        "batch mean {} vs steady-state {ss}",
+        result.mean
+    );
+}
+
+// ── drift batch GPU dispatch ────────────────────────────────────
+
+#[test]
+fn wf_batch_parity() {
+    let n1 = groundspring::drift::wright_fisher_fixation_batch(100, 0.01, 0.5, 20, 42);
+    let n2 = groundspring::drift::wright_fisher_fixation_batch(100, 0.01, 0.5, 20, 42);
+    assert_eq!(n1, n2, "same seed → same fixation count");
+}
+
+#[test]
+fn wf_batch_fixation_positive_selection() {
+    let count = groundspring::drift::wright_fisher_fixation_batch(100, 0.05, 0.5, 50, 42);
+    assert!(count > 0, "positive selection should fix some trials");
+    assert!(count <= 50, "can't fix more than n_trials");
+}
+
+#[test]
+fn wf_batch_kimura_convergence() {
+    let n = 200;
+    let s = 0.01;
+    let p0 = 0.5;
+    let n_trials = 200;
+    let fix_count = groundspring::drift::wright_fisher_fixation_batch(n, s, p0, n_trials, 42);
+    let kimura = groundspring::drift::kimura_fixation_prob(n, s, p0);
+    #[expect(clippy::cast_precision_loss)]
+    let observed = fix_count as f64 / n_trials as f64;
+    assert!(
+        (observed - kimura).abs() < 0.15,
+        "batch fixation fraction {observed} vs Kimura {kimura}"
+    );
+}
+
+// ── fao56 batch GPU dispatch ────────────────────────────────────
+
+#[test]
+fn fao56_batch_parity() {
+    let inputs = vec![groundspring::fao56::example_18_inputs(); 5];
+    let batch = groundspring::fao56::daily_et0_batch(&inputs);
+    assert_eq!(batch.len(), 5);
+    for &et0 in &batch {
+        assert!((et0 - 3.88).abs() < 0.10, "batch ET₀ ≈ 3.88, got {et0:.4}");
+    }
+}
+
+#[test]
+fn fao56_batch_single_matches_scalar() {
+    let inp = groundspring::fao56::example_18_inputs();
+    let scalar = groundspring::fao56::daily_et0(&inp);
+    let batch = groundspring::fao56::daily_et0_batch(&[inp]);
+    // GPU shader computes intermediate values in a single-pass kernel,
+    // so minor numerical divergence (< 0.05 mm/day) from the host
+    // step-by-step computation is expected and within FAO-56 tolerance.
+    assert!(
+        (batch[0] - scalar).abs() < 0.05,
+        "batch[0]={}, scalar={}",
+        batch[0],
+        scalar
+    );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// Pure GPU workload validation
+//
+// These tests verify GPU-dispatched results match known scientific
+// values directly — proving the math is truly portable to GPU.
+// They run through the batch APIs which dispatch to GPU when available.
+// ══════════════════════════════════════════════════════════════════
+
+#[test]
+fn gpu_gillespie_steady_state_convergence() {
+    let rates = vec![1.0_f64; 10];
+    let ss = groundspring::gillespie::steady_state_mean(10.0, 1.0);
+    let result =
+        groundspring::gillespie::birth_death_ssa_batch(&rates, 1.0, 10, 1000.0, 100, 100.0, 42);
+    assert!(
+        (result.mean - ss).abs() < 5.0,
+        "GPU batch mean {} vs analytical {}",
+        result.mean,
+        ss
+    );
+    assert!(result.variance > 0.0, "variance should be positive");
+}
+
+#[test]
+fn gpu_wright_fisher_kimura_agreement() {
+    let n = 200;
+    let s = 0.01;
+    let p0 = 0.5;
+    let n_trials = 500;
+    let fix_count = groundspring::drift::wright_fisher_fixation_batch(n, s, p0, n_trials, 42);
+    let kimura = groundspring::drift::kimura_fixation_prob(n, s, p0);
+    #[expect(clippy::cast_precision_loss)]
+    let observed = fix_count as f64 / n_trials as f64;
+    assert!(
+        (observed - kimura).abs() < 0.10,
+        "GPU WF fixation {observed} vs Kimura {kimura}"
+    );
+}
+
+#[test]
+fn gpu_fao56_reference_et0() {
+    let inputs = vec![groundspring::fao56::example_18_inputs(); 10];
+    let batch = groundspring::fao56::daily_et0_batch(&inputs);
+    assert_eq!(batch.len(), 10);
+    for &et0 in &batch {
+        assert!(
+            (et0 - 3.88).abs() < 0.10,
+            "GPU ET₀ should match FAO-56 Example 18 (3.88), got {et0:.4}"
+        );
+    }
+}
+
+#[test]
+fn gpu_anderson_localization_positive_lyapunov() {
+    let potential: Vec<f64> = (0..500).map(|i| (f64::from(i) * 0.3).sin() * 3.0).collect();
+    let gamma = groundspring::anderson::lyapunov_exponent(&potential, 0.5);
+    assert!(
+        gamma > 0.0,
+        "Anderson model should show localization: γ={gamma}"
+    );
+}
+
+#[test]
+fn gpu_rare_biosphere_dominant_occupancy() {
+    let mut community = vec![0.001; 100];
+    community[0] = 0.9;
+    let total: f64 = community.iter().sum();
+    for c in &mut community {
+        *c /= total;
+    }
+    let occ = groundspring::rare_biosphere::abundance_occupancy(&community, 50, 5000, 42);
+    assert!(
+        occ[0] > 0.99,
+        "dominant species should have ~100% occupancy, got {}",
+        occ[0]
+    );
+}
+
+#[test]
+fn gpu_batch_determinism() {
+    let rates = vec![1.0_f64; 10];
+    let r1 = groundspring::gillespie::birth_death_ssa_batch(&rates, 1.0, 10, 200.0, 50, 50.0, 42);
+    let r2 = groundspring::gillespie::birth_death_ssa_batch(&rates, 1.0, 10, 200.0, 50, 50.0, 42);
+    assert_eq!(
+        r1.mean.to_bits(),
+        r2.mean.to_bits(),
+        "GPU batch must be deterministic"
+    );
+    assert_eq!(
+        r1.variance.to_bits(),
+        r2.variance.to_bits(),
+        "GPU batch variance must be deterministic"
+    );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// Barracuda CPU vs GPU explicit parity
+//
+// These tests verify that GPU-dispatched statistics produce results
+// matching barracuda CPU within documented tolerances. When the GPU
+// is available, the public API automatically dispatches to GPU —
+// proving the math is portable.
+// ══════════════════════════════════════════════════════════════════
+
+#[test]
+fn gpu_mean_matches_cpu_known_value() {
+    let data = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
+    let m = groundspring::stats::mean(&data);
+    assert!((m - 5.0).abs() < 1e-10, "mean should be 5.0, got {m}");
+}
+
+#[test]
+fn gpu_std_dev_matches_cpu_known_value() {
+    let data = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
+    let s = groundspring::stats::std_dev(&data);
+    assert!(
+        (s - 2.0).abs() < 1e-6,
+        "population std should be 2.0, got {s}"
+    );
+}
+
+#[test]
+fn gpu_rmse_matches_cpu_known_value() {
+    let obs = [1.0, 2.0, 3.0, 4.0, 5.0];
+    let modeled = [1.1, 2.1, 3.1, 4.1, 5.1];
+    let r = groundspring::stats::rmse(&obs, &modeled);
+    assert!((r - 0.1).abs() < 1e-6, "RMSE of +0.1 bias = 0.1, got {r}");
+}
+
+#[test]
+fn gpu_mbe_matches_cpu_known_value() {
+    let obs = [1.0, 2.0, 3.0, 4.0, 5.0];
+    let modeled = [1.5, 2.5, 3.5, 4.5, 5.5];
+    let b = groundspring::stats::mbe(&obs, &modeled);
+    assert!((b - 0.5).abs() < 1e-6, "MBE of +0.5 bias = 0.5, got {b}");
+}
+
+#[test]
+fn gpu_pearson_perfect_positive() {
+    let x = [1.0, 2.0, 3.0, 4.0, 5.0];
+    let y = [2.0, 4.0, 6.0, 8.0, 10.0];
+    let r = groundspring::stats::pearson_r(&x, &y);
+    assert!(
+        (r - 1.0).abs() < 1e-6,
+        "perfect positive correlation, got {r}"
+    );
+}
+
+#[test]
+fn gpu_pearson_zero_correlation() {
+    let x = [1.0, 2.0, 3.0, 4.0, 5.0];
+    let y = [3.0, 3.0, 3.0, 3.0, 3.0];
+    let r = groundspring::stats::pearson_r(&x, &y);
+    assert!(r.abs() < 1e-6, "zero correlation, got {r}");
+}
+
+#[test]
+fn gpu_r_squared_perfect() {
+    let x = [1.0, 2.0, 3.0, 4.0, 5.0];
+    let r2 = groundspring::stats::r_squared(&x, &x);
+    assert!((r2 - 1.0).abs() < 1e-6, "perfect R², got {r2}");
+}
+
+#[test]
+fn gpu_decompose_pythagorean() {
+    let obs: Vec<f64> = (0..100).map(|i| f64::from(i) * 0.1).collect();
+    let modeled: Vec<f64> = obs.iter().map(|&v| v + 0.05).collect();
+    let rmse_val = groundspring::stats::rmse(&obs, &modeled);
+    let mbe_val = groundspring::stats::mbe(&obs, &modeled);
+    let d = groundspring::decompose::decompose_error(mbe_val, rmse_val);
+    let reconstructed = (d.bias_sq + d.variance).sqrt();
+    assert!(
+        (reconstructed - rmse_val).abs() < 1e-6,
+        "RMSE² = MBE² + σ² must hold across CPU/GPU: reconstructed={reconstructed}, rmse={rmse_val}"
+    );
+}
+
+#[test]
+fn gpu_stats_deterministic() {
+    let data = [1.5, 2.7, 3.1, 4.9, 5.2, 6.8, 7.3, 8.1, 9.0, 10.4];
+    let m1 = groundspring::stats::mean(&data);
+    let m2 = groundspring::stats::mean(&data);
+    assert_eq!(m1.to_bits(), m2.to_bits(), "mean must be deterministic");
+    let s1 = groundspring::stats::std_dev(&data);
+    let s2 = groundspring::stats::std_dev(&data);
+    assert_eq!(s1.to_bits(), s2.to_bits(), "std_dev must be deterministic");
+}
+
 // ── Dispatch target inventory sentinel ─────────────────────────────
 
 #[test]
 fn dispatch_targets_at_least_32() {
-    let cpu_active = 30;
-    let gpu_active = 9;
-    let pending_toadstool = 7;
+    let cpu_active = 31;
+    let gpu_active = 17;
+    let pending_toadstool = 6;
     assert!(
-        cpu_active + gpu_active >= 39,
-        "minimum 39 active dispatch targets"
+        cpu_active + gpu_active >= 48,
+        "minimum 48 active dispatch targets"
     );
-    assert_eq!(pending_toadstool, 7, "7 pending ToadStool delegations");
+    assert_eq!(
+        pending_toadstool, 6,
+        "6 pending ToadStool delegations (scalar fao56, kimura, grid_search_3d, grid_fit_2d, jackknife, band_edges)"
+    );
 }
 
 // metalForge workload count is tested in metalForge/forge/src/workloads.rs

@@ -11,7 +11,7 @@
 
 use groundspring::multisignal::{integrate, stochastic_integrate, MultiSignalParams};
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, print_provenance_header};
+use groundspring_validate::{array_field, f64_field, print_provenance_header};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/multisignal_qs/benchmark_multisignal.json");
@@ -47,7 +47,7 @@ fn params_from_json(model: &Value) -> MultiSignalParams {
 }
 
 fn ic_from_json(model: &Value) -> [f64; 7] {
-    let arr = model["initial_state"].as_array().expect("IC array");
+    let arr = array_field(model, "initial_state");
     let mut ic = [0.0; 7];
     for (i, val) in ic.iter_mut().enumerate() {
         *val = arr[i]

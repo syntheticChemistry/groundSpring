@@ -14,7 +14,8 @@
     "command": "python3 control/uncertainty_bridge/uncertainty_bridge.py",
     "notes": "Propagates Exp 001 sensor noise through Anderson localization (Exp 008) to predict QS regime confidence intervals. Combines three validated modules: decompose, anderson, rarefaction.",
     "prng_algorithm": "numpy.random.default_rng (PCG64)",
-    "data_origin": "Derived from Dong et al. 2020 sensor calibration + Anderson analytical model"
+    "data_origin": "Derived from Dong et al. 2020 sensor calibration + Anderson analytical model",
+    "real_data_accession": "Dong et al. 2020 (10.3390/agriculture10120598) Table 3 sensor calibration"
   },
 
   "sensor_noise": {
