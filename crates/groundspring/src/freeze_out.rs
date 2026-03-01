@@ -96,22 +96,11 @@ pub fn grid_fit_2d(config: &GridFitConfig<'_>) -> Result<GridFitResult, crate::e
             second_len: config.mu_b.len(),
         });
     }
-    // TODO(toadstool): wire when barracuda adds ops::grid::grid_fit_2d_f64
-    // Status S68+: not yet absorbed. Embarrassingly parallel 2D chi-squared
-    // grid search — high-value GPU target. Handoff item.
-    // #[cfg(feature = "barracuda-gpu")]
-    // {
-    //     if let Ok(result) = barracuda::ops::grid::grid_fit_2d_f64(
-    //         config.observed, config.mu_b, config.sigma,
-    //         config.t0_lo, config.t0_hi, config.t0_step,
-    //         config.k2_lo, config.k2_hi, config.k2_step,
-    //     ) {
-    //         return Ok(GridFitResult {
-    //             t0: result.0, kappa2: result.1, chi_squared: result.2,
-    //             chi2_per_dof: chi_squared_per_dof(result.2, config.observed.len(), 2),
-    //         });
-    //     }
-    // }
+    // barracuda::ops::grid::grid_fit_2d (S70+) is a bilinear surface fit,
+    // not a chi-squared parameter-space minimizer. groundSpring's grid_fit_2d
+    // evaluates a polynomial forward model at each (T₀, κ₂) point. A GPU
+    // adapter would need to upload the forward model as a shader — candidate
+    // for future evolution, not a drop-in delegation.
     Ok(grid_fit_2d_cpu(config))
 }
 

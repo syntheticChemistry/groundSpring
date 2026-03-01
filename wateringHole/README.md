@@ -9,7 +9,7 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V51 | [GROUNDSPRING_TOADSTOOL_V51_GPU_STATS_DISPATCH_PARITY_HANDOFF_FEB28_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V51_GPU_STATS_DISPATCH_PARITY_HANDOFF_FEB28_2026.md) | Feb 28, 2026 | GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r), batch GPU APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64), 9 CPU vs GPU parity tests, bench-cpu-vs-gpu binary. 48 active (31 CPU + 17 GPU) + 6 pending |
+| V52 | [GROUNDSPRING_TOADSTOOL_V52_S70_CATCHUP_HANDOFF_FEB28_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V52_S70_CATCHUP_HANDOFF_FEB28_2026.md) | Feb 28, 2026 | ToadStool S70+ catch-up: 4 new CPU delegations (kimura, jackknife, fao56_et0, chao1), 52 active (35 CPU + 17 GPU), 0 pending |
 
 ## Cross-Spring Documentation
 
@@ -36,6 +36,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V51 | GPU stats dispatch, batch GPU APIs, 9 parity tests, 48 active (superseded by V52) |
 | V47 | Library buildout: 7 new CPU delegations, 46 active (37 CPU + 9 GPU) (superseded by V51) |
 | V44 | Deep-debt evolution: linalg module, typed InputError, 39 active delegations (superseded by V46) |
 | V43 | Three-tier parity proven (27/27), pure GPU workloads (26/26), 39 active delegations (superseded by V44) |

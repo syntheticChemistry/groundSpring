@@ -9,7 +9,7 @@
 **Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across all 28 experiments.
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **Coverage**: Zero clippy warnings (pedantic + nursery). 95 three-tier parity tests + 9 CPU vs GPU parity.
-**BarraCUDA**: 48 active delegations + 6 pending ToadStool (31 CPU + 17 GPU). GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r). Batch GPU APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64). Exp 009: **47.7× from Sturm tridiag**.
+**BarraCUDA**: 52 active delegations (35 CPU + 17 GPU), 0 pending — ToadStool S70+. GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r). Batch GPU APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64). Exp 009: **47.7× from Sturm tridiag**.
 **Modules**: 30 (including `linalg`, `error`, `jackknife`, `freeze_out`, `spectral_recon`, `wdm`, `npu`, `biomeos`, `nestgate`).
 **metalForge**: 19 workloads (17 GPU + 2 NPU), 49+ metalForge checks, 5+ substrates, architecture-aware routing. Exp 028 NPU DMA at ~51µs.
 **Baseline integrity**: All 28 benchmark JSONs verified — provenance fields, hex commit hashes, UTF-8.
@@ -55,8 +55,8 @@ Each experiment is validated at three levels:
 2. **GPU** — Barracuda GPU matches CPU within tolerance (`--features barracuda-gpu`)
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
-Current status: **CPU complete** (292/292), **48 active delegations + 6 pending ToadStool**
-(31 CPU + 17 GPU). V51: GPU stats dispatch + batch GPU APIs + 9 CPU vs GPU parity tests.
+Current status: **CPU complete** (292/292), **52 active delegations (35 CPU + 17 GPU),
+0 pending — ToadStool S70+**. V52: 4 new CPU delegations (kimura, jackknife, fao56_et0, chao1).
 19 metalForge workloads (17 GPU + 2 NPU), architecture-aware routing (V35), remote NUCLEUS discovery (V39). All delegations use sovereign fallback.
 28/28 mathematical parity proven. 569 Rust workspace tests + 375 Python tests = 944 total.
 **bench-cpu-vs-gpu**: Dedicated binary for CPU vs GPU performance comparison across 6 workloads.

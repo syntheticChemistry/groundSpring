@@ -2,13 +2,13 @@
 
 **Date**: February 27, 2026
 **groundSpring HEAD**: V35
-**ToadStool HEAD**: `f0feb226` (S68+)
+**ToadStool HEAD**: `1dd7e338` (S70+++)
 
 ---
 
 ## The Multi-Spring Architecture
 
-groundSpring's 48 active barracuda delegations trace their lineage through 5 ecoPrimals
+groundSpring's 52 active barracuda delegations trace their lineage through 5 ecoPrimals
 Springs. Each Spring contributes domain-specific primitives that are absorbed into
 ToadStool's BarraCUDA crate, making them available to all other Springs. This
 document traces exactly which primitives came from where and who benefits.

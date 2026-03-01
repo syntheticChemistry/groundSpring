@@ -3,13 +3,13 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: February 28, 2026 (V51: GPU stats dispatch + CPU/GPU parity proof, 48 active delegations + 6 pending, 31 CPU + 17 GPU, 19 metalForge workloads, 49 tests, arch-aware routing)
+**Last Updated**: February 28, 2026 (V52: ToadStool S70+ catch-up, 52 active delegations, 35 CPU + 17 GPU, 0 pending, 19 metalForge workloads, 49 tests, arch-aware routing)
 
 ---
 
 ## Overview
 
-groundSpring has **48 active delegations** (31 CPU + 17 GPU) with **6 pending ToadStool absorption** (commented out with `TODO(toadstool)`).
+groundSpring has **52 active delegations** (35 CPU + 17 GPU) with **0 pending**.
 Those barracuda functions were not built in isolation — they were refined and
 battle-tested through absorption from **five Springs**, each bringing domain-specific
 requirements that hardened the shared library.
@@ -114,7 +114,7 @@ infrastructure and spectral diagnostics.
 
 **Why it matters**: neuralSpring's `domain_ops.rs` dispatch pattern
 (`device: Option<&Arc<WgpuDevice>>`) is the blueprint for how groundSpring's
-6 pending GPU metrics should be wired — `None` for CPU, `Some(device)` for GPU.
+GPU metrics are wired — `None` for CPU, `Some(device)` for GPU. 3 grid ops remain as evolution candidates (interface mismatch).
 
 ---
 
@@ -156,7 +156,7 @@ same need independently**:
 
 ## groundSpring Delegation Lineage
 
-Each of groundSpring's 48 active delegations has a traceable cross-spring history:
+Each of groundSpring's 52 active delegations has a traceable cross-spring history:
 
 | # | groundSpring fn | barracuda fn | Primary Origin | Validated By |
 |---|----------------|--------------|---------------|-------------|

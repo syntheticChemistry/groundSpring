@@ -4,6 +4,27 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V52 ToadStool S70+ Catch-Up — 4 New CPU Delegations, Zero Pending (Feb 28, 2026)
+
+#### Added
+- **`drift::kimura_fixation_prob`** → `barracuda::stats::evolution::kimura_fixation_prob` (S70+, infallible `#[cfg]` pattern)
+- **`jackknife::jackknife_mean_variance`** → `barracuda::stats::jackknife::jackknife_mean_variance` (S70+, `Option` fallback pattern)
+- **`fao56::daily_et0`** → `barracuda::stats::hydrology::fao56_et0` (S70+, sunshine hours → Rs conversion before delegation)
+- **`rare_biosphere::chao1`** → `barracuda::stats::diversity::chao1_classic` (S70+, Chao 1984 formula with `u64` — formula parity confirmed)
+
+#### Changed
+- **Delegation count**: 48 → **52 active** (35 CPU + 17 GPU), **0 pending** (was 6)
+- **ToadStool pin**: S68+ (`e96576ee`) → **S70+++ (`1dd7e338`)**
+- 3 GPU grid ops (grid_fit_2d, grid_search_3d, band_edges_parallel) reclassified from "pending" to "evolution candidates" — barracuda ops exist but use different algorithms than groundSpring's domain-specific implementations
+- `TODO(toadstool)` comments replaced with explanatory notes about interface mismatch
+
+#### Validated
+- `cargo fmt --check`: PASS
+- `cargo clippy --all-targets -W pedantic -W nursery`: 0 warnings × 3 modes
+- `cargo doc --no-deps`: clean
+- `cargo test --workspace --features barracuda`: all PASS
+- `cargo test --workspace`: all PASS
+
 ### V51 GPU Stats Dispatch + CPU/GPU Parity Proof + Docs Cleanup (Feb 28, 2026)
 
 #### Added

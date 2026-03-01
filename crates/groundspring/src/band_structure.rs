@@ -63,17 +63,11 @@ pub fn find_band_edges(
     e_hi: f64,
     n_points: usize,
 ) -> Vec<f64> {
-    // TODO(toadstool): wire when barracuda adds spectral::band_edges_parallel
-    // Status S68+: not yet absorbed. Transfer matrix half-trace scan is
-    // embarrassingly parallel across energy points. Handoff item.
-    // #[cfg(feature = "barracuda-gpu")]
-    // {
-    //     if let Ok(edges) =
-    //         barracuda::spectral::band_edges_parallel(potential, hopping, e_lo, e_hi, n_points)
-    //     {
-    //         return edges;
-    //     }
-    // }
+    // barracuda::ops::grid::band_edges_parallel (S70+) extracts min/max
+    // from sorted eigenvalue blocks. groundSpring's find_band_edges uses
+    // transfer matrix half-trace sign-change scanning — different algorithm.
+    // A GPU adapter would need the transfer matrix scan as a compute shader.
+    // Candidate for future evolution.
     find_band_edges_cpu(potential, hopping, e_lo, e_hi, n_points)
 }
 

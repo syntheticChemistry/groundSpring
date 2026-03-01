@@ -12,7 +12,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **292/292 checks passed** across 28 validation binaries.
 - Mathematical parity: **28/28 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.5× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.7× from Sturm tridiag**.
-- V51: GPU stats dispatch + CPU/GPU parity proof. 48 active delegations + 6 pending ToadStool (31 CPU + 17 GPU). GPU stats (mean, std_dev, rmse, mbe, pearson_r), batch GPU APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64). 19 metalForge workloads (17 GPU + 2 NPU). 569 Rust + 375 Python = 944 tests. 95 three-tier parity tests. bench-cpu-vs-gpu binary.
+- V51: GPU stats dispatch + CPU/GPU parity proof. 52 active delegations (35 CPU + 17 GPU), 0 pending — ToadStool S70+. GPU stats (mean, std_dev, rmse, mbe, pearson_r), batch GPU APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64). 19 metalForge workloads (17 GPU + 2 NPU). 569 Rust + 375 Python = 944 tests. 95 three-tier parity tests. bench-cpu-vs-gpu binary.
 
 ### Key Results
 

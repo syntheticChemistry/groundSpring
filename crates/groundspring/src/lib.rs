@@ -76,7 +76,9 @@ pub mod wdm;
 pub(crate) mod gpu;
 
 /// Returns `true` when the `barracuda-gpu` feature is enabled *and* a GPU device
-/// is available at runtime.
+/// is available at runtime. Always returns `false` when compiled without
+/// `barracuda-gpu`.
+#[allow(clippy::missing_const_for_fn)] // const only in non-GPU builds; runtime probe with barracuda-gpu
 #[must_use]
 pub fn gpu_available() -> bool {
     #[cfg(feature = "barracuda-gpu")]
@@ -84,7 +86,9 @@ pub fn gpu_available() -> bool {
         gpu::get_device().is_some()
     }
     #[cfg(not(feature = "barracuda-gpu"))]
-    false
+    {
+        false
+    }
 }
 
 #[cfg(feature = "biomeos")]

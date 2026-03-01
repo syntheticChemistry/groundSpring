@@ -262,32 +262,32 @@ pub struct DailyWeatherInputs {
 /// Implements the full FAO-56 Eq. 6 chain with RH data and wind
 /// height conversion (Example 18 pattern).
 ///
-/// Pending delegation to `barracuda::stats::hydrology::fao56_et0` — not
-/// yet in barracuda as of S68+ (scalar). `ToadStool` has `hargreaves_et0`
-/// (temperature-only), `crop_coefficient`, `soil_water_balance`, and
-/// `BatchedElementwiseF64::fao56_et0_batch` (GPU batch) but no standalone
-/// scalar Penman-Monteith.
+/// Delegates to `barracuda::stats::hydrology::fao56_et0` when the
+/// `barracuda` feature is enabled (absorbed in `ToadStool` S70+).
 #[must_use]
 pub fn daily_et0(inp: &DailyWeatherInputs) -> f64 {
-    // TODO(toadstool): wire when barracuda adds stats::hydrology::fao56_et0 (scalar)
-    // Status S68+: hargreaves_et0 available; fao56_et0_batch (GPU) available;
-    // scalar fao56_et0 not yet absorbed.
-    // #[cfg(feature = "barracuda")]
-    // {
-    //     if let Ok(et0) = barracuda::stats::hydrology::fao56_et0(
-    //         inp.tmax_c,
-    //         inp.tmin_c,
-    //         inp.rhmax_pct,
-    //         inp.rhmin_pct,
-    //         inp.wind_speed_10m_km_h,
-    //         inp.sunshine_hours,
-    //         inp.altitude_m,
-    //         inp.latitude_deg_n,
-    //         inp.day_of_year,
-    //     ) {
-    //         return et0;
-    //     }
-    // }
+    #[cfg(feature = "barracuda")]
+    {
+        let ra = extraterrestrial_radiation(inp.latitude_deg_n, inp.day_of_year);
+        let big_n = daylight_hours(inp.latitude_deg_n, inp.day_of_year);
+        let n = inp.sunshine_hours.min(big_n).max(0.0);
+        let rs = solar_radiation_from_sunshine(n, big_n, ra);
+        let wind_ms = inp.wind_speed_10m_km_h / 3.6;
+        let u2 = wind_speed_at_2m(wind_ms, 10.0);
+        if let Some(et0) = barracuda::stats::hydrology::fao56_et0(
+            inp.tmax_c,
+            inp.tmin_c,
+            inp.rhmax_pct,
+            inp.rhmin_pct,
+            u2,
+            rs,
+            inp.altitude_m,
+            inp.latitude_deg_n,
+            u32::from(inp.day_of_year),
+        ) {
+            return et0;
+        }
+    }
     daily_et0_cpu(inp)
 }
 

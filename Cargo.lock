@@ -6,7 +6,6 @@ version = 4
 name = "akida-driver"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "bytemuck",
  "bytes",
  "libc",
@@ -1276,7 +1275,6 @@ name = "toadstool-core"
 version = "0.1.0"
 dependencies = [
  "akida-driver",
- "anyhow",
  "thiserror 2.0.18",
  "tracing",
 ]

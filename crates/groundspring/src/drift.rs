@@ -88,28 +88,30 @@ pub fn wright_fisher_fixation(
 ///
 /// For neutral evolution (s=0), returns `initial_freq`.
 ///
-/// Pending delegation to `barracuda::stats::kimura_fixation` — not yet
-/// in barracuda as of `ToadStool` S68+ (pure math, no RNG).
+/// Delegates to `barracuda::stats::evolution::kimura_fixation_prob` when the
+/// `barracuda` feature is enabled (absorbed in `ToadStool` S70+).
 #[must_use]
 pub fn kimura_fixation_prob(pop_size: usize, selection: f64, initial_freq: f64) -> f64 {
-    // TODO(toadstool): wire when barracuda adds stats::kimura_fixation
-    // Status S68+: not yet absorbed. Handoff item — pure scalar, trivial kernel.
-    // #[cfg(feature = "barracuda")]
-    // {
-    //     if let Ok(p) = barracuda::stats::kimura_fixation(pop_size, selection, initial_freq) {
-    //         return p;
-    //     }
-    // }
-    kimura_fixation_prob_cpu(pop_size, selection, initial_freq)
+    #[cfg(feature = "barracuda")]
+    {
+        barracuda::stats::evolution::kimura_fixation_prob(pop_size, selection, initial_freq)
+    }
+    #[cfg(not(feature = "barracuda"))]
+    {
+        kimura_fixation_prob_cpu(pop_size, selection, initial_freq)
+    }
 }
 
 /// Below this 4Ns threshold, selection is effectively neutral and we return
 /// `initial_freq` directly to avoid numerical instability in the Kimura formula.
+#[cfg(not(feature = "barracuda"))]
 const NEUTRAL_SELECTION_THRESHOLD: f64 = 1e-10;
 
 /// Denominator zero-guard for the Kimura exponential ratio.
+#[cfg(not(feature = "barracuda"))]
 const KIMURA_DENOM_EPSILON: f64 = 1e-15;
 
+#[cfg(not(feature = "barracuda"))]
 fn kimura_fixation_prob_cpu(pop_size: usize, selection: f64, initial_freq: f64) -> f64 {
     let four_ns = 4.0 * usize_f64(pop_size) * selection;
     if four_ns.abs() < NEUTRAL_SELECTION_THRESHOLD {

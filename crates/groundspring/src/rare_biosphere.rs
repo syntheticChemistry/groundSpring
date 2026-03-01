@@ -40,12 +40,23 @@ use crate::cast::{u64_f64, usize_f64};
 /// When `f₂ = 0` and `f₁ > 0`, uses the bias-corrected form
 /// `S_obs + f₁(f₁ − 1) / 2` (Chao 1984).
 ///
-/// Stays local: barracuda's `chao1(&[f64])` uses the bias-corrected
-/// formula `f₁(f₁−1)/(2(f₂+1))` (Chao & Chiu 2016), while groundSpring
-/// uses classic Chao 1984 `f₁²/(2f₂)` matching the Python baseline.
-/// Delegation would change mathematical results and break provenance.
+/// Delegates to `barracuda::stats::diversity::chao1_classic` when the
+/// `barracuda` feature is enabled (absorbed in `ToadStool` S70+ with
+/// Chao 1984 formula and `u64` input — formula parity confirmed).
 #[must_use]
 pub fn chao1(counts: &[u64]) -> f64 {
+    #[cfg(feature = "barracuda")]
+    {
+        barracuda::stats::diversity::chao1_classic(counts)
+    }
+    #[cfg(not(feature = "barracuda"))]
+    {
+        chao1_cpu(counts)
+    }
+}
+
+#[cfg(not(feature = "barracuda"))]
+fn chao1_cpu(counts: &[u64]) -> f64 {
     let s_obs = usize_f64(counts.iter().filter(|&&c| c > 0).count());
     let f1 = usize_f64(counts.iter().filter(|&&c| c == 1).count());
     let f2 = usize_f64(counts.iter().filter(|&&c| c == 2).count());

@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: February 28, 2026
-**Status**: Phase 0 + Phase 1 + Phase 2a complete + GPU stats dispatch (V51) — 292/292 PASS, 48 active delegations + 6 pending ToadStool (31 CPU + 17 GPU), 569 workspace tests, 95 three-tier parity tests, 49 metalForge tests, GPU stats (mean/std_dev/rmse/mbe/pearson_r) + batch APIs (GillespieGpu/WrightFisherGpu/BatchedElementwiseF64), 11.5× faster (excl. LAPACK-bound), 28/28 parity proven
+**Status**: Phase 0 + Phase 1 + Phase 2a complete + GPU stats dispatch (V51) — 292/292 PASS, 52 active delegations (35 CPU + 17 GPU), 0 pending — ToadStool S70+, 569 workspace tests, 95 three-tier parity tests, 49 metalForge tests, GPU stats (mean/std_dev/rmse/mbe/pearson_r) + batch APIs (GillespieGpu/WrightFisherGpu/BatchedElementwiseF64), 11.5× faster (excl. LAPACK-bound), 28/28 parity proven
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -36,7 +36,7 @@
 | Exp 019 | Jackknife error estimation — subpercent precision (Bazavov 2025 Phys Rev D) |
 | Exp 020 | Freeze-out inverse problem — inferring freeze-out conditions (Bazavov 2016) |
 | Exp 021 | Spectral function reconstruction — signal recovery from noisy lattice data (Bazavov 2025) |
-| Barracuda | 48 active (31 CPU + 17 GPU) + 6 pending ToadStool. GPU stats dispatch + batch APIs. 49 metalForge tests |
+| Barracuda | 52 active (35 CPU + 17 GPU), 0 pending (ToadStool S70+). GPU stats dispatch + batch APIs. 49 metalForge tests |
 | Performance | 11.5× faster than Python (excl. LAPACK-bound); 5.1× overall |
 | Faculty | Bazavov, Waters, Liu, Kachkovskiy, R. Anderson, Dolson |
 

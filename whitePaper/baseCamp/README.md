@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: February 28, 2026
 
-**Validation Summary**: 292/292 checks (+ 49 metalForge), **48 active delegations + 6 pending ToadStool (31 CPU + 17 GPU)**, 569 workspace Rust tests + 375 Python tests = 944 total. All 28 experiments DONE. **11.5× faster** than Python (excl. LAPACK-bound). **28/28 mathematical parity proven**. 95 three-tier parity tests, 9 CPU vs GPU explicit parity tests, zero clippy/doc warnings. V51: GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r) + batch GPU APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64) + CPU vs GPU benchmark binary. 9 domains, 30 modules.
+**Validation Summary**: 292/292 checks (+ 49 metalForge), **52 active delegations (35 CPU + 17 GPU), 0 pending — ToadStool S70+**, 569 workspace Rust tests + 375 Python tests = 944 total. All 28 experiments DONE. **11.5× faster** than Python (excl. LAPACK-bound). **28/28 mathematical parity proven**. 95 three-tier parity tests, 9 CPU vs GPU explicit parity tests, zero clippy/doc warnings. V51: GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r) + batch GPU APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64) + CPU vs GPU benchmark binary. 9 domains, 30 modules.
 
 ---
 

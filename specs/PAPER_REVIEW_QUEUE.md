@@ -39,7 +39,7 @@
 
 **Phase 0**: ~261 checks (Python). **Phase 1**: 292/292 PASS (Rust). **Speedup**: 22× (all 28 experiments).
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs.
-**GPU dispatch (V31–V51)**: 13 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson. 19 metalForge workloads (17 GPU + 2 NPU). 48 active delegations + 6 pending `ToadStool` (31 CPU + 17 GPU).
+**GPU dispatch (V31–V51)**: 13 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson. 19 metalForge workloads (17 GPU + 2 NPU). 52 active delegations (35 CPU + 17 GPU), 0 pending — ToadStool S70+.
 **Three-tier parity (V43)**: 27/27 PROVEN (default = barracuda-CPU = barracuda-GPU). GPU tier: 39/39 checks. Pure GPU: 26/26 checks. metalForge dispatch: 17/19 → Titan V.
 **Exp 015** bridges Papers 22-24 (Sub-thesis 06): sensor noise → Anderson ξ → QS regime uncertainty.
 
@@ -322,7 +322,7 @@ Papers 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 18, 21 — can proceed to GPU tier on
 ### Tier 1: BarraCUDA CPU (current — 292/292 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
-48 active delegations + 6 pending `ToadStool` (31 CPU + 17 GPU). 11.5× faster than Python (excl. LAPACK-bound).
+52 active delegations (35 CPU + 17 GPU), 0 pending — ToadStool S70+. 11.5× faster than Python (excl. LAPACK-bound).
 569 Rust workspace tests + 375 Python. 28/28 mathematical parity proven. 95+ three-tier parity tests (100% delegation coverage).
 All 28 experiments validated. GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r). 9 CPU vs GPU parity tests. CPU vs GPU benchmark binary.
 

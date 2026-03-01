@@ -1169,16 +1169,16 @@ fn gpu_stats_deterministic() {
 
 #[test]
 fn dispatch_targets_at_least_32() {
-    let cpu_active = 31;
+    let cpu_active = 35;
     let gpu_active = 17;
-    let pending_toadstool = 6;
+    let evolution_candidates = 3;
     assert!(
-        cpu_active + gpu_active >= 48,
-        "minimum 48 active dispatch targets"
+        cpu_active + gpu_active >= 52,
+        "minimum 52 active dispatch targets"
     );
     assert_eq!(
-        pending_toadstool, 6,
-        "6 pending ToadStool delegations (scalar fao56, kimura, grid_search_3d, grid_fit_2d, jackknife, band_edges)"
+        evolution_candidates, 3,
+        "3 evolution candidates — grid ops with interface mismatch (grid_fit_2d, grid_search_3d, band_edges)"
     );
 }
 

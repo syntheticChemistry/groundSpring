@@ -41,18 +41,16 @@ pub struct JackknifeResult {
 ///
 /// Returns [`InputError::InsufficientData`] if `data` has fewer than 2 elements.
 pub fn jackknife_mean_variance(data: &[f64]) -> Result<JackknifeResult, InputError> {
-    // TODO(toadstool): wire when barracuda adds stats::jackknife_mean_variance
-    // Status S68+: not yet absorbed. Handoff item — embarrassingly parallel.
-    // #[cfg(feature = "barracuda")]
-    // {
-    //     if let Ok((est, var)) = barracuda::stats::jackknife_mean_variance(data) {
-    //         return Ok(JackknifeResult {
-    //             estimate: est,
-    //             variance: var,
-    //             std_error: var.sqrt(),
-    //         });
-    //     }
-    // }
+    #[cfg(feature = "barracuda")]
+    {
+        if let Some(result) = barracuda::stats::jackknife::jackknife_mean_variance(data) {
+            return Ok(JackknifeResult {
+                estimate: result.estimate,
+                variance: result.variance,
+                std_error: result.std_error,
+            });
+        }
+    }
     jackknife_mean_variance_cpu(data)
 }
 

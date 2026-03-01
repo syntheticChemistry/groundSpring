@@ -40,9 +40,10 @@
 **Rust tests**: 569/569 PASS (barracuda-gpu workspace)
 **pytest**: 375/375 PASS + 2 skipped
 **Three-tier parity**: 95 tests — CPU vs barracuda-CPU vs barracuda-GPU proven
-**BarraCUDA dispatch**: 48 active (31 CPU + 17 GPU) + 6 pending `ToadStool` — pinned S68+
+**BarraCUDA dispatch**: 52 active (35 CPU + 17 GPU), 0 pending — pinned ToadStool S70+ (`1dd7e338`)
+**V52 new CPU delegations**: kimura_fixation_prob, jackknife_mean_variance, fao56_et0 (scalar), chao1_classic
 **GPU stats dispatch (V51)**: mean, std_dev, rmse, mbe, pearson_r via SumReduceF64/VarianceReduceF64/FusedMapReduceF64/CorrelationF64
-**Batch GPU APIs (V51)**: GillespieGpu, WrightFisherGpu, BatchedElementwiseF64 (birth_death_ssa_batch, wright_fisher_fixation_batch, daily_et0_batch)
+**Batch GPU APIs (V51)**: GillespieGpu, WrightFisherGpu, BatchedElementwiseF64
 **metalForge workloads**: 19 (17 GPU + 2 NPU), 49 tests
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
 **Handoff**: V51 (GPU stats dispatch + CPU/GPU parity proof)
@@ -475,7 +476,7 @@ GPU tier buildout: wired 5 core stats functions for GPU dispatch via barracuda r
 
 **Provenance upgrade**: Seismic and observation gap benchmarks updated with NestGate capability routing for Phase 0+ real data download.
 
-**Dispatch targets**: 48 active (31 CPU + 17 GPU), 6 pending ToadStool. Five new GPU stats targets wired this run.
+**Dispatch targets**: 52 active (35 CPU + 17 GPU), 0 pending. V52: 4 new CPU delegations from ToadStool S70+ catch-up.
 
 - **Rust tests**: 569 (all 3 modes) — PASS
 - **Python tests**: 375 (+3 skip) — PASS
@@ -594,7 +595,7 @@ Each experiment is validated at three hardware tiers:
 
 ### BarraCUDA Integration Status (post ToadStool S68)
 
-**48 active delegations** (31 CPU + 17 GPU), **6 pending ToadStool absorption** (commented out with `TODO(toadstool)`). V51: GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r) + batch GPU APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64). All active delegations use `if let Ok` / `#[cfg]` with always-compiled CPU fallback.
+**52 active delegations** (35 CPU + 17 GPU), **0 pending**. ToadStool S70+ absorbed all 4 remaining CPU candidates (kimura_fixation_prob, jackknife_mean_variance, fao56_et0 scalar, chao1_classic). 3 GPU grid ops exist in barracuda with interface mismatch — reclassified as evolution candidates. V51: GPU stats dispatch + batch GPU APIs. All active delegations use `if let Ok` / `#[cfg]` with always-compiled CPU fallback.
 
 | # | Module | BarraCUDA Target | Feature Gate | Status |
 |---|--------|-----------------|:------------:|--------|
@@ -646,7 +647,7 @@ Each experiment is validated at three hardware tiers:
 - **Phase 1**: Rust CPU validation — **COMPLETE** (292/292 across 28 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
 - **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 001-028: all domains)
-- **Phase 2a**: Tier A rewire — **COMPLETE** — 48 active delegations (31 CPU + 17 GPU) + 6 pending ToadStool (V51 GPU stats + batch APIs)
+- **Phase 2a**: Tier A rewire — **COMPLETE** — 52 active delegations (35 CPU + 17 GPU), 0 pending (V52 ToadStool S70+ catch-up)
 - **Phase 2b**: BarraCUDA CPU parity — **PROVEN** — 11.7× faster than Python (excl. LAPACK-bound), 28/28 math parity
 - **Phase 2c**: BarraCUDA GPU tier — **PROVEN** — 27/27 three-tier parity, 2.2× total GPU speedup, 47.4× peak (Exp 009)
   - GPU-delegated: anderson, almost_mathieu, spectral_recon, detect_bands (7 active GPU delegations)
@@ -793,7 +794,8 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 
 | Handoff | Scope | Status |
 |---------|-------|--------|
-| V51: GPU Stats Dispatch + CPU/GPU Parity Proof | GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r), batch GPU APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64), 9 CPU vs GPU parity tests, bench-cpu-vs-gpu binary. 48 active (31 CPU + 17 GPU) + 6 pending ToadStool. 569 workspace tests, 95 three-tier parity tests. | **Current** |
+| V52: ToadStool S70+ Catch-Up | 4 new CPU delegations (kimura, jackknife, fao56_et0, chao1), 52 active (35 CPU + 17 GPU), 0 pending. ToadStool pinned S70+ (1dd7e338). | **Current** |
+| V51: GPU Stats Dispatch + CPU/GPU Parity Proof | GPU stats dispatch, batch GPU APIs, 9 parity tests, bench-cpu-vs-gpu. 48 active. | Superseded by V52 |
 | V47: Library Buildout + BarraCUDA CPU Expansion | 7 new barracuda CPU delegations, 46 active (37 CPU + 9 GPU), 322 lib tests | Superseded by V51 |
 | V46: Idiomatic Rust Evolution | `stats::agreement` domain split, `#[allow]` → `#[expect]`, hardcoded thresholds → benchmark JSONs, named constants | Superseded by V47 |
 | V45: Validation Gap Closure | +4 checks (292/292): Exp 010 low-noise agreement, Exp 011 dual-signal variance, Exp 016 Spearman occupancy + multinomial determinism. All Python checks now covered in Rust. | Superseded by V46 |
