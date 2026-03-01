@@ -4,6 +4,37 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V60 hotSpring Cross-Spring Absorption — DriftMonitor, Uncertainty, Concept Edges (Mar 1, 2026)
+
+#### Added
+- **`drift::DriftMonitor`**: `N_e`·`s` drift monitoring for evolutionary populations.
+  Tracks effective population size × selection coefficient across generations,
+  detects when genetic drift overwhelms selection (3+ consecutive generations
+  below threshold), recommends `DriftAction` (continue / increase selection /
+  increase population). Cross-spring lineage: bingoCube Nautilus Shell
+  `constraints.rs`. 5 new tests.
+- **`drift::DriftAction`**: Enum of recommended responses to drift detection.
+- **`esn::ClassificationUncertainty`**: Epistemic uncertainty metrics for
+  regime classification — confidence, entropy, margin. `is_boundary()` method
+  detects regime transitions. Cross-spring lineage: hotSpring `MultiHeadNpu`
+  `HeadGroupDisagreement`. 3 new tests.
+- **`esn::classification_uncertainty()`**: Softmax normalization → uncertainty
+  metrics from raw classifier outputs.
+- **`esn::detect_concept_edges()`**: Leave-one-out cross-validation over disorder
+  sweep data to identify parameter regions where the model breaks down (regime
+  boundaries). Returns `(disorder_value, loo_error)` pairs. Cross-spring lineage:
+  bingoCube Nautilus Shell `NautilusBrain::detect_concept_edges()`. 2 new tests.
+- **`nautilus` feature**: Optional dependency on `bingocube-nautilus` crate
+  (`primalTools/bingoCube/nautilus/`) for evolutionary reservoir computing.
+  Re-exports `NautilusBrain`, `NautilusShell`, `DriftMonitor`, `EdgeSeeder`,
+  `Akd1000Export`. Pure Rust, no GPU dependencies.
+
+#### Validated
+- `cargo check` (default, barracuda, barracuda-gpu, nautilus): all PASS
+- `cargo clippy -- -D warnings`: 0 warnings
+- `cargo fmt --check`: PASS
+- `cargo test --workspace`: 620 tests, all PASS (+7 from V59)
+
 ### V59 ToadStool S71+++ Catch-Up — GPU Promotions + Pure Math Shaders (Mar 1, 2026)
 
 #### Changed

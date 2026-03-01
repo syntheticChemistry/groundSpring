@@ -16,11 +16,13 @@ workspace = true
 default = []
 barracuda = ["dep:barracuda"]
 barracuda-gpu = ["barracuda", "barracuda/gpu", "dep:pollster", "dep:wgpu", "dep:bytemuck"]
+nautilus = ["dep:bingocube-nautilus"]
 biomeos = []
 npu = ["dep:akida-driver"]
 
 [dependencies]
 barracuda = { path = "../../../phase1/toadstool/crates/barracuda", optional = true, default-features = false }
+bingocube-nautilus = { path = "../../../primalTools/bingoCube/nautilus", optional = true }
 akida-driver = { path = "../../../phase1/toadstool/crates/neuromorphic/akida-driver", optional = true }
 pollster = { version = "0.4", optional = true }
 wgpu = { version = "22", optional = true, default-features = false, features = ["wgsl", "vulkan-portability"] }

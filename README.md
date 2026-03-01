@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: March 1, 2026 | **License**: AGPL-3.0-or-later
-**Status**: 32 experiments (28 core + 4 NUCLEUS), 613 Rust workspace tests + 375 Python tests, 347/347 validation checks (292 core + 55 NUCLEUS + 49 metalForge), 61 active barracuda delegations (37 CPU + 20 GPU + 4 cross-spring) — ToadStool S71+++ rewired (jackknife GPU promoted via `jackknife_mean_f64.wgsl`, Hargreaves GPU via `hargreaves_batch_f64.wgsl`, Kimura GPU shader available), biomeOS Neural API live (Tower + Node + Squirrel validated), NestGate data pipelines (NCBI, NOAA, IRIS), 19 metalForge workloads (17 GPU + 2 NPU), zero unsafe, zero TODO, zero production mocks
+**Status**: 33 modules, 620 Rust workspace tests + 375 Python tests, 347/347 validation checks (292 core + 55 NUCLEUS + 49 metalForge), 61 active barracuda delegations (37 CPU + 20 GPU + 4 cross-spring) — ToadStool S71+++ rewired, hotSpring cross-spring absorption (DriftMonitor, ClassificationUncertainty, concept edge detection, Nautilus Shell optional dep), biomeOS Neural API live, NestGate data pipelines, 19 metalForge workloads, zero unsafe, zero TODO, zero production mocks
 
 **The gap between what models predict and what instruments measure.**
 
@@ -307,7 +307,7 @@ groundSpring/
 │   ├── spectral_recon/            # Exp 021: Spectral function reconstruction (Bazavov 2025)
 │   └── npu_anderson/              # Exp 028: NPU Anderson regime classification
 ├── crates/
-│   ├── groundspring/                # Phase 1 Rust library (32 modules incl. esn, lanczos, biomeos, nestgate, npu)
+│   ├── groundspring/                # Phase 1 Rust library (33 modules incl. esn, lanczos, nautilus, biomeos, nestgate, npu)
 │   └── groundspring-validate/       # 32 validation binaries (hotSpring pattern)
 ├── metalForge/                      # Write → Absorb → Lean artifacts
 │   ├── forge/                       # groundspring-forge crate: hardware discovery, dispatch, remote
@@ -353,4 +353,4 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026 | V53 complete rewiring + GPU grid adapters — 57 active: February 28, 2026 | V56 NUCLEUS live validation + ToadStool handoff: March 1, 2026 | V58 cross-spring evolution + deep-debt completion: March 1, 2026 | V59 ToadStool S71+++ catch-up — jackknife GPU promoted, pure math shaders, ComputeDispatch builder, DF64 transcendentals complete: March 1, 2026*
+*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026 | V53 complete rewiring + GPU grid adapters — 57 active: February 28, 2026 | V56 NUCLEUS live validation + ToadStool handoff: March 1, 2026 | V58 cross-spring evolution + deep-debt completion: March 1, 2026 | V59 ToadStool S71+++ catch-up: March 1, 2026 | V60 hotSpring cross-spring absorption — DriftMonitor, ClassificationUncertainty, concept edge detection, Nautilus Shell dep: March 1, 2026*

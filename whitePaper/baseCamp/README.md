@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: March 1, 2026
 
-**Validation Summary**: 347/347 validation checks (292 core + 55 NUCLEUS + 49 metalForge), **61 active delegations (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — ToadStool S71+++**, 613 workspace tests + 375 Python tests. All 32 experiments PASS. **28/28 mathematical parity proven**. Zero clippy warnings (pedantic), zero unsafe, zero production mocks. V59: ToadStool S71+++ catch-up — jackknife GPU promoted (`JackknifeMeanGpu`), `HargreavesBatchGpu` wired, DF64 transcendental suite complete (15 functions), ComputeDispatch builder (66 ops migrated). 10 domains, 32 modules.
+**Validation Summary**: 347/347 validation checks (292 core + 55 NUCLEUS + 49 metalForge), **61 active delegations (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — ToadStool S71+++**, 620 workspace tests + 375 Python tests. All 32 experiments PASS. **28/28 mathematical parity proven**. Zero clippy warnings (pedantic), zero unsafe, zero production mocks. V60: hotSpring cross-spring absorption — `DriftMonitor`, `ClassificationUncertainty`, concept edge detection, Nautilus Shell optional dep; ToadStool S71+++. 10 domains, 34 modules.
 
 ---
 

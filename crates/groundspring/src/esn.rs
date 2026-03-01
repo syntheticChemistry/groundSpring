@@ -35,6 +35,160 @@
 //! This module requires the `barracuda-gpu` feature. All heavy computation
 //! (reservoir update, readout training) runs on GPU via barracuda's ESN.
 
+/// Multi-head disagreement measurement for epistemic uncertainty.
+///
+/// When multiple ESN heads (or classifiers) make predictions, the spread
+/// across their outputs measures how *uncertain* the classification is.
+/// High disagreement at a parameter value indicates a regime boundary —
+/// exactly the concept edges from the Nautilus Shell.
+///
+/// # Cross-spring lineage
+///
+/// `HeadGroupDisagreement` from hotSpring `reservoir.rs` (Gen 2 multi-head ESN).
+/// The Nautilus Shell's concept edge detection (LOO cross-validation) identifies
+/// the same boundaries from a different angle. Together they provide both
+/// intra-model (disagreement) and inter-model (LOO) uncertainty quantification.
+#[derive(Debug, Clone, Copy)]
+pub struct ClassificationUncertainty {
+    /// Maximum softmax output (confidence of the winning class).
+    pub confidence: f64,
+    /// Entropy of the softmax distribution (bits).
+    /// Low entropy → confident; high entropy → uncertain.
+    pub entropy: f64,
+    /// Margin between top-1 and top-2 softmax probabilities.
+    /// Small margin → boundary region.
+    pub margin: f64,
+}
+
+impl ClassificationUncertainty {
+    /// Whether this classification is near a regime boundary.
+    ///
+    /// Returns `true` if both confidence is low AND margin is small,
+    /// indicating the classifier cannot clearly distinguish regimes.
+    #[must_use]
+    pub fn is_boundary(&self, confidence_threshold: f64, margin_threshold: f64) -> bool {
+        self.confidence < confidence_threshold && self.margin < margin_threshold
+    }
+}
+
+/// Compute classification uncertainty from raw softmax-like outputs.
+///
+/// `outputs` — raw (unnormalized) scores from a classifier, one per class.
+/// Returns uncertainty metrics after softmax normalization.
+#[must_use]
+pub fn classification_uncertainty(outputs: &[f64]) -> ClassificationUncertainty {
+    if outputs.is_empty() {
+        return ClassificationUncertainty {
+            confidence: 0.0,
+            entropy: 0.0,
+            margin: 0.0,
+        };
+    }
+
+    let max_val = outputs.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+    let exp_sum: f64 = outputs.iter().map(|&x| (x - max_val).exp()).sum();
+    let probs: Vec<f64> = outputs
+        .iter()
+        .map(|&x| (x - max_val).exp() / exp_sum)
+        .collect();
+
+    let confidence = probs.iter().copied().fold(0.0_f64, f64::max);
+
+    let entropy = -probs
+        .iter()
+        .filter(|&&p| p > 1e-15)
+        .map(|&p| p * p.log2())
+        .sum::<f64>();
+
+    let mut sorted = probs;
+    sorted.sort_by(|a, b| b.partial_cmp(a).unwrap_or(std::cmp::Ordering::Equal));
+    let margin = if sorted.len() >= 2 {
+        sorted[0] - sorted[1]
+    } else {
+        1.0
+    };
+
+    ClassificationUncertainty {
+        confidence,
+        entropy,
+        margin,
+    }
+}
+
+/// Detect concept edges via leave-one-out cross-validation on disorder sweep data.
+///
+/// For each point in the sweep, trains on all other points and measures
+/// prediction error at the held-out point. Points where the LOO error exceeds
+/// `threshold` are regime boundaries — the model cannot generalize across them.
+///
+/// Returns `(disorder_value, loo_error)` pairs for detected edges.
+///
+/// # Cross-spring lineage
+///
+/// Concept from `bingoCube/nautilus/brain.rs` (`detect_concept_edges`).
+/// The Nautilus Shell uses this for QCD phase boundary detection in lattice
+/// gauge theory. groundSpring applies it to Anderson localization transitions.
+#[must_use]
+pub fn detect_concept_edges(
+    disorder_values: &[f64],
+    features: &[[f64; 3]],
+    regime_labels: &[RegimeLabel],
+    threshold: f64,
+) -> Vec<(f64, f64)> {
+    if features.len() < 4 || features.len() != regime_labels.len() {
+        return Vec::new();
+    }
+    let n = features.len();
+
+    let label_to_vec = |l: &RegimeLabel| -> [f64; 3] {
+        match l {
+            RegimeLabel::Extended => [1.0, 0.0, 0.0],
+            RegimeLabel::Critical => [0.0, 1.0, 0.0],
+            RegimeLabel::Localized => [0.0, 0.0, 1.0],
+        }
+    };
+
+    let mut edges = Vec::new();
+
+    for hold_out in 0..n {
+        let train_feat: Vec<[f64; 3]> = features
+            .iter()
+            .enumerate()
+            .filter(|(i, _)| *i != hold_out)
+            .map(|(_, f)| *f)
+            .collect();
+        let train_labels: Vec<[f64; 3]> = regime_labels
+            .iter()
+            .enumerate()
+            .filter(|(i, _)| *i != hold_out)
+            .map(|(_, l)| label_to_vec(l))
+            .collect();
+
+        // Simple nearest-neighbor prediction as lightweight LOO
+        let test_feat = features[hold_out];
+        let mut best_dist = f64::MAX;
+        let mut best_idx = 0;
+        for (i, f) in train_feat.iter().enumerate() {
+            let dist = (0..3).map(|k| (f[k] - test_feat[k]).powi(2)).sum::<f64>();
+            if dist < best_dist {
+                best_dist = dist;
+                best_idx = i;
+            }
+        }
+
+        let pred = &train_labels[best_idx];
+        let actual = label_to_vec(&regime_labels[hold_out]);
+        let error: f64 = (0..3).map(|k| (pred[k] - actual[k]).powi(2)).sum::<f64>();
+        let error = error.sqrt();
+
+        if error > threshold {
+            edges.push((disorder_values[hold_out], error));
+        }
+    }
+
+    edges
+}
+
 /// Localization regime labels for Anderson model classification.
 ///
 /// The three regimes correspond to distinct spectral statistics:
@@ -300,5 +454,91 @@ mod tests {
     #[test]
     fn goe_poisson_constants_ordered() {
         assert!(GOE_R > POISSON_R, "GOE > Poisson");
+    }
+
+    #[test]
+    fn uncertainty_confident_classification() {
+        let outputs = [5.0, 0.1, 0.1];
+        let u = classification_uncertainty(&outputs);
+        assert!(
+            u.confidence > 0.95,
+            "confidence should be high: {}",
+            u.confidence
+        );
+        assert!(u.margin > 0.9, "margin should be large: {}", u.margin);
+        assert!(u.entropy < 0.5, "entropy should be low: {}", u.entropy);
+        assert!(!u.is_boundary(0.6, 0.3));
+    }
+
+    #[test]
+    fn uncertainty_boundary_classification() {
+        let outputs = [1.0, 0.9, 0.1];
+        let u = classification_uncertainty(&outputs);
+        assert!(
+            u.confidence < 0.55,
+            "confidence should be moderate: {}",
+            u.confidence
+        );
+        assert!(u.margin < 0.15, "margin should be small: {}", u.margin);
+        assert!(u.is_boundary(0.6, 0.3));
+    }
+
+    #[test]
+    fn uncertainty_empty() {
+        let u = classification_uncertainty(&[]);
+        assert!((u.confidence).abs() < f64::EPSILON);
+        assert!((u.entropy).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn concept_edge_detects_transition() {
+        // Simulate a disorder sweep crossing the Anderson transition
+        let disorders: Vec<f64> = (0..12).map(|i| 1.0 + i as f64 * 1.5).collect();
+        let features: Vec<[f64; 3]> = disorders
+            .iter()
+            .map(|&w| {
+                let r = if w < 8.0 {
+                    0.53 - (w - 1.0) * 0.005
+                } else {
+                    0.39 + (16.5 - w) * 0.002
+                };
+                [r, 4.0 - w * 0.1, 3.0 + w * 0.05]
+            })
+            .collect();
+        let labels: Vec<RegimeLabel> = disorders
+            .iter()
+            .map(|&w| {
+                if w < 6.0 {
+                    RegimeLabel::Extended
+                } else if w < 10.0 {
+                    RegimeLabel::Critical
+                } else {
+                    RegimeLabel::Localized
+                }
+            })
+            .collect();
+
+        let edges = detect_concept_edges(&disorders, &features, &labels, 0.5);
+        assert!(
+            !edges.is_empty(),
+            "should detect edges at regime transitions"
+        );
+        // Edges should be near the transition points (W≈6, W≈10)
+        let edge_disorders: Vec<f64> = edges.iter().map(|(w, _)| *w).collect();
+        assert!(
+            edge_disorders.iter().any(|&w| w > 4.0 && w < 12.0),
+            "edges should be in transition region: {edge_disorders:?}"
+        );
+    }
+
+    #[test]
+    fn concept_edge_too_few_points() {
+        let edges = detect_concept_edges(
+            &[1.0, 2.0],
+            &[[0.5, 1.0, 2.0]; 2],
+            &[RegimeLabel::Extended; 2],
+            0.5,
+        );
+        assert!(edges.is_empty(), "need >= 4 points for LOO");
     }
 }

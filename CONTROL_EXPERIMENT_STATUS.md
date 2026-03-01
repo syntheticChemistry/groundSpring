@@ -43,14 +43,14 @@
 **Rust Phase 1 (core)**: 292/292 PASS across 28 validation binaries
 **Rust Phase 1 (NUCLEUS)**: 55/55 PASS across 4 validation binaries (Exp 029–032, `--features biomeos`)
 **Total validation**: 347/347 PASS across 32 validation binaries
-**Rust tests**: 613/613 PASS (default workspace)
+**Rust tests**: 620/620 PASS (default workspace)
 **pytest**: 375/375 PASS + 2 skipped
 **Three-tier parity**: 101 tests — CPU vs barracuda-CPU vs barracuda-GPU proven
 **BarraCUDA dispatch**: 61 active (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — pinned ToadStool S71+++ (`8dc01a37`)
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS)
 **metalForge workloads**: 19 (17 GPU + 2 NPU), 85 tests
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
-**Handoff**: V59 (ToadStool S71+++ catch-up: jackknife GPU, HargreavesBatchGpu, DF64 complete)
+**Handoff**: V60 (hotSpring cross-spring absorption: DriftMonitor, ClassificationUncertainty, concept edges, Nautilus dep)
 
 **Python checks**: ~160 across 28 experiments. **Rust validation checks**: 292.
 

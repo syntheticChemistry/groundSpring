@@ -106,6 +106,23 @@ pub mod nestgate;
 #[cfg(feature = "npu")]
 pub mod npu;
 
+/// Re-export of the Nautilus Shell evolutionary reservoir computing crate.
+///
+/// The Nautilus Shell (`bingoCube/nautilus`) is a feed-forward reservoir that
+/// uses evolutionary board populations instead of temporal recurrence (ESN).
+/// Key types: `NautilusBrain`, `NautilusShell`, `DriftMonitor`, `EdgeSeeder`.
+///
+/// Enable with `--features nautilus`.
+///
+/// # Cross-spring lineage
+///
+/// `primalTools/bingoCube/nautilus` — hotSpring Exp 024+028 QCD phase boundary
+/// prediction (5.3% LOO error, 540× cost reduction via quenched→dynamical
+/// transfer). The shell is portable, serializable to JSON, and mergeable
+/// across instances.
+#[cfg(feature = "nautilus")]
+pub use bingocube_nautilus as nautilus;
+
 /// Centralized numeric cast helpers.
 ///
 /// `usize` and `u64` → `f64` conversions are unavoidable in numerical code
