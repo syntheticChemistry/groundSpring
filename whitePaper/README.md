@@ -12,7 +12,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **347/347 checks passed** across 32 validation binaries (292 core + 55 NUCLEUS).
 - Mathematical parity: **28/28 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.5× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.7× from Sturm tridiag**.
-- V56: biomeOS Neural API live — Tower + Node + Squirrel validated, NestGate data pipelines (NCBI, NOAA, IRIS). 61 active delegations (38 CPU + 19 GPU), 1 evolution candidate — ToadStool S70+++. 613 Rust (default) + 375 Python = 988 tests. 95 three-tier parity tests. 19 metalForge workloads (17 GPU + 2 NPU).
+- V56: biomeOS Neural API live — Tower + Node + Squirrel validated, NestGate data pipelines (NCBI, NOAA, IRIS). 61 active delegations (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — ToadStool S71+++. 620 Rust (default) + 375 Python = 995 tests. 95 three-tier parity tests. 19 metalForge workloads (17 GPU + 2 NPU).
 
 ### Key Results
 

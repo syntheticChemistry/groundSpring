@@ -3,7 +3,7 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 1, 2026 (V59: 61 active delegations — 37 CPU + 20 GPU + 4 cross-spring, 1 evolution candidate, ToadStool S71+++ — jackknife GPU promoted, HargreavesBatchGpu, ComputeDispatch builder (66 ops), DF64 transcendentals complete (15 functions), 671 WGSL shaders)
+**Last Updated**: March 1, 2026 (V60: 61 active delegations — 37 CPU + 20 GPU + 4 cross-spring, 1 evolution candidate, ToadStool S71+++ — V60: hotSpring cross-spring absorption (DriftMonitor, ClassificationUncertainty, concept edge detection, Nautilus Shell optional dep), 620 tests, 671 WGSL shaders)
 
 ---
 
@@ -168,7 +168,7 @@ same need independently**:
 
 ## groundSpring Delegation Lineage
 
-Each of groundSpring's 57 active delegations has a traceable cross-spring history:
+Each of groundSpring's 61 active delegations has a traceable cross-spring history:
 
 | # | groundSpring fn | barracuda fn | Primary Origin | Validated By |
 |---|----------------|--------------|---------------|-------------|
@@ -477,6 +477,7 @@ The 700 barracuda WGSL shaders that groundSpring's delegations ultimately depend
 | Mar 1 | **groundSpring V56** | **NUCLEUS integration**: biomeOS Neural API live (Tower + Node + Squirrel validated), NestGate data pipelines (NCBI, NOAA, IRIS), 4 NUCLEUS experiments (Exp 029–032), 347/347 checks (292 core + 55 NUCLEUS), sovereign fallback on all paths |
 | Mar 1 | **groundSpring V58** | **Cross-spring evolution + deep-debt completion**: 4 new cross-spring S59+ delegations (disorder_sweep, anderson_2d, anderson_3d, chi2_analysis), ESN regime classification module (wetSpring lineage), Lanczos sparse eigensolver module (hotSpring lineage), 61 active delegations (38 CPU + 19 GPU + 4 xspring), FAMILY_ID evolution, DRY refactoring, comprehensive deep-debt audit clean |
 | Mar 1 | **groundSpring V59** | **ToadStool S71+++ catch-up**: jackknife promoted to GPU (`JackknifeMeanGpu` + `jackknife_mean_f64.wgsl`), Hargreaves batch GPU evolved (`HargreavesBatchGpu` + `hargreaves_batch_f64.wgsl`), ToadStool pin advanced 6 commits (S70+++→S71+++), 671 WGSL shaders, ComputeDispatch builder (66 ops), DF64 transcendental suite complete (15 functions), ~9K lines stale code archived upstream, 61 delegations (37 CPU + 20 GPU + 4 xspring) |
+| Mar 1 | **groundSpring V60** | **hotSpring cross-spring absorption**: `DriftMonitor` (`N_e`·`s` tracking from Nautilus Shell), `ClassificationUncertainty` (multi-head ESN disagreement from hotSpring), `detect_concept_edges` (LOO cross-validation from Nautilus Brain), `nautilus` feature gate (`bingocube-nautilus` optional dep), 620 tests (+7), 4 new native functions, 10 new tests |
 
 ---
 

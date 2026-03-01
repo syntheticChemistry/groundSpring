@@ -40,7 +40,7 @@ See [CONTROL_EXPERIMENT_STATUS.md](CONTROL_EXPERIMENT_STATUS.md) for the current
 - **Full audit completed**: 0 unsafe, 0 unwrap/expect in library, 0 mocks in production, 0 &String/&Vec params, 0 Box<dyn Error> in public APIs, 0 dead code allows, 6 external deps all justified
 - Large files reviewed: regression.rs (401), rare_biosphere.rs (439), biomeos.rs (495) — all domain-focused and cohesive, no artificial split needed
 - FAO-56 magic numbers: intentionally inline with equation citations per standards verification practice
-- TODO(toadstool) blocks (6): already standardized, legitimate pending absorption items
+- TODO(toadstool) blocks (0): zero remaining
 
 ### Run 31 (V45 Validation Gap Closure, Feb 28, 2026)
 

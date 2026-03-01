@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 1, 2026 (V59 — 61 delegations (37 CPU + 20 GPU + 4 xspring), 486 tests, ToadStool S71+++ — jackknife GPU promoted, ComputeDispatch, DF64 transcendentals complete)
+**Last updated**: March 1, 2026 (V60 — 61 delegations (37 CPU + 20 GPU + 4 cross-spring), 620 tests, ToadStool S71+++ — V60: hotSpring cross-spring absorption (DriftMonitor, ClassificationUncertainty, concept edge detection, Nautilus Shell optional dep))
 
 ## Philosophy
 
@@ -224,8 +224,8 @@ graph.
 > Benchmark updates: `benchmark_cross_spring` now benchmarks disorder sweep,
 > chi² decomposed analysis, and ESN regime classification with full provenance.
 >
-> Total: **61 delegations** (38 CPU + 19 GPU + 4 cross-spring S59+),
-> **486 Rust tests**, 0 clippy warnings, clean `cargo doc`.
+> Total: **61 delegations** (37 CPU + 20 GPU + 4 cross-spring),
+> **620 Rust tests**, 0 clippy warnings, clean `cargo doc`.
 
 ### Tier A — Lean (rewire to existing barracuda ops)
 
@@ -523,7 +523,7 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (28/28 parity proven, timing data for all experiments) |
-| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **61 active delegations** (37 CPU + 20 GPU + 4 cross-spring), **486 tests** — ToadStool S71+++ |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **61 active delegations** (37 CPU + 20 GPU + 4 cross-spring), **620 tests** — ToadStool S71+++ |
 | Phase 2b | Tier B adapt (GPU dispatch wiring, PRNG alignment) | **V31–V35** — 5 modules GPU-wired, 49 metalForge tests, 5 substrates; arch-aware dispatch (f64→Titan V, f32→RTX 4070); awaiting ToadStool absorption for 9 pending |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |
@@ -555,8 +555,8 @@ and pipeline stage for GPU promotion readiness.
 | `stats::metrics` | — | stats/central | **Delegated** — mean, std_dev, percentile |
 | `stats::distributions` | — | stats/distributions | **Delegated** — norm_cdf, norm_ppf, chi2 |
 | `gillespie` | — | bio/ssa | Pending — SSA inherently serial; GPU batches trajectories |
-| `drift` | — | bio/population | Pending — `TODO(toadstool): kimura_fixation` |
-| `jackknife` | — | stats/jackknife | Pending — `TODO(toadstool): jackknife_mean_variance` |
+| `drift` | — | bio/population | **CPU delegated** (kimura_fixation_prob S71+++) + **GPU batch** (WrightFisherGpu) + native DriftMonitor |
+| `jackknife` | — | stats/jackknife | **GPU dispatched** (JackknifeMeanGpu via `jackknife_mean_f64.wgsl` S71+++) |
 | `transport` | — | linalg/tridiag | CPU-optimal — QL beats dense Jacobi |
 | `wdm` | — | transport/green-kubo | Uses delegated `stats::fit_linear` + `numerical::trapz` |
 | `decompose` | — | stats/decompose | Uses delegated rmse + mbe |

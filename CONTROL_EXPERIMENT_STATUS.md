@@ -480,7 +480,7 @@ GPU tier buildout: wired 5 core stats functions for GPU dispatch via barracuda r
 
 **Provenance upgrade**: Seismic and observation gap benchmarks updated with NestGate capability routing for Phase 0+ real data download.
 
-**Dispatch targets**: 57 active (38 CPU + 19 GPU), 1 evolution candidate. V53: GPU grid adapters + 3 new CPU delegations.
+**Dispatch targets**: 61 active (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate. V53: GPU grid adapters + 3 new CPU delegations.
 
 - **Rust tests**: 569 (all 3 modes) — PASS
 - **Python tests**: 375 (+3 skip) — PASS
@@ -599,7 +599,7 @@ Each experiment is validated at three hardware tiers:
 
 ### BarraCUDA Integration Status (post ToadStool S68)
 
-**57 active delegations** (38 CPU + 19 GPU), **1 evolution candidate** (band_edges — algorithm mismatch). V53: GPU grid adapters (seismic + freeze-out pre-evaluate on CPU, argmin on GPU via `grid_search_3d`), 3 new CPU delegations (error_threshold, detection_power, detection_threshold). All active delegations use `if let Ok` / `#[cfg]` with always-compiled CPU fallback.
+**61 active delegations** (37 CPU + 20 GPU + 4 cross-spring), **1 evolution candidate** (band_edges — algorithm mismatch). V53: GPU grid adapters (seismic + freeze-out pre-evaluate on CPU, argmin on GPU via `grid_search_3d`), 3 new CPU delegations (error_threshold, detection_power, detection_threshold). All active delegations use `if let Ok` / `#[cfg]` with always-compiled CPU fallback.
 
 | # | Module | BarraCUDA Target | Feature Gate | Status |
 |---|--------|-----------------|:------------:|--------|
@@ -651,11 +651,11 @@ Each experiment is validated at three hardware tiers:
 - **Phase 1**: Rust CPU validation — **COMPLETE** (292/292 across 28 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
 - **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 001-028: all domains)
-- **Phase 2a**: Tier A rewire — **COMPLETE** — 57 active delegations (38 CPU + 19 GPU), 1 evolution candidate (V53 complete rewiring + GPU grid adapters)
+- **Phase 2a**: Tier A rewire — **COMPLETE** — 61 active delegations (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate (V53 complete rewiring + GPU grid adapters)
 - **Phase 2b**: BarraCUDA CPU parity — **PROVEN** — 11.7× faster than Python (excl. LAPACK-bound), 28/28 math parity
 - **Phase 2c**: BarraCUDA GPU tier — **PROVEN** — 27/27 three-tier parity, 2.2× total GPU speedup, 47.4× peak (Exp 009)
   - GPU-delegated: anderson, almost_mathieu, spectral_recon, detect_bands (7 active GPU delegations)
-  - GPU-ready (pending ToadStool): freeze_out, band_structure, seismic, quasispecies, rare_biosphere (6 commented TODO)
+  - GPU-ready (pending ToadStool): freeze_out, band_structure, seismic, quasispecies, rare_biosphere (zero TODOs)
   - GPU-blocked: Exps 1-5 (`fused_map_reduce_f64` GPU adapter), Exp 4 (`batched_multinomial` sig mismatch)
   - Tier B: PRNG alignment (xorshift64 → xoshiro128**)
 - **Phase 3**: metalForge cross-substrate dispatch — **IN PROGRESS** — 19 workloads, 5 substrates (2 GPU + 1 NPU + 1 CPU + 1 GL), architecture-aware routing (Titan V for f64, RTX 4070 for f32, AKD1000 for int8)

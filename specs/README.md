@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: March 1, 2026
-**Status**: Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 347/347 PASS (292 core + 55 NUCLEUS), 61 active delegations (38 CPU + 19 GPU + 4 cross-spring S59+), 1 evolution candidate — ToadStool S70+++, 613 workspace tests (biomeos), 95 three-tier parity tests, 49 metalForge tests, biomeOS Neural API live (Tower + Node + Squirrel validated), NestGate data pipelines (NCBI, NOAA, IRIS), 32 experiments, 32 modules
+**Status**: Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 347/347 PASS (292 core + 55 NUCLEUS), 61 active delegations (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — ToadStool S71+++, 620 workspace tests (biomeos), 95 three-tier parity tests, 49 metalForge tests, biomeOS Neural API live (Tower + Node + Squirrel validated), NestGate data pipelines (NCBI, NOAA, IRIS), 32 experiments, 32 modules
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -49,7 +49,7 @@
 | Exp 030 | Real NCBI 16S — rare biosphere detection on real/synthetic NCBI metagenomes (NUCLEUS) |
 | Exp 031 | NUCLEUS Stack — full primal validation: Tower + Node + Squirrel + Nest |
 | Exp 032 | IRIS Seismic — IRIS FDSN station geometry + travel times via NestGate (NUCLEUS) |
-| Barracuda | 61 active (38 CPU + 19 GPU + 4 cross-spring S59+), 1 evolution candidate (ToadStool S70+++). GPU grid adapters + batch APIs. 49 metalForge tests |
+| Barracuda | 61 active (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate (ToadStool S71+++). GPU grid adapters + batch APIs. 49 metalForge tests |
 | NUCLEUS | biomeOS Neural API live: Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) |
 | Performance | 11.5× faster than Python (excl. LAPACK-bound); 5.1× overall |
 | Faculty | Bazavov, Waters, Liu, Kachkovskiy, R. Anderson, Dolson |

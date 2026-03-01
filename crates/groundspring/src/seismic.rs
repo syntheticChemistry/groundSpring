@@ -139,7 +139,7 @@ pub fn grid_search_inversion<S: AsRef<str>>(
 /// parallel reduction significantly outperforms sequential scanning.
 ///
 /// Cross-spring lineage: `grid_search_3d_f64.wgsl` — groundSpring forward
-/// model + barracuda `ComputeDispatch` (absorbed S70+).
+/// model + barracuda `ComputeDispatch` (absorbed S71+++).
 #[cfg(feature = "barracuda-gpu")]
 fn grid_search_inversion_gpu<S: AsRef<str>>(
     observed: &[(S, f64)],

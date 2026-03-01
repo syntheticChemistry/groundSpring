@@ -58,7 +58,7 @@ pub fn transfer_matrix_half_trace(energy: f64, potential: &[f64], hopping: f64) 
 ///
 /// When the `barracuda` feature is enabled, each coarse-grid sign change
 /// is refined using `barracuda::optimize::brent` (airSpring V035 →
-/// `ToadStool` S70+) to locate the exact band edge to `tol = 1e-12`.
+/// `ToadStool` S71+++) to locate the exact band edge to `tol = 1e-12`.
 /// Without barracuda, falls back to the coarse-grid scan alone.
 #[must_use]
 pub fn find_band_edges(
@@ -80,7 +80,7 @@ pub fn find_band_edges(
 /// the band edge.
 ///
 /// Cross-spring lineage: `brent` — airSpring V035 (Richards PDE
-/// root-finding) → `ToadStool` S70+ `barracuda::optimize::brent`
+/// root-finding) → `ToadStool` S71+++ `barracuda::optimize::brent`
 /// → groundSpring band structure refinement.
 #[cfg(feature = "barracuda-gpu")]
 fn refine_edges_brent(

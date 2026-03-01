@@ -107,7 +107,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace                         # 613 tests, all PASS
+cargo test --workspace                         # 620 tests, all PASS
 cargo test --workspace --features biomeos      # ~660 tests (NUCLEUS client active)
 cargo test --workspace --features barracuda-gpu # 569 tests (GPU dispatch active)
 cargo clippy --workspace --all-targets -- -D warnings -W clippy::pedantic -W clippy::nursery
@@ -237,7 +237,7 @@ eigenvalue solver (from hotSpring S26 spectral), GPU reduce ops
 (FusedMapReduceF64, SumReduceF64, VarianceReduceF64, CorrelationF64),
 and batch dispatch APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64),
 giving **47.7× speedup** for Exp 009. Cross-spring evolution validated
-by 61 active delegations (38 CPU + 19 GPU + 4 cross-spring S59+), including
+by 61 active delegations (37 CPU + 20 GPU + 4 cross-spring), including
 ESN regime classification, Lanczos sparse eigensolver, 2D/3D Anderson eigenvalues,
 and decomposed chi-squared analysis from hotSpring/wetSpring lineage. 19 metalForge
 workloads route across 5 substrates (17 GPU + 2 NPU) with architecture-aware routing.
@@ -316,7 +316,7 @@ groundSpring/
 │   └── shaders/                     # Production WGSL shaders for ToadStool absorption
 ├── graphs/                          # biomeOS pipeline graphs (Tower bootstrap, Node, cross-substrate)
 ├── .github/workflows/ci.yml         # GitHub Actions CI
-├── wateringHole/                    # Handoff directory (V58 current)
+├── wateringHole/                    # Handoff directory (V60 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md       # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md    # GPU kernel gap analysis

@@ -9,7 +9,7 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V59 | [GROUNDSPRING_TOADSTOOL_V59_S71_CATCHUP_HANDOFF_MAR01_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V59_S71_CATCHUP_HANDOFF_MAR01_2026.md) | Mar 1, 2026 | ToadStool S71+++ catch-up: jackknife GPU promoted, HargreavesBatchGpu, ComputeDispatch, DF64 transcendentals, 61 delegations (37 CPU + 20 GPU + 4 xspring) |
+| V60 | [GROUNDSPRING_TOADSTOOL_V60_HOTSPRING_ABSORPTION_HANDOFF_MAR01_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V60_HOTSPRING_ABSORPTION_HANDOFF_MAR01_2026.md) | Mar 1, 2026 | hotSpring cross-spring absorption: DriftMonitor, ClassificationUncertainty, concept edge detection, Nautilus Shell optional dep, 620 tests, 61 delegations (37 CPU + 20 GPU + 4 xspring) |
 
 ## Cross-Spring Documentation
 
@@ -36,6 +36,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V59 | ToadStool S71+++ catch-up: jackknife GPU promoted, HargreavesBatchGpu, ComputeDispatch, DF64 transcendentals (superseded by V60) |
 | V58 | Cross-spring evolution + deep-debt completion: 61 delegations, FAMILY_ID evolution (superseded by V59) |
 | V56 | NUCLEUS integration: biomeOS Neural API, NestGate pipelines, Exp 029–032 (superseded by V58) |
 | V55 | barracuda evolution review: 57-delegation inventory, cross-spring lineage (superseded by V56) |

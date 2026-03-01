@@ -110,7 +110,7 @@ pub fn grid_fit_2d(config: &GridFitConfig<'_>) -> Result<GridFitResult, crate::e
 /// parameter space (z-dimension = 1).
 ///
 /// Cross-spring lineage: `grid_search_3d_f64.wgsl` — groundSpring forward
-/// model (Bazavov freeze-out polynomial) + barracuda `ComputeDispatch` (absorbed S70+).
+/// model (Bazavov freeze-out polynomial) + barracuda `ComputeDispatch` (absorbed S71+++).
 #[cfg(feature = "barracuda-gpu")]
 fn grid_fit_2d_gpu(config: &GridFitConfig<'_>) -> Option<GridFitResult> {
     use crate::cast::f64_usize;

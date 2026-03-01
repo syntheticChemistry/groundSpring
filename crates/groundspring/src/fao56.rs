@@ -13,11 +13,11 @@
 //! # barracuda delegation
 //!
 //! [`daily_et0`] delegates to `barracuda::stats::hydrology::fao56_et0()`
-//! on CPU (S70+). [`hargreaves_et0`] delegates similarly. Batch variants
+//! on CPU (S71+++). [`hargreaves_et0`] delegates similarly. Batch variants
 //! use `HargreavesBatchGpu` (S71 — GPU-parallel via
 //! `hargreaves_batch_f64.wgsl`) when `barracuda-gpu` is enabled.
 //! [`crop_coefficient`] and [`soil_water_balance`] delegate to
-//! `barracuda::stats::hydrology` CPU functions (S70+).
+//! `barracuda::stats::hydrology` CPU functions (S71+++).
 //! Sub-functions remain local as the validation reference.
 
 use std::f64::consts::PI;
@@ -289,7 +289,7 @@ pub struct DailyWeatherInputs {
 /// height conversion (Example 18 pattern).
 ///
 /// Delegates to `barracuda::stats::hydrology::fao56_et0` when the
-/// `barracuda` feature is enabled (absorbed in `ToadStool` S70+).
+/// `barracuda` feature is enabled (absorbed in `ToadStool` S71+++).
 #[must_use]
 pub fn daily_et0(inp: &DailyWeatherInputs) -> f64 {
     #[cfg(feature = "barracuda")]
@@ -411,7 +411,7 @@ fn daily_et0_batch_gpu(inputs: &[DailyWeatherInputs]) -> Option<Vec<f64>> {
 ///
 /// When the `barracuda` feature is enabled, delegates to
 /// `barracuda::stats::hydrology::hargreaves_et0` (absorbed from
-/// airSpring V035 via `ToadStool` S70+).
+/// airSpring V035 via `ToadStool` S71+++).
 #[must_use]
 pub fn hargreaves_et0(tmax_c: f64, tmin_c: f64, latitude_deg_n: f64, day_of_year: u16) -> f64 {
     let ra = extraterrestrial_radiation(latitude_deg_n, day_of_year);
@@ -436,7 +436,7 @@ fn hargreaves_et0_cpu(ra: f64, tmax_c: f64, tmin_c: f64) -> f64 {
 /// `barracuda::stats::hydrology::hargreaves_et0_batch`.
 /// When `barracuda-gpu` is enabled and a GPU is available, dispatches
 /// via `BatchedElementwiseF64::execute` with `Op::HargreavesEt0`
-/// (airSpring V035 → `ToadStool` S70+).
+/// (airSpring V035 → `ToadStool` S71+++).
 #[must_use]
 pub fn hargreaves_et0_batch(
     tmax_c: &[f64],
@@ -475,7 +475,7 @@ fn hargreaves_et0_batch_gpu(ra: &[f64], tmax: &[f64], tmin: &[f64]) -> Option<Ve
             return Some(result);
         }
     }
-    // Fallback: S70 BatchedElementwiseF64 path
+    // Fallback: S71+++ BatchedElementwiseF64 path
     use barracuda::ops::batched_elementwise_f64::{BatchedElementwiseF64, Op};
     let gpu = BatchedElementwiseF64::new(device).ok()?;
     let n = ra.len();
@@ -497,7 +497,7 @@ fn hargreaves_et0_batch_gpu(ra: &[f64], tmax: &[f64], tmin: &[f64]) -> Option<Ve
 ///
 /// FAO-56 §6.3: linear interpolation of Kc within a growth stage.
 /// Delegates to `barracuda::stats::hydrology::crop_coefficient` when
-/// the `barracuda` feature is enabled (airSpring → `ToadStool` S70+).
+/// the `barracuda` feature is enabled (airSpring → `ToadStool` S71+++).
 #[must_use]
 pub fn crop_coefficient(kc_prev: f64, kc_next: f64, day_in_stage: u32, stage_length: u32) -> f64 {
     #[cfg(feature = "barracuda")]
@@ -523,7 +523,7 @@ pub fn crop_coefficient(kc_prev: f64, kc_next: f64, day_in_stage: u32, stage_len
 ///
 /// Delegates to `barracuda::stats::hydrology::soil_water_balance` when
 /// the `barracuda` feature is enabled (airSpring precision agriculture
-/// → `ToadStool` S70+).
+/// → `ToadStool` S71+++).
 #[must_use]
 pub fn soil_water_balance(
     theta: f64,
