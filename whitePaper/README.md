@@ -8,7 +8,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 ### Status
 
-- Phase 0 baselines: **~288 quantitative checks passed** across 28 experiments, 9 domains.
+- Phase 0 baselines: **~292 quantitative checks passed** across 28 experiments, 9 domains.
 - Phase 1 Rust validation: **292/292 checks passed** across 28 validation binaries.
 - Mathematical parity: **28/28 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.5× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.7× from Sturm tridiag**.

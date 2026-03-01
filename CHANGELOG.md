@@ -4,6 +4,29 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V55 barracuda Evolution Review + Docs Cleanup + ToadStool Handoff (Feb 28, 2026)
+
+#### Added
+- **V55 handoff**: comprehensive barracuda evolution review for ToadStool team
+  - Complete 57-delegation inventory (38 CPU + 19 GPU)
+  - API adaptation patterns documented (Option adapter, unit conversion, pre-eval + GPU argmin)
+  - Cross-spring shader lineage mapped (hotSpring, wetSpring, neuralSpring, airSpring, groundSpring)
+  - Performance data (Rust vs Python, CPU vs GPU benchmarks)
+  - Recommended barracuda evolutions prioritized
+
+#### Changed
+- **Docs sweep**: fixed 50+ stale references across specs/, whitePaper/, wateringHole/
+  - Updated BARRACUDA_REQUIREMENTS feature gate counts (30→38 CPU, 9→19 GPU)
+  - Updated BARRACUDA_EVOLUTION, CROSS_SPRING_EVOLUTION, PAPER_REVIEW_QUEUE headers
+  - Updated ecoPrimals/whitePaper/gen3/baseCamp/ groundSpring entry
+  - Updated whitePaper/baseCamp/anderson.md, bazavov.md, experiments/004, experiments/002
+  - Cleaned stale S68 → S70+++ in current-state descriptions
+  - Historical entries (CHANGELOG, archive/) left as fossil record
+
+#### Validated
+- All quality gates green (fmt/clippy/doc/test)
+- V54 handoff archived, V55 handoff created
+
 ### V54 Full Control Validation + Barracuda CPU Parity Proof + Rust vs Python Benchmark (Feb 28, 2026)
 
 #### Validated

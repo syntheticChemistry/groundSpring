@@ -248,13 +248,13 @@ Write → Absorb → Lean cycle:
 **GPU tier**: 13 modules wired with `#[cfg(feature = "barracuda-gpu")]` — including GPU grid adapters (seismic, freeze-out). 316/322 tests pass (6 require f64-capable GPU: Titan V / A100).
 **metalForge tier**: partially validated (groundspring-forge crate, Exp 028 NPU DMA on AKD1000).
 
-### GPU / metalForge Progression (updated V39 — S68+ absorption wave)
+### GPU / metalForge Progression (updated V54 — ToadStool S70+++)
 
 | # | Paper (short) | CPU | GPU | metalForge | Blocker |
 |---|--------------|:---:|:---:|:----------:|---------|
 | 6 | Bazavov spectral | **8/8 PASS** | After CPU | — | Dense linear algebra (Cholesky, mat-vec) — highest GPU potential |
-| 7 | Bazavov g-2 | **9/9 PASS** | After CPU | — | Jackknife GPU kernel (embarrassingly parallel) |
-| 8 | Bazavov freeze-out | **8/8 PASS** | After CPU | — | Grid search GPU (embarrassingly parallel) |
+| 7 | Bazavov g-2 | **9/9 PASS** | After CPU | — | Jackknife GPU kernel candidate (embarrassingly parallel) |
+| 8 | Bazavov freeze-out | **8/8 PASS** | **Wired** (V53) | — | `grid_search_3d` GPU adapter (pre-eval + argmin) |
 | 9 | Massie c-di-GMP | **12/12 PASS** | **Ready** | — | `GillespieGpu` + `BatchedOdeRK4` + 5 bio ODEs (S58) |
 | 10 | Fernandez cell shape | **9/9 PASS** | **Ready** | — | `BatchedEighGpu` + `BistableOde` (S58) |
 | 11 | Srivastava QS | **8/8 PASS** | **Ready** | — | `CooperationOde` + `MultiSignalOde` (S58) |
@@ -270,7 +270,7 @@ Write → Absorb → Lean cycle:
 | 21 | R. Anderson FEMS | **10/10 PASS** | Partial | — | Same as #20 |
 | 22-24 | Sub-thesis 06 | Queued | After 1-4 GPU | — | Depends on Exp 001-004 GPU tier |
 
-### BarraCUDA Kernel Requirements Summary (post ToadStool S66)
+### BarraCUDA Kernel Requirements Summary (post ToadStool S70+++)
 
 | Kernel | Papers | Status | Priority |
 |--------|--------|--------|----------|
@@ -326,7 +326,7 @@ Pure safe Rust with optional `barracuda` feature gate delegation.
 569 Rust workspace tests + 375 Python. 28/28 mathematical parity proven. 95+ three-tier parity tests (100% delegation coverage).
 All 28 experiments validated. GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r). 9 CPU vs GPU parity tests. CPU vs GPU benchmark binary.
 
-### Tier 2: BarraCUDA GPU (in progress — 12 GPU dispatch targets)
+### Tier 2: BarraCUDA GPU (in progress — 19 GPU dispatch targets)
 
 GPU adapter wiring for existing barracuda ops + Tier C shader absorption.
 New batch APIs: `birth_death_ssa_batch` (GillespieGpu), `wright_fisher_fixation_batch` (WrightFisherGpu),

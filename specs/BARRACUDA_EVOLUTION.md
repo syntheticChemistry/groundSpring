@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: February 28, 2026 (V43 three-tier parity proven + pure GPU workload validation)
+**Last updated**: February 28, 2026 (V54 — 57 delegations, 95 three-tier parity tests, ToadStool S70+++)
 
 ## Philosophy
 
@@ -452,7 +452,7 @@ across all 28 experiments (Feb 27, 2026). See `data/bench_rust_vs_python.json`.
 | Total Python | 104.49s |
 | Total Rust | 20.35s |
 | Overall speedup | **5.1×** |
-| Excl. LAPACK-bound | **11.5×** |
+| Excl. LAPACK-bound | **11.6×** |
 | Best: Exp 005 Seismic | **53.5×** |
 | Best: Exp 011 Multi-Signal QS | **44.7×** |
 | Best: Exp 008 Anderson | **28.6×** |

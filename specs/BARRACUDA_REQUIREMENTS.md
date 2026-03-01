@@ -12,11 +12,11 @@ groundSpring Phase 0 (Python), Phase 1 (Rust), and Phase 2a (barracuda CPU) are 
 - 292/292 validation checks across 28 binaries
 - 28 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, almost_mathieu, bistable, multisignal, kinetics, transport, drift, rare_biosphere, quasispecies, band_structure, jackknife, freeze_out, spectral_recon, wdm (+cast, validate)
 - 569 Rust workspace tests + 375 Python tests = 944 total. 0 clippy warnings (pedantic + nursery). 57 active delegations (38 CPU + 19 GPU), 1 evolution candidate — ToadStool S70+++. 49 metalForge tests. V51 GPU stats dispatch + CPU/GPU parity proof. GPU reduce ops + batch APIs
-- Two feature gates: `barracuda` (30 active CPU delegations) and `barracuda-gpu` (9 GPU delegations including Sturm tridiag, tikhonov solve, detect_bands, BatchedMultinomialGpu). Three-mode CI validates all configurations.
+- Two feature gates: `barracuda` (38 active CPU delegations) and `barracuda-gpu` (19 GPU delegations including Sturm tridiag, tikhonov solve, detect_bands, BatchedMultinomialGpu). Three-mode CI validates all configurations.
 - 57 active delegations (38 CPU + 19 GPU; includes GPU grid adapters, GPU stats dispatch, batch APIs, regression suite, kimura, jackknife, fao56_et0, chao1, error_threshold, detection_power, detection_threshold — ToadStool S70+++)
 - 2 production WGSL shaders in `metalForge/shaders/` (261 combined lines)
 - All matrices use flat row-major `Vec<f64>` — GPU-promotable layout
-- Rust is **11.5× faster** than Python (excl. LAPACK-bound); 5.1× overall. Exp 009: **47.7× from Sturm tridiag**
+- Rust is **11.6× faster** than Python (excl. LAPACK-bound); 5.1× overall. Exp 009: **47.7× from Sturm tridiag**
 - **28/28 mathematical parity proven** (Python ⇌ Rust; `data/parity_report.json`), all provenance fields stamped, 13 bitwise determinism tests
 - metalForge live hardware: RTX 4070, Titan V, AKD1000 NPU (80 NPs, ~51µs DMA), i9-12900K. Architecture-aware routing: f64→Titan V (Volta), f32→RTX 4070 (Ada)
 
@@ -84,7 +84,7 @@ NumPy Gillespie     ────────→  gillespie::birth_death_ssa  →
 NumPy bootstrap     ────────→  bootstrap::rawr_mean        →  (Gap: no RAWR kernel)
 NumPy Anderson      ────────→  anderson::lyapunov_*        →  lyapunov_exponent, lyapunov_averaged → barracuda
 NumPy ODE           ────────→  bistable + multisignal      →  BistableOde, MultiSignalOde → barracuda
-                                                               11.5× faster (excl. LAPACK), 28/28 parity
+                                                               11.6× faster (excl. LAPACK), 28/28 parity
 
 Phase 2a (DONE)                Phase 2b (GPU — V31 IN PROGRESS)
 ──────────────                 ────────────────────────────────

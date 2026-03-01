@@ -744,7 +744,7 @@ The key insight: **delegated code produces bitwise-identical results**.
 
 ### Stage 3: barracuda-CPU → barracuda-GPU (portable math, 2.2× faster)
 
-ToadStool S68+ universal precision (DF64 on FP32 cores via `naga`-guided
+ToadStool S70+++ universal precision (DF64 on FP32 cores via `naga`-guided
 `df64_rewrite.rs`) allows GPU dispatch with f64-equivalent precision.
 Unidirectional streaming reduces dispatch round-trips.
 
@@ -794,7 +794,8 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 
 | Handoff | Scope | Status |
 |---------|-------|--------|
-| V54: Full Control Validation + CPU Parity Proof | 283/283 checks, 95/95 parity, Rust 11.6× faster than Python, bench_rust_vs_python.json saved. | **Current** |
+| V55: barracuda Evolution Review + Docs Cleanup | Complete 57-delegation inventory, cross-spring lineage, recommended evolutions, stale refs cleaned. | **Current** |
+| V54: Full Control Validation + CPU Parity Proof | 283/283 checks, 95/95 parity, Rust 11.6× faster than Python. | Superseded by V55 |
 | V53: Complete Rewiring + GPU Grid Adapters | GPU grid adapters (seismic, freeze-out), 3 new CPU delegations, 57 active (38 CPU + 19 GPU). | Superseded by V54 |
 | V52: ToadStool S70+ Catch-Up | 4 new CPU delegations (kimura, jackknife, fao56_et0, chao1), 52 active. | Superseded by V53 |
 | V51: GPU Stats Dispatch + CPU/GPU Parity Proof | GPU stats dispatch, batch GPU APIs, 9 parity tests, bench-cpu-vs-gpu. 48 active. | Superseded by V52 |
