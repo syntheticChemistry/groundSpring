@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: February 28, 2026 (V54 — 57 delegations, 95 three-tier parity tests, ToadStool S70+++)
+**Last updated**: March 1, 2026 (V56 — 57 delegations, 95 three-tier parity tests, ToadStool S70+++, biomeOS NUCLEUS integration)
 
 ## Philosophy
 

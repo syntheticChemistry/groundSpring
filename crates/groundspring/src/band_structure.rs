@@ -55,6 +55,11 @@ pub fn transfer_matrix_half_trace(energy: f64, potential: &[f64], hopping: f64) 
 /// Scan the energy range for band edges (sign changes of `|Tr/2| − 1`).
 ///
 /// Returns energies where the system transitions between band and gap.
+///
+/// When the `barracuda` feature is enabled, each coarse-grid sign change
+/// is refined using `barracuda::optimize::brent` (airSpring V035 →
+/// `ToadStool` S70+) to locate the exact band edge to `tol = 1e-12`.
+/// Without barracuda, falls back to the coarse-grid scan alone.
 #[must_use]
 pub fn find_band_edges(
     potential: &[f64],
@@ -63,12 +68,43 @@ pub fn find_band_edges(
     e_hi: f64,
     n_points: usize,
 ) -> Vec<f64> {
-    // barracuda::ops::grid::band_edges_parallel (S70+) extracts min/max
-    // from sorted eigenvalue blocks. groundSpring's find_band_edges uses
-    // transfer matrix half-trace sign-change scanning — different algorithm.
-    // A GPU adapter would need the transfer matrix scan as a compute shader.
-    // Candidate for future evolution.
-    find_band_edges_cpu(potential, hopping, e_lo, e_hi, n_points)
+    let coarse = find_band_edges_cpu(potential, hopping, e_lo, e_hi, n_points);
+    #[cfg(feature = "barracuda-gpu")]
+    return refine_edges_brent(potential, hopping, e_lo, e_hi, n_points, &coarse);
+    #[cfg(not(feature = "barracuda-gpu"))]
+    coarse
+}
+
+/// Refine coarse band edges using Brent's method on the function
+/// `f(E) = |Tr(T(E))/2| − 1`.  The root of this function is exactly
+/// the band edge.
+///
+/// Cross-spring lineage: `brent` — airSpring V035 (Richards PDE
+/// root-finding) → `ToadStool` S70+ `barracuda::optimize::brent`
+/// → groundSpring band structure refinement.
+#[cfg(feature = "barracuda-gpu")]
+fn refine_edges_brent(
+    potential: &[f64],
+    hopping: f64,
+    e_lo: f64,
+    e_hi: f64,
+    n_points: usize,
+    coarse_edges: &[f64],
+) -> Vec<f64> {
+    let step = (e_hi - e_lo) / usize_f64(n_points - 1);
+    let tol = 1e-12;
+    let max_iter = 100;
+
+    coarse_edges
+        .iter()
+        .map(|&edge| {
+            let a = (edge - step).max(e_lo);
+            let b = (edge + step).min(e_hi);
+            let f = |e: f64| transfer_matrix_half_trace(e, potential, hopping).abs() - 1.0;
+            barracuda::optimize::brent(f, a, b, tol, max_iter)
+                .map_or(edge, |result| result.root)
+        })
+        .collect()
 }
 
 fn find_band_edges_cpu(

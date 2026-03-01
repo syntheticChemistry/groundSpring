@@ -16,6 +16,7 @@ workspace = true
 default = []
 biomeos = ["groundspring/biomeos"]
 npu = ["groundspring/npu"]
+barracuda = ["groundspring/barracuda"]
 barracuda-gpu = ["groundspring/barracuda-gpu"]
 
 [dependencies]
@@ -138,3 +139,23 @@ required-features = ["npu"]
 [[bin]]
 name = "bench-cpu-vs-gpu"
 path = "src/bench_cpu_vs_gpu.rs"
+
+[[bin]]
+name = "validate-real-ghcnd-et0"
+path = "src/validate_real_ghcnd_et0.rs"
+required-features = ["biomeos"]
+
+[[bin]]
+name = "validate-real-ncbi-16s"
+path = "src/validate_real_ncbi_16s.rs"
+required-features = ["biomeos"]
+
+[[bin]]
+name = "validate-nucleus-stack"
+path = "src/validate_nucleus_stack.rs"
+required-features = ["biomeos"]
+
+[[bin]]
+name = "validate-iris-seismic"
+path = "src/validate_iris_seismic.rs"
+required-features = ["biomeos"]

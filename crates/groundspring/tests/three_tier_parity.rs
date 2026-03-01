@@ -1166,15 +1166,22 @@ fn gpu_stats_deterministic() {
 }
 
 // ── Dispatch target inventory sentinel ─────────────────────────────
+//
+// V55: +6 delegations from ToadStool S70+ cross-spring evolution
+//   CPU: +4 (hargreaves_et0, hargreaves_et0_batch, crop_coefficient, soil_water_balance)
+//        — airSpring FAO-56 hydrology → ToadStool S70+ → groundSpring
+//   GPU: +2 (hargreaves_et0_batch GPU, find_band_edges brent refinement)
+//        — airSpring V035 brent root-finder → ToadStool S70+ → groundSpring
+//   Evolution candidate unchanged (band_edges eigenvalue vs transfer-matrix scan)
 
 #[test]
 fn dispatch_targets_at_least_32() {
-    let cpu_active = 38;
-    let gpu_active = 19;
+    let cpu_active = 42;
+    let gpu_active = 21;
     let evolution_candidates = 1;
     assert!(
-        cpu_active + gpu_active >= 57,
-        "minimum 57 active dispatch targets"
+        cpu_active + gpu_active >= 63,
+        "minimum 63 active dispatch targets"
     );
     assert_eq!(
         evolution_candidates, 1,

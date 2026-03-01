@@ -370,6 +370,153 @@ fn daily_et0_batch_gpu(inputs: &[DailyWeatherInputs]) -> Option<Vec<f64>> {
     gpu.fao56_et0_batch(&station_days).ok()
 }
 
+// ── Hargreaves ET₀ (temperature-only) ─────────────────────────────
+//
+// Cross-spring lineage: airSpring V035 → ToadStool S70+ → groundSpring
+// When radiation data is unavailable, Hargreaves (1985) provides a
+// temperature-only reference ET₀.  The equation uses extraterrestrial
+// radiation Ra (computed from latitude + day-of-year) rather than
+// measured solar radiation.  Accuracy is lower than Penman-Monteith
+// (~±20 %) but sufficient for screening and gap-filling.
+
+/// Hargreaves reference ET₀ from temperature only (mm day⁻¹).
+///
+/// `ET₀ = 0.0023 · (T_mean + 17.8) · (T_max − T_min)^0.5 · Ra`
+///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::hydrology::hargreaves_et0` (absorbed from
+/// airSpring V035 via `ToadStool` S70+).
+#[must_use]
+pub fn hargreaves_et0(tmax_c: f64, tmin_c: f64, latitude_deg_n: f64, day_of_year: u16) -> f64 {
+    let ra = extraterrestrial_radiation(latitude_deg_n, day_of_year);
+    #[cfg(feature = "barracuda")]
+    {
+        if let Some(et0) = barracuda::stats::hydrology::hargreaves_et0(ra, tmax_c, tmin_c) {
+            return et0;
+        }
+    }
+    hargreaves_et0_cpu(ra, tmax_c, tmin_c)
+}
+
+fn hargreaves_et0_cpu(ra: f64, tmax_c: f64, tmin_c: f64) -> f64 {
+    let tmean = f64::midpoint(tmax_c, tmin_c);
+    let td = (tmax_c - tmin_c).max(0.0);
+    0.0023 * (tmean + 17.8) * td.sqrt() * ra
+}
+
+/// Compute Hargreaves ET₀ for a batch of days.
+///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::stats::hydrology::hargreaves_et0_batch`.
+/// When `barracuda-gpu` is enabled and a GPU is available, dispatches
+/// via `BatchedElementwiseF64::execute` with `Op::HargreavesEt0`
+/// (airSpring V035 → `ToadStool` S70+).
+#[must_use]
+pub fn hargreaves_et0_batch(
+    tmax_c: &[f64],
+    tmin_c: &[f64],
+    latitude_deg_n: f64,
+    day_of_year: u16,
+) -> Vec<f64> {
+    let n = tmax_c.len().min(tmin_c.len());
+    let ra = extraterrestrial_radiation(latitude_deg_n, day_of_year);
+    #[cfg(any(feature = "barracuda", feature = "barracuda-gpu"))]
+    {
+        let ra_vec: Vec<f64> = vec![ra; n];
+        #[cfg(feature = "barracuda-gpu")]
+        {
+            if let Some(results) = hargreaves_et0_batch_gpu(&ra_vec, tmax_c, tmin_c) {
+                return results;
+            }
+        }
+        if let Some(results) =
+            barracuda::stats::hydrology::hargreaves_et0_batch(&ra_vec, &tmax_c[..n], &tmin_c[..n])
+        {
+            return results;
+        }
+    }
+    (0..n)
+        .map(|i| hargreaves_et0_cpu(ra, tmax_c[i], tmin_c[i]))
+        .collect()
+}
+
+#[cfg(feature = "barracuda-gpu")]
+fn hargreaves_et0_batch_gpu(ra: &[f64], tmax: &[f64], tmin: &[f64]) -> Option<Vec<f64>> {
+    use barracuda::ops::batched_elementwise_f64::{BatchedElementwiseF64, Op};
+
+    let device = crate::gpu::get_device()?;
+    let gpu = BatchedElementwiseF64::new(device).ok()?;
+    let n = ra.len();
+    let mut data = Vec::with_capacity(n * 3);
+    for i in 0..n {
+        data.push(ra[i]);
+        data.push(tmax[i]);
+        data.push(tmin[i]);
+    }
+    gpu.execute(&data, n, Op::HargreavesEt0).ok()
+}
+
+// ── Crop coefficient & soil water balance ─────────────────────────
+//
+// Cross-spring lineage: airSpring FAO-56 → ToadStool S70+ → groundSpring
+// Completing the chain from reference ET₀ to actual crop water use.
+
+/// Interpolate crop coefficient between growth stages.
+///
+/// FAO-56 §6.3: linear interpolation of Kc within a growth stage.
+/// Delegates to `barracuda::stats::hydrology::crop_coefficient` when
+/// the `barracuda` feature is enabled (airSpring → `ToadStool` S70+).
+#[must_use]
+pub fn crop_coefficient(
+    kc_prev: f64,
+    kc_next: f64,
+    day_in_stage: u32,
+    stage_length: u32,
+) -> f64 {
+    #[cfg(feature = "barracuda")]
+    return barracuda::stats::hydrology::crop_coefficient(
+        kc_prev,
+        kc_next,
+        day_in_stage,
+        stage_length,
+    );
+    #[cfg(not(feature = "barracuda"))]
+    {
+        if stage_length == 0 {
+            return kc_prev;
+        }
+        let t = f64::from(day_in_stage) / f64::from(stage_length);
+        (kc_next - kc_prev).mul_add(t.clamp(0.0, 1.0), kc_prev)
+    }
+}
+
+/// Simple daily soil water balance (mm).
+///
+/// `θ_{t+1} = min(θ_t + P + I − ET_c, FC)`
+///
+/// Delegates to `barracuda::stats::hydrology::soil_water_balance` when
+/// the `barracuda` feature is enabled (airSpring precision agriculture
+/// → `ToadStool` S70+).
+#[must_use]
+pub fn soil_water_balance(
+    theta: f64,
+    precip: f64,
+    irrigation: f64,
+    et_c: f64,
+    field_capacity: f64,
+) -> f64 {
+    #[cfg(feature = "barracuda")]
+    return barracuda::stats::hydrology::soil_water_balance(
+        theta,
+        precip,
+        irrigation,
+        et_c,
+        field_capacity,
+    );
+    #[cfg(not(feature = "barracuda"))]
+    (theta + precip + irrigation - et_c).clamp(0.0, field_capacity)
+}
+
 /// FAO-56 Example 18 reference inputs (Uccle, Belgium, 6 July).
 ///
 /// Expected ET₀ = 3.88 mm day⁻¹.
@@ -467,5 +614,122 @@ mod tests {
         let a = daily_et0(&inp);
         let b = daily_et0(&inp);
         assert!((a - b).abs() < f64::EPSILON);
+    }
+
+    // ── Hargreaves ET₀ tests ──────────────────────────────────────
+
+    #[test]
+    fn hargreaves_positive() {
+        let et0 = hargreaves_et0(21.5, 12.3, 50.8, 187);
+        assert!(et0 > 0.0, "Hargreaves ET₀ should be positive, got {et0}");
+    }
+
+    #[test]
+    fn hargreaves_summer_gt_winter() {
+        let summer = hargreaves_et0(30.0, 18.0, 45.0, 180);
+        let winter = hargreaves_et0(5.0, -2.0, 45.0, 15);
+        assert!(
+            summer > winter,
+            "summer ET₀ ({summer:.2}) should exceed winter ({winter:.2})"
+        );
+    }
+
+    #[test]
+    fn hargreaves_vs_penman_same_order() {
+        let inp = example_18_inputs();
+        let pm = daily_et0(&inp);
+        let hg = hargreaves_et0(inp.tmax_c, inp.tmin_c, inp.latitude_deg_n, inp.day_of_year);
+        let ratio = hg / pm;
+        // Hargreaves is a temperature-only estimate with ~20-30% typical error;
+        // for humid sites with low ΔT, it can overestimate by up to 3× relative
+        // to Penman-Monteith due to missing humidity/wind correction.
+        assert!(
+            (0.3..3.5).contains(&ratio),
+            "Hargreaves/PM ratio={ratio:.2}, expected same order of magnitude"
+        );
+    }
+
+    #[test]
+    fn hargreaves_batch_matches_scalar() {
+        let tmax = [25.0, 30.0, 20.0];
+        let tmin = [15.0, 18.0, 10.0];
+        let batch = hargreaves_et0_batch(&tmax, &tmin, 45.0, 180);
+        for (i, &val) in batch.iter().enumerate() {
+            let scalar = hargreaves_et0(tmax[i], tmin[i], 45.0, 180);
+            assert!(
+                (val - scalar).abs() < 1e-10,
+                "batch[{i}]={val} != scalar={scalar}"
+            );
+        }
+    }
+
+    #[test]
+    fn hargreaves_deterministic() {
+        let a = hargreaves_et0(25.0, 15.0, 45.0, 180);
+        let b = hargreaves_et0(25.0, 15.0, 45.0, 180);
+        assert!((a - b).abs() < f64::EPSILON);
+    }
+
+    // ── Crop coefficient tests ────────────────────────────────────
+
+    #[test]
+    fn crop_coefficient_endpoints() {
+        let kc_start = crop_coefficient(0.3, 1.2, 0, 30);
+        let kc_end = crop_coefficient(0.3, 1.2, 30, 30);
+        assert!(
+            (kc_start - 0.3).abs() < 0.01,
+            "day 0 should be kc_prev, got {kc_start}"
+        );
+        assert!(
+            (kc_end - 1.2).abs() < 0.01,
+            "day=stage should be kc_next, got {kc_end}"
+        );
+    }
+
+    #[test]
+    fn crop_coefficient_midpoint() {
+        let kc = crop_coefficient(0.4, 1.0, 15, 30);
+        assert!(
+            (kc - 0.7).abs() < 0.05,
+            "midpoint Kc should be ~0.7, got {kc}"
+        );
+    }
+
+    #[test]
+    fn crop_coefficient_zero_length() {
+        let kc = crop_coefficient(0.5, 1.0, 0, 0);
+        assert!(
+            (kc - 0.5).abs() < f64::EPSILON,
+            "zero stage length returns kc_prev"
+        );
+    }
+
+    // ── Soil water balance tests ──────────────────────────────────
+
+    #[test]
+    fn soil_water_balance_basic() {
+        let theta = soil_water_balance(100.0, 10.0, 5.0, 8.0, 200.0);
+        assert!(
+            (theta - 107.0).abs() < 0.01,
+            "100+10+5-8=107, got {theta}"
+        );
+    }
+
+    #[test]
+    fn soil_water_balance_capped_at_fc() {
+        let theta = soil_water_balance(190.0, 20.0, 0.0, 2.0, 200.0);
+        assert!(
+            (theta - 200.0).abs() < 0.01,
+            "should cap at FC=200, got {theta}"
+        );
+    }
+
+    #[test]
+    fn soil_water_balance_floor_at_zero() {
+        let theta = soil_water_balance(5.0, 0.0, 0.0, 20.0, 200.0);
+        assert!(
+            theta >= 0.0,
+            "should not go negative, got {theta}"
+        );
     }
 }

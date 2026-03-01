@@ -1,6 +1,6 @@
 # groundSpring — BarraCUDA Requirements
 
-**Last Updated**: February 28, 2026
+**Last Updated**: March 1, 2026
 **Purpose**: GPU kernel requirements, gap analysis, and evolution priorities
 
 ---
@@ -9,9 +9,9 @@
 
 groundSpring Phase 0 (Python), Phase 1 (Rust), and Phase 2a (barracuda CPU) are **complete**.
 
-- 292/292 validation checks across 28 binaries
-- 28 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, almost_mathieu, bistable, multisignal, kinetics, transport, drift, rare_biosphere, quasispecies, band_structure, jackknife, freeze_out, spectral_recon, wdm (+cast, validate)
-- 569 Rust workspace tests + 375 Python tests = 944 total. 0 clippy warnings (pedantic + nursery). 57 active delegations (38 CPU + 19 GPU), 1 evolution candidate — ToadStool S70+++. 49 metalForge tests. V51 GPU stats dispatch + CPU/GPU parity proof. GPU reduce ops + batch APIs
+- 347/347 validation checks across 32 binaries (292 core + 55 NUCLEUS)
+- 30 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, almost_mathieu, bistable, multisignal, kinetics, transport, drift, rare_biosphere, quasispecies, band_structure, jackknife, freeze_out, spectral_recon, wdm, biomeos, nestgate (+cast, validate, npu, error, linalg)
+- 622 Rust workspace tests (biomeos) + 375 Python tests = 997 total. 0 clippy warnings (pedantic + nursery). 57 active delegations (38 CPU + 19 GPU), 1 evolution candidate — ToadStool S70+++. 49 metalForge tests. biomeOS Neural API live.
 - Two feature gates: `barracuda` (38 active CPU delegations) and `barracuda-gpu` (19 GPU delegations including Sturm tridiag, tikhonov solve, detect_bands, BatchedMultinomialGpu). Three-mode CI validates all configurations.
 - 57 active delegations (38 CPU + 19 GPU; includes GPU grid adapters, GPU stats dispatch, batch APIs, regression suite, kimura, jackknife, fao56_et0, chao1, error_threshold, detection_power, detection_threshold — ToadStool S70+++)
 - 2 production WGSL shaders in `metalForge/shaders/` (261 combined lines)

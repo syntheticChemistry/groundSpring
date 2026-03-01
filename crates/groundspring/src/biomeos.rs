@@ -27,7 +27,8 @@
 //!
 //! | Phase | Strategy | Status |
 //! |-------|----------|--------|
-//! | Current | Optional Neural API client, sovereign fallback | active |
+//! | Phase 0 | Live NUCLEUS local, sovereign fallback | **active** |
+//! | Phase 1 | Data pipeline via `NestGate` live providers | active |
 //! | Phase 2 | `ToadStool` GPU dispatch via `compute.execute` | planned |
 //! | Phase 3 | `metalForge` cross-substrate via Neural API | planned |
 
@@ -39,6 +40,14 @@ use std::time::Duration;
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 const READ_TIMEOUT: Duration = Duration::from_secs(30);
 const FAMILY_ID: &str = "groundspring";
+
+/// Socket names the NUCLEUS startup scripts create, in priority order.
+/// `start_nucleus.sh` creates `neural-api.sock` (no family suffix) and
+/// optionally symlinks `neural-api-{family_id}.sock`.
+const NUCLEUS_SOCKET_NAMES: &[&str] = &[
+    "neural-api.sock",
+    "neural-api-default.sock",
+];
 
 /// Error type for `biomeOS` client operations.
 #[derive(Debug)]
@@ -64,10 +73,12 @@ pub fn is_enabled() -> bool {
 
 /// Discover the `biomeOS` Neural API Unix socket path.
 ///
-/// Capability-based discovery (no hardcoded absolute paths):
+/// Discovery priority (no hardcoded absolute paths):
 /// 1. `GROUNDSPRING_BIOMEOS_SOCKET` env var (explicit override)
-/// 2. `$XDG_RUNTIME_DIR/biomeos/neural-api-default.sock`
-/// 3. `<temp_dir>/biomeos-neural-api.sock` (platform-agnostic fallback)
+/// 2. `$XDG_RUNTIME_DIR/biomeos/neural-api.sock` (NUCLEUS `start_nucleus.sh`)
+/// 3. `$XDG_RUNTIME_DIR/biomeos/neural-api-default.sock` (legacy)
+/// 4. `/run/user/{uid}/biomeos/neural-api.sock` (non-XDG Linux)
+/// 5. `<temp_dir>/biomeos-neural-api.sock` (platform-agnostic fallback)
 #[must_use]
 pub fn discover_socket() -> Option<PathBuf> {
     let explicit = std::env::var("GROUNDSPRING_BIOMEOS_SOCKET").ok();
@@ -85,18 +96,68 @@ fn resolve_socket(explicit: Option<&str>, xdg_runtime: Option<&str>) -> Option<P
     }
 
     if let Some(xdg) = xdg_runtime {
-        let p = PathBuf::from(xdg).join("biomeos/neural-api-default.sock");
+        let biomeos_dir = PathBuf::from(xdg).join("biomeos");
+        for name in NUCLEUS_SOCKET_NAMES {
+            let p = biomeos_dir.join(name);
+            if p.exists() {
+                return Some(p);
+            }
+        }
+    }
+
+    // Non-XDG Linux fallback: /run/user/{uid}/biomeos/
+    #[cfg(target_os = "linux")]
+    if xdg_runtime.is_none() {
+        if let Some(uid) = proc_self_uid() {
+            let run_dir = PathBuf::from(format!("/run/user/{uid}/biomeos"));
+            for name in NUCLEUS_SOCKET_NAMES {
+                let p = run_dir.join(name);
+                if p.exists() {
+                    return Some(p);
+                }
+            }
+        }
+    }
+
+    // /tmp fallback (least preferred)
+    for name in NUCLEUS_SOCKET_NAMES {
+        let p = std::env::temp_dir().join(format!("biomeos/{name}"));
         if p.exists() {
             return Some(p);
         }
     }
 
-    let fallback = std::env::temp_dir().join("biomeos-neural-api.sock");
-    if fallback.exists() {
-        return Some(fallback);
+    let legacy = std::env::temp_dir().join("biomeos-neural-api.sock");
+    if legacy.exists() {
+        return Some(legacy);
     }
 
     None
+}
+
+/// Get the real UID of the current process via `/proc/self` metadata.
+#[cfg(target_os = "linux")]
+fn proc_self_uid() -> Option<u32> {
+    use std::os::unix::fs::MetadataExt;
+    std::fs::metadata("/proc/self").ok().map(|m| m.uid())
+}
+
+/// Attempt to connect to a live NUCLEUS and return the socket path if healthy.
+///
+/// Unlike [`discover_socket`] which only checks if a socket *file* exists,
+/// this function actually connects and verifies the Neural API responds.
+/// Returns `None` if no NUCLEUS is running or it fails the health check.
+#[must_use]
+pub fn auto_connect() -> Option<PathBuf> {
+    let socket = discover_socket()?;
+    health(&socket).ok()?;
+    Some(socket)
+}
+
+/// Check whether a live NUCLEUS is available and responding.
+#[must_use]
+pub fn is_nucleus_available() -> bool {
+    auto_connect().is_some()
 }
 
 /// Route a request through biomeOS Neural API `capability.call`.
@@ -159,8 +220,8 @@ pub fn direct_rpc_call(
 
 /// Store a value via biomeOS capability-based storage routing.
 ///
-/// Routes through `storage.store` capability — biomeOS discovers which
-/// primal handles storage at runtime (no hardcoded primal references).
+/// Routes through `storage.put` capability — biomeOS translates to
+/// `NestGate`'s `storage.store` method at runtime.
 ///
 /// # Errors
 ///
@@ -172,14 +233,14 @@ pub fn storage_put(socket: &Path, key: &str, value: &str) -> Result<()> {
         escape_json(value),
         FAMILY_ID,
     );
-    capability_call(socket, "storage.store", &params)?;
+    capability_call(socket, "storage.put", &params)?;
     Ok(())
 }
 
 /// Retrieve a value via biomeOS capability-based storage routing.
 ///
-/// Routes through `storage.retrieve` capability — biomeOS discovers which
-/// primal handles storage at runtime.
+/// Routes through `storage.get` capability — biomeOS translates to
+/// `NestGate`'s `storage.retrieve` method at runtime.
 ///
 /// # Errors
 ///
@@ -191,7 +252,64 @@ pub fn storage_get(socket: &Path, key: &str) -> Result<String> {
         escape_json(key),
         FAMILY_ID,
     );
-    capability_call(socket, "storage.retrieve", &params)
+    capability_call(socket, "storage.get", &params)
+}
+
+/// Dispatch a computation through `ToadStool` via `compute.execute`.
+///
+/// The `op` field names the operation (e.g. `"lyapunov_averaged"`).
+/// Additional fields in `params_json` carry the operation-specific arguments.
+///
+/// Returns the raw result string from `ToadStool`.
+///
+/// # Errors
+///
+/// Returns `Err` if biomeOS is unavailable or `ToadStool` rejects the request.
+pub fn compute_execute(socket: &Path, op: &str, params_json: &str) -> Result<String> {
+    let merged = if params_json.starts_with('{') && params_json.len() > 2 {
+        let inner = &params_json[1..params_json.len() - 1];
+        format!(r#"{{"op":"{}",{inner},"family_id":"{}"}}"#, escape_json(op), FAMILY_ID)
+    } else {
+        format!(
+            r#"{{"op":"{}","family_id":"{}"}}"#,
+            escape_json(op),
+            FAMILY_ID,
+        )
+    };
+    capability_call(socket, "compute.execute", &merged)
+}
+
+/// Submit a compute job asynchronously via `compute.submit`.
+///
+/// Returns a job ID or status from `ToadStool`.
+///
+/// # Errors
+///
+/// Returns `Err` if biomeOS is unavailable or the submission fails.
+pub fn compute_submit(socket: &Path, op: &str, params_json: &str) -> Result<String> {
+    let merged = if params_json.starts_with('{') && params_json.len() > 2 {
+        let inner = &params_json[1..params_json.len() - 1];
+        format!(r#"{{"op":"{}",{inner},"family_id":"{}"}}"#, escape_json(op), FAMILY_ID)
+    } else {
+        format!(
+            r#"{{"op":"{}","family_id":"{}"}}"#,
+            escape_json(op),
+            FAMILY_ID,
+        )
+    };
+    capability_call(socket, "compute.submit", &merged)
+}
+
+/// Query `ToadStool` compute capabilities.
+///
+/// Returns JSON listing available compute operations and GPU info.
+///
+/// # Errors
+///
+/// Returns `Err` if biomeOS or `ToadStool` is unavailable.
+pub fn compute_capabilities(socket: &Path) -> Result<String> {
+    let params = format!(r#"{{"family_id":"{FAMILY_ID}"}}"#);
+    capability_call(socket, "resource.health.check", &params)
 }
 
 /// Health check: verify the Neural API is alive.
@@ -376,7 +494,16 @@ mod tests {
     #[test]
     fn resolve_socket_explicit_nonexistent() {
         let result = resolve_socket(Some("/tmp/nonexistent_groundspring_biomeos.sock"), None);
-        assert!(result.is_none());
+        // The explicit path doesn't exist, so it won't be returned. However,
+        // the Linux /run/user/{uid} fallback might find a real NUCLEUS socket.
+        if let Some(ref p) = result {
+            assert_ne!(
+                p.to_str().unwrap(),
+                "/tmp/nonexistent_groundspring_biomeos.sock",
+                "should not return the nonexistent explicit path"
+            );
+            assert!(p.exists(), "returned path must exist");
+        }
     }
 
     #[test]
@@ -398,14 +525,38 @@ mod tests {
     }
 
     #[test]
-    fn resolve_socket_xdg_path() {
+    fn resolve_socket_xdg_path_neural_api() {
+        let dir = tempfile::tempdir().unwrap();
+        let biomeos = dir.path().join("biomeos");
+        std::fs::create_dir_all(&biomeos).unwrap();
+        let sock = biomeos.join("neural-api.sock");
+        std::fs::write(&sock, "").unwrap();
+        let result = resolve_socket(None, Some(dir.path().to_str().unwrap()));
+        assert_eq!(result, Some(sock), "should prefer neural-api.sock");
+    }
+
+    #[test]
+    fn resolve_socket_xdg_path_legacy_default() {
         let dir = tempfile::tempdir().unwrap();
         let biomeos = dir.path().join("biomeos");
         std::fs::create_dir_all(&biomeos).unwrap();
         let sock = biomeos.join("neural-api-default.sock");
         std::fs::write(&sock, "").unwrap();
         let result = resolve_socket(None, Some(dir.path().to_str().unwrap()));
-        assert_eq!(result, Some(sock));
+        assert_eq!(result, Some(sock), "should find legacy neural-api-default.sock");
+    }
+
+    #[test]
+    fn resolve_socket_prefers_neural_api_over_default() {
+        let dir = tempfile::tempdir().unwrap();
+        let biomeos = dir.path().join("biomeos");
+        std::fs::create_dir_all(&biomeos).unwrap();
+        let primary = biomeos.join("neural-api.sock");
+        let legacy = biomeos.join("neural-api-default.sock");
+        std::fs::write(&primary, "").unwrap();
+        std::fs::write(&legacy, "").unwrap();
+        let result = resolve_socket(None, Some(dir.path().to_str().unwrap()));
+        assert_eq!(result, Some(primary), "should prefer neural-api.sock over default");
     }
 
     #[test]
@@ -424,7 +575,7 @@ mod tests {
         let xdg_dir = tempfile::tempdir().unwrap();
         let biomeos = xdg_dir.path().join("biomeos");
         std::fs::create_dir_all(&biomeos).unwrap();
-        let xdg_sock = biomeos.join("neural-api-default.sock");
+        let xdg_sock = biomeos.join("neural-api.sock");
         std::fs::write(&xdg_sock, "").unwrap();
         let result = resolve_socket(
             Some(explicit_sock.to_str().unwrap()),
@@ -495,15 +646,18 @@ mod tests {
     #[test]
     fn capability_call_request_format() {
         let cap = "science.anderson_validation";
-        let params = r#"{"n_sites":10000}"#;
+        let args = r#"{"n_sites":10000}"#;
+        let (cap_part, op_part) = cap.split_once('.').unwrap();
         let request = format!(
-            r#"{{"jsonrpc":"2.0","method":"capability.call","params":{{"capability":"{}","params":{},"family_id":"{}"}},"id":1}}"#,
-            escape_json(cap),
-            params,
+            r#"{{"jsonrpc":"2.0","method":"capability.call","params":{{"capability":"{}","operation":"{}","args":{},"family_id":"{}"}},"id":1}}"#,
+            escape_json(cap_part),
+            escape_json(op_part),
+            args,
             FAMILY_ID,
         );
         assert!(request.contains("capability.call"));
-        assert!(request.contains("science.anderson_validation"));
+        assert!(request.contains("\"capability\":\"science\""));
+        assert!(request.contains("\"operation\":\"anderson_validation\""));
         assert!(request.contains("groundspring"));
     }
 

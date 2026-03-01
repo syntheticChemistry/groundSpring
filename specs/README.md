@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
-**Last Updated**: February 28, 2026
-**Status**: Phase 0 + Phase 1 + Phase 2a complete + GPU stats dispatch (V51) — 292/292 PASS, 57 active delegations (38 CPU + 19 GPU), 1 evolution candidate — ToadStool S70+++, 569 workspace tests, 95 three-tier parity tests, 49 metalForge tests, GPU stats (mean/std_dev/rmse/mbe/pearson_r) + batch APIs (GillespieGpu/WrightFisherGpu/BatchedElementwiseF64), 11.5× faster (excl. LAPACK-bound), 28/28 parity proven
+**Last Updated**: March 1, 2026
+**Status**: Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 347/347 PASS (292 core + 55 NUCLEUS), 57 active delegations (38 CPU + 19 GPU), 1 evolution candidate — ToadStool S70+++, 622 workspace tests (biomeos), 95 three-tier parity tests, 49 metalForge tests, biomeOS Neural API live (Tower + Node + Squirrel validated), NestGate data pipelines (NCBI, NOAA, IRIS), 32 experiments, 30 modules
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -11,9 +11,11 @@
 | Metric | Value |
 |--------|-------|
 | Phase 0 (Python) | 28/28 experiments PASS across 9 scientific domains (~288 checks) |
-| Phase 1 (Rust) | 292/292 PASS — 28 validation binaries |
+| Phase 1 (Rust) | 292/292 PASS — 28 core validation binaries |
+| Phase 4 (NUCLEUS) | 55/55 PASS — 4 NUCLEUS validation binaries (Exp 029–032) |
+| Total Validation | 347/347 PASS across 32 experiments |
 | Mathematical Parity | 28/28 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
-| Rust tests | 569 workspace (barracuda-gpu) + 375 Python = 944 total |
+| Rust tests | 622 workspace (biomeos) + 375 Python = 997 total |
 | metalForge | 2 production WGSL shaders (mc_et0_propagate, batched_multinomial) |
 | Exp 001 | Sensor noise decomposition — EC5 bias-dominated, CS616 mixed |
 | Exp 002 | Observation gap ERA5 vs station — methodology validated |
@@ -36,7 +38,19 @@
 | Exp 019 | Jackknife error estimation — subpercent precision (Bazavov 2025 Phys Rev D) |
 | Exp 020 | Freeze-out inverse problem — inferring freeze-out conditions (Bazavov 2016) |
 | Exp 021 | Spectral function reconstruction — signal recovery from noisy lattice data (Bazavov 2025) |
+| Exp 022 | ET₀ → Anderson propagation — humidity-dominated ET₀ error → localization length CV |
+| Exp 023 | No-Till vs Tilled sampling — saturation depth by soil management regime |
+| Exp 024 | Aggregate stability noise — WSA measurement precision vs Anderson regime discrimination |
+| Exp 025 | f32 vs f64 precision drift — Green-Kubo f32 accumulation bias fraction ~28% |
+| Exp 026 | System-size convergence — transport coefficient finite-size extrapolation R² > 0.999 |
+| Exp 027 | GPU vendor parity — cross-vendor transport coefficient agreement at 1e-12 relative |
+| Exp 028 | NPU Anderson — Anderson regime classification on AKD1000 via int8 DMA |
+| Exp 029 | Real GHCND ET₀ — Hargreaves vs Penman-Monteith on real/synthetic NOAA weather (NUCLEUS) |
+| Exp 030 | Real NCBI 16S — rare biosphere detection on real/synthetic NCBI metagenomes (NUCLEUS) |
+| Exp 031 | NUCLEUS Stack — full primal validation: Tower + Node + Squirrel + Nest |
+| Exp 032 | IRIS Seismic — IRIS FDSN station geometry + travel times via NestGate (NUCLEUS) |
 | Barracuda | 57 active (38 CPU + 19 GPU), 1 evolution candidate (ToadStool S70+++). GPU grid adapters + batch APIs. 49 metalForge tests |
+| NUCLEUS | biomeOS Neural API live: Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) |
 | Performance | 11.5× faster than Python (excl. LAPACK-bound); 5.1× overall |
 | Faculty | Bazavov, Waters, Liu, Kachkovskiy, R. Anderson, Dolson |
 
@@ -51,6 +65,15 @@
 | [PAPER_REVIEW_QUEUE.md](PAPER_REVIEW_QUEUE.md) | Active | Papers to review/reproduce, prioritized by tier |
 | [BARRACUDA_REQUIREMENTS.md](BARRACUDA_REQUIREMENTS.md) | Active | GPU kernel requirements and gap analysis |
 | [BARRACUDA_EVOLUTION.md](BARRACUDA_EVOLUTION.md) | Active | Module → GPU promotion mapping (Tier A/B/C) |
+| [PRIMAL_INTERACTION_EVOLUTION.md](PRIMAL_INTERACTION_EVOLUTION.md) | Active | NUCLEUS Neural API evolution (V0–V6), interaction map |
+| [LAN_DEPLOYMENT_READINESS.md](LAN_DEPLOYMENT_READINESS.md) | Active | LAN HPC readiness assessment |
+
+### NUCLEUS Evolution
+
+| Spec | Status | Description |
+|------|--------|-------------|
+| [PRIMAL_INTERACTION_EVOLUTION.md](PRIMAL_INTERACTION_EVOLUTION.md) | Active | Socket discovery → capability routing → data pipelines → multi-primal |
+| [CROSS_SPRING_EVOLUTION.md](CROSS_SPRING_EVOLUTION.md) | Active | How springs evolve barracuda, and NUCLEUS interaction patterns |
 
 ### GPU Evolution
 

@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: February 28, 2026
+**Last updated**: March 1, 2026
 
 ## Experiment Register
 
@@ -34,19 +34,23 @@
 | 026 | System-size Convergence | WDM MD | 7/7 PASS | 7/7 PASS |
 | 027 | GPU Vendor Parity | WDM MD | 7/7 PASS | 7/7 PASS |
 | 028 | NPU Anderson Regime Classification | Hardware (NPU) | 7/7 PASS | 9/9 PASS |
+| 029 | Real GHCND ET₀ Validation | Cross-spring (NOAA) | — | 6/6 PASS |
+| 030 | Real NCBI 16S Rare Biosphere | Biological (NCBI) | — | 9/9 PASS |
+| 031 | NUCLEUS Stack Validation | Infrastructure | — | 28/28 PASS |
+| 032 | IRIS Seismic via NUCLEUS | Geological (IRIS) | — | 12/12 PASS |
 
 **Python Phase 0**: All 28 experiments passing (375 pass + 2 skip)
-**Rust Phase 1**: 292/292 PASS across 28 validation binaries
-**Rust tests**: 569/569 PASS (barracuda-gpu workspace)
+**Rust Phase 1 (core)**: 292/292 PASS across 28 validation binaries
+**Rust Phase 1 (NUCLEUS)**: 55/55 PASS across 4 validation binaries (Exp 029–032, `--features biomeos`)
+**Total validation**: 347/347 PASS across 32 validation binaries
+**Rust tests**: 622/622 PASS (biomeos workspace) / 569/569 (default)
 **pytest**: 375/375 PASS + 2 skipped
 **Three-tier parity**: 95 tests — CPU vs barracuda-CPU vs barracuda-GPU proven
 **BarraCUDA dispatch**: 57 active (38 CPU + 19 GPU), 1 evolution candidate — pinned ToadStool S70+++ (`1dd7e338`)
-**V53 new delegations**: GPU grid adapters (seismic grid_search_3d, freeze-out grid_search_3d), CPU (error_threshold, detection_power, detection_threshold)
-**GPU stats dispatch (V51)**: mean, std_dev, rmse, mbe, pearson_r via SumReduceF64/VarianceReduceF64/FusedMapReduceF64/CorrelationF64
-**Batch GPU APIs (V51)**: GillespieGpu, WrightFisherGpu, BatchedElementwiseF64
+**NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS)
 **metalForge workloads**: 19 (17 GPU + 2 NPU), 49 tests
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
-**Handoff**: V51 (GPU stats dispatch + CPU/GPU parity proof)
+**Handoff**: V56 (NUCLEUS integration + barracuda evolution)
 
 **Python checks**: ~160 across 28 experiments. **Rust validation checks**: 292.
 

@@ -17,7 +17,7 @@ use std::io::{BufRead, BufReader, Read, Write};
 use std::net::TcpStream;
 use std::time::Duration;
 
-/// Default NestGate port when not specified in `NESTGATE_URL` env var.
+/// Default `NestGate` port when not specified in `NESTGATE_URL` env var.
 const NESTGATE_DEFAULT_PORT: u16 = 8090;
 
 fn nestgate_url() -> String {

@@ -3,9 +3,9 @@
 **Purpose**: Per-faculty research briefings for groundSpring noise characterization
 reproductions and extensions.
 
-**Last Updated**: February 28, 2026
+**Last Updated**: March 1, 2026
 
-**Validation Summary**: 292/292 checks (+ 49 metalForge), **57 active delegations (38 CPU + 19 GPU), 1 evolution candidate — ToadStool S70+++**, 569 workspace Rust tests + 375 Python tests = 944 total. All 28 experiments DONE. **11.5× faster** than Python (excl. LAPACK-bound). **28/28 mathematical parity proven**. 95 three-tier parity tests, 9 CPU vs GPU explicit parity tests, zero clippy/doc warnings. V53: complete rewiring, GPU grid adapters (seismic + freeze-out), 12-workload benchmark, cross-spring shader lineage. 9 domains, 30 modules.
+**Validation Summary**: 347/347 validation checks (292 core + 55 NUCLEUS + 49 metalForge), **57 active delegations (38 CPU + 19 GPU), 1 evolution candidate — ToadStool S70+++**, 622 workspace tests (biomeos) + 375 Python tests. All 32 experiments PASS. **17.9× GPU speedup** on lib tests. **28/28 mathematical parity proven**. 95 three-tier parity tests, 9 CPU vs GPU explicit parity tests, zero clippy warnings (all feature modes). V56: biomeOS Neural API live — Tower + Node + Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); 4 NUCLEUS experiments (Exp 029–032). 10 domains, 30 modules.
 
 ---
 

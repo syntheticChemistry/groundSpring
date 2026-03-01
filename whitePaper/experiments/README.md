@@ -5,13 +5,16 @@
 > (Phase 0), a Rust validation (Phase 1), and a barracuda delegation path
 > (Phase 2+).
 
-**Total**: 292/292 validation checks across 28 experiments, 9 domains. 569 Rust workspace tests + 375 Python tests = 944 total.
-**Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across all 28 experiments.
+**Total**: 347/347 validation checks across 32 experiments, 10 domains. 622 Rust workspace tests (biomeos) + 375 Python tests = 997 total.
+**Core**: 292/292 checks across 28 experiments (no feature flags).
+**NUCLEUS**: 55 checks across 4 experiments (Exp 029–032, `--features biomeos`).
+**Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across 28 benchmarked experiments.
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **Coverage**: Zero clippy warnings (pedantic + nursery). 95 three-tier parity tests + 9 CPU vs GPU parity.
-**BarraCUDA**: 57 active delegations (38 CPU + 19 GPU), 1 evolution candidate — ToadStool S70+++. GPU grid adapters (seismic + freeze-out), batch GPU APIs, 12-workload benchmark. Exp 009: **47.7× from Sturm tridiag**.
+**BarraCUDA**: 57 active delegations (38 CPU + 19 GPU), 1 evolution candidate — ToadStool S70+++.
+**NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) with sovereign fallback.
 **Modules**: 30 (including `linalg`, `error`, `jackknife`, `freeze_out`, `spectral_recon`, `wdm`, `npu`, `biomeos`, `nestgate`).
-**metalForge**: 19 workloads (17 GPU + 2 NPU), 49+ metalForge checks, 5+ substrates, architecture-aware routing. Exp 028 NPU DMA at ~51µs.
+**metalForge**: 19 workloads (17 GPU + 2 NPU), 49+ metalForge checks, 5+ substrates, architecture-aware routing.
 **Baseline integrity**: All 28 benchmark JSONs verified — provenance fields, hex commit hashes, UTF-8.
 
 ## Experiment Index
@@ -46,6 +49,10 @@
 | 026 | [System-size Convergence](026_system_size_convergence.md) | WDM MD | Yeh & Hummer 2004 | 7/7 | 7/7 | Finite-size extrapolation D(N) = D∞ + α/N^(1/d); R² > 0.999 |
 | 027 | [GPU Vendor Parity](027_vendor_parity.md) | WDM MD | hotSpring parity framework | 7/7 | 7/7 | Vendor differences at 1e-12 relative level; correlation 1.000000 |
 | 028 | [NPU Anderson Classification](028_npu_anderson.md) | Hardware (NPU) | Anderson 1958; BrainChip | 7/7 | 9/9 | NPU DMA validated |
+| 029 | [Real GHCND ET₀](029_real_ghcnd_et0.md) | Cross-spring (NOAA) | NOAA GHCND | — | 6/6 | NestGate live data |
+| 030 | [Real NCBI 16S](030_real_ncbi_16s.md) | Biological (NCBI) | NCBI SRA | — | 9/9 | NestGate live data |
+| 031 | [NUCLEUS Stack](031_nucleus_stack.md) | Infrastructure | NUCLEUS Neural API | — | 28/28 | biomeOS multi-primal |
+| 032 | [IRIS Seismic](032_iris_seismic.md) | Geological (IRIS) | IRIS FDSN | — | 12/12 | NestGate live data |
 
 ## Three-Tier Control Plan
 
@@ -55,10 +62,11 @@ Each experiment is validated at three levels:
 2. **GPU** — Barracuda GPU matches CPU within tolerance (`--features barracuda-gpu`)
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
-Current status: **CPU complete** (292/292), **57 active delegations (38 CPU + 19 GPU),
-1 evolution candidate — ToadStool S70+++**. V53: GPU grid adapters + 3 new CPU delegations, 12-workload benchmark.
-19 metalForge workloads (17 GPU + 2 NPU), architecture-aware routing (V35), remote NUCLEUS discovery (V39). All delegations use sovereign fallback.
-28/28 mathematical parity proven. 569 Rust workspace tests + 375 Python tests = 944 total.
+Current status: **CPU complete** (292/292 core + 55 NUCLEUS = 347 total),
+**57 active delegations (38 CPU + 19 GPU), 1 evolution candidate — ToadStool S70+++**.
+**NUCLEUS**: biomeOS Neural API live — 4 experiments exercise Tower, Node, Squirrel, Nest
+with sovereign fallback. All delegations use sovereign fallback.
+32/32 experiments validated. 622 Rust workspace tests (biomeos) + 375 Python = 997 total.
 **bench-cpu-vs-gpu**: Dedicated binary for CPU vs GPU performance comparison across 6 workloads.
 **metalForge tier**: groundspring-forge crate with live hardware validation
 (RTX 4070, Titan V, AKD1000 NPU). 4 validation binaries, 49+ metalForge checks, 5+ substrates.

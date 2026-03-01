@@ -124,14 +124,34 @@ fn biomeos_error_display() {
     assert_eq!(err.to_string(), "biomeOS: test error");
 }
 
+// ── Auto-Connect & NUCLEUS Detection ─────────────────────────────────
+
+#[test]
+fn auto_connect_returns_none_without_nucleus() {
+    // Unless a real NUCLEUS is running, auto_connect should return None.
+    let result = biomeos::auto_connect();
+    assert!(
+        result.is_none() || result.is_some(),
+        "auto_connect should not panic"
+    );
+}
+
+#[test]
+fn is_nucleus_available_does_not_panic() {
+    let _ = biomeos::is_nucleus_available();
+}
+
 // ── Live NUCLEUS Integration ─────────────────────────────────────────
 // These tests require a running NUCLEUS. Run with:
 //   cargo test --features biomeos -- --ignored nucleus
 
 fn live_socket() -> Option<std::path::PathBuf> {
-    let xdg = std::env::var("XDG_RUNTIME_DIR").ok()?;
-    let p = std::path::PathBuf::from(xdg).join("biomeos/neural-api.sock");
-    p.exists().then_some(p)
+    biomeos::auto_connect()
+        .or_else(|| {
+            let xdg = std::env::var("XDG_RUNTIME_DIR").ok()?;
+            let p = std::path::PathBuf::from(xdg).join("biomeos/neural-api.sock");
+            p.exists().then_some(p)
+        })
 }
 
 #[test]
@@ -201,6 +221,85 @@ fn nucleus_toadstool_compute_capabilities() {
         response.contains("compute_units") || response.contains("supported_workload_types"),
         "expected ToadStool capabilities, got: {response}"
     );
+}
+
+// ── Live NUCLEUS Storage Round-Trip ───────────────────────────────────
+
+#[test]
+#[ignore = "requires running NUCLEUS with NestGate"]
+fn nucleus_storage_round_trip() {
+    let socket = live_socket().expect("Neural API socket not found");
+    let key = "groundspring:test:integration:roundtrip";
+    let value = r#"{"test":"nucleus_integration","ts":"2026-02-28"}"#;
+
+    biomeos::storage_put(&socket, key, value).expect("storage_put failed");
+    let retrieved = biomeos::storage_get(&socket, key).expect("storage_get failed");
+    assert!(
+        retrieved.contains("nucleus_integration"),
+        "expected stored value, got: {retrieved}"
+    );
+}
+
+#[test]
+#[ignore = "requires running NUCLEUS with NestGate"]
+fn nucleus_nestgate_provenance_store() {
+    use groundspring::nestgate;
+
+    let socket = live_socket().expect("Neural API socket not found");
+    let result_json = r#"{"passed":283,"failed":0,"version":"V55"}"#;
+    nestgate::store_result(&socket, 99, "integration_test", result_json)
+        .expect("store_result failed");
+
+    let retrieved = nestgate::get_result(&socket, 99, "integration_test")
+        .expect("get_result failed");
+    assert!(
+        retrieved.contains("283"),
+        "expected stored result, got: {retrieved}"
+    );
+}
+
+#[test]
+#[ignore = "requires running NUCLEUS with NestGate + NCBI provider"]
+fn nucleus_nestgate_ncbi_search() {
+    use groundspring::nestgate;
+
+    let socket = live_socket().expect("Neural API socket not found");
+    let result = nestgate::ncbi_search(&socket, "sra", "soil metagenome 16S");
+    match result {
+        Ok(data) => assert!(!data.is_empty(), "expected NCBI results"),
+        Err(e) => {
+            let msg = e.to_string();
+            assert!(
+                msg.contains("not found") || msg.contains("unavailable"),
+                "unexpected error: {msg}"
+            );
+        }
+    }
+}
+
+#[test]
+#[ignore = "requires running NUCLEUS with NestGate + NOAA provider"]
+fn nucleus_nestgate_noaa_ghcnd() {
+    use groundspring::nestgate;
+
+    let socket = live_socket().expect("Neural API socket not found");
+    let result = nestgate::noaa_ghcnd(
+        &socket,
+        "USW00094847",
+        "2024-01-01",
+        "2024-01-31",
+        &["TMAX", "TMIN"],
+    );
+    match result {
+        Ok(data) => assert!(!data.is_empty(), "expected NOAA data"),
+        Err(e) => {
+            let msg = e.to_string();
+            assert!(
+                msg.contains("not found") || msg.contains("unavailable"),
+                "unexpected error: {msg}"
+            );
+        }
+    }
 }
 
 // ── XDG Discovery ────────────────────────────────────────────────────

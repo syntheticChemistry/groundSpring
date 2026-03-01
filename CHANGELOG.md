@@ -4,6 +4,38 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V56 NUCLEUS Live Validation + Docs Cleanup + ToadStool Handoff (Mar 1, 2026)
+
+#### Added
+- **Experiments 029–032**: 4 NUCLEUS-integrated validation experiments (55 checks)
+  - Exp 029: Real GHCND ET₀ — Hargreaves vs Penman-Monteith on real/synthetic NOAA weather (6/6)
+  - Exp 030: Real NCBI 16S — Rare biosphere detection on real/synthetic NCBI metagenomes (9/9)
+  - Exp 031: NUCLEUS Stack — Full primal validation: Tower + Node + Squirrel + Nest (28/28)
+  - Exp 032: IRIS Seismic — IRIS FDSN station geometry + travel times via NestGate (12/12)
+- **biomeOS client**: `biomeos.rs` — socket discovery, `auto_connect()`, `capability_call()`,
+  `compute_execute`, `compute_submit`, `compute_capabilities`, `storage_put`/`storage_get`
+- **NestGate client**: `nestgate.rs` — NCBI search/fetch, NOAA GHCND, IRIS stations/events,
+  lifecycle provenance, `IrisEventQuery` struct
+- **V56 handoff**: NUCLEUS integration handoff for ToadStool team
+- **PRIMAL_INTERACTION_EVOLUTION.md**: Tracks V0–V6 NUCLEUS evolution phases
+- **Deployment graphs**: `graphs/groundspring_nucleus_node.toml`, `groundspring_tower_bootstrap.toml`
+- **biomeOS capability registry**: `data.*` and `compute.*` domain translations aligned
+
+#### Changed
+- **Root docs**: README.md updated to 32 experiments, 347/347 checks, Phase 4 (NUCLEUS) evolution
+- **Experiment index**: whitePaper/experiments/ expanded to 032
+- **wateringHole**: V55 archived, V56 handoff created, CROSS_SPRING_SHADER_EVOLUTION.md corrected
+- **baseCamp**: Updated validation counts and NUCLEUS integration status
+- **gen3/baseCamp**: Updated groundSpring entry with NUCLEUS capabilities
+- **specs/README.md**: Added Exp 022–032 to status, PRIMAL_INTERACTION_EVOLUTION.md spec
+- **CONTRIBUTING.md**: Updated test counts (622 with biomeos), module counts (30)
+- Fixed stale delegation counts (63→57) in baseCamp/README.md, CROSS_SPRING_SHADER_EVOLUTION.md
+
+#### Validated
+- All quality gates green (fmt/clippy/doc/test) for all feature modes
+- 622 tests with `--features biomeos`, 569 core, 375 Python = 997 total
+- V55 handoff archived, V56 handoff created
+
 ### V55 barracuda Evolution Review + Docs Cleanup + ToadStool Handoff (Feb 28, 2026)
 
 #### Added

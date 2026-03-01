@@ -3,13 +3,13 @@
 **Purpose**: Handoff documents from groundSpring to ToadStool/BarraCUDA team,
 following the wateringHole inter-primal standard.
 
-**Last Updated**: February 28, 2026
+**Last Updated**: March 1, 2026
 
 ## Active Handoffs
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V55 | [GROUNDSPRING_TOADSTOOL_V55_BARRACUDA_EVOLUTION_COMPLETE_HANDOFF_FEB28_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V55_BARRACUDA_EVOLUTION_COMPLETE_HANDOFF_FEB28_2026.md) | Feb 28, 2026 | Complete barracuda evolution review: 57-delegation inventory, API adaptation patterns, cross-spring lineage, performance data, recommended evolutions |
+| V56 | [GROUNDSPRING_TOADSTOOL_V56_NUCLEUS_INTEGRATION_HANDOFF_MAR01_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V56_NUCLEUS_INTEGRATION_HANDOFF_MAR01_2026.md) | Mar 1, 2026 | NUCLEUS integration: biomeOS Neural API, NestGate data pipelines, Exp 029–032, ToadStool-as-Node learnings, capability alignment |
 
 ## Cross-Spring Documentation
 
@@ -36,6 +36,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V55 | barracuda evolution review: 57-delegation inventory, cross-spring lineage (superseded by V56) |
 | V54 | Full control validation: 283/283, 95/95 parity, Rust 11.6× (superseded by V55) |
 | V53 | Complete rewiring, GPU grid adapters, cross-spring lineage (superseded by V54) |
 | V52 | ToadStool S70+ catch-up: 4 new CPU delegations, 52 active (superseded by V53) |

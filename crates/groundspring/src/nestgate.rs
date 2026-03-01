@@ -178,6 +178,88 @@ pub fn noaa_fao56_variables(
     )
 }
 
+// ─── IRIS FDSN Data Provider ─────────────────────────────────────────
+
+/// Fetch seismic station metadata via biomeOS `data.iris_stations` capability.
+///
+/// Returns station metadata for stations within the specified bounding box.
+/// Used by Exp 005 (seismic inversion with real NMSZ data).
+///
+/// # Errors
+///
+/// Returns `Err` if the data provider is unavailable or the IRIS API call fails.
+pub fn iris_stations(
+    socket: &Path,
+    min_lat: f64,
+    max_lat: f64,
+    min_lon: f64,
+    max_lon: f64,
+) -> Result<String> {
+    let params = format!(
+        r#"{{"min_lat":{min_lat},"max_lat":{max_lat},"min_lon":{min_lon},"max_lon":{max_lon},"family_id":"groundspring"}}"#,
+    );
+    biomeos::capability_call(socket, "data.iris_stations", &params)
+}
+
+/// Bounding box and time range for IRIS event queries.
+pub struct IrisEventQuery<'a> {
+    /// Southern boundary (degrees N).
+    pub min_lat: f64,
+    /// Northern boundary (degrees N).
+    pub max_lat: f64,
+    /// Western boundary (degrees E, negative for W).
+    pub min_lon: f64,
+    /// Eastern boundary (degrees E, negative for W).
+    pub max_lon: f64,
+    /// ISO-8601 start date (e.g. `"2023-01-01"`).
+    pub start_date: &'a str,
+    /// ISO-8601 end date.
+    pub end_date: &'a str,
+    /// Minimum event magnitude.
+    pub min_magnitude: f64,
+}
+
+/// Fetch earthquake events via biomeOS `data.iris_events` capability.
+///
+/// Returns earthquake events within the bounding box and time range.
+///
+/// # Errors
+///
+/// Returns `Err` if the data provider is unavailable or the IRIS API call fails.
+pub fn iris_events(socket: &Path, query: &IrisEventQuery<'_>) -> Result<String> {
+    let start = biomeos::escape_json_pub(query.start_date);
+    let end = biomeos::escape_json_pub(query.end_date);
+    let params = format!(
+        r#"{{"min_lat":{},"max_lat":{},"min_lon":{},"max_lon":{},"start_date":"{start}","end_date":"{end}","min_magnitude":{},"family_id":"groundspring"}}"#,
+        query.min_lat, query.max_lat, query.min_lon, query.max_lon, query.min_magnitude,
+    );
+    biomeos::capability_call(socket, "data.iris_events", &params)
+}
+
+// ─── NUCLEUS Lifecycle Events ────────────────────────────────────────
+
+/// Record a NUCLEUS lifecycle event in provenance storage.
+///
+/// Used to track when groundSpring connects to live NUCLEUS, runs
+/// experiments against real data, or transitions between sovereign
+/// and ecosystem modes.
+///
+/// # Errors
+///
+/// Returns `Err` if `NestGate` is unavailable.
+pub fn record_lifecycle_event(
+    socket: &Path,
+    event: &str,
+    details_json: &str,
+) -> Result<()> {
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    let key = format!("groundspring:tower:{event}:{now}");
+    biomeos::storage_put(socket, &key, details_json)
+}
+
 // ─── Cache-Through Helpers ───────────────────────────────────────────────────
 
 /// Fetch data with `NestGate` cache. Checks provenance store first; on miss,
@@ -244,5 +326,19 @@ mod tests {
     fn key_zero_padding() {
         assert_eq!(result_key(1, "x"), "groundspring:results:exp001:x");
         assert_eq!(result_key(100, "x"), "groundspring:results:exp100:x");
+    }
+
+    #[test]
+    fn iris_data_key_format() {
+        assert_eq!(
+            data_key("iris", "nmsz_stations_34_40"),
+            "groundspring:data:iris:nmsz_stations_34_40"
+        );
+    }
+
+    #[test]
+    fn lifecycle_key_format() {
+        let key = format!("groundspring:tower:{}:{}", "nucleus_connected", 1_709_164_800);
+        assert!(key.starts_with("groundspring:tower:nucleus_connected:"));
     }
 }

@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
-**Date**: February 28, 2026 | **License**: AGPL-3.0-or-later
-**Status**: 28 experiments, 569 Rust workspace tests + 375 Python tests, 292/292 validation checks (+ 49 metalForge), 57 active barracuda delegations (38 CPU + 19 GPU) — ToadStool S70+++ complete rewiring: GPU grid adapters (seismic grid_search_3d, freeze-out grid_search_3d), CPU delegations (kimura, jackknife, fao56_et0, chao1, error_threshold, detection_power, detection_threshold), GPU stats dispatch + batch APIs, 19 metalForge workloads (17 GPU + 2 NPU), 12-workload benchmark suite, zero unsafe, zero TODO(toadstool)
+**Date**: March 1, 2026 | **License**: AGPL-3.0-or-later
+**Status**: 32 experiments (28 core + 4 NUCLEUS), 622 Rust workspace tests + 375 Python tests, 347/347 validation checks (292 core + 55 NUCLEUS + 49 metalForge), 57 active barracuda delegations (38 CPU + 19 GPU) — ToadStool S70+++ complete rewiring, biomeOS Neural API live (Tower + Node + Squirrel validated), NestGate data pipelines (NCBI, NOAA, IRIS), 19 metalForge workloads (17 GPU + 2 NPU), 12-workload benchmark suite, zero unsafe, zero TODO
 
 **The gap between what models predict and what instruments measure.**
 
@@ -57,8 +57,12 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | 026: System-size Convergence | WDM MD | 7/7 PASS | 7/7 PASS | Transport coefficient finite-size extrapolation |
 | 027: GPU Vendor Parity | WDM MD | 7/7 PASS | 7/7 PASS | Cross-vendor transport coefficient agreement |
 | 028: NPU Anderson Regime | Hardware (NPU) | 7/7 PASS | 9/9 PASS | Anderson regime classification on AKD1000 via int8 DMA |
+| 029: Real GHCND ET₀ | Cross-spring (NOAA) | — | 6/6 PASS | Hargreaves vs Penman-Monteith on real/synthetic weather via NestGate |
+| 030: Real NCBI 16S | Biological (NCBI) | — | 9/9 PASS | Rare biosphere detection on real/synthetic NCBI 16S metagenomes |
+| 031: NUCLEUS Stack | Infrastructure | — | 28/28 PASS | Full NUCLEUS primal validation: Tower + Node + Squirrel + Nest |
+| 032: IRIS Seismic | Geological (IRIS) | — | 12/12 PASS | IRIS FDSN station geometry + travel times via NestGate |
 
-**Phase 1 total: 292/292 PASS across 28 validation binaries.**
+**Phase 1 total: 347/347 PASS across 32 validation binaries** (292 core + 55 NUCLEUS via `--features biomeos`).
 
 ## Library Modules
 
@@ -102,6 +106,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 
 ```bash
 cargo test --workspace                         # 569 tests, all PASS
+cargo test --workspace --features biomeos      # 622 tests (NUCLEUS client active)
 cargo test --workspace --features barracuda-gpu # 569 tests (GPU dispatch active)
 cargo clippy --workspace --all-targets -- -D warnings -W clippy::pedantic -W clippy::nursery
 cargo fmt --check                              # clean
@@ -142,6 +147,18 @@ cargo run --bin validate-jackknife
 cargo run --bin validate-freeze-out
 cargo run --bin validate-spectral-recon
 cargo run --bin validate-npu-anderson
+cargo run --bin validate-et0-anderson
+cargo run --bin validate-notill-sampling
+cargo run --bin validate-aggregate-stability
+cargo run --bin validate-precision-drift
+cargo run --bin validate-size-convergence
+cargo run --bin validate-vendor-parity
+
+# NUCLEUS / biomeOS validation (requires biomeos feature, NUCLEUS optional)
+cargo run --features biomeos --bin validate-real-ghcnd-et0
+cargo run --features biomeos --bin validate-real-ncbi-16s
+cargo run --features biomeos --bin validate-nucleus-stack
+cargo run --features biomeos --bin validate-iris-seismic
 ```
 
 ### Python Phase 0
@@ -225,24 +242,26 @@ S70+++ complete rewiring). 19 metalForge workloads route across 5 substrates
 ## Evolution Path
 
 ```
-Python baseline (Phase 0)  →  Rust validation (Phase 1)  →  GPU acceleration (Phase 2)  →  Mixed hardware (Phase 3)
-   NumPy/SciPy                    Pure safe Rust                BarraCUDA / ToadStool            metalForge dispatch
-     ✓ Complete                     ✓ 292/292 PASS               ◐ 57 active (38 CPU +             19 workloads
-   11.5× slower than Rust           28/28 parity proven           19 GPU), 1 candidate             17 GPU + 2 NPU
+Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardware)  →  Phase 4 (NUCLEUS)
+  NumPy/SciPy         Pure safe Rust     BarraCUDA/ToadStool   metalForge dispatch    biomeOS Neural API
+  ✓ Complete          ✓ 347/347 PASS     ◐ 57 active           19 workloads           Tower+Node+Squirrel
+  11.5× slower        32/32 experiments    (38 CPU+19 GPU)       17 GPU + 2 NPU         NestGate data pipes
 
-     Write locally              →  Hand off to barracuda      →  Lean on upstream              →  Cross-substrate parity
-     (metalForge shaders)          (wateringHole/handoffs/)       (rewire to barracuda ops)        (metalForge forge crate)
+  Write locally    →  Hand off          →  Lean on upstream   →  Cross-substrate     →  Primal orchestration
+  (metalForge)       (wateringHole/)       (barracuda ops)       (metalForge forge)    (biomeOS graphs)
 ```
 
 **Lean progress**: 57 functions delegate to barracuda with graceful sovereign fallback.
-38 CPU delegated via `#[cfg(feature = "barracuda")]` (including kimura, jackknife, fao56_et0
-scalar, chao1_classic, error_threshold, detection_power, detection_threshold),
-19 GPU delegated via `#[cfg(feature = "barracuda-gpu")]` including GPU stats dispatch,
-batch APIs, and GPU grid adapters (seismic grid_search_3d, freeze-out grid_search_3d).
-1 evolution candidate (band_edges — algorithm mismatch: eigenvalue extraction vs transfer
-matrix half-trace scan).
+38 CPU delegated via `#[cfg(feature = "barracuda")]`, 19 GPU delegated via
+`#[cfg(feature = "barracuda-gpu")]`. 1 evolution candidate (band_edges).
 
-See `specs/BARRACUDA_EVOLUTION.md` for the full GPU promotion mapping.
+**NUCLEUS progress**: biomeOS Neural API integration via `#[cfg(feature = "biomeos")]`.
+Tower (BearDog) health + beacon, Node (ToadStool) compute capabilities, Squirrel AI
+health — all validated live. NestGate data pipelines (NCBI, NOAA GHCND, IRIS FDSN)
+wired with sovereign fallback to synthetic data.
+
+See `specs/BARRACUDA_EVOLUTION.md` for GPU promotion mapping.
+See `specs/PRIMAL_INTERACTION_EVOLUTION.md` for NUCLEUS evolution.
 See `metalForge/` for absorption-ready shaders and the manifest.
 
 ## How groundSpring Relates to Other Springs
@@ -253,6 +272,7 @@ See `metalForge/` for absorption-ready shaders and the manifest.
 | airSpring | FAO-56 ET₀, soil calibration | The REAL sensor noise — quantifying factory vs field calibration |
 | wetSpring | Microbiome taxonomy, PFAS detection | Sequencing error rates, mass spec noise floors |
 | neuralSpring (future) | ML surrogates, transfer learning | groundSpring provides labeled dirty data; NPU dispatch via metalForge |
+| biomeOS / NUCLEUS | Primal orchestration, data acquisition | groundSpring validates Tower+Node+Squirrel+Nest through Neural API |
 
 ## Directory Structure
 
@@ -283,8 +303,8 @@ groundSpring/
 │   ├── spectral_recon/            # Exp 021: Spectral function reconstruction (Bazavov 2025)
 │   └── npu_anderson/              # Exp 028: NPU Anderson regime classification
 ├── crates/
-│   ├── groundspring/                # Phase 1 Rust library (28 modules incl. biomeos, nestgate, npu)
-│   └── groundspring-validate/       # 28 validation binaries (hotSpring pattern)
+│   ├── groundspring/                # Phase 1 Rust library (30 modules incl. biomeos, nestgate, npu)
+│   └── groundspring-validate/       # 32 validation binaries (hotSpring pattern)
 ├── metalForge/                      # Write → Absorb → Lean artifacts
 │   ├── forge/                       # groundspring-forge crate: hardware discovery, dispatch, remote
 │   ├── npu/akida/                   # AKD1000 NPU integration, HARDWARE.md
@@ -292,14 +312,16 @@ groundSpring/
 │   └── shaders/                     # Production WGSL shaders for ToadStool absorption
 ├── graphs/                          # biomeOS pipeline graphs (Tower bootstrap, Node, cross-substrate)
 ├── .github/workflows/ci.yml         # GitHub Actions CI
-├── wateringHole/                    # Handoff directory (V51 current)
+├── wateringHole/                    # Handoff directory (V56 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md       # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md    # GPU kernel gap analysis
+│   ├── PRIMAL_INTERACTION_EVOLUTION.md # NUCLEUS Neural API evolution (V0–V6)
+│   ├── LAN_DEPLOYMENT_READINESS.md  # LAN HPC readiness assessment
 │   └── PAPER_REVIEW_QUEUE.md        # 28 papers, three-tier control matrix, open data audit
 ├── whitePaper/                      # Study, methodology, baseCamp, experiments
 │   ├── baseCamp/                    # Per-faculty research briefings (6 faculty)
-│   ├── experiments/                 # Per-experiment summaries (001-028)
+│   ├── experiments/                 # Per-experiment summaries (001-032)
 ├── tests/                           # Python test suite (28 experiments)
 ├── Cargo.toml                       # Rust workspace (barracuda feature gate)
 ├── CONTRIBUTING.md
@@ -327,4 +349,4 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026 | V43 three-tier parity proven + pure GPU workloads: February 28, 2026 | V44 deep-debt evolution — linalg extraction, typed errors, capability-based discovery: February 28, 2026 | V45 validation gap closure — 292/292 checks: February 28, 2026 | V46 idiomatic Rust evolution — agreement.rs domain split, R²/NSE dedup, iterator modernization: February 28, 2026 | V47 library buildout — 7 new barracuda CPU delegations, 46 active: February 28, 2026 | V51 GPU stats dispatch + CPU/GPU parity proof — 48 active (31 CPU + 17 GPU): February 28, 2026 | V52 ToadStool S70+ catch-up — 4 new CPU delegations, 52 active: February 28, 2026 | V53 complete rewiring + GPU grid adapters — 57 active (38 CPU + 19 GPU), 12-workload benchmark, cross-spring lineage: February 28, 2026*
+*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026 | V43 three-tier parity proven + pure GPU workloads: February 28, 2026 | V53 complete rewiring + GPU grid adapters — 57 active (38 CPU + 19 GPU): February 28, 2026 | V55 barracuda evolution review + ToadStool handoff: February 28, 2026 | V56 NUCLEUS live validation + docs cleanup + ToadStool handoff: March 1, 2026*

@@ -3,7 +3,7 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: February 28, 2026 (V53: complete rewiring + GPU grid adapters, 57 active delegations, 38 CPU + 19 GPU, 1 evolution candidate, 19 metalForge workloads, 49 tests, arch-aware routing)
+**Last Updated**: March 1, 2026 (V56: 57 active delegations, 38 CPU + 19 GPU, 1 evolution candidate, 19 metalForge workloads, 347 validation checks (292 core + 55 NUCLEUS), biomeOS Neural API live, NestGate data pipelines)
 
 ---
 
@@ -204,12 +204,18 @@ Each of groundSpring's 57 active delegations has a traceable cross-spring histor
 | 30 | `mae` | `stats::mae` | S64 (airSpring/groundSpring absorption) | V33 — Mean Absolute Error, cross-validated with airSpring ET₀ metrics |
 | 31 | `nash_sutcliffe` | `stats::nash_sutcliffe` | S64 (airSpring/groundSpring absorption) | V33 — Nash-Sutcliffe Efficiency, hydrology standard from airSpring |
 | 32 | `detect_band_ranges` | `spectral::detect_bands` | hotSpring v0.6 (spectral theory) | V33 — GPU band detection from eigenvalue spectrum (barracuda-gpu tier) |
+| 33 | `hargreaves_et0` | `stats::hydrology::hargreaves_et0` | airSpring V035 → `ToadStool` S70+ | V55 — Temperature-only ET₀ when radiation data unavailable |
+| 34 | `hargreaves_et0_batch` (CPU) | `stats::hydrology::hargreaves_et0_batch` | airSpring V035 → `ToadStool` S70+ | V55 — Batch CPU delegation for multi-day Hargreaves |
+| 35 | `crop_coefficient` | `stats::hydrology::crop_coefficient` | airSpring FAO-56 → `ToadStool` S70+ | V55 — Kc interpolation between growth stages |
+| 36 | `soil_water_balance` | `stats::hydrology::soil_water_balance` | airSpring precision agriculture → `ToadStool` S70+ | V55 — Daily θ update with P+I−ET_c clamped to FC |
+| 37 | `hargreaves_et0_batch` (GPU) | `BatchedElementwiseF64::execute(Op::HargreavesEt0)` | airSpring V035 → `ToadStool` S70+ | V55 — GPU batch Hargreaves via barracuda-gpu |
+| 38 | `find_band_edges` (Brent refine) | `optimize::brent` | airSpring V035 (Richards PDE) → `ToadStool` S70+ | V55 — Brent root-finder refines coarse band edges to 1e-12 precision |
 
 ---
 
-## ToadStool Session Evolution (S58–S68)
+## ToadStool Session Evolution (S58–S70+)
 
-The complete cross-spring evolution that led to groundSpring's 27 delegations:
+The complete cross-spring evolution that led to groundSpring's 63 delegations:
 
 ### S58 — Cross-Spring Absorption Wave
 
@@ -467,3 +473,93 @@ The 700 barracuda WGSL shaders that groundSpring's delegations ultimately depend
 | Feb 27 | **groundSpring V31** | **GPU dispatch wiring + metalForge expansion**: 5 modules wired for `barracuda-gpu` (freeze_out, band_structure, seismic, quasispecies, rare_biosphere), 12 metalForge workloads, 37 dispatch targets, 442 Rust (biomeos) / 410 default + 320 Python = 762 total |
 | Feb 27 | **groundSpring V32** | **ToadStool S68+ catch-up**: 9 forward declarations cleaned (3 CPU + 6 GPU, pending ToadStool absorption), 29 active delegations (23 CPU + 6 GPU), `--features barracuda` and `barracuda-gpu` compile clean, universal precision architecture (DF64, f32/f64/df64 per hardware) documented |
 | Feb 27 | **groundSpring V33** | **Complete rewiring + three-mode benchmark**: 3 new delegations (#30 MAE from airSpring, #31 NSE from airSpring, #32 detect_bands from hotSpring), 32 active (25 CPU + 7 GPU), 279/279 checks ×3 modes, 28/28 parity proven, **47.4× GPU speedup** (Exp 009 quasiperiodic via hotSpring Sturm), **2.2× total GPU speedup** |
+| Feb 28 | **groundSpring V55** | **Modern ToadStool S70+ rewiring**: 6 new delegations (#33-38), 57 active (38 CPU + 19 GPU), airSpring hydrology chain (Hargreaves ET₀ + crop Kc + soil water balance), Brent root-finder for band edge precision, **17.9× GPU speedup** on lib tests |
+| Mar 1 | **groundSpring V56** | **NUCLEUS integration**: biomeOS Neural API live (Tower + Node + Squirrel validated), NestGate data pipelines (NCBI, NOAA, IRIS), 4 NUCLEUS experiments (Exp 029–032), 347/347 checks (292 core + 55 NUCLEUS), sovereign fallback on all paths |
+
+---
+
+## V55 Evolution: Modern ToadStool S70+ Rewiring (March 1, 2026)
+
+V55 wires the latest cross-spring capabilities absorbed into barracuda during
+ToadStool S70+ (sessions 70 through 70+++).
+
+### New Delegations
+
+| # | Function | barracuda Target | Cross-Spring Origin | When Evolved |
+|---|----------|-----------------|--------------------|----|
+| 33 | `hargreaves_et0` | `stats::hydrology::hargreaves_et0` | airSpring V035 → ToadStool S70+ | Feb 28, 2026 |
+| 34 | `hargreaves_et0_batch` (CPU) | `stats::hydrology::hargreaves_et0_batch` | airSpring V035 → ToadStool S70+ | Feb 28, 2026 |
+| 35 | `crop_coefficient` | `stats::hydrology::crop_coefficient` | airSpring FAO-56 → ToadStool S70+ | Feb 28, 2026 |
+| 36 | `soil_water_balance` | `stats::hydrology::soil_water_balance` | airSpring precision ag → ToadStool S70+ | Feb 28, 2026 |
+| 37 | `hargreaves_et0_batch` (GPU) | `BatchedElementwiseF64(Op::HargreavesEt0)` | airSpring V035 → ToadStool S70+ | Feb 28, 2026 |
+| 38 | `find_band_edges` (Brent) | `optimize::brent` | airSpring V035 (Richards PDE root-finding) → ToadStool S70+ | Feb 28, 2026 |
+
+### Cross-Spring Evolution Highlights
+
+**airSpring → ToadStool → groundSpring** (hydrology chain):
+
+- **Hargreaves ET₀**: airSpring needed a temperature-only ET₀ estimate when radiation
+  sensors are unavailable or during gap-filling. The Hargreaves equation
+  (`ET₀ = 0.0023 · (T_mean + 17.8) · ΔT^0.5 · Ra`) was implemented in airSpring V035,
+  absorbed into ToadStool S70+ as `stats::hydrology::hargreaves_et0`, and now
+  delegated by groundSpring — giving 28 experiments access to a fallback ET₀ method.
+  The GPU batch path uses `BatchedElementwiseF64` with `Op::HargreavesEt0` for
+  multi-station, multi-day workloads.
+
+- **Crop coefficient interpolation**: airSpring's FAO-56 implementation included
+  crop coefficient stage interpolation (`Kc` progression through initial, development,
+  mid-season, and late-season stages). Absorbed into ToadStool S70+ as
+  `stats::hydrology::crop_coefficient`, now delegated by groundSpring. This
+  completes the ET₀ → ET_c chain for baseCamp Paper 06 (no-till soil health).
+
+- **Soil water balance**: airSpring precision agriculture needed daily soil moisture
+  tracking (`θ_{t+1} = min(θ_t + P + I − ET_c, FC)`). Absorbed into ToadStool S70+
+  as `stats::hydrology::soil_water_balance`. Combined with Kc and ET₀, groundSpring
+  now has the full soil-plant-atmosphere continuum for uncertainty propagation.
+
+**airSpring → ToadStool → groundSpring** (numerical methods):
+
+- **Brent root-finding for band edges**: airSpring's Richards PDE solver needed
+  robust root-finding for nonlinear infiltration equations. The Brent solver was
+  absorbed into ToadStool S70+ as `barracuda::optimize::brent`. groundSpring now
+  uses it to refine coarse band edge detections from the energy scan to machine
+  precision (1e-12 tolerance, 100 max iterations). This is a cross-domain transfer:
+  an agricultural soil physics method now improves condensed-matter band structure
+  calculations — a textbook example of how the ecoPrimals "Springs don't import,
+  they learn" model creates unexpected cross-pollination.
+
+### V55 Three-Mode Benchmark (March 1, 2026)
+
+333 lib tests timed in three feature modes, ToadStool S70+:
+
+| Mode | Tests | Time | Ratio |
+|------|-------|------|-------|
+| Default (no barracuda) | 333/333 pass | 4.30s | 1.0× |
+| barracuda (CPU delegation) | 333/333 pass | 4.26s | 1.0× (−1%) |
+| barracuda-gpu | 327/333 pass* | 0.24s | **17.9×** |
+
+*6 GPU failures are pre-existing `enable f64` WGSL parser compatibility on this
+hardware — shader compilation fails before dispatch. All 6 fall back to CPU
+correctly in production.
+
+**283/283 validation checks pass** across all 27 experiments in default mode.
+
+### Delegation Summary (V56 Current)
+
+| Tier | Count | Notes |
+|------|-------|-------|
+| CPU active | 38 | S70+++ canonical count |
+| GPU active | 19 | includes GPU grid adapters, batch APIs, stats dispatch |
+| Evolution candidates | 1 | band_edges (algorithm mismatch) |
+| **Total active** | **57** | 95 three-tier parity tests |
+
+### NUCLEUS Integration (V56)
+
+| Capability | Status | Primal |
+|-----------|--------|--------|
+| Socket discovery | ✅ active | biomeOS |
+| Tower health + beacon | ✅ live | BearDog |
+| Compute health/caps/version | ✅ live | ToadStool |
+| AI health | ✅ live | Squirrel |
+| Storage put/get | ○ requires Nest mode | NestGate |
+| Data pipelines (NCBI, NOAA, IRIS) | ○ requires Nest mode | NestGate |
