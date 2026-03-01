@@ -9,7 +9,7 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V53 | [GROUNDSPRING_TOADSTOOL_V53_COMPLETE_REWIRING_GPU_GRID_LINEAGE_FEB28_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V53_COMPLETE_REWIRING_GPU_GRID_LINEAGE_FEB28_2026.md) | Feb 28, 2026 | Complete rewiring: GPU grid adapters (seismic + freeze-out), 3 new CPU delegations, 57 active (38 CPU + 19 GPU), cross-spring lineage, 12-workload benchmark |
+| V54 | [GROUNDSPRING_TOADSTOOL_V54_FULL_VALIDATION_CPU_PARITY_BENCHMARK_FEB28_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V54_FULL_VALIDATION_CPU_PARITY_BENCHMARK_FEB28_2026.md) | Feb 28, 2026 | Full control validation: 283/283 checks, 95/95 parity, Rust 11.6× faster than Python, pure math portability proven |
 
 ## Cross-Spring Documentation
 
@@ -36,6 +36,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V53 | Complete rewiring, GPU grid adapters, cross-spring lineage (superseded by V54) |
 | V52 | ToadStool S70+ catch-up: 4 new CPU delegations, 52 active (superseded by V53) |
 | V51 | GPU stats dispatch, batch GPU APIs, 9 parity tests, 48 active (superseded by V52) |
 | V47 | Library buildout: 7 new CPU delegations, 46 active (37 CPU + 9 GPU) (superseded by V51) |

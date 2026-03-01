@@ -794,7 +794,8 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 
 | Handoff | Scope | Status |
 |---------|-------|--------|
-| V53: Complete Rewiring + GPU Grid Adapters | GPU grid adapters (seismic, freeze-out), 3 new CPU delegations, 57 active (38 CPU + 19 GPU), 1 evolution candidate. 12-workload benchmark. | **Current** |
+| V54: Full Control Validation + CPU Parity Proof | 283/283 checks, 95/95 parity, Rust 11.6× faster than Python, bench_rust_vs_python.json saved. | **Current** |
+| V53: Complete Rewiring + GPU Grid Adapters | GPU grid adapters (seismic, freeze-out), 3 new CPU delegations, 57 active (38 CPU + 19 GPU). | Superseded by V54 |
 | V52: ToadStool S70+ Catch-Up | 4 new CPU delegations (kimura, jackknife, fao56_et0, chao1), 52 active. | Superseded by V53 |
 | V51: GPU Stats Dispatch + CPU/GPU Parity Proof | GPU stats dispatch, batch GPU APIs, 9 parity tests, bench-cpu-vs-gpu. 48 active. | Superseded by V52 |
 | V47: Library Buildout + BarraCUDA CPU Expansion | 7 new barracuda CPU delegations, 46 active (37 CPU + 9 GPU), 322 lib tests | Superseded by V51 |

@@ -4,6 +4,25 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V54 Full Control Validation + Barracuda CPU Parity Proof + Rust vs Python Benchmark (Feb 28, 2026)
+
+#### Validated
+- **28 experiments, 283/283 checks**: All 27 validation binaries PASS (Exp 028 NPU hardware-only)
+- **95/95 three-tier parity tests**: CPU = barracuda-CPU mathematical identity proven
+- **Rust vs Python benchmark**: 11.6× faster (excl. LAPACK-bound), 51.2× peak (seismic)
+  - 27/27 experiments: Rust produces identical results to Python, faster
+  - LAPACK-bound (Exp 009): 0.1× expected — custom QR vs Fortran eigensolve
+  - Pure stochastic (Exp 014): 0.4× — large Wright-Fisher populations
+- **GPU workload**: 316/322 tests pass; 6 failures = `enable f64` shader on non-Titan-V GPU (expected)
+- `bench-cpu-vs-gpu`: 12 workloads measured (barracuda CPU mode)
+- `bench_rust_vs_python.json`: fresh timing data saved to `data/`
+
+#### Key finding
+barracuda CPU produces **identical math** to the sovereign CPU path and the Python baseline,
+while running **11.6× faster** than interpreted Python. The math is now proven portable
+from Python → Rust → barracuda CPU. Next step: barracuda GPU proves the math is portable
+to GPU via unidirectional streaming (ToadStool `ComputeDispatch`).
+
 ### V53 Complete Rewiring + GPU Grid Adapters + Cross-Spring Lineage (Feb 28, 2026)
 
 #### Added

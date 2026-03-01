@@ -37,8 +37,9 @@
 | 27 | GPU vendor parity for WDM observables | WDM MD | 7/7 | 7/7 | Vendor differences at 1e-12 relative level; correlation 1.000000 |
 | 28 | NPU Anderson regime classification | Hardware (NPU) | 7/7 | 9/9 | int8 DMA classification on AKD1000 at ~51µs |
 
-**Phase 0**: ~261 checks (Python). **Phase 1**: 292/292 PASS (Rust). **Speedup**: 22× (all 28 experiments).
+**Phase 0**: ~261 checks (Python). **Phase 1**: 292/292 PASS (Rust). **Speedup**: 11.6× median (excl. LAPACK-bound), 51.2× peak (seismic).
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs.
+**V54 fresh validation**: 283/283 checks (27 binaries), 95/95 three-tier parity, `bench_rust_vs_python.json` saved.
 **GPU dispatch (V31–V51)**: 13 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson. 19 metalForge workloads (17 GPU + 2 NPU). 57 active delegations (38 CPU + 19 GPU), 1 evolution candidate — ToadStool S70+++.
 **Three-tier parity (V43)**: 27/27 PROVEN (default = barracuda-CPU = barracuda-GPU). GPU tier: 39/39 checks. Pure GPU: 26/26 checks. metalForge dispatch: 17/19 → Titan V.
 **Exp 015** bridges Papers 22-24 (Sub-thesis 06): sensor noise → Anderson ξ → QS regime uncertainty.
@@ -240,12 +241,11 @@ Write → Absorb → Lean cycle:
 | 21 | Rare biosphere signal detection | **12/12** | Embarrassingly parallel | After GPU | Chao1, multinomial sampling |
 | 28 | NPU Anderson regime classification | **9/9** | — | **Live** (AKD1000 DMA) | int8 centroid classifier on NPU |
 
-**CPU tier**: 292/292 PASS across 28 validation binaries.
-**Barracuda**: 40 active delegations + 6 pending `ToadStool` (31 CPU + 9 GPU). **Performance**: 11.5× faster than Python (excl. LAPACK-bound); 5.1× overall. **Tests**: 547 Rust workspace (barracuda-gpu) + 375 Python. **biomeOS**: Neural API integration (V30). **GPU dispatch (V31–V44)**: 5 modules wired for barracuda-gpu, 19 metalForge workloads, 5 substrates, architecture-aware routing. V44: `linalg` module, typed `InputError`. V47: 7 new CPU delegations (simpson, bray_curtis, rarefaction_curve, monod, bootstrap_median, bootstrap_std, moving_window_stats). V48: 73 three-tier parity tests (100% delegation coverage).
-**Mathematical parity**: 28/28 PROVEN. See `data/parity_report.json`.
-**Three-tier parity**: 73 parity tests validate CPU ↔ barracuda-CPU ↔ barracuda-GPU equivalence (100% delegation coverage).
-**PRNG readiness**: Xoshiro128** at full API parity — Phase 2b migration unblocked.
-**GPU tier**: 5 modules wired with `#[cfg(feature = "barracuda-gpu")]` dispatch (freeze_out, band_structure, seismic, quasispecies, rare_biosphere). 3 modules previously wired (anderson, almost_mathieu, spectral_recon). Pending ToadStool absorption of GPU wrapper functions.
+**CPU tier**: 283/283 PASS across 27 validation binaries (Exp 028 NPU hardware-only = +9 checks).
+**Barracuda**: 57 active delegations (38 CPU + 19 GPU), 1 evolution candidate — ToadStool S70+++. **Performance**: 11.6× faster than Python (excl. LAPACK-bound); 5.2× overall; 51.2× peak (seismic). **Tests**: 569 Rust workspace + 375 Python = 944. 95 three-tier parity tests (100% delegation coverage).
+**Mathematical parity**: 28/28 PROVEN. See `data/parity_report.json` and `data/bench_rust_vs_python.json`.
+**Three-tier parity**: 95 parity tests validate CPU ↔ barracuda-CPU equivalence (100% delegation coverage).
+**GPU tier**: 13 modules wired with `#[cfg(feature = "barracuda-gpu")]` — including GPU grid adapters (seismic, freeze-out). 316/322 tests pass (6 require f64-capable GPU: Titan V / A100).
 **metalForge tier**: partially validated (groundspring-forge crate, Exp 028 NPU DMA on AKD1000).
 
 ### GPU / metalForge Progression (updated V39 — S68+ absorption wave)
