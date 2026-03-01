@@ -12,12 +12,13 @@
 //!
 //! # barracuda delegation
 //!
-//! [`daily_et0`] is a pending delegation target for
-//! `barracuda::stats::hydrology::fao56_et0()` — scalar form not yet in
-//! barracuda as of S68+. `ToadStool` has `hargreaves_et0` (temperature-only),
-//! `crop_coefficient`, `soil_water_balance`, and GPU batch
-//! `BatchedElementwiseF64::fao56_et0_batch` but no standalone scalar
-//! Penman-Monteith. Sub-functions remain local as the validation reference.
+//! [`daily_et0`] delegates to `barracuda::stats::hydrology::fao56_et0()`
+//! on CPU (S70+). [`hargreaves_et0`] delegates similarly. Batch variants
+//! use `HargreavesBatchGpu` (S71 — GPU-parallel via
+//! `hargreaves_batch_f64.wgsl`) when `barracuda-gpu` is enabled.
+//! [`crop_coefficient`] and [`soil_water_balance`] delegate to
+//! `barracuda::stats::hydrology` CPU functions (S70+).
+//! Sub-functions remain local as the validation reference.
 
 use std::f64::consts::PI;
 
@@ -467,9 +468,15 @@ pub fn hargreaves_et0_batch(
 
 #[cfg(feature = "barracuda-gpu")]
 fn hargreaves_et0_batch_gpu(ra: &[f64], tmax: &[f64], tmin: &[f64]) -> Option<Vec<f64>> {
-    use barracuda::ops::batched_elementwise_f64::{BatchedElementwiseF64, Op};
-
     let device = crate::gpu::get_device()?;
+    // S71: dedicated HargreavesBatchGpu shader (cleaner API than BatchedElementwiseF64)
+    if let Ok(gpu) = barracuda::stats::hydrology::HargreavesBatchGpu::new(device.clone()) {
+        if let Ok(result) = gpu.dispatch(ra, tmax, tmin) {
+            return Some(result);
+        }
+    }
+    // Fallback: S70 BatchedElementwiseF64 path
+    use barracuda::ops::batched_elementwise_f64::{BatchedElementwiseF64, Op};
     let gpu = BatchedElementwiseF64::new(device).ok()?;
     let n = ra.len();
     let mut data = Vec::with_capacity(n * 3);

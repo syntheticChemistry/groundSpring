@@ -10,10 +10,10 @@
 //!
 //! # barracuda delegation
 //!
-//! [`jackknife_mean_variance`] is a pending delegation target for
-//! `barracuda::stats::jackknife_mean_variance()` — not yet in barracuda
-//! as of S68+. The delete-one loop is embarrassingly parallel and a
-//! high-value GPU target.
+//! [`jackknife_mean_variance`] delegates to
+//! `barracuda::stats::jackknife::jackknife_mean_variance()` on CPU (S70+).
+//! When `barracuda-gpu` is enabled, dispatches via `JackknifeMeanGpu`
+//! (S71 — GPU-parallel leave-one-out means via `jackknife_mean_f64.wgsl`).
 
 use crate::cast::usize_f64;
 use crate::error::InputError;
@@ -41,6 +41,12 @@ pub struct JackknifeResult {
 ///
 /// Returns [`InputError::InsufficientData`] if `data` has fewer than 2 elements.
 pub fn jackknife_mean_variance(data: &[f64]) -> Result<JackknifeResult, InputError> {
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Some(result) = jackknife_mean_gpu(data) {
+            return Ok(result);
+        }
+    }
     #[cfg(feature = "barracuda")]
     {
         if let Some(result) = barracuda::stats::jackknife::jackknife_mean_variance(data) {
@@ -52,6 +58,18 @@ pub fn jackknife_mean_variance(data: &[f64]) -> Result<JackknifeResult, InputErr
         }
     }
     jackknife_mean_variance_cpu(data)
+}
+
+#[cfg(feature = "barracuda-gpu")]
+fn jackknife_mean_gpu(data: &[f64]) -> Option<JackknifeResult> {
+    let device = crate::gpu::get_device()?;
+    let gpu = barracuda::stats::jackknife::JackknifeMeanGpu::new(device).ok()?;
+    let result = gpu.dispatch(data).ok()?;
+    Some(JackknifeResult {
+        estimate: result.estimate,
+        variance: result.variance,
+        std_error: result.std_error,
+    })
 }
 
 fn jackknife_mean_variance_cpu(data: &[f64]) -> Result<JackknifeResult, InputError> {

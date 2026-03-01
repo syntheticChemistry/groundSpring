@@ -46,11 +46,11 @@
 **Rust tests**: 613/613 PASS (default workspace)
 **pytest**: 375/375 PASS + 2 skipped
 **Three-tier parity**: 101 tests — CPU vs barracuda-CPU vs barracuda-GPU proven
-**BarraCUDA dispatch**: 61 active (38 CPU + 19 GPU + 4 cross-spring S59+), 1 evolution candidate — pinned ToadStool S70+++ (`1dd7e338`)
+**BarraCUDA dispatch**: 61 active (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — pinned ToadStool S71+++ (`8dc01a37`)
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS)
 **metalForge workloads**: 19 (17 GPU + 2 NPU), 85 tests
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
-**Handoff**: V58 (cross-spring evolution + deep-debt completion)
+**Handoff**: V59 (ToadStool S71+++ catch-up: jackknife GPU, HargreavesBatchGpu, DF64 complete)
 
 **Python checks**: ~160 across 28 experiments. **Rust validation checks**: 292.
 
@@ -748,8 +748,10 @@ The key insight: **delegated code produces bitwise-identical results**.
 
 ### Stage 3: barracuda-CPU → barracuda-GPU (portable math, 2.2× faster)
 
-ToadStool S70+++ universal precision (DF64 on FP32 cores via `naga`-guided
-`df64_rewrite.rs`) allows GPU dispatch with f64-equivalent precision.
+ToadStool S71+++ universal precision (DF64 on FP32 cores via `naga`-guided
+`df64_rewrite.rs`) with **complete DF64 transcendental suite** (15 functions:
+gamma, erf, inverse trig, hyperbolics) allows GPU dispatch with f64-equivalent
+precision across all mathematical domains.
 Unidirectional streaming reduces dispatch round-trips.
 
 | Metric | Default | Barracuda GPU | Speedup |

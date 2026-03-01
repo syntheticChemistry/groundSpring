@@ -4,6 +4,38 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V59 ToadStool S71+++ Catch-Up — GPU Promotions + Pure Math Shaders (Mar 1, 2026)
+
+#### Changed
+- **ToadStool pin**: S70+++ (`1dd7e338`) → **S71+++ (`8dc01a37`)**
+- **`jackknife_mean_variance` GPU promoted**: CPU → GPU via `JackknifeMeanGpu`
+  (S71 `jackknife_mean_f64.wgsl` — leave-one-out means on GPU, variance on CPU)
+- **`hargreaves_et0_batch` GPU path evolved**: Now tries `HargreavesBatchGpu` (S71
+  `hargreaves_batch_f64.wgsl`) before falling back to `BatchedElementwiseF64` (S70)
+- **Delegation breakdown**: 37 CPU + 20 GPU + 4 cross-spring (was 38+19+4)
+- **Module doc comments**: Updated from "S68+" to reflect S70+/S71 state
+
+#### ToadStool S71 Evolution Summary
+- **6 commits absorbed** (S71 through S71+++ plus docs/clean)
+- **671 WGSL shaders** (was 700 — stale shaders archived, count corrected)
+- **~9,000 lines net reduction** (14K removed, 5K added — stale code/examples archived)
+- **ComputeDispatch builder**: 66 ops migrated to unified GPU dispatch pattern
+- **DF64 transcendental suite complete**: 15 functions (gamma, erf, inverse trig,
+  hyperbolics) — extended precision for all transcendentals
+- **Pure math shaders**: All shaders evolved to f64 canonical with precision-per-use
+- **3 new GPU shaders directly relevant**:
+  - `kimura_fixation_f64.wgsl` — batch Kimura fixation (available, not yet consumed)
+  - `hargreaves_batch_f64.wgsl` — batch Hargreaves ET₀ (wired)
+  - `jackknife_mean_f64.wgsl` — leave-one-out jackknife (wired)
+- **External deps audit**: libc in akida-driver identified for rustix evolution,
+  unsafe reduced across GPU device creation and unified memory
+
+#### Validated
+- `cargo check` (default, barracuda, barracuda-gpu): all PASS
+- `cargo clippy -- -D warnings`: 0 warnings
+- `cargo fmt --check`: PASS
+- `cargo test --workspace`: 613 tests, all PASS
+
 ### V58 Deep-Debt Completion + Hardcoding Evolution + Documentation (Mar 1, 2026)
 
 #### Changed

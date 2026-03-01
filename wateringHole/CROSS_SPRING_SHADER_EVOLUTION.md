@@ -3,13 +3,13 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 1, 2026 (V58: 61 active delegations — 38 CPU + 19 GPU + 4 cross-spring S59+, 1 evolution candidate, 19 metalForge workloads, 347 validation checks (292 core + 55 NUCLEUS), biomeOS Neural API live, cross-spring evolution: ESN, Lanczos, 2D/3D Anderson, chi2)
+**Last Updated**: March 1, 2026 (V59: 61 active delegations — 37 CPU + 20 GPU + 4 cross-spring, 1 evolution candidate, ToadStool S71+++ — jackknife GPU promoted, HargreavesBatchGpu, ComputeDispatch builder (66 ops), DF64 transcendentals complete (15 functions), 671 WGSL shaders)
 
 ---
 
 ## Overview
 
-groundSpring has **61 active delegations** (38 CPU + 19 GPU + 4 cross-spring S59+) with **1 evolution candidate** (band_edges — algorithm mismatch).
+groundSpring has **61 active delegations** (37 CPU + 20 GPU + 4 cross-spring) with **1 evolution candidate** (band_edges — algorithm mismatch).
 Those barracuda functions were not built in isolation — they were refined and
 battle-tested through absorption from **five Springs**, each bringing domain-specific
 requirements that hardened the shared library.
@@ -33,8 +33,8 @@ groundSpring (noise validation) → jackknife, evolution (Kimura fixation, quasi
                                   diversity (Chao1, detection power), hydrology (fao56_et0),
                                   grid search/fit ops, batched multinomial, MC ET₀ propagation
                                   ↓
-                          BarraCUDA S70+++ (ToadStool 1dd7e338)
-                    500+ tests, 700+ WGSL shaders (zero f32-only, DF64 universal precision)
+                          BarraCUDA S71+++ (ToadStool 8dc01a37)
+                    2,773+ tests, 671 WGSL shaders (zero f32-only, DF64 universal precision, 15 transcendentals)
 ```
 
 ---
@@ -475,7 +475,8 @@ The 700 barracuda WGSL shaders that groundSpring's delegations ultimately depend
 | Feb 27 | **groundSpring V33** | **Complete rewiring + three-mode benchmark**: 3 new delegations (#30 MAE from airSpring, #31 NSE from airSpring, #32 detect_bands from hotSpring), 32 active (25 CPU + 7 GPU), 279/279 checks ×3 modes, 28/28 parity proven, **47.4× GPU speedup** (Exp 009 quasiperiodic via hotSpring Sturm), **2.2× total GPU speedup** |
 | Feb 28 | **groundSpring V55** | **Modern ToadStool S70+ rewiring**: 6 new delegations (#33-38), 57 active (38 CPU + 19 GPU), airSpring hydrology chain (Hargreaves ET₀ + crop Kc + soil water balance), Brent root-finder for band edge precision, **17.9× GPU speedup** on lib tests |
 | Mar 1 | **groundSpring V56** | **NUCLEUS integration**: biomeOS Neural API live (Tower + Node + Squirrel validated), NestGate data pipelines (NCBI, NOAA, IRIS), 4 NUCLEUS experiments (Exp 029–032), 347/347 checks (292 core + 55 NUCLEUS), sovereign fallback on all paths |
-| Mar 1 | **groundSpring V58** | **Cross-spring evolution + deep-debt completion**: 4 new cross-spring S59+ delegations (disorder_sweep, anderson_2d, anderson_3d, chi2_analysis), ESN regime classification module (wetSpring lineage), Lanczos sparse eigensolver module (hotSpring lineage), 61 active delegations (38 CPU + 19 GPU + 4 xspring), FAMILY_ID evolution (zero hardcoded family identifiers), DRY refactoring (biomeos merge_compute_params + direct_rpc_call), comprehensive deep-debt audit clean |
+| Mar 1 | **groundSpring V58** | **Cross-spring evolution + deep-debt completion**: 4 new cross-spring S59+ delegations (disorder_sweep, anderson_2d, anderson_3d, chi2_analysis), ESN regime classification module (wetSpring lineage), Lanczos sparse eigensolver module (hotSpring lineage), 61 active delegations (38 CPU + 19 GPU + 4 xspring), FAMILY_ID evolution, DRY refactoring, comprehensive deep-debt audit clean |
+| Mar 1 | **groundSpring V59** | **ToadStool S71+++ catch-up**: jackknife promoted to GPU (`JackknifeMeanGpu` + `jackknife_mean_f64.wgsl`), Hargreaves batch GPU evolved (`HargreavesBatchGpu` + `hargreaves_batch_f64.wgsl`), ToadStool pin advanced 6 commits (S70+++→S71+++), 671 WGSL shaders, ComputeDispatch builder (66 ops), DF64 transcendental suite complete (15 functions), ~9K lines stale code archived upstream, 61 delegations (37 CPU + 20 GPU + 4 xspring) |
 
 ---
 
@@ -545,13 +546,13 @@ correctly in production.
 
 **283/283 validation checks pass** across all 27 experiments in default mode.
 
-### Delegation Summary (V58 Current)
+### Delegation Summary (V59 Current)
 
 | Tier | Count | Notes |
 |------|-------|-------|
-| CPU active | 38 | S70+++ canonical count |
-| GPU active | 19 | includes GPU grid adapters, batch APIs, stats dispatch |
-| Cross-spring S59+ | 4 | disorder_sweep, anderson_2d, anderson_3d, chi2_analysis |
+| CPU active | 37 | S71+++ canonical count (jackknife promoted to GPU) |
+| GPU active | 20 | includes GPU grid adapters, batch APIs, stats dispatch, JackknifeMeanGpu, HargreavesBatchGpu |
+| Cross-spring | 4 | disorder_sweep, anderson_2d, anderson_3d, chi2_analysis |
 | Evolution candidates | 1 | band_edges (algorithm mismatch) |
 | **Total active** | **61** | 101 three-tier parity tests |
 

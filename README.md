@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: March 1, 2026 | **License**: AGPL-3.0-or-later
-**Status**: 32 experiments (28 core + 4 NUCLEUS), 613 Rust workspace tests + 375 Python tests, 347/347 validation checks (292 core + 55 NUCLEUS + 49 metalForge), 61 active barracuda delegations (38 CPU + 19 GPU + 4 cross-spring S59+) — ToadStool S70+++ complete rewiring + cross-spring evolution (ESN, Lanczos, 2D/3D Anderson, chi2 decomposed), biomeOS Neural API live (Tower + Node + Squirrel validated), NestGate data pipelines (NCBI, NOAA, IRIS), 19 metalForge workloads (17 GPU + 2 NPU), zero unsafe, zero TODO, zero production mocks
+**Status**: 32 experiments (28 core + 4 NUCLEUS), 613 Rust workspace tests + 375 Python tests, 347/347 validation checks (292 core + 55 NUCLEUS + 49 metalForge), 61 active barracuda delegations (37 CPU + 20 GPU + 4 cross-spring) — ToadStool S71+++ rewired (jackknife GPU promoted via `jackknife_mean_f64.wgsl`, Hargreaves GPU via `hargreaves_batch_f64.wgsl`, Kimura GPU shader available), biomeOS Neural API live (Tower + Node + Squirrel validated), NestGate data pipelines (NCBI, NOAA, IRIS), 19 metalForge workloads (17 GPU + 2 NPU), zero unsafe, zero TODO, zero production mocks
 
 **The gap between what models predict and what instruments measure.**
 
@@ -248,16 +248,16 @@ workloads route across 5 substrates (17 GPU + 2 NPU) with architecture-aware rou
 Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardware)  →  Phase 4 (NUCLEUS)
   NumPy/SciPy         Pure safe Rust     BarraCUDA/ToadStool   metalForge dispatch    biomeOS Neural API
   ✓ Complete          ✓ 347/347 PASS     ◐ 61 active           19 workloads           Tower+Node+Squirrel
-  11.5× slower        32/32 experiments    (38+19+4 xspring)    17 GPU + 2 NPU         NestGate data pipes
+  11.5× slower        32/32 experiments    (37+20+4 xspring)    17 GPU + 2 NPU         NestGate data pipes
 
   Write locally    →  Hand off          →  Lean on upstream   →  Cross-substrate     →  Primal orchestration
   (metalForge)       (wateringHole/)       (barracuda ops)       (metalForge forge)    (biomeOS graphs)
 ```
 
 **Lean progress**: 61 functions delegate to barracuda with graceful sovereign fallback.
-38 CPU delegated via `#[cfg(feature = "barracuda")]`, 19 GPU dispatched via
-`#[cfg(feature = "barracuda-gpu")]`, 4 cross-spring S59+ (Anderson sweep, 2D/3D
-Anderson eigenvalues, chi2 analysis). 1 evolution candidate (band_edges).
+37 CPU delegated via `#[cfg(feature = "barracuda")]`, 20 GPU dispatched via
+`#[cfg(feature = "barracuda-gpu")]` (S71: jackknife promoted from CPU to GPU via
+`jackknife_mean_f64.wgsl`), 4 cross-spring S59+. 1 evolution candidate (band_edges).
 
 **NUCLEUS progress**: biomeOS Neural API integration via `#[cfg(feature = "biomeos")]`.
 Tower (BearDog) health + beacon, Node (ToadStool) compute capabilities, Squirrel AI
@@ -353,4 +353,4 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026 | V53 complete rewiring + GPU grid adapters — 57 active: February 28, 2026 | V56 NUCLEUS live validation + ToadStool handoff: March 1, 2026 | V58 cross-spring evolution — 61 delegations (ESN, Lanczos, 2D/3D Anderson, chi2), deep-debt completion, FAMILY_ID evolution: March 1, 2026*
+*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026 | V53 complete rewiring + GPU grid adapters — 57 active: February 28, 2026 | V56 NUCLEUS live validation + ToadStool handoff: March 1, 2026 | V58 cross-spring evolution + deep-debt completion: March 1, 2026 | V59 ToadStool S71+++ catch-up — jackknife GPU promoted, pure math shaders, ComputeDispatch builder, DF64 transcendentals complete: March 1, 2026*

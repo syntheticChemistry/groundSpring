@@ -16,8 +16,10 @@
 //!
 //! # barracuda delegation
 //!
-//! [`kimura_fixation_prob`] is a pending delegation target for
-//! `barracuda::stats::kimura_fixation` — not yet in barracuda as of S68+.
+//! [`kimura_fixation_prob`] delegates to
+//! `barracuda::stats::evolution::kimura_fixation_prob` on CPU (S70+).
+//! When `barracuda-gpu` is enabled, batch computation dispatches via
+//! `KimuraGpu` (S71 — GPU-parallel via `kimura_fixation_f64.wgsl`).
 //! [`wright_fisher_fixation`] is a single serial trial (Stays Local).
 //! [`wright_fisher_fixation_batch`] dispatches many independent trials to
 //! `barracuda::ops::bio::WrightFisherGpu` when `barracuda-gpu` is enabled,
