@@ -188,6 +188,80 @@ pub fn bootstrap_resampling() -> Workload {
     )
 }
 
+/// Shannon diversity via `FusedMapReduceF64::shannon_entropy` (V65).
+///
+/// GPU: fused map-reduce computes `H' = −Σ(pᵢ ln pᵢ)` in a single pass.
+#[must_use]
+pub fn shannon_diversity_gpu() -> Workload {
+    Workload::new(
+        "Shannon diversity (GPU fused)",
+        vec![Capability::F64Compute, Capability::ShaderDispatch],
+    )
+}
+
+/// Simpson diversity via `FusedMapReduceF64::simpson_index` (V65).
+///
+/// GPU: fused map-reduce computes `D = Σ pᵢ²` in a single pass.
+#[must_use]
+pub fn simpson_diversity_gpu() -> Workload {
+    Workload::new(
+        "Simpson diversity (GPU fused)",
+        vec![Capability::F64Compute, Capability::ShaderDispatch],
+    )
+}
+
+/// Tissue Anderson correlated disorder via `anderson_3d_correlated` (V65).
+///
+/// GPU: sparse CSR matrix from correlated 3D potential → Lanczos eigensolver.
+#[must_use]
+pub fn tissue_anderson_correlated() -> Workload {
+    Workload::new(
+        "Tissue Anderson (correlated 3D)",
+        vec![Capability::F64Compute, Capability::ShaderDispatch],
+    )
+}
+
+/// Barrier transition `W_c` finder via `find_w_c` interpolation (V65).
+///
+/// CPU: level spacing ratio sweep + interpolation. No GPU shader needed.
+#[must_use]
+pub fn barrier_transition_w_c() -> Workload {
+    Workload::new("Barrier W_c finder", vec![Capability::F64Compute])
+}
+
+/// MAE via `FusedMapReduceF64::l1_norm` on GPU (V66).
+///
+/// GPU: computes residuals → `l1_norm` → divide by N.
+#[must_use]
+pub fn mae_gpu() -> Workload {
+    Workload::new(
+        "MAE (GPU fused)",
+        vec![Capability::F64Compute, Capability::ShaderDispatch],
+    )
+}
+
+/// NSE/R² via dual `FusedMapReduceF64::sum_of_squares` on GPU (V66).
+///
+/// GPU: computes `SS_res` and `SS_tot` via two fused reductions.
+#[must_use]
+pub fn nse_r_squared_gpu() -> Workload {
+    Workload::new(
+        "NSE/R² (GPU fused)",
+        vec![Capability::F64Compute, Capability::ShaderDispatch],
+    )
+}
+
+/// Bistable ODE batch integration via `BatchedOdeRK4F64` on GPU (V66).
+///
+/// GPU: parallel RK4 integration of multiple bistable trajectories.
+#[must_use]
+pub fn bistable_batch_gpu() -> Workload {
+    Workload::new(
+        "Bistable ODE batch (GPU RK4)",
+        vec![Capability::F64Compute, Capability::ShaderDispatch],
+    )
+}
+
 /// Return all groundSpring workloads for dispatch.
 #[must_use]
 pub fn all() -> Vec<Workload> {
@@ -211,6 +285,13 @@ pub fn all() -> Vec<Workload> {
         transport_eigenvalues(),
         wright_fisher_batch(),
         bootstrap_resampling(),
+        shannon_diversity_gpu(),
+        simpson_diversity_gpu(),
+        tissue_anderson_correlated(),
+        barrier_transition_w_c(),
+        mae_gpu(),
+        nse_r_squared_gpu(),
+        bistable_batch_gpu(),
     ]
 }
 
@@ -353,9 +434,9 @@ mod tests {
     }
 
     #[test]
-    fn all_returns_nineteen_workloads() {
+    fn all_returns_twentysix_workloads() {
         let workloads = all();
-        assert_eq!(workloads.len(), 19);
+        assert_eq!(workloads.len(), 26);
     }
 
     #[test]

@@ -12,7 +12,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **376/376 checks passed** across 33 validation binaries (321 core + 55 NUCLEUS).
 - Mathematical parity: **28/28 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.5× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.7× from Sturm tridiag**.
-- V61: Mixed-hardware pipeline dispatch (`PCIe` topology, NUCLEUS atomics, fallback chains), biomeOS Neural API live, NestGate data pipelines (NCBI, NOAA, IRIS). 61 active delegations (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — ToadStool S79. 752 Rust (default) + 375 Python = 1127 tests. 172 metalForge checks (130 forge + 42 mixed-hardware). 19 metalForge workloads (17 GPU + 2 NPU).
+- V65: Zero-debt codebase (deep audit V64 certified), 71 active delegations (43 CPU + 28 GPU) — ToadStool S79 (`f97fc2ae`). 776 Rust (default) + 375 Python = 1151 tests. 172 metalForge checks (130 forge + 42 mixed-hardware). 26 metalForge workloads (22 GPU + 2 NPU + 2 CPU-only). Tissue Anderson (Paper 12, Exp 033 — 29/29). `biomeos` refactored into directory module. Mixed-hardware pipeline dispatch, biomeOS Neural API live, NestGate data pipelines (NCBI, NOAA, IRIS).
 
 ### Key Results
 
@@ -39,6 +39,18 @@ This white paper documents groundSpring's systematic approach to quantifying the
 | 019: Jackknife Estimation | Statistics | 9/9 | 9/9 PASS | Delete-one jackknife variance, bias correction, block jackknife; extends Exp 007 RAWR |
 | 020: Freeze-Out Inverse | Inverse problems | 8/8 | 8/8 PASS | Chi-squared grid-search recovers T0, κ₂ from noisy observables; extends Exp 005 seismic |
 | 021: Spectral Recon | Inverse problems | 8/8 | 8/8 PASS | Tikhonov-regularized spectral reconstruction from noisy correlator; most advanced inverse |
+| 022: ET₀ → Anderson | Cross-spring | 7/7 | 7/7 PASS | Humidity-dominated ET₀ error → localization length CV; ξ_CV/ET₀_CV ≥ 0.5 |
+| 023: No-Till Sampling | Cross-spring | 7/7 | 7/7 PASS | No-till saturates later (~1500 reads) vs tilled (~800); higher diversity demands deeper sampling |
+| 024: Aggregate Stability | Cross-spring | 8/8 | 8/8 PASS | WSA bias-variance decomposition distinguishes tilled vs no-till Anderson regimes |
+| 025: f32/f64 Drift | WDM | 7/7 | 7/7 PASS | f32→f64 Green-Kubo error: bias fraction ~28%, systematic not random |
+| 026: Size Convergence | WDM | 7/7 | 7/7 PASS | D(N) = D∞ + α/N^(1/d); R² > 0.999; consumer GPU converges by N=10k |
+| 027: Vendor Parity | WDM | 7/7 | 7/7 PASS | Vendor differences at 1e-12 relative level; correlation 1.000000 |
+| 028: NPU Anderson | Hardware | 7/7 | 9/9 PASS | int8 DMA classification on AKD1000 at ~51 µs/inference |
+| 029: Real GHCND ET₀ | NOAA | — | 6/6 PASS | Hargreaves vs Penman-Monteith on real weather via NestGate |
+| 030: Real NCBI 16S | NCBI | — | 9/9 PASS | Rare biosphere detection on real 16S metagenomes |
+| 031: NUCLEUS Stack | Infrastructure | — | 28/28 PASS | Full NUCLEUS primal validation: Tower + Node + Squirrel + Nest |
+| 032: IRIS Seismic | IRIS FDSN | — | 12/12 PASS | IRIS station geometry + travel times via NestGate |
+| 033: Tissue Anderson | Immunological | — | 29/29 PASS | Cytokine Anderson lattice + geometry-aware drug scoring (Paper 12) |
 
 ### Key Research Questions Answered
 

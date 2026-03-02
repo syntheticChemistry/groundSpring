@@ -172,8 +172,12 @@ pub fn summarize(cpu: &[f64], gpu: &[f64], tier: ToleranceTier) -> ComparisonSum
     }
 }
 
-/// All 19 workload tolerance specifications.
+/// All 26 workload tolerance specifications.
 #[must_use]
+#[expect(
+    clippy::too_many_lines,
+    reason = "declarative tolerance table — one entry per workload"
+)]
 pub fn all_tolerances() -> Vec<WorkloadTolerance> {
     vec![
         WorkloadTolerance {
@@ -271,6 +275,41 @@ pub fn all_tolerances() -> Vec<WorkloadTolerance> {
             tier: ToleranceTier::Statistical,
             justification: "PRNG-driven resampling with Dirichlet weights",
         },
+        WorkloadTolerance {
+            workload: "Shannon diversity (GPU fused)",
+            tier: ToleranceTier::Analytical,
+            justification: "FusedMapReduceF64 single-pass sum with ln() transcendental",
+        },
+        WorkloadTolerance {
+            workload: "Simpson diversity (GPU fused)",
+            tier: ToleranceTier::Analytical,
+            justification: "FusedMapReduceF64 single-pass sum of squares",
+        },
+        WorkloadTolerance {
+            workload: "Tissue Anderson (correlated 3D)",
+            tier: ToleranceTier::Statistical,
+            justification: "Gaussian-convolved disorder + Lanczos eigensolver accumulates rounding",
+        },
+        WorkloadTolerance {
+            workload: "Barrier W_c finder",
+            tier: ToleranceTier::Analytical,
+            justification: "linear interpolation between sweep points (deterministic)",
+        },
+        WorkloadTolerance {
+            workload: "MAE (GPU fused)",
+            tier: ToleranceTier::Analytical,
+            justification: "l1_norm / N — single fused reduction on residuals",
+        },
+        WorkloadTolerance {
+            workload: "NSE/R² (GPU fused)",
+            tier: ToleranceTier::Analytical,
+            justification: "dual sum_of_squares reduction — SS_res and SS_tot",
+        },
+        WorkloadTolerance {
+            workload: "Bistable ODE batch (GPU RK4)",
+            tier: ToleranceTier::Statistical,
+            justification: "fixed-step GPU RK4 may differ from CPU RK4 by FMA ordering",
+        },
     ]
 }
 
@@ -350,9 +389,9 @@ mod tests {
     }
 
     #[test]
-    fn all_tolerances_covers_nineteen_workloads() {
+    fn all_tolerances_covers_twentysix_workloads() {
         let tols = all_tolerances();
-        assert_eq!(tols.len(), 19);
+        assert_eq!(tols.len(), 26);
     }
 
     #[test]

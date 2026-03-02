@@ -5,6 +5,12 @@
 //!
 //! Analytical known-values verified locally; community configuration and
 //! convergence thresholds loaded from the benchmark JSON.
+//!
+//! Note: `benchmark_sequencing_noise.json` `expected_results` depth ranges
+//! are for the Python validation path (`NumPy` PCG64 PRNG community generation).
+//! The Rust validator instead tests analytically stronger invariants:
+//! Shannon entropy, evenness, multinomial conservation, and convergence
+//! monotonicity, which hold for any well-formed community.
 
 use groundspring::rarefaction::{
     evenness, multinomial_sample, rarefaction_at_depth, shannon_diversity, taxa_detected,

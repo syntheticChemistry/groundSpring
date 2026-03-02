@@ -9,7 +9,7 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V61 | [GROUNDSPRING_TOADSTOOL_V61_MIXED_HARDWARE_PIPELINE_NUCLEUS_ATOMICS_HANDOFF_MAR02_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V61_MIXED_HARDWARE_PIPELINE_NUCLEUS_ATOMICS_HANDOFF_MAR02_2026.md) | Mar 2, 2026 | Mixed-hardware pipeline: PCIe topology, pipeline dispatch, NUCLEUS atomics (Tower/Node/Nest/Full), fallback chains, deep idiomatic debt pass, 668 tests, 42/42 mixed-hardware checks, 61 delegations |
+| V66 | [GROUNDSPRING_TOADSTOOL_V66_GPU_TIER_A_HANDOFF_MAR02_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V66_GPU_TIER_A_HANDOFF_MAR02_2026.md) | Mar 2, 2026 | Stats Tier A GPU (MAE, NSE, R²), bistable batch ODE GPU, 71 delegations (43 CPU + 28 GPU), 26 metalForge workloads, barracuda API usage review, absorption candidates |
 
 ## Cross-Spring Documentation
 
@@ -36,6 +36,11 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V65 | Comprehensive absorption handoff: 67 delegations, paper queue × three-tier hardware matrix, PRNG alignment roadmap, zero-debt audit certificate (superseded by V66) |
+| V64 | Deep audit: biomeos refactoring, `#[expect]` evolution, epsilon guard docs, tolerance comments, benchmark units, LICENSE fix, PRNG path docs — 67 delegations, 752 tests (superseded by V65) |
+| V63 | Brain architecture + capability-based discovery + Paper 12 (tissue Anderson, 29/29) — 67 delegations (superseded by V64) |
+| V62 | S79 catch-up: pollster eliminated, f64-capable device, redundant shaders removed, `Result`-based API, `f64::total_cmp()`, `#[expect]` — 710 tests (superseded by V63) |
+| V61 | Mixed-hardware pipeline: PCIe topology, pipeline dispatch, NUCLEUS atomics (Tower/Node/Nest/Full), fallback chains, deep idiomatic debt pass, 668 tests (superseded by V62) |
 | V60 | hotSpring cross-spring absorption: DriftMonitor, ClassificationUncertainty, concept edges, Nautilus dep, 620 tests (superseded by V61) |
 | V59 | ToadStool S71+++ catch-up: jackknife GPU promoted, HargreavesBatchGpu, ComputeDispatch, DF64 transcendentals (superseded by V60) |
 | V58 | Cross-spring evolution + deep-debt completion: 61 delegations, FAMILY_ID evolution (superseded by V59) |

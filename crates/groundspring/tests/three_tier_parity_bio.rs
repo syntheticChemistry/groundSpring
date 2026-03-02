@@ -363,3 +363,81 @@ fn multisignal_derivative_parity_equilibrium() {
     }
     assert!(d1.iter().any(|v| v.abs() > 0.0), "non-trivial derivatives");
 }
+
+// ── Shannon / Simpson GPU parity ────────────────────────────────
+
+#[test]
+fn shannon_diversity_gpu_parity_known_value() {
+    let counts = vec![100_u64, 100, 100, 100];
+    let h = groundspring::rarefaction::shannon_diversity(&counts);
+    let expected = 4.0_f64.ln();
+    assert!(
+        (h - expected).abs() < 1e-6,
+        "4 even taxa: H'={h}, expected {expected}"
+    );
+}
+
+#[test]
+fn shannon_diversity_gpu_parity_single_species() {
+    let counts = vec![1000_u64, 0, 0, 0];
+    let h = groundspring::rarefaction::shannon_diversity(&counts);
+    assert!(h.abs() < 1e-10, "single species H' should be 0: {h}");
+}
+
+#[test]
+fn simpson_diversity_gpu_parity_known_value() {
+    let counts = vec![100_u64, 100, 100, 100];
+    let d = groundspring::rarefaction::simpson_diversity(&counts);
+    let expected = 4.0_f64.mul_add(-(0.25 * 0.25), 1.0);
+    assert!(
+        (d - expected).abs() < 1e-6,
+        "4 even taxa: D={d}, expected {expected}"
+    );
+}
+
+#[test]
+fn simpson_diversity_gpu_parity_single_species() {
+    let counts = vec![1000_u64, 0, 0, 0];
+    let d = groundspring::rarefaction::simpson_diversity(&counts);
+    assert!(d.abs() < 1e-10, "single species D should be 0: {d}");
+}
+
+#[test]
+fn shannon_simpson_determinism() {
+    let counts = vec![50_u64, 30, 15, 5];
+    let h1 = groundspring::rarefaction::shannon_diversity(&counts);
+    let h2 = groundspring::rarefaction::shannon_diversity(&counts);
+    assert_eq!(h1.to_bits(), h2.to_bits(), "Shannon bitwise determinism");
+    let d1 = groundspring::rarefaction::simpson_diversity(&counts);
+    let d2 = groundspring::rarefaction::simpson_diversity(&counts);
+    assert_eq!(d1.to_bits(), d2.to_bits(), "Simpson bitwise determinism");
+}
+
+// ── tissue Anderson parity ─────────────────────────────────────
+
+#[test]
+fn tissue_anderson_healthy_parity() {
+    let epi = groundspring::tissue_anderson::healthy_epidermis();
+    let derm = groundspring::tissue_anderson::healthy_dermis();
+    let r1 = groundspring::tissue_anderson::simulate_tissue(&[epi.clone(), derm.clone()], 5, 42);
+    let r2 = groundspring::tissue_anderson::simulate_tissue(&[epi, derm], 5, 42);
+    for (a, b) in r1
+        .gamma_per_compartment
+        .iter()
+        .zip(&r2.gamma_per_compartment)
+    {
+        assert_eq!(a.to_bits(), b.to_bits(), "tissue gamma determinism");
+    }
+    assert!(!r1.barrier_breached, "healthy skin should not breach");
+}
+
+#[test]
+fn tissue_anderson_disruption_monotonic() {
+    let sweep = groundspring::tissue_anderson::barrier_disruption_sweep(5, 3, 42);
+    for i in 1..sweep.len() {
+        assert!(
+            sweep[i].d_eff_epidermis >= sweep[i - 1].d_eff_epidermis - 0.1,
+            "d_eff should be non-decreasing across barrier disruption"
+        );
+    }
+}

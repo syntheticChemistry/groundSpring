@@ -112,6 +112,15 @@ fn gpu_batch_determinism() {
 // matching barracuda CPU within documented tolerances. When the GPU
 // is available, the public API automatically dispatches to GPU —
 // proving the math is portable.
+//
+// Tolerance philosophy for CPU/GPU parity tests:
+//   1e-10  — exact-input summation (mean of 8 known values):
+//            single-pass Kahan summation differs from tree reduction
+//            by at most a few ULPs on short arrays.
+//   1e-6   — operations involving transcendentals (sqrt, ln) or
+//            multi-pass reductions (std_dev, RMSE, MBE, Pearson r,
+//            R²): GPU WGSL shaders may fuse multiply-add differently
+//            than x86 FMA, causing ~1e-7 divergence on 5–100 elements.
 // ══════════════════════════════════════════════════════════════════
 
 #[test]
@@ -198,23 +207,105 @@ fn gpu_stats_deterministic() {
     assert_eq!(s1.to_bits(), s2.to_bits(), "std_dev must be deterministic");
 }
 
+// ── V66 new GPU parity tests ───────────────────────────────────────
+
+#[test]
+fn gpu_mae_matches_cpu_known_value() {
+    let obs = [1.0, 2.0, 3.0, 4.0, 5.0];
+    let modeled = [1.2, 1.8, 3.3, 3.7, 5.1];
+    let m = groundspring::stats::mae(&obs, &modeled);
+    let expected = (0.2 + 0.2 + 0.3 + 0.3 + 0.1) / 5.0;
+    assert!(
+        (m - expected).abs() < 1e-6,
+        "MAE should be {expected:.4}, got {m}"
+    );
+}
+
+#[test]
+fn gpu_nse_matches_r_squared() {
+    let obs = [1.0, 2.0, 3.0, 4.0, 5.0];
+    let modeled = [1.1, 2.2, 2.9, 4.1, 4.8];
+    let nse = groundspring::stats::nash_sutcliffe(&obs, &modeled);
+    let r2 = groundspring::stats::r_squared(&obs, &modeled);
+    assert!(
+        (nse - r2).abs() < 1e-10,
+        "NSE ({nse}) should equal R² ({r2})"
+    );
+    assert!(nse > 0.95, "NSE should be > 0.95, got {nse}");
+}
+
+#[test]
+fn gpu_bistable_batch_consistent() {
+    let params = groundspring::bistable::BistableParams::default();
+    let ics = [[0.95, 4.5, 1.9, 0.3, 0.02], [0.95, 4.5, 1.9, 2.5, 0.85]];
+    let batch = groundspring::bistable::integrate_batch(&ics, &params, 0.01, 5_000);
+    assert_eq!(batch.len(), 2, "batch should return one result per IC");
+    assert!(
+        batch[0][3] < 1.0,
+        "low IC should converge to low c-di-GMP: {:.3}",
+        batch[0][3]
+    );
+    assert!(
+        batch[1][3] > 1.0,
+        "high IC should converge to high c-di-GMP: {:.3}",
+        batch[1][3]
+    );
+}
+
+#[test]
+fn gpu_jackknife_gpu_parity() {
+    let data: Vec<f64> = (1..=20).map(f64::from).collect();
+    let jk = groundspring::jackknife::jackknife_mean_variance(&data).unwrap();
+    let expected_mean = 10.5;
+    assert!(
+        (jk.estimate - expected_mean).abs() < 1e-10,
+        "jackknife mean should be {expected_mean}, got {}",
+        jk.estimate
+    );
+    assert!(jk.variance > 0.0, "jackknife variance should be > 0");
+}
+
+#[test]
+fn gpu_fao56_batch_matches_single() {
+    let inp = groundspring::fao56::example_18_inputs();
+    let single = groundspring::fao56::daily_et0(&inp);
+    let batch = groundspring::fao56::daily_et0_batch(&[inp]);
+    assert_eq!(batch.len(), 1);
+    assert_eq!(
+        single.to_bits(),
+        batch[0].to_bits(),
+        "batch must match single: {single} vs {}",
+        batch[0]
+    );
+}
+
 // ── Dispatch target inventory sentinel ─────────────────────────────
+//
+// V66: +4 GPU delegations
+//   GPU: +2 (mae_gpu, coefficient_of_efficiency_gpu for NSE and R²)
+//        — stats Tier A completion via FusedMapReduceF64
+//   GPU: +1 (integrate_batch_gpu for bistable ODE) — BatchedOdeRK4F64
+//   CPU: +1 (multisignal::integrate_batch) — CPU batch for multi-signal ODE
+//
+// V65: +4 GPU delegations
+//   GPU: +2 (FusedMapReduceF64::shannon_entropy, FusedMapReduceF64::simpson_index)
+//   GPU: +1 (anderson_3d_correlated) — tissue Anderson correlated disorder
+//   GPU: +1 (find_w_c) — barrier transition critical disorder interpolation
 //
 // V55: +6 delegations from ToadStool S70+ cross-spring evolution
 //   CPU: +4 (hargreaves_et0, hargreaves_et0_batch, crop_coefficient, soil_water_balance)
-//        — airSpring FAO-56 hydrology → ToadStool S70+ → groundSpring
 //   GPU: +2 (hargreaves_et0_batch GPU, find_band_edges brent refinement)
-//        — airSpring V035 brent root-finder → ToadStool S70+ → groundSpring
-//   Evolution candidate unchanged (band_edges eigenvalue vs transfer-matrix scan)
+//
+// Evolution candidate unchanged (band_edges eigenvalue vs transfer-matrix scan)
 
 #[test]
 fn dispatch_targets_at_least_32() {
-    let cpu_active = 42;
-    let gpu_active = 21;
+    let cpu_active = 43;
+    let gpu_active = 28;
     let evolution_candidates = 1;
     assert!(
-        cpu_active + gpu_active >= 63,
-        "minimum 63 active dispatch targets"
+        cpu_active + gpu_active >= 71,
+        "minimum 71 active dispatch targets"
     );
     assert_eq!(
         evolution_candidates, 1,
@@ -223,4 +314,4 @@ fn dispatch_targets_at_least_32() {
 }
 
 // metalForge workload count is tested in metalForge/forge/src/workloads.rs
-// (all_returns_nineteen_workloads).
+// (all_returns_twentythree_workloads).

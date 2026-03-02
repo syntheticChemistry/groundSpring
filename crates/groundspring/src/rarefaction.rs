@@ -14,18 +14,34 @@ use crate::cast::{u64_f64, usize_f64};
 /// Takes raw count data.  A perfectly even community of S species gives
 /// `1 − 1/S`; a single-species community gives 0.
 ///
-/// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::simpson` (identical formula, absorbed from
-/// wetSpring's skbio-compatible path in `ToadStool` S64).
+/// When `barracuda-gpu` is enabled and a GPU device is available,
+/// delegates to `FusedMapReduceF64::simpson_index` for GPU-accelerated
+/// computation. Falls back to `barracuda::stats::simpson` CPU delegation
+/// when `barracuda` is enabled.
 #[must_use]
 pub fn simpson_diversity(counts: &[u64]) -> f64 {
-    #[cfg(feature = "barracuda")]
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        let f_counts: Vec<f64> = counts.iter().map(|&c| u64_f64(c)).collect();
+        if let Some(sum_p2) = simpson_diversity_gpu(&f_counts) {
+            return 1.0 - sum_p2;
+        }
+        barracuda::stats::simpson(&f_counts)
+    }
+    #[cfg(all(feature = "barracuda", not(feature = "barracuda-gpu")))]
     {
         let f_counts: Vec<f64> = counts.iter().map(|&c| u64_f64(c)).collect();
         barracuda::stats::simpson(&f_counts)
     }
     #[cfg(not(feature = "barracuda"))]
     simpson_diversity_cpu(counts)
+}
+
+#[cfg(feature = "barracuda-gpu")]
+fn simpson_diversity_gpu(f_counts: &[f64]) -> Option<f64> {
+    let device = crate::gpu::get_device()?;
+    let fmr = barracuda::ops::fused_map_reduce_f64::FusedMapReduceF64::new(device).ok()?;
+    fmr.simpson_index(f_counts).ok()
 }
 
 #[cfg(not(feature = "barracuda"))]
@@ -150,18 +166,36 @@ fn log_hypergeometric_absent(big_n: u64, ni: u64, n: u64) -> f64 {
 
 /// Shannon diversity index H' = −Σ(pᵢ ln pᵢ).
 ///
-/// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::shannon` (natural log convention).
+/// When `barracuda-gpu` is enabled and a GPU device is available,
+/// delegates to `FusedMapReduceF64::shannon_entropy` for GPU-accelerated
+/// computation. Falls back to `barracuda::stats::shannon` CPU delegation
+/// when `barracuda` is enabled, or to the local CPU implementation.
+///
 /// Operates on a count vector.  Returns `0.0` if the total count is zero.
 #[must_use]
 pub fn shannon_diversity(counts: &[u64]) -> f64 {
-    #[cfg(feature = "barracuda")]
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        let f_counts: Vec<f64> = counts.iter().map(|&c| u64_f64(c)).collect();
+        if let Some(val) = shannon_diversity_gpu(&f_counts) {
+            return val;
+        }
+        barracuda::stats::shannon(&f_counts)
+    }
+    #[cfg(all(feature = "barracuda", not(feature = "barracuda-gpu")))]
     {
         let f_counts: Vec<f64> = counts.iter().map(|&c| u64_f64(c)).collect();
         barracuda::stats::shannon(&f_counts)
     }
     #[cfg(not(feature = "barracuda"))]
     shannon_diversity_cpu(counts)
+}
+
+#[cfg(feature = "barracuda-gpu")]
+fn shannon_diversity_gpu(f_counts: &[f64]) -> Option<f64> {
+    let device = crate::gpu::get_device()?;
+    let fmr = barracuda::ops::fused_map_reduce_f64::FusedMapReduceF64::new(device).ok()?;
+    fmr.shannon_entropy(f_counts).ok()
 }
 
 #[cfg(not(feature = "barracuda"))]

@@ -34,6 +34,28 @@ fn coefficient_of_efficiency(observed: &[f64], modeled: &[f64]) -> f64 {
     1.0 - ss_res / ss_tot
 }
 
+/// GPU-accelerated coefficient of efficiency (R²/NSE) via two
+/// `FusedMapReduceF64::sum_of_squares` dispatches for `SS_res` and `SS_tot`.
+#[cfg(feature = "barracuda-gpu")]
+fn coefficient_of_efficiency_gpu(observed: &[f64], modeled: &[f64]) -> Option<f64> {
+    if observed.is_empty() {
+        return Some(0.0);
+    }
+    let device = crate::gpu::get_device()?;
+    let fmr = barracuda::ops::fused_map_reduce_f64::FusedMapReduceF64::new(device).ok()?;
+    let mean_obs =
+        barracuda::ops::sum_reduce_f64::SumReduceF64::mean(crate::gpu::get_device()?, observed)
+            .ok()?;
+    let residuals: Vec<f64> = observed.iter().zip(modeled).map(|(o, m)| o - m).collect();
+    let deviations: Vec<f64> = observed.iter().map(|o| o - mean_obs).collect();
+    let ss_res = fmr.sum_of_squares(&residuals).ok()?;
+    let ss_tot = fmr.sum_of_squares(&deviations).ok()?;
+    if ss_tot == 0.0 {
+        return Some(0.0);
+    }
+    Some(1.0 - ss_res / ss_tot)
+}
+
 /// Root Mean Square Error between observed and modeled values.
 ///
 /// When `barracuda-gpu` is enabled and a GPU is available, computes
@@ -105,10 +127,28 @@ pub fn mae(observed: &[f64], modeled: &[f64]) -> f64 {
         modeled.len(),
         "observed and modeled must have equal length"
     );
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Some(m) = mae_gpu(observed, modeled) {
+            return m;
+        }
+    }
     #[cfg(feature = "barracuda")]
     return barracuda::stats::mae(observed, modeled);
     #[cfg(not(feature = "barracuda"))]
     mae_cpu(observed, modeled)
+}
+
+#[cfg(feature = "barracuda-gpu")]
+fn mae_gpu(observed: &[f64], modeled: &[f64]) -> Option<f64> {
+    if observed.is_empty() {
+        return Some(0.0);
+    }
+    let residuals: Vec<f64> = observed.iter().zip(modeled).map(|(o, m)| o - m).collect();
+    let device = crate::gpu::get_device()?;
+    let fmr = barracuda::ops::fused_map_reduce_f64::FusedMapReduceF64::new(device).ok()?;
+    let l1 = fmr.l1_norm(&residuals).ok()?;
+    Some(l1 / crate::cast::usize_f64(residuals.len()))
 }
 
 #[cfg(not(feature = "barracuda"))]
@@ -145,6 +185,12 @@ pub fn nash_sutcliffe(observed: &[f64], modeled: &[f64]) -> f64 {
         modeled.len(),
         "observed and modeled must have equal length"
     );
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Some(nse) = coefficient_of_efficiency_gpu(observed, modeled) {
+            return nse;
+        }
+    }
     #[cfg(feature = "barracuda")]
     return barracuda::stats::nash_sutcliffe(observed, modeled);
     #[cfg(not(feature = "barracuda"))]
@@ -218,6 +264,12 @@ pub fn r_squared(observed: &[f64], modeled: &[f64]) -> f64 {
         modeled.len(),
         "observed and modeled must have equal length"
     );
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Some(r2) = coefficient_of_efficiency_gpu(observed, modeled) {
+            return r2;
+        }
+    }
     #[cfg(feature = "barracuda")]
     return barracuda::stats::r_squared(observed, modeled);
     #[cfg(not(feature = "barracuda"))]

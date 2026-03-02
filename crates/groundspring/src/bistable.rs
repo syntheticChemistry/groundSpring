@@ -218,6 +218,73 @@ pub fn stochastic_integrate(
     state
 }
 
+/// Batch-integrate the bistable ODE for multiple initial conditions.
+///
+/// When `barracuda-gpu` is enabled and a GPU is available, uses
+/// `BatchedOdeRK4F64` for parallel integration of all trajectories.
+/// Falls back to sequential CPU integration otherwise.
+///
+/// Returns the final state `[f64; 5]` for each initial condition.
+#[must_use]
+pub fn integrate_batch(
+    initial_conditions: &[[f64; 5]],
+    params: &BistableParams,
+    dt: f64,
+    n_steps: usize,
+) -> Vec<[f64; 5]> {
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Some(results) = integrate_batch_gpu(initial_conditions, params, dt, n_steps) {
+            return results;
+        }
+    }
+    initial_conditions
+        .iter()
+        .map(|ic| integrate(ic, params, dt, n_steps))
+        .collect()
+}
+
+#[cfg(feature = "barracuda-gpu")]
+#[expect(
+    clippy::cast_possible_truncation,
+    reason = "batch count bounded by test setup"
+)]
+fn integrate_batch_gpu(
+    initial_conditions: &[[f64; 5]],
+    params: &BistableParams,
+    dt: f64,
+    n_steps: usize,
+) -> Option<Vec<[f64; 5]>> {
+    use barracuda::ops::batched_ode_rk4::{BatchedOdeRK4F64, BatchedRk4Config};
+
+    let device = crate::gpu::get_device()?;
+    let config = BatchedRk4Config {
+        n_batches: initial_conditions.len() as u32,
+        n_steps: n_steps as u32,
+        h: dt,
+        ..BatchedRk4Config::default()
+    };
+    let integrator = BatchedOdeRK4F64::new(device, config);
+
+    let flat_states: Vec<f64> = initial_conditions
+        .iter()
+        .flat_map(|s| s.iter().copied())
+        .collect();
+    let flat_params = params.to_flat();
+    let batch_params: Vec<f64> = initial_conditions
+        .iter()
+        .flat_map(|_| flat_params[..BatchedOdeRK4F64::N_PARAMS].iter().copied())
+        .collect();
+
+    let result = integrator.integrate(&flat_states, &batch_params).ok()?;
+    Some(
+        result
+            .chunks_exact(5)
+            .map(|c| [c[0], c[1], c[2], c[3], c[4]])
+            .collect(),
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

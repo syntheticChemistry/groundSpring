@@ -123,6 +123,11 @@
   "expected_results": {
     "_description": "Derived from the factory_calibration_stats \u2014 bias^2 + var = RMSE^2",
     "_formula": "random_std = sqrt(RMSE^2 - MBE^2)",
+    "_units": {
+      "bias": "m\u00b3/m\u00b3 (volumetric water content)",
+      "random_std": "m\u00b3/m\u00b3 (volumetric water content)",
+      "bias_fraction": "dimensionless (MBE\u00b2/RMSE\u00b2)"
+    },
     "cs616": {
       "sand": {
         "bias": -0.01,

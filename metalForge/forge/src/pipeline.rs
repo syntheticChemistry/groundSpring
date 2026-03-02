@@ -488,4 +488,156 @@ mod tests {
         assert_eq!(resolved.stages[1].transfer, TransferStrategy::None);
         assert_eq!(resolved.stages[1].transfer_cost_us, 0);
     }
+
+    #[test]
+    fn npu_to_gpu_p2p_bypasses_cpu() {
+        let subs = vec![npu_sub(), gpu_sub(), cpu_sub()];
+        let topo = Topology::infer(&subs);
+
+        let pipeline = Pipeline::new("NPU→GPU direct")
+            .stage(Stage::new(
+                "npu_classify",
+                Workload::new("classify", vec![Capability::QuantizedInference { bits: 8 }]),
+                256,
+            ))
+            .stage(Stage::new(
+                "gpu_compute",
+                Workload::new(
+                    "anderson",
+                    vec![Capability::F64Compute, Capability::ShaderDispatch],
+                ),
+                65536,
+            ));
+
+        let resolved = pipeline.plan(&subs, &topo);
+        assert!(resolved.all_assigned());
+        assert_eq!(
+            resolved.stages[0].substrate.unwrap().kind,
+            SubstrateKind::Npu,
+            "stage 0 → NPU"
+        );
+        assert_eq!(
+            resolved.stages[1].substrate.unwrap().kind,
+            SubstrateKind::Gpu,
+            "stage 1 → GPU"
+        );
+        assert!(
+            resolved.stages[1].transfer != TransferStrategy::None,
+            "NPU→GPU transfer should be non-trivial"
+        );
+    }
+
+    #[test]
+    fn mixed_pipeline_fallback_preserves_stages() {
+        let subs = vec![cpu_sub()];
+        let topo = Topology::infer(&subs);
+
+        let pipeline = Pipeline::new("degrade all")
+            .stage(
+                Stage::new(
+                    "npu_classify",
+                    Workload::new("classify", vec![Capability::QuantizedInference { bits: 8 }]),
+                    256,
+                )
+                .with_fallback(FallbackPolicy::Degrade),
+            )
+            .stage(
+                Stage::new(
+                    "gpu_compute",
+                    Workload::new(
+                        "anderson",
+                        vec![Capability::F64Compute, Capability::ShaderDispatch],
+                    ),
+                    65536,
+                )
+                .with_fallback(FallbackPolicy::Degrade),
+            )
+            .stage(Stage::new(
+                "cpu_store",
+                Workload::new("provenance", vec![Capability::F64Compute]),
+                1024,
+            ));
+
+        let resolved = pipeline.plan(&subs, &topo);
+        assert_eq!(resolved.stages.len(), 3);
+        assert_eq!(
+            resolved.degraded_count(),
+            2,
+            "NPU+GPU should degrade to CPU"
+        );
+        for stage in &resolved.stages {
+            if let Some(sub) = stage.substrate {
+                assert_eq!(sub.kind, SubstrateKind::Cpu, "all should degrade to CPU");
+            }
+        }
+    }
+
+    #[test]
+    fn mixed_pipeline_fail_on_missing_gpu() {
+        let subs = vec![cpu_sub()];
+        let topo = Topology::infer(&subs);
+
+        let pipeline = Pipeline::new("fail without GPU").stage(
+            Stage::new(
+                "gpu_only",
+                Workload::new(
+                    "anderson",
+                    vec![Capability::F64Compute, Capability::ShaderDispatch],
+                ),
+                65536,
+            )
+            .with_fallback(FallbackPolicy::Fail),
+        );
+
+        let resolved = pipeline.plan(&subs, &topo);
+        assert!(!resolved.all_assigned(), "pipeline should fail without GPU");
+        assert!(
+            resolved.stages[0].substrate.is_none(),
+            "Fail policy: no substrate assigned"
+        );
+    }
+
+    #[test]
+    fn five_stage_heterogeneous_pipeline() {
+        let subs = vec![npu_sub(), gpu_sub(), cpu_sub()];
+        let topo = Topology::infer(&subs);
+
+        let pipeline = Pipeline::new("full science pipeline")
+            .stage(Stage::new(
+                "ingest",
+                Workload::new("provenance", vec![Capability::F64Compute]),
+                2048,
+            ))
+            .stage(Stage::new(
+                "classify",
+                Workload::new("classify", vec![Capability::QuantizedInference { bits: 8 }]),
+                512,
+            ))
+            .stage(Stage::new(
+                "gpu_sweep",
+                Workload::new(
+                    "anderson_sweep",
+                    vec![Capability::F64Compute, Capability::ShaderDispatch],
+                ),
+                131_072,
+            ))
+            .stage(Stage::new(
+                "cpu_analyze",
+                Workload::new("statistics", vec![Capability::F64Compute]),
+                4096,
+            ))
+            .stage(Stage::new(
+                "store",
+                Workload::new("provenance", vec![Capability::F64Compute]),
+                1024,
+            ));
+
+        let resolved = pipeline.plan(&subs, &topo);
+        assert!(resolved.all_assigned(), "all 5 stages should be assigned");
+        assert_eq!(resolved.stages.len(), 5);
+        assert!(
+            resolved.total_transfer_us > 0,
+            "heterogeneous pipeline should have transfer costs"
+        );
+    }
 }

@@ -100,6 +100,9 @@ impl DriftMonitor {
         mean_fitness: f64,
         best_fitness: f64,
     ) {
+        // Guard: 1e-10 prevents division-by-zero when the population has near-zero
+        // fitness (e.g. all-deleterious fixation). Below this threshold, the
+        // selection coefficient s is numerically meaningless.
         let s = if mean_fitness > 1e-10 {
             (best_fitness - mean_fitness) / mean_fitness
         } else {

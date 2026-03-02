@@ -220,6 +220,10 @@ fn birth_death_ssa_batch_gpu(
 
     // GPU returns final state per trajectory — approximate time-averaged mean
     // using analytical steady-state weighted by burn-in fraction.
+    // Guard: 1e-15 is ~10× f64 epsilon — prevents division-by-zero in the
+    // steady-state mean when degradation rate is negligible (e.g. pure
+    // synthesis regime). The resulting ss_mean saturates at a large but
+    // finite value rather than producing Inf.
     let ss_mean = total_syn / total_deg_rate.max(1e-15);
     let burnin_fraction = (t_burnin / t_max).clamp(0.0, 1.0);
     let post_burnin_weight = 1.0 - burnin_fraction;

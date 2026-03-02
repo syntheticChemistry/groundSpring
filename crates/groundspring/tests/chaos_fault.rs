@@ -220,6 +220,8 @@ fn quasispecies_single_genome() {
 
 #[test]
 fn seismic_zero_distance() {
+    // 1e-10: zero distance → zero travel time is analytically exact;
+    // tolerance absorbs any floating-point rounding in the sqrt path.
     let tt = seismic::travel_time_1d(0.0, 0.0, 6.0);
     assert!((tt - 0.0).abs() < 1e-10);
 }
@@ -299,6 +301,9 @@ fn jackknife_single_sample() {
 #[test]
 fn jackknife_identical_values() {
     use groundspring::jackknife;
+    // 1e-10: variance of 100 identical values is analytically zero;
+    // leave-one-out differences are all zero, so any nonzero result
+    // is pure floating-point noise.
     let data = vec![5.0; 100];
     let result = jackknife::jackknife_mean_variance(&data);
     if let Ok(r) = result {

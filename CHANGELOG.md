@@ -4,6 +4,107 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V66 Stats Tier A GPU + Bistable Batch ODE + metalForge Expansion (Mar 2, 2026)
+
+#### Added
+- **stats::agreement GPU**: MAE via `FusedMapReduceF64::l1_norm`, NSE/R² via dual
+  `FusedMapReduceF64::sum_of_squares` dispatches. Papers 1-5 stats now fully GPU-capable.
+- **bistable batch GPU**: `integrate_batch()` dispatches to `BatchedOdeRK4F64` for
+  parallel RK4 trajectories on GPU. CPU fallback sequential.
+- **multisignal batch**: `integrate_batch()` for batch ODE integration (CPU path,
+  GPU promotion candidate).
+- **validate-gpu-tier**: 4 new validation sections: stats Tier A GPU parity,
+  bistable batch GPU parity, jackknife GPU parity, FAO-56 batch GPU parity.
+- **three_tier_parity_gpu.rs**: 5 new parity tests (MAE known value, NSE=R²,
+  bistable batch consistent, jackknife GPU, FAO-56 batch matches single).
+- **metalForge workloads**: 3 new workloads (MAE GPU fused, NSE/R² GPU fused,
+  bistable ODE batch GPU RK4). Total: 26 workloads.
+- **metalForge tolerances**: 3 new tolerance specs. Total: 26 tolerance specs.
+
+#### Changed
+- **Dispatch target count**: 43 CPU + 28 GPU = 71 active delegations (was 67).
+- **Test count**: 776 workspace tests (was 771).
+- Updated PAPER_REVIEW_QUEUE.md, BARRACUDA_EVOLUTION.md to V66.
+
+### V65 Docs Sweep + ToadStool Absorption Handoff + Paper Queue Review (Mar 2, 2026)
+
+#### Changed
+- **Root docs updated**: README.md status line, CHANGELOG.md (V62–V64 catch-up),
+  wateringHole README active handoff.
+- **whitePaper/README.md**: Status line updated to V65 (376/376, 67 delegations,
+  752 tests).
+- **whitePaper/baseCamp/gonzales.md**: Added V64 tissue_anderson module
+  refactoring note.
+- **specs/PAPER_REVIEW_QUEUE.md**: Three-tier control matrix updated with V64
+  delegation count (67) and experiment 033 entry.
+- **specs/BARRACUDA_EVOLUTION.md**: Header updated to V65 (67 delegations).
+- **wateringHole/README.md**: V65 handoff active, V64 archived.
+- New V65 ToadStool handoff with comprehensive barracuda absorption roadmap,
+  paper queue × three-tier hardware matrix, and PRNG alignment action items
+  for the ToadStool/BarraCUDA team.
+
+### V64 Deep Audit — Idiomatic Rust Evolution + Docs Sweep (Mar 2, 2026)
+
+#### Changed
+- **biomeos refactored**: Monolithic `biomeos.rs` (834 lines) → directory module
+  `biomeos/` with `mod.rs` (public API, config, routing), `discovery.rs` (socket
+  resolution), `protocol.rs` (JSON-RPC serialization), `transport.rs` (platform
+  I/O). All under 1000 lines.
+- **`#[allow]` → `#[expect]`**: Last remaining `#[allow(clippy::cast_*)]` in
+  `validate_real_ncbi_16s.rs` converted to `#[expect(..., reason = "...")]`.
+- **Epsilon guards documented**: `1e-10` in `drift.rs`, `1e-15` in
+  `gillespie.rs`, three `1e-20` guards in `validate_vendor_parity.rs` — all
+  annotated with division-by-zero prevention rationale.
+- **Tolerance comments**: Three-tier GPU test tolerances in
+  `three_tier_parity_gpu.rs` and `chaos_fault.rs` now document exact/approximate
+  reasoning.
+- **Benchmark units**: `benchmark_sensor_noise.json` gains `_units` block;
+  `benchmark_sequencing_noise.json` gains `_units`, `_tolerance_note`,
+  `_validation_path` documenting Python vs Rust validation distinction.
+- **`validate_rarefaction.rs`**: Module doc-comment explains why Rust uses
+  analytical invariants (PRNG-agnostic) rather than Python's RNG-dependent
+  `expected_results`.
+- **LICENSE**: Corrected from "version 3, or any later version" to "version 3
+  only" (matches `AGPL-3.0-only` SPDX everywhere).
+- **`s.clone()` → `s.to_owned()`** in `biomeos/protocol.rs`.
+- **BARRACUDA_EVOLUTION.md**: `TODO(toadstool)` entries clarified to "blocked on
+  `barracuda::ops::*`".
+
+### V63 Brain Architecture + Capability-Based Discovery + Paper 12 (Mar 2, 2026)
+
+#### Added
+- **Exp 033 Tissue Anderson** (Paper 12 — Gonzales): `tissue_anderson` module
+  with cytokine Anderson lattice, barrier disruption sweep, geometry-aware drug
+  scoring. `SkinLayer`, `CellType`, `TissueCompartment`, `DrugCandidate`,
+  `DeliveryRoute`, `DrugScore`. 29/29 validation checks, 18 unit tests.
+- 6 new GPU delegations: `GillespieGpu` batch, `WrightFisherGpu` batch,
+  `BatchedMultinomialGpu`, `cholesky_f64`, `eigh_f64`, `GpuAlignedRng`.
+- `bench-cpu-vs-gpu`: 4 new benchmarks (multinomial, tikhonov, tridiag, MSD).
+- `validate-gpu-tier`: expanded 66 → 73 checks (tissue Anderson GPU parity).
+- `validate-metalforge-pipeline` (30/30 mixed-hardware checks).
+- NUCLEUS compute dispatch tests (Neural API → provider → CPU baseline).
+
+#### Changed
+- Delegation count: 61 → 67 (37 CPU + 26 GPU + 4 cross-spring).
+- Workspace tests: 752 (409 lib + 343 integration/validation).
+- `tissue_anderson.rs` refactored into directory module (916 → 641 + 268 lines).
+- `DriftAction`, `ConceptEdge`, `MultiHeadUncertainty` from Nautilus integration.
+
+### V62 S79 Catch-Up + Rewire + Clean (Mar 2, 2026)
+
+#### Changed
+- **ToadStool pin**: S71+++ → S79 (`f97fc2ae`).
+- **pollster eliminated**: All `pollster::block_on` → `barracuda::device::test_pool::tokio_block_on`.
+- **f64-capable device**: `WgpuDevice::new()` → `WgpuDevice::new_f64_capable()`.
+- **Redundant shaders removed**: `mc_et0_propagate.wgsl` and
+  `batched_multinomial.wgsl` deleted (absorbed S72/S76 upstream).
+- `validate/lib.rs` evolved to `Result`-based API (`BenchResult<T>`) with
+  backward-compatible panicking wrappers.
+- All `partial_cmp().unwrap_or()` → `f64::total_cmp()`.
+- All `#[allow]` lint suppressions → `#[expect(lint, reason = "...")]`.
+- All 33 validation binaries now use `std::process::exit(h.summary())`.
+- SPDX license identifiers unified to `AGPL-3.0-only` across all non-Rust files.
+
 ### V61 Mixed-Hardware Pipeline + NUCLEUS Atomics (Mar 2, 2026)
 
 #### Added

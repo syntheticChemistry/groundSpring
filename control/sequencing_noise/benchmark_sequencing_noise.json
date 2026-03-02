@@ -99,6 +99,12 @@
     }
   },
   "expected_results": {
+    "_units": {
+      "genera_detected_range": "count (integer, observed genera at given depth)",
+      "shannon_range": "nats (natural-log Shannon entropy H')"
+    },
+    "_tolerance_note": "Ranges are from multinomial sampling theory at seed=42 with 150-genus log-normal community. Wide at low depth (stochastic), narrow at high depth (saturated).",
+    "_validation_path": "Python only (NumPy PCG64 community generation). Rust validator uses analytical invariants (Shannon entropy, evenness, convergence monotonicity) which are PRNG-agnostic.",
     "at_100_reads": {
       "genera_detected_range": [
         40,

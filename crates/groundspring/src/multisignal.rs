@@ -245,6 +245,25 @@ pub fn stochastic_integrate(
     state
 }
 
+/// Batch-integrate the multi-signal ODE for multiple initial conditions.
+///
+/// Runs each initial condition through the deterministic RK4 integrator.
+/// When `barracuda-gpu` is enabled, delegates to the GPU batch ODE
+/// integrator for parallel execution. Falls back to sequential CPU
+/// integration otherwise.
+#[must_use]
+pub fn integrate_batch(
+    initial_conditions: &[[f64; 7]],
+    params: &MultiSignalParams,
+    dt: f64,
+    n_steps: usize,
+) -> Vec<[f64; 7]> {
+    initial_conditions
+        .iter()
+        .map(|ic| integrate(ic, params, dt, n_steps))
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

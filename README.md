@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: March 2, 2026 | **License**: AGPL-3.0-only
-**Status**: 33 modules, 752 Rust workspace tests + 375 Python tests, 376/376 validation checks (321 core + 55 NUCLEUS) + 172 metalForge checks (130 forge + 42 mixed-hardware), 61 active barracuda delegations (37 CPU + 20 GPU + 4 cross-spring) — ToadStool S79 rewired, hotSpring cross-spring absorption, mixed-hardware pipeline dispatch (`PCIe` topology, NUCLEUS atomics, fallback chains), biomeOS Neural API live, NestGate data pipelines, 19 metalForge workloads, zero unsafe, zero TODO, zero production mocks, zero clippy pedantic warnings
+**Status**: 33 modules, 776 Rust workspace tests + 375 Python tests, 376/376 validation checks (321 core + 55 NUCLEUS) + 172 metalForge checks (130 forge + 42 mixed-hardware), 71 active barracuda delegations (43 CPU + 28 GPU) — ToadStool S79 (`f97fc2ae`), deep codebase audit (zero unsafe / zero TODO / zero `.unwrap()` / zero production mocks / zero `#[allow]` / all files under 1000 lines), biomeos directory module refactoring, tissue Anderson (Paper 12 — 29/29), 26 metalForge workloads, mixed-hardware pipeline dispatch, biomeOS Neural API live, NestGate data pipelines
 
 **The gap between what models predict and what instruments measure.**
 
@@ -101,16 +101,16 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | `esn` | Echo State Network regime classification: `EsnClassifier` (barracuda-gpu), rule-based `classify_by_spacing_ratio`, `spectral_features` | **GPU dispatched** (barracuda-gpu ESN) + CPU rule-based |
 | `lanczos` | Sparse eigensolver for 2D/3D Anderson: `sparse_eigenvalues`, `eigenvalues_from_csr` (barracuda-gpu only) | **GPU dispatched** (barracuda spectral Lanczos) |
 | `npu` | NPU integration for Akida neuromorphic inference (behind `npu` feature) | NPU (AKD1000) |
-| `groundspring-forge` | Hardware discovery, cross-substrate dispatch, `PCIe` topology, multi-stage pipeline, NUCLEUS atomics, remote NUCLEUS discovery (19 workloads, 5+ substrates, 120 tests) | metalForge crate |
+| `groundspring-forge` | Hardware discovery, cross-substrate dispatch, `PCIe` topology, multi-stage pipeline, NUCLEUS atomics, remote NUCLEUS discovery (26 workloads, 5+ substrates, 120 tests) | metalForge crate |
 
 ## Quick Start
 
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace                         # 752 tests, all PASS
+cargo test --workspace                         # 776 tests, all PASS
 cargo test --workspace --features biomeos      # ~780 tests (NUCLEUS client active)
-cargo test --workspace --features barracuda-gpu # 752 tests (GPU dispatch active)
+cargo test --workspace --features barracuda-gpu # 776 tests (GPU dispatch active)
 cargo clippy --workspace --all-targets -- -D warnings -W clippy::pedantic -W clippy::nursery
 cargo fmt --check                              # clean
 
@@ -239,29 +239,29 @@ eigenvalue solver (from hotSpring S26 spectral), GPU reduce ops
 (FusedMapReduceF64, SumReduceF64, VarianceReduceF64, CorrelationF64),
 and batch dispatch APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64),
 giving **47.7× speedup** for Exp 009. Cross-spring evolution validated
-by 61 active delegations (37 CPU + 20 GPU + 4 cross-spring), including
+by 71 active delegations (43 CPU + 28 GPU), including
 ESN regime classification, Lanczos sparse eigensolver, 2D/3D Anderson eigenvalues,
-and decomposed chi-squared analysis from hotSpring/wetSpring lineage. 19 metalForge
-workloads route across 5 substrates (17 GPU + 2 NPU) with architecture-aware routing.
+and decomposed chi-squared analysis from hotSpring/wetSpring lineage. 26 metalForge
+workloads route across 5 substrates (22 GPU + 2 NPU + 2 CPU-only) with architecture-aware routing.
 
 ## Evolution Path
 
 ```
 Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardware)  →  Phase 4 (NUCLEUS)
   NumPy/SciPy         Pure safe Rust     BarraCUDA/ToadStool   metalForge dispatch    biomeOS Neural API
-  ✓ Complete          ✓ 376/376 PASS     ◐ 61 active           19 workloads           Tower+Node+Squirrel
-  11.5× slower        33/33 experiments    (37+20+4 xspring)    17 GPU + 2 NPU         NestGate data pipes
-                      752 workspace tests                       PCIe topology          NUCLEUS atomics
+  ✓ Complete          ✓ 376/376 PASS     ◐ 71 active           26 workloads           Tower+Node+Squirrel
+  11.5× slower        33/33 experiments    (43+28)              22 GPU + 2 NPU + 2 CPU-only         NestGate data pipes
+                      776 workspace tests                       PCIe topology          NUCLEUS atomics
                                                                 Pipeline dispatch      Sovereign degradation
 
   Write locally    →  Hand off          →  Lean on upstream   →  Cross-substrate     →  Primal orchestration
   (metalForge)       (wateringHole/)       (barracuda ops)       (metalForge forge)    (biomeOS graphs)
 ```
 
-**Lean progress**: 61 functions delegate to barracuda with graceful sovereign fallback.
-37 CPU delegated via `#[cfg(feature = "barracuda")]`, 20 GPU dispatched via
-`#[cfg(feature = "barracuda-gpu")]` (S71: jackknife promoted from CPU to GPU via
-`jackknife_mean_f64.wgsl`), 4 cross-spring S59+. 1 evolution candidate (band_edges).
+**Lean progress**: 71 functions delegate to barracuda with graceful sovereign fallback.
+43 CPU delegated via `#[cfg(feature = "barracuda")]`, 28 GPU dispatched via
+`#[cfg(feature = "barracuda-gpu")]` (V63: +6 GPU — Gillespie, WrightFisher,
+Multinomial, Cholesky, Tridiag Eigh, PRNG), 4 cross-spring S59+.
 All local shaders absorbed upstream (batched_multinomial S76, mc_et0_propagate S72);
 only 2 unique `anderson_lyapunov*.wgsl` reference shaders remain in metalForge.
 
@@ -322,7 +322,7 @@ groundSpring/
 │   └── shaders/                     # Production WGSL shaders for ToadStool absorption
 ├── graphs/                          # biomeOS pipeline graphs (Tower bootstrap, Node, cross-substrate)
 ├── .github/workflows/ci.yml         # GitHub Actions CI
-├── wateringHole/                    # Handoff directory (V64 current)
+├── wateringHole/                    # Handoff directory (V65 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md       # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md    # GPU kernel gap analysis
@@ -359,4 +359,4 @@ AGPL-3.0-only — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026 | V53 complete rewiring + GPU grid adapters — 57 active: February 28, 2026 | V56 NUCLEUS live validation + ToadStool handoff: March 1, 2026 | V58 cross-spring evolution + deep-debt completion: March 1, 2026 | V59 ToadStool S71+++ catch-up: March 1, 2026 | V60 hotSpring cross-spring absorption — DriftMonitor, ClassificationUncertainty, concept edge detection, Nautilus Shell dep: March 1, 2026 | V63 brain architecture + capability-based discovery + Paper 12: March 2, 2026 | V64 deep audit — idiomatic Rust evolution, Result-based APIs, tissue_anderson module refactoring, absorbed shader cleanup: March 2, 2026*
+*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026 | V53 complete rewiring + GPU grid adapters — 57 active: February 28, 2026 | V56 NUCLEUS live validation + ToadStool handoff: March 1, 2026 | V58 cross-spring evolution + deep-debt completion: March 1, 2026 | V59 ToadStool S71+++ catch-up: March 1, 2026 | V60 hotSpring cross-spring absorption — DriftMonitor, ClassificationUncertainty, concept edge detection, Nautilus Shell dep: March 1, 2026 | V63 brain architecture + capability-based discovery + Paper 12: March 2, 2026 | V64 deep audit — idiomatic Rust evolution, Result-based APIs, tissue_anderson module refactoring, absorbed shader cleanup: March 2, 2026 | V65 docs sweep + ToadStool absorption handoff + paper queue review: March 2, 2026*

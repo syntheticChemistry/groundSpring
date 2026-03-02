@@ -94,6 +94,9 @@ fn run() -> i32 {
     }
 
     // Relative differences: |D_A - D_B| / |D_A|
+    // Guard: 1e-20 is well below any physically meaningful diffusion
+    // coefficient (~1e-15 m²/s for molecular diffusion) and prevents
+    // division-by-zero when D_A ≈ 0 at short correlation times.
     let mut max_rel_diff = 0.0_f64;
     let mut sum_rel_diff = 0.0_f64;
     for (da, db) in d_vendor_a.iter().zip(d_vendor_b.iter()) {
@@ -129,14 +132,14 @@ fn run() -> i32 {
     let all_within = d_vendor_a
         .iter()
         .zip(d_vendor_b.iter())
-        .all(|(da, db)| (da - db).abs() / da.abs().max(1e-20) <= max_rel_tol);
+        .all(|(da, db)| (da - db).abs() / da.abs().max(1e-20) <= max_rel_tol); // same 1e-20 guard as above
 
     // Chi-squared per DOF: sum((D_A - D_B)^2 / max(D_A^2, 1e-20)) / n_observables
     let chi2_sum: f64 = d_vendor_a
         .iter()
         .zip(d_vendor_b.iter())
         .map(|(da, db)| {
-            let denom_chi2 = (da * da).max(1e-20);
+            let denom_chi2 = (da * da).max(1e-20); // same 1e-20 guard as relative diff
             (da - db) * (da - db) / denom_chi2
         })
         .sum();

@@ -188,10 +188,11 @@ fn synthetic_community() -> Vec<u64> {
 /// a few dominant taxa and a long tail of rare taxa. This uses a log-series
 /// approximation for ecological realism.
 #[cfg(feature = "biomeos")]
-#[allow(
+#[expect(
     clippy::cast_precision_loss,
     clippy::cast_possible_truncation,
-    clippy::cast_sign_loss
+    clippy::cast_sign_loss,
+    reason = "rank-abundance ecology simulation with safe bounded casts"
 )]
 fn generate_realistic_community(
     rng: &mut groundspring::prng::Xorshift64,

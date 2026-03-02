@@ -329,4 +329,62 @@ mod tests {
         assert!(pairs.contains(&(1, 0)));
         assert!(!pairs.iter().any(|&(a, b)| a == 2 || b == 2));
     }
+
+    #[test]
+    fn npu_to_gpu_link_is_pcie_low() {
+        let subs = vec![npu(), gpu("TITAN V"), cpu()];
+        let topo = Topology::infer(&subs);
+        let link = topo.best_link(0, 1).expect("NPU→GPU link");
+        assert_eq!(link.tier, BandwidthTier::PcieLow);
+        assert!(
+            link.tier.transfer_time_us(1024) > 0,
+            "NPU→GPU should have non-zero transfer time"
+        );
+    }
+
+    #[test]
+    fn gpu_to_gpu_p2p_faster_than_host_bounce() {
+        let p2p = BandwidthTier::PciePeer.transfer_time_us(1_000_000);
+        let host = BandwidthTier::PcieHost.transfer_time_us(1_000_000);
+        assert!(
+            p2p <= host,
+            "P2P ({p2p}µs) should be ≤ host bounce ({host}µs) for 1MB"
+        );
+    }
+
+    #[test]
+    #[expect(
+        clippy::similar_names,
+        reason = "npu_gpu / npu_cpu / cpu_gpu are intentionally named for transfer direction"
+    )]
+    fn npu_gpu_p2p_bypasses_cpu_roundtrip() {
+        let subs = vec![npu(), gpu("TITAN V"), cpu()];
+        let topo = Topology::infer(&subs);
+        let npu_gpu = topo
+            .best_link(0, 1)
+            .map_or(0, |l| l.tier.transfer_time_us(65536));
+        let npu_cpu = topo
+            .best_link(0, 2)
+            .map_or(0, |l| l.tier.transfer_time_us(65536));
+        let cpu_gpu = topo
+            .best_link(2, 1)
+            .map_or(0, |l| l.tier.transfer_time_us(65536));
+        assert!(
+            npu_gpu <= npu_cpu + cpu_gpu,
+            "direct NPU→GPU ({npu_gpu}µs) should be ≤ NPU→CPU→GPU roundtrip ({}µs)",
+            npu_cpu + cpu_gpu
+        );
+    }
+
+    #[test]
+    fn full_substrate_topology_link_count() {
+        let subs = vec![npu(), gpu("TITAN V"), gpu("RTX 4070"), cpu()];
+        let topo = Topology::infer(&subs);
+        let n = subs.len();
+        assert_eq!(
+            topo.links.len(),
+            n * (n - 1),
+            "should have n*(n-1) directed links for {n} substrates"
+        );
+    }
 }

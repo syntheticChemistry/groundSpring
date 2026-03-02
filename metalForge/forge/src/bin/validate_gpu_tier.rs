@@ -56,6 +56,10 @@ fn main() {
     validate_tridiag_eigh_parity(&mut h);
     validate_prng_stream_parity(&mut h);
     validate_tissue_anderson_parity(&mut h);
+    validate_stats_tier_a_gpu_parity(&mut h);
+    validate_bistable_batch_gpu_parity(&mut h);
+    validate_jackknife_gpu_parity(&mut h);
+    validate_fao56_batch_gpu_parity(&mut h);
 
     println!("\n--- Summary ---\n");
     println!("  Each test ran the SAME math through two paths:");
@@ -145,7 +149,7 @@ fn validate_bootstrap_parity(h: &mut Harness) {
 }
 
 fn validate_diversity_parity(h: &mut Harness) {
-    println!("\n--- Shannon Diversity Parity (wetSpring S64) ---\n");
+    println!("\n--- Diversity Parity (Shannon + Simpson GPU, V65) ---\n");
 
     let counts = vec![100u64, 50, 25, 10, 5, 3, 2, 1, 1, 1];
 
@@ -160,6 +164,30 @@ fn validate_diversity_parity(h: &mut Harness) {
     h.check(
         "Shannon deterministic (bitwise)",
         h1.to_bits() == h2.to_bits(),
+    );
+
+    let d1 = groundspring::rarefaction::simpson_diversity(&counts);
+    let d2 = groundspring::rarefaction::simpson_diversity(&counts);
+    println!("  D={d1:.6}");
+    h.check("Simpson in (0,1)", d1 > 0.0 && d1 < 1.0);
+    h.check(
+        "Simpson deterministic (bitwise)",
+        d1.to_bits() == d2.to_bits(),
+    );
+
+    let even_counts = vec![100u64, 100, 100, 100];
+    let h_even = groundspring::rarefaction::shannon_diversity(&even_counts);
+    let expected_h = 4.0_f64.ln();
+    h.check(
+        "Shannon(even 4-taxa) ≈ ln(4)",
+        (h_even - expected_h).abs() < 1e-6,
+    );
+
+    let d_even = groundspring::rarefaction::simpson_diversity(&even_counts);
+    let expected_d = 4.0_f64.mul_add(-(0.25 * 0.25), 1.0);
+    h.check(
+        "Simpson(even 4-taxa) ≈ 0.75",
+        (d_even - expected_d).abs() < 1e-6,
     );
 }
 
@@ -618,6 +646,181 @@ fn validate_band_structure_parity(h: &mut Harness) {
             .iter()
             .zip(&eigenvalues2)
             .all(|(a, b)| a.to_bits() == b.to_bits()),
+    );
+}
+
+fn validate_stats_tier_a_gpu_parity(h: &mut Harness) {
+    println!("\n--- Stats Tier A GPU Parity (MAE, NSE, R²) ---\n");
+
+    let observed = vec![2.5, 3.1, 4.2, 5.0, 3.8, 4.5, 2.9, 3.6, 4.1, 3.3];
+    let simulated = vec![2.4, 3.3, 4.0, 5.2, 3.7, 4.6, 2.8, 3.5, 4.3, 3.1];
+
+    let mae1 = groundspring::stats::mae(&observed, &simulated);
+    let mae2 = groundspring::stats::mae(&observed, &simulated);
+    h.check("MAE > 0", mae1 > 0.0);
+    h.check(
+        "MAE deterministic (bitwise)",
+        mae1.to_bits() == mae2.to_bits(),
+    );
+
+    let nse1 = groundspring::stats::nash_sutcliffe(&observed, &simulated);
+    let nse2 = groundspring::stats::nash_sutcliffe(&observed, &simulated);
+    h.check("NSE > 0.9", nse1 > 0.9);
+    h.check(
+        "NSE deterministic (bitwise)",
+        nse1.to_bits() == nse2.to_bits(),
+    );
+
+    let r2_1 = groundspring::stats::r_squared(&observed, &simulated);
+    let r2_2 = groundspring::stats::r_squared(&observed, &simulated);
+    h.check("R² > 0.9", r2_1 > 0.9);
+    h.check(
+        "R² deterministic (bitwise)",
+        r2_1.to_bits() == r2_2.to_bits(),
+    );
+
+    h.check(
+        "NSE == R² (mathematically identical)",
+        (nse1 - r2_1).abs() < 1e-12,
+    );
+
+    println!("  MAE={mae1:.6}, NSE={nse1:.6}, R²={r2_1:.6}");
+}
+
+fn validate_bistable_batch_gpu_parity(h: &mut Harness) {
+    println!("\n--- Bistable Batch GPU Parity (V66) ---\n");
+
+    let params = groundspring::bistable::BistableParams::default();
+    let ics = [
+        [0.95, 4.5, 1.9, 0.3, 0.02],
+        [0.95, 4.5, 1.9, 2.5, 0.85],
+        [0.5, 1.0, 0.5, 1.0, 0.3],
+    ];
+
+    let t0 = Instant::now();
+    let batch = groundspring::bistable::integrate_batch(&ics, &params, 0.01, 5_000);
+    let us = t0.elapsed().as_micros();
+
+    h.check("Batch length matches", batch.len() == 3);
+    h.check(
+        "All states non-negative",
+        batch.iter().all(|s| s.iter().all(|&v| v >= 0.0)),
+    );
+
+    let single_low = groundspring::bistable::integrate(&ics[0], &params, 0.01, 5_000);
+    let tol = if cfg!(feature = "barracuda-gpu") {
+        0.1
+    } else {
+        f64::EPSILON
+    };
+    h.check(
+        "Batch[0] ≈ single integrate",
+        (batch[0][3] - single_low[3]).abs() < tol,
+    );
+
+    println!(
+        "  3 trajectories, c-di-GMP finals: [{:.3}, {:.3}, {:.3}], {us} µs",
+        batch[0][3], batch[1][3], batch[2][3]
+    );
+}
+
+fn validate_jackknife_gpu_parity(h: &mut Harness) {
+    println!("\n--- Jackknife GPU Parity (V66) ---\n");
+
+    let data: Vec<f64> = (0..200).map(|i| f64::from(i) * 0.005).collect();
+
+    let t0 = Instant::now();
+    let jk1 = groundspring::jackknife::jackknife_mean_variance(&data).unwrap();
+    let us = t0.elapsed().as_micros();
+
+    let jk2 = groundspring::jackknife::jackknife_mean_variance(&data).unwrap();
+
+    h.check("Jackknife estimate > 0", jk1.estimate > 0.0);
+    h.check("Jackknife variance > 0", jk1.variance > 0.0);
+    h.check("Jackknife std_error > 0", jk1.std_error > 0.0);
+    h.check(
+        "Jackknife deterministic (bitwise)",
+        jk1.estimate.to_bits() == jk2.estimate.to_bits(),
+    );
+
+    println!(
+        "  estimate={:.6}, variance={:.6}, std_error={:.6}, {us} µs",
+        jk1.estimate, jk1.variance, jk1.std_error
+    );
+}
+
+fn validate_fao56_batch_gpu_parity(h: &mut Harness) {
+    use groundspring::fao56::DailyWeatherInputs;
+    println!("\n--- FAO-56 Batch GPU Parity (V66) ---\n");
+
+    let inputs: Vec<DailyWeatherInputs> = vec![
+        DailyWeatherInputs {
+            tmax_c: 30.0,
+            tmin_c: 20.0,
+            rhmax_pct: 60.0,
+            rhmin_pct: 40.0,
+            wind_speed_10m_km_h: 7.2,
+            sunshine_hours: 8.0,
+            latitude_deg_n: 42.0,
+            altitude_m: 200.0,
+            day_of_year: 182,
+        },
+        DailyWeatherInputs {
+            tmax_c: 32.0,
+            tmin_c: 22.0,
+            rhmax_pct: 65.0,
+            rhmin_pct: 45.0,
+            wind_speed_10m_km_h: 5.4,
+            sunshine_hours: 9.0,
+            latitude_deg_n: 42.0,
+            altitude_m: 200.0,
+            day_of_year: 183,
+        },
+        DailyWeatherInputs {
+            tmax_c: 28.0,
+            tmin_c: 18.0,
+            rhmax_pct: 70.0,
+            rhmin_pct: 50.0,
+            wind_speed_10m_km_h: 10.8,
+            sunshine_hours: 7.0,
+            latitude_deg_n: 42.0,
+            altitude_m: 200.0,
+            day_of_year: 184,
+        },
+    ];
+
+    let t0 = Instant::now();
+    let et0_batch = groundspring::fao56::daily_et0_batch(&inputs);
+    let us = t0.elapsed().as_micros();
+
+    h.check("FAO-56 batch length", et0_batch.len() == 3);
+    h.check("FAO-56 batch all > 0", et0_batch.iter().all(|&v| v > 0.0));
+    h.check(
+        "FAO-56 batch all < 20 mm/day",
+        et0_batch.iter().all(|&v| v < 20.0),
+    );
+
+    let et0_single: Vec<f64> = inputs.iter().map(groundspring::fao56::daily_et0).collect();
+    h.check(
+        "FAO-56 batch matches singles",
+        et0_batch
+            .iter()
+            .zip(&et0_single)
+            .all(|(a, b)| a.to_bits() == b.to_bits()),
+    );
+
+    let et0_2 = groundspring::fao56::daily_et0_batch(&inputs);
+    h.check(
+        "FAO-56 batch deterministic",
+        et0_batch
+            .iter()
+            .zip(&et0_2)
+            .all(|(a, b)| a.to_bits() == b.to_bits()),
+    );
+
+    println!(
+        "  ET₀ = [{:.2}, {:.2}, {:.2}] mm/day, {us} µs",
+        et0_batch[0], et0_batch[1], et0_batch[2]
     );
 }
 

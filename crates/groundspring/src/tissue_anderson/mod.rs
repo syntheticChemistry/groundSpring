@@ -508,6 +508,115 @@ pub struct DualityPoint {
     pub context: &'static str,
 }
 
+/// Simulate tissue with spatially correlated disorder.
+///
+/// When `barracuda-gpu` is enabled, uses `anderson_3d_correlated` to generate
+/// disorder potentials with spatial correlation length `xi_corr`. This models
+/// cell-type clustering (e.g., Langerhans cell networks in epidermis) where
+/// neighboring sites share similar disorder. Falls back to uncorrelated
+/// `simulate_tissue` when GPU is unavailable.
+///
+/// `xi_corr` is the spatial correlation length in lattice units:
+/// - `xi_corr < 0.01`: uncorrelated (same as `simulate_tissue`)
+/// - `xi_corr ~ 1.0`: short-range clustering (typical tissue)
+/// - `xi_corr > 5.0`: long-range order (structured tissue layers)
+#[cfg(feature = "barracuda-gpu")]
+#[must_use]
+pub fn correlated_tissue_simulation(
+    compartments: &[TissueCompartment],
+    xi_corr: f64,
+    n_eigenvalues: usize,
+    base_seed: u64,
+) -> CorrelatedTissueResult {
+    let mut compartment_results = Vec::with_capacity(compartments.len());
+
+    for (ci, comp) in compartments.iter().enumerate() {
+        let l = comp.sites_per_dim;
+        let w_eff = effective_disorder(&comp.cell_composition) + comp.base_disorder;
+        let seed = base_seed + (ci as u64) * 10_000;
+
+        let csr = barracuda::spectral::anderson_3d_correlated(l, w_eff, xi_corr, seed);
+        let mut eigenvalues =
+            crate::lanczos::eigenvalues_from_csr(&csr, n_eigenvalues, seed.wrapping_add(1));
+
+        let r_ratio = if eigenvalues.len() >= 3 {
+            crate::almost_mathieu::level_spacing_ratio(&mut eigenvalues)
+        } else {
+            0.0
+        };
+
+        compartment_results.push(CorrelatedCompartmentResult {
+            layer: comp.layer,
+            d_eff: comp.d_eff,
+            w_eff,
+            xi_corr,
+            eigenvalues,
+            level_spacing_ratio: r_ratio,
+        });
+    }
+
+    CorrelatedTissueResult {
+        compartments: compartment_results,
+    }
+}
+
+/// Result from correlated tissue simulation.
+#[cfg(feature = "barracuda-gpu")]
+#[derive(Debug, Clone)]
+pub struct CorrelatedTissueResult {
+    /// Per-compartment results.
+    pub compartments: Vec<CorrelatedCompartmentResult>,
+}
+
+/// Per-compartment result from correlated tissue simulation.
+#[cfg(feature = "barracuda-gpu")]
+#[derive(Debug, Clone)]
+pub struct CorrelatedCompartmentResult {
+    /// Skin layer.
+    pub layer: SkinLayer,
+    /// Effective dimensionality.
+    pub d_eff: f64,
+    /// Effective disorder W.
+    pub w_eff: f64,
+    /// Spatial correlation length used.
+    pub xi_corr: f64,
+    /// Lowest eigenvalues from Lanczos.
+    pub eigenvalues: Vec<f64>,
+    /// Level spacing ratio (diagnostic: ~0.39 Poisson/localized, ~0.53 GOE/extended).
+    pub level_spacing_ratio: f64,
+}
+
+/// Find the critical disorder `W_c` for a tissue barrier transition.
+///
+/// Performs a disorder sweep over the specified range and uses barracuda's
+/// `find_w_c` interpolation to locate the transition point where the level
+/// spacing ratio crosses the midpoint between Poisson (localized, r ≈ 0.386)
+/// and GOE (extended, r ≈ 0.530).
+///
+/// Returns `None` if no transition is found in the sweep range.
+#[cfg(feature = "barracuda-gpu")]
+#[must_use]
+pub fn find_barrier_transition_w_c(
+    n_sites: usize,
+    w_min: f64,
+    w_max: f64,
+    n_points: usize,
+    n_realizations: usize,
+    base_seed: u64,
+) -> Option<f64> {
+    let sweep = barracuda::spectral::anderson_sweep_averaged(
+        n_sites,
+        w_min,
+        w_max,
+        n_points,
+        n_realizations,
+        base_seed,
+    );
+
+    let midpoint = 0.458;
+    barracuda::spectral::find_w_c(&sweep, midpoint)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
