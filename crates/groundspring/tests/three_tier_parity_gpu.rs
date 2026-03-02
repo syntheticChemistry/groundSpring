@@ -281,6 +281,10 @@ fn gpu_fao56_batch_matches_single() {
 
 // ── Dispatch target inventory sentinel ─────────────────────────────
 //
+// V68: +3 delegations (complete rewiring with modern ToadStool S86)
+//   CPU: +1 (lbfgs_refine_barracuda) — L-BFGS post-grid-search refinement
+//   GPU: +2 (tissue_4d_simulation, tissue_4d_rg_coarsen) — 4D Anderson + Wegner RG
+//
 // V67: +2 GPU delegations (ToadStool S80–S86 catch-up)
 //   GPU: +1 (monte_carlo_et0_gpu) — McEt0PropagateGpu (S72 absorption, wired V67)
 //   GPU: +1 (seasonal_step_gpu) — SeasonalPipelineF64 (S80 absorption, wired V67)
@@ -305,12 +309,12 @@ fn gpu_fao56_batch_matches_single() {
 
 #[test]
 fn dispatch_targets_at_least_32() {
-    let cpu_active = 43;
-    let gpu_active = 30;
+    let cpu_active = 44;
+    let gpu_active = 32;
     let evolution_candidates = 1;
     assert!(
-        cpu_active + gpu_active >= 73,
-        "minimum 73 active dispatch targets"
+        cpu_active + gpu_active >= 76,
+        "minimum 76 active dispatch targets"
     );
     assert_eq!(
         evolution_candidates, 1,
@@ -319,4 +323,4 @@ fn dispatch_targets_at_least_32() {
 }
 
 // metalForge workload count is tested in metalForge/forge/src/workloads.rs
-// (all_returns_twentyeight_workloads).
+// (all_returns_thirty_workloads).

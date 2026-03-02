@@ -3,13 +3,13 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 2, 2026 (V62: 73 active delegations (43 CPU + 30 GPU), 1 evolution candidate, `ToadStool` S86 `7e01ac7e` — V62: pollster eliminated (`tokio_block_on`), f64-capable device selection (`WgpuDevice::new_f64_capable`), DF64 precision strategy wired, 2 redundant shaders removed (absorbed into ToadStool), cross-spring shader lineage documented, SPDX harmonized (AGPL-3.0-only), 710 tests, 172 metalForge checks)
+**Last Updated**: March 2, 2026 (V68: 76 active delegations (44 CPU + 32 GPU), 1 evolution candidate, `ToadStool` S86 `7e01ac7e` — V68: L-BFGS post-grid-search refinement (airSpring V035 → S84), 4D Anderson + Wegner RG tissue modeling (hotSpring precision → S84), 30 metalForge workloads, 776 tests)
 
 ---
 
 ## Overview
 
-groundSpring has **73 active delegations** (43 CPU + 30 GPU) with **1 evolution candidate** (band_edges — algorithm mismatch).
+groundSpring has **76 active delegations** (44 CPU + 32 GPU) with **1 evolution candidate** (band_edges — algorithm mismatch).
 Those barracuda functions were not built in isolation — they were refined and
 battle-tested through absorption from **five Springs**, each bringing domain-specific
 requirements that hardened the shared library.
@@ -31,7 +31,8 @@ airSpring (agriculture)         → FAO-56 ET₀ (8 methods), Hargreaves, Van Ge
                                   Richards PDE (Crank-Nicolson + cyclic reduction), kriging
 groundSpring (noise validation) → jackknife, evolution (Kimura fixation, quasispecies),
                                   diversity (Chao1, detection power), hydrology (fao56_et0),
-                                  grid search/fit ops, batched multinomial, MC ET₀ propagation
+                                  grid search/fit ops, batched multinomial, MC ET₀ propagation,
+                                  L-BFGS refinement, 4D Anderson tissue + Wegner RG
                                   ↓
                           BarraCUDA S86 (ToadStool 7e01ac7e)
                     14,200+ tests, 844 WGSL shaders (f64-canonical, DF64 universal precision, 15 transcendentals)
@@ -165,6 +166,60 @@ same need independently**:
 | **spectral analysis** | hotSpring + neuralSpring + groundSpring | Physics + ML + localization perspectives |
 | **PRNG** | neuralSpring + wetSpring + groundSpring | GPU xoshiro128** shared across stochastic workloads |
 | **validation patterns** | All five Springs | `ValidationHarness`, tolerance docs, struct extraction |
+| **optimization** | airSpring + groundSpring (V68) | Brent root-finding + L-BFGS refined from hydrology to physics |
+| **4D spectral theory** | hotSpring + groundSpring (V68) | Nuclear Anderson → tissue immunology (dimension promotion) |
+
+---
+
+## V68 Cross-Spring Evolution Highlights
+
+V68 demonstrates the deepest cross-spring convergence yet — shaders and
+algorithms that evolved in one domain directly accelerating a different one.
+
+### hotSpring Precision Shaders → groundSpring Tissue 4D
+
+hotSpring's condensed matter work (Anderson localization, Wegner RG) evolved
+the spectral module through increasingly sophisticated lattice constructions:
+`anderson_1d` (S26) → `anderson_2d` / `anderson_3d` (S26) →
+`anderson_3d_correlated` (S59) → **`anderson_4d` + `wegner_block_4d` (S84)**.
+
+groundSpring absorbs the 4D variants for tissue immunology (Paper 12): the
+fourth dimension represents an immune response gradient (cytokine concentration
+over time). The Wegner block RG coarsening reveals how disorder flows under
+cell-cluster coarse-graining — whether cytokine signaling localizes or
+propagates depends on the effective dimensionality at the cluster scale.
+
+**The same physics**: hotSpring asks "does an electron propagate through a
+disordered 4D lattice?" and groundSpring asks "does a cytokine signal
+propagate through a 4D tissue structure?" — identical mathematics, different
+domains, shared barracuda implementation.
+
+### airSpring Optimizer → groundSpring Freeze-Out Refinement
+
+airSpring's parameter fitting for FAO-56 ET₀ models evolved L-BFGS into
+barracuda (S84). groundSpring absorbs `lbfgs_numerical` to refine the coarse
+grid search in QCD freeze-out curve fitting (Bazavov et al.): the grid search
+finds the basin, L-BFGS converges to sub-grid precision.
+
+**Cross-domain transfer**: agricultural sensor calibration → nuclear physics
+parameter estimation. The optimizer doesn't care about the domain; it only sees
+an objective function and its numerical gradient.
+
+### wetSpring Bio Shaders ↔ neuralSpring
+
+wetSpring's biodiversity primitives (Shannon, Simpson, Bray-Curtis) and
+stochastic shaders (`BatchedMultinomialGpu`, `GillespieGpu`) were hardened by
+neuralSpring's metalForge evolutionary computation. The hardened versions serve
+groundSpring's rare biosphere and rarefaction experiments, and also flow back
+to neuralSpring for fitness landscape analysis.
+
+neuralSpring's ML shaders (matmul, softmax, ESN) flow into wetSpring for
+functional annotation and metabolomics classification, and into groundSpring
+via the `nautilus` feature gate for concept edge detection.
+
+**Bidirectional flow**: unlike the one-way hotSpring → all pattern, bio and ML
+shaders evolve in a cycle where wetSpring (domain biology) and neuralSpring
+(domain ML) each improve the other's foundations.
 
 ---
 
@@ -212,6 +267,11 @@ Each of groundSpring's 61 active delegations has a traceable cross-spring histor
 | 36 | `soil_water_balance` | `stats::hydrology::soil_water_balance` | airSpring precision agriculture → `ToadStool` S70+ | V55 — Daily θ update with P+I−ET_c clamped to FC |
 | 37 | `hargreaves_et0_batch` (GPU) | `BatchedElementwiseF64::execute(Op::HargreavesEt0)` | airSpring V035 → `ToadStool` S70+ | V55 — GPU batch Hargreaves via barracuda-gpu |
 | 38 | `find_band_edges` (Brent refine) | `optimize::brent` | airSpring V035 (Richards PDE) → `ToadStool` S70+ | V55 — Brent root-finder refines coarse band edges to 1e-12 precision |
+| 39 | `monte_carlo_et0` (GPU) | `McEt0PropagateGpu` | airSpring V010 (ET₀ uncertainty) → `ToadStool` S72 | V67 — MC ET₀ uncertainty propagation on GPU with CPU fallback |
+| 40 | `seasonal_step` (GPU) | `SeasonalPipelineF64` | airSpring fused pipeline → `ToadStool` S80 | V67 — Fused ET₀ → Kc → water balance → stress on GPU |
+| 41 | `grid_fit_2d` (L-BFGS refine) | `optimize::lbfgs_numerical` | airSpring V035 param fit → `ToadStool` S84 | V68 — Post-grid-search gradient refinement (sub-grid precision) |
+| 42 | `tissue_4d_simulation` | `spectral::anderson::anderson_4d` | hotSpring S26 spectral → `ToadStool` S84 | V68 — 4D Anderson lattice for spatio-temporal tissue disorder |
+| 43 | `tissue_4d_rg_coarsen` | `spectral::anderson::wegner_block_4d` | hotSpring condensed matter → `ToadStool` S84 | V68 — 4D Wegner RG coarsening reveals disorder flow at tissue cluster scale |
 
 ---
 
@@ -481,6 +541,8 @@ The 844 barracuda WGSL shaders that groundSpring's delegations ultimately depend
 | Mar 1 | **groundSpring V59** | **ToadStool S71+++ catch-up**: jackknife promoted to GPU (`JackknifeMeanGpu` + `jackknife_mean_f64.wgsl`), Hargreaves batch GPU evolved (`HargreavesBatchGpu` + `hargreaves_batch_f64.wgsl`), ToadStool pin advanced 6 commits (S70+++→S71+++), 671 WGSL shaders, ComputeDispatch builder (66 ops), DF64 transcendental suite complete (15 functions), ~9K lines stale code archived upstream, 61 delegations (37 CPU + 20 GPU + 4 xspring) |
 | Mar 1 | **groundSpring V60** | **hotSpring cross-spring absorption**: `DriftMonitor` (`N_e`·`s` tracking from Nautilus Shell), `ClassificationUncertainty` (multi-head ESN disagreement from hotSpring), `detect_concept_edges` (LOO cross-validation from Nautilus Brain), `nautilus` feature gate (`bingocube-nautilus` optional dep), 620 tests (+7), 4 new native functions, 10 new tests |
 | Mar 2 | **groundSpring V62** | **ToadStool S79 catch-up**: pollster eliminated (`tokio_block_on`), f64-capable device selection (`WgpuDevice::new_f64_capable` with fallback), DF64 precision strategy wired, 2 redundant shaders removed (absorbed into ToadStool), SPDX harmonized (AGPL-3.0-only), cross-spring shader lineage documented. 710 tests, 23/23 cross-spring benchmark, 39/39 GPU tier, 13/13 Titan V + RTX 4070 validation |
+| Mar 2 | **groundSpring V67** | **ToadStool S86 catch-up**: `McEt0PropagateGpu` + `SeasonalPipelineF64` GPU wirings, `BatchedMultinomialGpu::sample` API break fix (3 sites), 73 delegations (43 CPU + 30 GPU), 28 metalForge workloads, 776 tests |
+| Mar 2 | **groundSpring V68** | **Complete rewiring + cross-spring benchmark**: L-BFGS refinement (airSpring V035 → S84 → freeze_out), 4D Anderson + Wegner RG (hotSpring precision → S84 → tissue_anderson), 76 delegations (44 CPU + 32 GPU), 30 metalForge workloads. Cross-spring lineage: hotSpring precision shaders enable tissue 4D; airSpring optimizer enables freeze-out sub-grid refinement; wetSpring bio + neuralSpring infra form foundation for all stochastic GPU dispatch |
 
 ---
 
@@ -554,11 +616,10 @@ correctly in production.
 
 | Tier | Count | Notes |
 |------|-------|-------|
-| CPU active | 37 | S79 canonical count (jackknife promoted to GPU) |
-| GPU active | 20 | includes GPU grid adapters, batch APIs, stats dispatch, JackknifeMeanGpu, HargreavesBatchGpu |
-| Cross-spring | 4 | disorder_sweep, anderson_2d, anderson_3d, chi2_analysis |
+| CPU active | 44 | S86 canonical (V68: +lbfgs_refine_barracuda) |
+| GPU active | 32 | includes 4D Anderson, Wegner RG, McEt0, seasonal pipeline, JackknifeMeanGpu, HargreavesBatchGpu |
 | Evolution candidates | 1 | band_edges (algorithm mismatch) |
-| **Total active** | **61** | 101 three-tier parity tests |
+| **Total active** | **76** | 776 tests |
 
 ### NUCLEUS Integration (V63)
 

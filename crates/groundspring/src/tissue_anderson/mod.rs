@@ -586,6 +586,118 @@ pub struct CorrelatedCompartmentResult {
     pub level_spacing_ratio: f64,
 }
 
+/// 4D Anderson tissue simulation for spatio-temporal disorder modeling.
+///
+/// Constructs a 4D lattice where the first three dimensions represent tissue
+/// space (x, y, z) and the fourth represents an immune response gradient
+/// (e.g., cytokine concentration over time). Uses `barracuda::spectral::anderson_4d`
+/// (absorbed `ToadStool` S84) to build the Hamiltonian, then Lanczos for eigenvalues.
+///
+/// Cross-spring lineage: hotSpring precision shaders (DF64 Lanczos) →
+/// `ToadStool` S84 `anderson_4d` → groundSpring 4D tissue disorder.
+#[cfg(feature = "barracuda-gpu")]
+#[must_use]
+pub fn tissue_4d_simulation(
+    l: usize,
+    disorder: f64,
+    n_eigenvalues: usize,
+    seed: u64,
+) -> Tissue4dResult {
+    let csr = barracuda::spectral::anderson::anderson_4d(l, disorder, seed);
+    let mut eigenvalues =
+        crate::lanczos::eigenvalues_from_csr(&csr, n_eigenvalues, seed.wrapping_add(1));
+
+    let r_ratio = if eigenvalues.len() >= 3 {
+        crate::almost_mathieu::level_spacing_ratio(&mut eigenvalues)
+    } else {
+        0.0
+    };
+
+    Tissue4dResult {
+        l,
+        disorder,
+        dimension: 4,
+        n_sites: l.pow(4),
+        eigenvalues,
+        level_spacing_ratio: r_ratio,
+    }
+}
+
+/// 4D Wegner block renormalization group coarsening for tissue modeling.
+///
+/// Applies Wegner's real-space RG to the 4D Anderson Hamiltonian, coarsening
+/// the lattice by a factor of 2 in each dimension. This reveals how disorder
+/// flows under coarse-graining — critical for tissue models where the relevant
+/// length scale spans cell clusters rather than individual cells.
+///
+/// Cross-spring lineage: hotSpring precision + condensed matter →
+/// `ToadStool` S84 `wegner_block_4d` → groundSpring tissue RG.
+#[cfg(feature = "barracuda-gpu")]
+#[must_use]
+pub fn tissue_4d_rg_coarsen(
+    l: usize,
+    disorder: f64,
+    n_eigenvalues: usize,
+    seed: u64,
+) -> (Tissue4dResult, Tissue4dResult) {
+    let csr_fine = barracuda::spectral::anderson::anderson_4d(l, disorder, seed);
+    let csr_coarse = barracuda::spectral::anderson::wegner_block_4d(&csr_fine, l);
+    let l_coarse = l / 2;
+
+    let mut eig_fine =
+        crate::lanczos::eigenvalues_from_csr(&csr_fine, n_eigenvalues, seed.wrapping_add(1));
+    let mut eig_coarse =
+        crate::lanczos::eigenvalues_from_csr(&csr_coarse, n_eigenvalues, seed.wrapping_add(2));
+
+    let r_fine = if eig_fine.len() >= 3 {
+        crate::almost_mathieu::level_spacing_ratio(&mut eig_fine)
+    } else {
+        0.0
+    };
+    let r_coarse = if eig_coarse.len() >= 3 {
+        crate::almost_mathieu::level_spacing_ratio(&mut eig_coarse)
+    } else {
+        0.0
+    };
+
+    let fine = Tissue4dResult {
+        l,
+        disorder,
+        dimension: 4,
+        n_sites: l.pow(4),
+        eigenvalues: eig_fine,
+        level_spacing_ratio: r_fine,
+    };
+    let coarse = Tissue4dResult {
+        l: l_coarse,
+        disorder,
+        dimension: 4,
+        n_sites: l_coarse.pow(4),
+        eigenvalues: eig_coarse,
+        level_spacing_ratio: r_coarse,
+    };
+
+    (fine, coarse)
+}
+
+/// Result from 4D Anderson tissue simulation.
+#[cfg(feature = "barracuda-gpu")]
+#[derive(Debug, Clone)]
+pub struct Tissue4dResult {
+    /// Linear lattice size in each dimension.
+    pub l: usize,
+    /// Disorder strength W.
+    pub disorder: f64,
+    /// Spatial dimension (always 4).
+    pub dimension: u8,
+    /// Total number of lattice sites (l^4).
+    pub n_sites: usize,
+    /// Lowest eigenvalues from Lanczos.
+    pub eigenvalues: Vec<f64>,
+    /// Level spacing ratio (diagnostic: ~0.39 Poisson/localized, ~0.53 GOE/extended).
+    pub level_spacing_ratio: f64,
+}
+
 /// Find the critical disorder `W_c` for a tissue barrier transition.
 ///
 /// Performs a disorder sweep over the specified range and uses barracuda's

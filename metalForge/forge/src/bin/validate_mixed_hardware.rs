@@ -407,8 +407,8 @@ fn validate_tolerances(h: &mut Harness) {
             < ToleranceTier::Quantized.relative_tolerance(),
     );
     h.check(
-        "28 workload tolerances defined",
-        groundspring_forge::tolerance::all_tolerances().len() == 28,
+        "30 workload tolerances defined",
+        groundspring_forge::tolerance::all_tolerances().len() == 30,
     );
 }
 

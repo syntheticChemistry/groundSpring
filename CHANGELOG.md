@@ -4,6 +4,31 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V68 Complete Rewiring — L-BFGS Refinement, 4D Anderson, Cross-Spring Benchmark (Mar 2, 2026)
+
+#### Added
+- **freeze_out::grid_fit_2d L-BFGS refinement**: Post-grid-search gradient-based
+  refinement via `barracuda::optimize::lbfgs_numerical` (airSpring V035 → ToadStool S84).
+  Grid search finds basin, L-BFGS converges to sub-grid precision.
+- **tissue_anderson::tissue_4d_simulation**: 4D Anderson lattice construction via
+  `barracuda::spectral::anderson::anderson_4d` (hotSpring S26 → ToadStool S84).
+  Fourth dimension models immune response gradient for Paper 12 tissue immunology.
+- **tissue_anderson::tissue_4d_rg_coarsen**: Wegner block RG coarsening of 4D
+  Anderson Hamiltonian via `barracuda::spectral::anderson::wegner_block_4d`
+  (hotSpring condensed matter → ToadStool S84). Reveals disorder flow at
+  cell-cluster scale.
+- **metalForge workloads**: 2 new (L-BFGS grid refine CPU, Tissue Anderson 4D +
+  Wegner RG). Total: 30 workloads.
+- **metalForge tolerances**: 2 new (Analytical for L-BFGS, Exact for 4D lattice).
+  Total: 30 tolerance specs.
+- **Cross-spring evolution benchmark** (wateringHole/CROSS_SPRING_SHADER_EVOLUTION):
+  V68 section documenting hotSpring→tissue 4D, airSpring→freeze-out L-BFGS,
+  wetSpring↔neuralSpring bidirectional flow.
+
+#### Changed
+- **Dispatch target count**: 44 CPU + 32 GPU = 76 active delegations (was 73).
+- All documentation updated with V68 canonical numbers.
+
 ### V67 ToadStool S86 Catch-Up — McEt0 GPU, Seasonal Pipeline, API Rewire (Mar 2, 2026)
 
 #### Added

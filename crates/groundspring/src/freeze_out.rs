@@ -15,6 +15,9 @@
 //! [`grid_fit_2d`] is embarrassingly parallel — each (T₀, κ₂) grid
 //! point evaluates independently. GPU promotion via `barracuda-gpu`
 //! dispatches as a 2D workgroup with per-point chi-squared reduction.
+//! When `barracuda` is enabled, the grid-search result is refined via
+//! `barracuda::optimize::lbfgs_numerical` (L-BFGS with numerical gradient,
+//! absorbed from airSpring V035 → `ToadStool` S84).
 //! [`chi_squared`] and [`freeze_out_curve`] stay local (scalar ops).
 
 use crate::cast::usize_f64;
@@ -99,10 +102,73 @@ pub fn grid_fit_2d(config: &GridFitConfig<'_>) -> Result<GridFitResult, crate::e
     #[cfg(feature = "barracuda-gpu")]
     {
         if let Some(result) = grid_fit_2d_gpu(config) {
-            return Ok(result);
+            return Ok(lbfgs_refine(config, result));
         }
     }
-    Ok(grid_fit_2d_cpu(config))
+    let coarse = grid_fit_2d_cpu(config);
+    Ok(lbfgs_refine(config, coarse))
+}
+
+/// Refine grid-search result via L-BFGS with numerical gradient.
+///
+/// Cross-spring lineage: airSpring V035 parameter fitting →
+/// `ToadStool` S84 `barracuda::optimize::lbfgs_numerical` →
+/// groundSpring freeze-out refinement.
+fn lbfgs_refine(config: &GridFitConfig<'_>, coarse: GridFitResult) -> GridFitResult {
+    #[cfg(feature = "barracuda")]
+    {
+        if let Some(refined) = lbfgs_refine_barracuda(config, &coarse) {
+            return refined;
+        }
+    }
+    coarse
+}
+
+#[cfg(feature = "barracuda")]
+fn lbfgs_refine_barracuda(
+    config: &GridFitConfig<'_>,
+    coarse: &GridFitResult,
+) -> Option<GridFitResult> {
+    use barracuda::optimize::{lbfgs_numerical, LbfgsConfig};
+
+    let n_data = config.observed.len();
+    let inv_sigma2 = 1.0 / (config.sigma * config.sigma);
+    let observed = config.observed;
+    let mu_b = config.mu_b;
+
+    let objective = |x: &[f64]| -> f64 {
+        let t0 = x[0];
+        let k2 = x[1];
+        observed
+            .iter()
+            .zip(mu_b.iter())
+            .map(|(&o, &mu)| (o - freeze_out_curve(t0, k2, mu)).powi(2) * inv_sigma2)
+            .sum()
+    };
+
+    let lbfgs_config = LbfgsConfig {
+        memory: 5,
+        max_iter: 200,
+        gtol: 1e-12,
+        ftol: 1e-15,
+        c1: 1e-4,
+        c2: 0.9,
+        max_linesearch: 40,
+    };
+
+    let x0 = [coarse.t0, coarse.kappa2];
+    let result = lbfgs_numerical(objective, &x0, &lbfgs_config).ok()?;
+
+    if result.f_val < coarse.chi_squared {
+        Some(GridFitResult {
+            t0: result.x[0],
+            kappa2: result.x[1],
+            chi_squared: result.f_val,
+            chi2_per_dof: chi_squared_per_dof(result.f_val, n_data, 2),
+        })
+    } else {
+        None
+    }
 }
 
 /// GPU-accelerated freeze-out grid fit: pre-evaluate chi-squared on CPU,

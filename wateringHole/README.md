@@ -9,6 +9,7 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
+| V68 | [GROUNDSPRING_TOADSTOOL_V68_COMPLETE_REWIRING_HANDOFF_MAR02_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V68_COMPLETE_REWIRING_HANDOFF_MAR02_2026.md) | Mar 2, 2026 | Complete rewiring: L-BFGS refinement, 4D Anderson + Wegner RG, cross-spring benchmark, 76 delegations (44 CPU + 32 GPU), 30 metalForge workloads |
 | V67 | [GROUNDSPRING_TOADSTOOL_V67_S86_CATCHUP_HANDOFF_MAR02_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V67_S86_CATCHUP_HANDOFF_MAR02_2026.md) | Mar 2, 2026 | ToadStool S86 catch-up: McEt0PropagateGpu, SeasonalPipelineF64, BatchedMultinomialConfig API fix, 73 delegations (43 CPU + 30 GPU), 28 metalForge workloads |
 
 ## Cross-Spring Documentation

@@ -284,6 +284,27 @@ pub fn seasonal_pipeline_gpu() -> Workload {
     )
 }
 
+/// L-BFGS refinement after grid search (V68).
+///
+/// CPU: `barracuda::optimize::lbfgs_numerical` — gradient-free L-BFGS.
+/// Cross-spring lineage: airSpring V035 → `ToadStool` S84.
+#[must_use]
+pub fn lbfgs_grid_refine() -> Workload {
+    Workload::new("L-BFGS grid refine (CPU)", vec![Capability::F64Compute])
+}
+
+/// 4D Anderson tissue lattice + Wegner RG coarsening (V68).
+///
+/// GPU: `barracuda::spectral::anderson::anderson_4d` + `wegner_block_4d`.
+/// Cross-spring lineage: hotSpring precision → `ToadStool` S84.
+#[must_use]
+pub fn tissue_anderson_4d() -> Workload {
+    Workload::new(
+        "Tissue Anderson 4D + Wegner RG",
+        vec![Capability::F64Compute, Capability::ShaderDispatch],
+    )
+}
+
 /// Return all groundSpring workloads for dispatch.
 #[must_use]
 pub fn all() -> Vec<Workload> {
@@ -316,6 +337,8 @@ pub fn all() -> Vec<Workload> {
         bistable_batch_gpu(),
         mc_et0_propagation_gpu(),
         seasonal_pipeline_gpu(),
+        lbfgs_grid_refine(),
+        tissue_anderson_4d(),
     ]
 }
 
@@ -458,9 +481,9 @@ mod tests {
     }
 
     #[test]
-    fn all_returns_twentyeight_workloads() {
+    fn all_returns_thirty_workloads() {
         let workloads = all();
-        assert_eq!(workloads.len(), 28);
+        assert_eq!(workloads.len(), 30);
     }
 
     #[test]

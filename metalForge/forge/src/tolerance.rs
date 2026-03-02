@@ -172,7 +172,7 @@ pub fn summarize(cpu: &[f64], gpu: &[f64], tier: ToleranceTier) -> ComparisonSum
     }
 }
 
-/// All 28 workload tolerance specifications.
+/// All 30 workload tolerance specifications.
 #[must_use]
 #[expect(
     clippy::too_many_lines,
@@ -320,6 +320,16 @@ pub fn all_tolerances() -> Vec<WorkloadTolerance> {
             tier: ToleranceTier::Analytical,
             justification: "fused ET₀ → Kc → water balance chain — transcendental accumulation",
         },
+        WorkloadTolerance {
+            workload: "L-BFGS grid refine (CPU)",
+            tier: ToleranceTier::Analytical,
+            justification: "numerical gradient + line search — small accumulated FP error",
+        },
+        WorkloadTolerance {
+            workload: "Tissue Anderson 4D + Wegner RG",
+            tier: ToleranceTier::Exact,
+            justification: "deterministic 4D lattice construction + RG coarsening with fixed seed",
+        },
     ]
 }
 
@@ -399,9 +409,9 @@ mod tests {
     }
 
     #[test]
-    fn all_tolerances_covers_twentyeight_workloads() {
+    fn all_tolerances_covers_thirty_workloads() {
         let tols = all_tolerances();
-        assert_eq!(tols.len(), 28);
+        assert_eq!(tols.len(), 30);
     }
 
     #[test]
