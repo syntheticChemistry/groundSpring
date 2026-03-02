@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: AGPL-3.0-only
 # Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 [package]
@@ -15,18 +15,22 @@ workspace = true
 [features]
 default = []
 barracuda = ["dep:barracuda"]
-barracuda-gpu = ["barracuda", "barracuda/gpu", "dep:pollster", "dep:wgpu", "dep:bytemuck"]
+barracuda-gpu = ["barracuda", "barracuda/gpu", "dep:wgpu", "dep:bytemuck"]
 nautilus = ["dep:bingocube-nautilus"]
-biomeos = []
+biomeos = ["dep:serde_json"]
 npu = ["dep:akida-driver"]
+tarpc-ipc = ["dep:tarpc", "dep:tokio", "dep:serde"]
 
 [dependencies]
 barracuda = { path = "../../../phase1/toadstool/crates/barracuda", optional = true, default-features = false }
 bingocube-nautilus = { path = "../../../primalTools/bingoCube/nautilus", optional = true }
 akida-driver = { path = "../../../phase1/toadstool/crates/neuromorphic/akida-driver", optional = true }
-pollster = { version = "0.4", optional = true }
 wgpu = { version = "22", optional = true, default-features = false, features = ["wgsl", "vulkan-portability"] }
 bytemuck = { version = "1", optional = true, features = ["derive"] }
+serde_json = { version = "1", optional = true }
+serde = { version = "1", optional = true, features = ["derive"] }
+tarpc = { version = "0.35", optional = true, features = ["serde-transport", "tokio1"] }
+tokio = { version = "1", optional = true, features = ["rt", "net"] }
 
 [dev-dependencies]
 proptest = "1"

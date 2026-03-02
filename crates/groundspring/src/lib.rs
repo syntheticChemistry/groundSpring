@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! # groundSpring
@@ -33,6 +33,7 @@
 //! - [`esn`] — Echo State Network regime classifier (cross-spring: hotSpring ESN)
 //! - [`multisignal`] — Multi-signal QS integration (CAI-1 + AI-2)
 //! - [`quasispecies`] — Eigen quasispecies model and error threshold
+//! - [`tissue_anderson`] — Anderson localization in tissue geometry (Paper 12 immunological)
 //! - [`transport`] — Wavepacket transport in tight-binding chains
 //! - [`wdm`] — Warm Dense Matter transport analysis (Green-Kubo, finite-size extrapolation)
 //! - `lanczos` — Lanczos eigensolver for large sparse systems (behind `barracuda-gpu`)
@@ -71,6 +72,7 @@ pub mod rarefaction;
 pub mod seismic;
 pub mod spectral_recon;
 pub mod stats;
+pub mod tissue_anderson;
 pub mod transport;
 pub mod validate;
 pub mod wdm;
@@ -84,7 +86,13 @@ pub(crate) mod gpu;
 /// Returns `true` when the `barracuda-gpu` feature is enabled *and* a GPU device
 /// is available at runtime. Always returns `false` when compiled without
 /// `barracuda-gpu`.
-#[allow(clippy::missing_const_for_fn)] // const only in non-GPU builds; runtime probe with barracuda-gpu
+#[cfg_attr(
+    not(feature = "barracuda-gpu"),
+    expect(
+        clippy::missing_const_for_fn,
+        reason = "const only in non-GPU builds; runtime probe with barracuda-gpu"
+    )
+)]
 #[must_use]
 pub fn gpu_available() -> bool {
     #[cfg(feature = "barracuda-gpu")]
@@ -105,6 +113,9 @@ pub mod nestgate;
 
 #[cfg(feature = "npu")]
 pub mod npu;
+
+#[cfg(feature = "tarpc-ipc")]
+pub mod ipc;
 
 /// Re-export of the Nautilus Shell evolutionary reservoir computing crate.
 ///

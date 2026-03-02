@@ -1,0 +1,641 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 ecoPrimals / Squirrel Team
+
+//! Anderson localization in tissue geometry (Paper 12, Exp 033–034).
+//!
+//! Extends the 1D Anderson framework from microbial quorum sensing
+//! (Papers 01, 05, 06) to immunological cytokine signaling in skin tissue.
+//!
+//! # Tissue as Anderson lattice
+//!
+//! | Anderson QS (Paper 01)     | Immunological Extension           |
+//! |---------------------------|-----------------------------------|
+//! | Lattice site              | Cell position in tissue           |
+//! | On-site energy `ε_i`     | Cell type identity (keratinocyte, Th2, neuron) |
+//! | Hopping parameter `t`    | Cytokine diffusion coefficient    |
+//! | Disorder `W`             | Cell-type heterogeneity (Pielou evenness) |
+//! | Dimension `d`            | Tissue geometry (`d=2` epidermis, `d=3` dermis) |
+//! | Level spacing ratio `r`  | Diagnostic: signal extended vs localized |
+//!
+//! # Dimensional promotion–collapse duality
+//!
+//! Paper 06 (no-till): tillage → dimensional COLLAPSE (3D → 2D) → bad.
+//! Paper 12 (AD): scratching → dimensional PROMOTION (2D → 3D) → bad.
+//! Same physics, opposite direction, context-dependent outcome.
+//!
+//! # Exp 033: Cytokine Anderson lattice
+//!
+//! Multi-layer skin model: quasi-2D epidermis (thin slab) coupled to
+//! 3D dermis (full lattice). Barrier disruption opens channels between
+//! compartments, changing `d_eff` and enabling signal delocalization.
+//!
+//! # Exp 034: Geometry-aware drug scoring
+//!
+//! Anderson-augmented drug repurposing score: `Score(drug, tissue) =
+//! pathway_score × geometry_factor`. The geometry factor quantifies
+//! whether the drug can physically reach its target through tissue
+//! Anderson geometry.
+
+mod drug_scoring;
+
+pub use drug_scoring::{
+    ad_drug_panel, geometry_drug_score, score_drug_panel, DeliveryRoute, DrugCandidate, DrugScore,
+    TissueState,
+};
+
+use crate::anderson::lyapunov_exponent;
+use crate::cast::usize_f64;
+use crate::prng::Xorshift64;
+
+/// Skin compartment in the tissue Anderson lattice.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum SkinLayer {
+    /// Stratum corneum: acellular barrier (~10-20 µm). No signal propagation.
+    StratumCorneum,
+    /// Viable epidermis: quasi-2D (4-8 cell layers, ~50-100 µm).
+    /// Signals localize under normal conditions.
+    Epidermis,
+    /// Papillary dermis: full 3D matrix (~100-200 µm). Fibroblasts,
+    /// Th2, mast cells, nerve endings. Signals propagate when produced.
+    Dermis,
+}
+
+/// Cell type identity contributing to disorder `W`.
+///
+/// Each cell type has a characteristic on-site energy that contributes
+/// to the effective disorder in that tissue compartment.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CellType {
+    /// Keratinocyte (epidermis, low immune activity). On-site energy ≈ 0.
+    Keratinocyte,
+    /// Langerhans cell (epidermis, antigen presentation). Moderate disorder.
+    LangerhansCell,
+    /// Th2 lymphocyte (dermis, cytokine producer). High disorder.
+    Th2Cell,
+    /// Mast cell (dermis, histamine + cytokines). High disorder.
+    MastCell,
+    /// Sensory neuron ending (dermis, itch receptor). Moderate disorder.
+    Neuron,
+    /// Eosinophil (dermis, inflammation amplifier). High disorder.
+    Eosinophil,
+    /// Fibroblast (dermis, structural). Low disorder.
+    Fibroblast,
+}
+
+impl CellType {
+    /// Characteristic on-site energy for this cell type.
+    ///
+    /// Higher values represent greater immune activation and cytokine
+    /// production capacity, contributing more to effective disorder W.
+    #[must_use]
+    pub const fn on_site_energy(self) -> f64 {
+        match self {
+            Self::Keratinocyte => 0.1,
+            Self::LangerhansCell => 0.5,
+            Self::Th2Cell => 1.2,
+            Self::MastCell => 1.0,
+            Self::Neuron => 0.4,
+            Self::Eosinophil => 0.9,
+            Self::Fibroblast => 0.15,
+        }
+    }
+}
+
+/// Configuration for a tissue compartment in the Anderson lattice.
+#[derive(Debug, Clone)]
+pub struct TissueCompartment {
+    /// Skin layer type.
+    pub layer: SkinLayer,
+    /// Number of lattice sites along each spatial dimension.
+    pub sites_per_dim: usize,
+    /// Effective dimensionality (2.0 for epidermis, 3.0 for dermis).
+    pub d_eff: f64,
+    /// Base disorder from cell-type heterogeneity (Pielou evenness).
+    pub base_disorder: f64,
+    /// Cell type composition (fractions summing to 1.0).
+    pub cell_composition: Vec<(CellType, f64)>,
+}
+
+/// Result of a tissue Anderson lattice simulation.
+#[derive(Debug, Clone)]
+pub struct TissueResult {
+    /// Lyapunov exponent γ for each compartment.
+    pub gamma_per_compartment: Vec<f64>,
+    /// Localization length ξ = 1/γ for each compartment.
+    pub xi_per_compartment: Vec<f64>,
+    /// Effective disorder W for each compartment.
+    pub w_per_compartment: Vec<f64>,
+    /// Whether cytokines propagate (extended) in each compartment.
+    pub signal_extended: Vec<bool>,
+    /// Whether cytokines can cross the barrier between compartments.
+    pub barrier_breached: bool,
+    /// Effective dimensionality of the combined system.
+    pub d_eff_system: f64,
+}
+
+/// Compute effective disorder W from cell-type composition.
+///
+/// The disorder strength is the weighted standard deviation of on-site
+/// energies across cell types, scaled by a heterogeneity factor.
+/// Higher cell-type diversity → higher W → more signal scattering.
+#[must_use]
+pub fn effective_disorder(composition: &[(CellType, f64)]) -> f64 {
+    if composition.is_empty() {
+        return 0.0;
+    }
+
+    let mean_energy: f64 = composition
+        .iter()
+        .map(|&(ct, frac)| ct.on_site_energy() * frac)
+        .sum();
+
+    let variance: f64 = composition
+        .iter()
+        .map(|&(ct, frac)| {
+            let dev = ct.on_site_energy() - mean_energy;
+            frac * dev * dev
+        })
+        .sum();
+
+    variance.sqrt() * 6.0
+}
+
+/// Compute Pielou evenness J' from cell-type composition.
+///
+/// J' = H' / ln(S) where H' is Shannon entropy and S is species richness.
+/// Perfect evenness (J'=1) means maximum disorder; low evenness means
+/// one cell type dominates (lower effective W).
+#[must_use]
+pub fn pielou_evenness(composition: &[(CellType, f64)]) -> f64 {
+    let s = composition.iter().filter(|&&(_, f)| f > 0.0).count();
+    if s <= 1 {
+        return 0.0;
+    }
+    let h: f64 = composition
+        .iter()
+        .filter(|&&(_, f)| f > 0.0)
+        .map(|&(_, f)| -f * f.ln())
+        .sum();
+    h / usize_f64(s).ln()
+}
+
+/// Generate a tissue-specific Anderson potential.
+///
+/// On-site energies are drawn from a mixture distribution where each
+/// cell type contributes its characteristic energy with random perturbation.
+/// The perturbation magnitude is scaled by the compartment's base disorder.
+#[must_use]
+pub fn tissue_potential(n_sites: usize, compartment: &TissueCompartment, seed: u64) -> Vec<f64> {
+    let mut rng = Xorshift64::new(seed);
+    let w = compartment.base_disorder;
+    let half_w = w / 2.0;
+
+    (0..n_sites)
+        .map(|_| {
+            let u = rng.next_f64();
+            let cell = select_cell_type(&compartment.cell_composition, u);
+            let perturbation = rng.next_f64().mul_add(w, -half_w);
+            cell.on_site_energy() + perturbation
+        })
+        .collect()
+}
+
+/// Select a cell type from composition fractions using a uniform random value.
+fn select_cell_type(composition: &[(CellType, f64)], u: f64) -> CellType {
+    let mut cumulative = 0.0;
+    for &(ct, frac) in composition {
+        cumulative += frac;
+        if u < cumulative {
+            return ct;
+        }
+    }
+    composition
+        .last()
+        .map_or(CellType::Keratinocyte, |&(ct, _)| ct)
+}
+
+/// Healthy epidermis composition (low disorder, quasi-2D).
+#[must_use]
+pub fn healthy_epidermis() -> TissueCompartment {
+    TissueCompartment {
+        layer: SkinLayer::Epidermis,
+        sites_per_dim: 50,
+        d_eff: 2.0,
+        base_disorder: 0.5,
+        cell_composition: vec![
+            (CellType::Keratinocyte, 0.85),
+            (CellType::LangerhansCell, 0.10),
+            (CellType::Neuron, 0.05),
+        ],
+    }
+}
+
+/// Healthy dermis composition (moderate disorder, 3D).
+#[must_use]
+pub fn healthy_dermis() -> TissueCompartment {
+    TissueCompartment {
+        layer: SkinLayer::Dermis,
+        sites_per_dim: 30,
+        d_eff: 3.0,
+        base_disorder: 1.5,
+        cell_composition: vec![
+            (CellType::Fibroblast, 0.60),
+            (CellType::Neuron, 0.15),
+            (CellType::MastCell, 0.10),
+            (CellType::Th2Cell, 0.10),
+            (CellType::Eosinophil, 0.05),
+        ],
+    }
+}
+
+/// Inflamed dermis (AD flare): Th2 cells and eosinophils infiltrate,
+/// increasing heterogeneity and disorder.
+#[must_use]
+pub fn inflamed_dermis() -> TissueCompartment {
+    TissueCompartment {
+        layer: SkinLayer::Dermis,
+        sites_per_dim: 30,
+        d_eff: 3.0,
+        base_disorder: 3.0,
+        cell_composition: vec![
+            (CellType::Fibroblast, 0.30),
+            (CellType::Th2Cell, 0.25),
+            (CellType::Eosinophil, 0.15),
+            (CellType::MastCell, 0.15),
+            (CellType::Neuron, 0.10),
+            (CellType::LangerhansCell, 0.05),
+        ],
+    }
+}
+
+/// Barrier-disrupted epidermis (scratching → dimensional promotion).
+///
+/// Scratching opens 3D channels through the normally 2D barrier,
+/// increasing `d_eff` from 2.0 toward 3.0. The `breach_fraction`
+/// parameter controls how much of the barrier is disrupted.
+#[must_use]
+pub fn disrupted_epidermis(breach_fraction: f64) -> TissueCompartment {
+    let clamped = breach_fraction.clamp(0.0, 1.0);
+    TissueCompartment {
+        layer: SkinLayer::Epidermis,
+        sites_per_dim: 50,
+        d_eff: 2.0_f64.mul_add(1.0 - clamped, 3.0 * clamped),
+        base_disorder: 0.5 + clamped * 2.0,
+        cell_composition: vec![
+            (CellType::Keratinocyte, 0.85 - clamped * 0.25),
+            (CellType::LangerhansCell, 0.10 + clamped * 0.10),
+            (CellType::Neuron, 0.05 + clamped * 0.05),
+            (CellType::Th2Cell, clamped * 0.10),
+        ],
+    }
+}
+
+/// Simulate cytokine propagation through a multi-compartment tissue.
+///
+/// For each compartment, generates a 1D chain of the appropriate length
+/// and computes the Lyapunov exponent to determine whether cytokine
+/// signals are localized (confined) or extended (propagating).
+///
+/// The barrier is considered breached when the epidermis `d_eff > 2.5`
+/// (dimensional promotion allows 3D diffusion channels).
+#[must_use]
+pub fn simulate_tissue(
+    compartments: &[TissueCompartment],
+    n_realizations: usize,
+    base_seed: u64,
+) -> TissueResult {
+    let mut gamma_per_compartment = Vec::with_capacity(compartments.len());
+    let mut xi_per_compartment = Vec::with_capacity(compartments.len());
+    let mut w_per_compartment = Vec::with_capacity(compartments.len());
+    let mut signal_extended = Vec::with_capacity(compartments.len());
+
+    for (ci, comp) in compartments.iter().enumerate() {
+        let n_sites = comp.sites_per_dim * comp.sites_per_dim;
+        let w_eff = effective_disorder(&comp.cell_composition) + comp.base_disorder;
+        w_per_compartment.push(w_eff);
+
+        let mut gamma_sum = 0.0;
+        for r in 0..n_realizations {
+            let seed = base_seed + (ci as u64) * 10_000 + (r as u64);
+            let potential = tissue_potential(n_sites, comp, seed);
+            gamma_sum += lyapunov_exponent(&potential, 0.0);
+        }
+        let gamma_mean = gamma_sum / usize_f64(n_realizations);
+        gamma_per_compartment.push(gamma_mean);
+
+        let xi = xi_from_gamma(gamma_mean);
+        xi_per_compartment.push(xi);
+
+        let extended = is_signal_extended(gamma_mean, comp.d_eff, w_eff);
+        signal_extended.push(extended);
+    }
+
+    let barrier_breached = compartments
+        .iter()
+        .any(|c| c.layer == SkinLayer::Epidermis && c.d_eff > 2.5);
+
+    let d_eff_system = if barrier_breached {
+        compartments
+            .iter()
+            .map(|c| c.d_eff)
+            .fold(f64::NEG_INFINITY, f64::max)
+    } else {
+        compartments
+            .iter()
+            .map(|c| c.d_eff)
+            .fold(f64::INFINITY, f64::min)
+    };
+
+    TissueResult {
+        gamma_per_compartment,
+        xi_per_compartment,
+        w_per_compartment,
+        signal_extended,
+        barrier_breached,
+        d_eff_system,
+    }
+}
+
+/// Determine whether a signal is extended (propagating) or localized.
+///
+/// In `d=3`, the Anderson metal-insulator transition occurs at `W_c` ≈ 16.5.
+/// Below `W_c` signals propagate; above they localize. In `d=2`, ALL states
+/// are localized for any `W > 0` (no mobility edge), but the localization
+/// length may be larger than the system size.
+///
+/// For tissue: we use the localization length relative to the compartment
+/// size as the diagnostic. If `ξ > L_compartment`, signal effectively
+/// propagates within that compartment.
+fn is_signal_extended(gamma: f64, d_eff: f64, w_eff: f64) -> bool {
+    if d_eff >= 2.5 {
+        w_eff < W_C_3D
+    } else {
+        xi_from_gamma(gamma) > 100.0
+    }
+}
+
+/// Critical disorder for 3D Anderson metal-insulator transition.
+const W_C_3D: f64 = 16.5;
+
+/// Localization length from Lyapunov exponent: ξ = 1/γ.
+fn xi_from_gamma(gamma: f64) -> f64 {
+    if gamma > 0.0 {
+        1.0 / gamma
+    } else {
+        f64::INFINITY
+    }
+}
+
+/// Sweep barrier disruption fraction from 0 (healthy) to 1 (fully breached).
+///
+/// At each disruption level, simulates a two-compartment system (epidermis +
+/// dermis) and tracks how `d_eff`, localization length, and signal propagation
+/// evolve. This quantifies the dimensional promotion threshold.
+#[must_use]
+pub fn barrier_disruption_sweep(
+    n_points: usize,
+    n_realizations: usize,
+    base_seed: u64,
+) -> Vec<BarrierSweepPoint> {
+    (0..n_points)
+        .map(|i| {
+            let frac = if n_points > 1 {
+                usize_f64(i) / usize_f64(n_points - 1)
+            } else {
+                0.0
+            };
+            let epi = disrupted_epidermis(frac);
+            let derm = inflamed_dermis();
+            let result =
+                simulate_tissue(&[epi, derm], n_realizations, base_seed + (i as u64) * 100);
+            BarrierSweepPoint {
+                breach_fraction: frac,
+                d_eff_epidermis: result.d_eff_system.min(3.0),
+                gamma_epidermis: result.gamma_per_compartment[0],
+                gamma_dermis: result.gamma_per_compartment[1],
+                xi_epidermis: result.xi_per_compartment[0],
+                xi_dermis: result.xi_per_compartment[1],
+                barrier_breached: result.barrier_breached,
+                signal_crosses_barrier: result.barrier_breached && result.signal_extended[0],
+            }
+        })
+        .collect()
+}
+
+/// A single point in the barrier disruption sweep.
+#[derive(Debug, Clone, Copy)]
+pub struct BarrierSweepPoint {
+    /// Fraction of epidermis disrupted (0.0 = healthy, 1.0 = fully breached).
+    pub breach_fraction: f64,
+    /// Effective dimensionality of epidermis.
+    pub d_eff_epidermis: f64,
+    /// Lyapunov exponent in epidermis.
+    pub gamma_epidermis: f64,
+    /// Lyapunov exponent in dermis.
+    pub gamma_dermis: f64,
+    /// Localization length in epidermis.
+    pub xi_epidermis: f64,
+    /// Localization length in dermis.
+    pub xi_dermis: f64,
+    /// Whether the barrier is considered breached (`d_eff > 2.5`).
+    pub barrier_breached: bool,
+    /// Whether cytokine signal can cross from dermis through breached epidermis.
+    pub signal_crosses_barrier: bool,
+}
+
+/// Dimensional promotion sweep for Paper 12 §2.4.
+///
+/// Computes the duality between Paper 06 (tillage collapse) and Paper 12
+/// (scratching promotion) by sweeping a parameter from -1 (full collapse)
+/// through 0 (neutral) to +1 (full promotion).
+#[must_use]
+pub fn dimensional_duality_sweep(
+    n_points: usize,
+    n_realizations: usize,
+    base_seed: u64,
+) -> Vec<DualityPoint> {
+    (0..n_points)
+        .map(|i| {
+            let param = if n_points > 1 {
+                (usize_f64(i) / usize_f64(n_points - 1)).mul_add(2.0, -1.0)
+            } else {
+                0.0
+            };
+            let d_eff = (2.5 + param * 0.5).clamp(2.0, 3.0);
+            let n_sites = 500;
+            let w = 2.0;
+            let mut rng = Xorshift64::new(base_seed + i as u64);
+
+            let mut gamma_sum = 0.0;
+            for _ in 0..n_realizations {
+                let seed = rng.next_u64();
+                let potential = crate::anderson::anderson_potential(n_sites, w, seed);
+                gamma_sum += lyapunov_exponent(&potential, 0.0);
+            }
+            let gamma = gamma_sum / usize_f64(n_realizations);
+            let xi = xi_from_gamma(gamma);
+
+            DualityPoint {
+                parameter: param,
+                d_eff,
+                gamma,
+                xi,
+                regime: if d_eff < 2.5 { "localized" } else { "extended" },
+                context: if param < 0.0 {
+                    "collapse (tillage)"
+                } else {
+                    "promotion (scratching)"
+                },
+            }
+        })
+        .collect()
+}
+
+/// A point in the dimensional duality sweep.
+#[derive(Debug, Clone, Copy)]
+pub struct DualityPoint {
+    /// Sweep parameter: -1 (collapse) to +1 (promotion).
+    pub parameter: f64,
+    /// Effective dimensionality.
+    pub d_eff: f64,
+    /// Lyapunov exponent.
+    pub gamma: f64,
+    /// Localization length.
+    pub xi: f64,
+    /// Anderson regime: "localized" or "extended".
+    pub regime: &'static str,
+    /// Physical context: "collapse (tillage)" or "promotion (scratching)".
+    pub context: &'static str,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn effective_disorder_empty() {
+        assert!((effective_disorder(&[]) - 0.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn effective_disorder_single_cell_type() {
+        let comp = vec![(CellType::Keratinocyte, 1.0)];
+        assert!(
+            effective_disorder(&comp) < f64::EPSILON,
+            "single cell type should have zero disorder"
+        );
+    }
+
+    #[test]
+    fn effective_disorder_heterogeneous() {
+        let comp = vec![(CellType::Keratinocyte, 0.5), (CellType::Th2Cell, 0.5)];
+        let w = effective_disorder(&comp);
+        assert!(
+            w > 0.5,
+            "mixed Th2+keratinocyte should have substantial disorder: {w}"
+        );
+    }
+
+    #[test]
+    fn pielou_evenness_single_type() {
+        let comp = vec![(CellType::Fibroblast, 1.0)];
+        assert!((pielou_evenness(&comp) - 0.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn pielou_evenness_perfectly_even() {
+        let comp = vec![
+            (CellType::Keratinocyte, 0.25),
+            (CellType::Th2Cell, 0.25),
+            (CellType::MastCell, 0.25),
+            (CellType::Fibroblast, 0.25),
+        ];
+        let j = pielou_evenness(&comp);
+        assert!(
+            (j - 1.0).abs() < 1e-10,
+            "perfectly even should be J'=1: {j}"
+        );
+    }
+
+    #[test]
+    fn pielou_evenness_uneven() {
+        let comp = vec![(CellType::Keratinocyte, 0.9), (CellType::Th2Cell, 0.1)];
+        let j = pielou_evenness(&comp);
+        assert!(j < 0.8, "highly uneven should have low J': {j}");
+        assert!(j > 0.0, "non-zero diversity: {j}");
+    }
+
+    #[test]
+    fn healthy_skin_localizes() {
+        let epi = healthy_epidermis();
+        let derm = healthy_dermis();
+        let result = simulate_tissue(&[epi, derm], 10, 42);
+        assert_eq!(result.gamma_per_compartment.len(), 2);
+        assert!(
+            !result.barrier_breached,
+            "healthy skin barrier should be intact"
+        );
+    }
+
+    #[test]
+    fn inflamed_dermis_signal_propagates() {
+        let derm = inflamed_dermis();
+        let result = simulate_tissue(&[derm], 10, 42);
+        assert!(
+            result.w_per_compartment[0] < W_C_3D,
+            "inflamed dermis W={} should be below W_c={}",
+            result.w_per_compartment[0],
+            W_C_3D,
+        );
+    }
+
+    #[test]
+    fn barrier_disruption_opens_propagation() {
+        let epi_healthy = disrupted_epidermis(0.0);
+        let epi_breached = disrupted_epidermis(1.0);
+        assert!(epi_healthy.d_eff < 2.5, "healthy d_eff should be 2D-ish");
+        assert!(
+            epi_breached.d_eff > 2.5,
+            "breached d_eff should approach 3D"
+        );
+    }
+
+    #[test]
+    fn barrier_disruption_sweep_transitions() {
+        let sweep = barrier_disruption_sweep(11, 5, 42);
+        assert_eq!(sweep.len(), 11);
+        assert!(!sweep[0].barrier_breached, "frac=0 should not breach");
+        assert!(sweep[10].barrier_breached, "frac=1 should breach");
+    }
+
+    #[test]
+    fn dimensional_duality_sweep_covers_range() {
+        let sweep = dimensional_duality_sweep(11, 5, 42);
+        assert_eq!(sweep.len(), 11);
+        assert!(sweep[0].parameter < -0.9, "first point near -1");
+        assert!(sweep[10].parameter > 0.9, "last point near +1");
+        assert!(sweep[0].context.contains("collapse"));
+        assert!(sweep[10].context.contains("promotion"));
+    }
+
+    #[test]
+    fn cell_type_energies_ordered() {
+        assert!(CellType::Keratinocyte.on_site_energy() < CellType::Th2Cell.on_site_energy());
+        assert!(CellType::Fibroblast.on_site_energy() < CellType::MastCell.on_site_energy());
+    }
+
+    #[test]
+    fn tissue_potential_correct_length() {
+        let comp = healthy_epidermis();
+        let pot = tissue_potential(100, &comp, 42);
+        assert_eq!(pot.len(), 100);
+    }
+
+    #[test]
+    fn tissue_potential_deterministic() {
+        let comp = healthy_epidermis();
+        let a = tissue_potential(100, &comp, 42);
+        let b = tissue_potential(100, &comp, 42);
+        assert_eq!(a, b, "same seed must produce identical potential");
+    }
+}

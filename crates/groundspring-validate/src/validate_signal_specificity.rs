@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Validation binary for Experiment 006: Enzymatic Signal Specificity.
@@ -176,7 +176,7 @@ fn validate_activated_states(
         activated_means
             .iter()
             .find(|(al, _)| *al == a)
-            .unwrap_or_else(|| panic!("no result for activation ratio α={a}"))
+            .expect("activation ratio must be present in results")
             .1
     };
 
@@ -207,7 +207,7 @@ fn validate_activated_states(
         snr_values
             .iter()
             .find(|(al, _)| *al == a)
-            .unwrap_or_else(|| panic!("no SNR result for α={a}"))
+            .expect("SNR ratio must be present in results")
             .1
     };
 

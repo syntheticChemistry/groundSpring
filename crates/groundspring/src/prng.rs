@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Deterministic pseudo-random number generation.
@@ -21,6 +21,14 @@ use std::f64::consts::TAU;
 /// Uses `Xorshift64` for validation baselines. When barracuda GPU promotion
 /// requires stream-compatible PRNG, use [`Xoshiro128StarStar`] directly.
 pub type DefaultRng = Xorshift64;
+
+/// GPU-aligned PRNG type matching barracuda's `ops::prng_xoshiro_wgsl`.
+///
+/// Use this type when generating seed/state vectors for GPU dispatch
+/// (e.g., `BatchedMultinomialGpu`, `GillespieGpu`, `WrightFisherGpu`).
+/// Ensures CPU-side state initialization produces the same stream as
+/// the GPU shader.
+pub type GpuAlignedRng = Xoshiro128StarStar;
 
 /// Xorshift64 pseudo-random number generator.
 ///

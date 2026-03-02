@@ -151,7 +151,7 @@ NOTE:       Equation chain is superseded by barracuda Op::Fao56Et0 — when
 ## Handoff Checklist (per shader)
 
 - [x] Production WGSL file with documented bindings
-- [x] CPU reference passes all validation checks (347/347 across 32 binaries)
+- [x] CPU reference passes all validation checks (376/376 across 33 binaries)
 - [x] Binding layout documented in this manifest
 - [x] Dispatch geometry documented (workgroup size, grid dims)
 - [x] f64 precision throughout (no f32 truncation)

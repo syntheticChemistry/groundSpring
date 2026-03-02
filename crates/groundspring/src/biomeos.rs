@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Optional `biomeOS` Neural API client for ecosystem integration.
@@ -10,7 +10,12 @@
 //!
 //! # Protocol
 //!
-//! JSON-RPC 2.0, newline-delimited, over Unix domain socket.
+//! JSON-RPC 2.0, newline-delimited, over platform-agnostic transport.
+//!
+//! Transport selection:
+//! - **Unix**: Unix domain socket (preferred, zero-copy-friendly)
+//! - **Non-Unix**: TCP via `GROUNDSPRING_BIOMEOS_TCP` env var
+//!
 //! Socket discovery (capability-based, no hardcoded paths):
 //! 1. `GROUNDSPRING_BIOMEOS_SOCKET` env var (explicit override)
 //! 2. `$XDG_RUNTIME_DIR/biomeos/neural-api-default.sock`
@@ -33,12 +38,30 @@
 //! | Phase 3 | `metalForge` cross-substrate via Neural API | planned |
 
 use std::io::{BufRead, BufReader, Write};
-use std::os::unix::net::UnixStream;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
-const READ_TIMEOUT: Duration = Duration::from_secs(30);
+use serde_json::Value;
+
+/// Connect timeout, overridable via `GROUNDSPRING_BIOMEOS_CONNECT_TIMEOUT_SECS`.
+fn connect_timeout() -> Duration {
+    Duration::from_secs(
+        std::env::var("GROUNDSPRING_BIOMEOS_CONNECT_TIMEOUT_SECS")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(5),
+    )
+}
+
+/// Read timeout, overridable via `GROUNDSPRING_BIOMEOS_READ_TIMEOUT_SECS`.
+fn read_timeout() -> Duration {
+    Duration::from_secs(
+        std::env::var("GROUNDSPRING_BIOMEOS_READ_TIMEOUT_SECS")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(30),
+    )
+}
 
 /// Family identifier for all biomeOS interactions.
 ///
@@ -108,7 +131,6 @@ fn resolve_socket(explicit: Option<&str>, xdg_runtime: Option<&str>) -> Option<P
         }
     }
 
-    // Non-XDG Linux fallback: /run/user/{uid}/biomeos/
     #[cfg(target_os = "linux")]
     if xdg_runtime.is_none() {
         if let Some(uid) = proc_self_uid() {
@@ -122,7 +144,6 @@ fn resolve_socket(explicit: Option<&str>, xdg_runtime: Option<&str>) -> Option<P
         }
     }
 
-    // /tmp fallback (least preferred)
     for name in NUCLEUS_SOCKET_NAMES {
         let p = std::env::temp_dir().join(format!("biomeos/{name}"));
         if p.exists() {
@@ -163,6 +184,57 @@ pub fn is_nucleus_available() -> bool {
     auto_connect().is_some()
 }
 
+// ─── JSON-RPC Serialization ──────────────────────────────────────────────────
+
+/// Build a JSON-RPC 2.0 request envelope.
+fn build_request(method: &str, params: &Value) -> String {
+    serde_json::json!({
+        "jsonrpc": "2.0",
+        "method": method,
+        "params": params,
+        "id": 1
+    })
+    .to_string()
+}
+
+/// Parse a JSON-RPC 2.0 response, extracting the result or error.
+fn parse_rpc_response(response: &str) -> Result<String> {
+    let v: Value = serde_json::from_str(response)
+        .map_err(|e| BiomeOsError(format!("invalid JSON-RPC response: {e}")))?;
+
+    if let Some(error) = v.get("error") {
+        let msg = error
+            .get("message")
+            .and_then(Value::as_str)
+            .unwrap_or("unknown RPC error");
+        return Err(BiomeOsError(msg.to_string()));
+    }
+
+    match v.get("result") {
+        Some(Value::String(s)) => Ok(s.clone()),
+        Some(other) => Ok(other.to_string()),
+        None => Err(BiomeOsError("missing result field in response".to_string())),
+    }
+}
+
+/// Check whether a JSON-RPC response contains an error field.
+fn response_has_error(response: &str) -> Result<()> {
+    let v: Value = serde_json::from_str(response)
+        .map_err(|e| BiomeOsError(format!("invalid JSON-RPC response: {e}")))?;
+
+    if let Some(error) = v.get("error") {
+        let msg = error
+            .get("message")
+            .and_then(Value::as_str)
+            .unwrap_or("unknown RPC error");
+        return Err(BiomeOsError(msg.to_string()));
+    }
+
+    Ok(())
+}
+
+// ─── Capability Routing ──────────────────────────────────────────────────────
+
 /// Route a request through biomeOS Neural API `capability.call`.
 ///
 /// The Neural API uses semantic routing: `capability` is the base category
@@ -174,20 +246,24 @@ pub fn is_nucleus_available() -> bool {
 ///
 /// Returns `Err` if the socket is unavailable or the RPC fails.
 pub fn capability_call(socket: &Path, capability: &str, params_json: &str) -> Result<String> {
+    let args: Value = serde_json::from_str(params_json)
+        .map_err(|e| BiomeOsError(format!("invalid params JSON: {e}")))?;
+    capability_call_value(socket, capability, &args)
+}
+
+/// Internal capability call accepting a pre-built [`Value`] to avoid
+/// redundant serialize→deserialize round-trips from internal callers.
+fn capability_call_value(socket: &Path, capability: &str, args: &Value) -> Result<String> {
     let (cap, op) = capability.split_once('.').unwrap_or((capability, "call"));
-    let request = format!(
-        r#"{{"jsonrpc":"2.0","method":"capability.call","params":{{"capability":"{}","operation":"{}","args":{},"family_id":"{}"}},"id":1}}"#,
-        escape_json(cap),
-        escape_json(op),
-        params_json,
-        FAMILY_ID,
-    );
+    let params = serde_json::json!({
+        "capability": cap,
+        "operation": op,
+        "args": args,
+        "family_id": FAMILY_ID,
+    });
+    let request = build_request("capability.call", &params);
     let response = rpc_call(socket, &request)?;
-    if response.contains("\"error\"") {
-        Err(BiomeOsError(extract_error(&response)))
-    } else {
-        extract_result(&response)
-    }
+    parse_rpc_response(&response)
 }
 
 /// Direct JSON-RPC call targeting a specific biomeOS primal by name.
@@ -197,7 +273,7 @@ pub fn capability_call(socket: &Path, capability: &str, params_json: &str) -> Re
 /// Use `direct_rpc_call` only when you must bypass capability discovery and
 /// target a known primal directly (e.g. hardware-specific operations).
 ///
-/// Internally delegates to [`capability_call`] with `"{target}.{method}"`
+/// Internally delegates to [`capability_call_value`] with `"{target}.{method}"`
 /// as the capability string.
 ///
 /// # Errors
@@ -213,42 +289,44 @@ pub fn direct_rpc_call(
     capability_call(socket, &capability, params_json)
 }
 
+// ─── Storage ─────────────────────────────────────────────────────────────────
+
 /// Store a value via biomeOS capability-based storage routing.
 ///
-/// Routes through `storage.put` capability — biomeOS translates to
-/// `NestGate`'s `storage.store` method at runtime.
+/// Routes through `storage.put` capability — biomeOS translates to the
+/// storage provider's actual method at runtime.
 ///
 /// # Errors
 ///
 /// Returns `Err` if the socket is unavailable or the RPC fails.
 pub fn storage_put(socket: &Path, key: &str, value: &str) -> Result<()> {
-    let params = format!(
-        r#"{{"key":"{}","value":"{}","family_id":"{}"}}"#,
-        escape_json(key),
-        escape_json(value),
-        FAMILY_ID,
-    );
-    capability_call(socket, "storage.put", &params)?;
+    let args = serde_json::json!({
+        "key": key,
+        "value": value,
+        "family_id": FAMILY_ID,
+    });
+    capability_call_value(socket, "storage.put", &args)?;
     Ok(())
 }
 
 /// Retrieve a value via biomeOS capability-based storage routing.
 ///
-/// Routes through `storage.get` capability — biomeOS translates to
-/// `NestGate`'s `storage.retrieve` method at runtime.
+/// Routes through `storage.get` capability — biomeOS translates to the
+/// storage provider's actual method at runtime.
 ///
 /// # Errors
 ///
 /// Returns `Err` if the socket is unavailable, the key does not exist,
 /// or the RPC fails.
 pub fn storage_get(socket: &Path, key: &str) -> Result<String> {
-    let params = format!(
-        r#"{{"key":"{}","family_id":"{}"}}"#,
-        escape_json(key),
-        FAMILY_ID,
-    );
-    capability_call(socket, "storage.get", &params)
+    let args = serde_json::json!({
+        "key": key,
+        "family_id": FAMILY_ID,
+    });
+    capability_call_value(socket, "storage.get", &args)
 }
+
+// ─── Compute Dispatch ────────────────────────────────────────────────────────
 
 /// Dispatch a computation through `ToadStool` via `compute.execute`.
 ///
@@ -261,11 +339,10 @@ pub fn storage_get(socket: &Path, key: &str) -> Result<String> {
 ///
 /// Returns `Err` if biomeOS is unavailable or `ToadStool` rejects the request.
 pub fn compute_execute(socket: &Path, op: &str, params_json: &str) -> Result<String> {
-    capability_call(
-        socket,
-        "compute.execute",
-        &merge_compute_params(op, params_json),
-    )
+    let mut args: Value = serde_json::from_str(params_json)
+        .map_err(|e| BiomeOsError(format!("invalid compute params: {e}")))?;
+    merge_compute_fields(&mut args, op);
+    capability_call_value(socket, "compute.execute", &args)
 }
 
 /// Submit a compute job asynchronously via `compute.submit`.
@@ -276,62 +353,127 @@ pub fn compute_execute(socket: &Path, op: &str, params_json: &str) -> Result<Str
 ///
 /// Returns `Err` if biomeOS is unavailable or the submission fails.
 pub fn compute_submit(socket: &Path, op: &str, params_json: &str) -> Result<String> {
-    capability_call(
-        socket,
-        "compute.submit",
-        &merge_compute_params(op, params_json),
-    )
+    let mut args: Value = serde_json::from_str(params_json)
+        .map_err(|e| BiomeOsError(format!("invalid compute params: {e}")))?;
+    merge_compute_fields(&mut args, op);
+    capability_call_value(socket, "compute.submit", &args)
 }
 
-/// Merge an operation name and caller-supplied JSON params into a single
-/// JSON object that includes `op` and `family_id`.
-fn merge_compute_params(op: &str, params_json: &str) -> String {
-    if params_json.starts_with('{') && params_json.len() > 2 {
-        let inner = &params_json[1..params_json.len() - 1];
-        format!(
-            r#"{{"op":"{}",{inner},"family_id":"{}"}}"#,
-            escape_json(op),
-            FAMILY_ID
-        )
-    } else {
-        format!(
-            r#"{{"op":"{}","family_id":"{}"}}"#,
-            escape_json(op),
-            FAMILY_ID,
-        )
+/// Inject `op` and `family_id` into a compute params [`Value`].
+fn merge_compute_fields(args: &mut Value, op: &str) {
+    if let Some(obj) = args.as_object_mut() {
+        obj.insert("op".to_string(), Value::String(op.to_string()));
+        obj.insert(
+            "family_id".to_string(),
+            Value::String(FAMILY_ID.to_string()),
+        );
     }
 }
 
-/// Query `ToadStool` compute capabilities.
+/// Query compute capabilities.
 ///
 /// Returns JSON listing available compute operations and GPU info.
 ///
 /// # Errors
 ///
-/// Returns `Err` if biomeOS or `ToadStool` is unavailable.
+/// Returns `Err` if biomeOS or the compute provider is unavailable.
 pub fn compute_capabilities(socket: &Path) -> Result<String> {
-    let params = format!(r#"{{"family_id":"{FAMILY_ID}"}}"#);
-    capability_call(socket, "resource.health.check", &params)
+    let args = serde_json::json!({ "family_id": FAMILY_ID });
+    capability_call_value(socket, "resource.health.check", &args)
 }
+
+// ─── Capability Registration ─────────────────────────────────────────────────
+
+/// Science capabilities that groundSpring registers with the NUCLEUS.
+///
+/// Each capability represents a validated scientific computation that other
+/// primals can invoke via `capability.call`. The primal providing the
+/// capability is discovered at runtime — groundSpring only knows its own
+/// capabilities, not which primals might call them.
+pub const SCIENCE_CAPABILITIES: &[&str] = &[
+    "science.anderson_validation",
+    "science.noise_decomposition",
+    "science.parity_check",
+    "science.et0_propagation",
+    "science.regime_classification",
+    "science.uncertainty_budget",
+    "science.spectral_features",
+];
+
+/// Register groundSpring's science capabilities with the NUCLEUS.
+///
+/// Sends a `capability.register` call for each capability in
+/// [`SCIENCE_CAPABILITIES`]. Returns the number of capabilities
+/// successfully registered.
+///
+/// # Errors
+///
+/// Returns `Err` if the socket is unavailable. Individual registration
+/// failures are counted but do not abort the batch.
+pub fn register_capabilities(socket: &Path) -> Result<usize> {
+    let mut registered = 0;
+    for &cap in SCIENCE_CAPABILITIES {
+        let args = serde_json::json!({
+            "capability": cap,
+            "family_id": FAMILY_ID,
+            "provider": FAMILY_ID,
+            "version": env!("CARGO_PKG_VERSION"),
+        });
+        match capability_call_value(socket, "capability.register", &args) {
+            Ok(_) => registered += 1,
+            Err(e) => {
+                eprintln!("warn: failed to register {cap}: {e}");
+            }
+        }
+    }
+    if registered == 0 {
+        return Err(BiomeOsError(
+            "no capabilities registered — NUCLEUS may not support registration".to_string(),
+        ));
+    }
+    Ok(registered)
+}
+
+/// Deregister groundSpring's capabilities from the NUCLEUS.
+///
+/// Called during graceful shutdown so the NUCLEUS knows this provider
+/// is no longer available.
+///
+/// # Errors
+///
+/// Returns `Err` if the socket is unavailable.
+pub fn deregister_capabilities(socket: &Path) -> Result<usize> {
+    let mut deregistered = 0;
+    for &cap in SCIENCE_CAPABILITIES {
+        let args = serde_json::json!({
+            "capability": cap,
+            "family_id": FAMILY_ID,
+        });
+        if capability_call_value(socket, "capability.deregister", &args).is_ok() {
+            deregistered += 1;
+        }
+    }
+    Ok(deregistered)
+}
+
+// ─── Health ──────────────────────────────────────────────────────────────────
 
 /// Health check: verify the Neural API is alive.
 ///
-/// Uses `topology.metrics` since the Neural API doesn't expose a bare `health` method.
+/// Uses `topology.metrics` since the Neural API doesn't expose a bare
+/// `health` method.
 ///
 /// # Errors
 ///
 /// Returns `Err` if the socket is unavailable or the health check fails.
 pub fn health(socket: &Path) -> Result<()> {
-    let request = r#"{"jsonrpc":"2.0","method":"topology.metrics","params":{},"id":1}"#;
-    let response = rpc_call(socket, request)?;
-    if response.contains("\"error\"") {
-        Err(BiomeOsError(extract_error(&response)))
-    } else {
-        Ok(())
-    }
+    let params = serde_json::json!({});
+    let request = build_request("topology.metrics", &params);
+    let response = rpc_call(socket, &request)?;
+    response_has_error(&response)
 }
 
-/// Send an arbitrary JSON-RPC request over a Unix socket and read the response.
+/// Send an arbitrary JSON-RPC request over the transport and read the response.
 ///
 /// For use by integration tests and advanced consumers that need to send
 /// raw JSON-RPC to the Neural API.
@@ -343,8 +485,28 @@ pub fn raw_rpc_call(socket: &Path, request: &str) -> Result<String> {
     rpc_call(socket, request)
 }
 
-/// Send a JSON-RPC request over a Unix socket and read the response.
+// ─── Transport Layer ─────────────────────────────────────────────────────────
+
+/// Send a JSON-RPC request and read the newline-delimited response.
+///
+/// Uses Unix domain sockets on Unix platforms and TCP on others.
 fn rpc_call(socket: &Path, request: &str) -> Result<String> {
+    #[cfg(unix)]
+    {
+        unix_rpc_call(socket, request)
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = socket;
+        tcp_rpc_call(request)
+    }
+}
+
+/// Unix domain socket transport.
+#[cfg(unix)]
+fn unix_rpc_call(socket: &Path, request: &str) -> Result<String> {
+    use std::os::unix::net::UnixStream;
+
     let stream = UnixStream::connect_addr(
         &std::os::unix::net::SocketAddr::from_pathname(socket)
             .map_err(|e| BiomeOsError(format!("invalid socket path: {e}")))?,
@@ -352,13 +514,56 @@ fn rpc_call(socket: &Path, request: &str) -> Result<String> {
     .map_err(|e| BiomeOsError(format!("biomeOS connect {}: {e}", socket.display())))?;
 
     stream
-        .set_read_timeout(Some(READ_TIMEOUT))
+        .set_read_timeout(Some(read_timeout()))
         .map_err(|e| BiomeOsError(format!("set read timeout: {e}")))?;
     stream
-        .set_write_timeout(Some(CONNECT_TIMEOUT))
+        .set_write_timeout(Some(connect_timeout()))
         .map_err(|e| BiomeOsError(format!("set write timeout: {e}")))?;
 
-    let mut writer = std::io::BufWriter::new(&stream);
+    send_receive_stream(&stream, request)
+}
+
+/// TCP transport for non-Unix platforms.
+///
+/// Reads the target address from `GROUNDSPRING_BIOMEOS_TCP` (e.g. `"127.0.0.1:9100"`).
+#[cfg(not(unix))]
+fn tcp_rpc_call(request: &str) -> Result<String> {
+    use std::net::TcpStream;
+
+    let addr = std::env::var("GROUNDSPRING_BIOMEOS_TCP").map_err(|_| {
+        BiomeOsError(
+            "biomeOS requires GROUNDSPRING_BIOMEOS_TCP (host:port) on non-Unix platforms"
+                .to_string(),
+        )
+    })?;
+
+    let stream = TcpStream::connect_timeout(
+        &addr
+            .parse()
+            .map_err(|e| BiomeOsError(format!("invalid TCP address {addr}: {e}")))?,
+        connect_timeout(),
+    )
+    .map_err(|e| BiomeOsError(format!("biomeOS TCP connect {addr}: {e}")))?;
+
+    stream
+        .set_read_timeout(Some(read_timeout()))
+        .map_err(|e| BiomeOsError(format!("set read timeout: {e}")))?;
+    stream
+        .set_write_timeout(Some(connect_timeout()))
+        .map_err(|e| BiomeOsError(format!("set write timeout: {e}")))?;
+
+    send_receive_stream(&stream, request)
+}
+
+/// Write a newline-delimited JSON-RPC request and read the response line.
+///
+/// Works with any stream where `&S` implements both `Read` and `Write`
+/// (e.g. `UnixStream`, `TcpStream`).
+fn send_receive_stream<S>(stream: &S, request: &str) -> Result<String>
+where
+    for<'a> &'a S: std::io::Read + std::io::Write,
+{
+    let mut writer = std::io::BufWriter::new(stream);
     writer
         .write_all(request.as_bytes())
         .map_err(|e| BiomeOsError(format!("write to biomeOS: {e}")))?;
@@ -368,8 +573,9 @@ fn rpc_call(socket: &Path, request: &str) -> Result<String> {
     writer
         .flush()
         .map_err(|e| BiomeOsError(format!("flush: {e}")))?;
+    drop(writer);
 
-    let mut reader = BufReader::new(&stream);
+    let mut reader = BufReader::new(stream);
     let mut line = String::new();
     reader
         .read_line(&mut line)
@@ -380,103 +586,6 @@ fn rpc_call(socket: &Path, request: &str) -> Result<String> {
     }
 
     Ok(line)
-}
-
-/// Public JSON string escaping for sibling modules (e.g. `nestgate`).
-#[must_use]
-pub fn escape_json_pub(s: &str) -> String {
-    escape_json(s)
-}
-
-/// Minimal JSON string escaping for values embedded in RPC requests.
-fn escape_json(s: &str) -> String {
-    s.replace('\\', "\\\\")
-        .replace('"', "\\\"")
-        .replace('\n', "\\n")
-        .replace('\r', "\\r")
-        .replace('\t', "\\t")
-}
-
-/// Extract the error message from a JSON-RPC error response.
-fn extract_error(response: &str) -> String {
-    if let Some(start) = response.find("\"message\"") {
-        if let Some(colon) = response[start..].find(':') {
-            let after_colon = &response[start + colon + 1..];
-            let trimmed = after_colon.trim_start();
-            if let Some(inner) = trimmed.strip_prefix('"') {
-                if let Some(end) = inner.find('"') {
-                    return inner[..end].to_string();
-                }
-            }
-        }
-    }
-    format!(
-        "biomeOS RPC error: {}",
-        &response[..response.len().min(200)]
-    )
-}
-
-/// Extract the `result` field from a JSON-RPC response.
-///
-/// Handles string, object, array, number, and boolean result values by
-/// tracking brace/bracket nesting for complex JSON structures.
-fn extract_result(response: &str) -> Result<String> {
-    if let Some(start) = response.find("\"result\"") {
-        if let Some(colon) = response[start..].find(':') {
-            let after_colon = &response[start + colon + 1..];
-            let trimmed = after_colon.trim_start();
-            if let Some(inner) = trimmed.strip_prefix('"') {
-                if let Some(end) = inner.find('"') {
-                    let raw = &inner[..end];
-                    return Ok(raw.replace("\\n", "\n").replace("\\\"", "\""));
-                }
-            }
-            if trimmed.starts_with('{') || trimmed.starts_with('[') {
-                return extract_balanced(trimmed);
-            }
-            if let Some(end) = trimmed.find([',', '}']) {
-                return Ok(trimmed[..end].trim().to_string());
-            }
-        }
-    }
-    Err(BiomeOsError(
-        "could not extract result from biomeOS response".to_string(),
-    ))
-}
-
-/// Extract a balanced JSON object or array from the start of `s`.
-fn extract_balanced(s: &str) -> Result<String> {
-    let open = s.as_bytes()[0];
-    let close = if open == b'{' { b'}' } else { b']' };
-    let mut depth: u32 = 0;
-    let mut in_string = false;
-    let mut escape = false;
-    for (i, byte) in s.bytes().enumerate() {
-        if escape {
-            escape = false;
-            continue;
-        }
-        if byte == b'\\' && in_string {
-            escape = true;
-            continue;
-        }
-        if byte == b'"' {
-            in_string = !in_string;
-            continue;
-        }
-        if in_string {
-            continue;
-        }
-        if byte == open {
-            depth += 1;
-        } else if byte == close {
-            depth -= 1;
-            if depth == 0 {
-                return Ok(s[..=i].to_string());
-            }
-        }
-    }
-    Err(BiomeOsError("unbalanced JSON in result".to_string()))
 }
 
 #[cfg(test)]
@@ -496,8 +605,6 @@ mod tests {
     #[test]
     fn resolve_socket_explicit_nonexistent() {
         let result = resolve_socket(Some("/tmp/nonexistent_groundspring_biomeos.sock"), None);
-        // The explicit path doesn't exist, so it won't be returned. However,
-        // the Linux /run/user/{uid} fallback might find a real NUCLEUS socket.
         if let Some(ref p) = result {
             assert_ne!(
                 p.to_str().unwrap(),
@@ -595,98 +702,93 @@ mod tests {
     }
 
     #[test]
-    fn escape_json_special_chars() {
-        assert_eq!(escape_json("hello\nworld"), "hello\\nworld");
-        assert_eq!(escape_json("say \"hi\""), "say \\\"hi\\\"");
-        assert_eq!(escape_json("back\\slash"), "back\\\\slash");
-        assert_eq!(escape_json("tab\there"), "tab\\there");
+    fn parse_rpc_response_string_result() {
+        let resp = r#"{"jsonrpc":"2.0","result":"ok","id":1}"#;
+        assert_eq!(parse_rpc_response(resp).unwrap(), "ok");
     }
 
     #[test]
-    fn escape_json_empty() {
-        assert_eq!(escape_json(""), "");
-    }
-
-    #[test]
-    fn escape_json_no_special() {
-        assert_eq!(escape_json("plain text"), "plain text");
-    }
-
-    #[test]
-    fn extract_error_with_message() {
-        let response = r#"{"jsonrpc":"2.0","error":{"code":-32600,"message":"not found"},"id":1}"#;
-        let err = extract_error(response);
-        assert!(err.contains("not found"));
-    }
-
-    #[test]
-    fn extract_error_no_message() {
-        let response = r#"{"jsonrpc":"2.0","error":{"code":-32600},"id":1}"#;
-        let err = extract_error(response);
-        assert!(err.contains("RPC error"));
-    }
-
-    #[test]
-    fn extract_result_string() {
-        let response = r#"{"jsonrpc":"2.0","result":"ok","id":1}"#;
-        let val = extract_result(response).unwrap();
-        assert_eq!(val, "ok");
-    }
-
-    #[test]
-    fn extract_result_missing() {
-        let response = r#"{"jsonrpc":"2.0","id":1}"#;
-        assert!(extract_result(response).is_err());
-    }
-
-    #[test]
-    fn extract_result_escaped_newline() {
-        let response = r#"{"jsonrpc":"2.0","result":"line1\nline2","id":1}"#;
-        let val = extract_result(response).unwrap();
-        assert_eq!(val, "line1\nline2");
-    }
-
-    #[test]
-    fn extract_result_nested_object() {
-        let response = r#"{"jsonrpc":"2.0","result":{"passed":12,"failed":0},"id":1}"#;
-        let val = extract_result(response).unwrap();
+    fn parse_rpc_response_object_result() {
+        let resp = r#"{"jsonrpc":"2.0","result":{"passed":12,"failed":0},"id":1}"#;
+        let val = parse_rpc_response(resp).unwrap();
         assert!(val.contains("passed") && val.contains("12"));
+    }
+
+    #[test]
+    fn parse_rpc_response_error() {
+        let resp = r#"{"jsonrpc":"2.0","error":{"code":-32600,"message":"not found"},"id":1}"#;
+        let err = parse_rpc_response(resp).unwrap_err();
+        assert!(err.to_string().contains("not found"));
+    }
+
+    #[test]
+    fn parse_rpc_response_missing_result() {
+        let resp = r#"{"jsonrpc":"2.0","id":1}"#;
+        assert!(parse_rpc_response(resp).is_err());
+    }
+
+    #[test]
+    fn parse_rpc_response_numeric_result() {
+        let resp = r#"{"jsonrpc":"2.0","result":42,"id":1}"#;
+        assert_eq!(parse_rpc_response(resp).unwrap(), "42");
+    }
+
+    #[test]
+    fn parse_rpc_response_array_result() {
+        let resp = r#"{"jsonrpc":"2.0","result":[1,2,3],"id":1}"#;
+        let val = parse_rpc_response(resp).unwrap();
+        assert!(val.contains("[1,2,3]"));
+    }
+
+    #[test]
+    fn build_request_is_valid_json() {
+        let req = build_request("test.method", &serde_json::json!({"key": "value"}));
+        let v: Value = serde_json::from_str(&req).unwrap();
+        assert_eq!(v["jsonrpc"], "2.0");
+        assert_eq!(v["method"], "test.method");
+        assert_eq!(v["params"]["key"], "value");
     }
 
     #[test]
     fn capability_call_request_format() {
         let cap = "science.anderson_validation";
-        let args = r#"{"n_sites":10000}"#;
         let (cap_part, op_part) = cap.split_once('.').unwrap();
-        let request = format!(
-            r#"{{"jsonrpc":"2.0","method":"capability.call","params":{{"capability":"{}","operation":"{}","args":{},"family_id":"{}"}},"id":1}}"#,
-            escape_json(cap_part),
-            escape_json(op_part),
-            args,
-            FAMILY_ID,
+        let request = build_request(
+            "capability.call",
+            &serde_json::json!({
+                "capability": cap_part,
+                "operation": op_part,
+                "args": {"n_sites": 10000},
+                "family_id": FAMILY_ID,
+            }),
         );
-        assert!(request.contains("capability.call"));
-        assert!(request.contains("\"capability\":\"science\""));
-        assert!(request.contains("\"operation\":\"anderson_validation\""));
-        assert!(request.contains("groundspring"));
+        let v: Value = serde_json::from_str(&request).unwrap();
+        assert_eq!(v["method"], "capability.call");
+        assert_eq!(v["params"]["capability"], "science");
+        assert_eq!(v["params"]["operation"], "anderson_validation");
+        assert_eq!(v["params"]["family_id"], "groundspring");
     }
 
     #[test]
-    fn storage_request_formats() {
-        let key = "groundspring:results:exp008";
-        let put_params = format!(
-            r#"{{"key":"{}","value":"test","family_id":"{}"}}"#,
-            escape_json(key),
-            FAMILY_ID,
-        );
-        assert!(put_params.contains("groundspring:results:exp008"));
+    fn science_capabilities_non_empty() {
+        assert!(!SCIENCE_CAPABILITIES.is_empty());
+        for cap in SCIENCE_CAPABILITIES {
+            assert!(
+                cap.starts_with("science."),
+                "all caps should be in science namespace: {cap}"
+            );
+        }
+    }
 
-        let get_params = format!(
-            r#"{{"key":"{}","family_id":"{}"}}"#,
-            escape_json(key),
-            FAMILY_ID,
+    #[test]
+    fn register_capabilities_nonexistent_socket_errors() {
+        let path = PathBuf::from("/tmp/groundspring_test_nonexistent_register.sock");
+        let err = register_capabilities(&path).unwrap_err();
+        let msg = err.to_string();
+        assert!(
+            msg.contains("no capabilities registered") || msg.contains("biomeOS connect"),
+            "should fail with clear message: {msg}"
         );
-        assert!(get_params.contains("groundspring:results:exp008"));
     }
 
     #[test]
@@ -713,8 +815,20 @@ mod tests {
     #[test]
     fn direct_rpc_call_nonexistent_socket_errors() {
         let path = PathBuf::from("/tmp/groundspring_test_nonexistent_rpc.sock");
-        let err = direct_rpc_call(&path, "nestgate", "health", "{}").unwrap_err();
+        let err = direct_rpc_call(&path, "compute", "health", "{}").unwrap_err();
         let msg = err.to_string();
         assert!(msg.contains("biomeOS connect") || msg.contains("invalid socket"));
+    }
+
+    #[test]
+    fn response_has_error_ok() {
+        let resp = r#"{"jsonrpc":"2.0","result":"ok","id":1}"#;
+        assert!(response_has_error(resp).is_ok());
+    }
+
+    #[test]
+    fn response_has_error_with_error() {
+        let resp = r#"{"jsonrpc":"2.0","error":{"code":-32600,"message":"bad"},"id":1}"#;
+        assert!(response_has_error(resp).is_err());
     }
 }

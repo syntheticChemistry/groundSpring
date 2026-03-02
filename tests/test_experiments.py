@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: AGPL-3.0-only
 # Copyright (C) 2026 ecoPrimals / Squirrel Team
 """Integration tests: run each experiment and verify exit code 0."""
 

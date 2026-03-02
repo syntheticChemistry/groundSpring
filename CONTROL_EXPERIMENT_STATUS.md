@@ -38,22 +38,25 @@
 | 030 | Real NCBI 16S Rare Biosphere | Biological (NCBI) | — | 9/9 PASS |
 | 031 | NUCLEUS Stack Validation | Infrastructure | — | 28/28 PASS |
 | 032 | IRIS Seismic via NUCLEUS | Geological (IRIS) | — | 12/12 PASS |
+| 033 | Cytokine Anderson Lattice | Immunological (tissue geometry) | — | 29/29 PASS |
+| 034 | Geometry-Aware Drug Scoring | Immunological (drug repurposing) | — | (combined with 033) |
 
 **Python Phase 0**: All 28 experiments passing (375 pass + 2 skip)
-**Rust Phase 1 (core)**: 292/292 PASS across 28 validation binaries
+**Rust Phase 1 (core)**: 321/321 PASS across 29 validation binaries (321 core)
 **Rust Phase 1 (NUCLEUS)**: 55/55 PASS across 4 validation binaries (Exp 029–032, `--features biomeos`)
-**Total validation**: 347/347 PASS across 32 validation binaries
-**Rust tests**: 668/668 PASS (default workspace)
+**Total validation**: 376/376 PASS across 33 validation binaries
+**Rust tests**: 743/743 PASS (default workspace, up from 725)
 **pytest**: 375/375 PASS + 2 skipped
-**Three-tier parity**: 101 tests — CPU vs barracuda-CPU vs barracuda-GPU proven
-**BarraCUDA dispatch**: 61 active (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — pinned ToadStool S71+++ (`8dc01a37`)
-**NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS)
-**metalForge workloads**: 19 (17 GPU + 2 NPU), 120 tests (+35 pipeline/topology/atomic)
-**metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains — 42/42 validation checks
+**Three-tier parity**: 101+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
+**BarraCUDA dispatch**: 67 active (37 CPU + 26 GPU + 4 cross-spring) — 6 new GPU delegations wired (Phase 1), pinned ToadStool S79 (`f97fc2ae`)
+**NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); compute.execute + compute.submit validated
+**metalForge workloads**: 19 (17 GPU + 2 NPU), 155+ tests (+35 pipeline/topology/atomic)
+**metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains — 72/72 validation checks (42 mixed-hardware + 30 pipeline)
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
-**Handoff**: V61 (mixed-hardware pipeline + NUCLEUS atomics + deep idiomatic debt pass)
+**Paper 12**: `tissue_anderson` module — 18 unit tests + 29/29 validation checks across 10 scenarios
+**Handoff**: V63 (brain architecture + capability-based discovery)
 
-**Python checks**: ~160 across 28 experiments. **Rust validation checks**: 292.
+**Python checks**: ~160 across 28 experiments. **Rust validation checks**: 321. **metalForge + pipeline checks**: 72.
 
 ## Phase 0 — Python/NumPy/SciPy Baselines
 
@@ -688,7 +691,7 @@ Each experiment is validated at three hardware tiers:
 | Magic numbers | Extracted to named constants (npu.rs, probe.rs, regression.rs `SINGULARITY_THRESHOLD`) |
 | Validation thresholds | All hardcoded thresholds evolved to benchmark JSON with rationale strings |
 | SPDX headers | All `.rs` and `.py` files (consistent shebang order in Python) |
-| License | AGPL-3.0-or-later |
+| License | AGPL-3.0-only |
 
 ## Barracuda CPU Delegation (Phase 2a)
 
@@ -750,7 +753,7 @@ The key insight: **delegated code produces bitwise-identical results**.
 
 ### Stage 3: barracuda-CPU → barracuda-GPU (portable math, 2.2× faster)
 
-ToadStool S71+++ universal precision (DF64 on FP32 cores via `naga`-guided
+ToadStool S79 universal precision (DF64 on FP32 cores via `naga`-guided
 `df64_rewrite.rs`) with **complete DF64 transcendental suite** (15 functions:
 gamma, erf, inverse trig, hyperbolics) allows GPU dispatch with f64-equivalent
 precision across all mathematical domains.

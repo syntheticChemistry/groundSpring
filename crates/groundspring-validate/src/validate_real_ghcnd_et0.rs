@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Exp 029: Real GHCND ET₀ — Hargreaves vs Penman-Monteith on live weather data.
@@ -17,7 +17,10 @@
 compile_error!("Exp 029 requires --features biomeos");
 
 #[cfg(feature = "biomeos")]
-#[allow(clippy::cast_precision_loss)]
+#[expect(
+    clippy::cast_precision_loss,
+    reason = "day counts ≤ 366 cast to f64 for averaging"
+)]
 fn main() {
     use groundspring::biomeos;
     use groundspring::fao56::{self, DailyWeatherInputs};
@@ -120,11 +123,14 @@ fn main() {
     }
 
     println!();
-    let _ = h.summary();
+    std::process::exit(h.summary());
 }
 
 #[cfg(feature = "biomeos")]
-#[allow(clippy::cast_precision_loss, clippy::cast_possible_truncation)]
+#[expect(
+    clippy::cast_possible_truncation,
+    reason = "day-of-year index cast to u16; values are < 366"
+)]
 fn fetch_live_weather(
     socket: &std::path::Path,
 ) -> groundspring::biomeos::Result<Vec<groundspring::fao56::DailyWeatherInputs>> {

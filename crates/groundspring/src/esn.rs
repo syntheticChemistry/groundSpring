@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Echo State Network (ESN) regime classifier for Anderson localization.
@@ -35,6 +35,59 @@
 //! This module requires the `barracuda-gpu` feature. All heavy computation
 //! (reservoir update, readout training) runs on GPU via barracuda's ESN.
 
+/// Action taken by the drift monitor when population health is at risk.
+///
+/// Mirrors `bingoCube/nautilus/src/constraints.rs::DriftAction`. When the
+/// effective population size `N_e` times the selection coefficient `s` drops
+/// below the drift boundary, the evolutionary process is dominated by
+/// genetic drift rather than selection. These actions counteract that.
+///
+/// # Cross-spring lineage
+///
+/// Nautilus Shell `constraints.rs` → hotSpring Exp 029/030 → groundSpring V63.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum DriftAction {
+    /// Population health is fine — no action needed.
+    None,
+    /// Increase selection pressure (halve elite survivors or grow tournament).
+    IncreaseSelection,
+    /// Grow population by the given factor with fresh random individuals.
+    IncreasePop {
+        /// Multiplicative growth factor (e.g. 1.5 = grow by 50%).
+        factor: f64,
+    },
+}
+
+impl std::fmt::Display for DriftAction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::None => write!(f, "none"),
+            Self::IncreaseSelection => write!(f, "increase_selection"),
+            Self::IncreasePop { factor } => write!(f, "increase_pop({factor:.1}x)"),
+        }
+    }
+}
+
+/// A detected concept edge — a parameter value where the model's
+/// predictive power breaks down, indicating a physical phase boundary.
+///
+/// Structured replacement for the `(f64, f64)` tuples previously returned
+/// by `detect_concept_edges`. Carries the edge location, prediction error,
+/// and optional drift action recommendation.
+///
+/// # Cross-spring lineage
+///
+/// Nautilus Shell `brain.rs::detect_concept_edges` → hotSpring Exp 028/030.
+#[derive(Debug, Clone)]
+pub struct ConceptEdge {
+    /// The parameter value (e.g. disorder strength W) where the edge occurs.
+    pub parameter: f64,
+    /// LOO prediction error at this point — higher = sharper boundary.
+    pub loo_error: f64,
+    /// Recommended drift action if evolution is active at this edge.
+    pub drift_action: DriftAction,
+}
+
 /// Multi-head disagreement measurement for epistemic uncertainty.
 ///
 /// When multiple ESN heads (or classifiers) make predictions, the spread
@@ -44,10 +97,11 @@
 ///
 /// # Cross-spring lineage
 ///
-/// `HeadGroupDisagreement` from hotSpring `reservoir.rs` (Gen 2 multi-head ESN).
-/// The Nautilus Shell's concept edge detection (LOO cross-validation) identifies
-/// the same boundaries from a different angle. Together they provide both
-/// intra-model (disagreement) and inter-model (LOO) uncertainty quantification.
+/// `HeadGroupDisagreement` from hotSpring `reservoir.rs` (Gen 2 multi-head ESN,
+/// 15 heads in v0.6.15). The Nautilus Shell's concept edge detection (LOO
+/// cross-validation) identifies the same boundaries from a different angle.
+/// Together they provide both intra-model (disagreement) and inter-model
+/// (LOO) uncertainty quantification.
 #[derive(Debug, Clone, Copy)]
 pub struct ClassificationUncertainty {
     /// Maximum softmax output (confidence of the winning class).
@@ -58,6 +112,79 @@ pub struct ClassificationUncertainty {
     /// Margin between top-1 and top-2 softmax probabilities.
     /// Small margin → boundary region.
     pub margin: f64,
+}
+
+/// Multi-observable uncertainty from multiple ESN heads.
+///
+/// When N heads each predict a different observable (e.g. bias, variance,
+/// spectral width, localization length), this struct captures per-observable
+/// uncertainty and the inter-head disagreement.
+///
+/// # Cross-spring lineage
+///
+/// hotSpring v0.6.15 15-head ESN: heads 1-3 predict plaquette/CG/acceptance,
+/// heads 4-11 predict phase/therm/convergence/anomaly, heads 12-15 predict
+/// Anderson proxies. groundSpring maps this to uncertainty observables.
+#[derive(Debug, Clone)]
+pub struct MultiHeadUncertainty {
+    /// Per-observable mean prediction across heads.
+    pub means: Vec<f64>,
+    /// Per-observable standard deviation across heads (epistemic uncertainty).
+    pub std_devs: Vec<f64>,
+    /// Maximum inter-head disagreement (max of per-observable CV).
+    pub max_disagreement: f64,
+    /// Number of heads that contributed predictions.
+    pub n_heads: usize,
+}
+
+/// Compute multi-head uncertainty from a matrix of head predictions.
+///
+/// `predictions` is `[n_heads][n_observables]` — each head's prediction
+/// for each observable. Returns aggregated uncertainty across heads.
+#[must_use]
+pub fn multi_head_uncertainty(predictions: &[Vec<f64>]) -> MultiHeadUncertainty {
+    if predictions.is_empty() || predictions[0].is_empty() {
+        return MultiHeadUncertainty {
+            means: Vec::new(),
+            std_devs: Vec::new(),
+            max_disagreement: 0.0,
+            n_heads: 0,
+        };
+    }
+
+    let n_heads = predictions.len();
+    let n_obs = predictions[0].len();
+    let nh = crate::cast::usize_f64(n_heads);
+
+    let mut means = vec![0.0; n_obs];
+    let mut std_devs = vec![0.0; n_obs];
+
+    for obs in 0..n_obs {
+        let sum: f64 = predictions.iter().map(|h| h[obs]).sum();
+        means[obs] = sum / nh;
+    }
+
+    for obs in 0..n_obs {
+        let var: f64 = predictions
+            .iter()
+            .map(|h| (h[obs] - means[obs]).powi(2))
+            .sum::<f64>()
+            / nh;
+        std_devs[obs] = var.sqrt();
+    }
+
+    let max_disagreement = means
+        .iter()
+        .zip(std_devs.iter())
+        .map(|(&m, &s)| if m.abs() > 1e-15 { s / m.abs() } else { s })
+        .fold(0.0_f64, f64::max);
+
+    MultiHeadUncertainty {
+        means,
+        std_devs,
+        max_disagreement,
+        n_heads,
+    }
 }
 
 impl ClassificationUncertainty {
@@ -101,7 +228,7 @@ pub fn classification_uncertainty(outputs: &[f64]) -> ClassificationUncertainty 
         .sum::<f64>();
 
     let mut sorted = probs;
-    sorted.sort_by(|a, b| b.partial_cmp(a).unwrap_or(std::cmp::Ordering::Equal));
+    sorted.sort_by(|a, b| b.total_cmp(a));
     let margin = if sorted.len() >= 2 {
         sorted[0] - sorted[1]
     } else {
@@ -121,11 +248,15 @@ pub fn classification_uncertainty(outputs: &[f64]) -> ClassificationUncertainty 
 /// prediction error at the held-out point. Points where the LOO error exceeds
 /// `threshold` are regime boundaries — the model cannot generalize across them.
 ///
-/// Returns `(disorder_value, loo_error)` pairs for detected edges.
+/// Returns structured [`ConceptEdge`] values with error magnitude and drift
+/// action recommendations. The drift action follows the Nautilus Shell pattern:
+/// high-error edges recommend `IncreaseSelection` (sharpen around the boundary),
+/// moderate edges recommend `IncreasePop` (explore the boundary region).
 ///
 /// # Cross-spring lineage
 ///
-/// Concept from `bingoCube/nautilus/brain.rs` (`detect_concept_edges`).
+/// Original: `bingoCube/nautilus/brain.rs` (`detect_concept_edges`).
+/// Self-regulation: `bingoCube/nautilus/constraints.rs` (`DriftAction`).
 /// The Nautilus Shell uses this for QCD phase boundary detection in lattice
 /// gauge theory. groundSpring applies it to Anderson localization transitions.
 #[must_use]
@@ -134,8 +265,11 @@ pub fn detect_concept_edges(
     features: &[[f64; 3]],
     regime_labels: &[RegimeLabel],
     threshold: f64,
-) -> Vec<(f64, f64)> {
-    if features.len() < 4 || features.len() != regime_labels.len() {
+) -> Vec<ConceptEdge> {
+    if features.len() < 4
+        || features.len() != regime_labels.len()
+        || disorder_values.len() != features.len()
+    {
         return Vec::new();
     }
     let n = features.len();
@@ -164,7 +298,6 @@ pub fn detect_concept_edges(
             .map(|(_, l)| label_to_vec(l))
             .collect();
 
-        // Simple nearest-neighbor prediction as lightweight LOO
         let test_feat = features[hold_out];
         let mut best_dist = f64::MAX;
         let mut best_idx = 0;
@@ -182,11 +315,56 @@ pub fn detect_concept_edges(
         let error = error.sqrt();
 
         if error > threshold {
-            edges.push((disorder_values[hold_out], error));
+            let drift_action = drift_action_for_edge(error, threshold);
+            edges.push(ConceptEdge {
+                parameter: disorder_values[hold_out],
+                loo_error: error,
+                drift_action,
+            });
         }
     }
 
     edges
+}
+
+/// Recommend a [`DriftAction`] based on edge error magnitude.
+///
+/// The heuristic mirrors Nautilus Shell `constraints.rs`:
+/// - Error > 2× threshold → `IncreaseSelection` (sharp boundary)
+/// - Error > threshold → `IncreasePop` by 1.5× (explore boundary)
+fn drift_action_for_edge(error: f64, threshold: f64) -> DriftAction {
+    if error > threshold * 2.0 {
+        DriftAction::IncreaseSelection
+    } else {
+        DriftAction::IncreasePop { factor: 1.5 }
+    }
+}
+
+/// Seed additional sampling points around detected concept edges.
+///
+/// For each edge, generates `n_seeds` disorder values within ±`radius`
+/// of the edge parameter. Used to focus evolutionary exploration around
+/// phase boundaries, matching the Nautilus Shell's `EdgeSeeder` pattern.
+///
+/// # Cross-spring lineage
+///
+/// `bingoCube/nautilus/constraints.rs::EdgeSeeder` → hotSpring Exp 030 adaptive β.
+#[must_use]
+pub fn seed_around_edges(edges: &[ConceptEdge], n_seeds: usize, radius: f64) -> Vec<f64> {
+    let mut seeds = Vec::with_capacity(edges.len() * n_seeds);
+    for edge in edges {
+        for i in 0..n_seeds {
+            let frac = if n_seeds <= 1 {
+                0.0
+            } else {
+                let fi = crate::cast::usize_f64(i);
+                let fn_max = crate::cast::usize_f64(n_seeds - 1);
+                (fi / fn_max).mul_add(2.0, -1.0)
+            };
+            seeds.push(frac.mul_add(radius, edge.parameter));
+        }
+    }
+    seeds
 }
 
 /// Localization regime labels for Anderson model classification.
@@ -342,7 +520,7 @@ impl EsnClassifier {
             regularization: 1e-6,
             seed,
         };
-        let esn = pollster::block_on(barracuda::esn_v2::ESN::new(config))
+        let esn = barracuda::device::test_pool::tokio_block_on(barracuda::esn_v2::ESN::new(config))
             .map_err(|e| format!("ESN init failed: {e}"))?;
         Ok(Self { esn })
     }
@@ -359,7 +537,7 @@ impl EsnClassifier {
     ///
     /// Returns an error if training fails (insufficient data, GPU error).
     pub fn train(&mut self, features: &[Vec<f32>], labels: &[Vec<f32>]) -> Result<f32, String> {
-        pollster::block_on(self.esn.train(features, labels))
+        barracuda::device::test_pool::tokio_block_on(self.esn.train(features, labels))
             .map_err(|e| format!("ESN training failed: {e}"))
     }
 
@@ -372,13 +550,13 @@ impl EsnClassifier {
     ///
     /// Returns an error if prediction fails.
     pub fn classify(&mut self, features: &[f32; 3]) -> Result<RegimeLabel, String> {
-        let output = pollster::block_on(self.esn.predict(features))
+        let output = barracuda::device::test_pool::tokio_block_on(self.esn.predict(features))
             .map_err(|e| format!("ESN predict failed: {e}"))?;
 
         let (max_idx, _) = output
             .iter()
             .enumerate()
-            .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
+            .max_by(|(_, a), (_, b)| a.total_cmp(b))
             .unwrap_or((0, &0.0));
 
         Ok(match max_idx {
@@ -492,7 +670,6 @@ mod tests {
 
     #[test]
     fn concept_edge_detects_transition() {
-        // Simulate a disorder sweep crossing the Anderson transition
         let disorders: Vec<f64> = (0..12).map(|i| f64::from(i).mul_add(1.5, 1.0)).collect();
         let features: Vec<[f64; 3]> = disorders
             .iter()
@@ -523,12 +700,19 @@ mod tests {
             !edges.is_empty(),
             "should detect edges at regime transitions"
         );
-        // Edges should be near the transition points (W≈6, W≈10)
-        let edge_disorders: Vec<f64> = edges.iter().map(|(w, _)| *w).collect();
+        let edge_params: Vec<f64> = edges.iter().map(|e| e.parameter).collect();
         assert!(
-            edge_disorders.iter().any(|&w| w > 4.0 && w < 12.0),
-            "edges should be in transition region: {edge_disorders:?}"
+            edge_params.iter().any(|&w| w > 4.0 && w < 12.0),
+            "edges should be in transition region: {edge_params:?}"
         );
+        for edge in &edges {
+            assert!(edge.loo_error > 0.5, "edges should exceed threshold");
+            assert_ne!(
+                edge.drift_action,
+                DriftAction::None,
+                "edge should recommend an action"
+            );
+        }
     }
 
     #[test]
@@ -540,5 +724,80 @@ mod tests {
             0.5,
         );
         assert!(edges.is_empty(), "need >= 4 points for LOO");
+    }
+
+    #[test]
+    fn drift_action_display() {
+        assert_eq!(DriftAction::None.to_string(), "none");
+        assert_eq!(
+            DriftAction::IncreaseSelection.to_string(),
+            "increase_selection"
+        );
+        assert_eq!(
+            DriftAction::IncreasePop { factor: 1.5 }.to_string(),
+            "increase_pop(1.5x)"
+        );
+    }
+
+    #[test]
+    fn drift_action_for_edge_sharp_boundary() {
+        let action = super::drift_action_for_edge(1.5, 0.5);
+        assert_eq!(action, DriftAction::IncreaseSelection);
+    }
+
+    #[test]
+    fn drift_action_for_edge_moderate_boundary() {
+        let action = super::drift_action_for_edge(0.7, 0.5);
+        assert_eq!(action, DriftAction::IncreasePop { factor: 1.5 });
+    }
+
+    #[test]
+    fn seed_around_edges_basic() {
+        let edges = vec![ConceptEdge {
+            parameter: 5.0,
+            loo_error: 1.0,
+            drift_action: DriftAction::IncreaseSelection,
+        }];
+        let seeds = seed_around_edges(&edges, 5, 0.5);
+        assert_eq!(seeds.len(), 5);
+        assert!((seeds[0] - 4.5).abs() < 1e-10, "first seed at -radius");
+        assert!((seeds[4] - 5.5).abs() < 1e-10, "last seed at +radius");
+        assert!((seeds[2] - 5.0).abs() < 1e-10, "middle seed at center");
+    }
+
+    #[test]
+    fn seed_around_edges_empty() {
+        let seeds = seed_around_edges(&[], 5, 0.5);
+        assert!(seeds.is_empty());
+    }
+
+    #[test]
+    fn multi_head_uncertainty_basic() {
+        let preds = vec![
+            vec![1.0, 2.0, 3.0],
+            vec![1.1, 2.2, 2.8],
+            vec![0.9, 1.8, 3.2],
+        ];
+        let u = multi_head_uncertainty(&preds);
+        assert_eq!(u.n_heads, 3);
+        assert_eq!(u.means.len(), 3);
+        assert_eq!(u.std_devs.len(), 3);
+        assert!((u.means[0] - 1.0).abs() < 0.01);
+        assert!(u.max_disagreement > 0.0);
+    }
+
+    #[test]
+    fn multi_head_uncertainty_empty() {
+        let u = multi_head_uncertainty(&[]);
+        assert_eq!(u.n_heads, 0);
+        assert!(u.means.is_empty());
+    }
+
+    #[test]
+    fn multi_head_uncertainty_single_head() {
+        let preds = vec![vec![1.0, 2.0]];
+        let u = multi_head_uncertainty(&preds);
+        assert_eq!(u.n_heads, 1);
+        assert!((u.std_devs[0]).abs() < 1e-15, "single head → zero std dev");
     }
 }

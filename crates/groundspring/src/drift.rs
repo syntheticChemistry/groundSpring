@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Drift vs selection in finite populations (Wright-Fisher model).
@@ -580,5 +580,41 @@ mod tests {
             mon.record(gen, 24, 0.5, 0.6);
         }
         assert!(mon.is_drifting());
+    }
+
+    #[test]
+    fn wf_batch_parity_cpu_sequential_vs_dispatch() {
+        let pop = 50;
+        let selection = 0.05;
+        let freq = 0.5;
+        let n_trials = 200;
+        let base_seed = 42;
+
+        let batch = wright_fisher_fixation_batch(pop, selection, freq, n_trials, base_seed);
+        let cpu = wf_batch_cpu(pop, selection, freq, n_trials, base_seed);
+
+        if cfg!(feature = "barracuda-gpu") {
+            let kimura = kimura_fixation_prob(pop, selection, freq);
+            let expected = (kimura * usize_f64(n_trials)).round();
+            let tol = usize_f64(n_trials) * 0.2;
+            assert!(
+                (usize_f64(batch) - expected).abs() < tol,
+                "GPU batch {batch} far from expected {expected} (Kimura: {kimura})",
+            );
+        } else {
+            assert_eq!(batch, cpu, "without GPU, batch and CPU must match exactly");
+        }
+    }
+
+    #[test]
+    fn wf_batch_fixation_rate_reasonable() {
+        let n_trials = 500;
+        let fix_count = wright_fisher_fixation_batch(100, 0.05, 0.5, n_trials, 42);
+        let rate = usize_f64(fix_count) / usize_f64(n_trials);
+        let kimura = kimura_fixation_prob(100, 0.05, 0.5);
+        assert!(
+            (rate - kimura).abs() < 0.15,
+            "fixation rate {rate} should be near Kimura {kimura}"
+        );
     }
 }

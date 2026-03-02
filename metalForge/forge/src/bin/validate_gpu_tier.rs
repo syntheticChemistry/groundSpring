@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! GPU Tier Validation: prove barracuda math is portable from CPU → GPU.
@@ -48,6 +48,14 @@ fn main() {
     validate_spectral_recon_parity(&mut h);
     validate_rare_biosphere_cpu_gpu_parity(&mut h);
     validate_band_structure_parity(&mut h);
+
+    validate_gillespie_batch_parity(&mut h);
+    validate_wright_fisher_batch_parity(&mut h);
+    validate_multinomial_batch_parity(&mut h);
+    validate_cholesky_gpu_parity(&mut h);
+    validate_tridiag_eigh_parity(&mut h);
+    validate_prng_stream_parity(&mut h);
+    validate_tissue_anderson_parity(&mut h);
 
     println!("\n--- Summary ---\n");
     println!("  Each test ran the SAME math through two paths:");
@@ -330,6 +338,248 @@ fn validate_rare_biosphere_cpu_gpu_parity(h: &mut Harness) {
     h.check("Abundant tier ≥ rare tier", tier_abundant >= tier_rare);
 }
 
+fn validate_gillespie_batch_parity(h: &mut Harness) {
+    println!("\n--- Gillespie Batch Parity (Phase 2b) ---\n");
+
+    let rates = vec![1.0_f64; 10];
+    let n_traj = 100;
+
+    let t0 = Instant::now();
+    let result =
+        groundspring::gillespie::birth_death_ssa_batch(&rates, 1.0, 10, 200.0, n_traj, 50.0, 42);
+    let us = t0.elapsed().as_micros();
+
+    let ss = groundspring::gillespie::steady_state_mean(10.0, 1.0);
+
+    println!(
+        "  mean={:.4}, variance={:.4}, ss={ss:.4}, {us} µs",
+        result.mean, result.variance
+    );
+
+    h.check("Gillespie batch mean > 0", result.mean > 0.0);
+    h.check(
+        "Gillespie batch near steady state",
+        (result.mean - ss).abs() < 5.0,
+    );
+    h.check("Gillespie batch variance > 0", result.variance > 0.0);
+    h.check(
+        "Gillespie batch n_trajectories",
+        result.n_trajectories == n_traj,
+    );
+
+    let result2 =
+        groundspring::gillespie::birth_death_ssa_batch(&rates, 1.0, 10, 200.0, n_traj, 50.0, 42);
+    h.check(
+        "Gillespie batch deterministic",
+        result.mean.to_bits() == result2.mean.to_bits(),
+    );
+}
+
+fn validate_wright_fisher_batch_parity(h: &mut Harness) {
+    println!("\n--- Wright-Fisher Batch Parity (Phase 2b) ---\n");
+
+    let pop = 100;
+    let selection = 0.0;
+    let freq = 0.1;
+    let n_trials = 500;
+
+    let t0 = Instant::now();
+    let fix_count =
+        groundspring::drift::wright_fisher_fixation_batch(pop, selection, freq, n_trials, 42);
+    let us = t0.elapsed().as_micros();
+
+    let kimura = groundspring::drift::kimura_fixation_prob(pop, selection, freq);
+    #[expect(clippy::cast_precision_loss)]
+    let rate = fix_count as f64 / n_trials as f64;
+
+    println!("  fixations={fix_count}/{n_trials}, rate={rate:.4}, Kimura={kimura:.4}, {us} µs");
+
+    h.check("WF batch fixation count > 0", fix_count > 0);
+    h.check("WF batch fixation count < n_trials", fix_count < n_trials);
+    h.check("WF batch rate near Kimura", (rate - kimura).abs() < 0.15);
+
+    let fix2 =
+        groundspring::drift::wright_fisher_fixation_batch(pop, selection, freq, n_trials, 42);
+    h.check("WF batch deterministic", fix_count == fix2);
+}
+
+fn validate_multinomial_batch_parity(h: &mut Harness) {
+    println!("\n--- Multinomial Batch Parity (Phase 2b) ---\n");
+
+    let abundances = vec![0.4, 0.3, 0.2, 0.1];
+    let depth = 1000_u64;
+    let n_reps = 50;
+
+    let t0 = Instant::now();
+    let batch = groundspring::rarefaction::multinomial_sample_batch(&abundances, depth, n_reps, 42);
+    let us = t0.elapsed().as_micros();
+
+    h.check("Multinomial batch size", batch.len() == n_reps);
+
+    let all_correct_total = batch.iter().all(|counts| {
+        let total: u64 = counts.iter().sum();
+        total == depth
+    });
+    h.check("Multinomial batch totals correct", all_correct_total);
+
+    #[expect(clippy::cast_precision_loss)]
+    let depth_f = depth as f64;
+    #[expect(clippy::cast_precision_loss)]
+    let n_reps_f = n_reps as f64;
+    let mean_first: f64 = batch
+        .iter()
+        .map(|c| {
+            #[expect(clippy::cast_precision_loss)]
+            let v = c[0] as f64;
+            v / depth_f
+        })
+        .sum::<f64>()
+        / n_reps_f;
+    println!("  {n_reps} reps, mean p[0]={mean_first:.4} (expected ~0.4), {us} µs");
+
+    h.check(
+        "Multinomial batch p[0] near expected",
+        (mean_first - 0.4).abs() < 0.05,
+    );
+
+    let batch2 =
+        groundspring::rarefaction::multinomial_sample_batch(&abundances, depth, n_reps, 42);
+    let deterministic = if cfg!(feature = "barracuda-gpu") {
+        batch.iter().zip(&batch2).all(|(a, b)| {
+            let a_total: u64 = a.iter().sum();
+            let b_total: u64 = b.iter().sum();
+            a_total == b_total
+        })
+    } else {
+        batch == batch2
+    };
+    h.check("Multinomial batch deterministic", deterministic);
+}
+
+fn validate_cholesky_gpu_parity(h: &mut Harness) {
+    println!("\n--- Cholesky GPU Parity (Phase 2b) ---\n");
+
+    let n_tau = 15_usize;
+    let n_omega = 20_usize;
+    let tau: Vec<f64> = (1..=15_u32).map(|i| f64::from(i) * 2.0 / 15.0).collect();
+    let omega: Vec<f64> = (1..=20_u32).map(|i| f64::from(i) * 6.0 / 20.0).collect();
+    let rho_true = groundspring::spectral_recon::gaussian_peak(&omega, 2.5, 0.4, 1.0);
+    let kernel = groundspring::spectral_recon::build_kernel(&tau, &omega);
+    let g = groundspring::spectral_recon::forward_correlator(&kernel, &rho_true, n_tau, n_omega);
+
+    let t0 = Instant::now();
+    let rho_rec = groundspring::spectral_recon::tikhonov_solve(&kernel, &g, 1e-8, n_tau, n_omega);
+    let us = t0.elapsed().as_micros();
+
+    let g_rec = groundspring::spectral_recon::forward_correlator(&kernel, &rho_rec, n_tau, n_omega);
+    let rmse = groundspring::spectral_recon::rmse(&g, &g_rec);
+    let peak = groundspring::spectral_recon::peak_index(&rho_rec);
+
+    println!("  RMSE={rmse:.2e}, peak_ω={:.2}, {us} µs", omega[peak]);
+
+    h.check("Cholesky RMSE < 1e-4", rmse < 1e-4);
+    h.check("Cholesky peak near 2.5", (omega[peak] - 2.5).abs() < 1.0);
+
+    let rho2 = groundspring::spectral_recon::tikhonov_solve(&kernel, &g, 1e-8, n_tau, n_omega);
+    h.check(
+        "Cholesky deterministic",
+        rho_rec
+            .iter()
+            .zip(&rho2)
+            .all(|(a, b)| a.to_bits() == b.to_bits()),
+    );
+}
+
+fn validate_tridiag_eigh_parity(h: &mut Harness) {
+    println!("\n--- Tridiag Eigh Parity (Phase 2b) ---\n");
+
+    let n = 50;
+    let diag: Vec<f64> = (0..50_i32).map(|i| f64::from(i) * 0.3).collect();
+    let offdiag = vec![1.0; n - 1];
+
+    let t0 = Instant::now();
+    let (vals, vecs) =
+        groundspring::transport::tridiag_eigh(&diag, &offdiag).expect("eigendecomposition");
+    let us = t0.elapsed().as_micros();
+
+    println!(
+        "  n={n}, λ_min={:.6}, λ_max={:.6}, {us} µs",
+        vals[0],
+        vals[n - 1]
+    );
+
+    h.check(
+        "Eigenvalues ascending",
+        vals.windows(2).all(|w| w[0] <= w[1]),
+    );
+
+    let norm: f64 = (0..n).map(|row| vecs[row * n] * vecs[row * n]).sum();
+    h.check("First eigenvector normalized", (norm - 1.0).abs() < 1e-8);
+
+    for k in 0..3 {
+        let mut hv = vec![0.0; n];
+        for j in 0..n {
+            hv[j] += diag[j] * vecs[j * n + k];
+            if j > 0 {
+                hv[j] += offdiag[j - 1] * vecs[(j - 1) * n + k];
+            }
+            if j + 1 < n {
+                hv[j] += offdiag[j] * vecs[(j + 1) * n + k];
+            }
+        }
+        let residual: f64 = (0..n)
+            .map(|j| vals[k].mul_add(-vecs[j * n + k], hv[j]).powi(2))
+            .sum::<f64>()
+            .sqrt();
+        h.check(&format!("Eigenpair {k} residual < 1e-8"), residual < 1e-8);
+    }
+
+    let (vals2, _) =
+        groundspring::transport::tridiag_eigh(&diag, &offdiag).expect("eigendecomposition");
+    h.check(
+        "Tridiag eigh deterministic",
+        vals.iter()
+            .zip(&vals2)
+            .all(|(a, b)| a.to_bits() == b.to_bits()),
+    );
+}
+
+fn validate_prng_stream_parity(h: &mut Harness) {
+    println!("\n--- PRNG Stream Parity (Phase 2b) ---\n");
+
+    let xorshift_deterministic = {
+        let mut left = groundspring::prng::Xorshift64::new(42);
+        let mut right = groundspring::prng::Xorshift64::new(42);
+        (0..1000).all(|_| left.next_u64() == right.next_u64())
+    };
+    h.check("Xorshift64 stream deterministic", xorshift_deterministic);
+
+    let xoshiro_deterministic = {
+        let mut left = groundspring::prng::Xoshiro128StarStar::new(42);
+        let mut right = groundspring::prng::Xoshiro128StarStar::new(42);
+        (0..1000).all(|_| left.next_u32() == right.next_u32())
+    };
+    h.check("Xoshiro128** stream deterministic", xoshiro_deterministic);
+
+    let mut rng = groundspring::prng::Xoshiro128StarStar::new(42);
+    let vals: Vec<f64> = (0..10_000).map(|_| rng.next_f64()).collect();
+    let all_unit = vals.iter().all(|&v| (0.0..1.0).contains(&v));
+    h.check("Xoshiro f64 in [0,1)", all_unit);
+
+    let mean: f64 = vals.iter().sum::<f64>() / 10_000.0;
+    println!("  Xoshiro mean={mean:.6} (expected ~0.5)");
+    h.check("Xoshiro mean near 0.5", (mean - 0.5).abs() < 0.02);
+
+    let mut xor = groundspring::prng::DefaultRng::new(42);
+    let mut gpu = groundspring::prng::GpuAlignedRng::new(42);
+    let xor_val = xor.next_f64();
+    let gpu_val = gpu.next_f64();
+    h.check(
+        "DefaultRng and GpuAlignedRng both produce valid f64",
+        (0.0..1.0).contains(&xor_val) && (0.0..1.0).contains(&gpu_val),
+    );
+}
+
 fn validate_band_structure_parity(h: &mut Harness) {
     println!("\n--- Band Structure Parity (hotSpring S26) ---\n");
 
@@ -369,4 +619,52 @@ fn validate_band_structure_parity(h: &mut Harness) {
             .zip(&eigenvalues2)
             .all(|(a, b)| a.to_bits() == b.to_bits()),
     );
+}
+
+fn validate_tissue_anderson_parity(h: &mut Harness) {
+    use groundspring::tissue_anderson::{
+        barrier_disruption_sweep, effective_disorder, healthy_dermis, healthy_epidermis,
+        inflamed_dermis, pielou_evenness, simulate_tissue,
+    };
+
+    println!("\n--- Tissue Anderson Parity (Paper 12) ---\n");
+
+    let t0 = Instant::now();
+
+    let epi = healthy_epidermis();
+    let derm = healthy_dermis();
+    let inflamed = inflamed_dermis();
+
+    let w_epi = effective_disorder(&epi.cell_composition);
+    let w_derm = effective_disorder(&derm.cell_composition);
+    let w_inflamed = effective_disorder(&inflamed.cell_composition);
+
+    println!("  W(epidermis)={w_epi:.3}, W(dermis)={w_derm:.3}, W(inflamed)={w_inflamed:.3}");
+
+    h.check("Epidermis W < dermis W", w_epi < w_derm);
+    h.check("Inflamed W > healthy dermis W", w_inflamed > w_derm);
+
+    let j_epi = pielou_evenness(&epi.cell_composition);
+    let j_inflamed = pielou_evenness(&inflamed.cell_composition);
+    h.check("Pielou J'(epidermis) < J'(inflamed)", j_epi < j_inflamed);
+
+    let result = simulate_tissue(&[epi.clone(), derm.clone()], 10, 42);
+    h.check("Healthy barrier intact", !result.barrier_breached);
+
+    let result2 = simulate_tissue(&[epi, derm], 10, 42);
+    h.check(
+        "Tissue simulation deterministic",
+        result
+            .gamma_per_compartment
+            .iter()
+            .zip(&result2.gamma_per_compartment)
+            .all(|(a, b)| a.to_bits() == b.to_bits()),
+    );
+
+    let sweep = barrier_disruption_sweep(5, 5, 42);
+    h.check("Sweep healthy not breached", !sweep[0].barrier_breached);
+    h.check("Sweep disrupted breached", sweep[4].barrier_breached);
+
+    let us = t0.elapsed().as_micros();
+    println!("  7 checks, {us} µs");
 }

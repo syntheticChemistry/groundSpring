@@ -40,7 +40,7 @@
 **Phase 0**: ~261 checks (Python). **Phase 1**: 292/292 PASS (Rust). **Speedup**: 11.6× median (excl. LAPACK-bound), 51.2× peak (seismic).
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **V54 fresh validation**: 283/283 checks (27 binaries), 95/95 three-tier parity, `bench_rust_vs_python.json` saved.
-**GPU dispatch (V31–V51)**: 13 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson. 19 metalForge workloads (17 GPU + 2 NPU). 61 active delegations (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — ToadStool S71+++.
+**GPU dispatch (V31–V51)**: 13 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson. 19 metalForge workloads (17 GPU + 2 NPU). 61 active delegations (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — ToadStool S79.
 **Three-tier parity (V43)**: 27/27 PROVEN (default = barracuda-CPU = barracuda-GPU). GPU tier: 39/39 checks. Pure GPU: 26/26 checks. metalForge dispatch: 17/19 → Titan V.
 **Exp 015** bridges Papers 22-24 (Sub-thesis 06): sensor noise → Anderson ξ → QS regime uncertainty.
 
@@ -172,6 +172,21 @@ needs qualification.
 |---|-------|---------|------|---------|-----|--------|
 | 14 | Dolson et al. "The ecology-evolution continuum and the origin of life" | J R Soc Interface 20(208) | 2023 | Dolson | Where does signal begin in a system that starts as pure noise? Origin-of-life context | **Active** (Exp 017: 9/9 Py, 6/6 Rust) |
 
+### Anderson Localization in Immunological Signaling (baseCamp Paper 12)
+
+| # | Target | Domain | Connection | Status |
+|---|--------|--------|-----------|--------|
+| 29 | Cytokine Anderson lattice (Exp 033) | Immunological (tissue geometry) | 2D epidermis + 3D dermis as Anderson lattice; barrier disruption → dimensional promotion; Pielou evenness → effective disorder W | **Active** (29/29 Rust) |
+| 30 | Geometry-aware drug scoring (Exp 034) | Immunological (drug repurposing) | Anderson-augmented Fajgenbaum MATRIX score: pathway_score × penetration_factor × anderson_factor; AD panel (6 drugs) | **Active** (combined with Exp 033) |
+
+**Cross-spring impact**: Paper 12 bridges groundSpring's Anderson localization (Papers 15-18)
+with immunological signaling. The dimensional promotion–collapse duality connects
+Paper 06 (tillage COLLAPSES 3D→2D soil structure, bad) with Paper 12 (scratching
+PROMOTES 2D→3D cytokine propagation, bad). Same physics, opposite directions,
+context-dependent outcomes. Drug repurposing scoring adds spatial geometry to
+pathway-based approaches — a drug must both target the right pathway AND physically
+reach its target through the tissue Anderson lattice.
+
 ---
 
 ## Open Data Provenance Audit
@@ -242,7 +257,7 @@ Write → Absorb → Lean cycle:
 | 28 | NPU Anderson regime classification | **9/9** | — | **Live** (AKD1000 DMA) | int8 centroid classifier on NPU |
 
 **CPU tier**: 283/283 PASS across 27 validation binaries (Exp 028 NPU hardware-only = +9 checks).
-**Barracuda**: 61 active delegations (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — ToadStool S71+++. **Performance**: 11.6× faster than Python (excl. LAPACK-bound); 5.2× overall; 51.2× peak (seismic). **Tests**: 668 Rust workspace + 375 Python = 1043. 95 three-tier parity tests (100% delegation coverage).
+**Barracuda**: 61 active delegations (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — ToadStool S79. **Performance**: 11.6× faster than Python (excl. LAPACK-bound); 5.2× overall; 51.2× peak (seismic). **Tests**: 752 Rust workspace + 375 Python = 1127. 95 three-tier parity tests (100% delegation coverage).
 **Mathematical parity**: 28/28 PROVEN. See `data/parity_report.json` and `data/bench_rust_vs_python.json`.
 **Three-tier parity**: 95 parity tests validate CPU ↔ barracuda-CPU equivalence (100% delegation coverage).
 **GPU tier**: 13 modules wired with `#[cfg(feature = "barracuda-gpu")]` — including GPU grid adapters (seismic, freeze-out). 316/322 tests pass (6 require f64-capable GPU: Titan V / A100).
@@ -322,8 +337,8 @@ Papers 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 18, 21 — can proceed to GPU tier on
 ### Tier 1: BarraCUDA CPU (current — 292/292 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
-61 active delegations (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — ToadStool S71+++. 11.5× faster than Python (excl. LAPACK-bound).
-668 Rust workspace tests + 375 Python = 1043. 28/28 mathematical parity proven. 95+ three-tier parity tests (100% delegation coverage).
+61 active delegations (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — ToadStool S79. 11.5× faster than Python (excl. LAPACK-bound).
+752 Rust workspace tests + 375 Python = 1127. 28/28 mathematical parity proven. 95+ three-tier parity tests (100% delegation coverage).
 All 28 experiments validated. GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r). 9 CPU vs GPU parity tests. CPU vs GPU benchmark binary.
 
 ### Tier 2: BarraCUDA GPU (in progress — 19 GPU dispatch targets)

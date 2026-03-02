@@ -5,6 +5,45 @@ See [CONTROL_EXPERIMENT_STATUS.md](CONTROL_EXPERIMENT_STATUS.md) for the current
 
 ## Run Log
 
+### Run 36 (V63+ Paper 12 Tissue Anderson + GPU Tier Expansion, Mar 2, 2026)
+
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace --all-targets -- -D warnings`: PASS (0 warnings)
+- `RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps`: PASS (0 warnings)
+- `cargo test --workspace` (default): 743 tests, all PASS (up from 725)
+- **NEW** `validate-tissue-anderson`: 29/29 PASS — 10 validation scenarios (Exp 033+034)
+- **NEW** `tissue_anderson` module: cytokine Anderson lattice, barrier disruption sweep, dimensional duality, geometry-aware drug scoring (6-drug AD panel), 18 unit tests
+- **UPDATED** `validate-gpu-tier`: 73/73 PASS (was 66) — 7 tissue Anderson parity checks + Wright-Fisher param fix (s=0.05→s=0.0 for neutral drift)
+- **UPDATED** `CONTROL_EXPERIMENT_STATUS.md`: Exp 033/034 registered, 376/376 total validation checks
+- **UPDATED** `specs/PAPER_REVIEW_QUEUE.md`: Paper 12 (Anderson Localization in Immunological Signaling) added
+- **UPDATED** `specs/BARRACUDA_EVOLUTION.md`: V63 delegation history + tissue_anderson mapping
+
+### Run 35 (V63 Experiment Buildout + GPU Dispatch Validation + metalForge Pipeline, Mar 2, 2026)
+
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace --all-targets -- -D warnings`: PASS (0 warnings)
+- `cargo doc --workspace --no-deps`: PASS (0 warnings)
+- `cargo test --workspace` (default): 725 tests, all PASS (up from 668)
+- Validation binaries (core): 292/292 PASS (unchanged)
+- **NEW** `validate-metalforge-pipeline`: 30/30 PASS — 3-stage NPU→GPU→CPU pipeline, P2P transfer strategy, all FallbackPolicy paths, NodeAtomic planning, sovereign degradation, timing instrumentation
+- **Phase 1 — 6 GPU delegations wired**:
+  - `gillespie::birth_death_ssa_batch` → `GillespieGpu` batch dispatch with 3-mode parity test
+  - `drift::wright_fisher_fixation_batch` → `WrightFisherGpu` device acquisition + buffer management
+  - `rarefaction::multinomial_sample_batch` → `BatchedMultinomialGpu` with cumulative probability adapter
+  - `spectral_recon::tikhonov_solve` → `barracuda::linalg::cholesky_f64` GPU with CPU fallback chain
+  - `linalg::tridiag_eigh_barracuda` → `barracuda::linalg::eigh_f64` (Jacobi rotation validation path)
+  - `prng::Xoshiro128StarStar` + `GpuAlignedRng` type alias — aligned with `barracuda::ops::prng_xoshiro_wgsl`
+- **Phase 2 — bench + parity expansion**:
+  - `bench-cpu-vs-gpu` expanded: `bench_multinomial_batch`, `bench_tikhonov`, `bench_tridiag_eigh`, `bench_transport_msd`
+  - `validate-gpu-tier` expanded: 6 new parity functions (Gillespie, Wright-Fisher, multinomial, Cholesky, tridiag eigh, PRNG stream)
+- **Phase 3 — NUCLEUS compute dispatch**:
+  - `validate-nucleus-pipeline` expanded: `validate_compute_execute_anderson`, `validate_compute_submit_batch`, `validate_compute_roundtrip` — Neural API → provider → validate vs local CPU baseline
+- **Phase 4 — metalForge mixed-hardware pipeline**:
+  - `validate-metalforge-pipeline` (NEW binary): 10 validation scenarios, 30 checks — Anderson regime pipeline, NPU→GPU PCIe P2P/PcieLow transfer, full 3-stage pipeline, Degrade/Skip/Fail fallback, GPU-only chain (zero transfer), CPU-only sovereign degradation, timing instrumentation, NodeAtomic integration
+  - AKD1000 NPU correctly identified as PcieLow (PCIe 2.0 x1) with HostBounce fallback
+- **Quality**: 0 unsafe, 0 unwrap in library, 0 mocks in production, 0 hardcoded primal names, all `#[expect]` with reasons
+- **ToadStool pin**: S79 (`f97fc2ae`) — barracuda GPU delegation fully wired
+
 ### Run 34 (V61 Mixed-Hardware Pipeline + NUCLEUS Atomics + Deep Debt, Mar 2, 2026)
 
 - `cargo fmt --check`: PASS
@@ -454,7 +493,7 @@ ToadStool baseline: S50–S62 + DF64 expansion (Feb 23-24, 2026)
 Review findings:
   No new CPU stats primitives added since our S62 baseline
   Our 11 delegations remain current and complete
-  ToadStool has NOT absorbed our shaders (batched_multinomial, mc_et0_propagate)
+  ToadStool has since absorbed both shaders (batched_multinomial S76, mc_et0_propagate S72)
 
 Code fix:
   correlation.rs  3× needless_return in barracuda cfg blocks → removed

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Exp 032: IRIS Seismic via NUCLEUS — real seismic data through `NestGate`.
@@ -22,7 +22,6 @@ use groundspring::biomeos;
 use groundspring::validate::ValidationHarness;
 
 #[cfg(feature = "biomeos")]
-#[allow(clippy::cast_precision_loss)]
 fn main() {
     let mut h = ValidationHarness::stdout("Exp 032: IRIS Seismic via NUCLEUS");
 
@@ -77,7 +76,7 @@ fn main() {
     store_provenance(&stations, socket.as_ref(), data_source);
 
     println!();
-    let _ = h.summary();
+    std::process::exit(h.summary());
 }
 
 #[cfg(feature = "biomeos")]

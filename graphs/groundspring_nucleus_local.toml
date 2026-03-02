@@ -1,0 +1,273 @@
+# groundSpring NUCLEUS Local Deployment Graph
+# Deploys the minimum viable NUCLEUS on Eastgate for live-data experiments.
+#
+# Atomic composition:
+#   Tower  = BearDog (crypto/identity) + Songbird (IPC discovery)
+#   Node   = Tower + ToadStool (barracuda GPU compute, S79 f97fc2ae)
+#   Nest   = Tower + NestGate (NCBI, NOAA GHCND, IRIS FDSN + provenance storage)
+#
+# After deployment, groundSpring's biomeos.rs client discovers the Neural API
+# socket and routes all capability calls through biomeOS:
+#   - compute.execute  → ToadStool (barracuda GPU dispatch, f64-capable device)
+#   - data.ncbi_search → NestGate (NCBI E-utilities)
+#   - data.noaa_ghcnd  → NestGate (NOAA GHCND weather)
+#   - data.iris_events → NestGate (IRIS FDSN seismic)
+#   - storage.store    → NestGate (provenance storage)
+#
+# Live-data experiments enabled by this graph:
+#   Exp 002 (ET₀)            — nestgate.noaa_ghcnd → real Michigan weather
+#   Exp 004/016 (rare biosphere) — nestgate.ncbi_search → real soil 16S
+#   Exp 005 (seismic)        — nestgate.iris_stations/iris_events → NMSZ data
+#   Exp 023 (no-till 16S)    — nestgate.ncbi_search → no-till vs tilled 16S
+#
+# STATUS: V62 (March 2, 2026) — ToadStool S79, DF64 precision strategy
+# Target: Eastgate (local, single machine)
+#
+# Run: biomeos deploy graphs/groundspring_nucleus_local.toml
+
+[graph]
+id = "groundspring_nucleus_local"
+description = "Full NUCLEUS local: Tower + Node (ToadStool GPU) + Nest (NestGate data/storage)"
+coordination = "Sequential"
+
+[graph.metadata]
+toadstool_pin = "S79"
+toadstool_commit = "f97fc2ae"
+groundspring_version = "V62"
+target_node = "eastgate"
+precision_strategy = "f64-capable with DF64 fallback"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 1: TOWER ATOMIC — BearDog + Songbird
+# Foundation: encrypted identity + IPC socket mesh
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "beardog_bootstrap"
+output = "beardog_ready"
+
+[nodes.operation]
+name = "rpc_call"
+target = "beardog"
+
+[nodes.operation.params]
+method = "tower.bootstrap"
+params = { node_id = "eastgate", family_id = "groundspring", mode = "local" }
+
+[nodes.constraints]
+timeout_ms = 10000
+
+[[nodes]]
+id = "songbird_nucleate"
+depends_on = ["beardog_bootstrap"]
+output = "ipc_mesh_ready"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "ipc.nucleate"
+params = { node_id = "eastgate", primals = ["groundspring", "toadstool", "nestgate"], mesh_mode = "local_unix_socket" }
+
+[nodes.constraints]
+timeout_ms = 15000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 2: NODE ATOMIC — Tower + ToadStool
+# GPU compute layer: barracuda dispatch with f64-capable device selection
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "toadstool_start"
+depends_on = ["songbird_nucleate"]
+output = "toadstool_ready"
+
+[nodes.operation]
+name = "rpc_call"
+target = "toadstool"
+
+[nodes.operation.params]
+method = "toadstool.start"
+params = { node_id = "eastgate", features = ["gpu", "f64"], precision_strategy = "f64_capable_with_fallback", pin = "S79" }
+
+[nodes.constraints]
+timeout_ms = 30000
+
+[[nodes]]
+id = "toadstool_gpu_probe"
+depends_on = ["toadstool_start"]
+output = "gpu_capabilities"
+
+[nodes.operation]
+name = "rpc_call"
+target = "toadstool"
+
+[nodes.operation.params]
+method = "toadstool.probe_gpu"
+params = { check_f64 = true, check_df64 = true, report_device_name = true }
+
+[nodes.constraints]
+timeout_ms = 15000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 3: NEST ATOMIC — Tower + NestGate
+# Data + storage layer: NCBI, NOAA, IRIS providers + provenance storage
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "nestgate_start"
+depends_on = ["songbird_nucleate"]
+output = "nestgate_ready"
+
+[nodes.operation]
+name = "rpc_call"
+target = "nestgate"
+
+[nodes.operation.params]
+method = "nestgate.start"
+params = { node_id = "eastgate", providers = ["ncbi", "noaa_ghcnd", "iris_fdsn"], storage_backend = "local_fs" }
+
+[nodes.constraints]
+timeout_ms = 20000
+
+[[nodes]]
+id = "nestgate_provider_health"
+depends_on = ["nestgate_start"]
+output = "providers_healthy"
+
+[nodes.operation]
+name = "rpc_call"
+target = "nestgate"
+
+[nodes.operation.params]
+method = "nestgate.health"
+params = { check_providers = true, check_storage = true }
+
+[nodes.constraints]
+timeout_ms = 15000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 4: GROUNDSPRING CAPABILITY REGISTRATION
+# Register all groundSpring science capabilities with the NUCLEUS registry
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "register_groundspring"
+depends_on = ["toadstool_gpu_probe", "nestgate_provider_health"]
+output = "groundspring_registered"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "registry.register"
+params = { primal = "groundspring", capabilities = [
+    "science.anderson_validation",
+    "science.tolerance_compare",
+    "science.uncertainty_budget",
+    "science.spectral_recon",
+    "science.freeze_out",
+    "science.jackknife",
+    "science.rare_biosphere",
+    "science.wdm_analysis",
+    "science.cross_spring_benchmark",
+    "science.gpu_tier_validation",
+], family_id = "groundspring", version = "V62" }
+
+[nodes.constraints]
+timeout_ms = 10000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 5: LIVE-DATA ROUTE VALIDATION
+# Verify that the experiment data paths are functional end-to-end
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "validate_ncbi_route"
+depends_on = ["register_groundspring"]
+output = "ncbi_route_ok"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "data.ncbi_search"
+params = { db = "sra", term = "soil 16S amplicon", retmax = 1 }
+
+[nodes.constraints]
+timeout_ms = 30000
+fallback = "skip"
+
+[[nodes]]
+id = "validate_noaa_route"
+depends_on = ["register_groundspring"]
+output = "noaa_route_ok"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "data.noaa_ghcnd"
+params = { station_id = "USW00014836", start_date = "2024-01-01", end_date = "2024-01-02" }
+
+[nodes.constraints]
+timeout_ms = 30000
+fallback = "skip"
+
+[[nodes]]
+id = "validate_compute_route"
+depends_on = ["register_groundspring"]
+output = "compute_route_ok"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "compute.execute"
+params = { op = "health_check", substrate = "gpu" }
+
+[nodes.constraints]
+timeout_ms = 15000
+fallback = "skip"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 6: NUCLEUS HEALTH REPORT
+# Final aggregated health check — all atomics operational
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "nucleus_health"
+depends_on = ["validate_ncbi_route", "validate_noaa_route", "validate_compute_route"]
+output = "nucleus_healthy"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "health.check"
+params = { node_id = "eastgate", expected_primals = ["beardog", "songbird", "groundspring", "toadstool", "nestgate"], expected_atomics = ["tower", "node", "nest"] }
+
+[nodes.constraints]
+timeout_ms = 10000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 7: PROVENANCE RECORD
+# Store the NUCLEUS bootstrap event for audit trail
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "store_bootstrap_provenance"
+depends_on = ["nucleus_health"]
+output = "provenance_stored"
+
+[nodes.operation]
+name = "rpc_call"
+target = "nestgate"
+
+[nodes.operation.params]
+method = "storage.store"
+params = { key = "groundspring:nucleus:local:bootstrap:${TIMESTAMP}", value = "${NUCLEUS_HEALTH_JSON}", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"

@@ -2,8 +2,8 @@
 # Used by biomeOS to orchestrate Anderson localization validation
 # through the primal ecosystem: groundSpring (science) → ToadStool (GPU) → NestGate (provenance)
 #
-# STATUS: Protocol defined (Feb 27, 2026)
-# Requires: Tower (BearDog + Songbird) + ToadStool (GPU compute)
+# STATUS: V62 (March 2, 2026) — ToadStool S79 (f97fc2ae)
+# Requires: Tower (BearDog + Songbird) + ToadStool (GPU compute, f64-capable)
 # Optional: NestGate (provenance storage), metalForge (hardware dispatch)
 #
 # Pipeline: benchmark load → Lyapunov computation → parity check → results storage
@@ -12,6 +12,12 @@
 id = "groundspring_validation"
 description = "Anderson localization validation: benchmark → Lyapunov → parity → provenance"
 coordination = "Sequential"
+
+[graph.metadata]
+toadstool_pin = "S79"
+toadstool_commit = "f97fc2ae"
+groundspring_version = "V62"
+target_node = "eastgate"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # PHASE 1: ENSURE PREREQUISITES

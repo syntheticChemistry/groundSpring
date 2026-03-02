@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Validation binary for mixed-hardware pipeline dispatch.
@@ -285,8 +285,8 @@ fn validate_atomics(h: &mut Harness) {
     );
 
     let mut healthy_tower = TowerAtomic::new("eastgate");
-    healthy_tower.beardog = PrimalHealth::Healthy;
-    healthy_tower.songbird = PrimalHealth::Healthy;
+    healthy_tower.set_provider_health("crypto", PrimalHealth::Healthy);
+    healthy_tower.set_provider_health("discovery", PrimalHealth::Healthy);
     h.check(
         "tower healthy with both primals",
         healthy_tower.is_healthy(),
@@ -302,9 +302,11 @@ fn validate_atomics(h: &mut Harness) {
         substrates: biomegate_inventory(),
     };
     let mut node = NodeAtomic::with_inventory("biomegate", inv);
-    node.tower.beardog = PrimalHealth::Healthy;
-    node.tower.songbird = PrimalHealth::Healthy;
-    node.toadstool = PrimalHealth::Healthy;
+    node.tower
+        .set_provider_health("crypto", PrimalHealth::Healthy);
+    node.tower
+        .set_provider_health("discovery", PrimalHealth::Healthy);
+    node.compute = PrimalHealth::Healthy;
 
     h.check("node can compute", node.can_compute());
     h.check(
@@ -324,7 +326,7 @@ fn validate_atomics(h: &mut Harness) {
     );
 
     let mut nest = NestAtomic::new("westgate");
-    nest.nestgate = PrimalHealth::Healthy;
+    nest.storage = PrimalHealth::Healthy;
     nest.data_capabilities.push(AtomicCapability::LiveData);
     h.check("nest can store", nest.can_store());
     h.check(
@@ -341,8 +343,8 @@ fn validate_degradation(h: &mut Harness) {
     };
     let mut nucleus = FullNucleus {
         node: NodeAtomic::with_inventory("strandgate", inv),
-        nestgate: PrimalHealth::Unavailable,
-        squirrel: PrimalHealth::Unavailable,
+        storage: PrimalHealth::Unavailable,
+        inference: PrimalHealth::Unavailable,
     };
 
     h.check(
@@ -350,26 +352,32 @@ fn validate_degradation(h: &mut Harness) {
         nucleus.degradation_level() == "Sovereign (local only)",
     );
 
-    nucleus.node.tower.beardog = PrimalHealth::Healthy;
-    nucleus.node.tower.songbird = PrimalHealth::Healthy;
+    nucleus
+        .node
+        .tower
+        .set_provider_health("crypto", PrimalHealth::Healthy);
+    nucleus
+        .node
+        .tower
+        .set_provider_health("discovery", PrimalHealth::Healthy);
     h.check(
         "degradation: tower when only IPC",
         nucleus.degradation_level() == "Tower only (no compute)",
     );
 
-    nucleus.node.toadstool = PrimalHealth::Healthy;
+    nucleus.node.compute = PrimalHealth::Healthy;
     h.check(
         "degradation: node when compute available",
         nucleus.degradation_level() == "Node only (no storage)",
     );
 
-    nucleus.nestgate = PrimalHealth::Healthy;
+    nucleus.storage = PrimalHealth::Healthy;
     h.check(
         "degradation: node+nest without AI",
         nucleus.degradation_level() == "Node + Nest (no AI)",
     );
 
-    nucleus.squirrel = PrimalHealth::Healthy;
+    nucleus.inference = PrimalHealth::Healthy;
     h.check(
         "degradation: full NUCLEUS",
         nucleus.degradation_level() == "Full NUCLEUS",

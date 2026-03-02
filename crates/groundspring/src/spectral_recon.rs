@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Spectral function reconstruction via Tikhonov regularization.
@@ -67,9 +67,10 @@ pub fn gaussian_peak(omega: &[f64], center: f64, width: f64, amplitude: f64) -> 
 ///
 /// Solves `(KᵀK + λI) ρ = KᵀG` via Cholesky decomposition.
 ///
-/// When the `barracuda` feature is enabled, delegates the linear system
-/// solve to `barracuda::linalg::solve_f64_cpu`. Falls back to the local
-/// Cholesky solver on error.
+/// When the `barracuda-gpu` feature is enabled, first tries GPU Cholesky
+/// via `barracuda::linalg::cholesky_f64`, then falls back to
+/// `barracuda::linalg::solve_f64_cpu` (Gauss-Jordan), then to the local
+/// Cholesky solver.
 ///
 /// # Panics
 ///
@@ -91,11 +92,24 @@ pub fn tikhonov_solve(
     }
 
     #[cfg(feature = "barracuda-gpu")]
-    if let Ok(solution) = barracuda::linalg::solve_f64_cpu(&a, &ktg, n_omega) {
-        return solution;
+    {
+        if let Some(solution) = tikhonov_solve_gpu(&a, &ktg, n_omega) {
+            return solution;
+        }
+        if let Ok(solution) = barracuda::linalg::solve_f64_cpu(&a, &ktg, n_omega) {
+            return solution;
+        }
     }
 
     cholesky_solve(&a, &ktg, n_omega)
+}
+
+/// GPU Cholesky path: decompose the SPD system on GPU, then solve.
+#[cfg(feature = "barracuda-gpu")]
+fn tikhonov_solve_gpu(a: &[f64], b: &[f64], n: usize) -> Option<Vec<f64>> {
+    let device = crate::gpu::get_device()?;
+    let decomp = barracuda::linalg::cholesky_f64(device, a, n).ok()?;
+    decomp.solve(b).ok()
 }
 
 /// Find the omega index with maximum reconstructed value.
@@ -103,7 +117,7 @@ pub fn tikhonov_solve(
 pub fn peak_index(rho: &[f64]) -> usize {
     rho.iter()
         .enumerate()
-        .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
+        .max_by(|(_, a), (_, b)| a.total_cmp(b))
         .map_or(0, |(i, _)| i)
 }
 
@@ -279,6 +293,33 @@ mod tests {
         assert!(
             (integral - 1.0).abs() < 0.02,
             "Gaussian peak should integrate to ~1.0, got {integral}"
+        );
+    }
+
+    #[test]
+    fn tikhonov_cholesky_parity() {
+        let n_tau = 15;
+        let n_omega = 20;
+        let tau: Vec<f64> = (1..=n_tau)
+            .map(|i| usize_f64(i) * 2.0 / usize_f64(n_tau))
+            .collect();
+        let omega: Vec<f64> = (1..=n_omega)
+            .map(|i| usize_f64(i) * 6.0 / usize_f64(n_omega))
+            .collect();
+        let rho_true = gaussian_peak(&omega, 2.5, 0.4, 1.0);
+        let kernel = build_kernel(&tau, &omega);
+        let g = forward_correlator(&kernel, &rho_true, n_tau, n_omega);
+
+        let rho_rec = tikhonov_solve(&kernel, &g, 1e-8, n_tau, n_omega);
+        let g_rec = forward_correlator(&kernel, &rho_rec, n_tau, n_omega);
+        let r = rmse(&g, &g_rec);
+        assert!(r < 1e-4, "Tikhonov roundtrip RMSE = {r}");
+
+        let pi = peak_index(&rho_rec);
+        assert!(
+            (omega[pi] - 2.5).abs() < 1.0,
+            "peak at ω={}, expected ~2.5",
+            omega[pi]
         );
     }
 }

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Data pipeline for experiment data and provenance via biomeOS capabilities.
@@ -21,14 +21,15 @@
 //!
 //! # Data Providers
 //!
-//! - NCBI: `search_genomes`, `fetch_sequence` via `NestGate`'s `ncbi_live_provider`
-//! - NOAA CDO: `fetch_ghcnd` via `NestGate`'s `noaa_cdo_live_provider`
+//! - NCBI: `search_genomes`, `fetch_sequence` via `data.ncbi_search`/`data.ncbi_fetch`
+//! - NOAA CDO: `fetch_ghcnd` via `data.noaa_ghcnd` capability
+//! - IRIS FDSN: `iris_stations`, `iris_events` via `data.iris_*` capabilities
 //!
 //! # Sovereign Fallback
 //!
-//! When `NestGate` is unavailable, all functions return `Err`. Callers fall back
-//! to local synthetic/analytical data — the same data the 28 experiments already
-//! use. Live data is an enhancement, not a requirement.
+//! When the data provider is unavailable, all functions return `Err`. Callers
+//! fall back to local synthetic/analytical data — the same data the 28
+//! experiments already use. Live data is an enhancement, not a requirement.
 
 use std::path::Path;
 
@@ -69,7 +70,7 @@ pub fn data_key(source: &str, query_id: &str) -> String {
 ///
 /// # Errors
 ///
-/// Returns `Err` if `NestGate` is unavailable.
+/// Returns `Err` if the storage provider is unavailable.
 pub fn store_result(socket: &Path, exp_id: u32, run_id: &str, result_json: &str) -> Result<()> {
     let key = result_key(exp_id, run_id);
     biomeos::storage_put(socket, &key, result_json)
@@ -79,7 +80,7 @@ pub fn store_result(socket: &Path, exp_id: u32, run_id: &str, result_json: &str)
 ///
 /// # Errors
 ///
-/// Returns `Err` if the key does not exist or `NestGate` is unavailable.
+/// Returns `Err` if the key does not exist or the storage provider is unavailable.
 pub fn get_result(socket: &Path, exp_id: u32, run_id: &str) -> Result<String> {
     let key = result_key(exp_id, run_id);
     biomeos::storage_get(socket, &key)
@@ -89,7 +90,7 @@ pub fn get_result(socket: &Path, exp_id: u32, run_id: &str) -> Result<String> {
 ///
 /// # Errors
 ///
-/// Returns `Err` if `NestGate` is unavailable.
+/// Returns `Err` if the storage provider is unavailable.
 pub fn store_parity(socket: &Path, exp_id: u32, substrate: &str, parity_json: &str) -> Result<()> {
     let key = parity_key(exp_id, substrate);
     biomeos::storage_put(socket, &key, parity_json)
@@ -259,7 +260,7 @@ pub fn iris_events(socket: &Path, query: &IrisEventQuery<'_>) -> Result<String> 
 ///
 /// # Errors
 ///
-/// Returns `Err` if `NestGate` is unavailable.
+/// Returns `Err` if the storage provider is unavailable.
 pub fn record_lifecycle_event(socket: &Path, event: &str, details_json: &str) -> Result<()> {
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -272,8 +273,8 @@ pub fn record_lifecycle_event(socket: &Path, event: &str, details_json: &str) ->
 
 // ─── Cache-Through Helpers ───────────────────────────────────────────────────
 
-/// Fetch data with `NestGate` cache. Checks provenance store first; on miss,
-/// calls the live provider and caches the result.
+/// Fetch data with cache-through. Checks provenance store first; on miss,
+/// calls the live data provider and caches the result.
 ///
 /// # Errors
 ///

@@ -1,15 +1,15 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Exp 031: NUCLEUS Stack Validation — live primal interaction through Neural API.
 //!
 //! Exercises whatever NUCLEUS primals are live, adapting to the deployment:
 //!
-//! - **Tower** (`BearDog` + Songbird): Health, crypto hash, beacon
-//! - **Node** (`ToadStool`): Health, capabilities query, version
-//! - **Nest** (`NestGate`): Storage round-trip, data providers (if running)
-//! - **Squirrel**: AI health
-//! - **Sovereign fallback**: All paths degrade gracefully when primals are absent
+//! - **Tower** (crypto + beacon capabilities): Health, crypto hash, beacon
+//! - **Node** (compute capability): Health, capabilities query, version
+//! - **Nest** (storage + data capabilities): Storage round-trip, data providers
+//! - **AI capability**: AI health
+//! - **Sovereign fallback**: All paths degrade gracefully when providers are absent
 //!
 //! Requires: `--features biomeos` + running NUCLEUS (sovereign fallback validates
 //! that the client code handles absence gracefully)
@@ -24,6 +24,11 @@ use groundspring::validate::ValidationHarness;
 
 #[cfg(feature = "biomeos")]
 fn main() {
+    std::process::exit(run());
+}
+
+#[cfg(feature = "biomeos")]
+fn run() -> i32 {
     let mut h = ValidationHarness::stdout("Exp 031: NUCLEUS Stack Validation");
 
     println!("{}", "=".repeat(72));
@@ -52,8 +57,7 @@ fn main() {
         println!("\n  NUCLEUS is offline — validating sovereign fallback paths");
         validate_sovereign_fallback(&mut h);
         println!();
-        let _ = h.summary();
-        return;
+        return h.summary();
     }
 
     let socket = socket.expect("NUCLEUS socket should be available after is_some() check");
@@ -61,18 +65,18 @@ fn main() {
 
     validate_tower(&mut h, &socket);
     validate_node(&mut h, &socket);
-    validate_squirrel(&mut h, &socket);
+    validate_ai(&mut h, &socket);
     validate_nest(&mut h, &socket);
     validate_local_compute(&mut h);
 
     println!();
-    let _ = h.summary();
+    h.summary()
 }
 
-/// Tower: Neural API health + `BearDog` crypto operations.
+/// Tower: Neural API health + crypto capability.
 #[cfg(feature = "biomeos")]
 fn validate_tower(h: &mut ValidationHarness, socket: &std::path::Path) {
-    println!("\n--- Phase B: Tower (BearDog + Songbird) ---");
+    println!("\n--- Phase B: Tower (crypto + beacon) ---");
 
     let health_ok = biomeos::health(socket).is_ok();
     println!(
@@ -87,12 +91,12 @@ fn validate_tower(h: &mut ValidationHarness, socket: &std::path::Path) {
         r#"{"data":"groundspring:exp031:nucleus_stack_test"}"#,
     ) {
         Ok(result) => {
-            println!("  crypto.hash (BearDog): OK ({} bytes)", result.len());
-            h.check_true("BearDog crypto hash returns data", !result.is_empty());
+            println!("  crypto.hash: OK ({} bytes)", result.len());
+            h.check_true("crypto hash returns data", !result.is_empty());
         }
         Err(e) => {
-            println!("  crypto.hash (BearDog): {e}");
-            h.check_true("BearDog crypto (or graceful error)", true);
+            println!("  crypto.hash: {e}");
+            h.check_true("crypto capability (or graceful error)", true);
         }
     }
 
@@ -108,10 +112,10 @@ fn validate_tower(h: &mut ValidationHarness, socket: &std::path::Path) {
     }
 }
 
-/// Node: `ToadStool` health and capability query.
+/// Node: compute provider health and capability query.
 #[cfg(feature = "biomeos")]
 fn validate_node(h: &mut ValidationHarness, socket: &std::path::Path) {
-    println!("\n--- Phase C: Node (ToadStool) ---");
+    println!("\n--- Phase C: Node (compute) ---");
 
     match biomeos::capability_call(socket, "compute.health", "{}") {
         Ok(result) => {
@@ -121,58 +125,58 @@ fn validate_node(h: &mut ValidationHarness, socket: &std::path::Path) {
                 || result.contains("wgpu")
                 || result.contains("healthy");
             println!("  GPU info present: {has_gpu}");
-            h.check_true("ToadStool health responds", true);
+            h.check_true("compute health responds", true);
         }
         Err(e) => {
             println!("  compute.health: {e}");
-            h.check_true("ToadStool health (or graceful error)", true);
+            h.check_true("compute health (or graceful error)", true);
         }
     }
 
     match biomeos::capability_call(socket, "compute.capabilities", "{}") {
         Ok(result) => {
             println!("  compute.capabilities: OK ({} bytes)", result.len());
-            h.check_true("ToadStool capabilities responds", !result.is_empty());
+            h.check_true("compute capabilities responds", !result.is_empty());
         }
         Err(e) => {
             println!("  compute.capabilities: {e}");
-            h.check_true("ToadStool capabilities (or graceful error)", true);
+            h.check_true("compute capabilities (or graceful error)", true);
         }
     }
 
     match biomeos::capability_call(socket, "compute.version", "{}") {
         Ok(result) => {
             println!("  compute.version: {result}");
-            h.check_true("ToadStool version responds", !result.is_empty());
+            h.check_true("compute version responds", !result.is_empty());
         }
         Err(e) => {
             println!("  compute.version: {e}");
-            h.check_true("ToadStool version (or graceful error)", true);
+            h.check_true("compute version (or graceful error)", true);
         }
     }
 }
 
-/// Squirrel AI health.
+/// AI capability health.
 #[cfg(feature = "biomeos")]
-fn validate_squirrel(h: &mut ValidationHarness, socket: &std::path::Path) {
-    println!("\n--- Phase D: Squirrel (AI) ---");
+fn validate_ai(h: &mut ValidationHarness, socket: &std::path::Path) {
+    println!("\n--- Phase D: AI capability ---");
 
     match biomeos::capability_call(socket, "ai.health", "{}") {
         Ok(result) => {
             println!("  ai.health: OK ({} bytes)", result.len());
-            h.check_true("Squirrel health responds", true);
+            h.check_true("AI health responds", true);
         }
         Err(e) => {
             println!("  ai.health: {e}");
-            h.check_true("Squirrel health (or graceful error)", true);
+            h.check_true("AI health (or graceful error)", true);
         }
     }
 }
 
-/// Nest: `NestGate` storage + data (only if registered).
+/// Nest: storage + data capabilities (only if registered).
 #[cfg(feature = "biomeos")]
 fn validate_nest(h: &mut ValidationHarness, socket: &std::path::Path) {
-    println!("\n--- Phase E: Nest (NestGate — if running) ---");
+    println!("\n--- Phase E: Nest (storage + data) ---");
 
     let test_key = "groundspring:exp031:nucleus_stack_test";
     let test_value = r#"{"experiment":"exp031","ts":"2026-02-28"}"#;
@@ -180,7 +184,7 @@ fn validate_nest(h: &mut ValidationHarness, socket: &std::path::Path) {
     match biomeos::storage_put(socket, test_key, test_value) {
         Ok(()) => {
             println!("  storage.put:  OK");
-            h.check_true("NestGate storage put", true);
+            h.check_true("storage put succeeds", true);
 
             match biomeos::storage_get(socket, test_key) {
                 Ok(retrieved) => {
@@ -198,8 +202,8 @@ fn validate_nest(h: &mut ValidationHarness, socket: &std::path::Path) {
         }
         Err(e) => {
             println!("  storage.put:  NOT AVAILABLE ({e})");
-            println!("  (NestGate not in current NUCLEUS deployment)");
-            h.check_true("NestGate absent is handled gracefully", true);
+            println!("  (storage provider not in current NUCLEUS deployment)");
+            h.check_true("storage absent is handled gracefully", true);
         }
     }
 
@@ -209,16 +213,15 @@ fn validate_nest(h: &mut ValidationHarness, socket: &std::path::Path) {
         r#"{"database":"sra","query":"soil metagenome"}"#,
     ) {
         println!("  data.ncbi_search: OK ({} bytes)", result.len());
-        h.check_true("NCBI search via NestGate", !result.is_empty());
+        h.check_true("NCBI search via data capability", !result.is_empty());
     } else {
-        println!("  data.ncbi_search: NOT AVAILABLE (NestGate not running)");
-        h.check_true("Data capability absent handled gracefully", true);
+        println!("  data.ncbi_search: NOT AVAILABLE (data provider not running)");
+        h.check_true("data capability absent handled gracefully", true);
     }
 }
 
 /// Local compute validation — sovereign fallback always works.
 #[cfg(feature = "biomeos")]
-#[allow(clippy::cast_precision_loss)]
 fn validate_local_compute(h: &mut ValidationHarness) {
     println!("\n--- Phase F: Local Compute (Sovereign) ---");
 
@@ -263,7 +266,10 @@ fn validate_sovereign_fallback(h: &mut ValidationHarness) {
 }
 
 #[cfg(feature = "biomeos")]
-#[allow(clippy::cast_precision_loss)]
+#[expect(
+    clippy::cast_precision_loss,
+    reason = "n_real cast to f64 for Lyapunov average"
+)]
 fn local_lyapunov(n_sites: usize, disorder: f64, energy: f64, n_real: usize, seed: u64) -> f64 {
     use groundspring::anderson;
     let mut sum = 0.0;

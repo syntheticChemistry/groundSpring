@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Validation binary for Experiment 010: Bistable Phenotypic Switching.
@@ -50,9 +50,7 @@ fn ic_from_json(model: &Value, key: &str) -> [f64; 5] {
     let arr = array_field(model, key);
     let mut ic = [0.0; 5];
     for (i, val) in ic.iter_mut().enumerate() {
-        *val = arr[i]
-            .as_f64()
-            .unwrap_or_else(|| panic!("IC element {i} not a valid f64 in {key}"));
+        *val = arr[i].as_f64().expect("IC element must be a valid f64");
     }
     ic
 }

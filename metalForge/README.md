@@ -18,11 +18,11 @@ metalForge (shared infrastructure).
 
 ```
 metalForge/
-├── README.md                    # This file
-├── ABSORPTION_MANIFEST.md       # Module-by-module absorption inventory
-└── shaders/                     # Production WGSL shaders for absorption
-    ├── mc_et0_propagate.wgsl    # Monte Carlo FAO-56 propagation (149 lines)
-    └── batched_multinomial.wgsl # Batched multinomial rarefaction (112 lines)
+├── README.md                        # This file
+├── ABSORPTION_MANIFEST.md           # Module-by-module absorption inventory
+└── shaders/                         # Production WGSL shaders (unique to groundSpring)
+    ├── anderson_lyapunov.wgsl       # Anderson Lyapunov transfer matrix f64 (unique GPU impl)
+    └── anderson_lyapunov_f32.wgsl   # Anderson Lyapunov f32 fallback for NAK/NVVM
 ```
 
 ## Current Status (Phase 2a — barracuda CPU delegation)
@@ -32,7 +32,7 @@ metalForge/
 | **Lean** (delegated to barracuda) | 11 | `pearson_r`, `spearman_r`, `sample_std_dev`, `covariance`, `norm_cdf`, `norm_ppf`, `chi2_statistic`, `bootstrap_mean`, `lyapunov_exponent`, `lyapunov_averaged`, `analytical_localization_length` |
 | **Ready** (GPU op exists, needs adapter) | 6 | `rmse`, `mbe`, `r_squared`, `ia`, `hit_rate`, `shannon_diversity` |
 | **Absorbed upstream** | 1 | `fao56_et0_batch` (ToadStool S49) |
-| **Write** (WGSL ready for absorption) | 2 | `batched_multinomial`, `mc_et0_propagate` |
+| **Absorbed upstream** (S72–S79) | 2 | `batched_multinomial_f64`, `mc_et0_propagate_f64` |
 | **Write** (local CPU, needs kernel) | 2 | `rawr_mean`, `birth_death_ssa` |
 | **Adapt** (needs alignment) | 2 | PRNG xoshiro, grid search |
 | **Stays local** | 5 | Scalar ops, harness |
@@ -70,11 +70,11 @@ After absorption, groundSpring rewires:
 
 Following hotSpring's pattern:
 
-- **Naming**: `{operation}_{domain}.wgsl` (e.g. `batched_multinomial.wgsl`)
-- **License**: `// SPDX-License-Identifier: AGPL-3.0-or-later`
+- **Naming**: `{operation}_{domain}.wgsl` (e.g. `anderson_lyapunov.wgsl`)
+- **License**: `// SPDX-License-Identifier: AGPL-3.0-only`
 - **Bindings**: group 0 only, sequential, documented in header
 - **PRNG**: xoshiro128** with `vec4<u32>` state per invocation
-- **Precision**: f64 for all scientific compute
+- **Precision**: f64 canonical; f32 fallback for NAK/NVVM; ToadStool DF64 for universal precision
 - **CPU reference**: documented path to Rust implementation
 
 ## BarraCUDA Primitives We Lean On
@@ -92,12 +92,22 @@ Following hotSpring's pattern:
 | `rarefaction::shannon_diversity` | `ops::FusedMapReduceF64::shannon_entropy` | Pending GPU adapter |
 | `fao56::daily_et0` | `ops::BatchedElementwiseF64::fao56_et0_batch` | **Absorbed** upstream |
 
-## New Kernels for Absorption (Tier C)
+## Absorbed Kernels (Tier C → Lean)
 
-| Shader | Status | Key Detail |
+| Shader | Status | ToadStool Location |
 |---|---|---|
-| `batched_multinomial.wgsl` | **Production** | xoshiro PRNG + binary search over cumulative probs |
-| `mc_et0_propagate.wgsl` | **Production** | Equation chain superseded by `Op::Fao56Et0`; MC noise wrapper still needed |
+| `batched_multinomial` | **Absorbed S76** | `barracuda::shaders::bio::batched_multinomial_f64.wgsl` |
+| `mc_et0_propagate` | **Absorbed S72** | `barracuda::shaders::bio::mc_et0_propagate_f64.wgsl` |
+
+Local copies removed after ToadStool S79 catch-up — precision-aware `_f64`
+versions with DF64 fallback supersede them.
+
+## Unique Shaders (remain in groundSpring)
+
+| Shader | Purpose |
+|---|---|
+| `anderson_lyapunov.wgsl` | f64 transfer matrix Lyapunov exponent — no ToadStool equivalent |
+| `anderson_lyapunov_f32.wgsl` | f32 fallback for NAK/NVVM f64 gaps — validated in `validate-metalforge-titan-v` |
 
 See `ABSORPTION_MANIFEST.md` for binding layouts, dispatch geometry, and
 the full module-by-module absorption inventory.

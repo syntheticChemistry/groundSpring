@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: AGPL-3.0-only
 # Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 [workspace]
@@ -11,7 +11,7 @@ members = [
 
 [workspace.package]
 edition = "2021"
-license = "AGPL-3.0-or-later"
+license = "AGPL-3.0-only"
 repository = "https://github.com/ecoPrimals/groundSpring"
 
 [workspace.lints.rust]

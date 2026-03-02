@@ -32,7 +32,7 @@ A $5 humidity sensor upgrade has more impact than a $50 pyranometer upgrade.
 ## Barracuda Path
 
 FAO-56 equation chain **absorbed upstream** as `Op::Fao56Et0` (ToadStool S49).
-MC noise wrapper (`mc_et0_propagate.wgsl`) in metalForge ready for absorption.
+MC noise wrapper (`mc_et0_propagate.wgsl`) **absorbed S72** — local shader removed V62.
 
 ## Modules
 

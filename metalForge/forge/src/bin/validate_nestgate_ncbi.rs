@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! `NestGate` NCBI data acquisition validation for baseCamp papers.
@@ -17,15 +17,30 @@ use std::io::{BufRead, BufReader, Read, Write};
 use std::net::TcpStream;
 use std::time::Duration;
 
-/// Default `NestGate` port when not specified in `NESTGATE_URL` env var.
-const NESTGATE_DEFAULT_PORT: u16 = 8090;
+/// Fallback port when neither `NESTGATE_URL` nor `NESTGATE_PORT` is set.
+///
+/// Always prefer `NESTGATE_URL` for production — this constant only
+/// exists for local development convenience. The NUCLEUS deployment
+/// convention assigns 8090 to data providers, but other providers may
+/// use different ports; capability-based discovery should replace this.
+const FALLBACK_PORT: u16 = 8090;
 
 fn nestgate_url() -> String {
-    std::env::var("NESTGATE_URL")
-        .unwrap_or_else(|_| format!("http://127.0.0.1:{NESTGATE_DEFAULT_PORT}"))
+    if let Ok(url) = std::env::var("NESTGATE_URL") {
+        return url;
+    }
+    let port: u16 = std::env::var("NESTGATE_PORT")
+        .ok()
+        .and_then(|p| p.parse().ok())
+        .unwrap_or(FALLBACK_PORT);
+    let host = std::env::var("NESTGATE_HOST").unwrap_or_else(|_| String::from("localhost"));
+    format!("http://{host}:{port}")
 }
 
 fn biomeos_socket_dir() -> String {
+    if let Ok(dir) = std::env::var("BIOMEOS_SOCKET_DIR") {
+        return dir;
+    }
     if let Ok(xdg) = std::env::var("XDG_RUNTIME_DIR") {
         return format!("{xdg}/biomeos");
     }
@@ -56,6 +71,9 @@ fn nestgate_health(base_url: &str) -> Result<String, String> {
 fn nestgate_storage_metrics(base_url: &str) -> Result<String, String> {
     http_get(&format!("{base_url}/api/v1/storage/metrics"))
 }
+
+/// Cap HTTP response bodies to avoid unbounded memory on large NCBI payloads.
+const MAX_BODY_BYTES: u64 = 4 * 1024 * 1024; // 4 MiB
 
 fn http_get(url: &str) -> Result<String, String> {
     let (host, port, path) = parse_url(url)?;
@@ -93,6 +111,7 @@ fn http_get(url: &str) -> Result<String, String> {
 
     let mut body = String::new();
     reader
+        .take(MAX_BODY_BYTES)
         .read_to_string(&mut body)
         .map_err(|e| format!("read body: {e}"))?;
     Ok(body)
@@ -108,14 +127,42 @@ fn parse_url(url: &str) -> Result<(String, u16, String), String> {
     let path = format!("/{path}");
     let (host, port) = host_port
         .split_once(':')
-        .map_or((host_port, NESTGATE_DEFAULT_PORT), |(h, p)| {
-            (h, p.parse().unwrap_or(NESTGATE_DEFAULT_PORT))
+        .map_or((host_port, FALLBACK_PORT), |(h, p)| {
+            (h, p.parse().unwrap_or(FALLBACK_PORT))
         });
     Ok((host.to_string(), port, path))
 }
 
-fn primal_health(socket_path: &str) -> Result<String, String> {
-    primal_health_method(socket_path, "health")
+/// Discover primal sockets by scanning the biomeOS socket directory.
+///
+/// Returns `(label, path)` pairs. Labels are derived from socket filenames
+/// (e.g. `beardog.sock` → `beardog`, `toadstool.jsonrpc.sock` → `toadstool.health`).
+fn discover_primal_sockets(socket_dir: &str) -> Vec<(String, String)> {
+    let dir = std::path::Path::new(socket_dir);
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return Vec::new();
+    };
+    let mut sockets = Vec::new();
+    for entry in entries.flatten() {
+        let name = entry.file_name();
+        let name_str = name.to_string_lossy();
+        if !name_str.ends_with(".sock") {
+            continue;
+        }
+        if name_str.contains("neural-api") {
+            continue;
+        }
+        let label = if let Some(base) = name_str.strip_suffix(".jsonrpc.sock") {
+            format!("{base}.health")
+        } else if let Some(base) = name_str.strip_suffix(".sock") {
+            base.to_string()
+        } else {
+            continue;
+        };
+        sockets.push((label, entry.path().to_string_lossy().to_string()));
+    }
+    sockets.sort_by(|a, b| a.0.cmp(&b.0));
+    sockets
 }
 
 fn primal_health_method(socket_path: &str, method: &str) -> Result<String, String> {
@@ -195,44 +242,37 @@ fn validate_nucleus_health(harness: &mut Harness) {
 
     let socket_dir = biomeos_socket_dir();
 
-    // NUCLEUS deployment convention: each primal creates `<name>.sock` in the
-    // biomeOS socket directory. Evolution target: discover registered primals
-    // via `topology.metrics` instead of iterating known socket names.
-    const PRIMAL_SOCKETS: [(&str, &str); 3] = [
-        ("BearDog", "beardog.sock"),
-        ("Songbird", "songbird.sock"),
-        ("Squirrel", "squirrel.sock"),
-    ];
-    for (name, socket_name) in PRIMAL_SOCKETS {
-        let path = format!("{socket_dir}/{socket_name}");
-        match primal_health(&path) {
-            Ok(resp) if resp.contains("healthy") || resp.contains("\"status\":\"ok\"") => {
-                harness.check(&format!("{name} healthy"), true);
+    // Capability-based discovery: scan the socket directory for `.sock` files
+    // and health-check each one. No hardcoded primal names — the ecosystem
+    // self-describes via its socket mesh.
+    let primal_sockets = discover_primal_sockets(&socket_dir);
+    if primal_sockets.is_empty() {
+        println!("  No primal sockets found in {socket_dir}");
+        harness.check("At least one primal discovered", false);
+    }
+    for (label, path) in &primal_sockets {
+        let is_jsonrpc_sock = path.contains("jsonrpc");
+        let method = if is_jsonrpc_sock {
+            label.as_str()
+        } else {
+            "health"
+        };
+        match primal_health_method(path, method) {
+            Ok(resp)
+                if resp.contains("healthy")
+                    || resp.contains("\"status\":\"ok\"")
+                    || resp.contains("\"healthy\":true") =>
+            {
+                harness.check(&format!("{label} healthy"), true);
             }
             Ok(resp) => {
-                println!("  {name} response: {resp}");
-                harness.check(&format!("{name} healthy"), false);
+                println!("  {label} response: {resp}");
+                harness.check(&format!("{label} healthy"), false);
             }
             Err(e) => {
-                println!("  {name} error: {e}");
-                harness.check(&format!("{name} healthy"), false);
+                println!("  {label} error: {e}");
+                harness.check(&format!("{label} healthy"), false);
             }
-        }
-    }
-
-    const TOADSTOOL_SOCKET: &str = "toadstool.jsonrpc.sock";
-    let ts_path = format!("{socket_dir}/{TOADSTOOL_SOCKET}");
-    match primal_health_method(&ts_path, "toadstool.health") {
-        Ok(resp) if resp.contains("healthy") || resp.contains("\"healthy\":true") => {
-            harness.check("ToadStool healthy", true);
-        }
-        Ok(resp) => {
-            println!("  ToadStool response: {resp}");
-            harness.check("ToadStool healthy", false);
-        }
-        Err(e) => {
-            println!("  ToadStool error: {e}");
-            harness.check("ToadStool healthy", false);
         }
     }
     println!();

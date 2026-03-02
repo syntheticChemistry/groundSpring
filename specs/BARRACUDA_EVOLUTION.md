@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 1, 2026 (V61 — 61 delegations (37 CPU + 20 GPU + 4 cross-spring), 668 tests, ToadStool S71+++ — V61: hotSpring cross-spring absorption (DriftMonitor, ClassificationUncertainty, concept edge detection, Nautilus Shell optional dep))
+**Last updated**: March 2, 2026 (V63 — 67 delegations (37 CPU + 26 GPU + 4 cross-spring), 743 tests, ToadStool S79 (`f97fc2ae`) — V63: 6 new GPU delegations (Gillespie, WF, Multinomial, Cholesky, Tridiag Eigh, PRNG), tissue Anderson module (Paper 12), 73/73 GPU tier, 30/30 metalForge pipeline, brain architecture + capability-based discovery)
 
 ## Philosophy
 
@@ -33,7 +33,7 @@ dispatch blocks: `freeze_out::grid_fit_2d` (2D parallel grid),
 `quasispecies::quasispecies_simulation` (batched Wright-Fisher via
 `barracuda::ops::bio::wright_fisher_simulate`), `rare_biosphere::abundance_occupancy`
 and `tier_detection_rate` (batched multinomial via `barracuda::ops::bio`).
-85 metalForge tests, 5 discovered substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). 61 active barracuda delegations (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — ToadStool S71+++. V59: jackknife GPU promoted (S71 `jackknife_mean_f64.wgsl`), HargreavesBatchGpu (S71 `hargreaves_batch_f64.wgsl`).
+85 metalForge tests, 5 discovered substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). 61 active barracuda delegations (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — ToadStool S79. V59: jackknife GPU promoted (S71 `jackknife_mean_f64.wgsl`), HargreavesBatchGpu (S71 `hargreaves_batch_f64.wgsl`).
 These dispatch blocks compile only with `--features barracuda-gpu` and call
 expected barracuda functions — ToadStool absorbs them to activate GPU paths.
 
@@ -225,7 +225,38 @@ graph.
 > chi² decomposed analysis, and ESN regime classification with full provenance.
 >
 > Total: **61 delegations** (37 CPU + 20 GPU + 4 cross-spring),
-> **668 Rust tests**, 0 clippy warnings, clean `cargo doc`.
+> **752 Rust tests**, 0 clippy warnings, clean `cargo doc`.
+>
+> **V63 (March 2, 2026)**: Experiment Buildout + GPU Dispatch + metalForge Pipeline + Paper 12.
+>
+> Phase 1 — 6 new GPU delegations:
+> - `gillespie::birth_death_ssa_batch` → `GillespieGpu` batch dispatch
+> - `drift::wright_fisher_fixation_batch` → `WrightFisherGpu` device acquisition
+> - `rarefaction::multinomial_sample_batch` → `BatchedMultinomialGpu` with cumulative prob adapter
+> - `spectral_recon::tikhonov_solve` → `barracuda::linalg::cholesky_f64` GPU (CPU fallback chain)
+> - `linalg::tridiag_eigh_barracuda` → `barracuda::linalg::eigh_f64` (Jacobi validation)
+> - `prng::GpuAlignedRng` type alias (Xoshiro128StarStar matching `prng_xoshiro_wgsl`)
+>
+> Phase 2 — Benchmark + parity expansion:
+> - `bench-cpu-vs-gpu`: 4 new benchmarks (multinomial, tikhonov, tridiag, transport MSD)
+> - `validate-gpu-tier`: 73/73 checks (was 66) — 6 new GPU parity + 7 tissue Anderson
+>
+> Phase 3 — NUCLEUS compute dispatch:
+> - `validate_compute_execute_anderson`, `validate_compute_submit_batch`,
+>   `validate_compute_roundtrip` — Neural API → provider → validate vs CPU baseline
+>
+> Phase 4 — metalForge mixed-hardware pipeline:
+> - `validate-metalforge-pipeline` (NEW binary): 30/30 checks — NPU→GPU→CPU routing,
+>   PCIe P2P/PcieLow, all FallbackPolicy paths, NodeAtomic integration
+>
+> Paper 12 — Anderson in Immunological Signaling:
+> - `tissue_anderson` module: cytokine Anderson lattice, dimensional promotion-collapse
+>   duality, barrier disruption sweep, geometry-aware drug scoring (6-drug AD panel)
+> - `validate-tissue-anderson` binary: 29/29 PASS
+> - 18 unit tests (compartment disorder, Pielou, barrier sweep, drug scoring, determinism)
+>
+> Total: **67 delegations** (37 CPU + 26 GPU + 4 cross-spring),
+> **743 Rust tests**, 0 clippy warnings, clean `cargo doc`, ToadStool S79 (`f97fc2ae`).
 
 ### Tier A — Lean (rewire to existing barracuda ops)
 
@@ -407,11 +438,10 @@ these GPU kernels.
 1. **f64 precision** — groundSpring requires f64 for statistical validity.
    All WGSL shaders must use f64 or df64 (double-float f32-pair per
    hotSpring's `df64_core.wgsl` pattern).
-2. **Multinomial sampling kernel** — does not exist in BarraCUDA.
-   Production WGSL in `metalForge/shaders/batched_multinomial.wgsl`.
+2. **Multinomial sampling kernel** — **absorbed S76** into ToadStool.
+   Local shader removed V62; `BatchedMultinomialGpu` wired in `rare_biosphere`/`rarefaction`.
 3. **FAO-56 MC wrapper kernel** — equation chain absorbed upstream as
-   `Op::Fao56Et0`; MC noise wrapper (Box-Muller perturbation + dispatch) in
-   `metalForge/shaders/mc_et0_propagate.wgsl`.
+   `Op::Fao56Et0`; MC noise wrapper **absorbed S72**. Local shader removed V62.
 4. **PRNG alignment** — xorshift64 ↔ xoshiro128** produces different
    streams. Need to regenerate baselines after alignment.
 
@@ -523,7 +553,7 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (28/28 parity proven, timing data for all experiments) |
-| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **61 active delegations** (37 CPU + 20 GPU + 4 cross-spring), **668 tests** — ToadStool S71+++ |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **61 active delegations** (37 CPU + 20 GPU + 4 cross-spring), **752 tests** — ToadStool S79 |
 | Phase 2b | Tier B adapt (GPU dispatch wiring, PRNG alignment) | **V31–V35** — 5 modules GPU-wired, 172 metalForge checks, 5 substrates; arch-aware dispatch (f64→Titan V, f32→RTX 4070); awaiting ToadStool absorption for 9 pending |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |
@@ -539,9 +569,9 @@ and pipeline stage for GPU promotion readiness.
 | `almost_mathieu` | — | spectral/eigenvalue | **Delegated** — `barracuda::spectral::find_all_eigenvalues` (49.5×) |
 | `band_structure` | — | spectral/band-detect | **Delegated** — `barracuda::spectral::detect_bands` |
 | `spectral_recon` | — | linalg/solve | **Delegated** — `barracuda::linalg::solve_f64_cpu` |
-| `rare_biosphere` | `batched_multinomial.wgsl` | bio/multinomial | **GPU live** — `BatchedMultinomialGpu` |
-| `rarefaction` | `batched_multinomial.wgsl` | bio/multinomial | Partial — `abundance_occupancy` delegated; `multinomial_sample` pending |
-| `fao56` | `mc_et0_propagate.wgsl` | agri/et0-mc | Shader exists; batch ET₀ absorbed; MC wrapper pending |
+| `rare_biosphere` | *(absorbed S76)* | bio/multinomial | **GPU live** — `BatchedMultinomialGpu` (shader now in ToadStool) |
+| `rarefaction` | *(absorbed S76)* | bio/multinomial | **GPU live** — `BatchedMultinomialGpu` (shader now in ToadStool) |
+| `fao56` | *(absorbed S72)* | agri/et0-mc | **GPU live** — `BatchedElementwiseF64` + `HargreavesBatchGpu` (shader now in ToadStool) |
 | `freeze_out` | — | grid/fit-2d | **GPU-ready** — `TODO(toadstool): grid_fit_2d_f64` |
 | `seismic` | — | grid/search-3d | **GPU-ready** — `TODO(toadstool): grid_search_3d_f64` |
 | `quasispecies` | — | bio/wright-fisher | **GPU-ready** — `TODO(toadstool): wright_fisher_simulate` |
@@ -555,8 +585,8 @@ and pipeline stage for GPU promotion readiness.
 | `stats::metrics` | — | stats/central | **Delegated** — mean, std_dev, percentile |
 | `stats::distributions` | — | stats/distributions | **Delegated** — norm_cdf, norm_ppf, chi2 |
 | `gillespie` | — | bio/ssa | Pending — SSA inherently serial; GPU batches trajectories |
-| `drift` | — | bio/population | **CPU delegated** (kimura_fixation_prob S71+++) + **GPU batch** (WrightFisherGpu) + native DriftMonitor |
-| `jackknife` | — | stats/jackknife | **GPU dispatched** (JackknifeMeanGpu via `jackknife_mean_f64.wgsl` S71+++) |
+| `drift` | — | bio/population | **CPU delegated** (kimura_fixation_prob S79) + **GPU batch** (WrightFisherGpu) + native DriftMonitor |
+| `jackknife` | — | stats/jackknife | **GPU dispatched** (JackknifeMeanGpu via `jackknife_mean_f64.wgsl` S79) |
 | `transport` | — | linalg/tridiag | CPU-optimal — QL beats dense Jacobi |
 | `wdm` | — | transport/green-kubo | Uses delegated `stats::fit_linear` + `numerical::trapz` |
 | `decompose` | — | stats/decompose | Uses delegated rmse + mbe |

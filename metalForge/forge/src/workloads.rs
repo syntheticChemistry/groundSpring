@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! groundSpring-specific workload definitions for dispatch routing.
@@ -145,7 +145,7 @@ pub fn jackknife_leave_one_out() -> Workload {
 
 /// Monte Carlo ET₀ propagation (Exp 003, 022).
 ///
-/// GPU: `mc_et0_propagate.wgsl` — independent MC draws.
+/// GPU: `barracuda::shaders::bio::mc_et0_propagate_f64.wgsl` — independent MC draws.
 #[must_use]
 pub fn mc_et0_propagation() -> Workload {
     Workload::new(

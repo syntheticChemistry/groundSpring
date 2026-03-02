@@ -1,18 +1,18 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Full NUCLEUS science pipeline validation for `groundSpring`.
 //!
 //! Exercises the complete `capability.call` routing:
-//!   groundSpring → Neural API → `ToadStool` / `Squirrel` / `BearDog`
+//!   groundSpring → Neural API → capability-discovered primals
 //!
 //! Validates:
 //! - Neural API topology and metrics
-//! - `capability.call` routing to each primal
-//! - `compute.submit` job dispatch to `ToadStool`
+//! - `capability.call` routing to discovered providers
+//! - `compute.submit` job dispatch to compute provider
 //! - `compute.status` job tracking
-//! - Crypto operations via `BearDog`
-//! - AI health via `Squirrel`
+//! - Crypto operations via crypto capability
+//! - AI health via AI capability
 //! - Capability registration for `groundSpring` science caps
 //!
 //! Requires: `--features biomeos` and a running Full NUCLEUS.
@@ -28,10 +28,14 @@ fn discover_socket() -> Option<PathBuf> {
     })
 }
 
-/// Discover the biomeOS socket directory via `XDG_RUNTIME_DIR`, falling
-/// back to the platform-standard `/run/user/<uid>/biomeos` discovered
-/// at runtime. Never hardcodes a specific UID.
+/// Discover the biomeOS socket directory.
+///
+/// Priority: `BIOMEOS_SOCKET_DIR` > `XDG_RUNTIME_DIR/biomeos` >
+/// `/run/user/<uid>/biomeos`. Never hardcodes a specific UID.
 fn biomeos_socket_dir() -> String {
+    if let Ok(dir) = std::env::var("BIOMEOS_SOCKET_DIR") {
+        return dir;
+    }
     if let Ok(xdg) = std::env::var("XDG_RUNTIME_DIR") {
         return format!("{xdg}/biomeos");
     }
@@ -116,6 +120,9 @@ fn main() {
     validate_neural_api_health(&socket, &mut harness);
     validate_capability_routing(&socket, &mut harness);
     validate_compute_dispatch(&socket, &mut harness);
+    validate_compute_execute_anderson(&socket, &mut harness);
+    validate_compute_submit_batch(&socket, &mut harness);
+    validate_compute_roundtrip(&socket, &mut harness);
     validate_crypto_routing(&socket, &mut harness);
     validate_groundspring_registration(&socket, &mut harness);
 
@@ -162,9 +169,9 @@ fn validate_capability_routing(socket: &Path, harness: &mut Harness) {
     println!();
 
     let checks = [
-        ("compute.health", "ToadStool", "healthy"),
-        ("compute.version", "ToadStool version", "version"),
-        ("ai.health", "Squirrel", "healthy"),
+        ("compute.health", "compute provider", "healthy"),
+        ("compute.version", "compute provider version", "version"),
+        ("ai.health", "AI provider", "healthy"),
     ];
 
     for (cap, name, expected) in checks {
@@ -186,7 +193,7 @@ fn validate_capability_routing(socket: &Path, harness: &mut Harness) {
 }
 
 fn validate_compute_dispatch(socket: &Path, harness: &mut Harness) {
-    println!("--- Compute Dispatch (groundSpring → Neural API → ToadStool) ---");
+    println!("--- Compute Dispatch (groundSpring → Neural API → compute provider) ---");
     println!();
 
     let params = r#"{"transform":{"operation":"anderson_eigendecompose","input":{"disorder_strength":2.0,"lattice_size":100,"precision":"f32"}}}"#;
@@ -217,15 +224,15 @@ fn validate_compute_dispatch(socket: &Path, harness: &mut Harness) {
 
     match biomeos::capability_call(socket, "compute.capabilities", "{}") {
         Ok(resp) if resp.contains("compute_units") || resp.contains("supported_workload_types") => {
-            harness.check("ToadStool compute_units enumerated", true);
+            harness.check("compute_units enumerated", true);
         }
         Ok(resp) => {
             println!("  Capabilities: {}", &resp[..resp.len().min(200)]);
-            harness.check("ToadStool compute_units enumerated", true);
+            harness.check("compute_units enumerated", true);
         }
         Err(e) => {
             println!("  Capabilities error: {e}");
-            harness.check("ToadStool compute_units enumerated", false);
+            harness.check("compute_units enumerated", false);
         }
     }
 
@@ -275,45 +282,250 @@ fn validate_job_status(socket: &Path, job_id: &str, harness: &mut Harness) {
     }
 }
 
-fn validate_crypto_routing(_neural_socket: &Path, harness: &mut Harness) {
-    println!("--- Crypto Routing (`BearDog` direct) ---");
-    println!();
-    println!("  NOTE: Neural API → `BearDog` forwarding has a known `AtomicClient`");
-    println!("  transport issue with symlinked sockets. Testing `BearDog` directly.");
+fn validate_compute_execute_anderson(socket: &Path, harness: &mut Harness) {
+    println!("--- Compute Execute: Anderson Lyapunov (synchronous) ---");
     println!();
 
-    let socket_dir = biomeos_socket_dir();
-    let beardog_sock = format!("{socket_dir}/beardog.sock");
+    let params = serde_json::json!({
+        "n_sites": 200,
+        "disorder": 2.0,
+        "energy": 0.0,
+        "n_realizations": 50,
+        "seed": 42
+    });
 
-    match rpc_to_socket(&beardog_sock, "health", "{}") {
-        Ok(resp) if resp.contains("healthy") => {
-            harness.check("BearDog health (direct)", true);
-        }
+    match biomeos::compute_execute(socket, "lyapunov_averaged", &params.to_string()) {
         Ok(resp) => {
-            println!("  Health: {resp}");
-            harness.check("BearDog health (direct)", false);
+            println!("  Response: {}", &resp[..resp.len().min(200)]);
+            let has_result =
+                resp.contains("gamma") || resp.contains("lyapunov") || resp.contains("result");
+            harness.check("compute.execute (Anderson Lyapunov)", has_result);
         }
         Err(e) => {
-            println!("  Health error: {e}");
-            harness.check("BearDog health (direct)", false);
+            println!("  Execute error: {e}");
+            println!("  (Expected when compute provider is not running)");
+            harness.check("compute.execute (Anderson Lyapunov)", false);
         }
     }
 
-    match rpc_to_socket(&beardog_sock, "crypto.sha256", r#"{"data":"dGVzdA=="}"#) {
+    let spectral_params = serde_json::json!({
+        "n": 50,
+        "coupling": 1.5,
+        "alpha": 0.618_033_988_749_894_9,
+        "theta": 0.0
+    });
+
+    match biomeos::compute_execute(
+        socket,
+        "almost_mathieu_eigenvalues",
+        &spectral_params.to_string(),
+    ) {
+        Ok(resp) => {
+            println!("  Spectral response: {}", &resp[..resp.len().min(200)]);
+            harness.check("compute.execute (Almost-Mathieu eigenvalues)", true);
+        }
+        Err(e) => {
+            println!("  Spectral error: {e}");
+            harness.check("compute.execute (Almost-Mathieu eigenvalues)", false);
+        }
+    }
+    println!();
+}
+
+fn validate_compute_submit_batch(socket: &Path, harness: &mut Harness) {
+    println!("--- Compute Submit: Batch Workloads (async) ---");
+    println!();
+
+    let batch_params = serde_json::json!({
+        "workloads": [
+            {"op": "lyapunov_averaged", "n_sites": 100, "disorder": 1.0, "energy": 0.0, "n_realizations": 10, "seed": 1},
+            {"op": "lyapunov_averaged", "n_sites": 100, "disorder": 2.0, "energy": 0.0, "n_realizations": 10, "seed": 2},
+            {"op": "lyapunov_averaged", "n_sites": 100, "disorder": 4.0, "energy": 0.0, "n_realizations": 10, "seed": 3},
+        ]
+    });
+
+    match biomeos::compute_submit(socket, "batch_anderson", &batch_params.to_string()) {
+        Ok(resp) => {
+            println!("  Batch response: {}", &resp[..resp.len().min(200)]);
+            let has_job = resp.contains("job_id") || resp.contains("batch_id");
+            harness.check("compute.submit (batch Anderson)", has_job);
+
+            if let Some(job_id) = extract_job_id(&resp) {
+                println!("  Batch job ID: {job_id}");
+                poll_job_completion(socket, &job_id, harness);
+            }
+        }
+        Err(e) => {
+            println!("  Batch submit error: {e}");
+            harness.check("compute.submit (batch Anderson)", false);
+        }
+    }
+
+    let spectral_batch = serde_json::json!({
+        "n": 100,
+        "coupling": 2.0,
+        "alpha": 0.618_033_988_749_894_9,
+        "theta": 0.0
+    });
+
+    match biomeos::compute_submit(
+        socket,
+        "spectral_reconstruction",
+        &spectral_batch.to_string(),
+    ) {
+        Ok(resp) => {
+            println!("  Spectral batch: {}", &resp[..resp.len().min(200)]);
+            harness.check("compute.submit (spectral recon)", true);
+        }
+        Err(e) => {
+            println!("  Spectral submit error: {e}");
+            harness.check("compute.submit (spectral recon)", false);
+        }
+    }
+    println!();
+}
+
+fn extract_job_id(response: &str) -> Option<String> {
+    let v: serde_json::Value = serde_json::from_str(response).ok()?;
+    v.get("job_id")
+        .or_else(|| v.get("batch_id"))
+        .and_then(serde_json::Value::as_str)
+        .map(String::from)
+}
+
+fn poll_job_completion(socket: &Path, job_id: &str, harness: &mut Harness) {
+    let params = serde_json::json!({ "job_id": job_id });
+    let req = format!(
+        r#"{{"jsonrpc":"2.0","method":"capability.call","params":{{"capability":"compute","operation":"status","args":{params}}},"id":1}}"#,
+    );
+
+    for attempt in 0..5 {
+        std::thread::sleep(std::time::Duration::from_millis(200 * (1 + attempt)));
+        if let Ok(resp) = biomeos::raw_rpc_call(socket, &req) {
+            if resp.contains("completed") {
+                harness.check("Batch job completed", true);
+                return;
+            }
+            if resp.contains("failed") {
+                println!("  Job failed: {}", &resp[..resp.len().min(200)]);
+                harness.check("Batch job completed", false);
+                return;
+            }
+        }
+    }
+    println!("  Job still pending after polling");
+    harness.check("Batch job completed (timeout)", false);
+}
+
+fn validate_compute_roundtrip(socket: &Path, harness: &mut Harness) {
+    println!("--- Compute Round-Trip: Neural API → Provider → Validate vs Local ---");
+    println!();
+
+    let n_sites = 200;
+    let disorder = 2.0;
+    let energy = 0.0;
+    let local_gamma = groundspring::anderson::lyapunov_averaged(n_sites, disorder, energy, 50, 42);
+    let local_xi = if local_gamma > 0.0 {
+        1.0 / local_gamma
+    } else {
+        f64::INFINITY
+    };
+
+    println!("  Local CPU: γ={local_gamma:.6}, ξ={local_xi:.2}");
+
+    let params = serde_json::json!({
+        "n_sites": n_sites,
+        "disorder": disorder,
+        "energy": energy,
+        "n_realizations": 50,
+        "seed": 42
+    });
+
+    match biomeos::compute_execute(socket, "lyapunov_averaged", &params.to_string()) {
+        Ok(resp) => {
+            if let Ok(v) = serde_json::from_str::<serde_json::Value>(&resp) {
+                if let Some(remote_gamma) = v
+                    .get("gamma")
+                    .or_else(|| v.get("result"))
+                    .and_then(serde_json::Value::as_f64)
+                {
+                    let diff = (local_gamma - remote_gamma).abs();
+                    println!("  Remote GPU: γ={remote_gamma:.6}, diff={diff:.2e}");
+                    harness.check("Round-trip γ parity (< 0.1)", diff < 0.1);
+                } else {
+                    println!("  Could not parse gamma from: {resp}");
+                    harness.check("Round-trip γ parity", false);
+                }
+            } else {
+                println!("  Invalid JSON response: {resp}");
+                harness.check("Round-trip γ parity", false);
+            }
+        }
+        Err(e) => {
+            println!("  Round-trip error: {e}");
+            println!("  (Expected when compute provider is not running)");
+            harness.check("Round-trip γ parity (provider unavailable)", false);
+        }
+    }
+    println!();
+}
+
+fn validate_crypto_routing(neural_socket: &Path, harness: &mut Harness) {
+    println!("--- Crypto Routing (capability-based) ---");
+    println!();
+
+    match biomeos::capability_call(neural_socket, "crypto.health", "{}") {
+        Ok(resp) if resp.contains("healthy") => {
+            harness.check("crypto.health via Neural API", true);
+        }
+        Ok(resp) => {
+            println!("  Health: {}", &resp[..resp.len().min(120)]);
+            harness.check("crypto.health via Neural API", false);
+        }
+        Err(e) => {
+            println!("  Crypto routing error (falling back to direct): {e}");
+            validate_crypto_direct(harness);
+        }
+    }
+
+    match biomeos::capability_call(neural_socket, "crypto.sha256", r#"{"data":"dGVzdA=="}"#) {
         Ok(resp) if resp.contains("hash") => {
-            harness.check("crypto.sha256 via BearDog (direct)", true);
+            harness.check("crypto.sha256 via capability routing", true);
             println!("  Hash: {}", &resp[..resp.len().min(120)]);
         }
         Ok(resp) => {
-            println!("  Hash: {resp}");
-            harness.check("crypto.sha256 via BearDog (direct)", false);
+            println!("  SHA256: {resp}");
+            harness.check("crypto.sha256 via capability routing", false);
         }
         Err(e) => {
-            println!("  Hash error: {e}");
-            harness.check("crypto.sha256 via BearDog (direct)", false);
+            println!("  SHA256 error: {e}");
+            harness.check("crypto.sha256 via capability routing", false);
         }
     }
     println!();
+}
+
+/// Fallback: discover the crypto provider socket from the socket directory.
+fn validate_crypto_direct(harness: &mut Harness) {
+    let socket_dir = biomeos_socket_dir();
+    let Ok(entries) = std::fs::read_dir(&socket_dir) else {
+        harness.check("crypto provider discovered", false);
+        return;
+    };
+    for entry in entries.flatten() {
+        let name = entry.file_name();
+        let path = entry.path();
+        let path_str = path.to_string_lossy();
+        if name.to_string_lossy().ends_with(".sock") && !path_str.contains("neural-api") {
+            if let Ok(resp) = rpc_to_socket(&path_str, "crypto.sha256", r#"{"data":"dGVzdA=="}"#) {
+                if resp.contains("hash") {
+                    harness.check("crypto.sha256 via direct discovery", true);
+                    return;
+                }
+            }
+        }
+    }
+    harness.check("crypto provider discovered", false);
 }
 
 fn rpc_to_socket(

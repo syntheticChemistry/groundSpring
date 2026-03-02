@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Cross-spring benchmark: CPU-local vs barracuda-CPU vs barracuda-GPU.
@@ -38,7 +38,7 @@ use std::time::Instant;
 
 fn main() {
     println!("=== groundSpring Cross-Spring Benchmark ===");
-    println!("=== ToadStool S71+++ / BarraCUDA Universal Precision ===\n");
+    println!("=== ToadStool S79 / BarraCUDA Universal Precision ===\n");
 
     let mut h = Harness::new();
 

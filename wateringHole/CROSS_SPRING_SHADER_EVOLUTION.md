@@ -3,7 +3,7 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 2, 2026 (V61: 61 active delegations — 37 CPU + 20 GPU + 4 cross-spring, 1 evolution candidate, ToadStool S71+++ — V61: mixed-hardware pipeline dispatch, PCIe topology, NUCLEUS atomics, fallback chains, deep idiomatic debt pass, 668 tests, 120 metalForge tests)
+**Last Updated**: March 2, 2026 (V62: 61 active delegations — 37 CPU + 20 GPU + 4 cross-spring, 1 evolution candidate, `ToadStool` S79 `f97fc2ae` — V62: pollster eliminated (`tokio_block_on`), f64-capable device selection (`WgpuDevice::new_f64_capable`), DF64 precision strategy wired, 2 redundant shaders removed (absorbed into ToadStool), cross-spring shader lineage documented, SPDX harmonized (AGPL-3.0-only), 710 tests, 172 metalForge checks)
 
 ---
 
@@ -33,8 +33,8 @@ groundSpring (noise validation) → jackknife, evolution (Kimura fixation, quasi
                                   diversity (Chao1, detection power), hydrology (fao56_et0),
                                   grid search/fit ops, batched multinomial, MC ET₀ propagation
                                   ↓
-                          BarraCUDA S71+++ (ToadStool 8dc01a37)
-                    2,773+ tests, 671 WGSL shaders (zero f32-only, DF64 universal precision, 15 transcendentals)
+                          BarraCUDA S79 (ToadStool f97fc2ae)
+                    14,200+ tests, 844 WGSL shaders (f64-canonical, DF64 universal precision, 15 transcendentals)
 ```
 
 ---
@@ -56,7 +56,9 @@ the f64 precision infrastructure that ALL statistical operations depend on.
 | CG solver shaders (6 kernels) | S46-48 | Pattern: iterative GPU solver with convergence |
 | DF64 FMA + transcendentals | S60 | Consumer GPU precision for all Springs |
 | 8 lattice WGSL (SU(3), PRNG, DF64) | S64 | Nuclear physics shaders in barracuda core |
-| 2,490+ barracuda tests | — | Validates the precision path we depend on |
+| 4-layer brain architecture | S79 | NPU cerebellum + dual GPU + CPU cortex pattern |
+| 15-head multi-observable ESN | S79 | Multi-head uncertainty for transport + phase detection |
+| 14,200+ barracuda tests | — | Validates the precision path we depend on |
 
 **Why it matters**: hotSpring discovered that FP64 operations on consumer GPUs
 (RTX 4070) need careful workgroup sizing to avoid precision loss. This
@@ -143,7 +145,7 @@ and learnings** rather than GPU shaders:
 | Three-mode validation (local / barracuda / barracuda-gpu) | Proves correctness across feature configurations |
 | Zero-overhead benchmark methodology | Proves barracuda delegation is free for compute-heavy code |
 | Tolerance documentation standard | Every tolerance justified with mathematical basis |
-| 4 WGSL shaders | `batched_multinomial.wgsl`, `mc_et0_propagate.wgsl`, `anderson_lyapunov.wgsl` (f64), `anderson_lyapunov_f32.wgsl` |
+| 2 WGSL shaders (V62) | `anderson_lyapunov.wgsl` (f64), `anderson_lyapunov_f32.wgsl` — 2 redundant shaders removed V62 (absorbed into ToadStool: `batched_multinomial_f64.wgsl`, `mc_et0_propagate_f64.wgsl`) |
 | Architecture-aware GPU dispatch | `GpuArch` detection, `NativeF64` capability, f64→Titan V routing |
 | NAK f64 gap discovery | `SHADER_F64` unreliable on both NAK and NVVM — DF64 required everywhere |
 | `AdaptiveBatch` memory management | Software-side VRAM batch sizing with architecture defaults |
@@ -378,7 +380,7 @@ V20 pins ToadStool at `f0feb226` (S68 universal precision). Hill kinetics delega
 |--------|--------|
 | `kinetics::hill` | Stub → active delegation to `barracuda::stats::hill` (`#[cfg]`/`#[cfg(not)]` infallible pattern) |
 | `kinetics::hill_repress` | Simplified to `1.0 - hill(x, k, n)` — gets barracuda delegation for free |
-| ToadStool S68 | 700 shaders (zero f32-only), 2,546+ barracuda tests, 21,599 workspace tests |
+| ToadStool S68 | 700 shaders (zero f32-only), 2,546+ barracuda tests, 21,599 workspace tests (superseded by S79: 844 shaders, 14,200+ tests) |
 | Delegation count | 27 active (22 CPU + 5 GPU), was 26 (21 + 5) |
 
 **S68 universal precision**: ToadStool S68 completed the f32-only shader migration. All 700 shaders use f64 or df64. Feature gate bug resolved in latest ToadStool HEAD.
@@ -424,9 +426,9 @@ All 21 validation binaries timed in `--release` mode, CPU-only vs barracuda-dele
 
 **Key insight**: CPU delegation adds ~1.7% total overhead from function indirection — functionally free. Heavy experiments (Anderson, RAWR) are actually slightly *faster* with barracuda's optimized implementations. The real speedup opportunity is GPU delegation for Exp 009 (eigensolver) and Exp 014 (Wright-Fisher batching).
 
-### Cross-Spring Shader Categories (ToadStool S68)
+### Cross-Spring Shader Categories (ToadStool S79)
 
-The 700 barracuda WGSL shaders that groundSpring's delegations ultimately depend on:
+The 844 barracuda WGSL shaders that groundSpring's delegations ultimately depend on:
 
 | Category | Count | Primary Origin Springs | groundSpring Usage |
 |----------|-------|----------------------|-------------------|
@@ -478,6 +480,7 @@ The 700 barracuda WGSL shaders that groundSpring's delegations ultimately depend
 | Mar 1 | **groundSpring V58** | **Cross-spring evolution + deep-debt completion**: 4 new cross-spring S59+ delegations (disorder_sweep, anderson_2d, anderson_3d, chi2_analysis), ESN regime classification module (wetSpring lineage), Lanczos sparse eigensolver module (hotSpring lineage), 61 active delegations (38 CPU + 19 GPU + 4 xspring), FAMILY_ID evolution, DRY refactoring, comprehensive deep-debt audit clean |
 | Mar 1 | **groundSpring V59** | **ToadStool S71+++ catch-up**: jackknife promoted to GPU (`JackknifeMeanGpu` + `jackknife_mean_f64.wgsl`), Hargreaves batch GPU evolved (`HargreavesBatchGpu` + `hargreaves_batch_f64.wgsl`), ToadStool pin advanced 6 commits (S70+++→S71+++), 671 WGSL shaders, ComputeDispatch builder (66 ops), DF64 transcendental suite complete (15 functions), ~9K lines stale code archived upstream, 61 delegations (37 CPU + 20 GPU + 4 xspring) |
 | Mar 1 | **groundSpring V60** | **hotSpring cross-spring absorption**: `DriftMonitor` (`N_e`·`s` tracking from Nautilus Shell), `ClassificationUncertainty` (multi-head ESN disagreement from hotSpring), `detect_concept_edges` (LOO cross-validation from Nautilus Brain), `nautilus` feature gate (`bingocube-nautilus` optional dep), 620 tests (+7), 4 new native functions, 10 new tests |
+| Mar 2 | **groundSpring V62** | **ToadStool S79 catch-up**: pollster eliminated (`tokio_block_on`), f64-capable device selection (`WgpuDevice::new_f64_capable` with fallback), DF64 precision strategy wired, 2 redundant shaders removed (absorbed into ToadStool), SPDX harmonized (AGPL-3.0-only), cross-spring shader lineage documented. 710 tests, 23/23 cross-spring benchmark, 39/39 GPU tier, 13/13 Titan V + RTX 4070 validation |
 
 ---
 
@@ -551,19 +554,37 @@ correctly in production.
 
 | Tier | Count | Notes |
 |------|-------|-------|
-| CPU active | 37 | S71+++ canonical count (jackknife promoted to GPU) |
+| CPU active | 37 | S79 canonical count (jackknife promoted to GPU) |
 | GPU active | 20 | includes GPU grid adapters, batch APIs, stats dispatch, JackknifeMeanGpu, HargreavesBatchGpu |
 | Cross-spring | 4 | disorder_sweep, anderson_2d, anderson_3d, chi2_analysis |
 | Evolution candidates | 1 | band_edges (algorithm mismatch) |
 | **Total active** | **61** | 101 three-tier parity tests |
 
-### NUCLEUS Integration (V56+)
+### NUCLEUS Integration (V63)
 
-| Capability | Status | Primal |
-|-----------|--------|--------|
+| Capability | Status | Provider |
+|-----------|--------|----------|
 | Socket discovery | ✅ active | biomeOS |
-| Tower health + beacon | ✅ live | BearDog |
-| Compute health/caps/version | ✅ live | ToadStool |
-| AI health | ✅ live | Squirrel |
-| Storage put/get | ○ requires Nest mode | NestGate |
-| Data pipelines (NCBI, NOAA, IRIS) | ○ requires Nest mode | NestGate |
+| Tower health + beacon | ✅ live | crypto capability |
+| Compute health/caps/version | ✅ live | compute capability |
+| AI health | ✅ live | AI capability |
+| Storage put/get | ○ requires Nest mode | storage capability |
+| Data pipelines (NCBI, NOAA, IRIS) | ○ requires Nest mode | data capability |
+| science.* registration (7 caps) | ✅ V63 | groundSpring self-registration |
+| Configurable timeouts | ✅ V63 | env vars |
+| Capability-based discovery | ✅ V63 | zero hardcoded primal names |
+
+### baseCamp Paper Coverage (V63)
+
+| Paper | groundSpring Experiments | Key Feature |
+|-------|------------------------|-------------|
+| 01 (Anderson-QS) | Exp 008, 009, 015, 018 | Spectral theory validation |
+| 02 (LTEE Extensions) | Exp 014, 016, 017 | Drift vs selection, quasispecies |
+| 03 (BioAg) | Exp 004, 016, 019 | Rare biosphere, jackknife |
+| 04 (Sentinels) | Exp 001, 015, 028 | NPU Anderson classification |
+| 05 (Cross-Species) | Exp 012, 018 | Transport, band edge |
+| 06 (No-Till) | Exp 022-024 | Uncertainty bridge |
+| 07 (WDM) | Exp 019-021, 025-027 | Freeze-out, convergence |
+| 08 (NPU Ag IoT) | Exp 028 | Cross-substrate parity |
+| 09 (Field Genomics) | Exp 016, 028 | Rare biosphere, metalForge |
+| **12 (Immuno-Anderson)** | **Exp 008, 012, 015, 018** | **Cytokine transport, 2D/3D spectral, ConceptEdge, DriftAction** |

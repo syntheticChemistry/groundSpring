@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Integration tests for the biomeOS Neural API client.
@@ -65,7 +65,7 @@ fn capability_call_fails_gracefully_when_no_socket() {
 #[test]
 fn direct_rpc_call_fails_gracefully_when_no_socket() {
     let fake_path = PathBuf::from("/tmp/groundspring_biomeos_test_nonexistent_rpc.sock");
-    let err = biomeos::direct_rpc_call(&fake_path, "nestgate", "health", "{}").unwrap_err();
+    let err = biomeos::direct_rpc_call(&fake_path, "compute", "health", "{}").unwrap_err();
     let msg = err.to_string();
     assert!(
         msg.contains("biomeOS connect") || msg.contains("invalid socket"),

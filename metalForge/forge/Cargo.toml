@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: AGPL-3.0-only
 
 [package]
 name = "groundspring-forge"
@@ -16,11 +16,11 @@ biomeos = ["groundspring/biomeos"]
 
 [dependencies]
 groundspring = { path = "../../crates/groundspring" }
+barracuda = { path = "../../../phase1/toadstool/crates/barracuda", features = ["gpu"] }
 wgpu = { version = "22", default-features = false, features = [
     "wgsl",
     "vulkan-portability",
 ] }
-pollster = "0.4"
 bytemuck = { version = "1", features = ["derive"] }
 serde_json = "1"
 
@@ -74,6 +74,10 @@ path = "src/bin/validate_mixed_hardware.rs"
 name = "validate-nucleus-pipeline"
 path = "src/bin/validate_nucleus_pipeline.rs"
 required-features = ["biomeos"]
+
+[[bin]]
+name = "validate-metalforge-pipeline"
+path = "src/bin/validate_metalforge_pipeline.rs"
 
 [lints]
 workspace = true

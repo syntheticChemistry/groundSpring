@@ -3,19 +3,27 @@
 # between all groundSpring primals. This is the foundation that
 # Node (Tower + ToadStool) and Nest (Tower + NestGate) build on.
 #
-# STATUS: Protocol defined (Feb 27, 2026)
+# STATUS: V62 (March 2, 2026) — ToadStool S79 (f97fc2ae)
 # Atomic: Tower (BearDog + Songbird)
 # Target: Eastgate (local, single machine)
+# Precision: f64-capable device selection with DF64 fallback
 #
 # Run: biomeos nucleus start --mode tower --node-id eastgate
 #
 # After Tower is running, groundSpring's biomeos.rs client discovers
 # the Neural API socket and routes compute/storage through it.
+# For full NUCLEUS (Tower + Node + Nest), use groundspring_nucleus_local.toml.
 
 [graph]
 id = "groundspring_tower_bootstrap"
 description = "Tower atomic: BearDog + Songbird for encrypted IPC foundation"
 coordination = "Sequential"
+
+[graph.metadata]
+toadstool_pin = "S79"
+toadstool_commit = "f97fc2ae"
+groundspring_version = "V62"
+target_node = "eastgate"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # PHASE 1: BEARDOG BOOTSTRAP (security + identity)

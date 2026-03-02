@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Validation binary for Experiment 009: Quasiperiodic Localization.
@@ -143,7 +143,7 @@ fn level_spacing_checks(harness: &mut ValidationHarness, n_eig: usize, alpha: f6
             #[expect(clippy::cast_precision_loss)]
             let th = 2.0 * std::f64::consts::PI * (idx as f64) / (n_theta as f64);
             let mut eigs = almost_mathieu_eigenvalues(n_eig, coupling, alpha, th);
-            eigs.sort_unstable_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+            eigs.sort_unstable_by(f64::total_cmp);
 
             let bulk = &eigs[lo_bulk..hi_bulk];
             let gaps: Vec<f64> = bulk.windows(2).map(|w| w[1] - w[0]).collect();

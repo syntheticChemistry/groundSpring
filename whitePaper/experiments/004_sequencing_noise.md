@@ -31,8 +31,8 @@ signals are well above the noise floor.
 
 ## Barracuda Path
 
-Production WGSL shader (`batched_multinomial.wgsl`) in metalForge.
-Tier C — BatchedMultinomialGpu absorbed in ToadStool; rare_biosphere wired.
+`batched_multinomial.wgsl` **absorbed S76** into ToadStool's f64-canonical bio shader library.
+Tier C — `BatchedMultinomialGpu` wired; `rare_biosphere` and `rarefaction` both delegate.
 
 ## Modules
 

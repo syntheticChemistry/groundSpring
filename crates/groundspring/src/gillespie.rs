@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Gillespie stochastic simulation algorithm (SSA) for chemical kinetics.
@@ -408,5 +408,45 @@ mod tests {
             states: vec![7],
         };
         assert!((time_averaged_variance(&traj, 0.0, 7.0)).abs() < 1e-12);
+    }
+
+    #[test]
+    fn batch_parity_cpu_sequential_vs_dispatch() {
+        let rates = vec![1.0; 10];
+        let n_traj = 50;
+        let t_max = 200.0;
+        let t_burnin = 50.0;
+        let base_seed = 42;
+
+        let batch = birth_death_ssa_batch(&rates, 1.0, 10, t_max, n_traj, t_burnin, base_seed);
+        let cpu = birth_death_ssa_batch_cpu(&rates, 1.0, 10, t_max, n_traj, t_burnin, base_seed);
+
+        assert_eq!(batch.n_trajectories, cpu.n_trajectories);
+        let tol = if cfg!(feature = "barracuda-gpu") {
+            5.0
+        } else {
+            f64::EPSILON
+        };
+        assert!(
+            (batch.mean - cpu.mean).abs() < tol,
+            "mean mismatch: batch={}, cpu={}",
+            batch.mean,
+            cpu.mean
+        );
+    }
+
+    #[test]
+    fn batch_result_reasonable() {
+        let rates = vec![1.0; 10];
+        let batch = birth_death_ssa_batch(&rates, 1.0, 10, 500.0, 100, 100.0, 42);
+        let ss = steady_state_mean(10.0, 1.0);
+        assert!(
+            (batch.mean - ss).abs() < 5.0,
+            "batch mean {} should be near steady state {}",
+            batch.mean,
+            ss
+        );
+        assert!(batch.variance > 0.0);
+        assert_eq!(batch.n_trajectories, 100);
     }
 }

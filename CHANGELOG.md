@@ -665,7 +665,7 @@ to GPU via unidirectional streaming (ToadStool `ComputeDispatch`).
 - **Flaky `validate-uncertainty-bridge`**: per-sensor deterministic RNG (fresh `Xorshift64` per sensor call) eliminates cross-sensor dependency that caused intermittent failures under `--all-features`
 - **Tolerance**: EC5 bias-correction `min_reduction_fraction` widened from -0.05 to -0.15 with documented justification (MC variance at n_mc=200)
 - **`unwrap()` → `expect()`** in `validate_uncertainty_bridge.rs:99` for explicit error context
-- **SPDX headers**: added `AGPL-3.0-or-later` headers to all 30 Python files missing them (experiment scripts, `__init__.py`, utility scripts)
+- **SPDX headers**: added `AGPL-3.0-only` headers to all 30 Python files missing them (experiment scripts, `__init__.py`, utility scripts)
 - **Baseline provenance**: stamped `baseline_commit` in 6 benchmark JSONs that had empty or "pending" values
 - **Sequencing noise data accession**: resolved "Pending" → documented as synthetic with future SRA targets
 

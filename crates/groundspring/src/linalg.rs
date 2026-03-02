@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Linear algebra primitives shared across groundSpring modules.
@@ -20,6 +20,12 @@
 //! barracuda's dense Jacobi `eigh_f64` for tridiagonal matrices.
 //! GPU promotion requires a dedicated `BatchedTridiagEigh` — candidate
 //! for `ToadStool` absorption.
+//!
+//! `tridiag_eigh_barracuda` provides a barracuda-delegated path that
+//! constructs the dense matrix and calls `barracuda::linalg::eigh_f64`
+//! (Jacobi rotation). This is slower than QL for single decompositions
+//! but provides a validation cross-check and the foundation for future
+//! GPU-batched eigensolvers.
 
 /// Maximum QL iterations before convergence failure.
 ///
@@ -201,6 +207,63 @@ fn implicit_ql(d: &mut [f64], e: &mut [f64], z: &mut [f64], n: usize) -> Result<
     Ok(())
 }
 
+/// Barracuda-delegated tridiagonal eigendecomposition.
+///
+/// Constructs the full dense symmetric matrix from the tridiagonal form
+/// and delegates to `barracuda::linalg::eigh_f64` (Jacobi rotation).
+/// Returns `(eigenvalues, eigenvectors_flat)` in the same layout as
+/// [`tridiag_eigh`].
+///
+/// # Errors
+///
+/// Returns [`EighError`] on empty input, dimension mismatch, or barracuda
+/// decomposition failure.
+#[cfg(feature = "barracuda-gpu")]
+pub fn tridiag_eigh_barracuda(
+    diag: &[f64],
+    offdiag: &[f64],
+) -> Result<(Vec<f64>, Vec<f64>), EighError> {
+    let n = diag.len();
+    if n == 0 {
+        return Err(EighError::EmptyMatrix);
+    }
+    if offdiag.len() != n - 1 {
+        return Err(EighError::DimensionMismatch {
+            diag_len: n,
+            offdiag_len: offdiag.len(),
+        });
+    }
+    if n == 1 {
+        return Ok((vec![diag[0]], vec![1.0]));
+    }
+
+    let mut dense = vec![0.0; n * n];
+    for i in 0..n {
+        dense[i * n + i] = diag[i];
+        if i + 1 < n {
+            dense[i * n + (i + 1)] = offdiag[i];
+            dense[(i + 1) * n + i] = offdiag[i];
+        }
+    }
+
+    let decomp =
+        barracuda::linalg::eigh_f64(&dense, n).map_err(|_| EighError::ConvergenceFailure {
+            index: 0,
+            max_iterations: QL_MAX_ITERATIONS,
+        })?;
+
+    let mut eigenvectors = vec![0.0; n * n];
+    for k in 0..n {
+        if let Some(ev) = decomp.eigenvector(k) {
+            for (row, val) in ev.iter().enumerate() {
+                eigenvectors[row * n + k] = *val;
+            }
+        }
+    }
+
+    Ok((decomp.eigenvalues, eigenvectors))
+}
+
 /// Sort eigenvalues in ascending order and permute eigenvectors accordingly.
 fn sort_eigenpairs(d: &mut [f64], z: &mut [f64], n: usize) {
     let mut indices: Vec<usize> = (0..n).collect();
@@ -316,6 +379,59 @@ mod tests {
                 let diff = vals[k].mul_add(-vecs[j * n + k], hv[j]).abs();
                 assert!(diff < 1e-10, "H*v != λ*v at k={k}, j={j}: diff={diff}");
             }
+        }
+    }
+
+    #[cfg(feature = "barracuda-gpu")]
+    mod barracuda_tests {
+        use super::*;
+
+        #[test]
+        fn barracuda_eigh_eigenvalue_parity() {
+            let n = 10_usize;
+            let diag: Vec<f64> = (0..10_i32).map(|i| f64::from(i) * 0.5).collect();
+            let offdiag = vec![0.3; n - 1];
+
+            let (vals_ql, _) = tridiag_eigh(&diag, &offdiag).expect("QL");
+            let (vals_bc, _) = tridiag_eigh_barracuda(&diag, &offdiag).expect("barracuda");
+
+            for (ql, bc) in vals_ql.iter().zip(&vals_bc) {
+                assert!(
+                    (ql - bc).abs() < 1e-8,
+                    "eigenvalue mismatch: QL={ql}, barracuda={bc}"
+                );
+            }
+        }
+
+        #[test]
+        fn barracuda_eigh_orthogonality() {
+            let n = 8_usize;
+            let diag: Vec<f64> = (0..8_i32).map(|i| f64::from(i) * 0.4).collect();
+            let offdiag = vec![1.0; n - 1];
+            let (_, vecs) = tridiag_eigh_barracuda(&diag, &offdiag).expect("barracuda");
+
+            for i in 0..n {
+                for j in 0..n {
+                    let dot: f64 = (0..n).map(|k| vecs[k * n + i] * vecs[k * n + j]).sum();
+                    let expected = if i == j { 1.0 } else { 0.0 };
+                    assert!(
+                        (dot - expected).abs() < 1e-6,
+                        "barracuda eigenvector dot({i},{j}) = {dot}"
+                    );
+                }
+            }
+        }
+
+        #[test]
+        fn barracuda_eigh_trivial() {
+            let (vals, vecs) = tridiag_eigh_barracuda(&[5.0], &[]).expect("1x1");
+            assert!((vals[0] - 5.0).abs() < 1e-14);
+            assert!((vecs[0] - 1.0).abs() < 1e-14);
+        }
+
+        #[test]
+        fn barracuda_eigh_empty_errors() {
+            assert!(tridiag_eigh_barracuda(&[], &[]).is_err());
         }
     }
 }

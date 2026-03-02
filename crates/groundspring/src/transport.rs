@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Wavepacket transport in 1D tight-binding models.
@@ -22,6 +22,9 @@
 use crate::cast::usize_f64;
 
 pub use crate::linalg::{tridiag_eigh, EighError};
+
+#[cfg(feature = "barracuda-gpu")]
+pub use crate::linalg::tridiag_eigh_barracuda;
 
 /// Minimum MSD threshold for log-log regression.
 ///

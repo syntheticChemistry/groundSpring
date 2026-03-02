@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Exp 030: Real NCBI 16S Diversity — Rare biosphere detection on real metagenomes.
@@ -18,7 +18,11 @@
 compile_error!("Exp 030 requires --features biomeos");
 
 #[cfg(feature = "biomeos")]
-#[allow(clippy::cast_precision_loss)]
+#[expect(
+    clippy::cast_precision_loss,
+    clippy::too_many_lines,
+    reason = "validation binary with sequential checks"
+)]
 fn main() {
     use groundspring::biomeos;
     use groundspring::rare_biosphere;
@@ -148,7 +152,7 @@ fn main() {
     }
 
     println!();
-    let _ = h.summary();
+    std::process::exit(h.summary());
 }
 
 #[cfg(feature = "biomeos")]

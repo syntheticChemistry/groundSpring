@@ -2,7 +2,7 @@
 
 **Date**: February 27, 2026
 **groundSpring HEAD**: V35
-**ToadStool HEAD**: `1dd7e338` (S71+++)
+**ToadStool HEAD**: `f97fc2ae` (S79)
 
 ---
 
@@ -118,7 +118,7 @@ the backbone of model-observation comparison across all Springs.
 ### Who benefits from airSpring
 
 - **groundSpring**: 7 error metric delegations (RMSE, MBE, R², IoA, hit_rate,
-  mean, percentile) used across all 32 experiments.
+  mean, percentile) used across all 33 experiments.
 - **wetSpring**: Moving window for time-series diversity.
 - **hotSpring**: IoA for lattice QCD convergence monitoring.
 

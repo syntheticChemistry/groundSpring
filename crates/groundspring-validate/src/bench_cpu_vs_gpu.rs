@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! CPU vs GPU timing benchmark for groundSpring.
@@ -354,6 +354,125 @@ fn bench_freeze_out(iters: u32) -> BenchEntry {
     }
 }
 
+fn bench_multinomial_batch(iters: u32) -> BenchEntry {
+    let abundances = vec![0.3, 0.25, 0.2, 0.15, 0.07, 0.03];
+
+    let cpu_ms = bench(
+        || {
+            let mut results = Vec::with_capacity(200);
+            for i in 0..200_u64 {
+                results.push(groundspring::rarefaction::multinomial_sample(
+                    &abundances,
+                    1000,
+                    42 + i,
+                ));
+            }
+            std::hint::black_box(results);
+        },
+        iters,
+    );
+
+    let gpu_ms = bench(
+        || {
+            let r = groundspring::rarefaction::multinomial_sample_batch(&abundances, 1000, 200, 42);
+            std::hint::black_box(r);
+        },
+        iters,
+    );
+
+    BenchEntry {
+        name: "Multinomial batch (200 reps × 6 taxa)",
+        cpu_ms,
+        gpu_ms: Some(gpu_ms),
+        speedup: Some(cpu_ms / gpu_ms),
+    }
+}
+
+fn bench_tikhonov(iters: u32) -> BenchEntry {
+    let n_tau = 20_u32;
+    let n_omega = 30_u32;
+    let tau: Vec<f64> = (1..=n_tau)
+        .map(|i| f64::from(i) * 2.0 / f64::from(n_tau))
+        .collect();
+    let omega: Vec<f64> = (1..=n_omega)
+        .map(|i| f64::from(i) * 6.0 / f64::from(n_omega))
+        .collect();
+    let nt = n_tau as usize;
+    let nw = n_omega as usize;
+    let rho_true = groundspring::spectral_recon::gaussian_peak(&omega, 3.0, 0.5, 1.0);
+    let kernel = groundspring::spectral_recon::build_kernel(&tau, &omega);
+    let g = groundspring::spectral_recon::forward_correlator(&kernel, &rho_true, nt, nw);
+
+    let cpu_ms = bench(
+        || {
+            let r = groundspring::spectral_recon::tikhonov_solve(&kernel, &g, 1e-6, nt, nw);
+            std::hint::black_box(r);
+        },
+        iters * 10,
+    );
+
+    BenchEntry {
+        name: "Tikhonov spectral (20×30 kernel)",
+        cpu_ms,
+        gpu_ms: None,
+        speedup: None,
+    }
+}
+
+fn bench_tridiag_eigh(iters: u32) -> BenchEntry {
+    let n = 200_usize;
+    let diag: Vec<f64> = (0..200_u32).map(|i| f64::from(i) * 0.1).collect();
+    let offdiag = vec![1.0; n - 1];
+
+    let cpu_ms = bench(
+        || {
+            let r = groundspring::transport::tridiag_eigh(&diag, &offdiag).unwrap();
+            std::hint::black_box(r);
+        },
+        iters,
+    );
+
+    BenchEntry {
+        name: "Tridiag eigh (200×200, QL)",
+        cpu_ms,
+        gpu_ms: None,
+        speedup: None,
+    }
+}
+
+fn bench_transport_msd(iters: u32) -> BenchEntry {
+    let n = 101_usize;
+    let diag: Vec<f64> = (0..101_u32)
+        .map(|i| {
+            0.5 * (2.0 * std::f64::consts::PI * 0.618_033_988_749_894_9)
+                .mul_add(f64::from(i), 0.0)
+                .cos()
+        })
+        .collect();
+    let offdiag = vec![1.0; n - 1];
+    let (evals, evecs) = groundspring::transport::tridiag_eigh(&diag, &offdiag).unwrap();
+
+    let cpu_ms = bench(
+        || {
+            let times = [1.0, 5.0, 10.0, 20.0, 40.0];
+            let msds: Vec<f64> = times
+                .iter()
+                .map(|&t| groundspring::transport::wavepacket_msd(&evals, &evecs, 50, t).0)
+                .collect();
+            let beta = groundspring::transport::transport_exponent(&times, &msds);
+            std::hint::black_box(beta);
+        },
+        iters,
+    );
+
+    BenchEntry {
+        name: "Wavepacket MSD + transport β (101 sites)",
+        cpu_ms,
+        gpu_ms: None,
+        speedup: None,
+    }
+}
+
 fn print_results(entries: &[BenchEntry]) {
     println!(
         "\n{:<45} {:>10} {:>14} {:>10}",
@@ -406,6 +525,7 @@ fn main() {
     let entries = vec![
         bench_gillespie(iters),
         bench_wright_fisher(iters),
+        bench_multinomial_batch(iters),
         bench_fao56(iters),
         bench_fao56_scalar(iters),
         bench_kimura(iters),
@@ -416,6 +536,9 @@ fn main() {
         bench_rare_biosphere(iters),
         bench_anderson(iters),
         bench_diversity(iters),
+        bench_tikhonov(iters),
+        bench_tridiag_eigh(iters),
+        bench_transport_msd(iters),
     ];
 
     print_results(&entries);
