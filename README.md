@@ -261,8 +261,8 @@ Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardwar
 
 **Lean progress**: 76 functions delegate to barracuda with graceful sovereign fallback.
 44 CPU delegated via `#[cfg(feature = "barracuda")]`, 32 GPU dispatched via
-`#[cfg(feature = "barracuda-gpu")]` (V63: +6 GPU — Gillespie, WrightFisher,
-Multinomial, Cholesky, Tridiag Eigh, PRNG), 4 cross-spring S59+.
+`#[cfg(feature = "barracuda-gpu")]`. V68: +L-BFGS refinement (airSpring → freeze-out),
++4D Anderson + Wegner RG (hotSpring → tissue). V67: +McEt0PropagateGpu, +SeasonalPipelineF64.
 All local shaders absorbed upstream (batched_multinomial S76, mc_et0_propagate S72);
 only 2 unique `anderson_lyapunov*.wgsl` reference shaders remain in metalForge.
 
@@ -312,32 +312,39 @@ groundSpring/
 │   ├── jackknife_estimation/      # Exp 019: Jackknife error estimation (Bazavov 2025)
 │   ├── freeze_out_inverse/        # Exp 020: Freeze-out inverse problem (Bazavov 2016)
 │   ├── spectral_recon/            # Exp 021: Spectral function reconstruction (Bazavov 2025)
-│   └── npu_anderson/              # Exp 028: NPU Anderson regime classification
+│   ├── et0_anderson_propagation/   # Exp 022: ET₀ → Anderson uncertainty
+│   ├── notill_sampling/            # Exp 023: No-till vs tilled 16S sampling
+│   ├── aggregate_stability/        # Exp 024: Aggregate stability noise
+│   ├── precision_drift/            # Exp 025: f32 vs f64 precision drift
+│   ├── size_convergence/           # Exp 026: System-size convergence
+│   ├── vendor_parity/              # Exp 027: GPU vendor parity
+│   └── npu_anderson/               # Exp 028: NPU Anderson regime classification
 ├── crates/
-│   ├── groundspring/                # Phase 1 Rust library (33 modules incl. esn, lanczos, tissue_anderson, biomeos, nestgate, npu)
-│   └── groundspring-validate/       # 33 validation binaries (hotSpring pattern)
-├── metalForge/                      # Write → Absorb → Lean artifacts
-│   ├── forge/                       # groundspring-forge crate: hardware discovery, dispatch, topology, pipeline, atomics, remote
-│   ├── npu/akida/                   # AKD1000 NPU integration, HARDWARE.md
-│   ├── ABSORPTION_MANIFEST.md       # Module-by-module absorption inventory
-│   └── shaders/                     # Production WGSL shaders for ToadStool absorption
-├── graphs/                          # biomeOS pipeline graphs (Tower bootstrap, Node, cross-substrate)
-├── .github/workflows/ci.yml         # GitHub Actions CI
-├── wateringHole/                    # Handoff directory (V65 current)
+│   ├── groundspring/               # Phase 1 Rust library (33 modules incl. esn, lanczos, tissue_anderson, biomeos, nestgate, npu)
+│   └── groundspring-validate/      # 33 validation binaries (hotSpring pattern)
+├── metalForge/                     # Write → Absorb → Lean artifacts
+│   ├── forge/                      # groundspring-forge crate: hardware discovery, dispatch, topology, pipeline, atomics, remote
+│   ├── npu/akida/                  # AKD1000 NPU integration, HARDWARE.md
+│   ├── ABSORPTION_MANIFEST.md      # Module-by-module absorption inventory
+│   └── shaders/                    # Production WGSL shaders for ToadStool absorption
+├── graphs/                         # biomeOS pipeline graphs (Tower bootstrap, Node, cross-substrate)
+├── .github/workflows/ci.yml        # GitHub Actions CI
+├── wateringHole/                   # Handoff directory (V68 current)
 ├── specs/
-│   ├── BARRACUDA_EVOLUTION.md       # Module → GPU promotion mapping + PRNG roadmap
-│   ├── BARRACUDA_REQUIREMENTS.md    # GPU kernel gap analysis
+│   ├── BARRACUDA_EVOLUTION.md      # Module → GPU promotion mapping + PRNG roadmap
+│   ├── BARRACUDA_REQUIREMENTS.md   # GPU kernel gap analysis
+│   ├── CROSS_SPRING_EVOLUTION.md   # Cross-spring shader provenance
 │   ├── PRIMAL_INTERACTION_EVOLUTION.md # NUCLEUS Neural API evolution (V0–V6)
-│   ├── LAN_DEPLOYMENT_READINESS.md  # LAN HPC readiness assessment
-│   └── PAPER_REVIEW_QUEUE.md        # 28 papers, three-tier control matrix, open data audit
-├── whitePaper/                      # Study, methodology, baseCamp, experiments
-│   ├── baseCamp/                    # Per-faculty research briefings (7 faculty)
-│   ├── experiments/                 # Per-experiment summaries (001-033)
-├── tests/                           # Python test suite (28 experiments)
-├── Cargo.toml                       # Rust workspace (barracuda feature gate)
+│   ├── LAN_DEPLOYMENT_READINESS.md # LAN HPC readiness assessment
+│   └── PAPER_REVIEW_QUEUE.md       # 30 papers, three-tier control matrix, open data audit
+├── whitePaper/                     # Study, methodology, baseCamp, experiments
+│   ├── baseCamp/                   # Per-faculty research briefings (7 faculty)
+│   ├── experiments/                # Per-experiment summaries (001-033)
+├── tests/                          # Python test suite (28 experiments)
+├── Cargo.toml                      # Rust workspace (barracuda feature gate)
 ├── CONTRIBUTING.md
 ├── CHANGELOG.md
-└── LICENSE                          # AGPL-3.0-only
+└── LICENSE                         # AGPL-3.0-only
 ```
 
 ## Hardware Gate
@@ -360,4 +367,4 @@ AGPL-3.0-only — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026 | V53 complete rewiring + GPU grid adapters — 57 active: February 28, 2026 | V56 NUCLEUS live validation + ToadStool handoff: March 1, 2026 | V58 cross-spring evolution + deep-debt completion: March 1, 2026 | V59 ToadStool S71+++ catch-up: March 1, 2026 | V60 hotSpring cross-spring absorption — DriftMonitor, ClassificationUncertainty, concept edge detection, Nautilus Shell dep: March 1, 2026 | V63 brain architecture + capability-based discovery + Paper 12: March 2, 2026 | V64 deep audit — idiomatic Rust evolution, Result-based APIs, tissue_anderson module refactoring, absorbed shader cleanup: March 2, 2026 | V65 docs sweep + ToadStool absorption handoff + paper queue review: March 2, 2026*
+*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026 | V53 complete rewiring + GPU grid adapters — 57 active: February 28, 2026 | V56 NUCLEUS live validation + ToadStool handoff: March 1, 2026 | V58 cross-spring evolution + deep-debt completion: March 1, 2026 | V59 ToadStool S71+++ catch-up: March 1, 2026 | V60 hotSpring cross-spring absorption — DriftMonitor, ClassificationUncertainty, concept edge detection, Nautilus Shell dep: March 1, 2026 | V63 brain architecture + capability-based discovery + Paper 12: March 2, 2026 | V67 ToadStool S86 catch-up — McEt0 GPU, seasonal pipeline, API rewire: March 2, 2026 | V68 complete rewiring — L-BFGS refinement, 4D Anderson, cross-spring benchmark: March 2, 2026*

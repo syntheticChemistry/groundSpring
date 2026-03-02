@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: March 2, 2026 (V66)
+**Last Updated**: March 2, 2026 (V68)
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---
@@ -36,10 +36,15 @@
 | 26 | System-size convergence for WDM transport | WDM MD | 7/7 | 7/7 | Finite-size extrapolation D(N) = D∞ + α/N^(1/d); R² > 0.999 |
 | 27 | GPU vendor parity for WDM observables | WDM MD | 7/7 | 7/7 | Vendor differences at 1e-12 relative level; correlation 1.000000 |
 | 28 | NPU Anderson regime classification | Hardware (NPU) | 7/7 | 9/9 | int8 DMA classification on AKD1000 at ~51µs |
+| 29 | Real GHCND ET₀ Validation | Cross-spring (NOAA) | — | 6/6 | Live NOAA GHCND data validates FAO-56 ET₀ chain (NUCLEUS Exp 029) |
+| 30 | Real NCBI 16S Rare Biosphere | Biological (NCBI) | — | 9/9 | Live NCBI SRA data validates rare biosphere detection (NUCLEUS Exp 030) |
+| 31 | NUCLEUS Stack Validation | Infrastructure | — | 28/28 | Tower+Node+Squirrel validated live (NUCLEUS Exp 031) |
+| 32 | IRIS Seismic via NUCLEUS | Geological (IRIS) | — | 12/12 | Live IRIS FDSN data validates seismic chain (NUCLEUS Exp 032) |
+| 33 | Cytokine Anderson Lattice (Paper 12) | Immunological | — | 29/29 | Tissue 2D/3D + barrier disruption + dimensional duality (Exp 033) |
 
-**Phase 0**: ~261 checks (Python). **Phase 1**: 292/292 PASS (Rust). **Speedup**: 11.6× median (excl. LAPACK-bound), 51.2× peak (seismic).
-**Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs.
-**V54 fresh validation**: 283/283 checks (27 binaries), 95/95 three-tier parity, `bench_rust_vs_python.json` saved.
+**Phase 0**: ~261 checks (Python, 28 experiments). **Phase 1**: 376/376 PASS (Rust, 33 experiments). **Speedup**: 11.6× median (excl. LAPACK-bound), 51.2× peak (seismic).
+**Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs (Exp 029–033 have no Python baseline).
+**V68 fresh validation**: 376/376 checks (33 binaries), 776 workspace tests, 100+ three-tier parity tests.
 **GPU dispatch (V31–V66)**: 13 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only). 76 active delegations (44 CPU + 32 GPU) — ToadStool S86.
 **V66 stats Tier A**: MAE, NSE/R² wired to `FusedMapReduceF64` GPU path. Bistable batch ODE via `BatchedOdeRK4F64`. Papers 1-5 stats now fully GPU-capable.
 **Three-tier parity (V43→V66)**: 27/27 PROVEN (default = barracuda-CPU = barracuda-GPU). GPU tier: 44/44 checks. Pure GPU: 31/31 checks. metalForge dispatch: 22/26 → Titan V.
@@ -257,12 +262,12 @@ Write → Absorb → Lean cycle:
 | 21 | Rare biosphere signal detection | **12/12** | Embarrassingly parallel | After GPU | Chao1, multinomial sampling |
 | 28 | NPU Anderson regime classification | **9/9** | — | **Live** (AKD1000 DMA) | int8 centroid classifier on NPU |
 
-**CPU tier**: 283/283 PASS across 27 validation binaries (Exp 028 NPU hardware-only = +9 checks).
+**CPU tier**: 376/376 PASS across 33 validation binaries.
 **Barracuda**: 76 active delegations (44 CPU + 32 GPU) — ToadStool S86. **Performance**: 11.6× faster than Python (excl. LAPACK-bound); 5.1× overall; 53.5× peak (seismic). **Tests**: 776 Rust workspace + 375 Python = 1151. 100+ three-tier parity tests (100% delegation coverage).
 **Mathematical parity**: 28/28 PROVEN. See `data/parity_report.json` and `data/bench_rust_vs_python.json`.
 **Three-tier parity**: 100+ parity tests validate CPU ↔ barracuda-CPU equivalence (100% delegation coverage).
-**GPU tier**: 13 modules wired with `#[cfg(feature = "barracuda-gpu")]` — stats Tier A complete (MAE, NSE, R²), bistable batch ODE. 30 metalForge workloads (22 GPU). GPU grid adapters (seismic, freeze-out). 316/322 tests pass (6 require f64-capable GPU: Titan V / A100).
-**metalForge tier**: partially validated (groundspring-forge crate, Exp 028 NPU DMA on AKD1000).
+**GPU tier**: 15 modules wired with `#[cfg(feature = "barracuda-gpu")]` — stats Tier A complete (MAE, NSE, R²), bistable batch ODE, McEt0PropagateGpu, SeasonalPipelineF64, 4D Anderson + Wegner RG, L-BFGS refinement. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only). GPU grid adapters (seismic, freeze-out). 776 tests pass.
+**metalForge tier**: 30 workloads, 172 checks (groundspring-forge crate, Exp 028 NPU DMA on AKD1000, pipeline dispatch, PCIe topology).
 
 ### GPU / metalForge Progression (updated V54 — ToadStool S70+++)
 
@@ -335,15 +340,15 @@ Papers 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 18, 21 — can proceed to GPU tier on
 
 ## Hardware Evolution: CPU → GPU → metalForge
 
-### Tier 1: BarraCUDA CPU (current — 292/292 PASS)
+### Tier 1: BarraCUDA CPU (current — 376/376 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
 76 active delegations (44 CPU + 32 GPU) — ToadStool S86 (`7e01ac7e`). 11.5× faster than Python (excl. LAPACK-bound).
 776 Rust workspace tests + 375 Python = 1151. 28/28 mathematical parity proven. 100+ three-tier parity tests (100% delegation coverage).
-376/376 validation checks across 33 experiments (V66, zero-debt audit certified).
-All 28 experiments validated. GPU stats dispatch (mean, std_dev, rmse, mbe, mae, nse, r², pearson_r). 14 CPU vs GPU parity tests. CPU vs GPU benchmark binary.
+376/376 validation checks across 33 experiments (V68, zero-debt audit certified).
+All 33 experiments validated. GPU stats dispatch (mean, std_dev, rmse, mbe, mae, nse, r², pearson_r). L-BFGS post-grid refinement (V68). 14 CPU vs GPU parity tests. CPU vs GPU benchmark binary.
 
-### Tier 2: BarraCUDA GPU (in progress — 19 GPU dispatch targets)
+### Tier 2: BarraCUDA GPU (in progress — 32 GPU dispatch targets)
 
 GPU adapter wiring for existing barracuda ops + Tier C shader absorption.
 New batch APIs: `birth_death_ssa_batch` (GillespieGpu), `wright_fisher_fixation_batch` (WrightFisherGpu),

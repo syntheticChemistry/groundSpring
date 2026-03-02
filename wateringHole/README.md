@@ -9,8 +9,7 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V68 | [GROUNDSPRING_TOADSTOOL_V68_COMPLETE_REWIRING_HANDOFF_MAR02_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V68_COMPLETE_REWIRING_HANDOFF_MAR02_2026.md) | Mar 2, 2026 | Complete rewiring: L-BFGS refinement, 4D Anderson + Wegner RG, cross-spring benchmark, 76 delegations (44 CPU + 32 GPU), 30 metalForge workloads |
-| V67 | [GROUNDSPRING_TOADSTOOL_V67_S86_CATCHUP_HANDOFF_MAR02_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V67_S86_CATCHUP_HANDOFF_MAR02_2026.md) | Mar 2, 2026 | ToadStool S86 catch-up: McEt0PropagateGpu, SeasonalPipelineF64, BatchedMultinomialConfig API fix, 73 delegations (43 CPU + 30 GPU), 28 metalForge workloads |
+| V68 | [GROUNDSPRING_TOADSTOOL_V68_COMPREHENSIVE_EVOLUTION_HANDOFF_MAR02_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V68_COMPREHENSIVE_EVOLUTION_HANDOFF_MAR02_2026.md) | Mar 2, 2026 | Comprehensive evolution: 76 delegations (44 CPU + 32 GPU), 30 metalForge workloads, full barracuda usage inventory, cross-spring lineage, P0-P3 action items, open data provenance, three-tier hardware matrix |
 
 ## Cross-Spring Documentation
 
@@ -37,6 +36,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V67 | ToadStool S86 catch-up: McEt0PropagateGpu, SeasonalPipelineF64, BatchedMultinomialConfig API fix, 73 delegations (43 CPU + 30 GPU), 28 metalForge workloads (superseded by V68) |
 | V66 | Stats Tier A GPU (MAE, NSE, R²), bistable batch ODE GPU, 71 delegations (43 CPU + 28 GPU), 26 metalForge workloads, barracuda API usage review (superseded by V67) |
 | V65 | Comprehensive absorption handoff: 67 delegations, paper queue × three-tier hardware matrix, PRNG alignment roadmap, zero-debt audit certificate (superseded by V66) |
 | V64 | Deep audit: biomeos refactoring, `#[expect]` evolution, epsilon guard docs, tolerance comments, benchmark units, LICENSE fix, PRNG path docs — 67 delegations, 752 tests (superseded by V65) |

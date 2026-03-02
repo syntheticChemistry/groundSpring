@@ -45,18 +45,18 @@
 **Rust Phase 1 (core)**: 321/321 PASS across 29 validation binaries (321 core)
 **Rust Phase 1 (NUCLEUS)**: 55/55 PASS across 4 validation binaries (Exp 029–032, `--features biomeos`)
 **Total validation**: 376/376 PASS across 33 validation binaries
-**Rust tests**: 743/743 PASS (default workspace, up from 725)
+**Rust tests**: 776/776 PASS (default workspace)
 **pytest**: 375/375 PASS + 2 skipped
 **Three-tier parity**: 101+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
-**BarraCUDA dispatch**: 76 active (44 CPU + 32 GPU) — 6 new GPU delegations wired (Phase 1), pinned ToadStool S86 (`7e01ac7e`)
+**BarraCUDA dispatch**: 76 active (44 CPU + 32 GPU) — V68: L-BFGS refinement, 4D Anderson + Wegner RG; V67: McEt0PropagateGpu, SeasonalPipelineF64. Pinned ToadStool S86 (`7e01ac7e`)
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); compute.execute + compute.submit validated
-**metalForge workloads**: 19 (17 GPU + 2 NPU), 155+ tests (+35 pipeline/topology/atomic)
-**metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains — 72/72 validation checks (42 mixed-hardware + 30 pipeline)
+**metalForge workloads**: 30 (24 GPU + 2 NPU + 2 CPU-only), 172 checks (130 forge + 42 mixed-hardware)
+**metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
-**Paper 12**: `tissue_anderson` module — 18 unit tests + 29/29 validation checks across 10 scenarios
-**Handoff**: V63 (brain architecture + capability-based discovery)
+**Paper 12**: `tissue_anderson` module — 18 unit tests + 29/29 validation checks + 4D Anderson + Wegner RG (V68)
+**Handoff**: V68 (complete rewiring — L-BFGS refinement, 4D Anderson, cross-spring benchmark)
 
-**Python checks**: ~160 across 28 experiments. **Rust validation checks**: 321. **metalForge + pipeline checks**: 72.
+**Python checks**: ~160 across 28 experiments. **Rust validation checks**: 376 (321 core + 55 NUCLEUS). **metalForge + pipeline checks**: 172.
 
 ## Phase 0 — Python/NumPy/SciPy Baselines
 

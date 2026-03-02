@@ -114,7 +114,10 @@ pub fn grid_fit_2d(config: &GridFitConfig<'_>) -> Result<GridFitResult, crate::e
 /// Cross-spring lineage: airSpring V035 parameter fitting →
 /// `ToadStool` S84 `barracuda::optimize::lbfgs_numerical` →
 /// groundSpring freeze-out refinement.
-fn lbfgs_refine(config: &GridFitConfig<'_>, coarse: GridFitResult) -> GridFitResult {
+fn lbfgs_refine(
+    #[cfg_attr(not(feature = "barracuda"), allow(unused))] config: &GridFitConfig<'_>,
+    coarse: GridFitResult,
+) -> GridFitResult {
     #[cfg(feature = "barracuda")]
     {
         if let Some(refined) = lbfgs_refine_barracuda(config, &coarse) {
