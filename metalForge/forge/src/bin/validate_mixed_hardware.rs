@@ -412,6 +412,165 @@ fn validate_tolerances(h: &mut Harness) {
     );
 }
 
+fn validate_gpu_npu_bypass(h: &mut Harness) {
+    println!("\n--- Section G: GPU→NPU PCIe Bypass ---\n");
+
+    let subs = biomegate_inventory();
+    let topo = Topology::infer(&subs);
+
+    let pipeline = Pipeline::new("GPU→NPU→CPU (PCIe bypass)")
+        .stage(Stage::new(
+            "GPU Anderson 4D lattice",
+            Workload::new(
+                "anderson_4d",
+                vec![Capability::F64Compute, Capability::ShaderDispatch],
+            ),
+            500_000,
+        ))
+        .stage(Stage::new(
+            "NPU regime classify (int8 DMA)",
+            Workload::new(
+                "regime_classify",
+                vec![Capability::QuantizedInference { bits: 8 }],
+            ),
+            256,
+        ))
+        .stage(Stage::new(
+            "CPU provenance store",
+            Workload::new("store", vec![Capability::F64Compute]).prefer(SubstrateKind::Cpu),
+            1024,
+        ));
+
+    let resolved = pipeline.plan(&subs, &topo);
+    h.check("GPU→NPU→CPU pipeline all assigned", resolved.all_assigned());
+    h.check(
+        "stage 0 → GPU (Titan V for f64 Anderson)",
+        resolved.stages[0]
+            .substrate
+            .is_some_and(|s| s.identity.name.contains("TITAN V")),
+    );
+    h.check(
+        "stage 1 → NPU (AKD1000 for int8)",
+        resolved.stages[1]
+            .substrate
+            .is_some_and(|s| s.kind == SubstrateKind::Npu),
+    );
+    h.check(
+        "stage 2 → CPU (provenance)",
+        resolved.stages[2]
+            .substrate
+            .is_some_and(|s| s.kind == SubstrateKind::Cpu),
+    );
+
+    let gpu_idx = 0_usize;
+    let npu_idx = 2_usize;
+    let gpu_npu_link = topo.best_link(gpu_idx, npu_idx);
+    h.check(
+        "GPU→NPU PCIe link exists (bypass CPU)",
+        gpu_npu_link.is_some(),
+    );
+    h.check(
+        "GPU→NPU is PCIe-low (direct DMA)",
+        gpu_npu_link.is_some_and(|l| l.tier == BandwidthTier::PcieLow),
+    );
+
+    let gpu_npu_direct = topo.transfer_time_us(gpu_idx, npu_idx, 65536);
+    let gpu_cpu = topo.transfer_time_us(gpu_idx, 3, 65536);
+    let cpu_npu = topo.transfer_time_us(3, npu_idx, 65536);
+    let gpu_cpu_npu_roundtrip = gpu_cpu + cpu_npu;
+    h.check(
+        "GPU→NPU direct ≤ GPU→CPU→NPU round-trip (bypass avoids CPU hop)",
+        gpu_npu_direct <= gpu_cpu_npu_roundtrip,
+    );
+
+    let reverse_pipeline = Pipeline::new("NPU→GPU→CPU (reverse)")
+        .stage(Stage::new(
+            "NPU pre-classify",
+            Workload::new(
+                "pre_classify",
+                vec![Capability::QuantizedInference { bits: 8 }],
+            ),
+            256,
+        ))
+        .stage(Stage::new(
+            "GPU spectral refine",
+            Workload::new(
+                "spectral",
+                vec![Capability::F64Compute, Capability::ShaderDispatch],
+            ),
+            200_000,
+        ))
+        .stage(Stage::new(
+            "CPU aggregate",
+            Workload::new("aggregate", vec![Capability::F64Compute]).prefer(SubstrateKind::Cpu),
+            4096,
+        ));
+
+    let rev_resolved = reverse_pipeline.plan(&subs, &topo);
+    h.check(
+        "NPU→GPU→CPU pipeline all assigned",
+        rev_resolved.all_assigned(),
+    );
+    h.check("reverse pipeline fully optimal", rev_resolved.fully_optimal);
+}
+
+fn validate_nucleus_coordination(h: &mut Harness) {
+    println!("\n--- Section H: NUCLEUS Atomic Coordination ---\n");
+
+    let inv = Inventory {
+        substrates: biomegate_inventory(),
+    };
+    let mut node = NodeAtomic::with_inventory("biomegate", inv);
+    node.tower
+        .set_provider_health("crypto", PrimalHealth::Healthy);
+    node.tower
+        .set_provider_health("discovery", PrimalHealth::Healthy);
+    node.compute = PrimalHealth::Healthy;
+
+    let mut nest = NestAtomic::new("datagate");
+    nest.storage = PrimalHealth::Healthy;
+    nest.data_capabilities.push(AtomicCapability::LiveData);
+
+    let mut nucleus = FullNucleus {
+        node,
+        storage: PrimalHealth::Healthy,
+        inference: PrimalHealth::Healthy,
+    };
+
+    h.check(
+        "NUCLEUS fully healthy for mixed dispatch",
+        nucleus.is_fully_healthy(),
+    );
+
+    let caps = nucleus.capabilities();
+    h.check(
+        "NUCLEUS has compute + storage + inference",
+        caps.contains(&AtomicCapability::ComputeDispatch)
+            && caps.contains(&AtomicCapability::DataStorage)
+            && caps.contains(&AtomicCapability::AiInference),
+    );
+
+    h.check(
+        "NUCLEUS has NPU inference via node inventory",
+        caps.contains(&AtomicCapability::NpuInference),
+    );
+
+    h.check(
+        "NUCLEUS has pipeline orchestration",
+        caps.contains(&AtomicCapability::PipelineOrchestration),
+    );
+
+    nucleus.inference = PrimalHealth::Unavailable;
+    h.check(
+        "degraded NUCLEUS still dispatches compute",
+        nucleus.node.can_compute(),
+    );
+    h.check(
+        "degraded NUCLEUS level is Node + Nest (no AI)",
+        nucleus.degradation_level() == "Node + Nest (no AI)",
+    );
+}
+
 fn main() {
     let mut h = Harness::new();
 
@@ -425,6 +584,8 @@ fn main() {
     validate_atomics(&mut h);
     validate_degradation(&mut h);
     validate_tolerances(&mut h);
+    validate_gpu_npu_bypass(&mut h);
+    validate_nucleus_coordination(&mut h);
 
     println!("\n========================================================================");
     h.finish();

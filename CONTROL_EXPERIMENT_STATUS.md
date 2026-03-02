@@ -45,12 +45,12 @@
 **Rust Phase 1 (core)**: 321/321 PASS across 29 validation binaries (321 core)
 **Rust Phase 1 (NUCLEUS)**: 55/55 PASS across 4 validation binaries (Exp 029–032, `--features biomeos`)
 **Total validation**: 376/376 PASS across 33 validation binaries
-**Rust tests**: 776/776 PASS (default workspace)
+**Rust tests**: 780/780 PASS (default workspace)
 **pytest**: 375/375 PASS + 2 skipped
 **Three-tier parity**: 101+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
 **BarraCUDA dispatch**: 76 active (44 CPU + 32 GPU) — V68: L-BFGS refinement, 4D Anderson + Wegner RG; V67: McEt0PropagateGpu, SeasonalPipelineF64. Pinned ToadStool S86 (`7e01ac7e`)
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); compute.execute + compute.submit validated
-**metalForge workloads**: 30 (24 GPU + 2 NPU + 2 CPU-only), 172 checks (130 forge + 42 mixed-hardware)
+**metalForge workloads**: 30 (24 GPU + 2 NPU + 2 CPU-only), 187 checks (130 forge + 57 mixed-hardware)
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
 **Paper 12**: `tissue_anderson` module — 18 unit tests + 29/29 validation checks + 4D Anderson + Wegner RG (V68)
@@ -460,8 +460,8 @@ Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classi
 | Rust doc test | 2 | Documentation example test |
 | Rust forge | 49 | groundspring-forge crate tests (incl. 14 V35 arch-aware routing) |
 | Rust biomeos | 32 | biomeOS client + integration tests (feature-gated) |
-| **Total Rust (default)** | **776** | |
-| **Total Rust (barracuda-gpu)** | **776** | |
+| **Total Rust (default)** | **780** | |
+| **Total Rust (barracuda-gpu)** | **782** | |
 | **Total Python** | **375** | (+3 skipped) |
 | **Grand Total** | **1,151** | |
 
@@ -470,7 +470,7 @@ Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classi
 
 See [CONTROL_RUN_LOG.md](CONTROL_RUN_LOG.md) for the complete historical run log.
 
-**Latest**: Run 38 (V68 Three-Tier Paper Controls + GPU/metalForge Progression, Mar 2, 2026) — 776 Rust tests, 375 Python tests, 376/376 validation checks + 172 metalForge checks, all PASS. 76 barracuda delegations (44 CPU + 32 GPU). 25 of 33 papers have GPU wiring (76%).
+**Latest**: Run 39 (V68 Experiment Buildout + GPU Parity + Mixed-Hardware Pipeline, Mar 2, 2026) — 780 Rust tests, 375 Python tests, 376/376 validation checks + 57/57 mixed-hardware checks, all PASS. 76 barracuda delegations (44 CPU + 32 GPU). GPU→NPU→CPU pipeline dispatch validated. NUCLEUS atomic coordination validated.
 
 ### Run 37 (V51 GPU Stats Dispatch + CPU/GPU Parity Proof, Feb 28, 2026)
 
@@ -601,7 +601,7 @@ Each experiment is validated at three hardware tiers:
 
 **CPU tier**: 376/376 PASS (33 binaries, complete)
 **GPU tier**: 25 of 33 papers have GPU wiring (76%). 76 delegations (44 CPU + 32 GPU). 30/30 metalForge parity.
-**metalForge tier**: 30 workloads, 172 checks. Exp 028 NPU 9/9 PASS (AKD1000 DMA).
+**metalForge tier**: 30 workloads, 187 checks (57 mixed-hardware). Exp 028 NPU 9/9 PASS (AKD1000 DMA). GPU→NPU→CPU pipeline dispatch validated.
 
 ### BarraCUDA Integration Status (V68 — ToadStool S86)
 
@@ -663,7 +663,7 @@ Each experiment is validated at three hardware tiers:
   - V67: `McEt0PropagateGpu`, `SeasonalPipelineF64`, `BatchedMultinomialGpu` API fix, Cholesky GPU
   - V68: `lbfgs_numerical`, `anderson_4d` + `wegner_block_4d` (tissue immunology)
   - Remaining gap: eigenvector solver (eigenvalues only via Sturm); PRNG alignment (Tier B)
-- **Phase 3**: metalForge cross-substrate dispatch — **VALIDATED** — 30 workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed), 172 checks
+- **Phase 3**: metalForge cross-substrate dispatch — **VALIDATED** — 30 workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed), 187 checks (57 mixed-hardware)
   - Live: Exp 028 NPU Anderson (AKD1000 DMA at ~51µs)
   - `PCIe` topology (6 bandwidth tiers), multi-stage pipeline dispatch (fallback/degrade/skip)
   - NUCLEUS atomic types (Tower/Node/Nest/Full), fallback chains, sovereign degradation
@@ -679,10 +679,10 @@ Each experiment is validated at three hardware tiers:
 | `cargo clippy --features barracuda` | PASS (0 warnings) |
 | `cargo clippy --features barracuda-gpu` | PASS (0 warnings) |
 | `cargo doc --no-deps` | PASS (0 warnings) |
-| `cargo test` | 776/776 PASS (default) |
+| `cargo test` | 780/780 PASS (default) |
 | `cargo test --features biomeos` | ~808 PASS |
-| `cargo test --features barracuda` | 776/776 PASS |
-| `cargo test --features barracuda-gpu` | 776/776 PASS |
+| `cargo test --features barracuda` | 780/780 PASS |
+| `cargo test --features barracuda-gpu` | 782/782 PASS |
 | Validation binaries (local) | 376/376 PASS (33 binaries) |
 | Validation binaries (barracuda-gpu) | 376/376 PASS |
 | `python3 -m pytest tests/` | 375/375 PASS + 2 skipped (28 experiments + unit/determinism) |
@@ -780,7 +780,7 @@ Unidirectional streaming reduces dispatch round-trips.
 ### Stage 4: metalForge Cross-System (CPU ↔ GPU ↔ NPU) — V68 VALIDATED
 
 30 metalForge workloads route to optimal substrate per operation.
-172 total checks (130 forge + 42 mixed-hardware).
+187 total checks (130 forge + 57 mixed-hardware).
 
 | Substrate | Workloads | Routing | Status |
 |-----------|-----------|---------|--------|
@@ -789,7 +789,7 @@ Unidirectional streaming reduces dispatch round-trips.
 | NPU (int8 quantized) | Anderson regime classify, diversity saturation predict | AKD1000 DMA | **VALIDATED** (Exp 028) |
 | Mixed | Pipeline dispatch, PCIe topology | Cross-substrate routing | **VALIDATED** |
 
-**V68 tier checks**: 30/30 workload parity, 172 total checks.
+**V68 tier checks**: 30/30 workload parity, 187 total checks (57 mixed-hardware: GPU→NPU bypass, NUCLEUS coordination).
 
 ### Complete Progression (33 experiments)
 
@@ -804,7 +804,7 @@ barracuda-GPU              9.8s   ─── GPU proves the math is truly portabl
   │                                    47.4× peak (hotSpring Sturm eigensolver)
   │                                    ToadStool unidirectional streaming
 metalForge                        ─── cross-system: GPU → NPU → CPU per-workload
-                                       30 workloads, 172 checks, sovereign fallback
+                                       30 workloads, 187 checks, sovereign fallback
                                        PCIe GPU→NPU bypass (no CPU round-trip)
 ```
 

@@ -279,6 +279,208 @@ fn gpu_fao56_batch_matches_single() {
     );
 }
 
+// ── V67 GPU parity tests ──────────────────────────────────────────
+
+#[test]
+fn gpu_mc_et0_propagation_parity() {
+    let base = groundspring::fao56::example_18_inputs();
+    let unc = groundspring::fao56::Et0Uncertainties {
+        sigma_tmax: 0.5,
+        sigma_tmin: 0.5,
+        sigma_rhmax: 5.0,
+        sigma_rhmin: 5.0,
+        sigma_wind_frac: 0.10,
+        sigma_sun_frac: 0.10,
+    };
+    let r1 = groundspring::fao56::monte_carlo_et0(&base, &unc, 500, 42);
+    let r2 = groundspring::fao56::monte_carlo_et0(&base, &unc, 500, 42);
+    assert!(
+        (r1.mean - 3.88).abs() < 0.5,
+        "MC ET₀ mean {:.3} should be near FAO-56 Example 18 (3.88)",
+        r1.mean
+    );
+    assert!(r1.std > 0.0, "MC ET₀ std should be > 0");
+    assert!(r1.pct_05 < r1.mean, "5th percentile < mean");
+    assert!(r1.pct_95 > r1.mean, "95th percentile > mean");
+    assert_eq!(
+        r1.mean.to_bits(),
+        r2.mean.to_bits(),
+        "MC ET₀ must be deterministic with same seed"
+    );
+}
+
+#[test]
+fn gpu_seasonal_pipeline_parity() {
+    let cells = vec![
+        groundspring::fao56::SeasonalCellInputs {
+            tmax_c: 25.1,
+            tmin_c: 12.3,
+            rhmax_pct: 84.0,
+            rhmin_pct: 42.0,
+            wind_2m_ms: 2.1,
+            rs_mj: 22.0,
+            altitude_m: 100.0,
+            latitude_deg_n: 50.8,
+            theta_prev: 80.0,
+        },
+        groundspring::fao56::SeasonalCellInputs {
+            tmax_c: 28.5,
+            tmin_c: 15.0,
+            rhmax_pct: 75.0,
+            rhmin_pct: 35.0,
+            wind_2m_ms: 1.8,
+            rs_mj: 24.0,
+            altitude_m: 200.0,
+            latitude_deg_n: 45.0,
+            theta_prev: 60.0,
+        },
+    ];
+    let params = groundspring::fao56::SeasonalParams {
+        day_of_year: 172,
+        stage_length: 30,
+        day_in_stage: 15,
+        kc_prev: 0.8,
+        kc_next: 1.15,
+        taw: 120.0,
+        raw_fraction: 0.55,
+        field_capacity: 100.0,
+    };
+    let out = groundspring::fao56::seasonal_step(&cells, &params);
+    assert_eq!(out.len(), 2, "one output per cell");
+    for (i, o) in out.iter().enumerate() {
+        assert!(
+            o.et0 > 0.0,
+            "cell {i}: ET₀ should be positive, got {:.3}",
+            o.et0
+        );
+        assert!(
+            o.kc > 0.0 && o.kc < 2.0,
+            "cell {i}: Kc {:.3} out of range",
+            o.kc
+        );
+        assert!(o.etc > 0.0, "cell {i}: ETc should be positive");
+        assert!(
+            o.theta_new >= 0.0,
+            "cell {i}: soil moisture must be non-negative"
+        );
+        assert!(
+            o.stress >= 0.0 && o.stress <= 1.0,
+            "cell {i}: stress {:.3} out of [0,1]",
+            o.stress
+        );
+    }
+    let out2 = groundspring::fao56::seasonal_step(&cells, &params);
+    assert_eq!(
+        out[0].et0.to_bits(),
+        out2[0].et0.to_bits(),
+        "seasonal pipeline must be deterministic"
+    );
+}
+
+#[test]
+fn gpu_multinomial_occupancy_deterministic() {
+    let mut community = vec![0.002; 50];
+    community[0] = 0.8;
+    community[1] = 0.1;
+    let total: f64 = community.iter().sum();
+    for c in &mut community {
+        *c /= total;
+    }
+    let occ1 = groundspring::rare_biosphere::abundance_occupancy(&community, 50, 2000, 42);
+    let occ2 = groundspring::rare_biosphere::abundance_occupancy(&community, 50, 2000, 42);
+    assert_eq!(occ1.len(), occ2.len());
+    for (i, (&a, &b)) in occ1.iter().zip(occ2.iter()).enumerate() {
+        assert_eq!(
+            a.to_bits(),
+            b.to_bits(),
+            "occupancy[{i}] must be deterministic after V67 API fix"
+        );
+    }
+    assert!(
+        occ1[0] > 0.95,
+        "dominant species occupancy {:.3} should be >0.95",
+        occ1[0]
+    );
+}
+
+// ── V68 GPU parity tests ──────────────────────────────────────────
+
+#[test]
+fn gpu_lbfgs_refine_improves_grid_fit() {
+    let mu_b = [0.0, 50.0, 100.0, 150.0, 200.0, 250.0];
+    let t0_true = 160.0;
+    let k2_true = 0.015;
+    let observed: Vec<f64> = mu_b
+        .iter()
+        .map(|&m| groundspring::freeze_out::freeze_out_curve(t0_true, k2_true, m))
+        .collect();
+    let config = groundspring::freeze_out::GridFitConfig {
+        observed: &observed,
+        mu_b: &mu_b,
+        sigma: 1.0,
+        t0_lo: 140.0,
+        t0_hi: 180.0,
+        t0_step: 2.0,
+        k2_lo: 0.005,
+        k2_hi: 0.025,
+        k2_step: 0.001,
+    };
+    let result = groundspring::freeze_out::grid_fit_2d(&config).unwrap();
+    assert!(
+        (result.t0 - t0_true).abs() < 2.5,
+        "L-BFGS refined T₀={:.2} should be near {t0_true}",
+        result.t0
+    );
+    assert!(
+        (result.kappa2 - k2_true).abs() < 0.003,
+        "L-BFGS refined κ₂={:.4} should be near {k2_true}",
+        result.kappa2
+    );
+    assert!(
+        result.chi2_per_dof < 1.0,
+        "chi²/dof {:.4} should be < 1 for exact data",
+        result.chi2_per_dof
+    );
+}
+
+#[cfg(feature = "barracuda-gpu")]
+#[test]
+fn gpu_tissue_4d_anderson_eigenvalues() {
+    let r = groundspring::tissue_anderson::tissue_4d_simulation(3, 4.0, 10, 42);
+    assert_eq!(r.dimension, 4, "must be 4D");
+    assert_eq!(r.l, 3);
+    assert_eq!(r.n_sites, 81);
+    assert!(!r.eigenvalues.is_empty(), "should have eigenvalues");
+    for &ev in &r.eigenvalues {
+        assert!(ev.is_finite(), "eigenvalue must be finite");
+    }
+    assert!(
+        r.level_spacing_ratio > 0.0 && r.level_spacing_ratio < 1.0,
+        "level spacing ratio {:.3} should be in (0,1)",
+        r.level_spacing_ratio
+    );
+}
+
+#[cfg(feature = "barracuda-gpu")]
+#[test]
+fn gpu_tissue_4d_wegner_rg_coarsen() {
+    let (fine, coarse) = groundspring::tissue_anderson::tissue_4d_rg_coarsen(4, 3.0, 10, 42);
+    assert_eq!(fine.l, 4, "fine lattice L=4");
+    assert_eq!(coarse.l, 2, "coarse lattice L=2 (L/2)");
+    assert_eq!(fine.dimension, 4);
+    assert_eq!(coarse.dimension, 4);
+    assert!(
+        fine.n_sites > coarse.n_sites,
+        "fine {} > coarse {} sites",
+        fine.n_sites,
+        coarse.n_sites
+    );
+    assert!(
+        !coarse.eigenvalues.is_empty(),
+        "coarse should have eigenvalues"
+    );
+}
+
 // ── Dispatch target inventory sentinel ─────────────────────────────
 //
 // V68: +3 delegations (complete rewiring with modern ToadStool S86)
