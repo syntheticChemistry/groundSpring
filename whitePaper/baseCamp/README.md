@@ -3,9 +3,9 @@
 **Purpose**: Per-faculty research briefings for groundSpring noise characterization
 reproductions and extensions.
 
-**Last Updated**: March 1, 2026
+**Last Updated**: March 2, 2026
 
-**Validation Summary**: 347/347 validation checks (292 core + 55 NUCLEUS + 49 metalForge), **61 active delegations (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — ToadStool S71+++**, 620 workspace tests + 375 Python tests. All 32 experiments PASS. **28/28 mathematical parity proven**. Zero clippy warnings (pedantic), zero unsafe, zero production mocks. V60: hotSpring cross-spring absorption — `DriftMonitor`, `ClassificationUncertainty`, concept edge detection, Nautilus Shell optional dep; ToadStool S71+++. 10 domains, 34 modules.
+**Validation Summary**: 347/347 validation checks (292 core + 55 NUCLEUS) + 172 metalForge checks (130 forge + 42 mixed-hardware), **61 active delegations (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — ToadStool S71+++**, 668 workspace tests + 375 Python tests. All 32 experiments PASS. **28/28 mathematical parity proven**. Zero clippy warnings (pedantic), zero unsafe, zero production mocks. V61: mixed-hardware pipeline dispatch, `PCIe` topology, NUCLEUS atomics, fallback chains, deep idiomatic debt pass; ToadStool S71+++. 10 domains, 33 modules.
 
 ---
 

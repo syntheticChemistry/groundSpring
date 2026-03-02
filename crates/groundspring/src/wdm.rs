@@ -50,10 +50,7 @@ pub fn green_kubo_integrate(acf: &[f64], dt: f64) -> f64 {
 
 fn green_kubo_integrate_cpu(acf: &[f64], dt: f64) -> f64 {
     let n = acf.len();
-    let mut sum = 0.5 * (acf[0] + acf[n - 1]);
-    for &val in &acf[1..n - 1] {
-        sum += val;
-    }
+    let sum = 0.5_f64.mul_add(acf[0] + acf[n - 1], acf[1..n - 1].iter().sum::<f64>());
     sum * dt
 }
 
@@ -73,10 +70,10 @@ pub fn green_kubo_integrate_f32(acf: &[f64], dt: f64) -> f64 {
     }
     let n = acf.len();
     let dt_f32 = dt as f32;
-    let mut sum: f32 = 0.5 * (acf[0] as f32 + acf[n - 1] as f32);
-    for &val in &acf[1..n - 1] {
-        sum += val as f32;
-    }
+    let sum: f32 = 0.5_f32.mul_add(
+        acf[0] as f32 + acf[n - 1] as f32,
+        acf[1..n - 1].iter().map(|&v| v as f32).sum::<f32>(),
+    );
     f64::from(sum) * f64::from(dt_f32)
 }
 

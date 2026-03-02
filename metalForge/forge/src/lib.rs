@@ -10,11 +10,14 @@
 //! - **quant(int8)** -> NPU (regime classification, saturation prediction)
 //! - **f64 scalar** -> CPU (decomposition, extrapolation, PRNG)
 
+pub mod atomic;
 pub mod dispatch;
 pub mod harness;
 pub mod inventory;
+pub mod pipeline;
 pub mod probe;
 pub mod remote;
 pub mod substrate;
 pub mod tolerance;
+pub mod topology;
 pub mod workloads;

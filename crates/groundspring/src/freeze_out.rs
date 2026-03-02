@@ -425,8 +425,8 @@ mod tests {
         let obs = vec![1.0, 2.0, 3.0];
         let pred = vec![1.1, 1.9, 3.2];
         let a = chi2_analysis(&obs, &pred, 0.1, 0).unwrap();
-        let expected_chi2 =
-            (0.1_f64 / 0.1).powi(2) + (0.1_f64 / 0.1).powi(2) + (0.2_f64 / 0.1).powi(2);
+        // (0.1/0.1)² + (0.1/0.1)² + (0.2/0.1)² = 1 + 1 + 4 = 6
+        let expected_chi2 = 6.0_f64;
         assert!(
             (a.chi2_total - expected_chi2).abs() < 1e-10,
             "χ²={}, expected {expected_chi2}",

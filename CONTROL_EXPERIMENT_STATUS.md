@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 1, 2026
+**Last updated**: March 2, 2026
 
 ## Experiment Register
 
@@ -43,14 +43,15 @@
 **Rust Phase 1 (core)**: 292/292 PASS across 28 validation binaries
 **Rust Phase 1 (NUCLEUS)**: 55/55 PASS across 4 validation binaries (Exp 029–032, `--features biomeos`)
 **Total validation**: 347/347 PASS across 32 validation binaries
-**Rust tests**: 620/620 PASS (default workspace)
+**Rust tests**: 668/668 PASS (default workspace)
 **pytest**: 375/375 PASS + 2 skipped
 **Three-tier parity**: 101 tests — CPU vs barracuda-CPU vs barracuda-GPU proven
 **BarraCUDA dispatch**: 61 active (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — pinned ToadStool S71+++ (`8dc01a37`)
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS)
-**metalForge workloads**: 19 (17 GPU + 2 NPU), 85 tests
+**metalForge workloads**: 19 (17 GPU + 2 NPU), 120 tests (+35 pipeline/topology/atomic)
+**metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains — 42/42 validation checks
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
-**Handoff**: V60 (hotSpring cross-spring absorption: DriftMonitor, ClassificationUncertainty, concept edges, Nautilus dep)
+**Handoff**: V61 (mixed-hardware pipeline + NUCLEUS atomics + deep idiomatic debt pass)
 
 **Python checks**: ~160 across 28 experiments. **Rust validation checks**: 292.
 
@@ -464,9 +465,9 @@ Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classi
 
 ## Run Log
 
-See [CONTROL_RUN_LOG.md](CONTROL_RUN_LOG.md) for the complete historical run log (Runs 1–33).
+See [CONTROL_RUN_LOG.md](CONTROL_RUN_LOG.md) for the complete historical run log.
 
-**Latest**: Run 37 (V51 GPU Stats Dispatch + CPU/GPU Parity Proof, Feb 28, 2026) — 569 Rust tests, 375 Python tests, 292/292 validation checks, 95+ parity checks, all PASS.
+**Latest**: Run 34 (V61 Mixed-Hardware Pipeline + NUCLEUS Atomics + Deep Debt, Mar 2, 2026) — 668 Rust tests, 375 Python tests, 292/292 validation checks + 172 metalForge checks (42 mixed-hardware), all PASS.
 
 ### Run 37 (V51 GPU Stats Dispatch + CPU/GPU Parity Proof, Feb 28, 2026)
 
@@ -661,6 +662,7 @@ Each experiment is validated at three hardware tiers:
 - **Phase 3**: metalForge cross-substrate dispatch — **IN PROGRESS** — 19 workloads, 5 substrates (2 GPU + 1 NPU + 1 CPU + 1 GL), architecture-aware routing (Titan V for f64, RTX 4070 for f32, AKD1000 for int8)
   - Live: Exp 028 NPU Anderson (AKD1000 DMA at ~51µs)
   - Ready: 14 GPU workloads, 3 CPU workloads, 2 NPU workloads
+  - **V61**: `PCIe` topology (6 bandwidth tiers), multi-stage pipeline dispatch (fallback/degrade/skip), NUCLEUS atomic types (Tower/Node/Nest/Full), fallback chains, sovereign degradation — 42/42 mixed-hardware validation checks, 120 forge tests
 - **neuralSpring bridge**: Export noise characterizations as labeled training data
 
 ## Code Quality
@@ -672,13 +674,13 @@ Each experiment is validated at three hardware tiers:
 | `cargo clippy --features barracuda` | PASS (0 warnings) |
 | `cargo clippy --features barracuda-gpu` | PASS (0 warnings) |
 | `cargo doc --no-deps` | PASS (0 warnings) |
-| `cargo test` | 410/410 PASS (default) |
-| `cargo test --features biomeos` | 442/442 PASS |
-| `cargo test --features barracuda` | 410/410 PASS |
-| `cargo test --features barracuda-gpu` | 410/410 PASS |
+| `cargo test` | 668/668 PASS (default) |
+| `cargo test --features biomeos` | ~700 PASS |
+| `cargo test --features barracuda` | 668/668 PASS |
+| `cargo test --features barracuda-gpu` | 668/668 PASS |
 | Validation binaries (local) | 292/292 PASS (27 default + 1 NPU) |
 | Validation binaries (barracuda-gpu) | 292/292 PASS |
-| `python3 -m pytest tests/` | 54/54 PASS (28 experiments + 26 unit/determinism) |
+| `python3 -m pytest tests/` | 375/375 PASS + 2 skipped (28 experiments + unit/determinism) |
 | Library line coverage | 99.37% (cargo-llvm-cov, 100% function coverage) |
 | Unsafe code | Forbidden (workspace lint) |
 | Max file size | 405 lines (all < 1000) |
@@ -804,7 +806,13 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V54: Full Control Validation + CPU Parity Proof | 283/283 checks, 95/95 parity, Rust 11.6× faster than Python. | Superseded by V55 |
 | V53: Complete Rewiring + GPU Grid Adapters | GPU grid adapters (seismic, freeze-out), 3 new CPU delegations, 57 active (38 CPU + 19 GPU). | Superseded by V54 |
 | V52: ToadStool S70+ Catch-Up | 4 new CPU delegations (kimura, jackknife, fao56_et0, chao1), 52 active. | Superseded by V53 |
-| V51: GPU Stats Dispatch + CPU/GPU Parity Proof | GPU stats dispatch, batch GPU APIs, 9 parity tests, bench-cpu-vs-gpu. 48 active. | Superseded by V52 |
+| V61: Mixed-Hardware Pipeline + NUCLEUS Atomics | PCIe topology, pipeline dispatch, fallback chains, NUCLEUS atomics (Tower/Node/Nest/Full), deep idiomatic debt pass, 668 tests, 42/42 mixed-hardware checks | Active |
+| V60: hotSpring Cross-Spring Absorption | DriftMonitor, ClassificationUncertainty, concept edges, Nautilus optional dep, 620 tests | Archived |
+| V59: ToadStool S71+++ Catch-Up | ESN regime classification, Lanczos sparse eigensolver, 2D/3D Anderson, hotSpring S68+ absorption | Archived |
+| V58: Cross-Spring Evolution + Deep Debt | Cross-spring WGSL evolution, 13 clippy fixes, provenance headers, 4 NUCLEUS binaries | Archived |
+| V56–V57: Gap closure | NestGate, NUCLEUS validation, real data pipelines | Archived |
+| V52–V55: GPU evolution + metalForge expansion | GPU parity proof, metalForge remote, tolerance module, 85 metalForge tests | Archived |
+| V51: GPU Stats Dispatch + CPU/GPU Parity Proof | GPU stats dispatch, batch GPU APIs, 9 parity tests, bench-cpu-vs-gpu. 48 active. | Archived |
 | V47: Library Buildout + BarraCUDA CPU Expansion | 7 new barracuda CPU delegations, 46 active (37 CPU + 9 GPU), 322 lib tests | Superseded by V51 |
 | V46: Idiomatic Rust Evolution | `stats::agreement` domain split, `#[allow]` → `#[expect]`, hardcoded thresholds → benchmark JSONs, named constants | Superseded by V47 |
 | V45: Validation Gap Closure | +4 checks (292/292): Exp 010 low-noise agreement, Exp 011 dual-signal variance, Exp 016 Spearman occupancy + multinomial determinism. All Python checks now covered in Rust. | Superseded by V46 |
@@ -838,7 +846,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V51_GPU_STATS_DISPATCH_PARITY_HANDOFF_FEB28_2026.md`
+Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V61_MIXED_HARDWARE_PIPELINE_NUCLEUS_ATOMICS_HANDOFF_MAR02_2026.md`
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

@@ -3,13 +3,13 @@
 **Purpose**: Handoff documents from groundSpring to ToadStool/BarraCUDA team,
 following the wateringHole inter-primal standard.
 
-**Last Updated**: March 1, 2026
+**Last Updated**: March 2, 2026
 
 ## Active Handoffs
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V60 | [GROUNDSPRING_TOADSTOOL_V60_HOTSPRING_ABSORPTION_HANDOFF_MAR01_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V60_HOTSPRING_ABSORPTION_HANDOFF_MAR01_2026.md) | Mar 1, 2026 | hotSpring cross-spring absorption: DriftMonitor, ClassificationUncertainty, concept edge detection, Nautilus Shell optional dep, 620 tests, 61 delegations (37 CPU + 20 GPU + 4 xspring) |
+| V61 | [GROUNDSPRING_TOADSTOOL_V61_MIXED_HARDWARE_PIPELINE_NUCLEUS_ATOMICS_HANDOFF_MAR02_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V61_MIXED_HARDWARE_PIPELINE_NUCLEUS_ATOMICS_HANDOFF_MAR02_2026.md) | Mar 2, 2026 | Mixed-hardware pipeline: PCIe topology, pipeline dispatch, NUCLEUS atomics (Tower/Node/Nest/Full), fallback chains, deep idiomatic debt pass, 668 tests, 42/42 mixed-hardware checks, 61 delegations |
 
 ## Cross-Spring Documentation
 
@@ -36,6 +36,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V60 | hotSpring cross-spring absorption: DriftMonitor, ClassificationUncertainty, concept edges, Nautilus dep, 620 tests (superseded by V61) |
 | V59 | ToadStool S71+++ catch-up: jackknife GPU promoted, HargreavesBatchGpu, ComputeDispatch, DF64 transcendentals (superseded by V60) |
 | V58 | Cross-spring evolution + deep-debt completion: 61 delegations, FAMILY_ID evolution (superseded by V59) |
 | V56 | NUCLEUS integration: biomeOS Neural API, NestGate pipelines, Exp 029–032 (superseded by V58) |

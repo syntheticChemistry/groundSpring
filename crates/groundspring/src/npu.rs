@@ -356,4 +356,27 @@ mod tests {
         let avail = npu_available();
         println!("NPU available: {avail}");
     }
+
+    #[test]
+    fn dequantize_midpoint() {
+        let val = dequantize_i8(0, 0.0, 10.0);
+        assert!((val - 0.0).abs() < 0.1, "i8(0) → lo, got {val}");
+    }
+
+    #[test]
+    fn dequantize_max() {
+        let val = dequantize_i8(127, 0.0, 10.0);
+        assert!((val - 10.0).abs() < 0.1, "i8(127) → hi, got {val}");
+    }
+
+    #[test]
+    fn quantize_dequantize_roundtrip() {
+        let features = quantize_features(5.0, 0.0, 5005.0);
+        let w_back = dequantize_i8(features[0], W_RANGE.0, W_RANGE.1);
+        assert!(
+            (w_back - 5.0).abs() < 0.5,
+            "W roundtrip: 5.0 → {} → {w_back}",
+            features[0]
+        );
+    }
 }

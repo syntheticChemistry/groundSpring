@@ -6,7 +6,7 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: February 27, 2026 (V35 — Titan V / NAK adaptive GPU dispatch, architecture-aware routing, 49 metalForge tests)
+**Last updated**: March 2, 2026 (V61 — mixed-hardware pipeline, PCIe topology, NUCLEUS atomics, fallback chains, 120 metalForge tests)
 
 ## Absorption Status Summary
 
@@ -187,4 +187,9 @@ NOTE:       Equation chain is superseded by barracuda Op::Fao56Et0 — when
 - [x] V29 0 clippy warnings, 288/288 validation checks
 - [x] Tolerance comparison: GPU output vs CPU reference (`forge::tolerance` module, 4 tiers, 19 workload specs, 14 tests)
 - [x] Remote substrate discovery: `forge::remote` module (parse remote inventory, merge into local, 12 tests)
+- [x] V61 PCIe topology: `forge::topology` module — 6 bandwidth tiers, device adjacency inference, transfer time estimation
+- [x] V61 Multi-stage pipeline: `forge::pipeline` module — stage chaining, fallback policies (Degrade/Skip/Fail), transfer strategy resolution
+- [x] V61 Fallback chains: `forge::dispatch::fallback_chain()` — ordered substrate degradation (GPU NativeF64 → GPU → NPU → CPU)
+- [x] V61 NUCLEUS atomics: `forge::atomic` module — TowerAtomic, NodeAtomic, NestAtomic, FullNucleus with sovereign degradation
+- [x] V61 Mixed-hardware validation: `validate-mixed-hardware` binary — 42/42 checks, 120 forge tests total
 - [ ] ToadStool absorption of groundSpring shaders confirmed

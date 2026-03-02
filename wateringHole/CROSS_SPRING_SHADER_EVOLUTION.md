@@ -3,7 +3,7 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 1, 2026 (V60: 61 active delegations — 37 CPU + 20 GPU + 4 cross-spring, 1 evolution candidate, ToadStool S71+++ — V60: hotSpring cross-spring absorption (DriftMonitor, ClassificationUncertainty, concept edge detection, Nautilus Shell optional dep), 620 tests, 671 WGSL shaders)
+**Last Updated**: March 2, 2026 (V61: 61 active delegations — 37 CPU + 20 GPU + 4 cross-spring, 1 evolution candidate, ToadStool S71+++ — V61: mixed-hardware pipeline dispatch, PCIe topology, NUCLEUS atomics, fallback chains, deep idiomatic debt pass, 668 tests, 120 metalForge tests)
 
 ---
 

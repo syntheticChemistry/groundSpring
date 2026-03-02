@@ -12,8 +12,8 @@
 //! - **hotSpring S26** — Lanczos tridiagonalization for nuclear structure
 //!   (harmonic oscillator many-body, Exp 001). Validated against LAPACK
 //!   `dstebz`/`dstein` to machine precision.
-//! - **ToadStool S59** — Absorbed as `barracuda::spectral::lanczos` with
-//!   GPU-accelerated SpMV kernel (`spmv_csr_f64.wgsl`). The Lanczos
+//! - **`ToadStool` S59** — Absorbed as `barracuda::spectral::lanczos` with
+//!   GPU-accelerated `SpMV` kernel (`spmv_csr_f64.wgsl`). The Lanczos
 //!   vectors stay on-device; only tridiagonal scalars (α, β) return to host.
 //! - **groundSpring** — Wraps for Anderson 2D/3D localization studies
 //!   where the Hamiltonian dimension (L² or L³) exceeds dense solver limits.
@@ -41,6 +41,7 @@
 /// * `n_iterations` — Number of Lanczos iterations (controls eigenvalue count)
 /// * `seed` — PRNG seed for the initial random vector
 #[cfg(feature = "barracuda-gpu")]
+#[must_use]
 pub fn sparse_eigenvalues(
     n: usize,
     row_ptr: &[usize],
@@ -114,7 +115,7 @@ mod tests {
         }
         let eigs = sparse_eigenvalues(n, &row_ptr, &col_idx, &values, n, 42);
         assert_eq!(eigs.len(), n);
-        let mut sorted = eigs.clone();
+        let mut sorted = eigs;
         sorted.sort_by(f64::total_cmp);
         assert!(
             sorted[0] > -2.1 && sorted[0] < -1.5,

@@ -67,6 +67,10 @@ path = "src/bin/validate_nestgate_ncbi.rs"
 required-features = ["biomeos"]
 
 [[bin]]
+name = "validate-mixed-hardware"
+path = "src/bin/validate_mixed_hardware.rs"
+
+[[bin]]
 name = "validate-nucleus-pipeline"
 path = "src/bin/validate_nucleus_pipeline.rs"
 required-features = ["biomeos"]

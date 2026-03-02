@@ -11,7 +11,7 @@ groundSpring Phase 0 (Python), Phase 1 (Rust), and Phase 2a (barracuda CPU) are 
 
 - 347/347 validation checks across 32 binaries (292 core + 55 NUCLEUS)
 - 30 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, almost_mathieu, bistable, multisignal, kinetics, transport, drift, rare_biosphere, quasispecies, band_structure, jackknife, freeze_out, spectral_recon, wdm, biomeos, nestgate (+cast, validate, npu, error, linalg)
-- 620 Rust workspace tests (biomeos) + 375 Python tests = 995 total. 0 clippy warnings (pedantic + nursery). 61 active delegations (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — ToadStool S71+++. 49 metalForge tests. biomeOS Neural API live.
+- 668 Rust workspace tests (biomeos) + 375 Python tests = 1043 total. 0 clippy warnings (pedantic + nursery). 61 active delegations (37 CPU + 20 GPU + 4 cross-spring), 1 evolution candidate — ToadStool S71+++. 172 metalForge checks. biomeOS Neural API live.
 - Two feature gates: `barracuda` (37 active CPU delegations) and `barracuda-gpu` (20 GPU delegations including Sturm tridiag, tikhonov solve, detect_bands, BatchedMultinomialGpu). Three-mode CI validates all configurations.
 - 61 active delegations (37 CPU + 20 GPU + 4 cross-spring; includes GPU grid adapters, GPU stats dispatch, batch APIs, regression suite, kimura, jackknife, fao56_et0, chao1, error_threshold, detection_power, detection_threshold — ToadStool S71+++)
 - 2 production WGSL shaders in `metalForge/shaders/` (261 combined lines)
@@ -88,7 +88,7 @@ NumPy ODE           ────────→  bistable + multisignal      →
 
 Phase 2a (DONE)                Phase 2b (GPU — V31 IN PROGRESS)
 ──────────────                 ────────────────────────────────
-61 active (37 CPU + 20 GPU + 4 cross-spring) → GPU grid adapters + 3 new CPU delegations (V53), 12-workload benchmark. 49 metalForge tests
+61 active (37 CPU + 20 GPU + 4 cross-spring) → GPU grid adapters + 3 new CPU delegations (V53), 12-workload benchmark. 172 metalForge checks
 prng::Xorshift64    ────────→  Tier B: align to barracuda xoshiro128**
 fao56::daily_et0    ────────→  Tier C: mc_et0_propagate.wgsl → barracuda
 rarefaction         ────────→  Tier C: batched_multinomial.wgsl → barracuda

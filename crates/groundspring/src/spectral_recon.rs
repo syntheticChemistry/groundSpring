@@ -26,20 +26,14 @@
 /// `K[i,j] = exp(−τ_i ω_j) Δω`
 #[must_use]
 pub fn build_kernel(tau: &[f64], omega: &[f64]) -> Vec<f64> {
-    let n_tau = tau.len();
-    let n_omega = omega.len();
-    let d_omega = if n_omega > 1 {
+    let d_omega = if omega.len() > 1 {
         omega[1] - omega[0]
     } else {
         1.0
     };
-    let mut k = vec![0.0; n_tau * n_omega];
-    for (i, &t) in tau.iter().enumerate() {
-        for (j, &w) in omega.iter().enumerate() {
-            k[i * n_omega + j] = (-t * w).exp() * d_omega;
-        }
-    }
-    k
+    tau.iter()
+        .flat_map(|&t| omega.iter().map(move |&w| (-t * w).exp() * d_omega))
+        .collect()
 }
 
 /// Forward correlator: G = K · ρ  (matrix-vector product).

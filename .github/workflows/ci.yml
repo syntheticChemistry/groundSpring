@@ -60,6 +60,7 @@ jobs:
       - run: cargo run --bin validate-precision-drift
       - run: cargo run --bin validate-size-convergence
       - run: cargo run --bin validate-vendor-parity
+      - run: cargo run --bin validate-npu-anderson || echo "NPU binary skipped (requires AKD1000 hardware)"
 
   python:
     name: Python baselines

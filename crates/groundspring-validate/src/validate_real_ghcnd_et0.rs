@@ -28,6 +28,13 @@ fn main() {
     println!("{}", "=".repeat(72));
     println!("  Exp 029: Real GHCND Weather → Hargreaves vs Penman-Monteith ET₀");
     println!("{}", "=".repeat(72));
+    println!();
+    println!("  Provenance: NUCLEUS live-data validation binary");
+    println!("  Data source: NOAA GHCND (USW00094847 Lansing, MI) or synthetic");
+    println!("  Baseline: Analytical (FAO-56 Penman-Monteith / Hargreaves 1985)");
+    println!("  Note: No benchmark JSON — validates computational pipeline and");
+    println!("        method agreement, not Python baseline comparison.");
+    println!();
 
     let socket = biomeos::auto_connect();
     let data_source = if socket.is_some() {
@@ -123,13 +130,12 @@ fn fetch_live_weather(
 ) -> groundspring::biomeos::Result<Vec<groundspring::fao56::DailyWeatherInputs>> {
     use groundspring::nestgate;
 
-    let raw = nestgate::noaa_ghcnd(
-        socket,
-        "USW00094847", // Lansing Capital City Airport, MI
-        "2024-06-01",
-        "2024-06-30",
-        &["TMAX", "TMIN"],
-    )?;
+    const GHCND_STATION: &str = "USW00094847"; // Lansing Capital City Airport, MI
+    const GHCND_START: &str = "2024-06-01";
+    const GHCND_END: &str = "2024-06-30";
+    const GHCND_VARS: &[&str] = &["TMAX", "TMIN"];
+
+    let raw = nestgate::noaa_ghcnd(socket, GHCND_STATION, GHCND_START, GHCND_END, GHCND_VARS)?;
 
     let mut days = Vec::new();
     if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&raw) {

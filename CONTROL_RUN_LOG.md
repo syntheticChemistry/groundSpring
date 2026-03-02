@@ -5,6 +5,21 @@ See [CONTROL_EXPERIMENT_STATUS.md](CONTROL_EXPERIMENT_STATUS.md) for the current
 
 ## Run Log
 
+### Run 34 (V61 Mixed-Hardware Pipeline + NUCLEUS Atomics + Deep Debt, Mar 2, 2026)
+
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace --all-targets -- -D warnings -W clippy::pedantic -W clippy::nursery`: PASS (0 warnings)
+- `cargo clippy --workspace --all-targets --features barracuda-gpu -- -D warnings`: PASS (0 warnings)
+- `cargo doc --workspace --no-deps`: PASS (0 warnings)
+- `cargo test --workspace` (default): 668 tests, all PASS (374 lib + 13 validate + 120 forge + 109 parity + 52 integration)
+- `python3 -m pytest tests/`: 375/375 PASS + 3 skipped
+- Validation binaries (core): 292/292 PASS (27 binaries)
+- metalForge validation: 130/132 PASS (2 expected NPU absence failures)
+- **NEW** `validate-mixed-hardware`: 42/42 PASS — topology, fallback chains, pipeline, atomics, degradation, tolerances
+- **metalForge infrastructure**: `topology.rs` (PCIe device adjacency, 6 bandwidth tiers), `pipeline.rs` (multi-stage dispatch with fallback), `atomic.rs` (NUCLEUS compositions with sovereign degradation), `dispatch::fallback_chain()` (ordered substrate selection)
+- **Deep idiomatic pass**: 13 clippy errors, iterator chains, `serde_json::json!`, `mul_add`, Result-based validate API, provenance headers, hardcoding evolution
+- **Coverage**: 668 tests (up from 620), 120 metalForge tests (up from 85), 42 new mixed-hardware checks
+
 ### Run 33 (V47 Deep Debt: Hardcode Evolution + #[expect] Migration, Feb 28, 2026)
 
 - `cargo fmt --check`: PASS

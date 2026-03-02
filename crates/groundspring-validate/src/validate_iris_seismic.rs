@@ -29,6 +29,13 @@ fn main() {
     println!("{}", "=".repeat(72));
     println!("  Exp 032: IRIS FDSN Seismic → Station Geometry + Travel Times");
     println!("{}", "=".repeat(72));
+    println!();
+    println!("  Provenance: NUCLEUS live-data validation binary");
+    println!("  Data source: IRIS FDSN (New Madrid Seismic Zone) or synthetic");
+    println!("  Baseline: Analytical (haversine, 1D travel time, triangle ineq.)");
+    println!("  Note: No benchmark JSON — validates geometric invariants and");
+    println!("        live data pipeline, not Python baseline comparison.");
+    println!();
 
     let socket = biomeos::auto_connect();
     let data_source = if socket.is_some() {

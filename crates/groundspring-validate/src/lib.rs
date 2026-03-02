@@ -57,6 +57,13 @@ pub const TOL_MONOTONIC_SLACK: f64 = 0.15;
 /// Division-safe epsilon to avoid NaN in `x / y.max(EPS_SAFE_DIV)`.
 pub const EPS_SAFE_DIV: f64 = 1e-10;
 
+/// Try to extract an `f64` from a JSON object, returning `None` on
+/// missing or non-numeric fields.
+#[must_use]
+pub fn try_f64_field(v: &Value, key: &str) -> Option<f64> {
+    v.get(key).and_then(Value::as_f64)
+}
+
 /// Extract an `f64` from a JSON object, panicking with a clear message on
 /// missing or non-numeric fields.
 ///
@@ -65,9 +72,15 @@ pub const EPS_SAFE_DIV: f64 = 1e-10;
 /// Panics if `v[key]` is absent or not representable as `f64`.
 #[must_use]
 pub fn f64_field(v: &Value, key: &str) -> f64 {
-    v[key]
-        .as_f64()
-        .unwrap_or_else(|| panic!("missing f64 field: {key}"))
+    try_f64_field(v, key).unwrap_or_else(|| panic!("missing f64 field: {key}"))
+}
+
+/// Try to extract a `usize` from a JSON object, returning `None` on
+/// missing or non-integer fields.
+#[must_use]
+#[allow(clippy::cast_possible_truncation)]
+pub fn try_usize_field(v: &Value, key: &str) -> Option<usize> {
+    v.get(key).and_then(Value::as_u64).map(|n| n as usize)
 }
 
 /// Extract a `usize` from a JSON object.
@@ -76,11 +89,8 @@ pub fn f64_field(v: &Value, key: &str) -> f64 {
 ///
 /// Panics if `v[key]` is absent or not representable as `u64`.
 #[must_use]
-#[expect(clippy::cast_possible_truncation)]
 pub fn usize_field(v: &Value, key: &str) -> usize {
-    v[key]
-        .as_u64()
-        .unwrap_or_else(|| panic!("missing u64 field: {key}")) as usize
+    try_usize_field(v, key).unwrap_or_else(|| panic!("missing u64 field: {key}"))
 }
 
 /// Extract a `u64` from a JSON object.
@@ -109,6 +119,13 @@ pub fn f64_range(arr: &Value) -> (f64, f64) {
     )
 }
 
+/// Try to extract a string field from a JSON object, returning `None` on
+/// missing or non-string fields.
+#[must_use]
+pub fn try_str_field<'a>(v: &'a Value, key: &str) -> Option<&'a str> {
+    v.get(key).and_then(Value::as_str)
+}
+
 /// Extract a string field from a JSON object.
 ///
 /// # Panics
@@ -116,9 +133,7 @@ pub fn f64_range(arr: &Value) -> (f64, f64) {
 /// Panics if `v[key]` is absent or not a string.
 #[must_use]
 pub fn str_field<'a>(v: &'a Value, key: &str) -> &'a str {
-    v[key]
-        .as_str()
-        .unwrap_or_else(|| panic!("missing str field: {key}"))
+    try_str_field(v, key).unwrap_or_else(|| panic!("missing str field: {key}"))
 }
 
 /// Extract a JSON array field from a JSON object.
@@ -281,6 +296,42 @@ mod tests {
     fn print_provenance_header_handles_missing_fields() {
         let bench = json!({"_source": null, "_provenance": {}});
         print_provenance_header(&bench, "Fallback");
+    }
+
+    #[test]
+    fn try_f64_field_returns_some() {
+        let v = json!({"temp": 20.5});
+        assert_eq!(try_f64_field(&v, "temp"), Some(20.5));
+    }
+
+    #[test]
+    fn try_f64_field_returns_none_on_missing() {
+        let v = json!({"temp": 20.5});
+        assert_eq!(try_f64_field(&v, "absent"), None);
+    }
+
+    #[test]
+    fn try_usize_field_returns_some() {
+        let v = json!({"n": 100});
+        assert_eq!(try_usize_field(&v, "n"), Some(100));
+    }
+
+    #[test]
+    fn try_usize_field_returns_none_on_missing() {
+        let v = json!({"n": 100});
+        assert_eq!(try_usize_field(&v, "absent"), None);
+    }
+
+    #[test]
+    fn try_str_field_returns_some() {
+        let v = json!({"name": "exp008"});
+        assert_eq!(try_str_field(&v, "name"), Some("exp008"));
+    }
+
+    #[test]
+    fn try_str_field_returns_none_on_missing() {
+        let v = json!({"name": "exp008"});
+        assert_eq!(try_str_field(&v, "absent"), None);
     }
 
     #[test]

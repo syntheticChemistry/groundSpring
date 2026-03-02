@@ -195,11 +195,15 @@ fn validate_nucleus_health(harness: &mut Harness) {
 
     let socket_dir = biomeos_socket_dir();
 
-    for (name, socket_name) in [
+    // NUCLEUS deployment convention: each primal creates `<name>.sock` in the
+    // biomeOS socket directory. Evolution target: discover registered primals
+    // via `topology.metrics` instead of iterating known socket names.
+    const PRIMAL_SOCKETS: [(&str, &str); 3] = [
         ("BearDog", "beardog.sock"),
         ("Songbird", "songbird.sock"),
         ("Squirrel", "squirrel.sock"),
-    ] {
+    ];
+    for (name, socket_name) in PRIMAL_SOCKETS {
         let path = format!("{socket_dir}/{socket_name}");
         match primal_health(&path) {
             Ok(resp) if resp.contains("healthy") || resp.contains("\"status\":\"ok\"") => {
@@ -216,7 +220,8 @@ fn validate_nucleus_health(harness: &mut Harness) {
         }
     }
 
-    let ts_path = format!("{socket_dir}/toadstool.jsonrpc.sock");
+    const TOADSTOOL_SOCKET: &str = "toadstool.jsonrpc.sock";
+    let ts_path = format!("{socket_dir}/{TOADSTOOL_SOCKET}");
     match primal_health_method(&ts_path, "toadstool.health") {
         Ok(resp) if resp.contains("healthy") || resp.contains("\"healthy\":true") => {
             harness.check("ToadStool healthy", true);

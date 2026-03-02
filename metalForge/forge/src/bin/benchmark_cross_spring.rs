@@ -255,7 +255,8 @@ fn bench_anderson_sweep(h: &mut Harness) {
     );
     h.check(
         "Lyapunov increases with disorder",
-        sweep.last().unwrap().mean_ratio > sweep.first().unwrap().mean_ratio,
+        sweep.last().expect("non-empty sweep").mean_ratio
+            > sweep.first().expect("non-empty sweep").mean_ratio,
     );
 }
 

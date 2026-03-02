@@ -106,12 +106,12 @@ pub fn store_parity(socket: &Path, exp_id: u32, substrate: &str, parity_json: &s
 ///
 /// Returns `Err` if the data provider is unavailable or the NCBI query fails.
 pub fn ncbi_search(socket: &Path, database: &str, query: &str) -> Result<String> {
-    let params = format!(
-        r#"{{"database":"{}","query":"{}","family_id":"{}"}}"#,
-        biomeos::escape_json_pub(database),
-        biomeos::escape_json_pub(query),
-        biomeos::FAMILY_ID,
-    );
+    let params = serde_json::json!({
+        "database": database,
+        "query": query,
+        "family_id": biomeos::FAMILY_ID,
+    })
+    .to_string();
     biomeos::capability_call(socket, "data.ncbi_search", &params)
 }
 
@@ -121,12 +121,12 @@ pub fn ncbi_search(socket: &Path, database: &str, query: &str) -> Result<String>
 ///
 /// Returns `Err` if the data provider is unavailable or the fetch fails.
 pub fn ncbi_fetch(socket: &Path, database: &str, accession: &str) -> Result<String> {
-    let params = format!(
-        r#"{{"database":"{}","accession":"{}","family_id":"{}"}}"#,
-        biomeos::escape_json_pub(database),
-        biomeos::escape_json_pub(accession),
-        biomeos::FAMILY_ID,
-    );
+    let params = serde_json::json!({
+        "database": database,
+        "accession": accession,
+        "family_id": biomeos::FAMILY_ID,
+    })
+    .to_string();
     biomeos::capability_call(socket, "data.ncbi_fetch", &params)
 }
 
@@ -147,18 +147,14 @@ pub fn noaa_ghcnd(
     end_date: &str,
     datatypes: &[&str],
 ) -> Result<String> {
-    let dt_json: Vec<String> = datatypes
-        .iter()
-        .map(|d| format!("\"{}\"", biomeos::escape_json_pub(d)))
-        .collect();
-    let params = format!(
-        r#"{{"station_id":"{}","start_date":"{}","end_date":"{}","datatypes":[{}],"family_id":"{}"}}"#,
-        biomeos::escape_json_pub(station_id),
-        biomeos::escape_json_pub(start_date),
-        biomeos::escape_json_pub(end_date),
-        dt_json.join(","),
-        biomeos::FAMILY_ID,
-    );
+    let params = serde_json::json!({
+        "station_id": station_id,
+        "start_date": start_date,
+        "end_date": end_date,
+        "datatypes": datatypes,
+        "family_id": biomeos::FAMILY_ID,
+    })
+    .to_string();
     biomeos::capability_call(socket, "data.noaa_ghcnd", &params)
 }
 
@@ -202,10 +198,14 @@ pub fn iris_stations(
     min_lon: f64,
     max_lon: f64,
 ) -> Result<String> {
-    let fam = biomeos::FAMILY_ID;
-    let params = format!(
-        r#"{{"min_lat":{min_lat},"max_lat":{max_lat},"min_lon":{min_lon},"max_lon":{max_lon},"family_id":"{fam}"}}"#,
-    );
+    let params = serde_json::json!({
+        "min_lat": min_lat,
+        "max_lat": max_lat,
+        "min_lon": min_lon,
+        "max_lon": max_lon,
+        "family_id": biomeos::FAMILY_ID,
+    })
+    .to_string();
     biomeos::capability_call(socket, "data.iris_stations", &params)
 }
 
@@ -235,13 +235,17 @@ pub struct IrisEventQuery<'a> {
 ///
 /// Returns `Err` if the data provider is unavailable or the IRIS API call fails.
 pub fn iris_events(socket: &Path, query: &IrisEventQuery<'_>) -> Result<String> {
-    let start = biomeos::escape_json_pub(query.start_date);
-    let end = biomeos::escape_json_pub(query.end_date);
-    let fam = biomeos::FAMILY_ID;
-    let params = format!(
-        r#"{{"min_lat":{},"max_lat":{},"min_lon":{},"max_lon":{},"start_date":"{start}","end_date":"{end}","min_magnitude":{},"family_id":"{fam}"}}"#,
-        query.min_lat, query.max_lat, query.min_lon, query.max_lon, query.min_magnitude,
-    );
+    let params = serde_json::json!({
+        "min_lat": query.min_lat,
+        "max_lat": query.max_lat,
+        "min_lon": query.min_lon,
+        "max_lon": query.max_lon,
+        "start_date": query.start_date,
+        "end_date": query.end_date,
+        "min_magnitude": query.min_magnitude,
+        "family_id": biomeos::FAMILY_ID,
+    })
+    .to_string();
     biomeos::capability_call(socket, "data.iris_events", &params)
 }
 
@@ -281,17 +285,11 @@ pub fn fetch_cached(
     fetch_fn: impl FnOnce() -> Result<String>,
 ) -> Result<String> {
     let key = data_key(source, query_id);
-
-    if let Ok(cached) = biomeos::storage_get(socket, &key) {
-        return Ok(cached);
-    }
-
-    let fresh = fetch_fn()?;
-
-    // Best-effort cache: don't fail if storage is unavailable
-    let _ = biomeos::storage_put(socket, &key, &fresh);
-
-    Ok(fresh)
+    biomeos::storage_get(socket, &key).or_else(|_| {
+        let fresh = fetch_fn()?;
+        let _ = biomeos::storage_put(socket, &key, &fresh);
+        Ok(fresh)
+    })
 }
 
 #[cfg(test)]

@@ -225,14 +225,14 @@ pub fn disorder_sweep(
             n_realizations,
             base_seed,
         );
-        return points
+        points
             .into_iter()
             .map(|p| SweepPoint {
                 disorder: p.w,
                 mean_ratio: p.r_mean,
                 std_error: p.r_stderr,
             })
-            .collect();
+            .collect()
     }
     #[cfg(not(feature = "barracuda-gpu"))]
     disorder_sweep_cpu(n_sites, w_min, w_max, n_points, n_realizations, base_seed)
@@ -285,7 +285,7 @@ fn disorder_sweep_cpu(
 /// finite-size systems show a crossover that ESN classifiers can detect.
 ///
 /// Cross-spring lineage: hotSpring spectral theory (S26 Lanczos) +
-/// ToadStool S59 `anderson_2d` → groundSpring higher-dimensional
+/// `ToadStool` S59 `anderson_2d` → groundSpring higher-dimensional
 /// localization studies.
 ///
 /// # Arguments
@@ -310,12 +310,12 @@ pub fn anderson_2d_eigenvalues(
 /// Eigenvalues of a 3D Anderson Hamiltonian via Lanczos iteration.
 ///
 /// The 3D Anderson model exhibits a **true metal-insulator transition**
-/// at critical disorder W_c ≈ 16.5 (Slevin & Ohtsuki 1999). Below W_c,
-/// states at the band center are extended; above W_c, all states are
+/// at critical disorder `W_c` ≈ 16.5 (Slevin & Ohtsuki 1999). Below `W_c`,
+/// states at the band center are extended; above `W_c`, all states are
 /// localized.
 ///
 /// Cross-spring lineage: hotSpring `anderson_3d` (S59, correlated
-/// disorder variant for WDM transport) → ToadStool GPU sparse eigensolver
+/// disorder variant for WDM transport) → `ToadStool` GPU sparse eigensolver
 /// → groundSpring 3D localization validation.
 ///
 /// # Arguments

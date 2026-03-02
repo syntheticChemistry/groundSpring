@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
-**Date**: March 1, 2026 | **License**: AGPL-3.0-or-later
-**Status**: 33 modules, 620 Rust workspace tests + 375 Python tests, 347/347 validation checks (292 core + 55 NUCLEUS + 49 metalForge), 61 active barracuda delegations (37 CPU + 20 GPU + 4 cross-spring) — ToadStool S71+++ rewired, hotSpring cross-spring absorption (DriftMonitor, ClassificationUncertainty, concept edge detection, Nautilus Shell optional dep), biomeOS Neural API live, NestGate data pipelines, 19 metalForge workloads, zero unsafe, zero TODO, zero production mocks
+**Date**: March 2, 2026 | **License**: AGPL-3.0-or-later
+**Status**: 33 modules, 668 Rust workspace tests + 375 Python tests, 347/347 validation checks (292 core + 55 NUCLEUS) + 172 metalForge checks (130 forge + 42 mixed-hardware), 61 active barracuda delegations (37 CPU + 20 GPU + 4 cross-spring) — ToadStool S71+++ rewired, hotSpring cross-spring absorption, mixed-hardware pipeline dispatch (`PCIe` topology, NUCLEUS atomics, fallback chains), biomeOS Neural API live, NestGate data pipelines, 19 metalForge workloads, zero unsafe, zero TODO, zero production mocks
 
 **The gap between what models predict and what instruments measure.**
 
@@ -100,16 +100,16 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | `esn` | Echo State Network regime classification: `EsnClassifier` (barracuda-gpu), rule-based `classify_by_spacing_ratio`, `spectral_features` | **GPU dispatched** (barracuda-gpu ESN) + CPU rule-based |
 | `lanczos` | Sparse eigensolver for 2D/3D Anderson: `sparse_eigenvalues`, `eigenvalues_from_csr` (barracuda-gpu only) | **GPU dispatched** (barracuda spectral Lanczos) |
 | `npu` | NPU integration for Akida neuromorphic inference (behind `npu` feature) | NPU (AKD1000) |
-| `groundspring-forge` | Hardware discovery, cross-substrate dispatch, remote NUCLEUS discovery (19 workloads, 5+ substrates) | metalForge crate |
+| `groundspring-forge` | Hardware discovery, cross-substrate dispatch, `PCIe` topology, multi-stage pipeline, NUCLEUS atomics, remote NUCLEUS discovery (19 workloads, 5+ substrates, 120 tests) | metalForge crate |
 
 ## Quick Start
 
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace                         # 620 tests, all PASS
-cargo test --workspace --features biomeos      # ~660 tests (NUCLEUS client active)
-cargo test --workspace --features barracuda-gpu # 569 tests (GPU dispatch active)
+cargo test --workspace                         # 668 tests, all PASS
+cargo test --workspace --features biomeos      # ~700 tests (NUCLEUS client active)
+cargo test --workspace --features barracuda-gpu # 668 tests (GPU dispatch active)
 cargo clippy --workspace --all-targets -- -D warnings -W clippy::pedantic -W clippy::nursery
 cargo fmt --check                              # clean
 
@@ -249,6 +249,8 @@ Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardwar
   NumPy/SciPy         Pure safe Rust     BarraCUDA/ToadStool   metalForge dispatch    biomeOS Neural API
   ✓ Complete          ✓ 347/347 PASS     ◐ 61 active           19 workloads           Tower+Node+Squirrel
   11.5× slower        32/32 experiments    (37+20+4 xspring)    17 GPU + 2 NPU         NestGate data pipes
+                      668 workspace tests                       PCIe topology          NUCLEUS atomics
+                                                                Pipeline dispatch      Sovereign degradation
 
   Write locally    →  Hand off          →  Lean on upstream   →  Cross-substrate     →  Primal orchestration
   (metalForge)       (wateringHole/)       (barracuda ops)       (metalForge forge)    (biomeOS graphs)
@@ -310,13 +312,13 @@ groundSpring/
 │   ├── groundspring/                # Phase 1 Rust library (33 modules incl. esn, lanczos, nautilus, biomeos, nestgate, npu)
 │   └── groundspring-validate/       # 32 validation binaries (hotSpring pattern)
 ├── metalForge/                      # Write → Absorb → Lean artifacts
-│   ├── forge/                       # groundspring-forge crate: hardware discovery, dispatch, remote
+│   ├── forge/                       # groundspring-forge crate: hardware discovery, dispatch, topology, pipeline, atomics, remote
 │   ├── npu/akida/                   # AKD1000 NPU integration, HARDWARE.md
 │   ├── ABSORPTION_MANIFEST.md       # Module-by-module absorption inventory
 │   └── shaders/                     # Production WGSL shaders for ToadStool absorption
 ├── graphs/                          # biomeOS pipeline graphs (Tower bootstrap, Node, cross-substrate)
 ├── .github/workflows/ci.yml         # GitHub Actions CI
-├── wateringHole/                    # Handoff directory (V60 current)
+├── wateringHole/                    # Handoff directory (V61 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md       # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md    # GPU kernel gap analysis

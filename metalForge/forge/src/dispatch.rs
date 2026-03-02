@@ -102,6 +102,65 @@ pub fn route<'a>(workload: &Workload, substrates: &'a [Substrate]) -> Option<Dec
     })
 }
 
+/// Ordered fallback chain — try substrates in priority order until one succeeds.
+///
+/// Unlike [`route`] which picks the single best substrate, this returns an
+/// ordered list of all capable substrates for graceful degradation at runtime.
+/// The caller executes on the first substrate; if it fails, it tries the next.
+///
+/// Priority: preferred → GPU (`NativeF64` first) → NPU → CPU.
+#[must_use]
+pub fn fallback_chain<'a>(workload: &Workload, substrates: &'a [Substrate]) -> Vec<Decision<'a>> {
+    let capable: Vec<&Substrate> = substrates
+        .iter()
+        .filter(|s| workload.required.iter().all(|req| s.has(req)))
+        .collect();
+
+    if capable.is_empty() {
+        return Vec::new();
+    }
+
+    let mut chain = Vec::new();
+
+    if let Some(pref) = workload.preferred_substrate {
+        if let Some(&s) = capable.iter().find(|s| s.kind == pref) {
+            chain.push(Decision {
+                substrate: s,
+                reason: Reason::Preferred,
+            });
+        }
+    }
+
+    let needs_f64 = workload.required.contains(&Capability::F64Compute);
+
+    if needs_f64 {
+        for &s in &capable {
+            if s.kind == SubstrateKind::Gpu
+                && s.has(&Capability::NativeF64)
+                && !chain.iter().any(|d| std::ptr::eq(d.substrate, s))
+            {
+                chain.push(Decision {
+                    substrate: s,
+                    reason: Reason::BestAvailable,
+                });
+            }
+        }
+    }
+
+    for kind in [SubstrateKind::Gpu, SubstrateKind::Npu, SubstrateKind::Cpu] {
+        for &s in &capable {
+            if s.kind == kind && !chain.iter().any(|d| std::ptr::eq(d.substrate, s)) {
+                chain.push(Decision {
+                    substrate: s,
+                    reason: Reason::BestAvailable,
+                });
+            }
+        }
+    }
+
+    chain
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -235,6 +294,70 @@ mod tests {
         let d = route(&work, &subs).expect("should route");
         assert!(d.substrate.identity.name.contains("TITAN V"));
         assert_eq!(d.reason, Reason::BestAvailable);
+    }
+
+    #[test]
+    fn fallback_chain_orders_by_priority() {
+        let gpu = make_gpu(
+            "RTX 4070",
+            vec![Capability::F64Compute, Capability::ShaderDispatch],
+        );
+        let cpu = make_cpu();
+        let npu = make_npu();
+        let subs = [gpu, npu, cpu];
+        let work = Workload::new("compute", vec![Capability::F64Compute]);
+        let chain = fallback_chain(&work, &subs);
+        assert!(chain.len() >= 2);
+        assert_eq!(chain[0].substrate.kind, SubstrateKind::Gpu);
+        assert_eq!(chain.last().unwrap().substrate.kind, SubstrateKind::Cpu);
+    }
+
+    #[test]
+    fn fallback_chain_empty_when_incapable() {
+        let subs = [make_cpu()];
+        let work = Workload::new("npu", vec![Capability::QuantizedInference { bits: 4 }]);
+        let chain = fallback_chain(&work, &subs);
+        assert!(chain.is_empty());
+    }
+
+    #[test]
+    fn fallback_chain_preferred_first() {
+        let gpu = make_gpu("GPU", vec![Capability::F64Compute]);
+        let cpu = make_cpu();
+        let subs = [gpu, cpu];
+        let work = Workload::new("pref", vec![Capability::F64Compute]).prefer(SubstrateKind::Cpu);
+        let chain = fallback_chain(&work, &subs);
+        assert_eq!(chain[0].substrate.kind, SubstrateKind::Cpu);
+        assert_eq!(chain[0].reason, Reason::Preferred);
+        assert!(chain.len() >= 2);
+    }
+
+    #[test]
+    fn fallback_chain_native_f64_before_regular_gpu() {
+        let ada = Substrate {
+            kind: SubstrateKind::Gpu,
+            identity: Identity::named("RTX 4070"),
+            properties: Properties::default(),
+            capabilities: vec![Capability::F64Compute, Capability::ShaderDispatch],
+        };
+        let volta = Substrate {
+            kind: SubstrateKind::Gpu,
+            identity: Identity::named("TITAN V"),
+            properties: Properties::default(),
+            capabilities: vec![
+                Capability::F64Compute,
+                Capability::ShaderDispatch,
+                Capability::NativeF64,
+            ],
+        };
+        let cpu = make_cpu();
+        let subs = [ada, volta, cpu];
+        let work = Workload::new(
+            "f64 compute",
+            vec![Capability::F64Compute, Capability::ShaderDispatch],
+        );
+        let chain = fallback_chain(&work, &subs);
+        assert!(chain[0].substrate.identity.name.contains("TITAN V"));
     }
 
     #[test]

@@ -306,7 +306,7 @@ pub fn spectral_features(eigenvalues: &mut [f64]) -> [f64; 3] {
 /// # Cross-spring lineage
 ///
 /// `esn_reservoir_update_f64.wgsl` — wetSpring bio (microbial community
-/// dynamics) → hotSpring MD (plasma regime detection) → ToadStool S59
+/// dynamics) → hotSpring MD (plasma regime detection) → `ToadStool` S59
 /// absorption → groundSpring Anderson regime classification. The same
 /// reservoir update kernel serves three springs, each benefiting from
 /// the others' validation (wetSpring tested diversity stability,
@@ -428,9 +428,9 @@ mod tests {
 
     #[test]
     fn regime_label_display() {
-        assert_eq!(format!("{}", RegimeLabel::Extended), "extended");
-        assert_eq!(format!("{}", RegimeLabel::Critical), "critical");
-        assert_eq!(format!("{}", RegimeLabel::Localized), "localized");
+        assert_eq!(RegimeLabel::Extended.to_string(), "extended");
+        assert_eq!(RegimeLabel::Critical.to_string(), "critical");
+        assert_eq!(RegimeLabel::Localized.to_string(), "localized");
     }
 
     #[test]
@@ -453,7 +453,7 @@ mod tests {
 
     #[test]
     fn goe_poisson_constants_ordered() {
-        assert!(GOE_R > POISSON_R, "GOE > Poisson");
+        const _: () = assert!(GOE_R > POISSON_R);
     }
 
     #[test]
@@ -493,16 +493,16 @@ mod tests {
     #[test]
     fn concept_edge_detects_transition() {
         // Simulate a disorder sweep crossing the Anderson transition
-        let disorders: Vec<f64> = (0..12).map(|i| 1.0 + i as f64 * 1.5).collect();
+        let disorders: Vec<f64> = (0..12).map(|i| f64::from(i).mul_add(1.5, 1.0)).collect();
         let features: Vec<[f64; 3]> = disorders
             .iter()
             .map(|&w| {
                 let r = if w < 8.0 {
-                    0.53 - (w - 1.0) * 0.005
+                    (w - 1.0).mul_add(-0.005, 0.53)
                 } else {
-                    0.39 + (16.5 - w) * 0.002
+                    (16.5 - w).mul_add(0.002, 0.39)
                 };
-                [r, 4.0 - w * 0.1, 3.0 + w * 0.05]
+                [r, w.mul_add(-0.1, 4.0), w.mul_add(0.05, 3.0)]
             })
             .collect();
         let labels: Vec<RegimeLabel> = disorders

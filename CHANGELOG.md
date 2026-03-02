@@ -4,6 +4,53 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V61 Mixed-Hardware Pipeline + NUCLEUS Atomics (Mar 2, 2026)
+
+#### Added
+- **`metalForge/forge/src/topology.rs`**: `PCIe` topology and device adjacency
+  module. Models 6 bandwidth tiers (Local, NvLink, `PciePeer`, `PcieHost`,
+  `PcieLow`, Network), infers interconnect topology from substrate inventory,
+  and calculates transfer time estimates. Foundation for NPU↔GPU P2P
+  decisions — bypassing CPU round-trips in mixed-hardware pipelines.
+- **`metalForge/forge/src/pipeline.rs`**: Multi-stage pipeline dispatch.
+  `Pipeline` builder chains workloads across substrates with per-stage
+  `FallbackPolicy` (Degrade / Skip / Fail) and `TransferStrategy`
+  (PeerToPeer / HostBounce). `plan()` resolves stages to substrates using
+  topology for transfer cost estimation.
+- **`metalForge/forge/src/atomic.rs`**: NUCLEUS atomic composition types.
+  `TowerAtomic` (BearDog + Songbird), `NodeAtomic` (Tower + ToadStool +
+  Inventory + Topology), `NestAtomic` (Tower + NestGate), `FullNucleus`
+  (all primals + Squirrel). Sovereign degradation: Full → Node+Nest → Node
+  → Tower → Sovereign.
+- **`dispatch::fallback_chain()`**: Ordered substrate fallback (preferred →
+  GPU `NativeF64` → GPU → NPU → CPU) for graceful runtime degradation.
+- **`validate-mixed-hardware`**: New validation binary — 42 checks covering
+  topology inference, fallback chains, pipeline planning, NUCLEUS atomics,
+  degradation levels, and tolerance tiers.
+- 35 new workspace tests (topology, pipeline, atomic, dispatch) — 120 total
+  metalForge tests (up from 85).
+
+#### Changed
+- **Deep idiomatic Rust pass**: 13 clippy errors resolved (anderson, esn,
+  fao56, freeze_out, lanczos, spectral_recon, wdm) — `needless_return`,
+  `doc_markdown`, `assertions_on_constants`, `suboptimal_flops`,
+  `cast_lossless`, `items_after_statements`, `must_use_candidate`,
+  `redundant_clone`.
+- **Iterator modernization**: `flat_map` chain in spectral_recon (nested
+  `for` loop → functional), `mul_add` + `.iter().sum()` in wdm (manual
+  accumulation → idiomatic).
+- **`serde_json::json!`**: 5 manual `format!` JSON strings → typed macro
+  invocations in nestgate.rs.
+- **Result-based API**: `try_f64_field`, `try_usize_field`, `try_str_field`
+  in groundspring-validate lib; existing panic-based helpers delegate to
+  these with `unwrap()`.
+- **Provenance headers**: 4 NUCLEUS validation binaries (ghcnd, ncbi,
+  nucleus-stack, iris-seismic) now document data origin and baselines.
+- **Hardcoding evolution**: `temp_dir().join(...)` replaces `/tmp/` path;
+  `unwrap()` → `.expect("...")` in 3 binaries; primal socket names →
+  named constants.
+- 17 new unit tests for intermediate functions (fao56, npu, validate lib).
+
 ### V60 hotSpring Cross-Spring Absorption — DriftMonitor, Uncertainty, Concept Edges (Mar 1, 2026)
 
 #### Added

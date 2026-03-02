@@ -468,15 +468,14 @@ pub fn hargreaves_et0_batch(
 
 #[cfg(feature = "barracuda-gpu")]
 fn hargreaves_et0_batch_gpu(ra: &[f64], tmax: &[f64], tmin: &[f64]) -> Option<Vec<f64>> {
+    use barracuda::ops::batched_elementwise_f64::{BatchedElementwiseF64, Op};
+
     let device = crate::gpu::get_device()?;
-    // S71: dedicated HargreavesBatchGpu shader (cleaner API than BatchedElementwiseF64)
     if let Ok(gpu) = barracuda::stats::hydrology::HargreavesBatchGpu::new(device.clone()) {
         if let Ok(result) = gpu.dispatch(ra, tmax, tmin) {
             return Some(result);
         }
     }
-    // Fallback: S71+++ BatchedElementwiseF64 path
-    use barracuda::ops::batched_elementwise_f64::{BatchedElementwiseF64, Op};
     let gpu = BatchedElementwiseF64::new(device).ok()?;
     let n = ra.len();
     let mut data = Vec::with_capacity(n * 3);
@@ -632,6 +631,72 @@ mod tests {
         assert!(
             n > 15.0 && n < 17.0,
             "Uccle July daylight ≈ 16h, got {n:.1}"
+        );
+    }
+
+    #[test]
+    fn psychrometric_constant_at_sea_level() {
+        let gamma = psychrometric_constant(101.3);
+        assert!(
+            (gamma - 0.0674).abs() < 0.002,
+            "FAO-56 Eq. 8: γ ≈ 0.0674, got {gamma:.4}"
+        );
+    }
+
+    #[test]
+    fn solar_declination_summer_solstice() {
+        let delta = solar_declination(172);
+        let delta_deg = delta.to_degrees();
+        assert!(
+            (delta_deg - 23.45).abs() < 1.0,
+            "summer solstice δ ≈ 23.45°, got {delta_deg:.2}"
+        );
+    }
+
+    #[test]
+    fn inverse_relative_distance_range() {
+        for doy in [1, 105, 187, 365] {
+            let dr = inverse_relative_distance(doy);
+            assert!(
+                (0.96..=1.04).contains(&dr),
+                "d_r should be ~1.0 ± 0.033, got {dr} at doy {doy}"
+            );
+        }
+    }
+
+    #[test]
+    fn sunset_hour_angle_equator_equinox() {
+        let phi = 0.0_f64.to_radians();
+        let delta = solar_declination(80); // ~ spring equinox
+        let ws = sunset_hour_angle(phi, delta);
+        assert!(
+            (ws - PI / 2.0).abs() < 0.2,
+            "equatorial equinox ωs ≈ π/2, got {ws:.3}"
+        );
+    }
+
+    #[test]
+    fn extraterrestrial_radiation_summer() {
+        let ra = extraterrestrial_radiation(50.8, 187);
+        assert!(
+            (35.0..50.0).contains(&ra),
+            "Uccle July Ra ≈ 40 MJ/m²/day, got {ra:.1}"
+        );
+    }
+
+    #[test]
+    fn clear_sky_radiation_at_sea_level() {
+        let ra = 40.0;
+        let rso = clear_sky_radiation(0.0, ra);
+        assert!((rso - 30.0).abs() < 1.0, "Rso = 0.75·Ra = 30, got {rso:.1}");
+    }
+
+    #[test]
+    fn net_shortwave_radiation_albedo() {
+        let rns = net_shortwave_radiation(20.0);
+        assert!(
+            (rns - 15.4).abs() < 0.1,
+            "Rns = (1-0.23)·20 = 15.4, got {rns:.1}"
         );
     }
 

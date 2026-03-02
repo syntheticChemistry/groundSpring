@@ -30,6 +30,13 @@ fn main() {
     println!("{}", "=".repeat(72));
     println!("  Exp 030: Real NCBI 16S Metagenomes → Rare Biosphere Detection");
     println!("{}", "=".repeat(72));
+    println!();
+    println!("  Provenance: NUCLEUS live-data validation binary");
+    println!("  Data source: NCBI SRA soil metagenome 16S amplicon or synthetic");
+    println!("  Baseline: Analytical (Chao1 1984, Shannon entropy, rarefaction)");
+    println!("  Note: No benchmark JSON — validates diversity pipeline against");
+    println!("        ecological invariants, not Python baseline comparison.");
+    println!();
 
     let socket = biomeos::auto_connect();
     let data_source = if socket.is_some() {

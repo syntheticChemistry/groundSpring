@@ -29,6 +29,12 @@ fn main() {
     println!("{}", "=".repeat(72));
     println!("  Exp 031: NUCLEUS Stack — Live Primal Interaction");
     println!("{}", "=".repeat(72));
+    println!();
+    println!("  Provenance: NUCLEUS infrastructure validation binary");
+    println!("  Data source: Live NUCLEUS primal responses or sovereign fallback");
+    println!("  Baseline: Capability-based — validates graceful degradation and");
+    println!("        JSON-RPC 2.0 contract compliance, not numerical baselines.");
+    println!();
 
     println!("\n--- Phase A: Socket Discovery ---");
     let socket = biomeos::auto_connect();
@@ -50,7 +56,7 @@ fn main() {
         return;
     }
 
-    let socket = socket.unwrap();
+    let socket = socket.expect("NUCLEUS socket should be available after is_some() check");
     println!("  Socket: {}", socket.display());
 
     validate_tower(&mut h, &socket);
@@ -227,7 +233,7 @@ fn validate_local_compute(h: &mut ValidationHarness) {
 
 #[cfg(feature = "biomeos")]
 fn validate_sovereign_fallback(h: &mut ValidationHarness) {
-    let fake = std::path::PathBuf::from("/tmp/groundspring_exp031_nonexistent.sock");
+    let fake = std::env::temp_dir().join("groundspring_exp031_nonexistent.sock");
 
     h.check_true(
         "health() Err on missing socket",
