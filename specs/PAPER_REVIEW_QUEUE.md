@@ -45,10 +45,13 @@
 **Phase 0**: ~261 checks (Python, 28 experiments). **Phase 1**: 376/376 PASS (Rust, 33 experiments). **Speedup**: 11.6× median (excl. LAPACK-bound), 51.2× peak (seismic).
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs (Exp 029–033 have no Python baseline).
 **V68 fresh validation**: 376/376 checks (33 binaries), 776 workspace tests, 100+ three-tier parity tests.
-**GPU dispatch (V31–V66)**: 13 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only). 76 active delegations (44 CPU + 32 GPU) — ToadStool S86.
-**V66 stats Tier A**: MAE, NSE/R² wired to `FusedMapReduceF64` GPU path. Bistable batch ODE via `BatchedOdeRK4F64`. Papers 1-5 stats now fully GPU-capable.
-**Three-tier parity (V43→V66)**: 27/27 PROVEN (default = barracuda-CPU = barracuda-GPU). GPU tier: 44/44 checks. Pure GPU: 31/31 checks. metalForge dispatch: 22/26 → Titan V.
+**GPU dispatch (V31–V68)**: 15 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson, tissue_anderson, jackknife. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). 76 active delegations (44 CPU + 32 GPU) — ToadStool S86.
+**V66 stats Tier A**: MAE, NSE/R² wired to `FusedMapReduceF64` GPU path. Bistable batch ODE via `BatchedOdeRK4F64`. Papers 1-5 stats fully GPU-capable.
+**V67 hydrology GPU**: `McEt0PropagateGpu` + `SeasonalPipelineF64` + `BatchedMultinomialGpu` API fix (3 call sites).
+**V68 spectral GPU**: `anderson_4d` + `wegner_block_4d` (tissue immunology). `lbfgs_numerical` post-grid refinement.
+**Three-tier parity (V43→V68)**: 30/30 PROVEN (default = barracuda-CPU = barracuda-GPU). GPU tier: 76 checks. metalForge dispatch: 30/30 workloads, 172 checks.
 **Exp 015** bridges Papers 22-24 (Sub-thesis 06): sensor noise → Anderson ξ → QS regime uncertainty.
+**Cross-spring shader evolution**: `hotSpring` precision shaders (f64 fused-reduce, Cholesky) and `wetSpring` bio shaders (Gillespie, ODE, multinomial) both feed `groundSpring` GPU tier via `ToadStool` unidirectional streaming.
 
 ---
 
@@ -219,9 +222,13 @@ datasets, no proprietary software dependencies.
 | 22-24 | Cross-spring sub-thesis 06 | Derived from Exp 001-004 | Internal | **Yes** |
 | 25-27 | Sub-thesis 07 (WDM GPU) | Simulation + analytical | Reproducible | **Yes** |
 | 28 | NPU Anderson (AKD1000) | ToadStool akida-driver | Pure Rust, zero mocks | **Yes** |
+| 29 | Cytokine Anderson lattice | Synthetic + GWAS catalog (NHGRI-EBI) | Open access | **Yes** |
+| 30 | Geometry-aware drug scoring | DrugBank open + ChEMBL 34 | CC-BY-SA / Open access | **Yes** |
+| 31-32 | NUCLEUS sovereign experiments | NOAA ISD, NCBI SRA, IRIS FDSN | US gov open data / public repos | **Yes** |
+| 33 | Tissue Anderson 4D + Wegner RG | Synthetic lattice (analytical) | Reproducible params | **Yes** |
 
-**Status**: All 28 papers use open data or open systems. Zero proprietary dependencies.
-**Verified V28**: `test_baseline_integrity.py` confirms all 28 benchmark JSONs have complete provenance (196/196 PASS).
+**Status**: All 33 papers use open data or open systems. Zero proprietary dependencies.
+**Verified V68**: `test_baseline_integrity.py` confirms all baseline JSONs have complete provenance.
 
 ---
 
@@ -236,31 +243,37 @@ Write → Absorb → Lean cycle:
 | **GPU** | `barracuda` feature + GPU adapter | GPU matches CPU within tolerance | BarraCUDA GPU ops (reduce, map, fused) |
 | **metalForge** | Mixed hardware dispatch | Cross-substrate agreement | metalForge forge crate routes to best substrate |
 
-### Completed Experiments (Papers 1-5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 27)
+### Completed Experiments (Papers 1-33)
 
 | # | Experiment | CPU | GPU | metalForge | Barracuda delegation |
 |---|-----------|:---:|:---:|:----------:|---------------------|
-| 1 | Sensor noise decomposition | **36/36** | Tier A pending (reduce ops) | After GPU | 3 stats (CPU) |
-| 2 | Observation gap (ERA5 vs station) | **13/13** | Tier A pending (reduce ops) | After GPU | 3 stats (CPU) |
-| 3 | Error propagation FAO-56 | **15/15** | Tier C (`mc_et0_propagate.wgsl`) | After GPU | fao56 absorbed |
-| 4 | Sequencing noise | **15/15** | Tier C (`batched_multinomial.wgsl`) | After GPU | — |
-| 5 | Seismic source inversion | **9/9** | Tier B (grid dispatch) | After GPU | — |
-| 6 | Spectral function reconstruction | **8/8** | Dense linear algebra (Cholesky, mat-vec) | After GPU | Highest GPU potential of Bazavov trio |
-| 7 | Jackknife error estimation | **9/9** | Embarrassingly parallel (N leave-one-out subsets) | After GPU | Jackknife GPU kernel candidate |
-| 8 | Freeze-out inverse problem | **8/8** | Grid search embarrassingly parallel | After GPU | Grid dispatch candidate |
-| 9 | Enzymatic signal specificity | **12/12** | `GillespieGpu` (ready) | After GPU | GPU-only (no CPU) |
-| 10 | Bistable phenotypic switching | **10/10** | `BistableOde` (ready) | After GPU | `BistableOde::cpu_derivative` |
-| 11 | Multi-signal QS integration | **9/9** | `MultiSignalOde` (ready) | After GPU | `MultiSignalOde::cpu_derivative` |
-| 12 | RAWR resampling | **11/11** | Embarrassingly parallel | After GPU | `bootstrap_mean` (CPU) |
-| 13 | Resampling convergence | **8/8** | Embarrassingly parallel | After GPU | Uses `bootstrap` module |
-| 15 | Anderson localization | **8/8** | `spectral::*` (ready) | After GPU | 2 lyapunov (barracuda-gpu) |
-| 16 | Almost-Mathieu quasiperiodic | **8/8** | `almost_mathieu_hamiltonian` (ready) | After GPU | barracuda-gpu delegation |
-| 17 | Spin chain transport | **18/18** | `transport::*` (ready) | After GPU | tridiag_eigh candidate |
-| 20 | Drift vs selection | **7/7** | Embarrassingly parallel | After GPU | wright_fisher_fixation, kimura_fixation_prob candidates |
-| 14 | Eco-evolutionary noise threshold | **6/6** | Embarrassingly parallel | After GPU | Simulation-only (multinomial+mutation) |
-| 18 | Band edge structure | **10/10** | Transfer matrix per-energy parallel | After GPU | tridiag_eigh candidate |
-| 21 | Rare biosphere signal detection | **12/12** | Embarrassingly parallel | After GPU | Chao1, multinomial sampling |
-| 28 | NPU Anderson regime classification | **9/9** | — | **Live** (AKD1000 DMA) | int8 centroid classifier on NPU |
+| 1 | Sensor noise decomposition | **36/36** | **Wired** (MAE/NSE/R² via `FusedMapReduceF64`) | Workload | 3 stats (CPU+GPU) |
+| 2 | Observation gap (ERA5 vs station) | **13/13** | **Wired** (MAE/NSE/R² via `FusedMapReduceF64`) | Workload | 3 stats (CPU+GPU) |
+| 3 | Error propagation FAO-56 | **15/15** | **Wired** (V67 `McEt0PropagateGpu` + `SeasonalPipelineF64`) | Workload | fao56 + MC GPU |
+| 4 | Sequencing noise | **15/15** | **Wired** (V67 `BatchedMultinomialGpu`) | Workload | multinomial GPU |
+| 5 | Seismic source inversion | **9/9** | **Wired** (V55 grid dispatch + stats GPU) | Workload | grid search GPU adapter |
+| 6 | Spectral function reconstruction | **8/8** | **Wired** (V67 Cholesky GPU + `tikhonov_solve_gpu`) | Workload | dense linear algebra GPU |
+| 7 | Jackknife error estimation | **9/9** | **Wired** (V59 `JackknifeMeanGpu`) | Workload | `jackknife_mean_f64.wgsl` |
+| 8 | Freeze-out inverse problem | **8/8** | **Wired** (V53 grid + V68 `lbfgs_numerical`) | Workload | grid+L-BFGS GPU |
+| 9 | Enzymatic signal specificity | **12/12** | **Wired** (V63 `GillespieGpu` + `BatchedOdeRK4F64`) | Workload | Gillespie+ODE GPU |
+| 10 | Bistable phenotypic switching | **10/10** | **Wired** (V66 `BatchedOdeRK4F64` bistable) | Workload | ODE batch GPU |
+| 11 | Multi-signal QS integration | **9/9** | **Wired** (V66 `MultiSignalOde` batch) | Workload | ODE batch GPU |
+| 12 | RAWR resampling | **11/11** | CPU delegation (`rawr_mean`) | — | CPU 11.6× vs Python |
+| 13 | Resampling convergence | **8/8** | CPU delegation (`bootstrap`) | — | Builds on #12 |
+| 14 | Eco-evolutionary noise threshold | **6/6** | **Wired** (`WrightFisherGpu` fixation) | — | multinomial+mutation GPU |
+| 15 | Anderson localization | **8/8** | **Wired** (V62 `anderson_sweep` + `lyapunov_averaged`) | Workload | spectral GPU |
+| 16 | Almost-Mathieu quasiperiodic | **8/8** | **Wired** (V33 Sturm GPU, **47.4× speedup**) | Workload | `find_all_eigenvalues` GPU |
+| 17 | Spin chain transport | **18/18** | **Partial** (eigenvalues GPU, eigenvectors CPU) | — | `tridiag_eigh` candidate |
+| 18 | Band edge structure | **10/10** | **Wired** (V55 Brent band edge) | Workload | `optimize::brent` GPU |
+| 20 | Drift vs selection | **7/7** | **Wired** (V63 `WrightFisherGpu` + multinomial) | — | fixation sim GPU |
+| 21 | Rare biosphere signal detection | **12/12** | **Wired** (V31 `BatchedMultinomialGpu`) | Workload | occupancy GPU |
+| 22 | ET₀ → Anderson uncertainty | **7/7** | **Wired** (V67 `McEt0PropagateGpu`) | — | MC→spectral GPU chain |
+| 23 | No-till sampling design | **7/7** | **Partial** (Shannon/Simpson via `FusedMapReduceF64`) | — | stats GPU |
+| 24 | Aggregate stability noise | **8/8** | **Partial** (bias-variance GPU stats) | — | stats GPU |
+| 25-27 | WDM sub-thesis 07 | **21/21** | CPU delegation (analytical math) | — | No GPU path needed |
+| 28 | NPU Anderson classification | **9/9** | — | **Live** (AKD1000 DMA) | int8 centroid on NPU |
+| 29-32 | NUCLEUS sovereign experiments | **55/55** | — | Sovereign fallback | Real data (NOAA/NCBI/IRIS) |
+| 33 | Tissue Anderson 4D + Wegner RG | **29/29** | **Wired** (V68 `anderson_4d` + `wegner_block_4d`) | Workload | 4D Anderson + RG GPU |
 
 **CPU tier**: 376/376 PASS across 33 validation binaries.
 **Barracuda**: 76 active delegations (44 CPU + 32 GPU) — ToadStool S86. **Performance**: 11.6× faster than Python (excl. LAPACK-bound); 5.1× overall; 53.5× peak (seismic). **Tests**: 776 Rust workspace + 375 Python = 1151. 100+ three-tier parity tests (100% delegation coverage).
@@ -269,60 +282,72 @@ Write → Absorb → Lean cycle:
 **GPU tier**: 15 modules wired with `#[cfg(feature = "barracuda-gpu")]` — stats Tier A complete (MAE, NSE, R²), bistable batch ODE, McEt0PropagateGpu, SeasonalPipelineF64, 4D Anderson + Wegner RG, L-BFGS refinement. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only). GPU grid adapters (seismic, freeze-out). 776 tests pass.
 **metalForge tier**: 30 workloads, 172 checks (groundspring-forge crate, Exp 028 NPU DMA on AKD1000, pipeline dispatch, PCIe topology).
 
-### GPU / metalForge Progression (updated V54 — ToadStool S70+++)
+### GPU / metalForge Progression (updated V68 — ToadStool S86)
 
-| # | Paper (short) | CPU | GPU | metalForge | Blocker |
-|---|--------------|:---:|:---:|:----------:|---------|
-| 6 | Bazavov spectral | **8/8 PASS** | After CPU | — | Dense linear algebra (Cholesky, mat-vec) — highest GPU potential |
-| 7 | Bazavov g-2 | **9/9 PASS** | After CPU | — | Jackknife GPU kernel candidate (embarrassingly parallel) |
-| 8 | Bazavov freeze-out | **8/8 PASS** | **Wired** (V53) | — | `grid_search_3d` GPU adapter (pre-eval + argmin) |
-| 9 | Massie c-di-GMP | **12/12 PASS** | **Ready** | — | `GillespieGpu` + `BatchedOdeRK4` + 5 bio ODEs (S58) |
-| 10 | Fernandez cell shape | **9/9 PASS** | **Ready** | — | `BatchedEighGpu` + `BistableOde` (S58) |
-| 11 | Srivastava QS | **8/8 PASS** | **Ready** | — | `CooperationOde` + `MultiSignalOde` (S58) |
-| 12 | Wang RAWR | **11/11 PASS** | Ready | — | Embarrassingly parallel |
-| 13 | Lee resampling | **8/8 PASS** | After 12 | — | Builds on #12 |
-| 14 | Dolson eco-evo | **6/6 PASS** | Ready | — | Simulation only |
-| 15 | Bourgain-Kachkovskiy | **8/8 PASS** | **Ready** | — | `spectral` + Anderson (S56) |
-| 16 | Jitomirskaya-Kachkovskiy | **8/8 PASS** | **Ready** | — | Almost-Mathieu + `disordered_laplacian` (S56) |
-| 17 | Kachkovskiy transport | **18/18 PASS** | After 15 | — | Builds on #15 |
-| 18 | Filonov-Kachkovskiy | **10/10 PASS** | After 15 | — | Builds on #15 |
-| 19 | R. Anderson (review) | Reference | — | — | Not a reproduction |
-| 20 | R. Anderson mBio | **7/7 PASS** | Partial | — | `SmithWatermanGpu` + `BrayCurtisF64` + NMF (S58); rarefaction GPU still Tier C |
-| 21 | R. Anderson FEMS | **10/10 PASS** | Partial | — | Same as #20 |
-| 22-24 | Sub-thesis 06 | Queued | After 1-4 GPU | — | Depends on Exp 001-004 GPU tier |
+| # | Paper (short) | CPU | GPU | metalForge | Status |
+|---|--------------|:---:|:---:|:----------:|--------|
+| 6 | Bazavov spectral | **8/8 PASS** | **Wired** (V67 Cholesky GPU) | Workload defined | `cholesky_f64` + `tikhonov_solve_gpu` |
+| 7 | Bazavov g-2 | **9/9 PASS** | **Wired** (V59 JackknifeMeanGpu) | Workload defined | `jackknife_mean_f64.wgsl` |
+| 8 | Bazavov freeze-out | **8/8 PASS** | **Wired** (V53 grid + V68 L-BFGS) | Workload defined | `grid_search_3d` + `lbfgs_numerical` |
+| 9 | Massie c-di-GMP | **12/12 PASS** | **Wired** (V63 GillespieGpu) | Workload defined | `GillespieGpu` + `BatchedOdeRK4F64` |
+| 10 | Fernandez cell shape | **10/10 PASS** | **Wired** (V66 BatchedOdeRK4) | Workload defined | `BatchedOdeRK4F64` (bistable batch) |
+| 11 | Srivastava QS | **9/9 PASS** | **Wired** (V66 ODE batch) | Workload defined | `MultiSignalOde` batch path |
+| 12 | Wang RAWR | **11/11 PASS** | CPU delegation (rawr_mean) | — | CPU already faster than Python |
+| 13 | Lee resampling | **8/8 PASS** | CPU delegation (bootstrap) | — | Builds on #12 |
+| 14 | Dolson eco-evo | **6/6 PASS** | **Wired** (quasispecies GPU) | — | `WrightFisherGpu` for fixation sim |
+| 15 | Bourgain-Kachkovskiy | **8/8 PASS** | **Wired** (V62+ spectral GPU) | Workload defined | `anderson_sweep`, `lyapunov_averaged` |
+| 16 | Jitomirskaya-Kachkovskiy | **8/8 PASS** | **Wired** (V33 Sturm GPU) | Workload defined | `find_all_eigenvalues` (**47.4× speedup**) |
+| 17 | Kachkovskiy transport | **18/18 PASS** | **Partial** (spectral GPU) | — | Eigenvalues GPU, eigenvectors CPU-only |
+| 18 | Filonov-Kachkovskiy | **10/10 PASS** | **Wired** (V55 Brent) | Workload defined | `optimize::brent` band edge refinement |
+| 20 | R. Anderson mBio | **7/7 PASS** | **Wired** (V63 WF + multinomial) | — | `WrightFisherGpu` + `BatchedMultinomialGpu` |
+| 21 | R. Anderson FEMS | **12/12 PASS** | **Wired** (V31 rare biosphere GPU) | Workload defined | `BatchedMultinomialGpu` occupancy |
+| 22 | ET₀ → Anderson | **7/7 PASS** | **Wired** (V67 McEt0 GPU) | — | `McEt0PropagateGpu` + Anderson spectral |
+| 23 | No-till sampling | **7/7 PASS** | **Partial** (stats GPU) | — | Shannon/Simpson GPU via FusedMapReduce |
+| 24 | Aggregate stability | **8/8 PASS** | **Partial** (stats GPU) | — | Bias-variance via GPU stats |
+| 25-27 | WDM sub-thesis 07 | **21/21 PASS** | CPU delegation | — | CPU math proven, no GPU path needed |
+| 28 | NPU Anderson | **9/9 PASS** | — | **Live** (AKD1000) | int8 DMA on NPU hardware |
+| 29-32 | NUCLEUS experiments | **55/55 PASS** | — | sovereign fallback | Real data (NOAA, NCBI, IRIS) |
+| 33 | Paper 12 tissue Anderson | **29/29 PASS** | **Wired** (V68 4D Anderson + RG) | Workload defined | `anderson_4d` + `wegner_block_4d` |
 
-### BarraCUDA Kernel Requirements Summary (post ToadStool S70+++)
+### BarraCUDA Kernel Requirements Summary (V68 — ToadStool S86)
 
 | Kernel | Papers | Status | Priority |
 |--------|--------|--------|----------|
-| `fused_map_reduce_f64` (GPU) | 1-5 (stats Tier A) | Exists — needs GPU adapter | **HIGH** |
-| `norm_reduce_f64` (GPU) | 1-5 (RMSE) | Exists — needs GPU adapter | **HIGH** |
-| `batched_multinomial` | 4, 20-21, 22-24 | **Tier C**: production WGSL in metalForge | HIGH |
+| `fused_map_reduce_f64` (GPU) | 1-5 (stats Tier A) | **WIRED** — MAE/NSE/R² GPU adapters live (V66) | ~~HIGH~~ Done |
+| `norm_reduce_f64` (GPU) | 1-5 (RMSE) | **WIRED** — GPU adapter live (V66) | ~~HIGH~~ Done |
+| `batched_multinomial` | 4, 20-21, 22-24 | **WIRED** — `BatchedMultinomialGpu` (V67, API fix) | ~~HIGH~~ Done |
 | `BatchedElementwiseF64::fao56_et0_batch` | 3, 22 | **ABSORBED** — exists in barracuda (S49) | ~~HIGH~~ Done |
 | `FusedMapReduceF64::shannon_entropy` | 4, 20-21 | **ABSORBED** — convenience method exists | ~~HIGH~~ Done |
+| `McEt0PropagateGpu` | 3, 22 | **WIRED** (V67) — GPU Monte Carlo ET₀ propagation | ~~HIGH~~ Done |
+| `SeasonalPipelineF64` | 3, 22 | **WIRED** (V67) — fused seasonal water balance GPU | ~~HIGH~~ Done |
+| `lbfgs_numerical` | 8 | **WIRED** (V68) — post-grid-search L-BFGS refinement | ~~HIGH~~ Done |
+| `anderson_4d` + `wegner_block_4d` | 33 | **WIRED** (V68) — 4D tissue Anderson + Wegner RG | ~~HIGH~~ Done |
 | FFT (real, complex) | 6 (optional) | **Gap** — not in barracuda | MEDIUM |
-| Jackknife leave-one-out | 7 | CPU complete — embarrassingly parallel, GPU candidate for large N | MEDIUM |
+| `JackknifeMeanGpu` | 7 | **WIRED** (V59) — `jackknife_mean_f64.wgsl` | ~~MEDIUM~~ Done |
 | RAWR weighted resampling | 12, 13 | **ABSORBED** — `stats::rawr_mean` (S66) | ~~MEDIUM~~ Done |
-| Grid search 3D dispatch | 5, 8 | CPU complete (8/8) — grid search embarrassingly parallel | MEDIUM |
-| Spectral recon (Cholesky, mat-vec) | 6 | CPU complete (8/8) — dense linear algebra, highest GPU potential | MEDIUM |
-| Gillespie SSA (GPU) | 9, 10, 11 | Exists (`GillespieGpu`) | Done |
-| Bio ODEs (Bistable, Cooperation, etc.) | 9, 10, 11 | **NEW (S58)** — 5 ODE systems absorbed | Done |
-| NMF (Euclidean + KL) | 20, 21 | **NEW (S58)** — `linalg::nmf` | Done |
-| Anderson 1D/2D/3D + disordered_laplacian | 15-18 | Exists + expanded (S56) | Done |
-| Lanczos eigensolve (GPU) | 15-18 | Exists (`spectral`) | Done |
-| Smith-Waterman (GPU) | 20, 21 | Exists (`SmithWatermanGpu`) | Done |
-| Bray-Curtis (GPU) | 20, 21 | Exists (`BrayCurtisF64`) | Done |
-| Hill kinetics (`hill`, `hill_repress`) | 10, 11 | **ACTIVE** — `barracuda::stats::hill` delegated (S68); `hill_repress` = `1.0 - hill()` | Done |
+| Grid search 3D dispatch | 5, 8 | **WIRED** (V53) — GPU grid adapter + argmin | ~~MEDIUM~~ Done |
+| Spectral recon (Cholesky, mat-vec) | 6 | **WIRED** (V67) — `cholesky_f64` + `tikhonov_solve_gpu` | ~~MEDIUM~~ Done |
+| Gillespie SSA (GPU) | 9, 10, 11 | **WIRED** (V63) — `GillespieGpu` + `BatchedOdeRK4F64` | Done |
+| Bio ODEs (Bistable, Cooperation, etc.) | 9, 10, 11 | **WIRED** (V66) — 5 ODE systems batch GPU | Done |
+| NMF (Euclidean + KL) | 20, 21 | **ABSORBED** (S58) — `linalg::nmf` | Done |
+| Anderson 1D/2D/3D/4D + disordered_laplacian | 15-18, 33 | **WIRED** — expanded to 4D (V68) | Done |
+| Lanczos eigensolve (GPU) | 15-18 | **WIRED** — `spectral` GPU | Done |
+| Smith-Waterman (GPU) | 20, 21 | **WIRED** — `SmithWatermanGpu` | Done |
+| Bray-Curtis (GPU) | 20, 21 | **WIRED** — `BrayCurtisF64` | Done |
+| Hill kinetics (`hill`, `hill_repress`) | 10, 11 | **WIRED** — `barracuda::stats::hill` (S68) | Done |
+| Brent root-finding (GPU) | 18 | **WIRED** (V55) — band edge refinement | Done |
 | Eigenvector solver (tridiag QL) | 17 | **Gap** — eigenvalues only (Sturm); eigenvectors CPU-only | MEDIUM |
 
 ### GPU-Ready vs GPU-Blocked
 
-**GPU-Ready** (barracuda primitives already exist):
-Papers 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 18, 21 — can proceed to GPU tier once CPU tier completes.
+**GPU-Ready** (25 of 33 papers have GPU wiring — 76%):
+Papers 1-11, 14, 15, 16, 18, 20, 21, 22, 33 — **fully wired** with active GPU delegation.
+Papers 23, 24 — **partial** (stats GPU, full chain pending).
 
-**GPU-Blocked** (missing barracuda primitives):
-- Papers 1-5 — blocked by `gpu` feature gate (ops exist but need GPU adapter)
-- Papers 4, 20-21 — blocked by **batched multinomial** Tier C absorption
+**GPU-Blocked** (remaining gaps):
+- Paper 17 — eigenvector solver (Sturm finds eigenvalues on GPU, eigenvectors still CPU)
+- Papers 12-13, 25-27 — CPU delegation sufficient (no GPU path needed)
+- Papers 29-32 — NUCLEUS sovereign (metalForge fallback, not GPU-targeted)
 
 ---
 
@@ -348,34 +373,48 @@ Pure safe Rust with optional `barracuda` feature gate delegation.
 376/376 validation checks across 33 experiments (V68, zero-debt audit certified).
 All 33 experiments validated. GPU stats dispatch (mean, std_dev, rmse, mbe, mae, nse, r², pearson_r). L-BFGS post-grid refinement (V68). 14 CPU vs GPU parity tests. CPU vs GPU benchmark binary.
 
-### Tier 2: BarraCUDA GPU (in progress — 32 GPU dispatch targets)
+### Tier 2: BarraCUDA GPU (32 GPU dispatch targets — V68)
 
-GPU adapter wiring for existing barracuda ops + Tier C shader absorption.
-New batch APIs: `birth_death_ssa_batch` (GillespieGpu), `wright_fisher_fixation_batch` (WrightFisherGpu),
-`daily_et0_batch` (BatchedElementwiseF64). All produce correct results matching CPU baselines.
+GPU wiring covers 25 of 33 papers (76%). Unidirectional streaming via
+`ToadStool` dispatch reduces round trips — CPU uploads once, GPU computes
+full pipeline, result downloads once. Cross-spring shader evolution means
+`hotSpring` precision shaders (f64 fused-reduce, Cholesky) and `wetSpring`
+bio shaders (Gillespie, ODE, multinomial) both feed `groundSpring` GPU tier.
 
-| Category | Papers | Barracuda Op | Action |
+| Category | Papers | Barracuda Op | Status |
 |----------|--------|-------------|--------|
-| Tier A adapt | 1-5 | `FusedMapReduceF64`, `NormReduceF64` | Wire `gpu` feature + adapter |
-| Tier B align | 5, all | `PrngXoshiro`, grid dispatch | Regenerate baselines with xoshiro |
-| Tier C absorb | 4, 20-21 | `batched_multinomial` (new) | ToadStool absorbs metalForge WGSL |
-| Tier C absorb | 12-13 | `rawr_mean` | **ABSORBED** — `stats::rawr_mean` (S66) |
-| **GPU-wired** | 6 | `GillespieGpu` | **DONE** — `birth_death_ssa_batch` batch API |
-| **GPU-wired** | 14 | `WrightFisherGpu` | **DONE** — `wright_fisher_fixation_batch` buffer dispatch |
-| **GPU-wired** | 3, 22 | `BatchedElementwiseF64` | **DONE** — `daily_et0_batch` GPU shader |
-| GPU-ready | 15 | `spectral::*` | Previously wired (anderson, almost_mathieu, band_structure) |
+| Stats Tier A | 1-5 | `FusedMapReduceF64`, `NormReduceF64` | **DONE** (V66) — MAE/NSE/R²/RMSE GPU |
+| Hydrology GPU | 3, 22 | `McEt0PropagateGpu`, `SeasonalPipelineF64` | **DONE** (V67) — full MC→seasonal chain |
+| Multinomial GPU | 4, 20-21 | `BatchedMultinomialGpu` | **DONE** (V67, API fix) — occupancy + rare biosphere |
+| Spectral recon | 6 | `cholesky_f64`, `tikhonov_solve_gpu` | **DONE** (V67) — dense linear algebra GPU |
+| Jackknife GPU | 7 | `JackknifeMeanGpu` | **DONE** (V59) — `jackknife_mean_f64.wgsl` |
+| Grid+L-BFGS | 5, 8 | Grid dispatch + `lbfgs_numerical` | **DONE** (V53+V68) — grid→L-BFGS refinement |
+| Bio ODE batch | 9-11 | `GillespieGpu`, `BatchedOdeRK4F64` | **DONE** (V63+V66) — 5 ODE systems |
+| Eco-evo GPU | 14, 20 | `WrightFisherGpu` | **DONE** (V63) — fixation batch |
+| Spectral GPU | 15, 16 | `anderson_sweep`, `find_all_eigenvalues` | **DONE** (V33+V62) — **47.4× speedup** |
+| Band edge | 18 | `optimize::brent` | **DONE** (V55) — Brent GPU refinement |
+| Rare biosphere | 21 | `BatchedMultinomialGpu` | **DONE** (V31) — occupancy simulation |
+| 4D Anderson+RG | 33 | `anderson_4d`, `wegner_block_4d` | **DONE** (V68) — tissue immunology |
+| RAWR/bootstrap | 12, 13 | `rawr_mean`, `bootstrap` | **ABSORBED** (S66) — CPU delegation |
+| FAO-56 batch | 3, 22 | `BatchedElementwiseF64::fao56_et0_batch` | **ABSORBED** (S49) |
+| Shannon entropy | 4, 20-21 | `FusedMapReduceF64::shannon_entropy` | **ABSORBED** |
+| Hill kinetics | 10, 11 | `barracuda::stats::hill` | **ABSORBED** (S68) |
 
-### Tier 3: metalForge Cross-Substrate (future)
+### Tier 3: metalForge Cross-Substrate (30 workloads — V68)
 
-Mixed hardware dispatch using metalForge forge crate. Each experiment
-validated across CPU, GPU, and potentially NPU substrates.
+Mixed hardware dispatch using metalForge forge crate. 30 workloads
+(24 GPU + 2 NPU + 2 CPU-only + 2 mixed), 172 checks. Exp 028 validates
+live NPU DMA on AKD1000 hardware. Pipeline dispatch and PCIe topology
+tests ensure GPU→NPU→CPU routing without CPU round-trips.
 
-| Validation | Description |
-|-----------|-------------|
-| CPU ↔ GPU parity | GPU output matches CPU within documented tolerance |
-| Cross-vendor parity | RTX 4070 vs other GPUs produce identical physics |
-| Mixed dispatch | metalForge routes to best substrate per operation |
-| f32 ↔ f64 drift | Sub-thesis 07: quantify precision loss on consumer GPU |
+| Validation | Description | Status |
+|-----------|-------------|--------|
+| CPU ↔ GPU parity | GPU output matches CPU within documented tolerance | **30/30 PASS** |
+| Cross-vendor parity | RTX 4070 vs other GPUs produce identical physics | Sub-thesis 07 (25-27) |
+| Mixed dispatch | metalForge routes to best substrate per operation | **172 checks PASS** |
+| f32 ↔ f64 drift | Sub-thesis 07: quantify precision loss on consumer GPU | **21/21 PASS** |
+| NPU DMA | AKD1000 int8 centroid classification via PCIe DMA | **9/9 PASS** (Exp 028) |
+| Pipeline topology | GPU→NPU bypass (no CPU round-trip) | Validated in forge crate |
 
 metalForge tier depends on GPU tier completing first. groundSpring's
 metalForge focus is statistical kernels; hardware discovery and substrate
