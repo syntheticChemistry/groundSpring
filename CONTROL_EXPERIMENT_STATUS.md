@@ -818,7 +818,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V54: Full Control Validation + CPU Parity Proof | 283/283 checks, 95/95 parity, Rust 11.6× faster than Python. | Archived |
 | V53: Complete Rewiring + GPU Grid Adapters | GPU grid adapters (seismic, freeze-out), 3 new CPU delegations, 57 active (38 CPU + 19 GPU). | Superseded by V54 |
 | V52: ToadStool S70+ Catch-Up | 4 new CPU delegations (kimura, jackknife, fao56_et0, chao1), 52 active. | Superseded by V53 |
-| V61: Mixed-Hardware Pipeline + NUCLEUS Atomics | PCIe topology, pipeline dispatch, fallback chains, NUCLEUS atomics (Tower/Node/Nest/Full), deep idiomatic debt pass, 668 tests, 42/42 mixed-hardware checks | Active |
+| V61: Mixed-Hardware Pipeline + NUCLEUS Atomics | PCIe topology, pipeline dispatch, fallback chains, NUCLEUS atomics (Tower/Node/Nest/Full), deep idiomatic debt pass, 668 tests, 42/42 mixed-hardware checks | Archived |
 | V60: hotSpring Cross-Spring Absorption | DriftMonitor, ClassificationUncertainty, concept edges, Nautilus optional dep, 620 tests | Archived |
 | V59: ToadStool S71+++ Catch-Up | ESN regime classification, Lanczos sparse eigensolver, 2D/3D Anderson, hotSpring S68+ absorption | Archived |
 | V58: Cross-Spring Evolution + Deep Debt | Cross-spring WGSL evolution, 13 clippy fixes, provenance headers, 4 NUCLEUS binaries | Archived |
@@ -830,7 +830,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V45: Validation Gap Closure | +4 checks (292/292): Exp 010 low-noise agreement, Exp 011 dual-signal variance, Exp 016 Spearman occupancy + multinomial determinism. All Python checks now covered in Rust. | Superseded by V46 |
 | V44: Deep-Debt Evolution | `linalg` module extraction, `InputError` typed errors, 5 `assert!` → `Result` APIs, capability-based UID discovery, idiomatic casts, enriched derives, absorption guidance for ToadStool | Superseded by V45 |
 | V43: Three-Tier Parity + Pure GPU Workloads | 27/27 three-tier parity PROVEN, 39/39 GPU tier checks, 26/26 pure-GPU workload checks, 17/19 metalForge dispatch to Titan V, 462 Rust tests, full certificate in `data/three_tier_parity_report.json` | Superseded by V44 |
-| V39: NUCLEUS Integration + NestGate + metalForge Remote | NestGate data pipeline (NCBI/NOAA), metalForge remote substrate discovery, Tower/Node/Nest pipeline graphs, baseCamp sync, 498+ tests | Active |
+| V39: NUCLEUS Integration + NestGate + metalForge Remote | NestGate data pipeline (NCBI/NOAA), metalForge remote substrate discovery, Tower/Node/Nest pipeline graphs, baseCamp sync, 498+ tests | Archived |
 | V37: BarraCUDA Evolution | 39 active delegations (30 CPU + 9 GPU, V42 GPU rewiring), 7 pending, NAK f64 gap, absorption priorities, cross-spring learnings | Superseded by V47 |
 | V35: Titan V / NAK Adaptive GPU Dispatch | `GpuArch` detection, `NativeF64`, `AdaptiveBatch`, 19 workloads, 49 metalForge tests, 5 substrates, arch-aware routing, NAK f64 gap confirmed, live GPU compute | Superseded by V37/V39 |
 | V33: Delegation Count Expansion | 39 active (30 CPU + 9 GPU, V42 GPU rewiring), 7 pending ToadStool | Superseded by V42 |

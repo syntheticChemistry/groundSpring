@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: March 2, 2026
 
-**Validation Summary**: 376/376 validation checks (321 core + 55 NUCLEUS) + 172 metalForge checks (130 forge + 42 mixed-hardware), **76 active delegations (44 CPU + 32 GPU) — `ToadStool` S86 (`7e01ac7e`)**, 776 workspace tests + 375 Python tests. All 33 experiments PASS. **30/30 mathematical parity proven**. Zero clippy warnings (pedantic), zero unsafe, zero TODO, zero `.unwrap()` in production lib, zero production mocks, all files < 1000 lines. V64: deep audit — `Result`-based validation API (`BenchResult<T>`), `f64::total_cmp()`, `#[expect]` with reasons, tissue_anderson refactored (physics + drug_scoring), SPDX unified AGPL-3.0-only, absorbed shader refs cleaned. Paper 12 Exp 033 (29/29): cytokine Anderson lattice + geometry-aware drug scoring. 10 domains, 33 modules.
+**Validation Summary**: 376/376 validation checks (321 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), **76 active delegations (44 CPU + 32 GPU) — `ToadStool` S86 (`7e01ac7e`)**, 780 workspace tests + 375 Python tests. All 33 experiments PASS. **30/30 mathematical parity proven**. Zero clippy warnings (pedantic), zero unsafe, zero TODO, zero `.unwrap()` in production lib, zero production mocks, all files < 1000 lines. V68: GPU parity buildout (MC ET₀, seasonal pipeline, L-BFGS, 4D Anderson + Wegner RG), GPU→NPU PCIe bypass pipeline, NUCLEUS atomic coordination. Paper 12 Exp 033 (29/29): cytokine Anderson lattice + geometry-aware drug scoring. 10 domains, 33 modules.
 
 ---
 

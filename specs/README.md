@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: March 2, 2026
-**Status**: Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 376/376 PASS (321 core + 55 NUCLEUS), 76 active delegations (44 CPU + 32 GPU), 1 evolution candidate — ToadStool S86, 776 workspace tests, 95 three-tier parity tests, 172 metalForge tests, biomeOS Neural API live (Tower + Node + Squirrel validated), NestGate data pipelines (NCBI, NOAA, IRIS), 33 experiments, 33 modules
+**Status**: Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 376/376 PASS (321 core + 55 NUCLEUS), 76 active delegations (44 CPU + 32 GPU), 1 evolution candidate — ToadStool S86, 780 workspace tests, 100+ three-tier parity tests, 187 metalForge checks, biomeOS Neural API live (Tower + Node + Squirrel validated), NestGate data pipelines (NCBI, NOAA, IRIS), 33 experiments, 33 modules
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -11,11 +11,11 @@
 | Metric | Value |
 |--------|-------|
 | Phase 0 (Python) | 28/28 experiments PASS across 9 scientific domains (~288 checks) |
-| Phase 1 (Rust) | 292/292 PASS — 28 core validation binaries |
+| Phase 1 (Rust) | 376/376 PASS — 33 validation binaries (321 core + 55 NUCLEUS) |
 | Phase 4 (NUCLEUS) | 55/55 PASS — 4 NUCLEUS validation binaries (Exp 029–032) |
 | Total Validation | 376/376 PASS across 33 experiments |
 | Mathematical Parity | 28/28 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
-| Rust tests | 776 workspace + 375 Python = 1151 total |
+| Rust tests | 780 workspace + 375 Python = 1155 total |
 | metalForge | 2 production WGSL shaders (anderson_lyapunov, anderson_lyapunov_f32) |
 | Exp 001 | Sensor noise decomposition — EC5 bias-dominated, CS616 mixed |
 | Exp 002 | Observation gap ERA5 vs station — methodology validated |
@@ -49,10 +49,10 @@
 | Exp 030 | Real NCBI 16S — rare biosphere detection on real/synthetic NCBI metagenomes (NUCLEUS) |
 | Exp 031 | NUCLEUS Stack — full primal validation: Tower + Node + Squirrel + Nest |
 | Exp 032 | IRIS Seismic — IRIS FDSN station geometry + travel times via NestGate (NUCLEUS) |
-| Barracuda | 76 active (44 CPU + 32 GPU), 1 evolution candidate (ToadStool S86). GPU grid adapters + batch APIs. 172 metalForge tests |
+| Barracuda | 76 active (44 CPU + 32 GPU), 1 evolution candidate (ToadStool S86). GPU grid adapters + batch APIs. 187 metalForge checks |
 | NUCLEUS | biomeOS Neural API live: Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) |
 | Performance | 11.5× faster than Python (excl. LAPACK-bound); 5.1× overall |
-| Faculty | Bazavov, Waters, Liu, Kachkovskiy, R. Anderson, Dolson |
+| Faculty | Bazavov, Waters, Liu, Kachkovskiy, R. Anderson, Dolson, Gonzales |
 
 ---
 

@@ -12,7 +12,7 @@
 
 - **76 active delegations** (44 CPU + 32 GPU), 1 evolution candidate (band_edges algorithm mismatch)
 - **30 metalForge workloads** (24 GPU + 2 NPU + 2 CPU-only), 30 tolerance specs
-- **776 tests** passed, 0 failed; zero unsafe / zero TODO / zero `.unwrap()` / zero `#[allow]` without reason
+- **780 tests** passed, 0 failed; zero unsafe / zero TODO / zero `.unwrap()` / zero `#[allow]` without reason
 - **33 experiments** validated (376/376 checks), 28/28 Python↔Rust parity proven
 - **0 local WGSL shaders** — all production shaders absorbed upstream
 
@@ -170,8 +170,8 @@ dispatch for embarrassingly parallel workloads.
 | Tier | Substrate | Status | Count |
 |------|-----------|--------|-------|
 | Tier 1: barracuda CPU | Safe Rust | **376/376 PASS** | 33 experiments |
-| Tier 2: barracuda GPU | RTX 4070 / Titan V | **776/776 tests** | 15 wired modules |
-| Tier 3: metalForge | CPU + GPU + NPU | **172/172 checks** | 30 workloads |
+| Tier 2: barracuda GPU | RTX 4070 / Titan V | **780/780 tests** | 15 wired modules |
+| Tier 3: metalForge | CPU + GPU + NPU | **187/187 checks** | 30 workloads |
 
 ---
 
@@ -209,7 +209,7 @@ dispatch for embarrassingly parallel workloads.
 | ToadStool pin | S86 (`7e01ac7e`) |
 | barracuda tests | 14,200+ |
 | barracuda WGSL shaders | 844 |
-| groundSpring tests | 776 |
+| groundSpring tests | 780 |
 | groundSpring validation checks | 376/376 |
 | Python parity | 28/28 |
 | Debt | Zero |
@@ -222,9 +222,43 @@ dispatch for embarrassingly parallel workloads.
 |------|--------|
 | `cargo fmt --check` | PASS |
 | `cargo clippy --all-targets --all-features -- -W clippy::pedantic -W clippy::nursery` | PASS (zero warnings) |
-| `cargo test --workspace` | 776 passed, 0 failed |
+| `cargo test --workspace` | 780 passed, 0 failed |
 | `cargo doc --no-deps` | PASS |
 | Zero unsafe | PASS |
 | Zero TODO | PASS |
 | Zero .unwrap() | PASS |
 | Zero #[allow] without reason | PASS |
+
+---
+
+## Addendum: GPU Parity Buildout + Mixed-Hardware Pipeline (V68b)
+
+### New GPU Parity Tests (7 added, 780 total)
+
+| Test | Barracuda Op | What It Validates |
+|------|-------------|-------------------|
+| `gpu_mc_et0_propagation_parity` | `McEt0PropagateGpu` | MC ET₀ mean near FAO-56 Example 18 (3.88), determinism |
+| `gpu_seasonal_pipeline_parity` | `SeasonalPipelineF64` | Multi-cell output (ET₀, Kc, ETc, θ, stress), determinism |
+| `gpu_multinomial_occupancy_deterministic` | `BatchedMultinomialGpu` | Post-API-fix determinism, dominant species detection |
+| `gpu_lbfgs_refine_improves_grid_fit` | `lbfgs_numerical` | Recovers T₀=160, κ₂=0.015 from exact data, chi²/dof < 1 |
+| `gpu_tissue_4d_anderson_eigenvalues` | `anderson_4d` | 4D lattice (L=3, 81 sites), finite eigenvalues, LSR in (0,1) |
+| `gpu_tissue_4d_wegner_rg_coarsen` | `wegner_block_4d` | Fine/coarse lattice sizes (L=4→L=2), dimension preservation |
+
+### New Mixed-Hardware Pipeline Checks (42→57, 187 total)
+
+| Section | Checks | What It Validates |
+|---------|--------|-------------------|
+| G: GPU→NPU PCIe Bypass | 8 | GPU→NPU→CPU pipeline routing, direct PCIe link, bypass savings, reverse NPU→GPU→CPU |
+| H: NUCLEUS Coordination | 7 | `FullNucleus` health, capability composition, NPU discovery, degradation |
+
+### toadStool action: GPU→NPU Unidirectional Streaming
+
+groundSpring validated that GPU→NPU direct transfer via PCIe-low avoids the CPU
+round-trip (GPU→CPU→NPU = 2 hops). For the `anderson_4d` → regime classification
+pipeline, this means:
+1. GPU computes 4D Anderson eigenvalues
+2. NPU classifies regime (int8 DMA) directly from GPU memory
+3. CPU only touches the final provenance store
+
+This pattern generalizes to any GPU-compute → NPU-classify pipeline. ToadStool's
+unidirectional streaming should support this GPU→NPU direct path natively.

@@ -8,11 +8,11 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 ### Status
 
-- Phase 0 baselines: **~292 quantitative checks passed** across 28 experiments, 9 domains.
+- Phase 0 baselines: **~375 quantitative checks passed** across 28 experiments, 9 domains.
 - Phase 1 Rust validation: **376/376 checks passed** across 33 validation binaries (321 core + 55 NUCLEUS).
 - Mathematical parity: **28/28 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
-- Performance: **11.5× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.7× from Sturm tridiag**.
-- V65: Zero-debt codebase (deep audit V64 certified), 76 active delegations (44 CPU + 32 GPU) — ToadStool S86 (`7e01ac7e`). 776 Rust (default) + 375 Python = 1151 tests. 172 metalForge checks (130 forge + 42 mixed-hardware). 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only). Tissue Anderson (Paper 12, Exp 033 — 29/29). `biomeos` refactored into directory module. Mixed-hardware pipeline dispatch, biomeOS Neural API live, NestGate data pipelines (NCBI, NOAA, IRIS).
+- Performance: **11.6× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.4× from Sturm tridiag**.
+- V68: Zero-debt codebase, 76 active delegations (44 CPU + 32 GPU) — ToadStool S86 (`7e01ac7e`). 780 Rust (default) + 375 Python = 1155 tests. 187 metalForge checks (130 forge + 57 mixed-hardware). 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). Tissue Anderson (Paper 12, Exp 033 — 29/29). GPU→NPU PCIe bypass pipeline, NUCLEUS atomic coordination. biomeOS Neural API live, NestGate data pipelines (NCBI, NOAA, IRIS).
 
 ### Key Results
 
@@ -67,7 +67,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - [STUDY.md](STUDY.md) — Detailed results and analysis
 - [METHODOLOGY.md](METHODOLOGY.md) — Experimental design and validation approach
 - [experiments/](experiments/) — Per-experiment summaries (33 experiments, 10 domains)
-- [baseCamp/](baseCamp/) — Per-faculty research briefings (Bazavov, Waters, Liu, Kachkovskiy, R. Anderson, Dolson)
+- [baseCamp/](baseCamp/) — Per-faculty research briefings (Bazavov, Waters, Liu, Kachkovskiy, R. Anderson, Dolson, Gonzales)
 - [../wateringHole/CROSS_SPRING_SHADER_EVOLUTION.md](../wateringHole/CROSS_SPRING_SHADER_EVOLUTION.md) — Cross-spring shader provenance (S58–S66)
 - [../specs/BARRACUDA_EVOLUTION.md](../specs/BARRACUDA_EVOLUTION.md) — Module → GPU promotion mapping
 
