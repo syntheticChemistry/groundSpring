@@ -281,6 +281,11 @@ fn gpu_fao56_batch_matches_single() {
 
 // ── Dispatch target inventory sentinel ─────────────────────────────
 //
+// V67: +2 GPU delegations (ToadStool S80–S86 catch-up)
+//   GPU: +1 (monte_carlo_et0_gpu) — McEt0PropagateGpu (S72 absorption, wired V67)
+//   GPU: +1 (seasonal_step_gpu) — SeasonalPipelineF64 (S80 absorption, wired V67)
+//   FIX: BatchedMultinomialGpu::sample signature updated (BatchedMultinomialConfig)
+//
 // V66: +4 GPU delegations
 //   GPU: +2 (mae_gpu, coefficient_of_efficiency_gpu for NSE and R²)
 //        — stats Tier A completion via FusedMapReduceF64
@@ -301,11 +306,11 @@ fn gpu_fao56_batch_matches_single() {
 #[test]
 fn dispatch_targets_at_least_32() {
     let cpu_active = 43;
-    let gpu_active = 28;
+    let gpu_active = 30;
     let evolution_candidates = 1;
     assert!(
-        cpu_active + gpu_active >= 71,
-        "minimum 71 active dispatch targets"
+        cpu_active + gpu_active >= 73,
+        "minimum 73 active dispatch targets"
     );
     assert_eq!(
         evolution_candidates, 1,
@@ -314,4 +319,4 @@ fn dispatch_targets_at_least_32() {
 }
 
 // metalForge workload count is tested in metalForge/forge/src/workloads.rs
-// (all_returns_twentythree_workloads).
+// (all_returns_twentyeight_workloads).

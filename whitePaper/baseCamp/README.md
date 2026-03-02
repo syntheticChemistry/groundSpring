@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: March 2, 2026
 
-**Validation Summary**: 376/376 validation checks (321 core + 55 NUCLEUS) + 172 metalForge checks (130 forge + 42 mixed-hardware), **71 active delegations (43 CPU + 28 GPU) — `ToadStool` S79 (`f97fc2ae`)**, 776 workspace tests + 375 Python tests. All 33 experiments PASS. **28/28 mathematical parity proven**. Zero clippy warnings (pedantic), zero unsafe, zero TODO, zero `.unwrap()` in production lib, zero production mocks, all files < 1000 lines. V64: deep audit — `Result`-based validation API (`BenchResult<T>`), `f64::total_cmp()`, `#[expect]` with reasons, tissue_anderson refactored (physics + drug_scoring), SPDX unified AGPL-3.0-only, absorbed shader refs cleaned. Paper 12 Exp 033 (29/29): cytokine Anderson lattice + geometry-aware drug scoring. 10 domains, 33 modules.
+**Validation Summary**: 376/376 validation checks (321 core + 55 NUCLEUS) + 172 metalForge checks (130 forge + 42 mixed-hardware), **73 active delegations (43 CPU + 30 GPU) — `ToadStool` S86 (`7e01ac7e`)**, 776 workspace tests + 375 Python tests. All 33 experiments PASS. **28/28 mathematical parity proven**. Zero clippy warnings (pedantic), zero unsafe, zero TODO, zero `.unwrap()` in production lib, zero production mocks, all files < 1000 lines. V64: deep audit — `Result`-based validation API (`BenchResult<T>`), `f64::total_cmp()`, `#[expect]` with reasons, tissue_anderson refactored (physics + drug_scoring), SPDX unified AGPL-3.0-only, absorbed shader refs cleaned. Paper 12 Exp 033 (29/29): cytokine Anderson lattice + geometry-aware drug scoring. 10 domains, 33 modules.
 
 ---
 

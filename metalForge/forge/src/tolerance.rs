@@ -172,7 +172,7 @@ pub fn summarize(cpu: &[f64], gpu: &[f64], tier: ToleranceTier) -> ComparisonSum
     }
 }
 
-/// All 26 workload tolerance specifications.
+/// All 28 workload tolerance specifications.
 #[must_use]
 #[expect(
     clippy::too_many_lines,
@@ -310,6 +310,16 @@ pub fn all_tolerances() -> Vec<WorkloadTolerance> {
             tier: ToleranceTier::Statistical,
             justification: "fixed-step GPU RK4 may differ from CPU RK4 by FMA ordering",
         },
+        WorkloadTolerance {
+            workload: "MC ET₀ propagation (GPU)",
+            tier: ToleranceTier::Statistical,
+            justification: "GPU PRNG stream differs from CPU — statistical envelope match",
+        },
+        WorkloadTolerance {
+            workload: "Seasonal pipeline (GPU fused)",
+            tier: ToleranceTier::Analytical,
+            justification: "fused ET₀ → Kc → water balance chain — transcendental accumulation",
+        },
     ]
 }
 
@@ -389,9 +399,9 @@ mod tests {
     }
 
     #[test]
-    fn all_tolerances_covers_twentysix_workloads() {
+    fn all_tolerances_covers_twentyeight_workloads() {
         let tols = all_tolerances();
-        assert_eq!(tols.len(), 26);
+        assert_eq!(tols.len(), 28);
     }
 
     #[test]

@@ -12,7 +12,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **376/376 checks passed** across 33 validation binaries (321 core + 55 NUCLEUS).
 - Mathematical parity: **28/28 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.5× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.7× from Sturm tridiag**.
-- V65: Zero-debt codebase (deep audit V64 certified), 71 active delegations (43 CPU + 28 GPU) — ToadStool S79 (`f97fc2ae`). 776 Rust (default) + 375 Python = 1151 tests. 172 metalForge checks (130 forge + 42 mixed-hardware). 26 metalForge workloads (22 GPU + 2 NPU + 2 CPU-only). Tissue Anderson (Paper 12, Exp 033 — 29/29). `biomeos` refactored into directory module. Mixed-hardware pipeline dispatch, biomeOS Neural API live, NestGate data pipelines (NCBI, NOAA, IRIS).
+- V65: Zero-debt codebase (deep audit V64 certified), 73 active delegations (43 CPU + 30 GPU) — ToadStool S86 (`7e01ac7e`). 776 Rust (default) + 375 Python = 1151 tests. 172 metalForge checks (130 forge + 42 mixed-hardware). 28 metalForge workloads (22 GPU + 2 NPU + 2 CPU-only). Tissue Anderson (Paper 12, Exp 033 — 29/29). `biomeos` refactored into directory module. Mixed-hardware pipeline dispatch, biomeOS Neural API live, NestGate data pipelines (NCBI, NOAA, IRIS).
 
 ### Key Results
 

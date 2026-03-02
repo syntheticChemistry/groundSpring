@@ -99,7 +99,7 @@ Following hotSpring's pattern:
 | `batched_multinomial` | **Absorbed S76** | `barracuda::shaders::bio::batched_multinomial_f64.wgsl` |
 | `mc_et0_propagate` | **Absorbed S72** | `barracuda::shaders::bio::mc_et0_propagate_f64.wgsl` |
 
-Local copies removed after ToadStool S79 catch-up — precision-aware `_f64`
+Local copies removed after ToadStool S86 catch-up — precision-aware `_f64`
 versions with DF64 fallback supersede them.
 
 ## Unique Shaders (remain in groundSpring)

@@ -11,10 +11,10 @@
 **Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across 28 benchmarked experiments.
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **Coverage**: Zero clippy warnings (pedantic + nursery). 101 three-tier parity tests + 16 CPU vs GPU parity.
-**BarraCUDA**: 71 active delegations (43 CPU + 28 GPU), 1 evolution candidate — ToadStool S79.
+**BarraCUDA**: 73 active delegations (43 CPU + 30 GPU), 1 evolution candidate — ToadStool S86.
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) with sovereign fallback.
 **Modules**: 33 (including `esn`, `lanczos`, `linalg`, `error`, `jackknife`, `freeze_out`, `spectral_recon`, `wdm`, `npu`, `biomeos`, `nestgate`, `drift`, `tissue_anderson`).
-**metalForge**: 26 workloads (22 GPU + 2 NPU + 2 CPU-only), 172 metalForge checks (130 forge + 42 mixed-hardware), 5+ substrates, architecture-aware routing, `PCIe` topology, pipeline dispatch, NUCLEUS atomics.
+**metalForge**: 28 workloads (22 GPU + 2 NPU + 2 CPU-only), 172 metalForge checks (130 forge + 42 mixed-hardware), 5+ substrates, architecture-aware routing, `PCIe` topology, pipeline dispatch, NUCLEUS atomics.
 **Baseline integrity**: All 28 benchmark JSONs verified — provenance fields, hex commit hashes, UTF-8.
 
 ## Experiment Index
@@ -64,7 +64,7 @@ Each experiment is validated at three levels:
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
 Current status: **CPU complete** (321/321 core + 55 NUCLEUS = 376 total),
-**71 active delegations (43 CPU + 28 GPU), 1 evolution candidate — ToadStool S79**.
+**73 active delegations (43 CPU + 30 GPU), 1 evolution candidate — ToadStool S86**.
 **NUCLEUS**: biomeOS Neural API live — 4 experiments exercise Tower, Node, Squirrel, Nest
 with sovereign fallback. All delegations use sovereign fallback.
 33/33 experiments validated. 776 Rust workspace tests + 375 Python = 1151 total.

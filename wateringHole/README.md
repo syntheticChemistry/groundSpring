@@ -9,7 +9,7 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V66 | [GROUNDSPRING_TOADSTOOL_V66_GPU_TIER_A_HANDOFF_MAR02_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V66_GPU_TIER_A_HANDOFF_MAR02_2026.md) | Mar 2, 2026 | Stats Tier A GPU (MAE, NSE, R²), bistable batch ODE GPU, 71 delegations (43 CPU + 28 GPU), 26 metalForge workloads, barracuda API usage review, absorption candidates |
+| V67 | [GROUNDSPRING_TOADSTOOL_V67_S86_CATCHUP_HANDOFF_MAR02_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V67_S86_CATCHUP_HANDOFF_MAR02_2026.md) | Mar 2, 2026 | ToadStool S86 catch-up: McEt0PropagateGpu, SeasonalPipelineF64, BatchedMultinomialConfig API fix, 73 delegations (43 CPU + 30 GPU), 28 metalForge workloads |
 
 ## Cross-Spring Documentation
 
@@ -36,6 +36,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V66 | Stats Tier A GPU (MAE, NSE, R²), bistable batch ODE GPU, 71 delegations (43 CPU + 28 GPU), 26 metalForge workloads, barracuda API usage review (superseded by V67) |
 | V65 | Comprehensive absorption handoff: 67 delegations, paper queue × three-tier hardware matrix, PRNG alignment roadmap, zero-debt audit certificate (superseded by V66) |
 | V64 | Deep audit: biomeos refactoring, `#[expect]` evolution, epsilon guard docs, tolerance comments, benchmark units, LICENSE fix, PRNG path docs — 67 delegations, 752 tests (superseded by V65) |
 | V63 | Brain architecture + capability-based discovery + Paper 12 (tissue Anderson, 29/29) — 67 delegations (superseded by V64) |

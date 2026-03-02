@@ -149,17 +149,27 @@ fn abundance_occupancy_gpu(
     base_seed: u64,
 ) -> Option<Vec<f64>> {
     use crate::cast::usize_f64;
-    use barracuda::ops::bio::BatchedMultinomialGpu;
+    use barracuda::ops::bio::{BatchedMultinomialConfig, BatchedMultinomialGpu};
 
     let device = crate::gpu::get_device()?;
 
     let cumulative = community_to_cumulative(community);
     let mut seeds = generate_xoshiro_seeds(n_samples, base_seed);
 
+    let config = BatchedMultinomialConfig {
+        cumulative_probs: true,
+        seed: None,
+    };
     let gpu = BatchedMultinomialGpu::new(device).ok()?;
     #[expect(clippy::cast_possible_truncation)]
     let counts = gpu
-        .sample(&cumulative, &mut seeds, depth as u32, n_samples as u32)
+        .sample(
+            &cumulative,
+            Some(&mut seeds),
+            depth as u32,
+            n_samples as u32,
+            config,
+        )
         .ok()?;
 
     let n_taxa = community.len();
@@ -292,17 +302,27 @@ fn tier_detection_rate_gpu(
     base_seed: u64,
 ) -> Option<f64> {
     use crate::cast::usize_f64;
-    use barracuda::ops::bio::BatchedMultinomialGpu;
+    use barracuda::ops::bio::{BatchedMultinomialConfig, BatchedMultinomialGpu};
 
     let device = crate::gpu::get_device()?;
 
     let cumulative = community_to_cumulative(community);
     let mut seeds = generate_xoshiro_seeds(n_replicates, base_seed);
 
+    let config = BatchedMultinomialConfig {
+        cumulative_probs: true,
+        seed: None,
+    };
     let gpu = BatchedMultinomialGpu::new(device).ok()?;
     #[expect(clippy::cast_possible_truncation)]
     let counts = gpu
-        .sample(&cumulative, &mut seeds, depth as u32, n_replicates as u32)
+        .sample(
+            &cumulative,
+            Some(&mut seeds),
+            depth as u32,
+            n_replicates as u32,
+            config,
+        )
         .ok()?;
 
     let n_taxa = community.len();

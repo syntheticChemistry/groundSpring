@@ -342,7 +342,7 @@ fn multinomial_sample_batch_gpu(
     n_replicates: usize,
     base_seed: u64,
 ) -> Option<Vec<Vec<u64>>> {
-    use barracuda::ops::bio::BatchedMultinomialGpu;
+    use barracuda::ops::bio::{BatchedMultinomialConfig, BatchedMultinomialGpu};
 
     let device = crate::gpu::get_device()?;
     let cumulative = abundances_to_cumulative(abundances);
@@ -361,9 +361,13 @@ fn multinomial_sample_batch_gpu(
     #[expect(clippy::cast_possible_truncation)]
     let n_reps_u32 = n_replicates as u32;
 
+    let config = BatchedMultinomialConfig {
+        cumulative_probs: true,
+        seed: None,
+    };
     let gpu = BatchedMultinomialGpu::new(device).ok()?;
     let flat_counts = gpu
-        .sample(&cumulative, &mut seeds, depth_u32, n_reps_u32)
+        .sample(&cumulative, Some(&mut seeds), depth_u32, n_reps_u32, config)
         .ok()?;
 
     let result: Vec<Vec<u64>> = flat_counts

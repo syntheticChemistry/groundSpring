@@ -48,7 +48,7 @@
 **Rust tests**: 743/743 PASS (default workspace, up from 725)
 **pytest**: 375/375 PASS + 2 skipped
 **Three-tier parity**: 101+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
-**BarraCUDA dispatch**: 67 active (37 CPU + 26 GPU + 4 cross-spring) — 6 new GPU delegations wired (Phase 1), pinned ToadStool S79 (`f97fc2ae`)
+**BarraCUDA dispatch**: 73 active (43 CPU + 30 GPU) — 6 new GPU delegations wired (Phase 1), pinned ToadStool S86 (`7e01ac7e`)
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); compute.execute + compute.submit validated
 **metalForge workloads**: 19 (17 GPU + 2 NPU), 155+ tests (+35 pipeline/topology/atomic)
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains — 72/72 validation checks (42 mixed-hardware + 30 pipeline)
@@ -753,7 +753,7 @@ The key insight: **delegated code produces bitwise-identical results**.
 
 ### Stage 3: barracuda-CPU → barracuda-GPU (portable math, 2.2× faster)
 
-ToadStool S79 universal precision (DF64 on FP32 cores via `naga`-guided
+ToadStool S86 universal precision (DF64 on FP32 cores via `naga`-guided
 `df64_rewrite.rs`) with **complete DF64 transcendental suite** (15 functions:
 gamma, erf, inverse trig, hyperbolics) allows GPU dispatch with f64-equivalent
 precision across all mathematical domains.

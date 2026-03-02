@@ -3,13 +3,13 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 2, 2026 (V62: 61 active delegations — 37 CPU + 20 GPU + 4 cross-spring, 1 evolution candidate, `ToadStool` S79 `f97fc2ae` — V62: pollster eliminated (`tokio_block_on`), f64-capable device selection (`WgpuDevice::new_f64_capable`), DF64 precision strategy wired, 2 redundant shaders removed (absorbed into ToadStool), cross-spring shader lineage documented, SPDX harmonized (AGPL-3.0-only), 710 tests, 172 metalForge checks)
+**Last Updated**: March 2, 2026 (V62: 73 active delegations (43 CPU + 30 GPU), 1 evolution candidate, `ToadStool` S86 `7e01ac7e` — V62: pollster eliminated (`tokio_block_on`), f64-capable device selection (`WgpuDevice::new_f64_capable`), DF64 precision strategy wired, 2 redundant shaders removed (absorbed into ToadStool), cross-spring shader lineage documented, SPDX harmonized (AGPL-3.0-only), 710 tests, 172 metalForge checks)
 
 ---
 
 ## Overview
 
-groundSpring has **61 active delegations** (37 CPU + 20 GPU + 4 cross-spring) with **1 evolution candidate** (band_edges — algorithm mismatch).
+groundSpring has **73 active delegations** (43 CPU + 30 GPU) with **1 evolution candidate** (band_edges — algorithm mismatch).
 Those barracuda functions were not built in isolation — they were refined and
 battle-tested through absorption from **five Springs**, each bringing domain-specific
 requirements that hardened the shared library.
@@ -33,7 +33,7 @@ groundSpring (noise validation) → jackknife, evolution (Kimura fixation, quasi
                                   diversity (Chao1, detection power), hydrology (fao56_et0),
                                   grid search/fit ops, batched multinomial, MC ET₀ propagation
                                   ↓
-                          BarraCUDA S79 (ToadStool f97fc2ae)
+                          BarraCUDA S86 (ToadStool 7e01ac7e)
                     14,200+ tests, 844 WGSL shaders (f64-canonical, DF64 universal precision, 15 transcendentals)
 ```
 

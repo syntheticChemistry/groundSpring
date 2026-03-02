@@ -4,6 +4,25 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V67 ToadStool S86 Catch-Up — McEt0 GPU, Seasonal Pipeline, API Rewire (Mar 2, 2026)
+
+#### Added
+- **fao56::monte_carlo_et0**: GPU Monte Carlo uncertainty propagation via
+  `McEt0PropagateGpu` (ToadStool S72 absorption, groundSpring V10 provenance).
+  CPU fallback with deterministic xorshift64 sampling.
+- **fao56::seasonal_step**: Fused seasonal pipeline (ET₀ → Kc → water balance → stress)
+  via `SeasonalPipelineF64` (ToadStool S80). CPU fallback per-cell evaluation.
+- **metalForge workloads**: 2 new workloads (MC ET₀ propagation GPU, seasonal pipeline
+  GPU fused). Total: 28 workloads.
+- **metalForge tolerances**: 2 new tolerance specs. Total: 28 tolerance specs.
+
+#### Changed
+- **Dispatch target count**: 43 CPU + 30 GPU = 73 active delegations (was 71).
+- **ToadStool pin**: S86 `7e01ac7e` (was S79 `f97fc2ae`).
+- **BatchedMultinomialGpu::sample**: Updated 3 call sites (rarefaction, rare_biosphere ×2)
+  for new signature with `BatchedMultinomialConfig` parameter (`cumulative_probs: true`,
+  `seed: None`, `seeds: Some(&mut seeds)`). Breaking change in ToadStool S80.
+
 ### V66 Stats Tier A GPU + Bistable Batch ODE + metalForge Expansion (Mar 2, 2026)
 
 #### Added

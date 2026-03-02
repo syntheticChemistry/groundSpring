@@ -262,6 +262,28 @@ pub fn bistable_batch_gpu() -> Workload {
     )
 }
 
+/// Monte Carlo ET₀ uncertainty propagation on GPU (V67).
+///
+/// GPU: `McEt0PropagateGpu` — batched perturbed ET₀ evaluation.
+#[must_use]
+pub fn mc_et0_propagation_gpu() -> Workload {
+    Workload::new(
+        "MC ET₀ propagation (GPU)",
+        vec![Capability::F64Compute, Capability::ShaderDispatch],
+    )
+}
+
+/// Seasonal fused pipeline on GPU (V67).
+///
+/// GPU: `SeasonalPipelineF64` — ET₀ → Kc → water balance → stress.
+#[must_use]
+pub fn seasonal_pipeline_gpu() -> Workload {
+    Workload::new(
+        "Seasonal pipeline (GPU fused)",
+        vec![Capability::F64Compute, Capability::ShaderDispatch],
+    )
+}
+
 /// Return all groundSpring workloads for dispatch.
 #[must_use]
 pub fn all() -> Vec<Workload> {
@@ -292,6 +314,8 @@ pub fn all() -> Vec<Workload> {
         mae_gpu(),
         nse_r_squared_gpu(),
         bistable_batch_gpu(),
+        mc_et0_propagation_gpu(),
+        seasonal_pipeline_gpu(),
     ]
 }
 
@@ -434,9 +458,9 @@ mod tests {
     }
 
     #[test]
-    fn all_returns_twentysix_workloads() {
+    fn all_returns_twentyeight_workloads() {
         let workloads = all();
-        assert_eq!(workloads.len(), 26);
+        assert_eq!(workloads.len(), 28);
     }
 
     #[test]

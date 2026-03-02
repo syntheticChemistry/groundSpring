@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: March 2, 2026 | **License**: AGPL-3.0-only
-**Status**: 33 modules, 776 Rust workspace tests + 375 Python tests, 376/376 validation checks (321 core + 55 NUCLEUS) + 172 metalForge checks (130 forge + 42 mixed-hardware), 71 active barracuda delegations (43 CPU + 28 GPU) — ToadStool S79 (`f97fc2ae`), deep codebase audit (zero unsafe / zero TODO / zero `.unwrap()` / zero production mocks / zero `#[allow]` / all files under 1000 lines), biomeos directory module refactoring, tissue Anderson (Paper 12 — 29/29), 26 metalForge workloads, mixed-hardware pipeline dispatch, biomeOS Neural API live, NestGate data pipelines
+**Status**: 33 modules, 776 Rust workspace tests + 375 Python tests, 376/376 validation checks (321 core + 55 NUCLEUS) + 172 metalForge checks (130 forge + 42 mixed-hardware), 73 active barracuda delegations (43 CPU + 30 GPU) — ToadStool S86 (`7e01ac7e`), deep codebase audit (zero unsafe / zero TODO / zero `.unwrap()` / zero production mocks / zero `#[allow]` / all files under 1000 lines), biomeos directory module refactoring, tissue Anderson (Paper 12 — 29/29), 28 metalForge workloads, mixed-hardware pipeline dispatch, biomeOS Neural API live, NestGate data pipelines
 
 **The gap between what models predict and what instruments measure.**
 
@@ -239,9 +239,9 @@ eigenvalue solver (from hotSpring S26 spectral), GPU reduce ops
 (FusedMapReduceF64, SumReduceF64, VarianceReduceF64, CorrelationF64),
 and batch dispatch APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64),
 giving **47.7× speedup** for Exp 009. Cross-spring evolution validated
-by 71 active delegations (43 CPU + 28 GPU), including
+by 73 active delegations (43 CPU + 30 GPU), including
 ESN regime classification, Lanczos sparse eigensolver, 2D/3D Anderson eigenvalues,
-and decomposed chi-squared analysis from hotSpring/wetSpring lineage. 26 metalForge
+and decomposed chi-squared analysis from hotSpring/wetSpring lineage. 28 metalForge
 workloads route across 5 substrates (22 GPU + 2 NPU + 2 CPU-only) with architecture-aware routing.
 
 ## Evolution Path
@@ -249,8 +249,8 @@ workloads route across 5 substrates (22 GPU + 2 NPU + 2 CPU-only) with architect
 ```
 Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardware)  →  Phase 4 (NUCLEUS)
   NumPy/SciPy         Pure safe Rust     BarraCUDA/ToadStool   metalForge dispatch    biomeOS Neural API
-  ✓ Complete          ✓ 376/376 PASS     ◐ 71 active           26 workloads           Tower+Node+Squirrel
-  11.5× slower        33/33 experiments    (43+28)              22 GPU + 2 NPU + 2 CPU-only         NestGate data pipes
+  ✓ Complete          ✓ 376/376 PASS     ◐ 73 active           28 workloads           Tower+Node+Squirrel
+  11.5× slower        33/33 experiments    (43+30)              22 GPU + 2 NPU + 2 CPU-only         NestGate data pipes
                       776 workspace tests                       PCIe topology          NUCLEUS atomics
                                                                 Pipeline dispatch      Sovereign degradation
 
@@ -258,8 +258,8 @@ Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardwar
   (metalForge)       (wateringHole/)       (barracuda ops)       (metalForge forge)    (biomeOS graphs)
 ```
 
-**Lean progress**: 71 functions delegate to barracuda with graceful sovereign fallback.
-43 CPU delegated via `#[cfg(feature = "barracuda")]`, 28 GPU dispatched via
+**Lean progress**: 73 functions delegate to barracuda with graceful sovereign fallback.
+43 CPU delegated via `#[cfg(feature = "barracuda")]`, 30 GPU dispatched via
 `#[cfg(feature = "barracuda-gpu")]` (V63: +6 GPU — Gillespie, WrightFisher,
 Multinomial, Cholesky, Tridiag Eigh, PRNG), 4 cross-spring S59+.
 All local shaders absorbed upstream (batched_multinomial S76, mc_et0_propagate S72);
