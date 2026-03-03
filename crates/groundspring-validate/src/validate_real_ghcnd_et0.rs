@@ -131,17 +131,42 @@ fn main() {
     clippy::cast_possible_truncation,
     reason = "day-of-year index cast to u16; values are < 366"
 )]
+/// GHCND station parameters for Exp 029.
+///
+/// Station metadata sourced from NOAA GHCND:
+/// <https://www.ncei.noaa.gov/access/search/data-search/daily-summaries?stations=USW00094847>
+///
+/// | Field      | Value            | Source                              |
+/// |------------|------------------|-------------------------------------|
+/// | Station    | `USW00094847`    | NOAA GHCND network ID               |
+/// | Latitude   | 42.78 °N         | GHCND station metadata               |
+/// | Altitude   | 265.0 m          | GHCND station metadata               |
+/// | Period     | 2024-06-01..30   | Summer window for ET₀ validation     |
+mod station {
+    pub const GHCND_STATION: &str = "USW00094847";
+    pub const GHCND_START: &str = "2024-06-01";
+    pub const GHCND_END: &str = "2024-06-30";
+    pub const GHCND_VARS: &[&str] = &["TMAX", "TMIN"];
+    pub const LATITUDE_DEG_N: f64 = 42.78;
+    pub const ALTITUDE_M: f64 = 265.0;
+    pub const RHMAX_PCT: f64 = 85.0;
+    pub const RHMIN_PCT: f64 = 45.0;
+    pub const WIND_SPEED_10M_KM_H: f64 = 9.0;
+    pub const SUNSHINE_HOURS: f64 = 10.0;
+}
+
 fn fetch_live_weather(
     socket: &std::path::Path,
 ) -> groundspring::biomeos::Result<Vec<groundspring::fao56::DailyWeatherInputs>> {
     use groundspring::nestgate;
 
-    const GHCND_STATION: &str = "USW00094847"; // Lansing Capital City Airport, MI
-    const GHCND_START: &str = "2024-06-01";
-    const GHCND_END: &str = "2024-06-30";
-    const GHCND_VARS: &[&str] = &["TMAX", "TMIN"];
-
-    let raw = nestgate::noaa_ghcnd(socket, GHCND_STATION, GHCND_START, GHCND_END, GHCND_VARS)?;
+    let raw = nestgate::noaa_ghcnd(
+        socket,
+        station::GHCND_STATION,
+        station::GHCND_START,
+        station::GHCND_END,
+        station::GHCND_VARS,
+    )?;
 
     let mut days = Vec::new();
     if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&raw) {
@@ -150,20 +175,27 @@ fn fetch_live_weather(
             .and_then(|d| d.get("results"))
             .and_then(|r| r.as_array())
         {
-            let mut tmax_map = std::collections::HashMap::new();
-            let mut tmin_map = std::collections::HashMap::new();
+            let mut tmax_map = std::collections::BTreeMap::new();
+            let mut tmin_map = std::collections::BTreeMap::new();
 
             for record in results {
-                let datatype = record["datatype"].as_str().unwrap_or("");
-                let date = record["date"].as_str().unwrap_or("").to_string();
-                let value = record["value"].as_f64().unwrap_or(0.0) / 10.0;
+                let Some(datatype) = record["datatype"].as_str() else {
+                    continue;
+                };
+                let Some(date) = record["date"].as_str() else {
+                    continue;
+                };
+                let Some(value) = record["value"].as_f64() else {
+                    continue;
+                };
+                let value_c = value / 10.0;
 
                 match datatype {
                     "TMAX" => {
-                        tmax_map.insert(date, value);
+                        tmax_map.insert(date.to_string(), value_c);
                     }
                     "TMIN" => {
-                        tmin_map.insert(date, value);
+                        tmin_map.insert(date.to_string(), value_c);
                     }
                     _ => {}
                 }
@@ -175,12 +207,12 @@ fn fetch_live_weather(
                     days.push(groundspring::fao56::DailyWeatherInputs {
                         tmax_c: *tmax,
                         tmin_c: tmin,
-                        rhmax_pct: 85.0,
-                        rhmin_pct: 45.0,
-                        wind_speed_10m_km_h: 9.0,
-                        sunshine_hours: 10.0,
-                        latitude_deg_n: 42.78,
-                        altitude_m: 265.0,
+                        rhmax_pct: station::RHMAX_PCT,
+                        rhmin_pct: station::RHMIN_PCT,
+                        wind_speed_10m_km_h: station::WIND_SPEED_10M_KM_H,
+                        sunshine_hours: station::SUNSHINE_HOURS,
+                        latitude_deg_n: station::LATITUDE_DEG_N,
+                        altitude_m: station::ALTITUDE_M,
                         day_of_year: doy,
                     });
                 }
@@ -209,12 +241,12 @@ fn synthetic_weather() -> Vec<groundspring::fao56::DailyWeatherInputs> {
             groundspring::fao56::DailyWeatherInputs {
                 tmax_c: tmax,
                 tmin_c: tmin,
-                rhmax_pct: 85.0,
-                rhmin_pct: 45.0,
-                wind_speed_10m_km_h: 9.0,
-                sunshine_hours: 10.0,
-                latitude_deg_n: 42.78,
-                altitude_m: 265.0,
+                rhmax_pct: station::RHMAX_PCT,
+                rhmin_pct: station::RHMIN_PCT,
+                wind_speed_10m_km_h: station::WIND_SPEED_10M_KM_H,
+                sunshine_hours: station::SUNSHINE_HOURS,
+                latitude_deg_n: station::LATITUDE_DEG_N,
+                altitude_m: station::ALTITUDE_M,
                 day_of_year: doy,
             }
         })

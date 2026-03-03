@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: March 2, 2026 (V69)
+**Last Updated**: March 2, 2026 (V72)
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---
@@ -44,8 +44,8 @@
 
 **Phase 0**: ~261 checks (Python, 28 experiments). **Phase 1**: 376/376 PASS (Rust, 33 experiments). **Speedup**: 11.6× median (excl. LAPACK-bound), 51.2× peak (seismic).
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs (Exp 029–033 have no Python baseline).
-**V69 fresh validation**: 376/376 checks (33 binaries), 783 workspace tests, 100+ three-tier parity tests.
-**GPU dispatch (V31–V69)**: 15 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson, tissue_anderson, jackknife. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). 76 active delegations (44 CPU + 32 GPU) — ToadStool S87.
+**V72 fresh validation**: 376/376 checks (33 binaries), 786+ workspace tests, 100+ three-tier parity tests.
+**GPU dispatch (V31–V72)**: 15 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson, tissue_anderson, jackknife. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). 81 delegations (47 CPU + 34 GPU) — barraCuda v0.3.1.
 **V66 stats Tier A**: MAE, NSE/R² wired to `FusedMapReduceF64` GPU path. Bistable batch ODE via `BatchedOdeRK4F64`. Papers 1-5 stats fully GPU-capable.
 **V67 hydrology GPU**: `McEt0PropagateGpu` + `SeasonalPipelineF64` + `BatchedMultinomialGpu` API fix (3 call sites).
 **V68 spectral GPU**: `anderson_4d` + `wegner_block_4d` (tissue immunology). `lbfgs_numerical` post-grid refinement.

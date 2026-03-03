@@ -359,7 +359,6 @@ pub fn raw_rpc_call(socket: &Path, request: &str) -> Result<String> {
 #[expect(clippy::unwrap_used, reason = "test assertions use unwrap for clarity")]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
 
     #[test]
     fn is_enabled_default_false() {
@@ -403,7 +402,7 @@ mod tests {
 
     #[test]
     fn register_capabilities_nonexistent_socket_errors() {
-        let path = PathBuf::from("/tmp/groundspring_test_nonexistent_register.sock");
+        let path = std::env::temp_dir().join("groundspring_test_nonexistent_register.sock");
         let err = register_capabilities(&path).unwrap_err();
         let msg = err.to_string();
         assert!(
@@ -414,7 +413,7 @@ mod tests {
 
     #[test]
     fn health_nonexistent_socket_errors() {
-        let path = PathBuf::from("/tmp/groundspring_test_nonexistent_biomeos.sock");
+        let path = std::env::temp_dir().join("groundspring_test_nonexistent_biomeos.sock");
         let err = health(&path).unwrap_err();
         let msg = err.to_string();
         assert!(msg.contains("biomeOS connect") || msg.contains("invalid socket"));
@@ -422,7 +421,7 @@ mod tests {
 
     #[test]
     fn capability_call_nonexistent_socket_errors() {
-        let path = PathBuf::from("/tmp/groundspring_test_nonexistent_cap.sock");
+        let path = std::env::temp_dir().join("groundspring_test_nonexistent_cap.sock");
         let err = capability_call(&path, "science.test", "{}").unwrap_err();
         let msg = err.to_string();
         assert!(msg.contains("biomeOS connect") || msg.contains("invalid socket"));
@@ -430,7 +429,7 @@ mod tests {
 
     #[test]
     fn direct_rpc_call_nonexistent_socket_errors() {
-        let path = PathBuf::from("/tmp/groundspring_test_nonexistent_rpc.sock");
+        let path = std::env::temp_dir().join("groundspring_test_nonexistent_rpc.sock");
         let err = direct_rpc_call(&path, "compute", "health", "{}").unwrap_err();
         let msg = err.to_string();
         assert!(msg.contains("biomeOS connect") || msg.contains("invalid socket"));

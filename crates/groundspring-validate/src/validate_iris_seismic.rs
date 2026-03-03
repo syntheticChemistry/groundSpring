@@ -20,6 +20,7 @@ compile_error!("Exp 032 requires --features biomeos");
 use groundspring::biomeos;
 #[cfg(feature = "biomeos")]
 use groundspring::validate::ValidationHarness;
+use groundspring_validate::{TOL_ANALYTICAL, TOL_GRID_MATCH};
 
 #[cfg(feature = "biomeos")]
 fn main() {
@@ -105,15 +106,16 @@ fn validate_distances(h: &mut ValidationHarness, stations: &[Station]) {
     h.check_true("Distance < 20000 km (Earth circumference)", d_km < 20_100.0);
 
     let d_self = seismic::haversine_km(s0.lat, s0.lon, s0.lat, s0.lon);
-    h.check_true("Self-distance = 0", d_self.abs() < 1e-10);
+    h.check_true("Self-distance = 0", d_self.abs() < TOL_ANALYTICAL);
 
     if stations.len() >= 3 {
         let s2 = &stations[2];
         let d01 = seismic::haversine_km(s0.lat, s0.lon, s1.lat, s1.lon);
         let d02 = seismic::haversine_km(s0.lat, s0.lon, s2.lat, s2.lon);
         let d12 = seismic::haversine_km(s1.lat, s1.lon, s2.lat, s2.lon);
-        let triangle_ok =
-            d01 <= d02 + d12 + 0.01 && d02 <= d01 + d12 + 0.01 && d12 <= d01 + d02 + 0.01;
+        let triangle_ok = d01 <= d02 + d12 + TOL_GRID_MATCH
+            && d02 <= d01 + d12 + TOL_GRID_MATCH
+            && d12 <= d01 + d02 + TOL_GRID_MATCH;
         h.check_true("Triangle inequality holds", triangle_ok);
         println!(
             "  Triangle: {}-{} {d01:.1}, {}-{} {d02:.1}, {}-{} {d12:.1}",
@@ -152,7 +154,7 @@ fn validate_travel_times(h: &mut ValidationHarness, stations: &[Station]) {
     let expected_tt = d_km.hypot(depth) / vp;
     h.check_true(
         "Travel time matches raypath/velocity",
-        (tt - expected_tt).abs() < 0.01,
+        (tt - expected_tt).abs() < TOL_GRID_MATCH,
     );
 }
 
@@ -210,15 +212,15 @@ fn fetch_iris_stations(socket: &std::path::Path) -> groundspring::biomeos::Resul
     if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&raw) {
         if let Some(rows) = parsed.get("stations").and_then(|s| s.as_array()) {
             for row in rows {
-                let code = row.get("station").and_then(|s| s.as_str()).unwrap_or("???");
-                let lat = row
-                    .get("latitude")
-                    .and_then(serde_json::Value::as_f64)
-                    .unwrap_or(0.0);
-                let lon = row
-                    .get("longitude")
-                    .and_then(serde_json::Value::as_f64)
-                    .unwrap_or(0.0);
+                let Some(code) = row.get("station").and_then(|s| s.as_str()) else {
+                    continue;
+                };
+                let Some(lat) = row.get("latitude").and_then(serde_json::Value::as_f64) else {
+                    continue;
+                };
+                let Some(lon) = row.get("longitude").and_then(serde_json::Value::as_f64) else {
+                    continue;
+                };
                 if lat.abs() > 0.01 {
                     stations.push(Station {
                         code: code.to_string(),

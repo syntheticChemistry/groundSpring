@@ -3,13 +3,13 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 2, 2026 (V69: 76 active delegations (44 CPU + 32 GPU), 1 evolution candidate, `ToadStool` S87 `2dc26792` — V69: cross-spring evolution parity (Shannon, Simpson, Seismic, Anderson 2D/3D), provenance timeline, universal precision audit, 30 metalForge workloads, 783 tests, 187 checks)
+**Last Updated**: March 3, 2026 (V72: 81 active delegations (47 CPU + 34 GPU), 1 evolution candidate, barraCuda v0.3.1 (standalone primal), toadStool S93 (`9319668d`) — V72: Deep Audit + Debt Evolution, all gates green, 786+ tests. V71: barraCuda 0.3.1 pin, ecosystem maturation. V70: +5 S80-S87 delegations, barraCuda budding. V69: cross-spring evolution parity, universal precision audit, 30 metalForge workloads, 187 checks)
 
 ---
 
 ## Overview
 
-groundSpring has **76 active delegations** (44 CPU + 32 GPU) with **1 evolution candidate** (band_edges — algorithm mismatch).
+groundSpring has **81 active delegations** (47 CPU + 34 GPU) with **1 evolution candidate** (band_edges — algorithm mismatch).
 Those barracuda functions were not built in isolation — they were refined and
 battle-tested through absorption from **five Springs**, each bringing domain-specific
 requirements that hardened the shared library.
@@ -34,9 +34,14 @@ groundSpring (noise validation) → jackknife, evolution (Kimura fixation, quasi
                                   grid search/fit ops, batched multinomial, MC ET₀ propagation,
                                   L-BFGS refinement, 4D Anderson tissue + Wegner RG
                                   ↓
-                          BarraCUDA S87 (ToadStool 2dc26792)
+                          barraCuda v0.3.1 (standalone primal)
                     14,200+ tests, 844 WGSL shaders (f64-canonical, DF64 universal precision, 15 transcendentals)
 ```
+
+> **barraCuda budding (V70)**: barraCuda has budded from phase1/toadstool into a
+> standalone primal at `ecoPrimals/barraCuda/`. groundSpring depends on
+> `barraCuda/crates/barracuda` as a sibling primal. ToadStool S-xx session
+> references remain as historical session identifiers.
 
 ---
 
@@ -486,7 +491,7 @@ All 21 validation binaries timed in `--release` mode, CPU-only vs barracuda-dele
 
 **Key insight**: CPU delegation adds ~1.7% total overhead from function indirection — functionally free. Heavy experiments (Anderson, RAWR) are actually slightly *faster* with barracuda's optimized implementations. The real speedup opportunity is GPU delegation for Exp 009 (eigensolver) and Exp 014 (Wright-Fisher batching).
 
-### Cross-Spring Shader Categories (ToadStool S87)
+### Cross-Spring Shader Categories (barraCuda v0.3.1)
 
 The 844 barracuda WGSL shaders that groundSpring's delegations ultimately depend on:
 
@@ -613,14 +618,14 @@ correctly in production.
 
 **283/283 validation checks pass** across all 27 experiments in default mode.
 
-### Delegation Summary (V59 Current)
+### Delegation Summary (V72 Current)
 
 | Tier | Count | Notes |
 |------|-------|-------|
-| CPU active | 44 | S87 canonical (V69: +cross-spring parity) |
-| GPU active | 32 | includes 4D Anderson, Wegner RG, McEt0, seasonal pipeline, JackknifeMeanGpu, HargreavesBatchGpu |
+| CPU active | 47 | barraCuda v0.3.1 canonical |
+| GPU active | 34 | includes 4D Anderson, Wegner RG, McEt0, seasonal pipeline, JackknifeMeanGpu, HargreavesBatchGpu |
 | Evolution candidates | 1 | band_edges (algorithm mismatch) |
-| **Total active** | **76** | 783 tests |
+| **Total active** | **81** | 786+ tests |
 
 ### NUCLEUS Integration (V63)
 

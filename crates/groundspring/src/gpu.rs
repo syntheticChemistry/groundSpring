@@ -8,7 +8,7 @@
 //! GPU-accelerated paths in [`rare_biosphere`](crate::rare_biosphere)
 //! and [`quasispecies`](crate::quasispecies).
 //!
-//! # Precision strategy (`ToadStool` S68+)
+//! # Precision strategy (barraCuda S68+)
 //!
 //! Uses `new_f64_capable()` which consults barracuda's device registry
 //! and runtime f64 probe cache. On NVK/NAK where `SHADER_F64` is

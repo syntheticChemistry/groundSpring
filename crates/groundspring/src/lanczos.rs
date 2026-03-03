@@ -12,7 +12,7 @@
 //! - **hotSpring S26** — Lanczos tridiagonalization for nuclear structure
 //!   (harmonic oscillator many-body, Exp 001). Validated against LAPACK
 //!   `dstebz`/`dstein` to machine precision.
-//! - **`ToadStool` S59** — Absorbed as `barracuda::spectral::lanczos` with
+//! - **barraCuda S59** — Absorbed as `barracuda::spectral::lanczos` with
 //!   GPU-accelerated `SpMV` kernel (`spmv_csr_f64.wgsl`). The Lanczos
 //!   vectors stay on-device; only tridiagonal scalars (α, β) return to host.
 //! - **groundSpring** — Wraps for Anderson 2D/3D localization studies

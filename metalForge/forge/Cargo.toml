@@ -16,7 +16,7 @@ biomeos = ["groundspring/biomeos"]
 
 [dependencies]
 groundspring = { path = "../../crates/groundspring" }
-barracuda = { path = "../../../phase1/toadstool/crates/barracuda", features = ["gpu"] }
+barracuda = { path = "../../../barraCuda/crates/barracuda", features = ["gpu"] }
 wgpu = { version = "22", default-features = false, features = [
     "wgsl",
     "vulkan-portability",

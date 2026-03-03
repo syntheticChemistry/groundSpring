@@ -92,13 +92,13 @@ declare -A CHECKS
 declare -A TIMES
 
 DATE=$(date -Iseconds)
-TOADSTOOL_HEAD=$(cd ../phase1/toadstool && git rev-parse --short HEAD 2>/dev/null || echo 'N/A')
+TOADSTOOL_HEAD=$(cd ../barraCuda && git rev-parse --short HEAD 2>/dev/null || echo 'N/A')
 GS_HEAD=$(git rev-parse --short HEAD)
 
 echo "========================================================================"
 echo "  groundSpring — Three-Tier Parity Certificate"
 echo "  Date: $DATE"
-echo "  ToadStool HEAD: $TOADSTOOL_HEAD"
+echo "  barraCuda HEAD: $TOADSTOOL_HEAD"
 echo "  groundSpring HEAD: $GS_HEAD"
 echo "========================================================================"
 echo ""

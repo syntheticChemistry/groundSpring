@@ -591,10 +591,10 @@ pub struct CorrelatedCompartmentResult {
 /// Constructs a 4D lattice where the first three dimensions represent tissue
 /// space (x, y, z) and the fourth represents an immune response gradient
 /// (e.g., cytokine concentration over time). Uses `barracuda::spectral::anderson_4d`
-/// (absorbed `ToadStool` S84) to build the Hamiltonian, then Lanczos for eigenvalues.
+/// (absorbed barraCuda S84) to build the Hamiltonian, then Lanczos for eigenvalues.
 ///
 /// Cross-spring lineage: hotSpring precision shaders (DF64 Lanczos) →
-/// `ToadStool` S84 `anderson_4d` → groundSpring 4D tissue disorder.
+/// barraCuda S84 `anderson_4d` → groundSpring 4D tissue disorder.
 #[cfg(feature = "barracuda-gpu")]
 #[must_use]
 pub fn tissue_4d_simulation(
@@ -631,7 +631,7 @@ pub fn tissue_4d_simulation(
 /// length scale spans cell clusters rather than individual cells.
 ///
 /// Cross-spring lineage: hotSpring precision + condensed matter →
-/// `ToadStool` S84 `wegner_block_4d` → groundSpring tissue RG.
+/// barraCuda S84 `wegner_block_4d` → groundSpring tissue RG.
 #[cfg(feature = "barracuda-gpu")]
 #[must_use]
 pub fn tissue_4d_rg_coarsen(

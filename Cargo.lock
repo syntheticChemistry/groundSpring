@@ -68,9 +68,8 @@ checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 
 [[package]]
 name = "barracuda"
-version = "0.2.0"
+version = "0.3.1"
 dependencies = [
- "akida-driver",
  "async-trait",
  "blake3",
  "bytemuck",
@@ -83,7 +82,6 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.18",
- "toadstool-core",
  "tokio",
  "tracing",
  "wgpu",
@@ -1382,6 +1380,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
 
 [[package]]
+name = "signal-hook-registry"
+version = "1.4.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c4db69cba1110affc0e9f7bcd48bbf87b3f4fc7c61fc9155afd4c469eb3d6c1b"
+dependencies = [
+ "errno",
+ "libc",
+]
+
+[[package]]
 name = "slab"
 version = "0.4.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1557,23 +1565,17 @@ dependencies = [
 ]
 
 [[package]]
-name = "toadstool-core"
-version = "0.1.0"
-dependencies = [
- "akida-driver",
- "thiserror 2.0.18",
- "tracing",
-]
-
-[[package]]
 name = "tokio"
 version = "1.49.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72a2903cd7736441aac9df9d7688bd0ce48edccaadf181c3b90be801e81d3d86"
 dependencies = [
+ "bytes",
  "libc",
  "mio",
+ "parking_lot",
  "pin-project-lite",
+ "signal-hook-registry",
  "socket2",
  "tokio-macros",
  "windows-sys 0.61.2",

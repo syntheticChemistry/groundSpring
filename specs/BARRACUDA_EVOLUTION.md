@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 2, 2026 (V69 — 76 delegations (44 CPU + 32 GPU), 783 tests, ToadStool S87 (`2dc26792`) — V69: cross-spring evolution parity (Shannon, Simpson, Seismic, Anderson 2D/3D), universal precision audit. V68: GPU parity buildout (MC ET₀, seasonal pipeline, L-BFGS, 4D Anderson + Wegner RG). V67: `McEt0PropagateGpu`, `SeasonalPipelineF64`, `BatchedMultinomialGpu` API fix)
+**Last updated**: March 3, 2026 (V72 — 81 delegations (47 CPU + 34 GPU), 786+ tests, barraCuda v0.3.1. V72: deep audit + debt evolution — clippy clean, silent-default elimination, BTreeMap determinism, provenance enforcement, idiomatic Rust patterns, Python CI coverage. V71: barraCuda 0.3.1 pin, toadStool S93 untangle confirmed)
 
 ## Philosophy
 
@@ -10,7 +10,8 @@ groundSpring follows the **Write → Absorb → Lean** cycle established by hotS
 
 1. **Write** — Pure-Rust CPU implementations in `crates/groundspring/`.
    Production WGSL shaders in `metalForge/shaders/`.
-2. **Absorb** — ToadStool/BarraCUDA absorbs shaders as upstream ops.
+2. **Absorb** — barraCuda (standalone primal at `ecoPrimals/barraCuda/`, budded from
+   phase1/toadstool) absorbs shaders as upstream ops.
    Handoff via `wateringHole/handoffs/`.
 3. **Lean** — groundSpring rewires to `barracuda::ops::*` behind `#[cfg(feature = "barracuda")]`.
 
@@ -405,8 +406,12 @@ barracuda = ["dep:barracuda"]
 barracuda-gpu = ["barracuda", "barracuda/gpu"]
 
 [dependencies]
-barracuda = { path = "../../../phase1/toadstool/crates/barracuda", optional = true, default-features = false }
+barracuda = { path = "../../../barraCuda/crates/barracuda", optional = true, default-features = false }
 ```
+
+> **barraCuda budding (V70)**: barraCuda has budded from `phase1/toadstool` into a
+> standalone primal at `ecoPrimals/barraCuda/`. groundSpring depends on
+> `barraCuda/crates/barracuda` as a sibling primal.
 
 Two feature gates:
 - `barracuda` — enables CPU delegation (`stats::bootstrap_mean`, `pearson_r`, etc.)

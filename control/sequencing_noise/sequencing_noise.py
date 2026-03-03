@@ -280,6 +280,8 @@ def main() -> int:
     depth_to_result = {r["depth"]: r for r in results}
 
     for depth_key, exp in expected.items():
+        if depth_key.startswith("_"):
+            continue
         depth_val = int(depth_key.split("_")[1])
         if depth_val not in depth_to_result:
             continue

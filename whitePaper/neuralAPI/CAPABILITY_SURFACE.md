@@ -146,7 +146,7 @@ to ToadStool when the `barracuda` feature is active and biomeOS routing is enabl
 }
 ```
 
-**Provider**: ToadStool
+**Provider**: ToadStool (barracuda from `barraCuda` primal at `ecoPrimals/barraCuda/`)
 **Dispatch**: Neural API → ToadStool → WGSL shader (Barracuda GPU) or CPU fallback
 
 ---

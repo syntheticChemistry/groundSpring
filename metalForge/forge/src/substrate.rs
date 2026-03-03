@@ -60,7 +60,7 @@ impl GpuArch {
     ///
     /// Volta is special: `GV100` has 1:2 native f64 (SM 7.0 full-rate
     /// double precision). Consumer Ampere/Ada only get 1:64.
-    /// `ToadStool`'s DF64 (double-float on FP32 cores) narrows this gap
+    /// barraCuda's DF64 (double-float on FP32 cores) narrows this gap
     /// to ~9.9× on FP32 cores, but native f64 is always preferred.
     #[must_use]
     pub const fn f64_ratio(self) -> u32 {

@@ -108,11 +108,13 @@ mod tests {
 
     #[test]
     fn resolve_socket_explicit_nonexistent() {
-        let result = resolve_socket(Some("/tmp/nonexistent_groundspring_biomeos.sock"), None);
+        let nonexistent = std::env::temp_dir().join("nonexistent_groundspring_biomeos.sock");
+        let nonexistent_str = nonexistent.to_string_lossy().to_string();
+        let result = resolve_socket(Some(&nonexistent_str), None);
         if let Some(ref p) = result {
             assert_ne!(
-                p.to_str().unwrap(),
-                "/tmp/nonexistent_groundspring_biomeos.sock",
+                p.to_string_lossy(),
+                nonexistent_str,
                 "should not return the nonexistent explicit path"
             );
             assert!(p.exists(), "returned path must exist");

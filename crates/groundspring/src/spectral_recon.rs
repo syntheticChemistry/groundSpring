@@ -63,6 +63,34 @@ pub fn gaussian_peak(omega: &[f64], center: f64, width: f64, amplitude: f64) -> 
         .collect()
 }
 
+/// CPU-only Tikhonov-regularized reconstruction.
+///
+/// Always uses the local Cholesky solver — never dispatches to barracuda.
+/// Useful for cross-substrate parity comparisons where a known-good
+/// CPU reference is needed independently of the dispatch path.
+///
+/// # Panics
+///
+/// Panics if dimensions are inconsistent or Cholesky fails.
+#[must_use]
+pub fn tikhonov_solve_cpu(
+    kernel: &[f64],
+    data: &[f64],
+    lambda: f64,
+    n_tau: usize,
+    n_omega: usize,
+) -> Vec<f64> {
+    let ktk = mat_transpose_mul(kernel, kernel, n_tau, n_omega, n_omega);
+    let ktg = mat_transpose_vec(kernel, data, n_tau, n_omega);
+
+    let mut a = ktk;
+    for i in 0..n_omega {
+        a[i * n_omega + i] += lambda;
+    }
+
+    cholesky_solve(&a, &ktg, n_omega)
+}
+
 /// Tikhonov-regularized reconstruction.
 ///
 /// Solves `(KᵀK + λI) ρ = KᵀG` via Cholesky decomposition.

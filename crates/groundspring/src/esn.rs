@@ -17,7 +17,7 @@
 //! - **hotSpring Exp015/022** — ESN regime detection for Anderson localization
 //!   transitions. Training data: `(W, ⟨r⟩)` disorder sweeps. Prediction:
 //!   regime label from single `⟨r⟩(W)` measurement.
-//! - **`ToadStool` S59** — Absorbed as `barracuda::esn_v2::ESN` with GPU reservoir
+//! - **barraCuda S59** — Absorbed as `barracuda::esn_v2::ESN` with GPU reservoir
 //!   update via `esn_reservoir_update_f64.wgsl` (wetSpring → hotSpring provenance).
 //!   Ridge regression readout via `barracuda::linalg::ridge_regression`.
 //! - **groundSpring** — Wraps for Anderson transition regime classification.
@@ -484,7 +484,7 @@ pub fn spectral_features(eigenvalues: &mut [f64]) -> [f64; 3] {
 /// # Cross-spring lineage
 ///
 /// `esn_reservoir_update_f64.wgsl` — wetSpring bio (microbial community
-/// dynamics) → hotSpring MD (plasma regime detection) → `ToadStool` S59
+/// dynamics) → hotSpring MD (plasma regime detection) → barraCuda S59
 /// absorption → groundSpring Anderson regime classification. The same
 /// reservoir update kernel serves three springs, each benefiting from
 /// the others' validation (wetSpring tested diversity stability,

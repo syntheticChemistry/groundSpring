@@ -84,7 +84,7 @@ fn wf_batch_kimura_convergence() {
 #[test]
 fn jackknife_parity_small_sample() {
     let data = [1.0, 2.0, 3.0, 4.0, 5.0];
-    let r = groundspring::jackknife::jackknife_mean_variance(&data).unwrap();
+    let r = groundspring::jackknife::jackknife_mean_variance(&data).expect("jackknife on [1..5]");
     assert!((r.estimate - 3.0).abs() < 1e-12);
     assert!(r.variance > 0.0);
     assert!(r.std_error > 0.0);
@@ -93,8 +93,10 @@ fn jackknife_parity_small_sample() {
 #[test]
 fn jackknife_parity_bitwise_deterministic() {
     let data: Vec<f64> = (0..100).map(|i| f64::from(i).mul_add(0.7, 1.5)).collect();
-    let r1 = groundspring::jackknife::jackknife_mean_variance(&data).unwrap();
-    let r2 = groundspring::jackknife::jackknife_mean_variance(&data).unwrap();
+    let r1 = groundspring::jackknife::jackknife_mean_variance(&data)
+        .expect("jackknife determinism run 1");
+    let r2 = groundspring::jackknife::jackknife_mean_variance(&data)
+        .expect("jackknife determinism run 2");
     assert_eq!(r1.estimate.to_bits(), r2.estimate.to_bits());
     assert_eq!(r1.variance.to_bits(), r2.variance.to_bits());
 }
@@ -102,7 +104,8 @@ fn jackknife_parity_bitwise_deterministic() {
 #[test]
 fn jackknife_parity_known_variance() {
     let data = [1.0, 3.0];
-    let r = groundspring::jackknife::jackknife_mean_variance(&data).unwrap();
+    let r =
+        groundspring::jackknife::jackknife_mean_variance(&data).expect("jackknife on [1.0, 3.0]");
     // N=2: leave-one-out means are [3.0, 1.0], grand mean 2.0
     // JK var = (2-1)/2 * ((3-2)^2 + (1-2)^2) = 0.5 * 2 = 1.0
     assert!((r.estimate - 2.0).abs() < 1e-12);

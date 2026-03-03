@@ -214,7 +214,7 @@ pub fn wright_fisher_fixation(
 /// For neutral evolution (s=0), returns `initial_freq`.
 ///
 /// Delegates to `barracuda::stats::evolution::kimura_fixation_prob` when the
-/// `barracuda` feature is enabled (absorbed in `ToadStool` S70+).
+/// `barracuda` feature is enabled (absorbed in barraCuda S70+).
 #[must_use]
 pub fn kimura_fixation_prob(pop_size: usize, selection: f64, initial_freq: f64) -> f64 {
     #[cfg(feature = "barracuda")]
@@ -514,7 +514,7 @@ mod tests {
     fn diversity_declines_under_drift() {
         let div = neutral_diversity_trajectory(10, 50, 200, 42);
         assert!(
-            div.last().copied().unwrap_or(0.0) < div[0],
+            *div.last().expect("non-empty diversity trajectory") < div[0],
             "diversity should decline"
         );
     }
@@ -523,8 +523,10 @@ mod tests {
     fn larger_pop_preserves_diversity() {
         let div_small = neutral_diversity_trajectory(10, 50, 200, 42);
         let div_large = neutral_diversity_trajectory(10, 500, 200, 42);
+        let final_large = *div_large.last().expect("non-empty large-pop trajectory");
+        let final_small = *div_small.last().expect("non-empty small-pop trajectory");
         assert!(
-            div_large.last().copied().unwrap_or(0.0) > div_small.last().copied().unwrap_or(0.0),
+            final_large > final_small,
             "larger populations should preserve more diversity"
         );
     }

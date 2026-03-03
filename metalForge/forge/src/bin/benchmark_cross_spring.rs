@@ -452,8 +452,8 @@ fn print_evolution_timeline() {
     println!("  ├─ groundSpring bootstrap → wetSpring rarefaction confidence intervals");
     println!("  └─ All springs → ToadStool → absorbed → all springs consume\n");
 
-    println!("  Current state: ToadStool S87, 144 ComputeDispatch ops, 844+ f64 shaders");
-    println!("  groundSpring: 76 delegations (44 CPU + 32 GPU), 780 tests, zero debt");
+    println!("  Current state: barraCuda v0.3.1, 144 ComputeDispatch ops, 844+ f64 shaders");
+    println!("  groundSpring: 81 delegations (47 CPU + 34 GPU), 786+ tests, zero debt");
 }
 
 fn print_provenance_table() {

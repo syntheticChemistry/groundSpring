@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 2, 2026
+**Last updated**: March 3, 2026
 
 ## Experiment Register
 
@@ -45,16 +45,16 @@
 **Rust Phase 1 (core)**: 321/321 PASS across 29 validation binaries (321 core)
 **Rust Phase 1 (NUCLEUS)**: 55/55 PASS across 4 validation binaries (Exp 029–032, `--features biomeos`)
 **Total validation**: 376/376 PASS across 33 validation binaries
-**Rust tests**: 783/783 PASS (default workspace)
+**Rust tests**: 786+/786+ PASS (default workspace)
 **pytest**: 375/375 PASS + 2 skipped
 **Three-tier parity**: 101+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
-**BarraCUDA dispatch**: 76 active (44 CPU + 32 GPU) — V68: L-BFGS refinement, 4D Anderson + Wegner RG; V67: McEt0PropagateGpu, SeasonalPipelineF64. Pinned ToadStool S87 (`2dc26792`)
+**BarraCUDA dispatch**: 81 active (47 CPU + 34 GPU) — V72: barraCuda v0.3.1 (standalone primal), Deep Audit + Debt Evolution. ToadStool S93
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); compute.execute + compute.submit validated
 **metalForge workloads**: 30 (24 GPU + 2 NPU + 2 CPU-only), 187 checks (130 forge + 57 mixed-hardware)
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
 **Paper 12**: `tissue_anderson` module — 18 unit tests + 29/29 validation checks + 4D Anderson + Wegner RG (V68)
-**Handoff**: V69 (complete rewiring — L-BFGS refinement, 4D Anderson, cross-spring benchmark)
+**Handoff**: V72 (Deep Audit + Debt Evolution, all gates green, 786+ tests)
 
 **Python checks**: ~160 across 28 experiments. **Rust validation checks**: 376 (321 core + 55 NUCLEUS). **metalForge + pipeline checks**: 187.
 

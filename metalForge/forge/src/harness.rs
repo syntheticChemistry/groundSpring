@@ -6,6 +6,9 @@
 //! Follows the hotSpring pattern: hardcoded expected values, explicit
 //! pass/fail, exit code 0 (all pass) / 1 (any failure).
 
+/// Maximum GPU device-lost retries before giving up.
+const GPU_RETRY_LIMIT: u32 = 2;
+
 /// Lightweight pass/fail harness for validation binaries.
 ///
 /// Tracks individual check outcomes and terminates the process with
@@ -30,6 +33,36 @@ impl Harness {
         } else {
             println!("  FAIL  {name}");
             self.fail += 1;
+        }
+    }
+
+    /// Record a GPU check with device-lost retry (barraCuda S87).
+    ///
+    /// Calls `gpu_fn` up to `GPU_RETRY_LIMIT` + 1 times; if the closure
+    /// returns `Err(e)` where `e.is_device_lost()`, retries silently.
+    /// Other errors and the final retry result become a FAIL check.
+    pub fn check_gpu_resilient<F>(&mut self, name: &str, mut gpu_fn: F)
+    where
+        F: FnMut() -> Result<bool, barracuda::error::BarracudaError>,
+    {
+        for attempt in 0..=GPU_RETRY_LIMIT {
+            match gpu_fn() {
+                Ok(ok) => {
+                    if attempt > 0 {
+                        println!("  (retry {attempt} succeeded)");
+                    }
+                    self.check(name, ok);
+                    return;
+                }
+                Err(e) if e.is_device_lost() && attempt < GPU_RETRY_LIMIT => {
+                    println!("  RETRY {name} (device lost, attempt {})", attempt + 1);
+                }
+                Err(e) => {
+                    println!("  FAIL  {name}: {e}");
+                    self.fail += 1;
+                    return;
+                }
+            }
         }
     }
 

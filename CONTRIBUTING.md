@@ -95,12 +95,12 @@ scripts/             Automation (baselines, benchmarks)
 ### Rust
 
 ```bash
-cargo test --workspace                         # 613 tests, all PASS
-cargo test --workspace --features biomeos      # ~660 tests (NUCLEUS client active)
-cargo test --workspace --features barracuda-gpu # 613 tests (GPU dispatch active)
-cargo clippy --workspace -- -D warnings        # zero warnings × 4 modes
+cargo test --workspace                         # 786+ tests, all PASS
+cargo test --workspace --features biomeos      # biomeos tests (NUCLEUS client active)
+cargo test --workspace --features barracuda-gpu # GPU dispatch active
+cargo clippy --workspace --all-targets -D warnings # zero warnings (pedantic + nursery)
 cargo fmt --check                              # clean
-cargo llvm-cov --workspace                     # 99.37% workspace line coverage
+cargo doc --workspace --no-deps -D warnings    # clean
 
 # Four-mode CI: default, barracuda-CPU, barracuda-GPU, biomeos
 cargo test --workspace

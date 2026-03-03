@@ -19,10 +19,19 @@
 //! [`crop_coefficient`] and [`soil_water_balance`] delegate to
 //! `barracuda::stats::hydrology` CPU functions (S71+++).
 //! [`monte_carlo_et0`] dispatches via `McEt0PropagateGpu` (S80,
-//! provenance: groundSpring V10 `mc_et0_propagate.wgsl` → `ToadStool` S72).
+//! provenance: groundSpring V10 `mc_et0_propagate.wgsl` → barraCuda S72).
 //! [`seasonal_step`] dispatches via `SeasonalPipelineF64` (S80, provenance:
-//! airSpring V035 → `ToadStool` S80) for fused ET₀→Kc→θ→stress.
+//! airSpring V035 → barraCuda S80) for fused ET₀→Kc→θ→stress.
+//! [`seasonal_multi_day`] wraps multi-day runs with `StatefulPipeline`
+//! for day-over-day state tracking (barraCuda S80, airSpring V039).
 //! Sub-functions remain local as the validation reference.
+
+mod pipeline;
+
+pub use pipeline::{
+    monte_carlo_et0, seasonal_multi_day, seasonal_step, Et0Uncertainties, McEt0Result,
+    SeasonalCellInputs, SeasonalOutput, SeasonalParams,
+};
 
 use std::f64::consts::PI;
 
@@ -293,7 +302,7 @@ pub struct DailyWeatherInputs {
 /// height conversion (Example 18 pattern).
 ///
 /// Delegates to `barracuda::stats::hydrology::fao56_et0` when the
-/// `barracuda` feature is enabled (absorbed in `ToadStool` S71+++).
+/// `barracuda` feature is enabled (absorbed in barraCuda S71+++).
 #[must_use]
 pub fn daily_et0(inp: &DailyWeatherInputs) -> f64 {
     #[cfg(feature = "barracuda")]
@@ -321,7 +330,7 @@ pub fn daily_et0(inp: &DailyWeatherInputs) -> f64 {
     daily_et0_cpu(inp)
 }
 
-fn daily_et0_cpu(inp: &DailyWeatherInputs) -> f64 {
+pub(crate) fn daily_et0_cpu(inp: &DailyWeatherInputs) -> f64 {
     let tmean = f64::midpoint(inp.tmax_c, inp.tmin_c);
     let uz_ms = inp.wind_speed_10m_km_h / 3.6;
     let u2 = wind_speed_at_2m(uz_ms, 10.0);
@@ -403,11 +412,6 @@ fn daily_et0_batch_gpu(inputs: &[DailyWeatherInputs]) -> Option<Vec<f64>> {
 // ── Hargreaves ET₀ (temperature-only) ─────────────────────────────
 //
 // Cross-spring lineage: airSpring V035 → ToadStool S70+ → groundSpring
-// When radiation data is unavailable, Hargreaves (1985) provides a
-// temperature-only reference ET₀.  The equation uses extraterrestrial
-// radiation Ra (computed from latitude + day-of-year) rather than
-// measured solar radiation.  Accuracy is lower than Penman-Monteith
-// (~±20 %) but sufficient for screening and gap-filling.
 
 /// Hargreaves reference ET₀ from temperature only (mm day⁻¹).
 ///
@@ -415,7 +419,7 @@ fn daily_et0_batch_gpu(inputs: &[DailyWeatherInputs]) -> Option<Vec<f64>> {
 ///
 /// When the `barracuda` feature is enabled, delegates to
 /// `barracuda::stats::hydrology::hargreaves_et0` (absorbed from
-/// airSpring V035 via `ToadStool` S71+++).
+/// airSpring V035 via barraCuda S71+++).
 #[must_use]
 pub fn hargreaves_et0(tmax_c: f64, tmin_c: f64, latitude_deg_n: f64, day_of_year: u16) -> f64 {
     let ra = extraterrestrial_radiation(latitude_deg_n, day_of_year);
@@ -440,7 +444,7 @@ fn hargreaves_et0_cpu(ra: f64, tmax_c: f64, tmin_c: f64) -> f64 {
 /// `barracuda::stats::hydrology::hargreaves_et0_batch`.
 /// When `barracuda-gpu` is enabled and a GPU is available, dispatches
 /// via `BatchedElementwiseF64::execute` with `Op::HargreavesEt0`
-/// (airSpring V035 → `ToadStool` S71+++).
+/// (airSpring V035 → barraCuda S71+++).
 #[must_use]
 pub fn hargreaves_et0_batch(
     tmax_c: &[f64],
@@ -494,13 +498,12 @@ fn hargreaves_et0_batch_gpu(ra: &[f64], tmax: &[f64], tmin: &[f64]) -> Option<Ve
 // ── Crop coefficient & soil water balance ─────────────────────────
 //
 // Cross-spring lineage: airSpring FAO-56 → ToadStool S70+ → groundSpring
-// Completing the chain from reference ET₀ to actual crop water use.
 
 /// Interpolate crop coefficient between growth stages.
 ///
 /// FAO-56 §6.3: linear interpolation of Kc within a growth stage.
 /// Delegates to `barracuda::stats::hydrology::crop_coefficient` when
-/// the `barracuda` feature is enabled (airSpring → `ToadStool` S71+++).
+/// the `barracuda` feature is enabled (airSpring → barraCuda S71+++).
 #[must_use]
 pub fn crop_coefficient(kc_prev: f64, kc_next: f64, day_in_stage: u32, stage_length: u32) -> f64 {
     #[cfg(feature = "barracuda")]
@@ -526,7 +529,7 @@ pub fn crop_coefficient(kc_prev: f64, kc_next: f64, day_in_stage: u32, stage_len
 ///
 /// Delegates to `barracuda::stats::hydrology::soil_water_balance` when
 /// the `barracuda` feature is enabled (airSpring precision agriculture
-/// → `ToadStool` S71+++).
+/// → barraCuda S71+++).
 #[must_use]
 pub fn soil_water_balance(
     theta: f64,
@@ -545,360 +548,6 @@ pub fn soil_water_balance(
     );
     #[cfg(not(feature = "barracuda"))]
     (theta + precip + irrigation - et_c).clamp(0.0, field_capacity)
-}
-
-// ── Monte Carlo uncertainty propagation ───────────────────────────
-//
-// Cross-spring lineage: groundSpring V10 mc_et0_propagate.wgsl →
-// ToadStool S72 McEt0PropagateGpu → groundSpring library function.
-
-/// Uncertainty (σ) for each meteorological input perturbed during
-/// Monte Carlo ET₀ propagation.
-#[derive(Debug, Clone, Copy)]
-pub struct Et0Uncertainties {
-    /// σ for `T_max` (°C).
-    pub sigma_tmax: f64,
-    /// σ for `T_min` (°C).
-    pub sigma_tmin: f64,
-    /// σ for `RH_max` (%).
-    pub sigma_rhmax: f64,
-    /// σ for `RH_min` (%).
-    pub sigma_rhmin: f64,
-    /// Fractional σ for wind speed (dimensionless, e.g. 0.10 = 10 %).
-    pub sigma_wind_frac: f64,
-    /// Fractional σ for sunshine hours (dimensionless).
-    pub sigma_sun_frac: f64,
-}
-
-/// Result of Monte Carlo uncertainty propagation through FAO-56 ET₀.
-#[derive(Debug, Clone, Copy)]
-pub struct McEt0Result {
-    /// Ensemble mean of ET₀ samples (mm day⁻¹).
-    pub mean: f64,
-    /// Population standard deviation (mm day⁻¹).
-    pub std: f64,
-    /// 5th percentile of the uncertainty distribution.
-    pub pct_05: f64,
-    /// 95th percentile of the uncertainty distribution.
-    pub pct_95: f64,
-}
-
-/// Monte Carlo uncertainty propagation through FAO-56 Penman-Monteith.
-///
-/// Generates `n_samples` perturbed ET₀ values by drawing meteorological
-/// inputs from their uncertainty distributions and evaluating the full
-/// equation chain for each draw.
-///
-/// When `barracuda-gpu` is enabled and a GPU is available, dispatches all
-/// samples in a single GPU pass via `McEt0PropagateGpu` (`ToadStool` S72,
-/// provenance: groundSpring V10 `mc_et0_propagate.wgsl`).
-/// Falls back to sequential CPU sampling otherwise.
-#[must_use]
-pub fn monte_carlo_et0(
-    base: &DailyWeatherInputs,
-    unc: &Et0Uncertainties,
-    n_samples: usize,
-    seed: u64,
-) -> McEt0Result {
-    #[cfg(feature = "barracuda-gpu")]
-    {
-        if let Some(result) = monte_carlo_et0_gpu(base, unc, n_samples, seed) {
-            return result;
-        }
-    }
-    monte_carlo_et0_cpu(base, unc, n_samples, seed)
-}
-
-#[cfg(feature = "barracuda-gpu")]
-#[expect(
-    clippy::cast_possible_truncation,
-    reason = "n_samples fits in u32 for practical GPU dispatch sizes"
-)]
-fn monte_carlo_et0_gpu(
-    base: &DailyWeatherInputs,
-    unc: &Et0Uncertainties,
-    n_samples: usize,
-    _seed: u64,
-) -> Option<McEt0Result> {
-    use barracuda::stats::hydrology::gpu::{
-        Fao56BaseInputs, Fao56Uncertainties, McEt0PropagateGpu,
-    };
-
-    let device = crate::gpu::get_device()?;
-    let gpu = McEt0PropagateGpu::new(device).ok()?;
-
-    let base_inputs = Fao56BaseInputs {
-        t_max: base.tmax_c,
-        t_min: base.tmin_c,
-        rh_max: base.rhmax_pct,
-        rh_min: base.rhmin_pct,
-        wind_kmh: base.wind_speed_10m_km_h,
-        sun_hours: base.sunshine_hours,
-        latitude: base.latitude_deg_n,
-        altitude: base.altitude_m,
-        day_of_year: f64::from(base.day_of_year),
-    };
-    let uncertainties = Fao56Uncertainties {
-        sigma_t_max: unc.sigma_tmax,
-        sigma_t_min: unc.sigma_tmin,
-        sigma_rh_max: unc.sigma_rhmax,
-        sigma_rh_min: unc.sigma_rhmin,
-        sigma_wind_frac: unc.sigma_wind_frac,
-        sigma_sun_frac: unc.sigma_sun_frac,
-    };
-
-    let mut samples = gpu
-        .dispatch(&base_inputs, &uncertainties, n_samples as u32)
-        .ok()?;
-    Some(summarize_mc_samples(&mut samples))
-}
-
-fn monte_carlo_et0_cpu(
-    base: &DailyWeatherInputs,
-    unc: &Et0Uncertainties,
-    n_samples: usize,
-    seed: u64,
-) -> McEt0Result {
-    let mut rng = crate::prng::Xorshift64::new(seed);
-    let mut samples = Vec::with_capacity(n_samples);
-
-    for _ in 0..n_samples {
-        let perturbed = DailyWeatherInputs {
-            tmax_c: rng.normal(base.tmax_c, unc.sigma_tmax),
-            tmin_c: rng
-                .normal(base.tmin_c, unc.sigma_tmin)
-                .min(base.tmax_c + rng.normal(0.0, unc.sigma_tmin) - 1.0),
-            rhmax_pct: rng
-                .normal(base.rhmax_pct, unc.sigma_rhmax)
-                .clamp(10.0, 100.0),
-            rhmin_pct: rng
-                .normal(base.rhmin_pct, unc.sigma_rhmin)
-                .clamp(5.0, 100.0),
-            wind_speed_10m_km_h: rng
-                .normal(
-                    base.wind_speed_10m_km_h,
-                    base.wind_speed_10m_km_h * unc.sigma_wind_frac,
-                )
-                .max(0.5),
-            sunshine_hours: rng
-                .normal(
-                    base.sunshine_hours,
-                    base.sunshine_hours * unc.sigma_sun_frac,
-                )
-                .max(0.0),
-            ..*base
-        };
-        samples.push(daily_et0(&perturbed));
-    }
-
-    summarize_mc_samples(&mut samples)
-}
-
-fn summarize_mc_samples(samples: &mut [f64]) -> McEt0Result {
-    let n = crate::cast::usize_f64(samples.len());
-    let mean = samples.iter().sum::<f64>() / n;
-    let variance = samples.iter().map(|&x| (x - mean).powi(2)).sum::<f64>() / n;
-
-    samples.sort_by(f64::total_cmp);
-
-    #[expect(
-        clippy::cast_possible_truncation,
-        clippy::cast_sign_loss,
-        reason = "percentile index from f64 fraction of known-valid usize"
-    )]
-    let pct_05 = samples[(0.05 * n) as usize];
-    #[expect(
-        clippy::cast_possible_truncation,
-        clippy::cast_sign_loss,
-        reason = "percentile index from f64 fraction of known-valid usize"
-    )]
-    let pct_95 = samples[(0.95 * n) as usize];
-
-    McEt0Result {
-        mean,
-        std: variance.sqrt(),
-        pct_05,
-        pct_95,
-    }
-}
-
-// ── Seasonal fused pipeline ──────────────────────────────────────
-//
-// Cross-spring lineage: airSpring V035 → ToadStool S80
-// SeasonalPipelineF64: ET₀ → Kc → water balance → stress in one GPU dispatch.
-
-/// Inputs for a single spatial cell of the seasonal pipeline.
-#[derive(Debug, Clone, Copy)]
-pub struct SeasonalCellInputs {
-    /// Maximum air temperature (°C).
-    pub tmax_c: f64,
-    /// Minimum air temperature (°C).
-    pub tmin_c: f64,
-    /// Maximum relative humidity (%).
-    pub rhmax_pct: f64,
-    /// Minimum relative humidity (%).
-    pub rhmin_pct: f64,
-    /// Wind speed at 2 m (m s⁻¹).
-    pub wind_2m_ms: f64,
-    /// Solar radiation (MJ m⁻² day⁻¹).
-    pub rs_mj: f64,
-    /// Elevation (m).
-    pub altitude_m: f64,
-    /// Latitude (°N).
-    pub latitude_deg_n: f64,
-    /// Previous-day soil moisture (mm).
-    pub theta_prev: f64,
-}
-
-/// Seasonal pipeline parameters (growth-stage and soil constants).
-#[derive(Debug, Clone, Copy)]
-pub struct SeasonalParams {
-    /// Day of year (1–366).
-    pub day_of_year: u16,
-    /// Growth stage length (days).
-    pub stage_length: u32,
-    /// Day within current growth stage.
-    pub day_in_stage: u32,
-    /// Previous Kc.
-    pub kc_prev: f64,
-    /// Next Kc.
-    pub kc_next: f64,
-    /// Total available water (mm).
-    pub taw: f64,
-    /// Readily available water fraction (0–1).
-    pub raw_fraction: f64,
-    /// Field capacity (mm).
-    pub field_capacity: f64,
-}
-
-/// Output from one cell of the seasonal pipeline.
-#[derive(Debug, Clone, Copy)]
-pub struct SeasonalOutput {
-    /// Reference ET₀ (mm day⁻¹).
-    pub et0: f64,
-    /// Crop coefficient.
-    pub kc: f64,
-    /// Crop ET (mm day⁻¹).
-    pub etc: f64,
-    /// Updated soil moisture (mm).
-    pub theta_new: f64,
-    /// Water stress index (0 = no stress, 1 = fully stressed).
-    pub stress: f64,
-}
-
-/// Fused seasonal pipeline: ET₀ → Kc → water balance → stress.
-///
-/// Runs the full pipeline for multiple spatial cells in a single step.
-/// When `barracuda-gpu` is enabled, dispatches via `SeasonalPipelineF64`
-/// (`ToadStool` S80, provenance: airSpring V035).
-/// Falls back to sequential CPU evaluation otherwise.
-#[must_use]
-pub fn seasonal_step(cells: &[SeasonalCellInputs], params: &SeasonalParams) -> Vec<SeasonalOutput> {
-    #[cfg(feature = "barracuda-gpu")]
-    {
-        if let Some(result) = seasonal_step_gpu(cells, params) {
-            return result;
-        }
-    }
-    cells
-        .iter()
-        .map(|cell| seasonal_step_single(cell, params))
-        .collect()
-}
-
-fn seasonal_step_single(cell: &SeasonalCellInputs, params: &SeasonalParams) -> SeasonalOutput {
-    let inp = DailyWeatherInputs {
-        tmax_c: cell.tmax_c,
-        tmin_c: cell.tmin_c,
-        rhmax_pct: cell.rhmax_pct,
-        rhmin_pct: cell.rhmin_pct,
-        wind_speed_10m_km_h: cell.wind_2m_ms * 3.6 * (10.0_f64 / 2.0).ln() / (67.8_f64.ln()),
-        sunshine_hours: 0.0,
-        latitude_deg_n: cell.latitude_deg_n,
-        altitude_m: cell.altitude_m,
-        day_of_year: params.day_of_year,
-    };
-    let et0 = daily_et0(&inp);
-    let kc = crop_coefficient(
-        params.kc_prev,
-        params.kc_next,
-        params.day_in_stage,
-        params.stage_length,
-    );
-    let etc = et0 * kc;
-    let raw = params.raw_fraction * params.taw;
-    let depletion = (params.field_capacity - cell.theta_prev).max(0.0);
-    let ks = if depletion > raw {
-        ((params.taw - depletion) / (params.taw - raw)).clamp(0.0, 1.0)
-    } else {
-        1.0
-    };
-    let etc_adj = ks * etc;
-    let theta_new = (cell.theta_prev - etc_adj).clamp(0.0, params.field_capacity);
-    let stress = 1.0 - ks;
-    SeasonalOutput {
-        et0,
-        kc,
-        etc,
-        theta_new,
-        stress,
-    }
-}
-
-#[cfg(feature = "barracuda-gpu")]
-#[expect(
-    clippy::cast_possible_truncation,
-    reason = "cell count and day parameters fit in u32 for practical sizes"
-)]
-fn seasonal_step_gpu(
-    cells: &[SeasonalCellInputs],
-    params: &SeasonalParams,
-) -> Option<Vec<SeasonalOutput>> {
-    use barracuda::stats::hydrology::gpu::{SeasonalGpuParams, SeasonalPipelineF64};
-
-    let device = crate::gpu::get_device()?;
-    let gpu = SeasonalPipelineF64::new(device).ok()?;
-
-    let mut cell_weather = Vec::with_capacity(cells.len() * 9);
-    for c in cells {
-        cell_weather.extend_from_slice(&[
-            c.tmax_c,
-            c.tmin_c,
-            c.rhmax_pct,
-            c.rhmin_pct,
-            c.wind_2m_ms,
-            c.rs_mj,
-            c.altitude_m,
-            c.latitude_deg_n,
-            c.theta_prev,
-        ]);
-    }
-
-    let mut gpu_params = <SeasonalGpuParams as bytemuck::Zeroable>::zeroed();
-    gpu_params.cell_count = cells.len() as u32;
-    gpu_params.day_of_year = u32::from(params.day_of_year);
-    gpu_params.stage_length = params.stage_length;
-    gpu_params.day_in_stage = params.day_in_stage;
-    gpu_params.kc_prev = params.kc_prev;
-    gpu_params.kc_next = params.kc_next;
-    gpu_params.taw_default = params.taw;
-    gpu_params.raw_fraction = params.raw_fraction;
-    gpu_params.field_capacity = params.field_capacity;
-
-    let barracuda_output = gpu.dispatch(&cell_weather, &gpu_params).ok()?;
-
-    let results: Vec<SeasonalOutput> = barracuda_output
-        .iter()
-        .map(|o| SeasonalOutput {
-            et0: o.et0,
-            kc: o.kc,
-            etc: o.etc,
-            theta_new: o.theta_new,
-            stress: o.stress,
-        })
-        .collect();
-
-    Some(results)
 }
 
 /// FAO-56 Example 18 reference inputs (Uccle, Belgium, 6 July).
@@ -1025,7 +674,7 @@ mod tests {
     #[test]
     fn sunset_hour_angle_equator_equinox() {
         let phi = 0.0_f64.to_radians();
-        let delta = solar_declination(80); // ~ spring equinox
+        let delta = solar_declination(80);
         let ws = sunset_hour_angle(phi, delta);
         assert!(
             (ws - PI / 2.0).abs() < 0.2,
@@ -1066,8 +715,6 @@ mod tests {
         assert!((a - b).abs() < f64::EPSILON);
     }
 
-    // ── Hargreaves ET₀ tests ──────────────────────────────────────
-
     #[test]
     fn hargreaves_positive() {
         let et0 = hargreaves_et0(21.5, 12.3, 50.8, 187);
@@ -1090,9 +737,6 @@ mod tests {
         let pm = daily_et0(&inp);
         let hg = hargreaves_et0(inp.tmax_c, inp.tmin_c, inp.latitude_deg_n, inp.day_of_year);
         let ratio = hg / pm;
-        // Hargreaves is a temperature-only estimate with ~20-30% typical error;
-        // for humid sites with low ΔT, it can overestimate by up to 3× relative
-        // to Penman-Monteith due to missing humidity/wind correction.
         assert!(
             (0.3..3.5).contains(&ratio),
             "Hargreaves/PM ratio={ratio:.2}, expected same order of magnitude"
@@ -1119,8 +763,6 @@ mod tests {
         let b = hargreaves_et0(25.0, 15.0, 45.0, 180);
         assert!((a - b).abs() < f64::EPSILON);
     }
-
-    // ── Crop coefficient tests ────────────────────────────────────
 
     #[test]
     fn crop_coefficient_endpoints() {
@@ -1153,8 +795,6 @@ mod tests {
             "zero stage length returns kc_prev"
         );
     }
-
-    // ── Soil water balance tests ──────────────────────────────────
 
     #[test]
     fn soil_water_balance_basic() {

@@ -5,6 +5,17 @@ See [CONTROL_EXPERIMENT_STATUS.md](CONTROL_EXPERIMENT_STATUS.md) for the current
 
 ## Run Log
 
+### Run 41 (V72 Deep Audit + Debt Evolution, Mar 3, 2026)
+
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings`: PASS (0 warnings)
+- `RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps`: PASS (0 warnings)
+- `cargo test --workspace` (default): 786+ tests, all PASS
+- `cargo test --workspace --features barracuda-gpu`: all PASS
+- **barraCuda**: v0.3.1 (standalone primal)
+- **ToadStool**: S93
+- **Handoff**: V72 Deep Audit + Debt Evolution, all gates green, 786+ tests
+
 ### Run 40 (V69 Cross-Spring Evolution Parity + Universal Precision Audit, Mar 2, 2026)
 
 - `cargo fmt --check`: PASS

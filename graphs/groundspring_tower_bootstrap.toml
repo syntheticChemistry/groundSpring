@@ -3,7 +3,7 @@
 # between all groundSpring primals. This is the foundation that
 # Node (Tower + ToadStool) and Nest (Tower + NestGate) build on.
 #
-# STATUS: V69 (March 2, 2026) — ToadStool S87 (2dc26792)
+# STATUS: V72 (March 3, 2026) — barraCuda v0.3.1
 # Atomic: Tower (BearDog + Songbird)
 # Target: Eastgate (local, single machine)
 # Precision: f64-capable device selection with DF64 fallback

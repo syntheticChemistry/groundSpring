@@ -58,7 +58,7 @@ pub fn transfer_matrix_half_trace(energy: f64, potential: &[f64], hopping: f64) 
 ///
 /// When the `barracuda` feature is enabled, each coarse-grid sign change
 /// is refined using `barracuda::optimize::brent` (airSpring V035 →
-/// `ToadStool` S71+++) to locate the exact band edge to `tol = 1e-12`.
+/// barraCuda S71+++) to locate the exact band edge to `tol = 1e-12`.
 /// Without barracuda, falls back to the coarse-grid scan alone.
 #[must_use]
 pub fn find_band_edges(
@@ -80,7 +80,7 @@ pub fn find_band_edges(
 /// the band edge.
 ///
 /// Cross-spring lineage: `brent` — airSpring V035 (Richards PDE
-/// root-finding) → `ToadStool` S71+++ `barracuda::optimize::brent`
+/// root-finding) → barraCuda S71+++ `barracuda::optimize::brent`
 /// → groundSpring band structure refinement.
 #[cfg(feature = "barracuda-gpu")]
 fn refine_edges_brent(
@@ -118,24 +118,23 @@ fn find_band_edges_cpu(
     e_hi: f64,
     n_points: usize,
 ) -> Vec<f64> {
-    let mut edges = Vec::new();
     let step = (e_hi - e_lo) / usize_f64(n_points - 1);
-    let mut prev_in_band: Option<bool> = None;
 
-    for i in 0..n_points {
-        let e = usize_f64(i).mul_add(step, e_lo);
-        let ht = transfer_matrix_half_trace(e, potential, hopping);
-        let in_band = ht.abs() <= 1.0;
+    let band_flags: Vec<bool> = (0..n_points)
+        .map(|i| {
+            let e = usize_f64(i).mul_add(step, e_lo);
+            transfer_matrix_half_trace(e, potential, hopping).abs() <= 1.0
+        })
+        .collect();
 
-        if let Some(prev) = prev_in_band {
-            if in_band != prev {
-                edges.push(e);
-            }
-        }
-        prev_in_band = Some(in_band);
-    }
-
-    edges
+    band_flags
+        .windows(2)
+        .enumerate()
+        .filter_map(|(i, w)| {
+            let e = usize_f64(i + 1).mul_add(step, e_lo);
+            (w[0] != w[1]).then_some(e)
+        })
+        .collect()
 }
 
 /// Count distinct bands in the energy range.

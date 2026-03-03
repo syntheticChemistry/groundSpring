@@ -14,7 +14,7 @@
 //!
 //! # Unidirectional Streaming
 //!
-//! `ToadStool`'s barracuda allows unidirectional streaming: data flows
+//! barraCuda allows unidirectional streaming: data flows
 //! host → GPU with minimal round-trips. For embarrassingly parallel
 //! workloads (Anderson MC, bootstrap, jackknife), this means:
 //!

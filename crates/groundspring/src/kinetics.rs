@@ -12,7 +12,7 @@
 //!
 //! When the `barracuda` feature is enabled, `hill` delegates directly to
 //! `barracuda::stats::hill` (infallible `f64` return, wired in V20 after
-//! `ToadStool` S68 absorption). `hill_repress` uses `1 - hill(x, k, n)`.
+//! barraCuda S68 absorption). `hill_repress` uses `1 - hill(x, k, n)`.
 
 /// Activating Hill function: `x^n / (K^n + x^n)`.
 ///
@@ -42,7 +42,7 @@ pub fn hill(x: f64, k: f64, n: f64) -> f64 {
 /// to `r` as `x → ∞`.
 ///
 /// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::monod` (absorbed in `ToadStool` S66 from
+/// `barracuda::stats::monod` (absorbed in barraCuda S66 from
 /// wetSpring bio metrics).
 #[must_use]
 #[inline]

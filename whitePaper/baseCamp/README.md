@@ -3,9 +3,9 @@
 **Purpose**: Per-faculty research briefings for groundSpring noise characterization
 reproductions and extensions.
 
-**Last Updated**: March 2, 2026
+**Last Updated**: March 3, 2026
 
-**Validation Summary**: 376/376 validation checks (321 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), **76 active delegations (44 CPU + 32 GPU) — `ToadStool` S87 (`2dc26792`)**, 783 workspace tests + 375 Python tests. All 33 experiments PASS. **30/30 mathematical parity proven**. Zero clippy warnings (pedantic), zero unsafe, zero TODO, zero `.unwrap()` in production lib, zero production mocks, all files < 1000 lines. V69: cross-spring evolution parity (Shannon, Simpson, Seismic, Anderson 2D/3D), universal precision audit (`ToadStool` S87), GPU→NPU PCIe bypass, NUCLEUS coordination. Paper 12 Exp 033 (29/29): cytokine Anderson lattice + geometry-aware drug scoring. 10 domains, 33 modules.
+**Validation Summary**: 376/376 validation checks (321 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), **81 active delegations (47 CPU + 34 GPU) — barraCuda v0.3.1**, 786+ workspace tests + 375 Python tests. All 33 experiments PASS. **28/28 mathematical parity proven**. Zero clippy warnings (pedantic + nursery), zero unsafe, zero TODO, zero `.unwrap()` in production lib, zero production mocks, all files < 1000 lines. V72: deep audit (silent-default elimination, BTreeMap determinism, Python CI coverage enforcement, idiomatic Rust patterns). Paper 12 Exp 033 (29/29): cytokine Anderson lattice + geometry-aware drug scoring. 10 domains, 33 modules.
 
 ---
 

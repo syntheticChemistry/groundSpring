@@ -14,7 +14,10 @@
 use groundspring::decompose::decompose_error;
 use groundspring::stats;
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{TOL_ANALYTICAL, TOL_EXACT};
+use groundspring_validate::{
+    THRESHOLD_GOOD_IA, THRESHOLD_GOOD_R2, TOL_ANALYTICAL, TOL_EXACT, TOL_REGIME,
+    TOL_STOCHASTIC_MEAN,
+};
 
 fn run() -> i32 {
     let mut h = ValidationHarness::stdout("Rust Validation: Weather Model-Observation Gap");
@@ -80,8 +83,8 @@ fn run() -> i32 {
 
     h.check_approx("Temp RMSE = 2.0", rmse, 2.0, TOL_ANALYTICAL);
     h.check_approx("Temp MBE = +2.0", mbe, 2.0, TOL_ANALYTICAL);
-    h.check_min("Temp R² > 0.95", r2, 0.95);
-    h.check_min("Temp IA > 0.9", ia, 0.9);
+    h.check_min("Temp R² > 0.95", r2, THRESHOLD_GOOD_R2);
+    h.check_min("Temp IA > 0.9", ia, THRESHOLD_GOOD_IA);
 
     // ── Bias-variance decomposition on weather data ─────────────────
     println!("\n--- Bias-Variance Decomposition ---");
@@ -115,11 +118,15 @@ fn run() -> i32 {
     let mbe_noisy = stats::mbe(&obs_temp, &mod_noisy);
     let rmse_noisy = stats::rmse(&obs_temp, &mod_noisy);
 
-    h.check_range("Noisy MBE near zero", mbe_noisy, -0.5, 0.5);
-    h.check_min("Noisy RMSE > 0", rmse_noisy, 0.01);
+    h.check_range("Noisy MBE near zero", mbe_noisy, -TOL_REGIME, TOL_REGIME);
+    h.check_min("Noisy RMSE > 0", rmse_noisy, TOL_STOCHASTIC_MEAN);
 
     let d_noisy = decompose_error(mbe_noisy, rmse_noisy);
-    h.check_min("Noisy: noise_fraction > 0.5", d_noisy.noise_fraction, 0.5);
+    h.check_min(
+        "Noisy: noise_fraction > 0.5",
+        d_noisy.noise_fraction,
+        TOL_REGIME,
+    );
 
     // ── Edge cases ──────────────────────────────────────────────────
     println!("\n--- Edge Cases ---");

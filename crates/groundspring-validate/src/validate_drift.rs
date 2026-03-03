@@ -124,10 +124,10 @@ fn run() -> i32 {
     let div_small = neutral_diversity_trajectory(n_sp, 50, n_gen, base_seed + 90000);
     let div_large = neutral_diversity_trajectory(n_sp, 500, n_gen, base_seed + 91000);
 
-    let h0s = div_small.first().copied().unwrap_or(0.0);
-    let hes = div_small.last().copied().unwrap_or(0.0);
-    let h0l = div_large.first().copied().unwrap_or(0.0);
-    let hel = div_large.last().copied().unwrap_or(0.0);
+    let h0s = *div_small.first().expect("non-empty small-pop trajectory");
+    let hes = *div_small.last().expect("non-empty small-pop trajectory");
+    let h0l = *div_large.first().expect("non-empty large-pop trajectory");
+    let hel = *div_large.last().expect("non-empty large-pop trajectory");
 
     println!("  N=50:  H(0)={h0s:.4} → H({n_gen})={hes:.4}");
     println!("  N=500: H(0)={h0l:.4} → H({n_gen})={hel:.4}");

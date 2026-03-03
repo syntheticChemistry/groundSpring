@@ -55,6 +55,19 @@ pub const TOL_GRID_MATCH: f64 = 0.01;
 /// may exhibit minor non-monotonicity from finite sampling.
 pub const TOL_MONOTONIC_SLACK: f64 = 0.15;
 
+/// Threshold for strong model performance: R² ≥ 0.95.
+/// Statistical regression fit quality — 95% of variance explained.
+pub const THRESHOLD_GOOD_R2: f64 = 0.95;
+
+/// Threshold for strong model agreement: IA ≥ 0.9.
+/// Willmott Index of Agreement (d) — 0.9 indicates excellent agreement
+/// between modeled and observed values.
+pub const THRESHOLD_GOOD_IA: f64 = 0.9;
+
+/// Anderson localization: Lyapunov exponent threshold for strong disorder.
+/// γ > 0.3 indicates exponential localization in 1D disordered systems.
+pub const THRESHOLD_LARGE_GAMMA: f64 = 0.3;
+
 /// Division-safe epsilon to avoid NaN in `x / y.max(EPS_SAFE_DIV)`.
 pub const EPS_SAFE_DIV: f64 = 1e-10;
 
@@ -327,18 +340,29 @@ pub fn bool_field(v: &Value, key: &str) -> bool {
 ///
 /// Displays source, baseline commit/date, and (when present) the script,
 /// command, and author that generated the baseline — full chain of custody.
+///
+/// # Panics
+///
+/// Panics if the benchmark JSON is missing `_source` or if `_provenance`
+/// is missing `baseline_commit` or `baseline_date`.
 pub fn print_provenance_header(bench: &Value, title: &str) {
     println!("{}", "=".repeat(72));
     println!("groundSpring Rust Validation: {title}");
     println!(
         "  Source: {}",
-        bench["_source"].as_str().unwrap_or("unknown")
+        bench["_source"]
+            .as_str()
+            .expect("benchmark JSON missing _source")
     );
     let prov = &bench["_provenance"];
     println!(
         "  Provenance: commit {}, {}",
-        prov["baseline_commit"].as_str().unwrap_or("unknown"),
-        prov["baseline_date"].as_str().unwrap_or("unknown"),
+        prov["baseline_commit"]
+            .as_str()
+            .expect("provenance missing baseline_commit"),
+        prov["baseline_date"]
+            .as_str()
+            .expect("provenance missing baseline_date"),
     );
     if let Some(script) = prov["validation_script"]
         .as_str()
@@ -439,7 +463,8 @@ mod tests {
     }
 
     #[test]
-    fn print_provenance_header_handles_missing_fields() {
+    #[should_panic(expected = "benchmark JSON missing _source")]
+    fn print_provenance_header_panics_on_missing_source() {
         let bench = json!({"_source": null, "_provenance": {}});
         print_provenance_header(&bench, "Fallback");
     }

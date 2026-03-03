@@ -287,7 +287,7 @@ pub fn seasonal_pipeline_gpu() -> Workload {
 /// L-BFGS refinement after grid search (V68).
 ///
 /// CPU: `barracuda::optimize::lbfgs_numerical` — gradient-free L-BFGS.
-/// Cross-spring lineage: airSpring V035 → `ToadStool` S84.
+/// Cross-spring lineage: airSpring V035 → barraCuda S84.
 #[must_use]
 pub fn lbfgs_grid_refine() -> Workload {
     Workload::new("L-BFGS grid refine (CPU)", vec![Capability::F64Compute])
@@ -296,7 +296,7 @@ pub fn lbfgs_grid_refine() -> Workload {
 /// 4D Anderson tissue lattice + Wegner RG coarsening (V68).
 ///
 /// GPU: `barracuda::spectral::anderson::anderson_4d` + `wegner_block_4d`.
-/// Cross-spring lineage: hotSpring precision → `ToadStool` S84.
+/// Cross-spring lineage: hotSpring precision → barraCuda S84.
 #[must_use]
 pub fn tissue_anderson_4d() -> Workload {
     Workload::new(

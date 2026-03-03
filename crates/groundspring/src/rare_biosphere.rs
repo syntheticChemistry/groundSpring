@@ -41,7 +41,7 @@ use crate::cast::{u64_f64, usize_f64};
 /// `S_obs + f₁(f₁ − 1) / 2` (Chao 1984).
 ///
 /// Delegates to `barracuda::stats::diversity::chao1_classic` when the
-/// `barracuda` feature is enabled (absorbed in `ToadStool` S71+++ with
+/// `barracuda` feature is enabled (absorbed in barraCuda S71+++ with
 /// Chao 1984 formula and `u64` input — formula parity confirmed).
 #[must_use]
 pub fn chao1(counts: &[u64]) -> f64 {

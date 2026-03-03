@@ -17,8 +17,14 @@
 //! dispatches as a 2D workgroup with per-point chi-squared reduction.
 //! When `barracuda` is enabled, the grid-search result is refined via
 //! `barracuda::optimize::lbfgs_numerical` (L-BFGS with numerical gradient,
-//! absorbed from airSpring V035 → `ToadStool` S84).
+//! absorbed from airSpring V035 → barraCuda S84).
 //! [`chi_squared`] and [`freeze_out_curve`] stay local (scalar ops).
+//!
+//! ## S80 evolution: batched Nelder-Mead GPU
+//!
+//! `barracuda::optimize::batched_nelder_mead_gpu` (barraCuda S80) enables
+//! multi-start derivative-free optimization. [`nelder_mead_multi_start`]
+//! exposes this as an alternative to L-BFGS for non-smooth landscapes.
 
 use crate::cast::usize_f64;
 
@@ -91,14 +97,7 @@ pub fn chi_squared_per_dof(chi2: f64, n_data: usize, n_params: usize) -> f64 {
 /// Returns [`crate::error::InputError::LengthMismatch`] if
 /// `config.observed` and `config.mu_b` have different lengths.
 pub fn grid_fit_2d(config: &GridFitConfig<'_>) -> Result<GridFitResult, crate::error::InputError> {
-    if config.observed.len() != config.mu_b.len() {
-        return Err(crate::error::InputError::LengthMismatch {
-            first: "observed",
-            first_len: config.observed.len(),
-            second: "mu_b",
-            second_len: config.mu_b.len(),
-        });
-    }
+    validate_config_lengths(config)?;
     #[cfg(feature = "barracuda-gpu")]
     {
         if let Some(result) = grid_fit_2d_gpu(config) {
@@ -112,10 +111,16 @@ pub fn grid_fit_2d(config: &GridFitConfig<'_>) -> Result<GridFitResult, crate::e
 /// Refine grid-search result via L-BFGS with numerical gradient.
 ///
 /// Cross-spring lineage: airSpring V035 parameter fitting →
-/// `ToadStool` S84 `barracuda::optimize::lbfgs_numerical` →
+/// barraCuda S84 `barracuda::optimize::lbfgs_numerical` →
 /// groundSpring freeze-out refinement.
+#[cfg_attr(
+    not(feature = "barracuda"),
+    expect(
+        clippy::missing_const_for_fn,
+        reason = "const only in non-barracuda builds; runtime dispatch with barracuda"
+    )
+)]
 fn lbfgs_refine(
-    // config only used by the barracuda lbfgs_refine_barracuda path
     #[cfg_attr(not(feature = "barracuda"), allow(unused))] config: &GridFitConfig<'_>,
     coarse: GridFitResult,
 ) -> GridFitResult {
@@ -286,7 +291,7 @@ fn grid_fit_2d_cpu(config: &GridFitConfig<'_>) -> GridFitResult {
 /// per-datum contributions for detailed goodness-of-fit diagnosis.
 ///
 /// Cross-spring lineage: hotSpring `Chi2Decomposed` (nuclear structure
-/// fit quality) → `ToadStool` S59 `barracuda::stats::chi2` with p-value
+/// fit quality) → barraCuda S59 `barracuda::stats::chi2` with p-value
 /// via regularized incomplete gamma → groundSpring freeze-out analysis.
 #[derive(Debug, Clone)]
 pub struct Chi2Analysis {
@@ -396,6 +401,146 @@ fn chi2_analysis_cpu(
         pulls,
         p_value: f64::NAN,
     }
+}
+
+/// Multi-start Nelder-Mead refinement result.
+///
+/// Returned by [`nelder_mead_multi_start`] when the `barracuda-gpu`
+/// feature is enabled and a GPU device is available.
+#[derive(Debug, Clone)]
+pub struct NelderMeadMultiStartResult {
+    /// Best-fit T₀ parameter.
+    pub t0: f64,
+    /// Best-fit κ₂ parameter.
+    pub kappa2: f64,
+    /// Chi-squared value at the best fit.
+    pub chi_squared: f64,
+    /// Number of starts that converged.
+    pub converged_count: usize,
+}
+
+/// Multi-start Nelder-Mead refinement of the freeze-out fit.
+///
+/// Dispatches `n_starts` independent Nelder-Mead optimizations on GPU
+/// via `barracuda::optimize::batched_nelder_mead_gpu` (barraCuda S80).
+/// Each start initializes around the coarse grid-search result with
+/// random perturbations, exploring the landscape for global minima.
+///
+/// Requires `barracuda-gpu` feature. Returns `None` if no GPU is
+/// available or the feature is not enabled.
+///
+/// # Errors
+///
+/// Returns [`crate::error::InputError::LengthMismatch`] if
+/// `config.observed` and `config.mu_b` differ in length.
+pub fn nelder_mead_multi_start(
+    config: &GridFitConfig<'_>,
+    coarse: &GridFitResult,
+    n_starts: usize,
+) -> Result<Option<NelderMeadMultiStartResult>, crate::error::InputError> {
+    validate_config_lengths(config)?;
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        Ok(nelder_mead_multi_start_gpu(config, coarse, n_starts))
+    }
+    #[cfg(not(feature = "barracuda-gpu"))]
+    {
+        let _ = (coarse, n_starts);
+        Ok(None)
+    }
+}
+
+/// Shared validation for [`GridFitConfig`] slice lengths.
+const fn validate_config_lengths(
+    config: &GridFitConfig<'_>,
+) -> Result<(), crate::error::InputError> {
+    if config.observed.len() != config.mu_b.len() {
+        return Err(crate::error::InputError::LengthMismatch {
+            first: "observed",
+            first_len: config.observed.len(),
+            second: "mu_b",
+            second_len: config.mu_b.len(),
+        });
+    }
+    Ok(())
+}
+
+#[cfg(feature = "barracuda-gpu")]
+fn nelder_mead_multi_start_gpu(
+    config: &GridFitConfig<'_>,
+    coarse: &GridFitResult,
+    n_starts: usize,
+) -> Option<NelderMeadMultiStartResult> {
+    use barracuda::optimize::batched_nelder_mead_gpu::{BatchNelderMeadConfig, NelderMeadResult};
+
+    let device = crate::gpu::get_device()?;
+    let inv_sigma2 = 1.0 / (config.sigma * config.sigma);
+
+    let nm_config = BatchNelderMeadConfig {
+        dims: 2,
+        max_iters: 500,
+        tol: 1e-12,
+        ..BatchNelderMeadConfig::default()
+    };
+
+    let mut rng = crate::prng::Xorshift64::new(42);
+    let mut simplices = Vec::with_capacity(n_starts * 3 * 2);
+    for _ in 0..n_starts {
+        for vertex in 0..3 {
+            let t0 = coarse.t0
+                + if vertex == 0 {
+                    0.0
+                } else {
+                    rng.normal(0.0, config.t0_step * 2.0)
+                };
+            let k2 = coarse.kappa2
+                + if vertex == 0 {
+                    0.0
+                } else {
+                    rng.normal(0.0, config.k2_step * 2.0)
+                };
+            simplices.push(t0);
+            simplices.push(k2);
+        }
+    }
+
+    let observed = config.observed.to_vec();
+    let mu_b = config.mu_b.to_vec();
+
+    let f_values = |points: &[f64]| -> Vec<f64> {
+        points
+            .chunks(2)
+            .map(|p| {
+                let t0 = p[0];
+                let k2 = p[1];
+                observed
+                    .iter()
+                    .zip(mu_b.iter())
+                    .map(|(&o, &mu)| (o - freeze_out_curve(t0, k2, mu)).powi(2) * inv_sigma2)
+                    .sum()
+            })
+            .collect()
+    };
+
+    let results: Vec<NelderMeadResult> = barracuda::device::test_pool::tokio_block_on(async {
+        barracuda::optimize::batched_nelder_mead_gpu::batched_nelder_mead_gpu(
+            &device, &nm_config, n_starts, &simplices, f_values,
+        )
+        .await
+    })
+    .ok()?;
+
+    let converged_count = results.iter().filter(|r| r.converged).count();
+    let best = results
+        .iter()
+        .min_by(|a, b| a.best_value.total_cmp(&b.best_value))?;
+
+    Some(NelderMeadMultiStartResult {
+        t0: best.best_point[0],
+        kappa2: best.best_point[1],
+        chi_squared: best.best_value,
+        converged_count,
+    })
 }
 
 /// Configuration for a 2D grid-search fit.

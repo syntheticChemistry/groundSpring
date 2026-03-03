@@ -2,7 +2,7 @@
 
 > groundSpring as a **validation science primal** in the biomeOS ecosystem.
 
-**Status**: V30 concept (Feb 27, 2026)
+**Status**: V72 live (March 3, 2026)
 
 ## Role
 
@@ -68,7 +68,7 @@ groundSpring exposes validation science capabilities through the Neural API:
 
 ### What groundSpring CONSUMES
 
-- `compute.execute` (ToadStool) — GPU compute for barracuda delegations
+- `compute.execute` (ToadStool) — GPU compute for barracuda delegations (barracuda from `barraCuda` primal at `ecoPrimals/barraCuda/`)
 - `storage.put/get` (NestGate) — benchmark JSON storage and provenance
 - `science.diversity` (wetSpring) — Shannon diversity for cross-spring experiments
 

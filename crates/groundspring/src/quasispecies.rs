@@ -29,7 +29,7 @@
 //! — barracuda CPU candidates (two scalar ops each, Stays Local tier in
 //! practice). [`quasispecies_simulation`] is the GPU target: Wright-Fisher
 //! selection + per-locus mutation is embarrassingly parallel across
-//! replicates via `WrightFisherGpu` (`ToadStool` S66).
+//! replicates via `WrightFisherGpu` (barraCuda S66).
 
 use crate::cast::usize_f64;
 use crate::prng::Xorshift64;

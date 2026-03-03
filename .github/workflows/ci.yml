@@ -62,6 +62,20 @@ jobs:
       - run: cargo run --bin validate-size-convergence
       - run: cargo run --bin validate-vendor-parity
       - run: cargo run --bin validate-npu-anderson || echo "NPU binary skipped (requires AKD1000 hardware)"
+      - run: cargo run --bin validate-tissue-anderson
+
+  validate-metalforge:
+    name: metalForge validation
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo run --bin validate-metalforge-inventory || echo "metalForge inventory skipped (requires GPU hardware)"
+      - run: cargo run --bin validate-metalforge-spectral || echo "metalForge spectral skipped (requires GPU hardware)"
+      - run: cargo run --bin validate-metalforge-mathieu || echo "metalForge mathieu skipped (requires GPU hardware)"
+      - run: cargo run --bin validate-metalforge-pipeline || echo "metalForge pipeline skipped (requires GPU hardware)"
+      - run: cargo run --bin validate-metalforge-gpu || echo "metalForge GPU skipped (requires GPU hardware)"
 
   python:
     name: Python baselines
@@ -78,6 +92,7 @@ jobs:
       - run: mypy control/ tests/
       - run: python -m pytest tests/test_common.py tests/test_determinism.py tests/test_baseline_integrity.py -v
       - run: python -m pytest tests/test_experiments.py -v --timeout=300
+      - run: python -m pytest tests/ --cov=control --cov-fail-under=80 --timeout=300
 
   coverage:
     name: Coverage
@@ -89,7 +104,7 @@ jobs:
         with:
           components: llvm-tools-preview
       - run: cargo install cargo-llvm-cov
-      - run: cargo llvm-cov --workspace --lcov --output-path lcov.info --fail-under-lines 90
+      - run: cargo llvm-cov --workspace --ignore-filename-regex '(validate_|bench_|bin/)' --lcov --output-path lcov.info --fail-under-lines 90
       - uses: actions/upload-artifact@v4
         with:
           name: coverage

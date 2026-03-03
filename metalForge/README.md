@@ -5,9 +5,9 @@
 ## Purpose
 
 metalForge is where groundSpring writes GPU-ready implementations for
-absorption into ToadStool/BarraCUDA, following the pattern established
-by hotSpring. We write production-quality WGSL shaders locally, validate
-them against CPU references, then hand off via `wateringHole/handoffs/`.
+absorption into barraCuda, following the pattern established by hotSpring.
+We write production-quality WGSL shaders locally, validate them against
+CPU references, then hand off via `wateringHole/handoffs/`.
 
 groundSpring's metalForge is focused on **statistical compute kernels** —
 the measurement noise primitives that underpin all five experiments.
@@ -99,7 +99,7 @@ Following hotSpring's pattern:
 | `batched_multinomial` | **Absorbed S76** | `barracuda::shaders::bio::batched_multinomial_f64.wgsl` |
 | `mc_et0_propagate` | **Absorbed S72** | `barracuda::shaders::bio::mc_et0_propagate_f64.wgsl` |
 
-Local copies removed after ToadStool S87 catch-up — precision-aware `_f64`
+Local copies removed after barraCuda absorption — precision-aware `_f64`
 versions with DF64 fallback supersede them.
 
 ## Unique Shaders (remain in groundSpring)

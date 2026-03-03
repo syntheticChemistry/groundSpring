@@ -16,7 +16,13 @@
 //! Exit 0 if all checks pass, exit 1 on any failure.
 
 use groundspring_forge::harness::Harness;
+use groundspring_forge::tolerance::ToleranceTier;
 use std::time::Instant;
+
+const TOL_HERMAN_REL: f64 = 0.15;
+const TOL_EXTENDED_GAMMA: f64 = 0.1;
+const POISSON_R_LO: f64 = 0.30;
+const POISSON_R_HI: f64 = 0.45;
 
 fn run_mathieu_checks(harness: &mut Harness) {
     let dim = 100;
@@ -43,7 +49,7 @@ fn run_mathieu_checks(harness: &mut Harness) {
     let herman = (lambda_loc / 2.0_f64).ln();
     let rel_herman = (gamma_loc - herman).abs() / herman;
     println!("  Herman's formula: γ_exact = {herman:.6}, |Δ/γ| = {rel_herman:.4}");
-    harness.check("Herman's formula |Δ/γ| < 0.15", rel_herman < 0.15);
+    harness.check("Herman's formula |Δ/γ| < 0.15", rel_herman < TOL_HERMAN_REL);
 
     println!("\n--- Eigenvalue spectrum (λ=2.5, localized) ---\n");
 
@@ -55,7 +61,7 @@ fn run_mathieu_checks(harness: &mut Harness) {
     println!("  Level spacing ratio r = {r_loc:.4}, {disp_loc_us} µs");
     harness.check(
         "r(λ=2.5) ∈ Poisson [0.30, 0.45]",
-        (0.30..=0.45).contains(&r_loc),
+        (POISSON_R_LO..=POISSON_R_HI).contains(&r_loc),
     );
 
     println!("\n--- Extended regime (λ=1.0) ---\n");
@@ -68,7 +74,10 @@ fn run_mathieu_checks(harness: &mut Harness) {
     let cpu_ext_us = cpu_start.elapsed().as_micros();
 
     println!("  Lyapunov γ = {gamma_ext:.6}, {cpu_ext_us} µs");
-    harness.check("Extended γ near 0 (γ < 0.1)", gamma_ext < 0.1);
+    harness.check(
+        "Extended γ near 0 (γ < 0.1)",
+        gamma_ext < TOL_EXTENDED_GAMMA,
+    );
 
     let n_evals_ext =
         groundspring::almost_mathieu::eigenvalues(dim, lambda_ext, alpha, theta).len();
@@ -82,7 +91,10 @@ fn run_mathieu_checks(harness: &mut Harness) {
     let gamma_crit = groundspring::anderson::lyapunov_exponent(&pot_crit, 0.0);
     let herman_crit = (lambda_crit / 2.0_f64).ln();
     println!("  γ(λ=2.0) = {gamma_crit:.6} (Herman predicts ln(1) = {herman_crit:.1})");
-    harness.check("Critical γ near 0 (|γ| < 0.1)", gamma_crit.abs() < 0.1);
+    harness.check(
+        "Critical γ near 0 (|γ| < 0.1)",
+        gamma_crit.abs() < TOL_EXTENDED_GAMMA,
+    );
 
     println!("\n--- Eigenvalue spectrum determinism ---\n");
 
@@ -94,7 +106,10 @@ fn run_mathieu_checks(harness: &mut Harness) {
         .map(|(a, b)| (a - b).abs())
         .fold(0.0_f64, f64::max);
     println!("  Max |evals_a - evals_b| = {max_diff:.2e}");
-    harness.check("Eigenvalues deterministic", max_diff < 1e-12);
+    harness.check(
+        "Eigenvalues deterministic",
+        max_diff < ToleranceTier::Exact.relative_tolerance(),
+    );
 }
 
 fn main() {

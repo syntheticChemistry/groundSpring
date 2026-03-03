@@ -21,6 +21,8 @@ compile_error!("Exp 031 requires --features biomeos");
 use groundspring::biomeos;
 #[cfg(feature = "biomeos")]
 use groundspring::validate::ValidationHarness;
+#[cfg(feature = "biomeos")]
+use groundspring_validate::TOL_STOCHASTIC_MEAN;
 
 #[cfg(feature = "biomeos")]
 fn main() {
@@ -231,7 +233,10 @@ fn validate_local_compute(h: &mut ValidationHarness) {
 
     let gamma_clean = local_lyapunov(500, 0.0, 0.0, 1, 42);
     println!("  Local Lyapunov (W=0.0): γ = {gamma_clean:.6}");
-    h.check_true("Clean system γ ≈ 0", gamma_clean.abs() < 0.01);
+    h.check_true(
+        "Clean system γ ≈ 0",
+        gamma_clean.abs() < TOL_STOCHASTIC_MEAN,
+    );
 }
 
 #[cfg(feature = "biomeos")]

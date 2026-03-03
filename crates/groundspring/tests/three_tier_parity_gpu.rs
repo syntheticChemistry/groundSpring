@@ -256,7 +256,8 @@ fn gpu_bistable_batch_consistent() {
 #[test]
 fn gpu_jackknife_gpu_parity() {
     let data: Vec<f64> = (1..=20).map(f64::from).collect();
-    let jk = groundspring::jackknife::jackknife_mean_variance(&data).unwrap();
+    let jk = groundspring::jackknife::jackknife_mean_variance(&data)
+        .expect("jackknife on 1..=20 integer series");
     let expected_mean = 10.5;
     assert!(
         (jk.estimate - expected_mean).abs() < 1e-10,
@@ -426,7 +427,8 @@ fn gpu_lbfgs_refine_improves_grid_fit() {
         k2_hi: 0.025,
         k2_step: 0.001,
     };
-    let result = groundspring::freeze_out::grid_fit_2d(&config).unwrap();
+    let result = groundspring::freeze_out::grid_fit_2d(&config)
+        .expect("grid_fit_2d on freeze-out synthetic data");
     assert!(
         (result.t0 - t0_true).abs() < 2.5,
         "L-BFGS refined T₀={:.2} should be near {t0_true}",

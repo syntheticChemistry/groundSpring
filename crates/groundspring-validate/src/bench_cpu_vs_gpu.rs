@@ -209,7 +209,8 @@ fn bench_jackknife(iters: u32) -> BenchEntry {
 
     let cpu_ms = bench(
         || {
-            let r = groundspring::jackknife::jackknife_mean_variance(&data).unwrap();
+            let r = groundspring::jackknife::jackknife_mean_variance(&data)
+                .expect("jackknife on 500-point sinusoidal series");
             std::hint::black_box(r);
         },
         iters,
@@ -340,7 +341,8 @@ fn bench_freeze_out(iters: u32) -> BenchEntry {
 
     let cpu_ms = bench(
         || {
-            let r = groundspring::freeze_out::grid_fit_2d(&config).unwrap();
+            let r =
+                groundspring::freeze_out::grid_fit_2d(&config).expect("grid_fit_2d on 61×41 grid");
             std::hint::black_box(r);
         },
         iters,
@@ -426,7 +428,8 @@ fn bench_tridiag_eigh(iters: u32) -> BenchEntry {
 
     let cpu_ms = bench(
         || {
-            let r = groundspring::transport::tridiag_eigh(&diag, &offdiag).unwrap();
+            let r = groundspring::transport::tridiag_eigh(&diag, &offdiag)
+                .expect("tridiag_eigh on 200×200 matrix");
             std::hint::black_box(r);
         },
         iters,
@@ -450,7 +453,8 @@ fn bench_transport_msd(iters: u32) -> BenchEntry {
         })
         .collect();
     let offdiag = vec![1.0; n - 1];
-    let (evals, evecs) = groundspring::transport::tridiag_eigh(&diag, &offdiag).unwrap();
+    let (evals, evecs) = groundspring::transport::tridiag_eigh(&diag, &offdiag)
+        .expect("tridiag_eigh on 101×101 quasiperiodic chain");
 
     let cpu_ms = bench(
         || {

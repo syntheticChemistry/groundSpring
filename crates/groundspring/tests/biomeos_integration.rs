@@ -14,7 +14,6 @@
 #![cfg(feature = "biomeos")]
 
 use groundspring::biomeos;
-use std::path::PathBuf;
 
 // ── Socket Discovery ─────────────────────────────────────────────────
 
@@ -53,7 +52,7 @@ fn discover_socket_with_explicit_env_var() {
 
 #[test]
 fn capability_call_fails_gracefully_when_no_socket() {
-    let fake_path = PathBuf::from("/tmp/groundspring_biomeos_test_nonexistent.sock");
+    let fake_path = std::env::temp_dir().join("groundspring_biomeos_test_nonexistent.sock");
     let err = biomeos::capability_call(&fake_path, "compute.execute", "{}").unwrap_err();
     let msg = err.to_string();
     assert!(
@@ -64,7 +63,7 @@ fn capability_call_fails_gracefully_when_no_socket() {
 
 #[test]
 fn direct_rpc_call_fails_gracefully_when_no_socket() {
-    let fake_path = PathBuf::from("/tmp/groundspring_biomeos_test_nonexistent_rpc.sock");
+    let fake_path = std::env::temp_dir().join("groundspring_biomeos_test_nonexistent_rpc.sock");
     let err = biomeos::direct_rpc_call(&fake_path, "compute", "health", "{}").unwrap_err();
     let msg = err.to_string();
     assert!(
@@ -75,7 +74,7 @@ fn direct_rpc_call_fails_gracefully_when_no_socket() {
 
 #[test]
 fn storage_put_fails_gracefully_when_no_socket() {
-    let fake_path = PathBuf::from("/tmp/groundspring_biomeos_test_nonexistent_put.sock");
+    let fake_path = std::env::temp_dir().join("groundspring_biomeos_test_nonexistent_put.sock");
     let err = biomeos::storage_put(&fake_path, "test_key", "test_value").unwrap_err();
     let msg = err.to_string();
     assert!(
@@ -86,7 +85,7 @@ fn storage_put_fails_gracefully_when_no_socket() {
 
 #[test]
 fn storage_get_fails_gracefully_when_no_socket() {
-    let fake_path = PathBuf::from("/tmp/groundspring_biomeos_test_nonexistent_get.sock");
+    let fake_path = std::env::temp_dir().join("groundspring_biomeos_test_nonexistent_get.sock");
     let err = biomeos::storage_get(&fake_path, "test_key").unwrap_err();
     let msg = err.to_string();
     assert!(
@@ -97,7 +96,7 @@ fn storage_get_fails_gracefully_when_no_socket() {
 
 #[test]
 fn health_fails_gracefully_when_no_socket() {
-    let fake_path = PathBuf::from("/tmp/groundspring_biomeos_test_nonexistent_health.sock");
+    let fake_path = std::env::temp_dir().join("groundspring_biomeos_test_nonexistent_health.sock");
     let err = biomeos::health(&fake_path).unwrap_err();
     let msg = err.to_string();
     assert!(

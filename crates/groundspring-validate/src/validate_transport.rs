@@ -156,11 +156,11 @@ fn run() -> i32 {
         let beta = transport_exponent(&times, &msds_at_t);
         betas.push(beta);
 
-        let sigma_final = msds_at_t.last().copied().unwrap_or(0.0).sqrt();
+        let sigma_final = msds_at_t.last().expect("non-empty MSD series").sqrt();
         println!(
             "  MSD(t={:.0}) = {:.4}, σ = {sigma_final:.4}",
-            times.last().unwrap_or(&0.0),
-            msds_at_t.last().unwrap_or(&0.0)
+            times.last().expect("non-empty time series"),
+            msds_at_t.last().expect("non-empty MSD series")
         );
         println!("  Transport exponent β = {beta:.4}");
     }

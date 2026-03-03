@@ -11,7 +11,7 @@
 //!
 //! When the `barracuda` feature is enabled, delegates to
 //! `barracuda::stats::moving_window_stats_f64` (absorbed from airSpring
-//! in `ToadStool` S66).  The barracuda implementation uses the same
+//! in barraCuda S66).  The barracuda implementation uses the same
 //! two-pass algorithm (exact, not streaming) — identical results.
 
 /// Result of a moving-window statistics computation.

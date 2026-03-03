@@ -96,7 +96,7 @@ fn bootstrap_mean_cpu(
 /// and computes the weighted mean for each replicate.
 ///
 /// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::rawr_mean` (absorbed in `ToadStool` S66).
+/// `barracuda::stats::rawr_mean` (absorbed in barraCuda S66).
 ///
 /// # Panics
 ///
@@ -157,7 +157,7 @@ fn rawr_mean_cpu(data: &[f64], n_replicates: usize, confidence: f64, seed: u64) 
 /// More robust than [`bootstrap_mean`] for skewed or heavy-tailed data.
 ///
 /// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::bootstrap_median` (absorbed in `ToadStool` S64).
+/// `barracuda::stats::bootstrap_median` (absorbed in barraCuda S64).
 ///
 /// # Panics
 ///
@@ -229,7 +229,7 @@ fn bootstrap_median_cpu(
 /// small samples (common in field ecology and lattice QCD).
 ///
 /// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::bootstrap_std` (absorbed in `ToadStool` S64).
+/// `barracuda::stats::bootstrap_std` (absorbed in barraCuda S64).
 ///
 /// # Panics
 ///

@@ -60,7 +60,7 @@ declare -A CHECKS
 echo "================================================================"
 echo "  groundSpring — Three-Mode Benchmark"
 echo "  Date: $(date -Iseconds)"
-echo "  ToadStool HEAD: $(cd ../phase1/toadstool && git rev-parse --short HEAD 2>/dev/null || echo 'N/A')"
+echo "  barraCuda HEAD: $(cd ../barraCuda && git rev-parse --short HEAD 2>/dev/null || echo 'N/A')"
 echo "  groundSpring HEAD: $(git rev-parse --short HEAD)"
 echo "================================================================"
 echo ""

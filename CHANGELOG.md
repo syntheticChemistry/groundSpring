@@ -4,6 +4,59 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V72 Deep Audit + Debt Evolution + Idiomatic Maturation (Mar 3, 2026)
+
+#### Fixed
+- **Clippy failure**: `missing_const_for_fn` in `freeze_out::nelder_mead_multi_start` — extracted shared `const fn validate_config_lengths()` used by both `grid_fit_2d` and `nelder_mead_multi_start` (DRY + const-correct)
+- **Silent data loss**: `unwrap_or(0.0)` / `unwrap_or("")` in GHCND and IRIS JSON parsing replaced with `let Some(...) else { continue }` — invalid records now skipped instead of injected with zeroed defaults
+- **Non-deterministic iteration**: `HashMap` → `BTreeMap` for GHCND temperature maps in `validate_real_ghcnd_et0.rs` — DOY assignment now reproducible across runs
+- **Provenance enforcement**: `print_provenance_header` now `expect()`s mandatory `_source`, `baseline_commit`, `baseline_date` instead of defaulting to "unknown" — malformed benchmark JSON fails loudly
+
+#### Changed
+- **Bare `unwrap()` → descriptive `expect()`**: 10 sites across `bench_cpu_vs_gpu.rs`, `three_tier_parity_gpu.rs`, `three_tier_parity_bio.rs`, `validate_drift.rs`, `validate_transport.rs`, `drift.rs`
+- **Hardcoded constants → documented `mod station`**: GHCND station params (ID, lat, alt, weather defaults) in `validate_real_ghcnd_et0.rs` now live in a documented `station` module with NOAA source URLs
+- **Idiomatic iterator**: `find_band_edges` in `band_structure.rs` evolved from manual stateful `for` loop to `.map().collect()` + `.windows(2).filter_map()` pattern
+- **Python CI coverage enforced**: Added `pytest --cov=control --cov-fail-under=80` to CI workflow
+
+#### Added
+- **4 analytical ODE tests**: exponential decay (`e^{-t}`), simple harmonic oscillator (energy conservation), coupled rotation (`sin/cos`), logistic growth (`1/(1+9e^{-t})`) — `ode` module coverage from 2 → 6 tests
+- **3 benchmark JSON `data_origin` fields**: `sensor_noise`, `precision_drift`, `vendor_parity` — all 28/28 benchmarks now have complete provenance
+
+#### Quality
+- `cargo fmt --check`: PASS
+- `cargo clippy --all-targets -D warnings`: PASS (was FAIL before V72)
+- `cargo doc -D warnings`: PASS
+- `cargo test --workspace`: PASS (all tests)
+- 28/28 validation binaries: PASS (exit 0)
+- 27/27 Python experiments: PASS (1 skip: NPU hardware)
+- 252/252 Python baseline integrity: PASS
+
+### V71 barraCuda 0.3.1 Pin + Ecosystem Maturation (Mar 3, 2026)
+
+#### Changed
+- **barraCuda pin**: `b53c3de` (v0.2.1) → `f6895ca` (v0.3.1) — tarpc parity, 73 new tests, IPC E2E, debt cleanup
+- **toadStool pin**: S87 (`2dc26792`) → S93 (`9319668d`) — complete untangle, DF64 transfer, sovereignty audit
+- **wateringHole sync**: Pulled 16 new handoffs documenting budding, untangle, DF64 transfer, spring absorptions
+- **Maturity assessment**: barraCuda now Nascent-Stable (builds in CI, full toadStool untangle, 2,965 tests, version-aligned at 0.3.1)
+- **Zero breaking impact**: 0.3.1 tarpc type changes (MatmulResult, FheResult, DispatchResult) do not affect groundSpring
+- **Architecture clarified**: akida-driver stays with toadStool permanently (hardware, not math); barraCuda owns precision/quantization path (fp64 → int4)
+- **Handoff**: V71 budding maturation handoff with ecosystem guidance
+
+#### Quality
+- 786+ tests passing, 0 failed
+- `cargo clippy --all-features -- -W clippy::pedantic -W clippy::nursery`: zero warnings
+- barraCuda toadStool dependency fully removed upstream (toadstool_integration.rs deleted, npu/ops deleted)
+- barraCuda version alignment issue resolved (0.3.1 consistent across Cargo.toml, CHANGELOG, spec)
+
+### V70 barraCuda Budding — Standalone Primal (Mar 3, 2026)
+
+#### Changed
+- **barracuda dependency**: Rewired from `phase1/toadstool` to standalone `barraCuda` primal at `ecoPrimals/barraCuda/`
+- **New S80-S87 primitive delegations**: StatefulPipeline, BatchedEncoder, batched_nelder_mead_gpu, device-lost resilience, spectral diagnostics
+- **Handoff**: Updated wateringHole handoff for barraCuda budding from phase1/toadstool to standalone primal
+
+---
+
 ### V69+ Documentation Sweep + Zero-Debt `#[allow]` Audit (Mar 2, 2026)
 
 #### Changed

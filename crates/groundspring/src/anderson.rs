@@ -22,15 +22,17 @@
 //! when the feature gate is active — this is expected and documented in
 //! `specs/BARRACUDA_EVOLUTION.md` as Phase 2b alignment work.
 //!
-//! ## Cross-spring evolved capabilities (S59+)
+//! ## Cross-spring evolved capabilities (S59+, S79+)
 //!
 //! - `anderson_2d_eigenvalues` — 2D Anderson Hamiltonian via Lanczos.
-//!   Requires `barracuda-gpu`. hotSpring S26 Lanczos → `ToadStool` S59.
+//!   Requires `barracuda-gpu`. hotSpring S26 Lanczos → barraCuda S59.
 //! - `anderson_3d_eigenvalues` — 3D Anderson with true metal-insulator
 //!   transition at `W_c` ≈ 16.5. Requires `barracuda-gpu`.
 //! - [`disorder_sweep`] — GPU-accelerated disorder parameter sweep with
 //!   automatic level spacing ratio averaging. Feeds ESN regime classifier
 //!   (see [`crate::esn`]).
+//! - [`spectral_diagnostics`] — Spectral bandwidth, condition number, and
+//!   phase classification via `barracuda::spectral::stats` (barraCuda S79).
 
 use crate::prng::Xorshift64;
 
@@ -285,7 +287,7 @@ fn disorder_sweep_cpu(
 /// finite-size systems show a crossover that ESN classifiers can detect.
 ///
 /// Cross-spring lineage: hotSpring spectral theory (S26 Lanczos) +
-/// `ToadStool` S59 `anderson_2d` → groundSpring higher-dimensional
+/// barraCuda S59 `anderson_2d` → groundSpring higher-dimensional
 /// localization studies.
 ///
 /// # Arguments
@@ -315,7 +317,7 @@ pub fn anderson_2d_eigenvalues(
 /// localized.
 ///
 /// Cross-spring lineage: hotSpring `anderson_3d` (S59, correlated
-/// disorder variant for WDM transport) → `ToadStool` GPU sparse eigensolver
+/// disorder variant for WDM transport) → barraCuda GPU sparse eigensolver
 /// → groundSpring 3D localization validation.
 ///
 /// # Arguments
@@ -336,6 +338,118 @@ pub fn anderson_3d_eigenvalues(
 ) -> Vec<f64> {
     let csr = barracuda::spectral::anderson_3d(lx, ly, lz, disorder, seed);
     crate::lanczos::eigenvalues_from_csr(&csr, n_eigenvalues, seed.wrapping_add(1))
+}
+
+// ── Spectral diagnostics ──────────────────────────────────────────
+//
+// Cross-spring lineage: neuralSpring V69 spectral phase classification →
+// barraCuda S79 `spectral::stats` → groundSpring Anderson analysis.
+
+/// Spectral diagnostics for eigenvalue analysis.
+///
+/// Wraps `barracuda::spectral::stats` (barraCuda S79) to provide
+/// bandwidth, condition number, and phase classification for Anderson
+/// localization eigenvalue spectra.
+#[derive(Debug, Clone)]
+pub struct SpectralDiagnostics {
+    /// Spectral bandwidth (max − min eigenvalue).
+    pub bandwidth: f64,
+    /// Spectral condition number (max|λ| / min|λ|).
+    pub condition_number: f64,
+    /// Phase classification based on Marchenko-Pastur outlier fraction.
+    pub phase: SpectralPhaseLabel,
+}
+
+/// Spectral phase label matching barracuda's `SpectralPhase`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SpectralPhaseLabel {
+    /// < 5 % outliers beyond Marchenko-Pastur upper bound.
+    Bulk,
+    /// 5–20 % outliers.
+    EdgeOfChaos,
+    /// > 20 % outliers.
+    Chaotic,
+}
+
+/// Compute spectral diagnostics for an eigenvalue spectrum.
+///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::spectral::{spectral_bandwidth, spectral_condition_number,
+/// classify_spectral_phase}` (barraCuda S79, provenance: neuralSpring V69).
+///
+/// `marchenko_upper` is the Marchenko-Pastur upper bound for the
+/// eigenvalue distribution of the associated random matrix; eigenvalues
+/// exceeding this bound are counted as outliers for phase classification.
+#[must_use]
+pub fn spectral_diagnostics(eigenvalues: &[f64], marchenko_upper: f64) -> SpectralDiagnostics {
+    #[cfg(feature = "barracuda")]
+    return spectral_diagnostics_barracuda(eigenvalues, marchenko_upper);
+    #[cfg(not(feature = "barracuda"))]
+    spectral_diagnostics_cpu(eigenvalues, marchenko_upper)
+}
+
+#[cfg(feature = "barracuda")]
+fn spectral_diagnostics_barracuda(
+    eigenvalues: &[f64],
+    marchenko_upper: f64,
+) -> SpectralDiagnostics {
+    let bandwidth = barracuda::spectral::spectral_bandwidth(eigenvalues);
+    let condition_number = barracuda::spectral::spectral_condition_number(eigenvalues);
+    let phase = barracuda::spectral::classify_spectral_phase(eigenvalues, marchenko_upper);
+    SpectralDiagnostics {
+        bandwidth,
+        condition_number,
+        phase: match phase {
+            barracuda::spectral::SpectralPhase::Bulk => SpectralPhaseLabel::Bulk,
+            barracuda::spectral::SpectralPhase::EdgeOfChaos => SpectralPhaseLabel::EdgeOfChaos,
+            barracuda::spectral::SpectralPhase::Chaotic => SpectralPhaseLabel::Chaotic,
+        },
+    }
+}
+
+#[cfg(not(feature = "barracuda"))]
+fn spectral_diagnostics_cpu(eigenvalues: &[f64], marchenko_upper: f64) -> SpectralDiagnostics {
+    let (min, max, min_abs, max_abs) = eigenvalues.iter().fold(
+        (f64::INFINITY, f64::NEG_INFINITY, f64::INFINITY, 0.0_f64),
+        |(lo, hi, lo_abs, hi_abs), &x| {
+            (
+                lo.min(x),
+                hi.max(x),
+                lo_abs.min(x.abs()),
+                hi_abs.max(x.abs()),
+            )
+        },
+    );
+    let bandwidth = if eigenvalues.is_empty() {
+        0.0
+    } else {
+        max - min
+    };
+    let condition_number = if min_abs < 1e-300 {
+        f64::INFINITY
+    } else {
+        max_abs / min_abs
+    };
+
+    let outlier_frac = if eigenvalues.is_empty() {
+        0.0
+    } else {
+        let outliers = eigenvalues.iter().filter(|&&x| x > marchenko_upper).count();
+        crate::cast::usize_f64(outliers) / crate::cast::usize_f64(eigenvalues.len())
+    };
+    let phase = if outlier_frac < 0.05 {
+        SpectralPhaseLabel::Bulk
+    } else if outlier_frac <= 0.20 {
+        SpectralPhaseLabel::EdgeOfChaos
+    } else {
+        SpectralPhaseLabel::Chaotic
+    };
+
+    SpectralDiagnostics {
+        bandwidth,
+        condition_number,
+        phase,
+    }
 }
 
 #[cfg(test)]
@@ -487,5 +601,31 @@ mod tests {
                 "2D eigenvalue {e} exceeds bound {spectral_bound}"
             );
         }
+    }
+
+    #[test]
+    fn spectral_diagnostics_empty() {
+        let d = spectral_diagnostics(&[], 5.0);
+        assert!(d.bandwidth.abs() < f64::EPSILON);
+        assert_eq!(d.phase, SpectralPhaseLabel::Bulk);
+    }
+
+    #[test]
+    fn spectral_diagnostics_known_spectrum() {
+        let eigs = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+        let d = spectral_diagnostics(&eigs, 10.0);
+        assert!((d.bandwidth - 4.0).abs() < 1e-12, "bandwidth = max - min");
+        assert!((d.condition_number - 5.0).abs() < 1e-12, "κ = 5/1");
+        assert_eq!(d.phase, SpectralPhaseLabel::Bulk, "all below MP upper");
+    }
+
+    #[test]
+    fn spectral_diagnostics_chaotic() {
+        let mut eigs = vec![0.1; 10];
+        for e in &mut eigs[..8] {
+            *e = 100.0;
+        }
+        let d = spectral_diagnostics(&eigs, 0.5);
+        assert_eq!(d.phase, SpectralPhaseLabel::Chaotic, "80% outliers");
     }
 }

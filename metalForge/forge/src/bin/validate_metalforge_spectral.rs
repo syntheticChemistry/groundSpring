@@ -16,15 +16,21 @@
 //!
 //! Exit 0 if all checks pass, exit 1 on any failure.
 
+use groundspring::spectral_recon;
 use groundspring_forge::harness::Harness;
+use groundspring_forge::tolerance::ToleranceTier;
 use std::time::Instant;
+
+const TOL_RMSE_NOISELESS: f64 = 1e-6;
+const TOL_PEAK_OFFSET: f64 = 1.0;
+const TOL_PARITY_REL: f64 = 1e-8;
 
 fn run_spectral_checks(harness: &mut Harness) {
     let n_tau = 20;
     let n_omega = 40;
     let true_centre = 3.0;
     let true_width = 0.5;
-    let lambda = 1e-12;
+    let lambda = ToleranceTier::Exact.relative_tolerance();
 
     let tau: Vec<f64> = (1..=n_tau)
         .map(|idx| {
@@ -41,19 +47,17 @@ fn run_spectral_checks(harness: &mut Harness) {
         })
         .collect();
 
-    let kernel = groundspring::spectral_recon::build_kernel(&tau, &omega);
-    let rho_true =
-        groundspring::spectral_recon::gaussian_peak(&omega, true_centre, true_width, 1.0);
-    let g_data =
-        groundspring::spectral_recon::forward_correlator(&kernel, &rho_true, n_tau, n_omega);
+    let kernel = spectral_recon::build_kernel(&tau, &omega);
+    let rho_true = spectral_recon::gaussian_peak(&omega, true_centre, true_width, 1.0);
+    let g_data = spectral_recon::forward_correlator(&kernel, &rho_true, n_tau, n_omega);
 
     println!("\n--- CPU-only Tikhonov (local Cholesky) ---\n");
     let cpu_start = Instant::now();
-    let rho_cpu = cpu_tikhonov_solve(&kernel, &g_data, lambda, n_tau, n_omega);
+    let rho_cpu = spectral_recon::tikhonov_solve_cpu(&kernel, &g_data, lambda, n_tau, n_omega);
     let cpu_us = cpu_start.elapsed().as_micros();
-    let g_cpu = groundspring::spectral_recon::forward_correlator(&kernel, &rho_cpu, n_tau, n_omega);
-    let rmse_cpu = groundspring::spectral_recon::rmse(&g_data, &g_cpu);
-    let peak_cpu = groundspring::spectral_recon::peak_index(&rho_cpu);
+    let g_cpu = spectral_recon::forward_correlator(&kernel, &rho_cpu, n_tau, n_omega);
+    let rmse_cpu = spectral_recon::rmse(&g_data, &g_cpu);
+    let peak_cpu = spectral_recon::peak_index(&rho_cpu);
 
     println!("  RMSE(G, G_rec) = {rmse_cpu:.2e}");
     println!(
@@ -62,21 +66,19 @@ fn run_spectral_checks(harness: &mut Harness) {
     );
     println!("  Time: {cpu_us} µs");
 
-    harness.check("CPU RMSE < 1e-6", rmse_cpu < 1e-6);
+    harness.check("CPU RMSE < 1e-6", rmse_cpu < TOL_RMSE_NOISELESS);
     harness.check(
         "CPU peak within ±1.0",
-        (omega[peak_cpu] - true_centre).abs() < 1.0,
+        (omega[peak_cpu] - true_centre).abs() < TOL_PEAK_OFFSET,
     );
 
     println!("\n--- Dispatched Tikhonov (feature-gated barracuda) ---\n");
     let disp_start = Instant::now();
-    let rho_disp =
-        groundspring::spectral_recon::tikhonov_solve(&kernel, &g_data, lambda, n_tau, n_omega);
+    let rho_disp = spectral_recon::tikhonov_solve(&kernel, &g_data, lambda, n_tau, n_omega);
     let disp_us = disp_start.elapsed().as_micros();
-    let g_disp =
-        groundspring::spectral_recon::forward_correlator(&kernel, &rho_disp, n_tau, n_omega);
-    let rmse_disp = groundspring::spectral_recon::rmse(&g_data, &g_disp);
-    let peak_disp = groundspring::spectral_recon::peak_index(&rho_disp);
+    let g_disp = spectral_recon::forward_correlator(&kernel, &rho_disp, n_tau, n_omega);
+    let rmse_disp = spectral_recon::rmse(&g_data, &g_disp);
+    let peak_disp = spectral_recon::peak_index(&rho_disp);
 
     println!("  RMSE(G, G_rec) = {rmse_disp:.2e}");
     println!(
@@ -85,10 +87,10 @@ fn run_spectral_checks(harness: &mut Harness) {
     );
     println!("  Time: {disp_us} µs");
 
-    harness.check("Dispatched RMSE < 1e-6", rmse_disp < 1e-6);
+    harness.check("Dispatched RMSE < 1e-6", rmse_disp < TOL_RMSE_NOISELESS);
     harness.check(
         "Dispatched peak within ±1.0",
-        (omega[peak_disp] - true_centre).abs() < 1.0,
+        (omega[peak_disp] - true_centre).abs() < TOL_PEAK_OFFSET,
     );
 
     println!("\n--- CPU ↔ Dispatched Parity ---\n");
@@ -108,7 +110,7 @@ fn run_spectral_checks(harness: &mut Harness) {
     println!("  Max |ρ_cpu - ρ_disp| = {max_diff:.2e}");
     println!("  Relative difference  = {rel_diff:.2e}");
 
-    harness.check("Solutions agree (rel < 1e-8)", rel_diff < 1e-8);
+    harness.check("Solutions agree (rel < 1e-8)", rel_diff < TOL_PARITY_REL);
     harness.check("Peak location matches", peak_cpu == peak_disp);
 
     println!("\n--- Timing Summary ---\n");
@@ -119,91 +121,6 @@ fn run_spectral_checks(harness: &mut Harness) {
         let speedup = cpu_us as f64 / disp_us as f64;
         println!("  Ratio (CPU/Dispatched): {speedup:.2}x");
     }
-}
-
-/// CPU-only Tikhonov solve — bypasses feature-gated dispatch.
-fn cpu_tikhonov_solve(
-    kernel: &[f64],
-    data: &[f64],
-    reg_lambda: f64,
-    n_tau: usize,
-    n_omega: usize,
-) -> Vec<f64> {
-    let ktk = mat_transpose_mul(kernel, kernel, n_tau, n_omega, n_omega);
-    let ktg = mat_transpose_vec(kernel, data, n_tau, n_omega);
-
-    let mut mat_a = ktk;
-    for i in 0..n_omega {
-        mat_a[i * n_omega + i] += reg_lambda;
-    }
-
-    cholesky_solve(&mat_a, &ktg, n_omega)
-}
-
-fn mat_transpose_mul(
-    mat_a: &[f64],
-    mat_b: &[f64],
-    rows: usize,
-    cols_a: usize,
-    cols_b: usize,
-) -> Vec<f64> {
-    let mut out = vec![0.0; cols_a * cols_b];
-    for i in 0..cols_a {
-        for j in 0..cols_b {
-            let mut acc = 0.0;
-            for l in 0..rows {
-                acc = mat_a[l * cols_a + i].mul_add(mat_b[l * cols_b + j], acc);
-            }
-            out[i * cols_b + j] = acc;
-        }
-    }
-    out
-}
-
-fn mat_transpose_vec(mat: &[f64], vec_in: &[f64], rows: usize, cols: usize) -> Vec<f64> {
-    let mut out = vec![0.0; cols];
-    for i in 0..cols {
-        let mut acc = 0.0;
-        for l in 0..rows {
-            acc = mat[l * cols + i].mul_add(vec_in[l], acc);
-        }
-        out[i] = acc;
-    }
-    out
-}
-
-fn cholesky_solve(mat_a: &[f64], rhs: &[f64], dim: usize) -> Vec<f64> {
-    let mut low = vec![0.0_f64; dim * dim];
-    for i in 0..dim {
-        for j in 0..=i {
-            let mut acc: f64 = 0.0;
-            for k in 0..j {
-                acc = low[i * dim + k].mul_add(low[j * dim + k], acc);
-            }
-            if i == j {
-                low[i * dim + j] = (mat_a[i * dim + i] - acc).sqrt();
-            } else {
-                low[i * dim + j] = (mat_a[i * dim + j] - acc) / low[j * dim + j];
-            }
-        }
-    }
-    let mut y_vec = vec![0.0; dim];
-    for i in 0..dim {
-        let mut acc = 0.0;
-        for j in 0..i {
-            acc = low[i * dim + j].mul_add(y_vec[j], acc);
-        }
-        y_vec[i] = (rhs[i] - acc) / low[i * dim + i];
-    }
-    let mut x_vec = vec![0.0; dim];
-    for i in (0..dim).rev() {
-        let mut acc = 0.0;
-        for j in (i + 1)..dim {
-            acc = low[j * dim + i].mul_add(x_vec[j], acc);
-        }
-        x_vec[i] = (y_vec[i] - acc) / low[i * dim + i];
-    }
-    x_vec
 }
 
 fn main() {

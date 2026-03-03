@@ -11,7 +11,7 @@
 //!
 //! # Shader Provenance
 //!
-//! Each test maps to specific `ToadStool` shaders with cross-spring origins:
+//! Each test maps to specific barraCuda shaders with cross-spring origins:
 //!
 //! | Test | Shader | Origin |
 //! |------|--------|--------|

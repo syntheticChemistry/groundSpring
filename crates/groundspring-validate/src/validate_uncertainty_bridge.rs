@@ -12,7 +12,9 @@
 use groundspring::anderson::{localization_length, lyapunov_averaged};
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, print_provenance_header, usize_field};
+use groundspring_validate::{
+    f64_field, print_provenance_header, usize_field, THRESHOLD_LARGE_GAMMA, TOL_EQUILIBRIUM,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str =
@@ -93,10 +95,13 @@ fn validate_anderson_baseline(
         "Lyapunov exponent monotonically increasing with W",
         gammas.windows(2).all(|w| w[0] <= w[1]),
     );
-    h.check_true("Clean system (W=0.5) has small γ", gammas[0] < 0.1);
+    h.check_true(
+        "Clean system (W=0.5) has small γ",
+        gammas[0] < TOL_EQUILIBRIUM,
+    );
     h.check_true(
         "Strong disorder (W=12) has large γ",
-        *gammas.last().expect("non-empty disorder range") > 0.3,
+        *gammas.last().expect("non-empty disorder range") > THRESHOLD_LARGE_GAMMA,
     );
 }
 
