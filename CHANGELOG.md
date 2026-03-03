@@ -4,6 +4,28 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V69+ Documentation Sweep + Zero-Debt `#[allow]` Audit (Mar 2, 2026)
+
+#### Changed
+- **V68→V69** across all active docs (README, baseCamp, experiments, METHODOLOGY,
+  CROSS_SPRING_EVOLUTION, BARRACUDA_EVOLUTION, BARRACUDA_REQUIREMENTS,
+  PAPER_REVIEW_QUEUE, CONTROL_EXPERIMENT_STATUS, 5 graph TOMLs)
+- **S86→S87 cleanup**: CROSS_SPRING_SHADER_EVOLUTION.md S86/hash mismatch fixed
+- **172→187 metalForge checks** in CONTROL_EXPERIMENT_STATUS, BARRACUDA_REQUIREMENTS
+- **95→100+ three-tier parity** in CONTROL_EXPERIMENT_STATUS, STUDY
+- **1,151→1,158 grand total** in CONTROL_EXPERIMENT_STATUS
+- **ABSORPTION_MANIFEST.md**: shader inventory updated (absorbed shaders documented,
+  local `anderson_lyapunov` shaders listed)
+- **whitePaper/README.md**: shader section updated for ToadStool absorption
+- **ecoPrimals/whitePaper/gen3/baseCamp/README.md**: groundSpring V69 metrics
+- **CONTROL_RUN_LOG.md**: Run 40 (V69) added
+- **V69 handoff**: cross-spring bidirectional flow table added (Part 5)
+
+#### Fixed
+- **`#[allow(clippy::float_cmp)]`** reason comments added in 5 test files +
+  freeze_out.rs `allow(unused)` (zero-debt: "zero `#[allow]` without reason")
+- **918 Rust tests** stale count in CROSS_SPRING_SHADER_EVOLUTION.md → 783
+
 ### V69 ToadStool S87 Pin + Universal Precision Documentation (Mar 2, 2026)
 
 #### Added

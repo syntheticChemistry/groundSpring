@@ -12,7 +12,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **376/376 checks passed** across 33 validation binaries (321 core + 55 NUCLEUS).
 - Mathematical parity: **28/28 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.6× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.4× from Sturm tridiag**.
-- V68: Zero-debt codebase, 76 active delegations (44 CPU + 32 GPU) — ToadStool S87 (`2dc26792`). 783 Rust (default) + 375 Python = 1158 tests. 187 metalForge checks (130 forge + 57 mixed-hardware). 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). Tissue Anderson (Paper 12, Exp 033 — 29/29). GPU→NPU PCIe bypass pipeline, NUCLEUS atomic coordination. biomeOS Neural API live, NestGate data pipelines (NCBI, NOAA, IRIS).
+- V69: Zero-debt codebase, 76 active delegations (44 CPU + 32 GPU) — ToadStool S87 (`2dc26792`). 783 Rust (default) + 375 Python = 1158 tests. 187 metalForge checks (130 forge + 57 mixed-hardware). 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). Tissue Anderson (Paper 12, Exp 033 — 29/29). GPU→NPU PCIe bypass pipeline, NUCLEUS atomic coordination. biomeOS Neural API live, NestGate data pipelines (NCBI, NOAA, IRIS).
 
 ### Key Results
 
@@ -105,17 +105,15 @@ The `groundspring` crate provides 33 modules of pure safe Rust:
 
 ### GPU Evolution (metalForge)
 
-Two production WGSL shaders in `metalForge/shaders/` following hotSpring conventions
-(documented bindings, xoshiro128** PRNG, f64 precision, workgroup_size(64)):
+Two local WGSL shaders in `metalForge/shaders/` (unique to groundSpring, no ToadStool equivalent):
 
-1. **`mc_et0_propagate.wgsl`** (149 lines) — Monte Carlo uncertainty propagation
-   through FAO-56. Equation chain superseded by barracuda `Op::Fao56Et0`; the
-   MC noise wrapper (Box-Muller perturbation + dispatch) is the absorption target.
+1. **`anderson_lyapunov.wgsl`** (~80 lines) — f64 Lyapunov exponent computation for
+   Anderson localization experiments. Unique to groundSpring spectral theory.
+2. **`anderson_lyapunov_f32.wgsl`** (~80 lines) — f32 fallback for NAK/NVVM pipelines.
 
-2. **`batched_multinomial.wgsl`** (112 lines) — Batched multinomial sampling for
-   rarefaction. Binary search over cumulative probabilities, per-replicate PRNG state.
-
-See `metalForge/ABSORPTION_MANIFEST.md` for binding layouts and dispatch geometry.
+**Absorbed into ToadStool (removed V62)**: `mc_et0_propagate.wgsl` (→ S72
+`McEt0PropagateGpu`), `batched_multinomial.wgsl` (→ S76 `BatchedMultinomialGpu`).
+See `metalForge/ABSORPTION_MANIFEST.md` for the full inventory.
 
 ## Next Phase: Paper Review Candidates
 

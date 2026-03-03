@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: March 2, 2026 (V68)
+**Last Updated**: March 2, 2026 (V69)
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---
@@ -44,12 +44,12 @@
 
 **Phase 0**: ~261 checks (Python, 28 experiments). **Phase 1**: 376/376 PASS (Rust, 33 experiments). **Speedup**: 11.6× median (excl. LAPACK-bound), 51.2× peak (seismic).
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs (Exp 029–033 have no Python baseline).
-**V68 fresh validation**: 376/376 checks (33 binaries), 783 workspace tests, 100+ three-tier parity tests.
-**GPU dispatch (V31–V68)**: 15 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson, tissue_anderson, jackknife. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). 76 active delegations (44 CPU + 32 GPU) — ToadStool S87.
+**V69 fresh validation**: 376/376 checks (33 binaries), 783 workspace tests, 100+ three-tier parity tests.
+**GPU dispatch (V31–V69)**: 15 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson, tissue_anderson, jackknife. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). 76 active delegations (44 CPU + 32 GPU) — ToadStool S87.
 **V66 stats Tier A**: MAE, NSE/R² wired to `FusedMapReduceF64` GPU path. Bistable batch ODE via `BatchedOdeRK4F64`. Papers 1-5 stats fully GPU-capable.
 **V67 hydrology GPU**: `McEt0PropagateGpu` + `SeasonalPipelineF64` + `BatchedMultinomialGpu` API fix (3 call sites).
 **V68 spectral GPU**: `anderson_4d` + `wegner_block_4d` (tissue immunology). `lbfgs_numerical` post-grid refinement.
-**Three-tier parity (V43→V68)**: 30/30 PROVEN (default = barracuda-CPU = barracuda-GPU). GPU tier: 76 checks. metalForge dispatch: 30/30 workloads, 187 checks.
+**Three-tier parity (V43→V69)**: 30/30 PROVEN (default = barracuda-CPU = barracuda-GPU). GPU tier: 76 checks. metalForge dispatch: 30/30 workloads, 187 checks.
 **Exp 015** bridges Papers 22-24 (Sub-thesis 06): sensor noise → Anderson ξ → QS regime uncertainty.
 **Cross-spring shader evolution**: `hotSpring` precision shaders (f64 fused-reduce, Cholesky) and `wetSpring` bio shaders (Gillespie, ODE, multinomial) both feed `groundSpring` GPU tier via `ToadStool` unidirectional streaming.
 
@@ -228,7 +228,7 @@ datasets, no proprietary software dependencies.
 | 33 | Tissue Anderson 4D + Wegner RG | Synthetic lattice (analytical) | Reproducible params | **Yes** |
 
 **Status**: All 33 papers use open data or open systems. Zero proprietary dependencies.
-**Verified V68**: `test_baseline_integrity.py` confirms all baseline JSONs have complete provenance.
+**Verified V69**: `test_baseline_integrity.py` confirms all baseline JSONs have complete provenance.
 
 ---
 
@@ -282,7 +282,7 @@ Write → Absorb → Lean cycle:
 **GPU tier**: 15 modules wired with `#[cfg(feature = "barracuda-gpu")]` — stats Tier A complete (MAE, NSE, R²), bistable batch ODE, McEt0PropagateGpu, SeasonalPipelineF64, 4D Anderson + Wegner RG, L-BFGS refinement. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only). GPU grid adapters (seismic, freeze-out). 783 tests pass.
 **metalForge tier**: 30 workloads, 187 checks (groundspring-forge crate, Exp 028 NPU DMA on AKD1000, pipeline dispatch, PCIe topology, GPU→NPU bypass).
 
-### GPU / metalForge Progression (updated V68 — ToadStool S87)
+### GPU / metalForge Progression (updated V69 — ToadStool S87)
 
 | # | Paper (short) | CPU | GPU | metalForge | Status |
 |---|--------------|:---:|:---:|:----------:|--------|
@@ -309,7 +309,7 @@ Write → Absorb → Lean cycle:
 | 29-32 | NUCLEUS experiments | **55/55 PASS** | — | sovereign fallback | Real data (NOAA, NCBI, IRIS) |
 | 33 | Paper 12 tissue Anderson | **29/29 PASS** | **Wired** (V68 4D Anderson + RG) | Workload defined | `anderson_4d` + `wegner_block_4d` |
 
-### BarraCUDA Kernel Requirements Summary (V68 — ToadStool S87)
+### BarraCUDA Kernel Requirements Summary (V69 — ToadStool S87)
 
 | Kernel | Papers | Status | Priority |
 |--------|--------|--------|----------|
@@ -370,10 +370,10 @@ Papers 23, 24 — **partial** (stats GPU, full chain pending).
 Pure safe Rust with optional `barracuda` feature gate delegation.
 76 active delegations (44 CPU + 32 GPU) — ToadStool S87 (`2dc26792`). 11.5× faster than Python (excl. LAPACK-bound).
 783 Rust workspace tests + 375 Python = 1158. 28/28 mathematical parity proven. 100+ three-tier parity tests (100% delegation coverage).
-376/376 validation checks across 33 experiments (V68, zero-debt audit certified).
+376/376 validation checks across 33 experiments (V69, zero-debt audit certified).
 All 33 experiments validated. GPU stats dispatch (mean, std_dev, rmse, mbe, mae, nse, r², pearson_r). L-BFGS post-grid refinement (V68). 14 CPU vs GPU parity tests. CPU vs GPU benchmark binary.
 
-### Tier 2: BarraCUDA GPU (32 GPU dispatch targets — V68)
+### Tier 2: BarraCUDA GPU (32 GPU dispatch targets — V69)
 
 GPU wiring covers 25 of 33 papers (76%). Unidirectional streaming via
 `ToadStool` dispatch reduces round trips — CPU uploads once, GPU computes
@@ -400,7 +400,7 @@ bio shaders (Gillespie, ODE, multinomial) both feed `groundSpring` GPU tier.
 | Shannon entropy | 4, 20-21 | `FusedMapReduceF64::shannon_entropy` | **ABSORBED** |
 | Hill kinetics | 10, 11 | `barracuda::stats::hill` | **ABSORBED** (S68) |
 
-### Tier 3: metalForge Cross-Substrate (30 workloads — V68)
+### Tier 3: metalForge Cross-Substrate (30 workloads — V69)
 
 Mixed hardware dispatch using metalForge forge crate. 30 workloads
 (24 GPU + 2 NPU + 2 CPU-only + 2 mixed), 187 checks. Exp 028 validates

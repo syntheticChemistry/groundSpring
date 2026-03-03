@@ -5,6 +5,7 @@
 //! results across reruns. Any failure here indicates non-deterministic
 //! floating-point paths (thread scheduling, unordered reductions, etc.).
 
+// Bitwise determinism: tests intentionally compare exact f64 bits across runs.
 #![allow(clippy::float_cmp)]
 
 use groundspring::almost_mathieu::{eigenvalues, level_spacing_ratio, potential};

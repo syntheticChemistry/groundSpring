@@ -88,7 +88,7 @@ NumPy ODE           ────────→  bistable + multisignal      →
 
 Phase 2a (DONE)                Phase 2b (GPU — V31 IN PROGRESS)
 ──────────────                 ────────────────────────────────
-73 active (43 CPU + 30 GPU) → GPU grid adapters + 3 new CPU delegations (V53), 12-workload benchmark. 172 metalForge checks
+73 active (43 CPU + 30 GPU) → GPU grid adapters + 3 new CPU delegations (V53), 12-workload benchmark. 187 metalForge checks
 prng::Xorshift64    ────────→  Tier B: align to barracuda xoshiro128**
 fao56::daily_et0    ────────→  Tier C: mc_et0_propagate.wgsl absorbed S72 ✓
 rarefaction         ────────→  Tier C: batched_multinomial.wgsl absorbed S76 ✓

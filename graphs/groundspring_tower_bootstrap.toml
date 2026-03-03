@@ -3,7 +3,7 @@
 # between all groundSpring primals. This is the foundation that
 # Node (Tower + ToadStool) and Nest (Tower + NestGate) build on.
 #
-# STATUS: V68 (March 2, 2026) — ToadStool S87 (2dc26792)
+# STATUS: V69 (March 2, 2026) — ToadStool S87 (2dc26792)
 # Atomic: Tower (BearDog + Songbird)
 # Target: Eastgate (local, single machine)
 # Precision: f64-capable device selection with DF64 fallback
@@ -22,7 +22,7 @@ coordination = "Sequential"
 [graph.metadata]
 toadstool_pin = "S87"
 toadstool_commit = "2dc26792"
-groundspring_version = "V68"
+groundspring_version = "V69"
 target_node = "eastgate"
 
 # ═══════════════════════════════════════════════════════════════════════════════

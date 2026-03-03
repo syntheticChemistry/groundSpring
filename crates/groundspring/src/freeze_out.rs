@@ -115,6 +115,7 @@ pub fn grid_fit_2d(config: &GridFitConfig<'_>) -> Result<GridFitResult, crate::e
 /// `ToadStool` S84 `barracuda::optimize::lbfgs_numerical` →
 /// groundSpring freeze-out refinement.
 fn lbfgs_refine(
+    // config only used by the barracuda lbfgs_refine_barracuda path
     #[cfg_attr(not(feature = "barracuda"), allow(unused))] config: &GridFitConfig<'_>,
     coarse: GridFitResult,
 ) -> GridFitResult {

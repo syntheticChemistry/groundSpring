@@ -1,6 +1,6 @@
 # Cross-Spring Shader Evolution
 
-**Last updated**: March 2, 2026 (V68 — 76 delegations, 783 tests)
+**Last updated**: March 2, 2026 (V69 — 76 delegations, 783 tests)
 
 The ecoPrimals shader ecosystem evolved organically as each spring
 absorbed domain-specific knowledge, then shared it through ToadStool's

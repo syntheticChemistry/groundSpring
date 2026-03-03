@@ -2,7 +2,7 @@
 # Validates mathematical parity across CPU, GPU, and NPU substrates
 # using metalForge dispatch and NUCLEUS atomic coordination.
 #
-# STATUS: V68 (March 2, 2026) — ToadStool S87 (2dc26792)
+# STATUS: V69 (March 2, 2026) — ToadStool S87 (2dc26792)
 # Atomic: Node (Tower + ToadStool) — requires GPU compute (f64-capable device)
 # Optional: Nest (Tower + NestGate) — provenance storage
 #
@@ -17,7 +17,7 @@ coordination = "Sequential"
 [graph.metadata]
 toadstool_pin = "S87"
 toadstool_commit = "2dc26792"
-groundspring_version = "V68"
+groundspring_version = "V69"
 target_node = "eastgate"
 
 # ═══════════════════════════════════════════════════════════════════════════════

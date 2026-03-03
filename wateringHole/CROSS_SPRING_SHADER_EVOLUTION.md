@@ -3,7 +3,7 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 2, 2026 (V68: 76 active delegations (44 CPU + 32 GPU), 1 evolution candidate, `ToadStool` S86 `2dc26792` — V68: L-BFGS post-grid-search refinement (airSpring V035 → S84), 4D Anderson + Wegner RG tissue modeling (hotSpring precision → S84), GPU parity buildout + GPU→NPU PCIe bypass, 30 metalForge workloads, 783 tests, 187 checks)
+**Last Updated**: March 2, 2026 (V69: 76 active delegations (44 CPU + 32 GPU), 1 evolution candidate, `ToadStool` S87 `2dc26792` — V69: cross-spring evolution parity (Shannon, Simpson, Seismic, Anderson 2D/3D), provenance timeline, universal precision audit, 30 metalForge workloads, 783 tests, 187 checks)
 
 ---
 
@@ -34,7 +34,7 @@ groundSpring (noise validation) → jackknife, evolution (Kimura fixation, quasi
                                   grid search/fit ops, batched multinomial, MC ET₀ propagation,
                                   L-BFGS refinement, 4D Anderson tissue + Wegner RG
                                   ↓
-                          BarraCUDA S86 (ToadStool 2dc26792)
+                          BarraCUDA S87 (ToadStool 2dc26792)
                     14,200+ tests, 844 WGSL shaders (f64-canonical, DF64 universal precision, 15 transcendentals)
 ```
 
@@ -85,7 +85,7 @@ statistical and biological primitives groundSpring uses.
 | `stats::diversity` (Shannon, Simpson, Chao1, etc.) | S64 | **Delegation #20**: `shannon_diversity` |
 | `anderson_3d_correlated`, `find_w_c` | S59 | Future Anderson extensions |
 | `bray_curtis_f64` | S15 | Diversity metric for rarefaction context |
-| 918 Rust tests + 95 experiments | — | Validates the statistical and bio paths |
+| 783 Rust tests + 33 experiments | — | Validates the statistical and bio paths |
 
 **Why it matters**: wetSpring's bio-ODE systems were absorbed into barracuda
 (S58), enabling groundSpring to delegate Exp 010/011 derivatives. The diversity
@@ -543,6 +543,7 @@ The 844 barracuda WGSL shaders that groundSpring's delegations ultimately depend
 | Mar 2 | **groundSpring V62** | **ToadStool S79 catch-up**: pollster eliminated (`tokio_block_on`), f64-capable device selection (`WgpuDevice::new_f64_capable` with fallback), DF64 precision strategy wired, 2 redundant shaders removed (absorbed into ToadStool), SPDX harmonized (AGPL-3.0-only), cross-spring shader lineage documented. 710 tests, 23/23 cross-spring benchmark, 39/39 GPU tier, 13/13 Titan V + RTX 4070 validation |
 | Mar 2 | **groundSpring V67** | **ToadStool S87 catch-up**: `McEt0PropagateGpu` + `SeasonalPipelineF64` GPU wirings, `BatchedMultinomialGpu::sample` API break fix (3 sites), 73 delegations (43 CPU + 30 GPU), 28 metalForge workloads |
 | Mar 2 | **groundSpring V68** | **Complete rewiring + cross-spring benchmark**: L-BFGS refinement (airSpring V035 → S84 → freeze_out), 4D Anderson + Wegner RG (hotSpring precision → S84 → tissue_anderson), 76 delegations (44 CPU + 32 GPU), 30 metalForge workloads. Cross-spring lineage: hotSpring precision shaders enable tissue 4D; airSpring optimizer enables freeze-out sub-grid refinement; wetSpring bio + neuralSpring infra form foundation for all stochastic GPU dispatch |
+| Mar 2 | **groundSpring V69** | **S87 pin + cross-spring evolution parity**: 5 new parity tests validating cross-spring shader evolution — Shannon diversity (wetSpring S64), Simpson diversity (wetSpring S64), Seismic grid search (groundSpring S71+++), Anderson 2D (hotSpring S59), Anderson 3D (hotSpring S59). Cross-spring evolution timeline (4-phase) + provenance table (+6 S72-S87 ops). Universal precision audit: "Math is universal, precision is silicon." 783 tests, 187 checks |
 
 ---
 
@@ -616,7 +617,7 @@ correctly in production.
 
 | Tier | Count | Notes |
 |------|-------|-------|
-| CPU active | 44 | S86 canonical (V68: +lbfgs_refine_barracuda) |
+| CPU active | 44 | S87 canonical (V69: +cross-spring parity) |
 | GPU active | 32 | includes 4D Anderson, Wegner RG, McEt0, seasonal pipeline, JackknifeMeanGpu, HargreavesBatchGpu |
 | Evolution candidates | 1 | band_edges (algorithm mismatch) |
 | **Total active** | **76** | 783 tests |

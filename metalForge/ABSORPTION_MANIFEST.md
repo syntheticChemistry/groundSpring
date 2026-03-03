@@ -48,12 +48,14 @@
 
 ## WGSL Shader Inventory
 
-| Shader | Lines | Status | Bindings | Dispatch |
-|---|---|---|---|---|
-| `batched_multinomial.wgsl` | 112 | **Production** — xoshiro PRNG + binary search | 4 bindings (params, cumulative, seeds, counts) | `(ceil(n_reps/64), 1, 1)` |
-| `mc_et0_propagate.wgsl` | 149 | **Production** — full equation chain + MC wrapper | 5 bindings (params, base, uncertainties, seeds, output) | `(ceil(n_samples/64), 1, 1)` |
+| Shader | Lines | Status | Notes |
+|---|---|---|---|
+| `anderson_lyapunov.wgsl` | ~80 | **Production** — f64 Lyapunov exponent (unique to groundSpring) | No ToadStool equivalent |
+| `anderson_lyapunov_f32.wgsl` | ~80 | **Fallback** — f32 for NAK/NVVM pipelines | f32 variant of above |
 
-Both shaders use xoshiro128** matching `barracuda::ops::prng_xoshiro_wgsl`.
+**Absorbed into ToadStool (removed V62)**:
+- `batched_multinomial.wgsl` — absorbed S76, now `barracuda::stats::gpu::BatchedMultinomialGpu`
+- `mc_et0_propagate.wgsl` — absorbed S72, now `barracuda::stats::hydrology::gpu::McEt0PropagateGpu`
 
 ---
 

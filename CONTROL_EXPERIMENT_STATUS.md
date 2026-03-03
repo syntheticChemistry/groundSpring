@@ -54,9 +54,9 @@
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
 **Paper 12**: `tissue_anderson` module — 18 unit tests + 29/29 validation checks + 4D Anderson + Wegner RG (V68)
-**Handoff**: V68 (complete rewiring — L-BFGS refinement, 4D Anderson, cross-spring benchmark)
+**Handoff**: V69 (complete rewiring — L-BFGS refinement, 4D Anderson, cross-spring benchmark)
 
-**Python checks**: ~160 across 28 experiments. **Rust validation checks**: 376 (321 core + 55 NUCLEUS). **metalForge + pipeline checks**: 172.
+**Python checks**: ~160 across 28 experiments. **Rust validation checks**: 376 (321 core + 55 NUCLEUS). **metalForge + pipeline checks**: 187.
 
 ## Phase 0 — Python/NumPy/SciPy Baselines
 
@@ -455,7 +455,7 @@ Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classi
 | Rust `#[test]` (validate-lib) | 12 | Unit tests for shared validation helpers |
 | Rust proptest | 14 | Property-based invariant tests |
 | Rust determinism | 13 | Bitwise-identical rerun verification |
-| Rust three-tier parity | 95 | CPU/GPU/barracuda parity + pure GPU validation + CPU/GPU stats parity (100% delegation coverage) |
+| Rust three-tier parity | 100 | CPU/GPU/barracuda parity + pure GPU validation + CPU/GPU stats parity (100% delegation coverage) |
 | Rust integration | 33 | Validation binary integration tests |
 | Rust doc test | 2 | Documentation example test |
 | Rust forge | 49 | groundspring-forge crate tests (incl. 14 V35 arch-aware routing) |
@@ -463,14 +463,14 @@ Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classi
 | **Total Rust (default)** | **783** | |
 | **Total Rust (barracuda-gpu)** | **785** | |
 | **Total Python** | **375** | (+3 skipped) |
-| **Grand Total** | **1,151** | |
+| **Grand Total** | **1,158** | |
 
 
 ## Run Log
 
 See [CONTROL_RUN_LOG.md](CONTROL_RUN_LOG.md) for the complete historical run log.
 
-**Latest**: Run 39 (V68 Experiment Buildout + GPU Parity + Mixed-Hardware Pipeline, Mar 2, 2026) — 783 Rust tests, 375 Python tests, 376/376 validation checks + 57/57 mixed-hardware checks, all PASS. 76 barracuda delegations (44 CPU + 32 GPU). GPU→NPU→CPU pipeline dispatch validated. NUCLEUS atomic coordination validated.
+**Latest**: Run 39 (V69 Experiment Buildout + GPU Parity + Mixed-Hardware Pipeline, Mar 2, 2026) — 783 Rust tests, 375 Python tests, 376/376 validation checks + 57/57 mixed-hardware checks, all PASS. 76 barracuda delegations (44 CPU + 32 GPU). GPU→NPU→CPU pipeline dispatch validated. NUCLEUS atomic coordination validated.
 
 ### Run 37 (V51 GPU Stats Dispatch + CPU/GPU Parity Proof, Feb 28, 2026)
 
@@ -564,7 +564,7 @@ Each experiment is validated at three hardware tiers:
 | **GPU** | `barracuda` feature + GPU adapter | GPU matches CPU within tolerance |
 | **metalForge** | Mixed hardware dispatch | Cross-substrate agreement |
 
-### Current Status (V68)
+### Current Status (V69)
 
 | # | Experiment | CPU | GPU | metalForge | GPU Status |
 |---|-----------|:---:|:---:|:----------:|------------|
@@ -603,7 +603,7 @@ Each experiment is validated at three hardware tiers:
 **GPU tier**: 25 of 33 papers have GPU wiring (76%). 76 delegations (44 CPU + 32 GPU). 30/30 metalForge parity.
 **metalForge tier**: 30 workloads, 187 checks (57 mixed-hardware). Exp 028 NPU 9/9 PASS (AKD1000 DMA). GPU→NPU→CPU pipeline dispatch validated.
 
-### BarraCUDA Integration Status (V68 — ToadStool S87)
+### BarraCUDA Integration Status (V69 — ToadStool S87)
 
 **76 active delegations** (44 CPU + 32 GPU). V67: `McEt0PropagateGpu`, `SeasonalPipelineF64`, `BatchedMultinomialGpu` API fix. V68: `lbfgs_numerical`, `anderson_4d`, `wegner_block_4d`. All active delegations use `if let Ok` / `#[cfg]` with always-compiled CPU fallback.
 
@@ -777,7 +777,7 @@ Unidirectional streaming reduces dispatch round-trips.
 
 **Three-Tier Parity**: 30/30 experiments PROVEN. See `data/three_tier_parity_report.json`.
 
-### Stage 4: metalForge Cross-System (CPU ↔ GPU ↔ NPU) — V68 VALIDATED
+### Stage 4: metalForge Cross-System (CPU ↔ GPU ↔ NPU) — V69 VALIDATED
 
 30 metalForge workloads route to optimal substrate per operation.
 187 total checks (130 forge + 57 mixed-hardware).
@@ -812,7 +812,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 
 | Handoff | Scope | Status |
 |---------|-------|--------|
-| V68: Comprehensive Evolution | 76 delegations, 4D Anderson+RG, L-BFGS refinement, cross-spring benchmarks, P0-P3 action items | **Current** |
+| V69: Comprehensive Evolution | 76 delegations, 4D Anderson+RG, L-BFGS refinement, cross-spring benchmarks, P0-P3 action items | **Current** |
 | V67: S86 Catch-Up | `McEt0PropagateGpu`, `SeasonalPipelineF64`, `BatchedMultinomialGpu` API fix, Cholesky GPU | Archived |
 | V55: barracuda Evolution Review + Docs Cleanup | Complete 57-delegation inventory, cross-spring lineage, recommended evolutions, stale refs cleaned. | Archived |
 | V54: Full Control Validation + CPU Parity Proof | 283/283 checks, 95/95 parity, Rust 11.6× faster than Python. | Archived |
@@ -858,7 +858,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V68_COMPREHENSIVE_EVOLUTION_HANDOFF_MAR02_2026.md`
+Active: `wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V69_COMPREHENSIVE_EVOLUTION_HANDOFF_MAR02_2026.md`
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

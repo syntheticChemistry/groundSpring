@@ -8,6 +8,7 @@
 //! produce identical results regardless of feature mode
 //! (default / barracuda / barracuda-gpu).
 
+// Bitwise determinism: parity tests intentionally compare exact f64 bits.
 #![allow(clippy::float_cmp)]
 
 // ── drift ───────────────────────────────────────────────────────────

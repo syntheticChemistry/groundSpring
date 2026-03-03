@@ -5,6 +5,25 @@ See [CONTROL_EXPERIMENT_STATUS.md](CONTROL_EXPERIMENT_STATUS.md) for the current
 
 ## Run Log
 
+### Run 40 (V69 Cross-Spring Evolution Parity + Universal Precision Audit, Mar 2, 2026)
+
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings`: PASS (0 warnings)
+- `RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps`: PASS (0 warnings)
+- `cargo test --workspace` (default): 783 tests, all PASS (up from 780)
+- `cargo test --workspace --features barracuda-gpu`: 785 tests, all PASS
+- **ToadStool pin**: S86 → S87 (`2dc26792`) — FHE shader fix, async-trait reclassification, unsafe audit
+- **NEW** 5 cross-spring evolution parity tests:
+  - `gpu_shannon_diversity_cross_spring_parity` (wetSpring S64 → `FusedMapReduceF64`)
+  - `gpu_simpson_diversity_cross_spring_parity` (wetSpring S64 → `FusedMapReduceF64`)
+  - `gpu_seismic_grid_search_cross_spring_parity` (groundSpring + `ComputeDispatch`)
+  - `gpu_anderson_2d_eigenvalues_cross_spring_parity` (hotSpring S59 Lanczos, `#[cfg(gpu)]`)
+  - `gpu_anderson_3d_eigenvalues_cross_spring_parity` (hotSpring S59 WDM, `#[cfg(gpu)]`)
+- **ENHANCED** `benchmark_cross_spring`: 4-phase evolution timeline (Foundation → Absorption → Universal Precision → Modern Wiring), expanded provenance table (+6 S72-S87 ops)
+- **DOCUMENTED** S67-S68 universal precision architecture: "Math is universal, precision is silicon"
+- **UPDATED** all docs: V68→V69, S86→S87, stale S79 refs, graph TOMLs, 780→783 tests
+- **Handoff**: V69 S87 pin + universal precision audit + cross-spring parity
+
 ### Run 36 (V63+ Paper 12 Tissue Anderson + GPU Tier Expansion, Mar 2, 2026)
 
 - `cargo fmt --check`: PASS

@@ -8,6 +8,7 @@
 //! within-tolerance) outputs. Also includes the dispatch target
 //! inventory sentinel.
 
+// Bitwise determinism: parity tests intentionally compare exact f64 bits.
 #![allow(clippy::float_cmp)]
 
 // ══════════════════════════════════════════════════════════════════

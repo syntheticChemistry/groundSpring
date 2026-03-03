@@ -127,7 +127,28 @@ Absorption → Universal Precision → Modern Wiring) and expanded provenance ta
 
 ---
 
-## Part 5: toadStool Actions
+## Part 5: Cross-Spring Bidirectional Flow (groundSpring's View)
+
+groundSpring validates that the shader ecosystem is truly bidirectional — every
+spring both contributes and consumes through ToadStool.
+
+| Flow | What | When | Impact |
+|------|------|------|--------|
+| hotSpring → all | DF64 precision, `Fp64Strategy`, Lanczos, Anderson spectral | S26-S87 | f64-class math on consumer GPUs |
+| hotSpring → groundSpring | `anderson_4d`, `wegner_block_4d` | S84 | Tissue immunology (Paper 12) |
+| wetSpring → groundSpring | Shannon/Simpson diversity, `BatchedMultinomialGpu` | S64 | Rarefaction, rare biosphere analysis |
+| wetSpring → neuralSpring | Bio primitives (taxonomy, alignment) | S64-S86 | ML pipelines consume bio ops |
+| neuralSpring → all | `pow_f64` polyfill fix | S-17 | Unblocked Ada Lovelace GPUs |
+| neuralSpring → all | AlphaFold2 Evoformer primitives | S69 | Folding DF64 shaders |
+| airSpring → groundSpring | Regression, hydrology (FAO-56, Hargreaves) | S66 | WDM extrapolation, ET₀ pipeline |
+| airSpring → groundSpring | L-BFGS refinement | S84 | Freeze-out sub-grid precision |
+| groundSpring → wetSpring | `rawr_mean` bootstrap, `batched_multinomial` | S66 | Rarefaction confidence intervals |
+| groundSpring → all | `InterconnectTopology`, `SubstratePipeline` | S81 | metalForge cross-hardware dispatch |
+| ToadStool S67-S68 | Universal precision: "Math is universal, precision is silicon" | S67-S68 | One shader → F16/F32/F64/Df64 |
+
+---
+
+## Part 6: toadStool Actions
 
 ### P0 — Immediate
 

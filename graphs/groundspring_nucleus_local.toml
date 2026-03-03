@@ -20,7 +20,7 @@
 #   Exp 005 (seismic)        — nestgate.iris_stations/iris_events → NMSZ data
 #   Exp 023 (no-till 16S)    — nestgate.ncbi_search → no-till vs tilled 16S
 #
-# STATUS: V68 (March 2, 2026) — ToadStool S87, DF64 precision strategy
+# STATUS: V69 (March 2, 2026) — ToadStool S87, DF64 precision strategy
 # Target: Eastgate (local, single machine)
 #
 # Run: biomeos deploy graphs/groundspring_nucleus_local.toml
@@ -33,7 +33,7 @@ coordination = "Sequential"
 [graph.metadata]
 toadstool_pin = "S87"
 toadstool_commit = "2dc26792"
-groundspring_version = "V68"
+groundspring_version = "V69"
 target_node = "eastgate"
 precision_strategy = "f64-capable with DF64 fallback"
 
@@ -172,7 +172,7 @@ params = { primal = "groundspring", capabilities = [
     "science.wdm_analysis",
     "science.cross_spring_benchmark",
     "science.gpu_tier_validation",
-], family_id = "groundspring", version = "V68" }
+], family_id = "groundspring", version = "V69" }
 
 [nodes.constraints]
 timeout_ms = 10000

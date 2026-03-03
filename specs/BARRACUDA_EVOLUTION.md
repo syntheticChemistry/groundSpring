@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 2, 2026 (V68 — 76 delegations (44 CPU + 32 GPU), 783 tests, ToadStool S87 (`2dc26792`) — V68: GPU parity buildout (MC ET₀, seasonal pipeline, L-BFGS, 4D Anderson + Wegner RG), GPU→NPU PCIe bypass, NUCLEUS coordination. V67: `McEt0PropagateGpu`, `SeasonalPipelineF64`, `BatchedMultinomialGpu` API fix. V66: stats Tier A GPU, bistable batch ODE GPU, 30 metalForge workloads)
+**Last updated**: March 2, 2026 (V69 — 76 delegations (44 CPU + 32 GPU), 783 tests, ToadStool S87 (`2dc26792`) — V69: cross-spring evolution parity (Shannon, Simpson, Seismic, Anderson 2D/3D), universal precision audit. V68: GPU parity buildout (MC ET₀, seasonal pipeline, L-BFGS, 4D Anderson + Wegner RG). V67: `McEt0PropagateGpu`, `SeasonalPipelineF64`, `BatchedMultinomialGpu` API fix)
 
 ## Philosophy
 
@@ -554,7 +554,7 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (28/28 parity proven, timing data for all experiments) |
 | Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **76 active delegations** (44 CPU + 32 GPU), **783 tests** — ToadStool S87 |
-| Phase 2b | Tier B adapt (GPU dispatch wiring, PRNG alignment) | **V31–V68** — 15 modules GPU-wired, 187 metalForge checks, 5 substrates; arch-aware dispatch (f64→Titan V, f32→RTX 4070); GPU→NPU PCIe bypass validated |
+| Phase 2b | Tier B adapt (GPU dispatch wiring, PRNG alignment) | **V31–V69** — 15 modules GPU-wired, 187 metalForge checks, 5 substrates; arch-aware dispatch (f64→Titan V, f32→RTX 4070); GPU→NPU PCIe bypass validated |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |
 

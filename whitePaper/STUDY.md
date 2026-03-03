@@ -507,7 +507,7 @@ The evolution path — Python baseline → Rust validation → barracuda CPU →
 ## 24. Evolution Path
 
 - **Phase 0+**: Wire real NOAA CDO data for Exp 002; download IRIS waveforms for Exp 005
-- **Phase 2a (DONE)**: Tier A rewire — **76 active delegations (44 CPU + 32 GPU), 1 evolution candidate — ToadStool S87**. GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r) + batch GPU APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64). Rust is **11.5× faster** than Python (excl. LAPACK-bound; Exp 009: 47.7× from Sturm tridiag). 30/30 parity proven. V51: 752 workspace tests, 376/376 checks, 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only), 95 three-tier parity tests, 9 CPU vs GPU parity tests
+- **Phase 2a (DONE)**: Tier A rewire — **76 active delegations (44 CPU + 32 GPU), 1 evolution candidate — ToadStool S87**. GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r) + batch GPU APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64). Rust is **11.5× faster** than Python (excl. LAPACK-bound; Exp 009: 47.7× from Sturm tridiag). 30/30 parity proven. V51: 752 workspace tests, 376/376 checks, 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only), 100+ three-tier parity tests, 9 CPU vs GPU parity tests
 - **Phase 2b**: Tier B adapt — PRNG alignment, grid-search dispatch, Gillespie GPU
 - **Phase 2c**: Tier C absorption — MC and multinomial kernels → barracuda; RAWR kernel
 - **Phase 3**: Full GPU pipeline, metalForge cross-substrate validation
