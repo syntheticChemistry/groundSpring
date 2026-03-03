@@ -45,7 +45,7 @@
 **Rust Phase 1 (core)**: 321/321 PASS across 29 validation binaries (321 core)
 **Rust Phase 1 (NUCLEUS)**: 55/55 PASS across 4 validation binaries (Exp 029–032, `--features biomeos`)
 **Total validation**: 376/376 PASS across 33 validation binaries
-**Rust tests**: 780/780 PASS (default workspace)
+**Rust tests**: 783/783 PASS (default workspace)
 **pytest**: 375/375 PASS + 2 skipped
 **Three-tier parity**: 101+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
 **BarraCUDA dispatch**: 76 active (44 CPU + 32 GPU) — V68: L-BFGS refinement, 4D Anderson + Wegner RG; V67: McEt0PropagateGpu, SeasonalPipelineF64. Pinned ToadStool S87 (`2dc26792`)
@@ -460,8 +460,8 @@ Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classi
 | Rust doc test | 2 | Documentation example test |
 | Rust forge | 49 | groundspring-forge crate tests (incl. 14 V35 arch-aware routing) |
 | Rust biomeos | 32 | biomeOS client + integration tests (feature-gated) |
-| **Total Rust (default)** | **780** | |
-| **Total Rust (barracuda-gpu)** | **782** | |
+| **Total Rust (default)** | **783** | |
+| **Total Rust (barracuda-gpu)** | **785** | |
 | **Total Python** | **375** | (+3 skipped) |
 | **Grand Total** | **1,151** | |
 
@@ -470,7 +470,7 @@ Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classi
 
 See [CONTROL_RUN_LOG.md](CONTROL_RUN_LOG.md) for the complete historical run log.
 
-**Latest**: Run 39 (V68 Experiment Buildout + GPU Parity + Mixed-Hardware Pipeline, Mar 2, 2026) — 780 Rust tests, 375 Python tests, 376/376 validation checks + 57/57 mixed-hardware checks, all PASS. 76 barracuda delegations (44 CPU + 32 GPU). GPU→NPU→CPU pipeline dispatch validated. NUCLEUS atomic coordination validated.
+**Latest**: Run 39 (V68 Experiment Buildout + GPU Parity + Mixed-Hardware Pipeline, Mar 2, 2026) — 783 Rust tests, 375 Python tests, 376/376 validation checks + 57/57 mixed-hardware checks, all PASS. 76 barracuda delegations (44 CPU + 32 GPU). GPU→NPU→CPU pipeline dispatch validated. NUCLEUS atomic coordination validated.
 
 ### Run 37 (V51 GPU Stats Dispatch + CPU/GPU Parity Proof, Feb 28, 2026)
 
@@ -679,10 +679,10 @@ Each experiment is validated at three hardware tiers:
 | `cargo clippy --features barracuda` | PASS (0 warnings) |
 | `cargo clippy --features barracuda-gpu` | PASS (0 warnings) |
 | `cargo doc --no-deps` | PASS (0 warnings) |
-| `cargo test` | 780/780 PASS (default) |
+| `cargo test` | 783/783 PASS (default) |
 | `cargo test --features biomeos` | ~808 PASS |
-| `cargo test --features barracuda` | 780/780 PASS |
-| `cargo test --features barracuda-gpu` | 782/782 PASS |
+| `cargo test --features barracuda` | 783/783 PASS |
+| `cargo test --features barracuda-gpu` | 785/785 PASS |
 | Validation binaries (local) | 376/376 PASS (33 binaries) |
 | Validation binaries (barracuda-gpu) | 376/376 PASS |
 | `python3 -m pytest tests/` | 375/375 PASS + 2 skipped (28 experiments + unit/determinism) |

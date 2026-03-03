@@ -3,7 +3,7 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 2, 2026 (V68: 76 active delegations (44 CPU + 32 GPU), 1 evolution candidate, `ToadStool` S86 `2dc26792` — V68: L-BFGS post-grid-search refinement (airSpring V035 → S84), 4D Anderson + Wegner RG tissue modeling (hotSpring precision → S84), GPU parity buildout + GPU→NPU PCIe bypass, 30 metalForge workloads, 780 tests, 187 checks)
+**Last Updated**: March 2, 2026 (V68: 76 active delegations (44 CPU + 32 GPU), 1 evolution candidate, `ToadStool` S86 `2dc26792` — V68: L-BFGS post-grid-search refinement (airSpring V035 → S84), 4D Anderson + Wegner RG tissue modeling (hotSpring precision → S84), GPU parity buildout + GPU→NPU PCIe bypass, 30 metalForge workloads, 783 tests, 187 checks)
 
 ---
 
@@ -619,7 +619,7 @@ correctly in production.
 | CPU active | 44 | S86 canonical (V68: +lbfgs_refine_barracuda) |
 | GPU active | 32 | includes 4D Anderson, Wegner RG, McEt0, seasonal pipeline, JackknifeMeanGpu, HargreavesBatchGpu |
 | Evolution candidates | 1 | band_edges (algorithm mismatch) |
-| **Total active** | **76** | 780 tests |
+| **Total active** | **76** | 783 tests |
 
 ### NUCLEUS Integration (V63)
 

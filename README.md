@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: March 2, 2026 | **License**: AGPL-3.0-only
-**Status**: 33 modules, 780 Rust workspace tests + 375 Python tests, 376/376 validation checks (321 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), 76 active barracuda delegations (44 CPU + 32 GPU) — ToadStool S87 (`2dc26792`), V68: GPU parity buildout (MC ET₀, seasonal pipeline, L-BFGS, 4D Anderson + Wegner RG), mixed-hardware pipeline dispatch (GPU→NPU PCIe bypass, NUCLEUS coordination), deep codebase audit (zero unsafe / zero TODO / zero `.unwrap()` / zero production mocks / zero `#[allow]` / all files under 1000 lines), 30 metalForge workloads, biomeOS Neural API live, NestGate data pipelines
+**Status**: 33 modules, 783 Rust workspace tests + 375 Python tests, 376/376 validation checks (321 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), 76 active barracuda delegations (44 CPU + 32 GPU) — ToadStool S87 (`2dc26792`), V68: GPU parity buildout (MC ET₀, seasonal pipeline, L-BFGS, 4D Anderson + Wegner RG), mixed-hardware pipeline dispatch (GPU→NPU PCIe bypass, NUCLEUS coordination), deep codebase audit (zero unsafe / zero TODO / zero `.unwrap()` / zero production mocks / zero `#[allow]` / all files under 1000 lines), 30 metalForge workloads, biomeOS Neural API live, NestGate data pipelines
 
 **The gap between what models predict and what instruments measure.**
 
@@ -108,9 +108,9 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace                         # 780 tests, all PASS
+cargo test --workspace                         # 783 tests, all PASS
 cargo test --workspace --features biomeos      # ~812 tests (NUCLEUS client active)
-cargo test --workspace --features barracuda-gpu # 782 tests (GPU dispatch active)
+cargo test --workspace --features barracuda-gpu # 785 tests (GPU dispatch active)
 cargo clippy --workspace --all-targets -- -D warnings -W clippy::pedantic -W clippy::nursery
 cargo fmt --check                              # clean
 
@@ -252,7 +252,7 @@ Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardwar
   NumPy/SciPy         Pure safe Rust     BarraCUDA/ToadStool   metalForge dispatch    biomeOS Neural API
   ✓ Complete          ✓ 376/376 PASS     ◐ 76 active           30 workloads           Tower+Node+Squirrel
   11.5× slower        33/33 experiments    (44+32)              24 GPU + 2 NPU + 2 CPU-only         NestGate data pipes
-                      780 workspace tests                       PCIe topology          NUCLEUS atomics
+                      783 workspace tests                       PCIe topology          NUCLEUS atomics
                                                                 Pipeline dispatch      Sovereign degradation
 
   Write locally    →  Hand off          →  Lean on upstream   →  Cross-substrate     →  Primal orchestration

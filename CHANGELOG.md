@@ -6,13 +6,26 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ### V69 ToadStool S87 Pin + Universal Precision Documentation (Mar 2, 2026)
 
+#### Added
+- **5 cross-spring evolution parity tests** (783 default / 785 barracuda-gpu):
+  - Shannon diversity (`wetSpring` S64 → `FusedMapReduceF64::shannon_entropy`)
+  - Simpson diversity (`wetSpring` S64 → `FusedMapReduceF64::simpson_index`)
+  - Seismic grid search (`groundSpring` forward model + barracuda `ComputeDispatch`)
+  - Anderson 2D eigenvalues (`hotSpring` S59 sparse Lanczos, `#[cfg(barracuda-gpu)]`)
+  - Anderson 3D eigenvalues (`hotSpring` S59, metal-insulator transition, `#[cfg(barracuda-gpu)]`)
+- **Cross-spring evolution timeline** in `benchmark_cross_spring`: 4-phase
+  provenance history (Foundation → Absorption → Universal Precision → Modern
+  Wiring) with bidirectional flow documentation.
+- **Expanded provenance table**: +6 entries (McEt0PropagateGpu, SeasonalPipelineF64,
+  lbfgs_numerical, anderson_4d, FHE fix, device-retry).
+
 #### Changed
 - **ToadStool pin**: S86 (`7e01ac7e`) → S87 (`2dc26792`). S87 adds FHE shader
   fix, async-trait reclassification, 9 test fixes, unsafe audit.
 - **hofstadter doc path**: Updated `almost_mathieu.rs` doc comments to reference
   `barracuda::spectral::almost_mathieu_hamiltonian` (hofstadter module private).
 - **All docs**: S86→S87 pin across 15+ files, stale S79 refs in graphs/specs/
-  benchmarks updated, V62→V68 in biomeOS graph TOMLs.
+  benchmarks updated, V62→V68 in biomeOS graph TOMLs. 780→783 tests.
 
 #### Documented
 - **ToadStool S67-S68 Universal Precision Architecture**: "Math is universal,
@@ -22,6 +35,10 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
   Native (Titan V, A100) vs Hybrid (RTX 4070, consumer GPUs). Precision is
   transparent to groundSpring consumers — barracuda ops internally select the
   best precision path per hardware.
+- **Cross-spring shader provenance**: hotSpring precision shaders (DF64, Fp64Strategy,
+  Lanczos, Anderson) → wetSpring bio shaders (diversity, Smith-Waterman, Gillespie)
+  → neuralSpring ML (ESN, AlphaFold2, pow_f64 fix) → all springs consume.
+  Bidirectional: every spring both contributes and consumes.
 
 ### V68 Complete Rewiring — L-BFGS Refinement, 4D Anderson, Cross-Spring Benchmark (Mar 2, 2026)
 

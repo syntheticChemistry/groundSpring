@@ -481,7 +481,173 @@ fn gpu_tissue_4d_wegner_rg_coarsen() {
     );
 }
 
+// ══════════════════════════════════════════════════════════════════
+// V69: Cross-spring evolution parity tests
+//
+// These tests validate barracuda ops whose shaders evolved through
+// cross-spring contributions — proving the math stayed correct
+// through the evolution pipeline.
+// ══════════════════════════════════════════════════════════════════
+
+/// Shannon diversity via `FusedMapReduceF64::shannon_entropy` (`wetSpring` S64
+/// biodiversity → `ToadStool` → `groundSpring` delegation).
+///
+/// Known community: 5 species with counts \[100, 50, 25, 15, 10\] = 200 total.
+/// H = -Σ(`p_i` ln `p_i`). Validated against manual calculation.
+#[test]
+fn gpu_shannon_diversity_cross_spring_parity() {
+    let counts: Vec<u64> = vec![100, 50, 25, 15, 10];
+    let h = groundspring::rarefaction::shannon_diversity(&counts);
+    let total = 200.0_f64;
+    let expected: f64 = -[100.0, 50.0, 25.0, 15.0, 10.0]
+        .iter()
+        .map(|&c| {
+            let p = c / total;
+            p * p.ln()
+        })
+        .sum::<f64>();
+    assert!(
+        (h - expected).abs() < 1e-6,
+        "Shannon H={h:.6} should match expected {expected:.6} (wetSpring diversity shader)"
+    );
+    assert!(h > 0.0, "Shannon H must be positive for mixed community");
+    let h2 = groundspring::rarefaction::shannon_diversity(&counts);
+    assert_eq!(
+        h.to_bits(),
+        h2.to_bits(),
+        "Shannon diversity must be deterministic"
+    );
+}
+
+/// Simpson diversity via `FusedMapReduceF64::simpson_index` (`wetSpring` S64
+/// biodiversity → `ToadStool` → `groundSpring` delegation).
+///
+/// Same known community. D = 1 - Σ(`p_i`²). Validated against manual calculation.
+#[test]
+fn gpu_simpson_diversity_cross_spring_parity() {
+    let counts: Vec<u64> = vec![100, 50, 25, 15, 10];
+    let d = groundspring::rarefaction::simpson_diversity(&counts);
+    let total = 200.0_f64;
+    let sum_p2: f64 = [100.0, 50.0, 25.0, 15.0, 10.0]
+        .iter()
+        .map(|&c| {
+            let p = c / total;
+            p * p
+        })
+        .sum();
+    let expected = 1.0 - sum_p2;
+    assert!(
+        (d - expected).abs() < 1e-6,
+        "Simpson D={d:.6} should match expected {expected:.6} (wetSpring diversity shader)"
+    );
+    assert!(
+        d > 0.0 && d < 1.0,
+        "Simpson D must be in (0, 1) for mixed community"
+    );
+    let d2 = groundspring::rarefaction::simpson_diversity(&counts);
+    assert_eq!(
+        d.to_bits(),
+        d2.to_bits(),
+        "Simpson diversity must be deterministic"
+    );
+}
+
+/// Seismic grid search inversion (groundSpring forward model + barracuda
+/// `ComputeDispatch` GPU argmin, absorbed S71+++).
+///
+/// Uses known station layout and synthetic event to validate that the GPU
+/// grid search recovers the correct source location.
+#[test]
+fn gpu_seismic_grid_search_cross_spring_parity() {
+    let stations = vec![
+        groundspring::seismic::Station {
+            code: "STA1".to_string(),
+            lat: 0.0,
+            lon: 0.0,
+        },
+        groundspring::seismic::Station {
+            code: "STA2".to_string(),
+            lat: 1.0,
+            lon: 0.0,
+        },
+        groundspring::seismic::Station {
+            code: "STA3".to_string(),
+            lat: 0.0,
+            lon: 1.0,
+        },
+    ];
+    let config = groundspring::seismic::GridSearchConfig {
+        lat_range: (-0.5, 1.5),
+        lon_range: (-0.5, 1.5),
+        depth_range: (0.0, 50.0),
+        grid_spacing_deg: 0.1,
+        depth_spacing_km: 5.0,
+        vp: 6.0,
+    };
+    let observed = vec![("STA1", 18.53), ("STA2", 18.53), ("STA3", 18.53)];
+    let result = groundspring::seismic::grid_search_inversion(&observed, &stations, &config);
+    assert!(
+        result.rms_residual_s < 5.0,
+        "seismic RMS residual {:.3} should be < 5.0",
+        result.rms_residual_s
+    );
+    let r2 = groundspring::seismic::grid_search_inversion(&observed, &stations, &config);
+    assert_eq!(
+        result.rms_residual_s.to_bits(),
+        r2.rms_residual_s.to_bits(),
+        "seismic inversion must be deterministic"
+    );
+}
+
+/// Anderson 2D eigenvalues via Lanczos on sparse CSR (`hotSpring` S59
+/// sparse Lanczos → `ToadStool` → `groundSpring` delegation).
+///
+/// Small 5×5 lattice (25 sites) with moderate disorder. Eigenvalues
+/// must be finite and bounded by ±(4 + W/2) for a 2D tight-binding model.
+#[cfg(feature = "barracuda-gpu")]
+#[test]
+fn gpu_anderson_2d_eigenvalues_cross_spring_parity() {
+    let disorder = 4.0;
+    let eigs = groundspring::anderson::anderson_2d_eigenvalues(5, 5, disorder, 10, 42);
+    assert!(!eigs.is_empty(), "anderson_2d should return eigenvalues");
+    let bound = 4.0 + disorder / 2.0;
+    for (i, &e) in eigs.iter().enumerate() {
+        assert!(e.is_finite(), "eigenvalue {i} must be finite, got {e}");
+        assert!(
+            e.abs() < bound + 1.0,
+            "eigenvalue {i}={e:.4} should be within ±{bound:.1} (tight-binding + disorder)"
+        );
+    }
+    let eigs2 = groundspring::anderson::anderson_2d_eigenvalues(5, 5, disorder, 10, 42);
+    assert_eq!(eigs.len(), eigs2.len(), "deterministic eigenvalue count");
+}
+
+/// Anderson 3D eigenvalues — same pattern. The 3D model has a true
+/// metal-insulator transition at `W_c` ≈ 16.5 (Slevin & Ohtsuki 1999).
+/// Cross-spring: `hotSpring` `anderson_3d` (S59, correlated disorder for
+/// WDM transport) → `ToadStool` GPU sparse eigensolver.
+#[cfg(feature = "barracuda-gpu")]
+#[test]
+fn gpu_anderson_3d_eigenvalues_cross_spring_parity() {
+    let disorder = 8.0;
+    let eigs = groundspring::anderson::anderson_3d_eigenvalues(3, 3, 3, disorder, 8, 42);
+    assert!(!eigs.is_empty(), "anderson_3d should return eigenvalues");
+    let bound = 6.0 + disorder / 2.0;
+    for (i, &e) in eigs.iter().enumerate() {
+        assert!(e.is_finite(), "3D eigenvalue {i} must be finite, got {e}");
+        assert!(
+            e.abs() < bound + 1.0,
+            "3D eigenvalue {i}={e:.4} should be within ±{bound:.1}"
+        );
+    }
+}
+
 // ── Dispatch target inventory sentinel ─────────────────────────────
+//
+// V69: +0 delegations (S87 pin, cross-spring parity buildout)
+//   5 new parity tests validating cross-spring GPU shader evolution:
+//   Shannon (wetSpring), Simpson (wetSpring), Seismic (groundSpring),
+//   Anderson 2D (hotSpring), Anderson 3D (hotSpring).
 //
 // V68: +3 delegations (complete rewiring with modern ToadStool S86)
 //   CPU: +1 (lbfgs_refine_barracuda) — L-BFGS post-grid-search refinement

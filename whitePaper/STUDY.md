@@ -215,7 +215,7 @@ All twenty-one experiments have been ported to idiomatic Rust in the `groundspri
 |--------|-------|
 | Validation binaries | 33 (decompose, rarefaction, seismic, weather, fao56, signal-specificity, rawr, anderson, quasiperiodic, bistable, multisignal, transport, resampling-conv, drift, uncertainty-bridge, rare-biosphere, quasispecies, band-edge, jackknife, freeze-out, spectral-recon, et0-anderson, notill-sampling, aggregate-stability, precision-drift, size-convergence, vendor-parity, npu-anderson, ghcnd-et0, ncbi-rare-biosphere, nucleus-stack, iris-seismic, tissue-anderson) |
 | Total checks | 376/376 PASS |
-| Rust tests | 780 |
+| Rust tests | 783 |
 | Python baseline integrity tests | 278 |
 | Clippy warnings | 0 |
 | Rust vs Python | **11.5× faster** excl. LAPACK-bound (104s → 9s); 5.1× overall; Exp 009: 47.7× with Sturm tridiag |

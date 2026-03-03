@@ -52,6 +52,9 @@ fn main() {
     bench_esn_classification(&mut h);
     bench_rarefaction_occupancy(&mut h);
 
+    println!("\n--- Cross-Spring Evolution Timeline ---\n");
+    print_evolution_timeline();
+
     println!("\n--- Cross-Spring Shader Provenance Summary ---\n");
     print_provenance_table();
 
@@ -405,6 +408,54 @@ fn bench_rarefaction_occupancy(h: &mut Harness) {
     }
 }
 
+fn print_evolution_timeline() {
+    println!("  Cross-Spring Evolution: How Shaders Flow Through the Ecosystem");
+    println!("  ================================================================\n");
+
+    println!("  Phase 1: Foundation (S26-S58, Jan-Feb 2026)");
+    println!("  ┌─ hotSpring v0.6.0 → anderson.rs, lanczos.rs, spectral theory");
+    println!("  ├─ hotSpring S58 ──→ df64_core.wgsl (DF64 precision for consumer GPUs)");
+    println!("  ├─ hotSpring S58 ──→ Fp64Strategy (Native/Hybrid auto-selection)");
+    println!("  ├─ wetSpring S64 ──→ diversity (Shannon, Simpson, Bray-Curtis)");
+    println!("  ├─ wetSpring S64 ──→ math_f64.wgsl (f64 constant precision pattern)");
+    println!("  └─ neuralSpring S-17 → pow_f64 polyfill (unblocked Ada Lovelace)\n");
+
+    println!("  Phase 2: Cross-Spring Absorption (S59-S66, Feb 2026)");
+    println!("  ┌─ hotSpring S59 ──→ anderson_2d/3d sparse Lanczos, chi2_decomposed");
+    println!("  ├─ hotSpring S59 ──→ esn_v2 reservoir (Stanton-Murillo transport)");
+    println!("  ├─ airSpring S66 ──→ regression (fit_linear, fit_quadratic, fit_exp)");
+    println!("  ├─ airSpring S66 ──→ hydrology (hargreaves_et0, FAO-56 delegation)");
+    println!("  ├─ groundSpring S64 → batched_multinomial_f64.wgsl (rarefaction)");
+    println!("  ├─ groundSpring S66 → rawr_mean bootstrap (feeds wetSpring pipelines)");
+    println!("  └─ wetSpring → neuralSpring: bio primitives cross-pollinate ML\n");
+
+    println!("  Phase 3: Universal Precision (S67-S68, Feb 2026)");
+    println!("  ┌─ ToadStool S67 ──→ compile_shader_universal() — one shader, any precision");
+    println!("  ├─ ToadStool S68 ──→ Waves 1-11: ALL 844+ shaders evolved to f64-canonical");
+    println!("  ├─ ToadStool S68 ──→ dual-layer DF64 (op_preamble + naga IR rewrite)");
+    println!("  └─ Result: \"Math is universal, precision is silicon\"\n");
+
+    println!("  Phase 4: Modern Wiring (S70-S87, Feb-Mar 2026)");
+    println!("  ┌─ hotSpring → all: DF64 gives f64-class on consumer GPUs (RTX 4070)");
+    println!("  ├─ hotSpring → groundSpring: anderson_4d + wegner_block_4d (tissue model)");
+    println!("  ├─ airSpring → groundSpring: L-BFGS refinement (freeze-out optimization)");
+    println!("  ├─ wetSpring → groundSpring: BatchedMultinomialGpu, DiversityFusionGpu");
+    println!("  ├─ neuralSpring → all: AlphaFold2 Evoformer primitives (S69)");
+    println!("  ├─ groundSpring → all: InterconnectTopology, SubstratePipeline (S81)");
+    println!("  └─ S87: FHE shader fix, unsafe audit, all ~60+ unsafe sites documented\n");
+
+    println!("  Bidirectional Flow (every spring feeds every other spring):");
+    println!("  ┌─ hotSpring precision → wetSpring bio gets f64-class on consumer GPUs");
+    println!("  ├─ wetSpring bio shaders → neuralSpring ML uses for taxonomy/alignment");
+    println!("  ├─ neuralSpring pow_f64 fix → hotSpring + wetSpring unblocked on Ada");
+    println!("  ├─ airSpring hydrology → groundSpring ET₀ + seasonal pipeline");
+    println!("  ├─ groundSpring bootstrap → wetSpring rarefaction confidence intervals");
+    println!("  └─ All springs → ToadStool → absorbed → all springs consume\n");
+
+    println!("  Current state: ToadStool S87, 144 ComputeDispatch ops, 844+ f64 shaders");
+    println!("  groundSpring: 76 delegations (44 CPU + 32 GPU), 780 tests, zero debt");
+}
+
 fn print_provenance_table() {
     println!("  ┌──────────────────────────────────┬──────────────────────────┬────────┐");
     println!("  │ Shader / Function                 │ Origin Spring            │ Session│");
@@ -416,7 +467,7 @@ fn print_provenance_table() {
     println!("  │ anderson_sweep_averaged            │ hotSpring → S59          │ S59    │");
     println!("  │ chi2_decomposed_weighted           │ hotSpring nuclear fits   │ S59    │");
     println!("  │ esn_v2 (reservoir update f64)     │ wetSpring → hotSpring    │ S59    │");
-    println!("  │ hofstadter.rs                     │ hotSpring spectral       │ S26    │");
+    println!("  │ almost_mathieu_hamiltonian          │ hotSpring spectral       │ S26    │");
     println!("  │ spmv_csr_f64.wgsl (GPU SpMV)     │ hotSpring Lanczos        │ S59    │");
     println!("  │ batched_multinomial_f64.wgsl      │ groundSpring metalForge  │ S64    │");
     println!("  │ wright_fisher_step_f64.wgsl       │ neuralSpring metalForge  │ S66    │");
@@ -431,6 +482,13 @@ fn print_provenance_table() {
     println!("  │ batch_ipr_f64.wgsl                │ neuralSpring → hotSpring │ S52    │");
     println!("  │ compile_shader_universal()        │ ToadStool sovereign      │ S67    │");
     println!("  │ op_preamble + naga IR rewrite     │ ToadStool dual-layer     │ S68    │");
+    println!("  ├──────────────────────────────────┼──────────────────────────┼────────┤");
+    println!("  │ McEt0PropagateGpu                 │ airSpring → ToadStool   │ S72    │");
+    println!("  │ SeasonalPipelineF64               │ airSpring → ToadStool   │ S80    │");
+    println!("  │ lbfgs_numerical (L-BFGS)          │ airSpring → S84         │ S84    │");
+    println!("  │ anderson_4d + wegner_block_4d     │ hotSpring → S84         │ S84    │");
+    println!("  │ FHE shader fix (u64_mod_simple)   │ ToadStool internal      │ S87    │");
+    println!("  │ is_device_lost() + retry          │ ToadStool resilience    │ S87    │");
     println!("  └──────────────────────────────────┴──────────────────────────┴────────┘");
     println!();
     println!("  Key cross-pollination (S70+ evolution):");
@@ -444,4 +502,8 @@ fn print_provenance_table() {
     println!("    airSpring regression → groundSpring WDM finite-size extrapolation");
     println!("    groundSpring RAWR → wetSpring rarefaction confidence intervals");
     println!("    groundSpring Anderson sweep → feeds ESN training data cross-spring");
+    println!("    airSpring L-BFGS → groundSpring freeze-out post-grid-search refinement");
+    println!("    hotSpring anderson_4d → groundSpring tissue immunology (Paper 12)");
+    println!("    ToadStool S87 → FHE u64 mod fix, device-lost resilience");
+    println!("    Universal precision: F16→F32→F64→Df64 from one f64-canonical source");
 }

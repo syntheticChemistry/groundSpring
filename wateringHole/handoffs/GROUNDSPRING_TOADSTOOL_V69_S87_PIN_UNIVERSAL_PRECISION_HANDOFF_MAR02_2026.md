@@ -13,7 +13,7 @@
 
 - **Pin bump**: S86 (`7e01ac7e`) → S87 (`2dc26792`) — FHE shader fix, async-trait reclassification, unsafe audit
 - **76 active delegations** (44 CPU + 32 GPU), 0 breaking changes
-- **780 tests** passed, 0 failed; zero unsafe / zero TODO / zero `.unwrap()` / zero `#[allow]` without reason
+- **783 tests** passed, 0 failed; zero unsafe / zero TODO / zero `.unwrap()` / zero `#[allow]` without reason
 - **No rewiring needed** — S87 is a debt evolution commit with no public API changes
 - **Universal precision architecture documented** — groundSpring acknowledges and benefits from S67-S68 evolution
 
@@ -92,7 +92,23 @@ available precision on any hardware without code changes.
 
 ---
 
-## Part 3: Doc Comment Fix
+## Part 3: Cross-Spring Evolution Parity Tests (+5)
+
+| Test | Barracuda Op | Spring Origin |
+|------|-------------|---------------|
+| `gpu_shannon_diversity_cross_spring_parity` | `FusedMapReduceF64::shannon_entropy` | wetSpring S64 biodiversity |
+| `gpu_simpson_diversity_cross_spring_parity` | `FusedMapReduceF64::simpson_index` | wetSpring S64 biodiversity |
+| `gpu_seismic_grid_search_cross_spring_parity` | `ComputeDispatch` GPU argmin | groundSpring S71+++ |
+| `gpu_anderson_2d_eigenvalues_cross_spring_parity` | `spectral::anderson_2d` + Lanczos | hotSpring S59 sparse |
+| `gpu_anderson_3d_eigenvalues_cross_spring_parity` | `spectral::anderson_3d` + Lanczos | hotSpring S59 WDM transport |
+
+Cross-spring benchmark enhanced with 4-phase evolution timeline (Foundation →
+Absorption → Universal Precision → Modern Wiring) and expanded provenance table
+(+6 entries for S72-S87 ops).
+
+---
+
+## Part 4: Doc Comment Fix
 
 - `almost_mathieu.rs` doc comments updated: `barracuda::spectral::hofstadter` → `barracuda::spectral` (hofstadter module is now private; functions re-exported at `spectral::` level)
 
@@ -107,7 +123,7 @@ available precision on any hardware without code changes.
 | Cross-spring shader categories | S79 | S87 | CROSS_SPRING_SHADER_EVOLUTION |
 | CROSS_SPRING_EVOLUTION header | S79 (`f97fc2ae`) | S87 (`2dc26792`) | whitePaper/ |
 | Benchmark binary header | S79 | S87 | benchmark_cross_spring.rs |
-| BARRACUDA_EVOLUTION metrics | 743 tests / S79 | 780 tests / S87 | specs/ |
+| BARRACUDA_EVOLUTION metrics | 743 tests / S79 | 783 tests / S87 | specs/ |
 
 ---
 
@@ -141,7 +157,7 @@ None. S87 is clean from groundSpring's perspective.
 |--------|-------|
 | ToadStool pin | S87 (`2dc26792`) |
 | Active delegations | 76 (44 CPU + 32 GPU) |
-| groundSpring tests | 780 |
+| groundSpring tests | 783 |
 | groundSpring validation checks | 376/376 |
 | metalForge checks | 187 (130 forge + 57 mixed-hardware) |
 | Python parity | 28/28 |
@@ -155,7 +171,7 @@ None. S87 is clean from groundSpring's perspective.
 |------|--------|
 | `cargo fmt --check` | PASS |
 | `cargo clippy --all-targets --all-features -- -W clippy::pedantic -W clippy::nursery` | PASS (zero warnings) |
-| `cargo test --workspace` | 780 passed, 0 failed |
+| `cargo test --workspace` | 783 passed, 0 failed |
 | `cargo doc --no-deps` | PASS |
 | Zero unsafe | PASS |
 | Zero TODO | PASS |
