@@ -4,6 +4,25 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V69 ToadStool S87 Pin + Universal Precision Documentation (Mar 2, 2026)
+
+#### Changed
+- **ToadStool pin**: S86 (`7e01ac7e`) → S87 (`2dc26792`). S87 adds FHE shader
+  fix, async-trait reclassification, 9 test fixes, unsafe audit.
+- **hofstadter doc path**: Updated `almost_mathieu.rs` doc comments to reference
+  `barracuda::spectral::almost_mathieu_hamiltonian` (hofstadter module private).
+- **All docs**: S86→S87 pin across 15+ files, stale S79 refs in graphs/specs/
+  benchmarks updated, V62→V68 in biomeOS graph TOMLs.
+
+#### Documented
+- **ToadStool S67-S68 Universal Precision Architecture**: "Math is universal,
+  precision is silicon." All 844+ WGSL shaders evolved to f64-canonical.
+  `compile_shader_universal(src, precision)` auto-targets F16/F32/F64/Df64.
+  Dual-layer DF64 (op_preamble + naga IR rewrite). `Fp64Strategy` auto-selects
+  Native (Titan V, A100) vs Hybrid (RTX 4070, consumer GPUs). Precision is
+  transparent to groundSpring consumers — barracuda ops internally select the
+  best precision path per hardware.
+
 ### V68 Complete Rewiring — L-BFGS Refinement, 4D Anderson, Cross-Spring Benchmark (Mar 2, 2026)
 
 #### Added

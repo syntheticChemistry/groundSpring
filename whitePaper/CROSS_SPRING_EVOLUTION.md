@@ -2,7 +2,7 @@
 
 **Date**: February 27, 2026
 **groundSpring HEAD**: V35
-**ToadStool HEAD**: `f97fc2ae` (S79)
+**ToadStool HEAD**: `2dc26792` (S87)
 
 ---
 

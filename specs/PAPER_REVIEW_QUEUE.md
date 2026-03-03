@@ -45,7 +45,7 @@
 **Phase 0**: ~261 checks (Python, 28 experiments). **Phase 1**: 376/376 PASS (Rust, 33 experiments). **Speedup**: 11.6× median (excl. LAPACK-bound), 51.2× peak (seismic).
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs (Exp 029–033 have no Python baseline).
 **V68 fresh validation**: 376/376 checks (33 binaries), 780 workspace tests, 100+ three-tier parity tests.
-**GPU dispatch (V31–V68)**: 15 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson, tissue_anderson, jackknife. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). 76 active delegations (44 CPU + 32 GPU) — ToadStool S86.
+**GPU dispatch (V31–V68)**: 15 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson, tissue_anderson, jackknife. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). 76 active delegations (44 CPU + 32 GPU) — ToadStool S87.
 **V66 stats Tier A**: MAE, NSE/R² wired to `FusedMapReduceF64` GPU path. Bistable batch ODE via `BatchedOdeRK4F64`. Papers 1-5 stats fully GPU-capable.
 **V67 hydrology GPU**: `McEt0PropagateGpu` + `SeasonalPipelineF64` + `BatchedMultinomialGpu` API fix (3 call sites).
 **V68 spectral GPU**: `anderson_4d` + `wegner_block_4d` (tissue immunology). `lbfgs_numerical` post-grid refinement.
@@ -276,13 +276,13 @@ Write → Absorb → Lean cycle:
 | 33 | Tissue Anderson 4D + Wegner RG | **29/29** | **Wired** (V68 `anderson_4d` + `wegner_block_4d`) | Workload | 4D Anderson + RG GPU |
 
 **CPU tier**: 376/376 PASS across 33 validation binaries.
-**Barracuda**: 76 active delegations (44 CPU + 32 GPU) — ToadStool S86. **Performance**: 11.6× faster than Python (excl. LAPACK-bound); 5.1× overall; 53.5× peak (seismic). **Tests**: 780 Rust workspace + 375 Python = 1155. 100+ three-tier parity tests (100% delegation coverage).
+**Barracuda**: 76 active delegations (44 CPU + 32 GPU) — ToadStool S87. **Performance**: 11.6× faster than Python (excl. LAPACK-bound); 5.1× overall; 53.5× peak (seismic). **Tests**: 780 Rust workspace + 375 Python = 1155. 100+ three-tier parity tests (100% delegation coverage).
 **Mathematical parity**: 28/28 PROVEN. See `data/parity_report.json` and `data/bench_rust_vs_python.json`.
 **Three-tier parity**: 100+ parity tests validate CPU ↔ barracuda-CPU equivalence (100% delegation coverage).
 **GPU tier**: 15 modules wired with `#[cfg(feature = "barracuda-gpu")]` — stats Tier A complete (MAE, NSE, R²), bistable batch ODE, McEt0PropagateGpu, SeasonalPipelineF64, 4D Anderson + Wegner RG, L-BFGS refinement. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only). GPU grid adapters (seismic, freeze-out). 780 tests pass.
 **metalForge tier**: 30 workloads, 187 checks (groundspring-forge crate, Exp 028 NPU DMA on AKD1000, pipeline dispatch, PCIe topology, GPU→NPU bypass).
 
-### GPU / metalForge Progression (updated V68 — ToadStool S86)
+### GPU / metalForge Progression (updated V68 — ToadStool S87)
 
 | # | Paper (short) | CPU | GPU | metalForge | Status |
 |---|--------------|:---:|:---:|:----------:|--------|
@@ -309,7 +309,7 @@ Write → Absorb → Lean cycle:
 | 29-32 | NUCLEUS experiments | **55/55 PASS** | — | sovereign fallback | Real data (NOAA, NCBI, IRIS) |
 | 33 | Paper 12 tissue Anderson | **29/29 PASS** | **Wired** (V68 4D Anderson + RG) | Workload defined | `anderson_4d` + `wegner_block_4d` |
 
-### BarraCUDA Kernel Requirements Summary (V68 — ToadStool S86)
+### BarraCUDA Kernel Requirements Summary (V68 — ToadStool S87)
 
 | Kernel | Papers | Status | Priority |
 |--------|--------|--------|----------|
@@ -368,7 +368,7 @@ Papers 23, 24 — **partial** (stats GPU, full chain pending).
 ### Tier 1: BarraCUDA CPU (current — 376/376 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
-76 active delegations (44 CPU + 32 GPU) — ToadStool S86 (`7e01ac7e`). 11.5× faster than Python (excl. LAPACK-bound).
+76 active delegations (44 CPU + 32 GPU) — ToadStool S87 (`2dc26792`). 11.5× faster than Python (excl. LAPACK-bound).
 780 Rust workspace tests + 375 Python = 1155. 28/28 mathematical parity proven. 100+ three-tier parity tests (100% delegation coverage).
 376/376 validation checks across 33 experiments (V68, zero-debt audit certified).
 All 33 experiments validated. GPU stats dispatch (mean, std_dev, rmse, mbe, mae, nse, r², pearson_r). L-BFGS post-grid refinement (V68). 14 CPU vs GPU parity tests. CPU vs GPU benchmark binary.

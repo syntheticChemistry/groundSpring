@@ -3,7 +3,7 @@
 #
 # Atomic composition:
 #   Tower  = BearDog (crypto/identity) + Songbird (IPC discovery)
-#   Node   = Tower + ToadStool (barracuda GPU compute, S79 f97fc2ae)
+#   Node   = Tower + ToadStool (barracuda GPU compute, S87 2dc26792)
 #   Nest   = Tower + NestGate (NCBI, NOAA GHCND, IRIS FDSN + provenance storage)
 #
 # After deployment, groundSpring's biomeos.rs client discovers the Neural API
@@ -20,7 +20,7 @@
 #   Exp 005 (seismic)        — nestgate.iris_stations/iris_events → NMSZ data
 #   Exp 023 (no-till 16S)    — nestgate.ncbi_search → no-till vs tilled 16S
 #
-# STATUS: V62 (March 2, 2026) — ToadStool S79, DF64 precision strategy
+# STATUS: V68 (March 2, 2026) — ToadStool S87, DF64 precision strategy
 # Target: Eastgate (local, single machine)
 #
 # Run: biomeos deploy graphs/groundspring_nucleus_local.toml
@@ -31,9 +31,9 @@ description = "Full NUCLEUS local: Tower + Node (ToadStool GPU) + Nest (NestGate
 coordination = "Sequential"
 
 [graph.metadata]
-toadstool_pin = "S79"
-toadstool_commit = "f97fc2ae"
-groundspring_version = "V62"
+toadstool_pin = "S87"
+toadstool_commit = "2dc26792"
+groundspring_version = "V68"
 target_node = "eastgate"
 precision_strategy = "f64-capable with DF64 fallback"
 
@@ -88,7 +88,7 @@ target = "toadstool"
 
 [nodes.operation.params]
 method = "toadstool.start"
-params = { node_id = "eastgate", features = ["gpu", "f64"], precision_strategy = "f64_capable_with_fallback", pin = "S79" }
+params = { node_id = "eastgate", features = ["gpu", "f64"], precision_strategy = "f64_capable_with_fallback", pin = "S87" }
 
 [nodes.constraints]
 timeout_ms = 30000
@@ -172,7 +172,7 @@ params = { primal = "groundspring", capabilities = [
     "science.wdm_analysis",
     "science.cross_spring_benchmark",
     "science.gpu_tier_validation",
-], family_id = "groundspring", version = "V62" }
+], family_id = "groundspring", version = "V68" }
 
 [nodes.constraints]
 timeout_ms = 10000

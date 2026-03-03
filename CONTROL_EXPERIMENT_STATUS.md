@@ -48,7 +48,7 @@
 **Rust tests**: 780/780 PASS (default workspace)
 **pytest**: 375/375 PASS + 2 skipped
 **Three-tier parity**: 101+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
-**BarraCUDA dispatch**: 76 active (44 CPU + 32 GPU) — V68: L-BFGS refinement, 4D Anderson + Wegner RG; V67: McEt0PropagateGpu, SeasonalPipelineF64. Pinned ToadStool S86 (`7e01ac7e`)
+**BarraCUDA dispatch**: 76 active (44 CPU + 32 GPU) — V68: L-BFGS refinement, 4D Anderson + Wegner RG; V67: McEt0PropagateGpu, SeasonalPipelineF64. Pinned ToadStool S87 (`2dc26792`)
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); compute.execute + compute.submit validated
 **metalForge workloads**: 30 (24 GPU + 2 NPU + 2 CPU-only), 187 checks (130 forge + 57 mixed-hardware)
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
@@ -603,7 +603,7 @@ Each experiment is validated at three hardware tiers:
 **GPU tier**: 25 of 33 papers have GPU wiring (76%). 76 delegations (44 CPU + 32 GPU). 30/30 metalForge parity.
 **metalForge tier**: 30 workloads, 187 checks (57 mixed-hardware). Exp 028 NPU 9/9 PASS (AKD1000 DMA). GPU→NPU→CPU pipeline dispatch validated.
 
-### BarraCUDA Integration Status (V68 — ToadStool S86)
+### BarraCUDA Integration Status (V68 — ToadStool S87)
 
 **76 active delegations** (44 CPU + 32 GPU). V67: `McEt0PropagateGpu`, `SeasonalPipelineF64`, `BatchedMultinomialGpu` API fix. V68: `lbfgs_numerical`, `anderson_4d`, `wegner_block_4d`. All active delegations use `if let Ok` / `#[cfg]` with always-compiled CPU fallback.
 
@@ -655,7 +655,7 @@ Each experiment is validated at three hardware tiers:
 - **Phase 1**: Rust CPU validation — **COMPLETE** (376/376 across 33 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
 - **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 001-033: all domains)
-- **Phase 2a**: Tier A rewire — **COMPLETE** — 76 active delegations (44 CPU + 32 GPU), ToadStool S86
+- **Phase 2a**: Tier A rewire — **COMPLETE** — 76 active delegations (44 CPU + 32 GPU), ToadStool S87
 - **Phase 2b**: BarraCUDA CPU parity — **PROVEN** — 11.6× faster than Python (excl. LAPACK-bound), 28/28 math parity
 - **Phase 2c**: BarraCUDA GPU tier — **PROVEN** — 30/30 three-tier parity, 2.2× total GPU speedup, 47.4× peak (Exp 009)
   - GPU-wired: 25 of 33 papers (76%) — stats, hydrology, spectral, bio ODE, multinomial, optimization, 4D Anderson
@@ -760,7 +760,7 @@ The key insight: **delegated code produces bitwise-identical results**.
 
 ### Stage 3: barracuda-CPU → barracuda-GPU (portable math, 2.2× faster)
 
-ToadStool S86 universal precision (DF64 on FP32 cores via `naga`-guided
+ToadStool S87 universal precision (DF64 on FP32 cores via `naga`-guided
 `df64_rewrite.rs`) with **complete DF64 transcendental suite** (15 functions:
 gamma, erf, inverse trig, hyperbolics) allows GPU dispatch with f64-equivalent
 precision across all mathematical domains.

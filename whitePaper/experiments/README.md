@@ -11,7 +11,7 @@
 **Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across 28 benchmarked experiments.
 **Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **Coverage**: Zero clippy warnings (pedantic + nursery). 101 three-tier parity tests + 16 CPU vs GPU parity.
-**BarraCUDA**: 76 active delegations (44 CPU + 32 GPU), 1 evolution candidate — ToadStool S86.
+**BarraCUDA**: 76 active delegations (44 CPU + 32 GPU), 1 evolution candidate — ToadStool S87.
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) with sovereign fallback.
 **Modules**: 33 (including `esn`, `lanczos`, `linalg`, `error`, `jackknife`, `freeze_out`, `spectral_recon`, `wdm`, `npu`, `biomeos`, `nestgate`, `drift`, `tissue_anderson`).
 **metalForge**: 30 workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed), 187 metalForge checks (130 forge + 57 mixed-hardware), 5+ substrates, architecture-aware routing, `PCIe` topology, GPU→NPU PCIe bypass, pipeline dispatch, NUCLEUS atomics.
@@ -64,7 +64,7 @@ Each experiment is validated at three levels:
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
 Current status: **CPU complete** (321/321 core + 55 NUCLEUS = 376 total),
-**76 active delegations (44 CPU + 32 GPU), 1 evolution candidate — ToadStool S86**.
+**76 active delegations (44 CPU + 32 GPU), 1 evolution candidate — ToadStool S87**.
 **NUCLEUS**: biomeOS Neural API live — 4 experiments exercise Tower, Node, Squirrel, Nest
 with sovereign fallback. All delegations use sovereign fallback.
 33/33 experiments validated. 780 Rust workspace tests + 375 Python = 1155 total.

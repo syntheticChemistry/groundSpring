@@ -14,9 +14,9 @@
 //! # barracuda delegation
 //!
 //! When the `barracuda-gpu` feature is enabled, the Hamiltonian construction
-//! and eigenvalue computation delegate to `barracuda::spectral::hofstadter`
-//! and `barracuda::spectral::find_all_eigenvalues` (Sturm bisection, O(n²)
-//! for tridiag vs O(n³) dense QR).
+//! and eigenvalue computation delegate to `barracuda::spectral` (the
+//! `almost_mathieu_hamiltonian` and `find_all_eigenvalues` functions —
+//! Sturm bisection, O(n²) for tridiag vs O(n³) dense QR).
 //!
 //! Note: barracuda uses `2λ_b cos(...)` convention, so we pass
 //! `coupling / 2` as barracuda's `λ_b` to match our convention where the
@@ -98,7 +98,7 @@ fn level_spacing_ratio_cpu(eigenvalues: &[f64]) -> f64 {
 /// hopping = 1.  Returns the matrix elements as a flat row-major array.
 ///
 /// When `barracuda-gpu` is enabled, delegates to
-/// `barracuda::spectral::hofstadter::almost_mathieu_hamiltonian` which
+/// `barracuda::spectral::almost_mathieu_hamiltonian` which
 /// returns a tridiagonal form and then expands it. The barracuda
 /// convention uses `2λ_b cos(...)`, so we pass `coupling / 2` as their λ.
 #[must_use]

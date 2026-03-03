@@ -3,7 +3,7 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 2, 2026 (V68: 76 active delegations (44 CPU + 32 GPU), 1 evolution candidate, `ToadStool` S86 `7e01ac7e` — V68: L-BFGS post-grid-search refinement (airSpring V035 → S84), 4D Anderson + Wegner RG tissue modeling (hotSpring precision → S84), GPU parity buildout + GPU→NPU PCIe bypass, 30 metalForge workloads, 780 tests, 187 checks)
+**Last Updated**: March 2, 2026 (V68: 76 active delegations (44 CPU + 32 GPU), 1 evolution candidate, `ToadStool` S86 `2dc26792` — V68: L-BFGS post-grid-search refinement (airSpring V035 → S84), 4D Anderson + Wegner RG tissue modeling (hotSpring precision → S84), GPU parity buildout + GPU→NPU PCIe bypass, 30 metalForge workloads, 780 tests, 187 checks)
 
 ---
 
@@ -34,7 +34,7 @@ groundSpring (noise validation) → jackknife, evolution (Kimura fixation, quasi
                                   grid search/fit ops, batched multinomial, MC ET₀ propagation,
                                   L-BFGS refinement, 4D Anderson tissue + Wegner RG
                                   ↓
-                          BarraCUDA S86 (ToadStool 7e01ac7e)
+                          BarraCUDA S86 (ToadStool 2dc26792)
                     14,200+ tests, 844 WGSL shaders (f64-canonical, DF64 universal precision, 15 transcendentals)
 ```
 
@@ -486,7 +486,7 @@ All 21 validation binaries timed in `--release` mode, CPU-only vs barracuda-dele
 
 **Key insight**: CPU delegation adds ~1.7% total overhead from function indirection — functionally free. Heavy experiments (Anderson, RAWR) are actually slightly *faster* with barracuda's optimized implementations. The real speedup opportunity is GPU delegation for Exp 009 (eigensolver) and Exp 014 (Wright-Fisher batching).
 
-### Cross-Spring Shader Categories (ToadStool S79)
+### Cross-Spring Shader Categories (ToadStool S87)
 
 The 844 barracuda WGSL shaders that groundSpring's delegations ultimately depend on:
 
@@ -541,7 +541,7 @@ The 844 barracuda WGSL shaders that groundSpring's delegations ultimately depend
 | Mar 1 | **groundSpring V59** | **ToadStool S71+++ catch-up**: jackknife promoted to GPU (`JackknifeMeanGpu` + `jackknife_mean_f64.wgsl`), Hargreaves batch GPU evolved (`HargreavesBatchGpu` + `hargreaves_batch_f64.wgsl`), ToadStool pin advanced 6 commits (S70+++→S71+++), 671 WGSL shaders, ComputeDispatch builder (66 ops), DF64 transcendental suite complete (15 functions), ~9K lines stale code archived upstream, 61 delegations (37 CPU + 20 GPU + 4 xspring) |
 | Mar 1 | **groundSpring V60** | **hotSpring cross-spring absorption**: `DriftMonitor` (`N_e`·`s` tracking from Nautilus Shell), `ClassificationUncertainty` (multi-head ESN disagreement from hotSpring), `detect_concept_edges` (LOO cross-validation from Nautilus Brain), `nautilus` feature gate (`bingocube-nautilus` optional dep), 620 tests (+7), 4 new native functions, 10 new tests |
 | Mar 2 | **groundSpring V62** | **ToadStool S79 catch-up**: pollster eliminated (`tokio_block_on`), f64-capable device selection (`WgpuDevice::new_f64_capable` with fallback), DF64 precision strategy wired, 2 redundant shaders removed (absorbed into ToadStool), SPDX harmonized (AGPL-3.0-only), cross-spring shader lineage documented. 710 tests, 23/23 cross-spring benchmark, 39/39 GPU tier, 13/13 Titan V + RTX 4070 validation |
-| Mar 2 | **groundSpring V67** | **ToadStool S86 catch-up**: `McEt0PropagateGpu` + `SeasonalPipelineF64` GPU wirings, `BatchedMultinomialGpu::sample` API break fix (3 sites), 73 delegations (43 CPU + 30 GPU), 28 metalForge workloads |
+| Mar 2 | **groundSpring V67** | **ToadStool S87 catch-up**: `McEt0PropagateGpu` + `SeasonalPipelineF64` GPU wirings, `BatchedMultinomialGpu::sample` API break fix (3 sites), 73 delegations (43 CPU + 30 GPU), 28 metalForge workloads |
 | Mar 2 | **groundSpring V68** | **Complete rewiring + cross-spring benchmark**: L-BFGS refinement (airSpring V035 → S84 → freeze_out), 4D Anderson + Wegner RG (hotSpring precision → S84 → tissue_anderson), 76 delegations (44 CPU + 32 GPU), 30 metalForge workloads. Cross-spring lineage: hotSpring precision shaders enable tissue 4D; airSpring optimizer enables freeze-out sub-grid refinement; wetSpring bio + neuralSpring infra form foundation for all stochastic GPU dispatch |
 
 ---

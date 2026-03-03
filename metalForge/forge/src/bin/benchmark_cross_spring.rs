@@ -38,7 +38,7 @@ use std::time::Instant;
 
 fn main() {
     println!("=== groundSpring Cross-Spring Benchmark ===");
-    println!("=== ToadStool S79 / BarraCUDA Universal Precision ===\n");
+    println!("=== ToadStool S87 / BarraCUDA Universal Precision ===\n");
 
     let mut h = Harness::new();
 

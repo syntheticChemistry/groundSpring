@@ -9,7 +9,7 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V68 | [GROUNDSPRING_TOADSTOOL_V68_COMPREHENSIVE_EVOLUTION_HANDOFF_MAR02_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V68_COMPREHENSIVE_EVOLUTION_HANDOFF_MAR02_2026.md) | Mar 2, 2026 | Comprehensive evolution: 76 delegations (44 CPU + 32 GPU), 30 metalForge workloads, full barracuda usage inventory, cross-spring lineage, P0-P3 action items, open data provenance, three-tier hardware matrix |
+| V69 | [GROUNDSPRING_TOADSTOOL_V69_S87_PIN_UNIVERSAL_PRECISION_HANDOFF_MAR02_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_V69_S87_PIN_UNIVERSAL_PRECISION_HANDOFF_MAR02_2026.md) | Mar 2, 2026 | S87 pin (`2dc26792`), universal precision architecture audit, 76 delegations (44 CPU + 32 GPU), hofstadter doc path fix, stale S79/S86 cleanup, device-retry API roadmap |
 
 ## Cross-Spring Documentation
 
@@ -36,6 +36,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V68 | Comprehensive evolution: 76 delegations (44 CPU + 32 GPU), 30 metalForge workloads, GPU parity buildout, GPU→NPU PCIe bypass, NUCLEUS coordination, three-tier hardware matrix (superseded by V69) |
 | V67 | ToadStool S86 catch-up: McEt0PropagateGpu, SeasonalPipelineF64, BatchedMultinomialConfig API fix, 73 delegations (43 CPU + 30 GPU), 28 metalForge workloads (superseded by V68) |
 | V66 | Stats Tier A GPU (MAE, NSE, R²), bistable batch ODE GPU, 71 delegations (43 CPU + 28 GPU), 26 metalForge workloads, barracuda API usage review (superseded by V67) |
 | V65 | Comprehensive absorption handoff: 67 delegations, paper queue × three-tier hardware matrix, PRNG alignment roadmap, zero-debt audit certificate (superseded by V66) |

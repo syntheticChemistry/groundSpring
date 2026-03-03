@@ -3,7 +3,7 @@
 **Date**: March 2, 2026
 **From**: groundSpring V68
 **To**: ToadStool/BarraCUDA team
-**ToadStool pin**: S86 (`7e01ac7e`)
+**ToadStool pin**: S87 (`2dc26792`)
 **License**: AGPL-3.0-only
 
 ---
@@ -206,7 +206,7 @@ dispatch for embarrassingly parallel workloads.
 | Item | Value |
 |------|-------|
 | groundSpring commit | `d6eb0c6` (V68) |
-| ToadStool pin | S86 (`7e01ac7e`) |
+| ToadStool pin | S87 (`2dc26792`) |
 | barracuda tests | 14,200+ |
 | barracuda WGSL shaders | 844 |
 | groundSpring tests | 780 |
