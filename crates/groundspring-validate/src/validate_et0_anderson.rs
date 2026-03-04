@@ -18,7 +18,9 @@ use groundspring::fao56::{
 };
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, f64_range, print_provenance_header, usize_field};
+use groundspring_validate::{
+    f64_field, f64_range, print_provenance_header, usize_field, EPS_SAFE_DIV,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str =
@@ -101,7 +103,7 @@ fn mc_stats(samples: &[f64]) -> (f64, f64, f64) {
     let mean = samples.iter().sum::<f64>() / n;
     let var = samples.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / n;
     let std = var.sqrt();
-    let cv = std / mean.max(1e-10);
+    let cv = std / mean.max(EPS_SAFE_DIV);
     (mean, std, cv)
 }
 
@@ -120,7 +122,10 @@ fn propagate_mc(
     let radiation_sigma = f64_field(unc, "rs_sigma");
     let lat = f64_field(fao, "latitude_deg");
     let alt = f64_field(fao, "altitude_m");
-    #[expect(clippy::cast_possible_truncation)]
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "day_of_year 1–366 fits u16"
+    )]
     let doy = usize_field(fao, "day_of_year") as u16;
 
     let tmax_base = f64_field(fao, "tmax_c");
@@ -157,7 +162,7 @@ fn propagate_mc(
             anderson.n_realizations,
             42 + i as u64,
         );
-        xi_samples.push(1.0 / gamma.max(1e-10));
+        xi_samples.push(1.0 / gamma.max(EPS_SAFE_DIV));
     }
 
     let (et0_mean, _, et0_cv) = mc_stats(&et0_samples);
@@ -182,7 +187,10 @@ fn sensitivity_variance_fractions(fao: &Value, seed: u64) -> [f64; 4] {
     let radiation_sigma = f64_field(&fao["uncertainties"], "rs_sigma");
     let lat = f64_field(fao, "latitude_deg");
     let alt = f64_field(fao, "altitude_m");
-    #[expect(clippy::cast_possible_truncation)]
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "day_of_year 1–366 fits u16"
+    )]
     let doy = usize_field(fao, "day_of_year") as u16;
     let tmax_b = f64_field(fao, "tmax_c");
     let tmin_b = f64_field(fao, "tmin_c");
@@ -307,7 +315,7 @@ fn run() -> i32 {
     );
 
     println!("\n--- Step 3: Uncertainty propagation ---");
-    let ratio = r.xi_cv / r.et0_cv.max(1e-10);
+    let ratio = r.xi_cv / r.et0_cv.max(EPS_SAFE_DIV);
     let ratio_min = f64_field(exp, "xi_cv_to_et0_cv_ratio_min");
     println!(
         "  ξ CV ({:.4}) / ET₀ CV ({:.4}) = ratio {ratio:.3}",

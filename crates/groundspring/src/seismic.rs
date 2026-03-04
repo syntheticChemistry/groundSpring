@@ -303,10 +303,11 @@ fn grid_search_inversion_cpu<S: AsRef<str>>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn haversine_zero() {
-        assert!(haversine_km(37.5, -89.0, 37.5, -89.0).abs() < 1e-10);
+        assert!(haversine_km(37.5, -89.0, 37.5, -89.0).abs() < tol::ANALYTICAL);
     }
 
     #[test]
@@ -326,7 +327,7 @@ mod tests {
     fn travel_time_known_value() {
         // 100km horizontal, 0km depth, 6 km/s → 100/6 = 16.667s
         let t = travel_time_1d(100.0, 0.0, 6.0);
-        assert!((t - 100.0 / 6.0).abs() < 1e-10);
+        assert!((t - 100.0 / 6.0).abs() < tol::ANALYTICAL);
     }
 
     #[test]

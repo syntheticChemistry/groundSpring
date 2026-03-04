@@ -283,23 +283,27 @@ fn sort_eigenpairs(d: &mut [f64], z: &mut [f64], n: usize) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn trivial_eigh() {
         let (vals, vecs) = tridiag_eigh(&[3.0], &[]).expect("trivial 1x1");
-        assert!((vals[0] - 3.0).abs() < 1e-14);
-        assert!((vecs[0] - 1.0).abs() < 1e-14);
+        assert!((vals[0] - 3.0).abs() < tol::EXACT);
+        assert!((vecs[0] - 1.0).abs() < tol::EXACT);
     }
 
     #[test]
     fn two_by_two_eigh() {
         let n = 2;
         let (vals, vecs) = tridiag_eigh(&[0.0, 0.0], &[1.0]).expect("2x2");
-        assert!((vals[0] - (-1.0)).abs() < 1e-12);
-        assert!((vals[1] - 1.0).abs() < 1e-12);
+        assert!((vals[0] - (-1.0)).abs() < tol::EXACT);
+        assert!((vals[1] - 1.0).abs() < tol::EXACT);
 
         let norm0: f64 = (0..n).map(|row| vecs[row * n] * vecs[row * n]).sum();
-        assert!((norm0 - 1.0).abs() < 1e-12, "eigenvector 0 not normalized");
+        assert!(
+            (norm0 - 1.0).abs() < tol::EXACT,
+            "eigenvector 0 not normalized"
+        );
     }
 
     #[test]
@@ -350,7 +354,7 @@ mod tests {
                 let dot: f64 = (0..n).map(|k| vecs[k * n + i] * vecs[k * n + j]).sum();
                 let expected = if i == j { 1.0 } else { 0.0 };
                 assert!(
-                    (dot - expected).abs() < 1e-8,
+                    (dot - expected).abs() < tol::ANALYTICAL,
                     "dot({i},{j}) = {dot}, expected {expected}"
                 );
             }
@@ -377,7 +381,10 @@ mod tests {
             }
             for j in 0..n {
                 let diff = vals[k].mul_add(-vecs[j * n + k], hv[j]).abs();
-                assert!(diff < 1e-10, "H*v != λ*v at k={k}, j={j}: diff={diff}");
+                assert!(
+                    diff < tol::ANALYTICAL,
+                    "H*v != λ*v at k={k}, j={j}: diff={diff}"
+                );
             }
         }
     }
@@ -397,7 +404,7 @@ mod tests {
 
             for (ql, bc) in vals_ql.iter().zip(&vals_bc) {
                 assert!(
-                    (ql - bc).abs() < 1e-8,
+                    (ql - bc).abs() < tol::ANALYTICAL,
                     "eigenvalue mismatch: QL={ql}, barracuda={bc}"
                 );
             }
@@ -414,8 +421,9 @@ mod tests {
                 for j in 0..n {
                     let dot: f64 = (0..n).map(|k| vecs[k * n + i] * vecs[k * n + j]).sum();
                     let expected = if i == j { 1.0 } else { 0.0 };
+                    // Jacobi rotation has lower precision than QL; LITERATURE for cross-implementation parity.
                     assert!(
-                        (dot - expected).abs() < 1e-6,
+                        (dot - expected).abs() < tol::LITERATURE,
                         "barracuda eigenvector dot({i},{j}) = {dot}"
                     );
                 }
@@ -425,8 +433,8 @@ mod tests {
         #[test]
         fn barracuda_eigh_trivial() {
             let (vals, vecs) = tridiag_eigh_barracuda(&[5.0], &[]).expect("1x1");
-            assert!((vals[0] - 5.0).abs() < 1e-14);
-            assert!((vecs[0] - 1.0).abs() < 1e-14);
+            assert!((vals[0] - 5.0).abs() < tol::EXACT);
+            assert!((vecs[0] - 1.0).abs() < tol::EXACT);
         }
 
         #[test]

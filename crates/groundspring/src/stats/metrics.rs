@@ -26,7 +26,9 @@ pub fn mean(values: &[f64]) -> f64 {
         }
     }
     #[cfg(feature = "barracuda")]
-    return barracuda::stats::mean(values);
+    {
+        barracuda::stats::mean(values)
+    }
     #[cfg(not(feature = "barracuda"))]
     mean_cpu(values)
 }
@@ -128,7 +130,9 @@ pub fn percentile(values: &[f64], p: f64) -> Result<f64, crate::error::InputErro
         });
     }
     #[cfg(feature = "barracuda")]
-    return Ok(barracuda::stats::percentile(values, p));
+    {
+        Ok(barracuda::stats::percentile(values, p))
+    }
     #[cfg(not(feature = "barracuda"))]
     Ok(percentile_cpu(values, p))
 }
@@ -154,23 +158,24 @@ fn percentile_cpu(values: &[f64], p: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn mean_empty() {
         let empty: [f64; 0] = [];
-        assert!(mean(&empty).abs() < 1e-12);
+        assert!(mean(&empty).abs() < tol::EXACT);
     }
 
     #[test]
     fn std_dev_empty() {
         let empty: [f64; 0] = [];
-        assert!(std_dev(&empty).abs() < 1e-12);
+        assert!(std_dev(&empty).abs() < tol::EXACT);
     }
 
     #[test]
     fn std_dev_constant() {
         let vals = [4.0, 4.0, 4.0];
-        assert!(std_dev(&vals).abs() < 1e-12);
+        assert!(std_dev(&vals).abs() < tol::EXACT);
     }
 
     #[test]
@@ -178,7 +183,7 @@ mod tests {
         let vals = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
         let s = std_dev(&vals);
         assert!(
-            (s - 2.0).abs() < 1e-12,
+            (s - 2.0).abs() < tol::EXACT,
             "population σ should be 2.0, got {s}"
         );
     }
@@ -186,13 +191,13 @@ mod tests {
     #[test]
     fn percentile_median() {
         let vals = [1.0, 2.0, 3.0, 4.0, 5.0];
-        assert!((percentile(&vals, 50.0).unwrap() - 3.0).abs() < 1e-12);
+        assert!((percentile(&vals, 50.0).unwrap() - 3.0).abs() < tol::EXACT);
     }
 
     #[test]
     fn percentile_empty() {
         let empty: [f64; 0] = [];
-        assert!(percentile(&empty, 50.0).unwrap().abs() < 1e-12);
+        assert!(percentile(&empty, 50.0).unwrap().abs() < tol::EXACT);
     }
 
     #[test]
@@ -200,7 +205,7 @@ mod tests {
         let vals = [1.0, 2.0, 3.0, 4.0];
         let p25 = percentile(&vals, 25.0).unwrap();
         assert!(
-            (p25 - 1.75).abs() < 1e-12,
+            (p25 - 1.75).abs() < tol::EXACT,
             "P25 of [1,2,3,4] = 1.75, got {p25}"
         );
     }
@@ -218,19 +223,19 @@ mod tests {
         let samp = sample_std_dev(&vals);
         assert!(samp > pop, "sample std > population std");
         assert!(
-            (samp - 2.138).abs() < 0.01,
+            (samp - 2.138).abs() < tol::STOCHASTIC,
             "known sample σ ≈ 2.138, got {samp}"
         );
     }
 
     #[test]
     fn sample_std_dev_single_element() {
-        assert!(sample_std_dev(&[42.0]).abs() < 1e-12);
+        assert!(sample_std_dev(&[42.0]).abs() < tol::EXACT);
     }
 
     #[test]
     fn sample_std_dev_empty() {
         let empty: [f64; 0] = [];
-        assert!(sample_std_dev(&empty).abs() < 1e-12);
+        assert!(sample_std_dev(&empty).abs() < tol::EXACT);
     }
 }

@@ -77,7 +77,9 @@ fn simpson_diversity_cpu(counts: &[u64]) -> f64 {
 pub fn bray_curtis(a: &[f64], b: &[f64]) -> f64 {
     assert_eq!(a.len(), b.len(), "length mismatch");
     #[cfg(feature = "barracuda")]
-    return barracuda::stats::bray_curtis(a, b);
+    {
+        barracuda::stats::bray_curtis(a, b)
+    }
     #[cfg(not(feature = "barracuda"))]
     bray_curtis_cpu(a, b)
 }
@@ -356,9 +358,15 @@ fn multinomial_sample_batch_gpu(
         }
     }
 
-    #[expect(clippy::cast_possible_truncation)]
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "sequencing depth ≤ 10^6, fits u32"
+    )]
     let depth_u32 = depth as u32;
-    #[expect(clippy::cast_possible_truncation)]
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "n_replicates ≤ 100, fits u32"
+    )]
     let n_reps_u32 = n_replicates as u32;
 
     let config = BatchedMultinomialConfig {
@@ -431,24 +439,25 @@ pub fn rarefaction_at_depth(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn shannon_uniform() {
         let counts = [100, 100, 100, 100];
         let expected = (4.0_f64).ln();
-        assert!((shannon_diversity(&counts) - expected).abs() < 1e-10);
+        assert!((shannon_diversity(&counts) - expected).abs() < tol::ANALYTICAL);
     }
 
     #[test]
     fn shannon_single_species() {
         let counts = [1000, 0, 0, 0];
-        assert!(shannon_diversity(&counts).abs() < 1e-10);
+        assert!(shannon_diversity(&counts).abs() < tol::ANALYTICAL);
     }
 
     #[test]
     fn shannon_empty() {
         let counts: [u64; 0] = [];
-        assert!((shannon_diversity(&counts)).abs() < 1e-10);
+        assert!((shannon_diversity(&counts)).abs() < tol::ANALYTICAL);
     }
 
     #[test]
@@ -484,14 +493,14 @@ mod tests {
     #[test]
     fn evenness_uniform() {
         let counts = [100, 100, 100, 100];
-        assert!((evenness(&counts) - 1.0).abs() < 1e-10);
+        assert!((evenness(&counts) - 1.0).abs() < tol::ANALYTICAL);
     }
 
     #[test]
     fn evenness_single_species() {
         let counts = [100, 0, 0];
         assert!(
-            (evenness(&counts) - 1.0).abs() < 1e-10,
+            (evenness(&counts) - 1.0).abs() < tol::ANALYTICAL,
             "s≤1 → evenness=1.0 by convention"
         );
     }
@@ -500,7 +509,7 @@ mod tests {
     fn evenness_empty() {
         let counts: [u64; 0] = [];
         assert!(
-            (evenness(&counts) - 1.0).abs() < 1e-10,
+            (evenness(&counts) - 1.0).abs() < tol::ANALYTICAL,
             "s≤1 → evenness=1.0 by convention"
         );
     }
@@ -553,19 +562,19 @@ mod tests {
     #[test]
     fn simpson_uniform() {
         let counts = [100, 100, 100, 100];
-        assert!((simpson_diversity(&counts) - 0.75).abs() < 1e-10);
+        assert!((simpson_diversity(&counts) - 0.75).abs() < tol::ANALYTICAL);
     }
 
     #[test]
     fn simpson_single_species() {
         let counts = [1000, 0, 0, 0];
-        assert!(simpson_diversity(&counts).abs() < 1e-10);
+        assert!(simpson_diversity(&counts).abs() < tol::ANALYTICAL);
     }
 
     #[test]
     fn simpson_empty() {
         let counts: [u64; 0] = [];
-        assert!(simpson_diversity(&counts).abs() < 1e-10);
+        assert!(simpson_diversity(&counts).abs() < tol::ANALYTICAL);
     }
 
     #[test]
@@ -592,6 +601,7 @@ mod tests {
     fn bray_curtis_symmetry() {
         let a = [10.0, 20.0, 30.0, 0.0, 5.0];
         let b = [15.0, 10.0, 25.0, 5.0, 0.0];
+        // Symmetry is exact; 1e-15 is stricter than EXACT for identical-path comparison.
         assert!((bray_curtis(&a, &b) - bray_curtis(&b, &a)).abs() < 1e-15);
     }
 
@@ -611,7 +621,7 @@ mod tests {
         let counts = [10, 20, 30, 5];
         let total: u64 = counts.iter().sum();
         let curve = analytical_rarefaction(&counts, &[total]);
-        assert!((curve[0] - 4.0).abs() < 1e-10);
+        assert!((curve[0] - 4.0).abs() < tol::ANALYTICAL);
     }
 
     #[test]
@@ -621,7 +631,7 @@ mod tests {
         let curve = analytical_rarefaction(&counts, &depths);
         for i in 1..curve.len() {
             assert!(
-                curve[i] >= curve[i - 1] - 1e-10,
+                curve[i] >= curve[i - 1] - tol::ANALYTICAL,
                 "not monotonic at depth {}",
                 depths[i]
             );

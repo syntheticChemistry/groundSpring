@@ -11,6 +11,8 @@
 // Bitwise determinism: parity tests intentionally compare exact f64 bits.
 #![allow(clippy::float_cmp)]
 
+use groundspring::tol;
+
 // ── anderson ───────────────────────────────────────────────────────
 
 #[test]
@@ -104,8 +106,8 @@ fn detect_band_ranges_parity() {
 #[test]
 fn transport_eigh_parity_2x2() {
     let (vals, _vecs) = groundspring::transport::tridiag_eigh(&[0.0, 0.0], &[1.0]).expect("2x2");
-    assert!((vals[0] - (-1.0)).abs() < 1e-12);
-    assert!((vals[1] - 1.0).abs() < 1e-12);
+    assert!((vals[0] - (-1.0)).abs() < tol::EXACT);
+    assert!((vals[1] - 1.0).abs() < tol::EXACT);
 }
 
 // ── seismic ─────────────────────────────────────────────────────────
@@ -166,7 +168,7 @@ fn seismic_grid_search_parity_known_location() {
 #[test]
 fn freeze_out_curve_parity() {
     let t = groundspring::freeze_out::freeze_out_curve(155.0, 0.013, 0.0);
-    assert!((t - 155.0).abs() < 1e-12, "T_f(0) = T0");
+    assert!((t - 155.0).abs() < tol::EXACT, "T_f(0) = T0");
 }
 
 #[test]
@@ -174,7 +176,7 @@ fn freeze_out_chi2_parity() {
     let obs = [1.0, 2.0, 3.0];
     let pred = [1.0, 2.0, 3.0];
     let c2 = groundspring::freeze_out::chi_squared(&obs, &pred, 1.0).unwrap();
-    assert!(c2.abs() < 1e-14, "zero residual");
+    assert!(c2.abs() < tol::STRICT, "zero residual");
 }
 
 #[test]
@@ -253,7 +255,10 @@ fn wdm_green_kubo_parity_exponential_decay() {
 
     let analytical = c0 * tau;
     let rel_err = (i1 - analytical).abs() / analytical;
-    assert!(rel_err < 0.001, "relative error {rel_err:.6} exceeds 0.1%");
+    assert!(
+        rel_err < tol::LITERATURE,
+        "relative error {rel_err:.6} exceeds 0.1%"
+    );
 }
 
 // ── fao56 ───────────────────────────────────────────────────────────
@@ -352,7 +357,7 @@ fn chi2_analysis_agrees_with_chi_squared() {
     let analysis = groundspring::freeze_out::chi2_analysis(&obs, &pred, sigma, 0).unwrap();
 
     assert!(
-        (analysis.chi2_total - basic).abs() < 1e-10,
+        (analysis.chi2_total - basic).abs() < tol::ANALYTICAL,
         "chi2_analysis.total={} vs chi_squared={}",
         analysis.chi2_total,
         basic

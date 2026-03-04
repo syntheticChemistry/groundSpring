@@ -88,6 +88,7 @@ fn moving_window_stats_cpu(data: &[f64], window_size: usize) -> MovingWindowResu
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn constant_data() {
@@ -107,9 +108,9 @@ mod tests {
         let data: Vec<f64> = (1..=5).map(f64::from).collect();
         let r = moving_window_stats(&data, 3).unwrap();
         assert_eq!(r.mean.len(), 3);
-        assert!((r.mean[0] - 2.0).abs() < 1e-10);
-        assert!((r.mean[1] - 3.0).abs() < 1e-10);
-        assert!((r.mean[2] - 4.0).abs() < 1e-10);
+        assert!((r.mean[0] - 2.0).abs() < tol::ANALYTICAL);
+        assert!((r.mean[1] - 3.0).abs() < tol::ANALYTICAL);
+        assert!((r.mean[2] - 4.0).abs() < tol::ANALYTICAL);
     }
 
     #[test]
@@ -127,7 +128,7 @@ mod tests {
         let data = vec![2.0, 4.0, 6.0];
         let r = moving_window_stats(&data, 3).unwrap();
         assert_eq!(r.mean.len(), 1);
-        assert!((r.mean[0] - 4.0).abs() < 1e-10);
+        assert!((r.mean[0] - 4.0).abs() < tol::ANALYTICAL);
     }
 
     #[test]

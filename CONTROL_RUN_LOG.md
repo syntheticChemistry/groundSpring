@@ -5,6 +5,18 @@ See [CONTROL_EXPERIMENT_STATUS.md](CONTROL_EXPERIMENT_STATUS.md) for the current
 
 ## Run Log
 
+### Run 42 (V73 Tolerance Architecture + Idiomatic Evolution, Mar 4, 2026)
+
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace -- -D warnings`: PASS (0 warnings)
+- `cargo doc --workspace --no-deps`: PASS (0 warnings)
+- `cargo test --workspace` (default): 790 tests, all PASS
+- `cargo llvm-cov --workspace --ignore-filename-regex '(validate_|bench_|bin/)' --fail-under-lines 90`: 97.25% line coverage
+- **barraCuda**: v0.3.1 (standalone primal)
+- **ToadStool**: S93
+- **Key changes**: 13-tier `tol::` module, `eps::` module, ~170 bare literals → named constants, `f64::midpoint`, 18 tail expression refactors, capability-based discovery evolution
+- **Handoff**: V73 Tolerance Architecture + Absorption Guide
+
 ### Run 41 (V72 Deep Audit + Debt Evolution, Mar 3, 2026)
 
 - `cargo fmt --check`: PASS

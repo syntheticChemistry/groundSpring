@@ -28,7 +28,10 @@ fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Rarefaction");
 
-    #[expect(clippy::cast_possible_truncation)]
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "JSON u64 genus count ≤ 1000, fits usize"
+    )]
     let n_genera = bench["reference_community"]["n_genera"]
         .as_u64()
         .expect("n_genera") as usize;
@@ -81,7 +84,7 @@ fn run() -> i32 {
     // Tol 0.05: for n=10000 draws at p=0.5 the standard error is
     // sqrt(p(1-p)/n) ≈ 0.005; 0.05 gives 10× margin for all taxa.
     for (i, &expected_frac) in abundances.iter().enumerate() {
-        #[expect(clippy::cast_precision_loss)]
+        #[expect(clippy::cast_precision_loss, reason = "count ≤ 10000 ≪ 2^53")]
         let observed_frac = r1[i] as f64 / 10_000.0;
         h.check_approx(
             &format!("Taxon {i} proportion"),
@@ -118,7 +121,7 @@ fn run() -> i32 {
 
     // Tol 0.5: at 50k depth with 10 taxa, sampling variance is negligible;
     // 0.5 handles any rare-taxon under-sampling in 30 replicates.
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "community len ≤ 10 taxa ≪ 2^53")]
     let expected_all = community.len() as f64;
     h.check_approx(
         "All 10 taxa at 50k depth",

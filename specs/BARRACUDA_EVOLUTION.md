@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 3, 2026 (V72 — 81 delegations (47 CPU + 34 GPU), 786+ tests, barraCuda v0.3.1. V72: deep audit + debt evolution — clippy clean, silent-default elimination, BTreeMap determinism, provenance enforcement, idiomatic Rust patterns, Python CI coverage. V71: barraCuda 0.3.1 pin, toadStool S93 untangle confirmed)
+**Last updated**: March 4, 2026 (V73 — 81 delegations (47 CPU + 34 GPU), 790 tests, barraCuda v0.3.1. V73: 13-tier named tolerance architecture (`tol::`, `eps::`), ~170 bare literals → named constants, `f64::midpoint`, idiomatic tail expressions, 97.25% line coverage. V72: deep audit, silent-default elimination, BTreeMap determinism, provenance enforcement)
 
 ## Philosophy
 

@@ -4,6 +4,32 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V73 Tolerance Architecture + Epsilon Guards + Idiomatic Evolution (Mar 4, 2026)
+
+#### Added
+- **13-tier named tolerance module (`tol::`)**: `DETERMINISM` (1e-15), `STRICT` (1e-14), `EXACT` (1e-12), `ANALYTICAL` (1e-10), `INTEGRATION` (1e-8), `CDF_APPROX` (1e-6), `ROUNDTRIP` (1e-5), `RECONSTRUCTION` (1e-4), `LITERATURE` (0.001), `DECOMPOSITION` (0.005), `STOCHASTIC` (0.01), `NORM_2PCT` (0.02), `EQUILIBRIUM` (0.1) — each with scientific justification
+- **Production epsilon guard module (`eps::`)**: `SAFE_DIV` (1e-10), `SSA_FLOOR` (1e-15, behind `barracuda-gpu` feature), `UNDERFLOW` (1e-300) — replaces inline magic numbers in drift, gillespie, anderson
+- `tol` module now `pub` for integration test and downstream crate access
+
+#### Changed
+- **~170 bare float tolerance literals → named `tol::` constants** across 35 library modules and 6 integration test files — every assertion now carries semantic meaning
+- **3 inline epsilon guards → `eps::` constants**: `drift.rs` division guard, `gillespie.rs` SSA floor, `anderson.rs` underflow guard
+- **`f64::midpoint` applied**: overflow-safe midpoint in Spearman rank tie handling (`stats/correlation.rs`)
+- **18 explicit `return` statements → tail expressions**: idiomatic Rust in cfg-gated functions across `stats/agreement.rs`, `stats/metrics.rs`, `stats/distributions.rs`, `kinetics.rs`, `rarefaction.rs`, `band_structure.rs`, `fao56/pipeline.rs`, `almost_mathieu.rs`
+- **`biomeos/discovery.rs` capability evolution**: `NUCLEUS_SOCKET_NAMES` → `CAPABILITY_SOCKET_NAMES` with `find_capability_socket` fallback scan
+
+#### Removed
+- `eps::SAFE_DIV_STRICT` (unused outside validate crate; validate crate has its own `EPS_SAFE_DIV_STRICT`)
+
+#### Quality
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace -- -D warnings`: PASS
+- `cargo doc --workspace --no-deps`: PASS
+- `cargo test --workspace`: PASS (790 tests)
+- `cargo llvm-cov`: 97.25% line coverage (target 90%)
+- Zero bare tolerance literals in library test code (all use `tol::*`)
+- Zero inline epsilon guards in library production code (all use `eps::*`)
+
 ### V72 Deep Audit + Debt Evolution + Idiomatic Maturation (Mar 3, 2026)
 
 #### Fixed

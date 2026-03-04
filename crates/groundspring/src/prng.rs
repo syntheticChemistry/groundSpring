@@ -202,6 +202,7 @@ impl Xoshiro128StarStar {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn deterministic_same_seed() {
@@ -244,7 +245,7 @@ mod tests {
         let sum: f64 = (0..n).map(|_| rng.next_normal()).sum();
         let mean = sum / f64::from(n);
         assert!(
-            mean.abs() < 0.1,
+            mean.abs() < tol::EQUILIBRIUM,
             "mean of {n} standard normals should be near 0, got {mean}"
         );
     }
@@ -334,7 +335,7 @@ mod tests {
         let sum: f64 = (0..n).map(|_| rng.next_normal()).sum();
         let mean = sum / f64::from(n);
         assert!(
-            mean.abs() < 0.1,
+            mean.abs() < tol::EQUILIBRIUM,
             "mean of {n} standard normals should be near 0, got {mean}"
         );
     }

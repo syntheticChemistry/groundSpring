@@ -67,7 +67,9 @@ pub fn potential(n: usize, coupling: f64, alpha: f64, theta: f64) -> Vec<f64> {
 pub fn level_spacing_ratio(eigenvalues: &mut [f64]) -> f64 {
     eigenvalues.sort_unstable_by(f64::total_cmp);
     #[cfg(feature = "barracuda-gpu")]
-    return barracuda::spectral::level_spacing_ratio(eigenvalues);
+    {
+        barracuda::spectral::level_spacing_ratio(eigenvalues)
+    }
     #[cfg(not(feature = "barracuda-gpu"))]
     level_spacing_ratio_cpu(eigenvalues)
 }
@@ -249,6 +251,7 @@ fn init_identity(buf: &mut [f64], n: usize) {
 mod tests {
     use super::*;
     use crate::anderson::lyapunov_exponent;
+    use crate::tol;
 
     const GOLDEN: f64 = 0.618_033_988_749_894_9;
 
@@ -270,7 +273,10 @@ mod tests {
         let pot = potential(100_000, 1.0, GOLDEN, 0.0);
         let g = lyapunov_exponent(&pot, 0.0);
         // For 100k sites in extended phase (λ=1), transfer-matrix averaging converges to ~0 with O(1/√N) fluctuations; 0.01 is ~3× the expected O(10⁻²·⁵) statistical error.
-        assert!(g.abs() < 0.01, "extended phase γ={g}, expected ~0");
+        assert!(
+            g.abs() < tol::STOCHASTIC,
+            "extended phase γ={g}, expected ~0"
+        );
     }
 
     #[test]
@@ -280,7 +286,7 @@ mod tests {
         let expected = (3.0_f64 / 2.0).ln();
         // For 100k sites, Herman's formula convergence has O(1/N) systematic correction; 0.02 absorbs the finite-size effect.
         assert!(
-            (g - expected).abs() < 0.02,
+            (g - expected).abs() < tol::NORM_2PCT,
             "γ={g}, expected ln(3/2)={expected}"
         );
     }

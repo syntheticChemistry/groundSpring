@@ -382,7 +382,9 @@ pub fn seasonal_multi_day(
     daily_params: &[SeasonalParams],
 ) -> Vec<Vec<SeasonalOutput>> {
     #[cfg(feature = "barracuda-gpu")]
-    return seasonal_multi_day_stateful(cells, daily_params);
+    {
+        seasonal_multi_day_stateful(cells, daily_params)
+    }
     #[cfg(not(feature = "barracuda-gpu"))]
     seasonal_multi_day_loop(cells, daily_params)
 }

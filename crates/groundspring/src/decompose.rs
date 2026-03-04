@@ -107,21 +107,22 @@ pub fn noise_floor_reduction(factory_rmse: f64, corrected_rmse: f64) -> NoiseFlo
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn pure_bias() {
         let d = decompose_error(0.05, 0.05);
-        // Pure bias: RMSE=MBE ⇒ variance=0 exactly; 1e-12 is double-precision algebraic precision.
-        assert!((d.random_std).abs() < 1e-12);
-        assert!((d.bias_fraction - 1.0).abs() < 1e-12);
+        // Pure bias: RMSE=MBE ⇒ variance=0 exactly; EXACT is double-precision algebraic precision.
+        assert!((d.random_std).abs() < tol::EXACT);
+        assert!((d.bias_fraction - 1.0).abs() < tol::EXACT);
     }
 
     #[test]
     fn pure_noise() {
         let d = decompose_error(0.0, 0.03);
-        // Pure noise: MBE=0 ⇒ random_std=RMSE exactly; 1e-12 is double-precision algebraic precision.
-        assert!((d.random_std - 0.03).abs() < 1e-12);
-        assert!(d.bias_fraction.abs() < 1e-12);
+        // Pure noise: MBE=0 ⇒ random_std=RMSE exactly; EXACT is double-precision algebraic precision.
+        assert!((d.random_std - 0.03).abs() < tol::EXACT);
+        assert!(d.bias_fraction.abs() < tol::EXACT);
     }
 
     #[test]
@@ -129,9 +130,9 @@ mod tests {
         for (mbe, rmse) in [(-0.01, 0.017), (-0.03, 0.039), (0.03, 0.038)] {
             let d = decompose_error(mbe, rmse);
             let reconstructed = (d.bias_sq + d.variance).sqrt();
-            // RMSE² = MBE² + σ² is exact; 1e-10 absorbs floating-point in sqrt/sum reconstruction.
+            // RMSE² = MBE² + σ² is exact; ANALYTICAL absorbs floating-point in sqrt/sum reconstruction.
             assert!(
-                (reconstructed - rmse).abs() < 1e-10,
+                (reconstructed - rmse).abs() < tol::ANALYTICAL,
                 "RMSE² = MBE² + σ² must hold"
             );
         }
@@ -140,17 +141,17 @@ mod tests {
     #[test]
     fn dong2020_cs616_sand() {
         let d = decompose_error(-0.01, 0.017);
-        // Dong2020 literature values; 0.001/0.005 allow for rounding in published digits and minor formula differences.
-        assert!((d.random_std - 0.0137).abs() < 0.001);
-        assert!((d.bias_fraction - 0.346).abs() < 0.005);
+        // Dong2020 literature values; LITERATURE/DECOMPOSITION allow for rounding in published digits.
+        assert!((d.random_std - 0.0137).abs() < tol::LITERATURE);
+        assert!((d.bias_fraction - 0.346).abs() < tol::DECOMPOSITION);
     }
 
     #[test]
     fn dong2020_ec5_sandy_clay_loam() {
         let d = decompose_error(-0.05, 0.057);
-        // Dong2020 literature values; 0.001/0.005 allow for rounding in published digits and minor formula differences.
-        assert!((d.random_std - 0.0274).abs() < 0.001);
-        assert!((d.bias_fraction - 0.7695).abs() < 0.005);
+        // Dong2020 literature values; LITERATURE/DECOMPOSITION allow for rounding in published digits.
+        assert!((d.random_std - 0.0274).abs() < tol::LITERATURE);
+        assert!((d.bias_fraction - 0.7695).abs() < tol::DECOMPOSITION);
     }
 
     #[test]
@@ -158,10 +159,10 @@ mod tests {
         let nf = noise_floor_reduction(0.039, 0.012);
         assert!(nf.removed_error > 0.0);
         assert!(nf.reduction_pct > 0.0);
-        // Corrected RMSE is passed through; 1e-12 is algebraic precision.
-        assert!((nf.noise_floor - 0.012).abs() < 1e-12);
+        // Corrected RMSE is passed through; EXACT is algebraic precision.
+        assert!((nf.noise_floor - 0.012).abs() < tol::EXACT);
         let reconstructed = nf.removed_error.hypot(nf.noise_floor);
-        // factory_rmse² = removed² + corrected²; 1e-10 absorbs floating-point in hypot.
-        assert!((reconstructed - 0.039).abs() < 1e-10);
+        // factory_rmse² = removed² + corrected²; ANALYTICAL absorbs floating-point in hypot.
+        assert!((reconstructed - 0.039).abs() < tol::ANALYTICAL);
     }
 }

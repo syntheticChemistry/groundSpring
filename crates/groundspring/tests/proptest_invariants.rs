@@ -10,6 +10,7 @@ use proptest::prelude::*;
 use groundspring::stats::{
     mbe, mean, norm_cdf, norm_ppf, pearson_r, r_squared, rmse, sample_std_dev, std_dev,
 };
+use groundspring::tol;
 
 // ---------------------------------------------------------------------------
 // helpers
@@ -31,15 +32,15 @@ proptest! {
     #[test]
     fn mean_of_constant_is_constant(c in -1e6_f64..1e6, n in 2_usize..100) {
         let v = vec![c; n];
-        prop_assert!((mean(&v) - c).abs() < 1e-8, "mean({c}) = {}", mean(&v));
+        prop_assert!((mean(&v) - c).abs() < tol::INTEGRATION, "mean({c}) = {}", mean(&v));
     }
 
     #[test]
     fn std_dev_of_constant_is_zero(c in -1e6_f64..1e6, n in 2_usize..100) {
         let v = vec![c; n];
         let sd = std_dev(&v);
-        let tol = c.abs().mul_add(1e-12, 1e-14);
-        prop_assert!(sd < tol, "std_dev({c}) = {sd}");
+        let tol_val = c.abs().mul_add(tol::EXACT, tol::STRICT);
+        prop_assert!(sd < tol_val, "std_dev({c}) = {sd}");
     }
 
     #[test]
@@ -49,7 +50,7 @@ proptest! {
 
     #[test]
     fn sample_std_dev_ge_population(v in finite_vec(3, 200)) {
-        prop_assert!(sample_std_dev(&v) >= std_dev(&v) - 1e-12);
+        prop_assert!(sample_std_dev(&v) >= std_dev(&v) - tol::EXACT);
     }
 }
 
@@ -60,7 +61,7 @@ proptest! {
 proptest! {
     #[test]
     fn rmse_identical_is_zero(v in finite_vec(1, 200)) {
-        prop_assert!(rmse(&v, &v) < 1e-10);
+        prop_assert!(rmse(&v, &v) < tol::ANALYTICAL);
     }
 
     #[test]
@@ -73,7 +74,7 @@ proptest! {
 
     #[test]
     fn mbe_identical_is_zero(v in finite_vec(1, 200)) {
-        prop_assert!(mbe(&v, &v).abs() < 1e-10);
+        prop_assert!(mbe(&v, &v).abs() < tol::ANALYTICAL);
     }
 
     #[test]
@@ -81,7 +82,7 @@ proptest! {
         a in finite_vec(2, 100),
     ) {
         let b: Vec<f64> = a.iter().map(|x| x + 1.0).collect();
-        prop_assert!((mbe(&a, &b) + mbe(&b, &a)).abs() < 1e-8);
+        prop_assert!((mbe(&a, &b) + mbe(&b, &a)).abs() < tol::INTEGRATION);
     }
 }
 
@@ -93,13 +94,13 @@ proptest! {
     #[test]
     fn r_squared_perfect_fit(v in positive_vec(3, 100)) {
         let r2 = r_squared(&v, &v);
-        prop_assert!((r2 - 1.0).abs() < 1e-8, "R² = {r2}");
+        prop_assert!((r2 - 1.0).abs() < tol::INTEGRATION, "R² = {r2}");
     }
 
     #[test]
     fn pearson_perfect_positive(v in positive_vec(3, 100)) {
         let r = pearson_r(&v, &v);
-        prop_assert!((r - 1.0).abs() < 1e-8, "r = {r}");
+        prop_assert!((r - 1.0).abs() < tol::INTEGRATION, "r = {r}");
     }
 
     #[test]
@@ -109,7 +110,7 @@ proptest! {
         let a = &a[..len];
         let b = &b[..len];
         let r = pearson_r(a, b);
-        prop_assert!((-1.0 - 1e-8..=1.0 + 1e-8).contains(&r), "r = {r}");
+        prop_assert!((-1.0 - tol::INTEGRATION..=1.0 + tol::INTEGRATION).contains(&r), "r = {r}");
     }
 }
 
@@ -123,7 +124,7 @@ proptest! {
         let z = norm_ppf(p);
         let recovered = norm_cdf(z);
         prop_assert!(
-            (recovered - p).abs() < 1e-6,
+            (recovered - p).abs() < tol::CDF_APPROX,
             "CDF(PPF({p})) = {recovered}"
         );
     }
@@ -131,7 +132,7 @@ proptest! {
     #[test]
     fn cdf_is_monotone(a in -4.0_f64..4.0, b in -4.0_f64..4.0) {
         if a < b {
-            prop_assert!(norm_cdf(a) <= norm_cdf(b) + 1e-12);
+            prop_assert!(norm_cdf(a) <= norm_cdf(b) + tol::EXACT);
         }
     }
 

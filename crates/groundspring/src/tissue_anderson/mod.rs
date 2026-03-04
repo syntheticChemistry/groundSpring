@@ -38,10 +38,15 @@
 
 mod drug_scoring;
 
+pub mod compartments;
+pub mod sweeps;
+
+pub use compartments::*;
 pub use drug_scoring::{
     ad_drug_panel, geometry_drug_score, score_drug_panel, DeliveryRoute, DrugCandidate, DrugScore,
     TissueState,
 };
+pub use sweeps::*;
 
 use crate::anderson::lyapunov_exponent;
 use crate::cast::usize_f64;
@@ -214,82 +219,6 @@ fn select_cell_type(composition: &[(CellType, f64)], u: f64) -> CellType {
         .map_or(CellType::Keratinocyte, |&(ct, _)| ct)
 }
 
-/// Healthy epidermis composition (low disorder, quasi-2D).
-#[must_use]
-pub fn healthy_epidermis() -> TissueCompartment {
-    TissueCompartment {
-        layer: SkinLayer::Epidermis,
-        sites_per_dim: 50,
-        d_eff: 2.0,
-        base_disorder: 0.5,
-        cell_composition: vec![
-            (CellType::Keratinocyte, 0.85),
-            (CellType::LangerhansCell, 0.10),
-            (CellType::Neuron, 0.05),
-        ],
-    }
-}
-
-/// Healthy dermis composition (moderate disorder, 3D).
-#[must_use]
-pub fn healthy_dermis() -> TissueCompartment {
-    TissueCompartment {
-        layer: SkinLayer::Dermis,
-        sites_per_dim: 30,
-        d_eff: 3.0,
-        base_disorder: 1.5,
-        cell_composition: vec![
-            (CellType::Fibroblast, 0.60),
-            (CellType::Neuron, 0.15),
-            (CellType::MastCell, 0.10),
-            (CellType::Th2Cell, 0.10),
-            (CellType::Eosinophil, 0.05),
-        ],
-    }
-}
-
-/// Inflamed dermis (AD flare): Th2 cells and eosinophils infiltrate,
-/// increasing heterogeneity and disorder.
-#[must_use]
-pub fn inflamed_dermis() -> TissueCompartment {
-    TissueCompartment {
-        layer: SkinLayer::Dermis,
-        sites_per_dim: 30,
-        d_eff: 3.0,
-        base_disorder: 3.0,
-        cell_composition: vec![
-            (CellType::Fibroblast, 0.30),
-            (CellType::Th2Cell, 0.25),
-            (CellType::Eosinophil, 0.15),
-            (CellType::MastCell, 0.15),
-            (CellType::Neuron, 0.10),
-            (CellType::LangerhansCell, 0.05),
-        ],
-    }
-}
-
-/// Barrier-disrupted epidermis (scratching → dimensional promotion).
-///
-/// Scratching opens 3D channels through the normally 2D barrier,
-/// increasing `d_eff` from 2.0 toward 3.0. The `breach_fraction`
-/// parameter controls how much of the barrier is disrupted.
-#[must_use]
-pub fn disrupted_epidermis(breach_fraction: f64) -> TissueCompartment {
-    let clamped = breach_fraction.clamp(0.0, 1.0);
-    TissueCompartment {
-        layer: SkinLayer::Epidermis,
-        sites_per_dim: 50,
-        d_eff: 2.0_f64.mul_add(1.0 - clamped, 3.0 * clamped),
-        base_disorder: 0.5 + clamped * 2.0,
-        cell_composition: vec![
-            (CellType::Keratinocyte, 0.85 - clamped * 0.25),
-            (CellType::LangerhansCell, 0.10 + clamped * 0.10),
-            (CellType::Neuron, 0.05 + clamped * 0.05),
-            (CellType::Th2Cell, clamped * 0.10),
-        ],
-    }
-}
-
 /// Simulate cytokine propagation through a multi-compartment tissue.
 ///
 /// For each compartment, generates a 1D chain of the appropriate length
@@ -384,128 +313,6 @@ fn xi_from_gamma(gamma: f64) -> f64 {
     } else {
         f64::INFINITY
     }
-}
-
-/// Sweep barrier disruption fraction from 0 (healthy) to 1 (fully breached).
-///
-/// At each disruption level, simulates a two-compartment system (epidermis +
-/// dermis) and tracks how `d_eff`, localization length, and signal propagation
-/// evolve. This quantifies the dimensional promotion threshold.
-#[must_use]
-pub fn barrier_disruption_sweep(
-    n_points: usize,
-    n_realizations: usize,
-    base_seed: u64,
-) -> Vec<BarrierSweepPoint> {
-    (0..n_points)
-        .map(|i| {
-            let frac = if n_points > 1 {
-                usize_f64(i) / usize_f64(n_points - 1)
-            } else {
-                0.0
-            };
-            let epi = disrupted_epidermis(frac);
-            let derm = inflamed_dermis();
-            let result =
-                simulate_tissue(&[epi, derm], n_realizations, base_seed + (i as u64) * 100);
-            BarrierSweepPoint {
-                breach_fraction: frac,
-                d_eff_epidermis: result.d_eff_system.min(3.0),
-                gamma_epidermis: result.gamma_per_compartment[0],
-                gamma_dermis: result.gamma_per_compartment[1],
-                xi_epidermis: result.xi_per_compartment[0],
-                xi_dermis: result.xi_per_compartment[1],
-                barrier_breached: result.barrier_breached,
-                signal_crosses_barrier: result.barrier_breached && result.signal_extended[0],
-            }
-        })
-        .collect()
-}
-
-/// A single point in the barrier disruption sweep.
-#[derive(Debug, Clone, Copy)]
-pub struct BarrierSweepPoint {
-    /// Fraction of epidermis disrupted (0.0 = healthy, 1.0 = fully breached).
-    pub breach_fraction: f64,
-    /// Effective dimensionality of epidermis.
-    pub d_eff_epidermis: f64,
-    /// Lyapunov exponent in epidermis.
-    pub gamma_epidermis: f64,
-    /// Lyapunov exponent in dermis.
-    pub gamma_dermis: f64,
-    /// Localization length in epidermis.
-    pub xi_epidermis: f64,
-    /// Localization length in dermis.
-    pub xi_dermis: f64,
-    /// Whether the barrier is considered breached (`d_eff > 2.5`).
-    pub barrier_breached: bool,
-    /// Whether cytokine signal can cross from dermis through breached epidermis.
-    pub signal_crosses_barrier: bool,
-}
-
-/// Dimensional promotion sweep for Paper 12 §2.4.
-///
-/// Computes the duality between Paper 06 (tillage collapse) and Paper 12
-/// (scratching promotion) by sweeping a parameter from -1 (full collapse)
-/// through 0 (neutral) to +1 (full promotion).
-#[must_use]
-pub fn dimensional_duality_sweep(
-    n_points: usize,
-    n_realizations: usize,
-    base_seed: u64,
-) -> Vec<DualityPoint> {
-    (0..n_points)
-        .map(|i| {
-            let param = if n_points > 1 {
-                (usize_f64(i) / usize_f64(n_points - 1)).mul_add(2.0, -1.0)
-            } else {
-                0.0
-            };
-            let d_eff = (2.5 + param * 0.5).clamp(2.0, 3.0);
-            let n_sites = 500;
-            let w = 2.0;
-            let mut rng = Xorshift64::new(base_seed + i as u64);
-
-            let mut gamma_sum = 0.0;
-            for _ in 0..n_realizations {
-                let seed = rng.next_u64();
-                let potential = crate::anderson::anderson_potential(n_sites, w, seed);
-                gamma_sum += lyapunov_exponent(&potential, 0.0);
-            }
-            let gamma = gamma_sum / usize_f64(n_realizations);
-            let xi = xi_from_gamma(gamma);
-
-            DualityPoint {
-                parameter: param,
-                d_eff,
-                gamma,
-                xi,
-                regime: if d_eff < 2.5 { "localized" } else { "extended" },
-                context: if param < 0.0 {
-                    "collapse (tillage)"
-                } else {
-                    "promotion (scratching)"
-                },
-            }
-        })
-        .collect()
-}
-
-/// A point in the dimensional duality sweep.
-#[derive(Debug, Clone, Copy)]
-pub struct DualityPoint {
-    /// Sweep parameter: -1 (collapse) to +1 (promotion).
-    pub parameter: f64,
-    /// Effective dimensionality.
-    pub d_eff: f64,
-    /// Lyapunov exponent.
-    pub gamma: f64,
-    /// Localization length.
-    pub xi: f64,
-    /// Anderson regime: "localized" or "extended".
-    pub regime: &'static str,
-    /// Physical context: "collapse (tillage)" or "promotion (scratching)".
-    pub context: &'static str,
 }
 
 /// Simulate tissue with spatially correlated disorder.
@@ -732,6 +539,7 @@ pub fn find_barrier_transition_w_c(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn effective_disorder_empty() {
@@ -773,7 +581,7 @@ mod tests {
         ];
         let j = pielou_evenness(&comp);
         assert!(
-            (j - 1.0).abs() < 1e-10,
+            (j - 1.0).abs() < tol::ANALYTICAL,
             "perfectly even should be J'=1: {j}"
         );
     }

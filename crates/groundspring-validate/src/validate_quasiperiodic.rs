@@ -140,7 +140,7 @@ fn level_spacing_checks(harness: &mut ValidationHarness, n_eig: usize, alpha: f6
     let compute_avg_r = |coupling: f64| -> f64 {
         let mut all_ratios = Vec::new();
         for idx in 0..n_theta {
-            #[expect(clippy::cast_precision_loss)]
+            #[expect(clippy::cast_precision_loss, reason = "idx and n_theta ≤ 20 ≪ 2^53")]
             let th = 2.0 * std::f64::consts::PI * (idx as f64) / (n_theta as f64);
             let mut eigs = almost_mathieu_eigenvalues(n_eig, coupling, alpha, th);
             eigs.sort_unstable_by(f64::total_cmp);
@@ -158,7 +158,10 @@ fn level_spacing_checks(harness: &mut ValidationHarness, n_eig: usize, alpha: f6
         if all_ratios.is_empty() {
             return 0.0;
         }
-        #[expect(clippy::cast_precision_loss)]
+        #[expect(
+            clippy::cast_precision_loss,
+            reason = "all_ratios len from eigenvalue gaps ≪ 2^53"
+        )]
         let count = all_ratios.len() as f64;
         all_ratios.iter().sum::<f64>() / count
     };

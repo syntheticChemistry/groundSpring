@@ -145,7 +145,7 @@ pub(crate) mod cast {
     ///
     /// Exact for lengths up to 2^53 (≈ 9 × 10¹⁵), far beyond practical memory.
     #[inline]
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "exact for lengths up to 2^53")]
     pub const fn usize_f64(n: usize) -> f64 {
         n as f64
     }
@@ -155,7 +155,7 @@ pub(crate) mod cast {
     /// Exact for values up to 2^53.  Used in rarefaction and PRNG where
     /// counts are sequencing depths or taxonomic totals.
     #[inline]
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "exact for values up to 2^53")]
     pub const fn u64_f64(n: u64) -> f64 {
         n as f64
     }
@@ -164,10 +164,71 @@ pub(crate) mod cast {
     ///
     /// Used for index computation from floating-point rank/position values.
     #[inline]
-    #[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    #[expect(
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        reason = "callers ensure x is non-negative and within usize range"
+    )]
     pub const fn f64_usize(x: f64) -> usize {
         x as usize
     }
+}
+
+/// Shared tolerance constants for validation assertions.
+///
+/// Use these named constants instead of bare float literals in tests and
+/// validation code. Each tier corresponds to a specific numerical regime:
+/// - **DETERMINISM** — bitwise reproducibility (1e-15)
+/// - **STRICT** — summation with extended precision (1e-14)
+/// - **EXACT** — summation-only paths (1e-12)
+/// - **ANALYTICAL** — one transcendental (sqrt, ln) (1e-10)
+/// - **INTEGRATION** — ODE RK4 accumulation (1e-8)
+/// - **`CDF_APPROX`** — CDF/erf approximation (1e-6)
+/// - **RECONSTRUCTION** — spectral Tikhonov roundtrip (1e-4)
+/// - **LITERATURE** — published 3–4 sig figs (0.001)
+/// - **DECOMPOSITION** — bias-variance fractions (0.005)
+/// - **STOCHASTIC** — O(1/√N) mean estimator (0.01)
+/// - **`NORM_2PCT`** — ~2% normalization (0.02)
+/// - **EQUILIBRIUM** — ODE equilibrium / measurement (0.1)
+pub mod tol {
+    /// Bitwise determinism — reproducibility across platforms (CPU/GPU).
+    pub const DETERMINISM: f64 = 1e-15;
+    /// f64 identity — summation-only paths.
+    pub const EXACT: f64 = 1e-12;
+    /// Summation-only with extended precision or compensated arithmetic.
+    pub const STRICT: f64 = 1e-14;
+    /// One transcendental (sqrt, ln) introducing ~1 ULP.
+    pub const ANALYTICAL: f64 = 1e-10;
+    /// CDF/erf approximation (A&S 7.1.26, two-layer composition).
+    pub const CDF_APPROX: f64 = 1e-6;
+    /// CDF↔PPF round-trip (both approximations compound).
+    pub const ROUNDTRIP: f64 = 1e-5;
+    /// ODE integration error (RK4 O(dt⁴) accumulation).
+    pub const INTEGRATION: f64 = 1e-8;
+    /// Published 3–4 significant decimal precision.
+    pub const LITERATURE: f64 = 0.001;
+    /// Bias–variance decomposition fractions (Pythagorean identity rounding).
+    pub const DECOMPOSITION: f64 = 0.005;
+    /// Stochastic mean estimator (O(1/√N)).
+    pub const STOCHASTIC: f64 = 0.01;
+    /// ODE equilibrium / physical measurement precision.
+    pub const EQUILIBRIUM: f64 = 0.1;
+    /// Spectral reconstruction RMSE (Tikhonov roundtrip).
+    pub const RECONSTRUCTION: f64 = 1e-4;
+    /// ~2% normalization / integral tolerance.
+    pub const NORM_2PCT: f64 = 0.02;
+}
+
+/// Production epsilon guards (division safety, underflow, SSA floor).
+/// Test tolerances live in [`tol`].
+pub(crate) mod eps {
+    /// Division-safe epsilon (avoid NaN in `x / y.max(eps::SAFE_DIV)`).
+    pub const SAFE_DIV: f64 = 1e-10;
+    /// Gillespie SSA steady-state guard (~10× `f64::EPSILON`).
+    #[cfg(feature = "barracuda-gpu")]
+    pub const SSA_FLOOR: f64 = 1e-15;
+    /// Underflow guard for condition number / matrix element magnitude.
+    pub const UNDERFLOW: f64 = 1e-300;
 }
 
 #[cfg(test)]

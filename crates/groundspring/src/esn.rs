@@ -529,7 +529,7 @@ impl EsnClassifier {
     ///
     /// `features` — one `[mean_r, bandwidth, kurtosis]` per sweep point
     /// `labels` — one-hot encoded regime labels per sweep point
-    ///   (Extended = [1,0,0], Critical = [0,1,0], Localized = [0,0,1])
+    ///   (Extended = \[1,0,0\], Critical = \[0,1,0\], Localized = \[0,0,1\])
     ///
     /// Returns the training RMSE.
     ///
@@ -570,6 +570,7 @@ impl EsnClassifier {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn classify_extended_by_ratio() {
@@ -760,9 +761,18 @@ mod tests {
         }];
         let seeds = seed_around_edges(&edges, 5, 0.5);
         assert_eq!(seeds.len(), 5);
-        assert!((seeds[0] - 4.5).abs() < 1e-10, "first seed at -radius");
-        assert!((seeds[4] - 5.5).abs() < 1e-10, "last seed at +radius");
-        assert!((seeds[2] - 5.0).abs() < 1e-10, "middle seed at center");
+        assert!(
+            (seeds[0] - 4.5).abs() < tol::ANALYTICAL,
+            "first seed at -radius"
+        );
+        assert!(
+            (seeds[4] - 5.5).abs() < tol::ANALYTICAL,
+            "last seed at +radius"
+        );
+        assert!(
+            (seeds[2] - 5.0).abs() < tol::ANALYTICAL,
+            "middle seed at center"
+        );
     }
 
     #[test]
@@ -782,7 +792,7 @@ mod tests {
         assert_eq!(u.n_heads, 3);
         assert_eq!(u.means.len(), 3);
         assert_eq!(u.std_devs.len(), 3);
-        assert!((u.means[0] - 1.0).abs() < 0.01);
+        assert!((u.means[0] - 1.0).abs() < tol::STOCHASTIC);
         assert!(u.max_disagreement > 0.0);
     }
 
@@ -798,6 +808,9 @@ mod tests {
         let preds = vec![vec![1.0, 2.0]];
         let u = multi_head_uncertainty(&preds);
         assert_eq!(u.n_heads, 1);
-        assert!((u.std_devs[0]).abs() < 1e-15, "single head → zero std dev");
+        assert!(
+            (u.std_devs[0]).abs() < tol::STRICT,
+            "single head → zero std dev"
+        );
     }
 }

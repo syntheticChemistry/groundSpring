@@ -319,7 +319,7 @@ fn percentile_ci(means: &[f64], n_replicates: usize, confidence: f64) -> Bootstr
 }
 
 #[cfg(test)]
-#[expect(clippy::float_cmp)]
+#[expect(clippy::float_cmp, reason = "bitwise determinism test")]
 mod tests {
     use super::*;
 

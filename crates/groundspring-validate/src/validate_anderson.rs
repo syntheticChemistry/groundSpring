@@ -169,7 +169,10 @@ fn thouless_and_localization(h: &mut ValidationHarness, gammas: &[(f64, f64)], e
     );
 }
 
-#[expect(clippy::float_cmp)]
+#[expect(
+    clippy::float_cmp,
+    reason = "determinism test: same seed must produce identical Lyapunov"
+)]
 fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Anderson Localization");

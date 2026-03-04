@@ -41,7 +41,10 @@ fn generate_ar1(n: usize, mu: f64, sigma: f64, rho: f64, seed: u64) -> Vec<f64> 
     data
 }
 
-#[expect(clippy::cast_precision_loss)]
+#[expect(
+    clippy::cast_precision_loss,
+    reason = "covers count and n_trials ≤ 200 ≪ 2^53"
+)]
 fn coverage_test(
     data_gen: impl Fn(u64) -> Vec<f64>,
     true_param: f64,
@@ -206,7 +209,7 @@ fn validate_skewed(h: &mut ValidationHarness, bench: &Value) {
 ///
 /// RMSE ratio tolerance: max 1.5 from benchmark JSON — RAWR should not
 /// be dramatically worse than bootstrap for correlated data.
-#[expect(clippy::cast_precision_loss)]
+#[expect(clippy::cast_precision_loss, reason = "n_cov_trials from JSON ≪ 2^53")]
 fn validate_correlated(h: &mut ValidationHarness, bench: &Value) {
     println!("\n--- Part 3: Correlated ---");
 
@@ -263,7 +266,10 @@ fn validate_correlated(h: &mut ValidationHarness, bench: &Value) {
 }
 
 /// Validate that both methods are deterministic (same seed → same result).
-#[expect(clippy::float_cmp)]
+#[expect(
+    clippy::float_cmp,
+    reason = "determinism test: same seed must produce identical bits"
+)]
 fn validate_determinism(h: &mut ValidationHarness, bench: &Value) {
     println!("\n--- Part 4: Determinism ---");
 

@@ -34,6 +34,8 @@
 //! - [`spectral_diagnostics`] — Spectral bandwidth, condition number, and
 //!   phase classification via `barracuda::spectral::stats` (barraCuda S79).
 
+#[cfg(not(feature = "barracuda"))]
+use crate::eps;
 use crate::prng::Xorshift64;
 
 /// Derrida-Gardner constant for ξ ≈ C / W² at band center.
@@ -425,7 +427,7 @@ fn spectral_diagnostics_cpu(eigenvalues: &[f64], marchenko_upper: f64) -> Spectr
     } else {
         max - min
     };
-    let condition_number = if min_abs < 1e-300 {
+    let condition_number = if min_abs < eps::UNDERFLOW {
         f64::INFINITY
     } else {
         max_abs / min_abs
@@ -455,13 +457,17 @@ fn spectral_diagnostics_cpu(eigenvalues: &[f64], marchenko_upper: f64) -> Spectr
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn clean_system_zero_lyapunov() {
         let pot = anderson_potential(10000, 0.0, 42);
         let gamma = lyapunov_exponent(&pot, 0.0);
-        // W=0 gives deterministic transfer matrix (identity-like); γ=0 exactly; 0.001 absorbs any residual numerical drift.
-        assert!(gamma.abs() < 0.001, "clean system γ={gamma}, expected ~0");
+        // W=0 gives deterministic transfer matrix (identity-like); γ=0 exactly; LITERATURE absorbs any residual numerical drift.
+        assert!(
+            gamma.abs() < tol::LITERATURE,
+            "clean system γ={gamma}, expected ~0"
+        );
     }
 
     #[test]
@@ -614,8 +620,11 @@ mod tests {
     fn spectral_diagnostics_known_spectrum() {
         let eigs = vec![1.0, 2.0, 3.0, 4.0, 5.0];
         let d = spectral_diagnostics(&eigs, 10.0);
-        assert!((d.bandwidth - 4.0).abs() < 1e-12, "bandwidth = max - min");
-        assert!((d.condition_number - 5.0).abs() < 1e-12, "κ = 5/1");
+        assert!(
+            (d.bandwidth - 4.0).abs() < tol::EXACT,
+            "bandwidth = max - min"
+        );
+        assert!((d.condition_number - 5.0).abs() < tol::EXACT, "κ = 5/1");
         assert_eq!(d.phase, SpectralPhaseLabel::Bulk, "all below MP upper");
     }
 

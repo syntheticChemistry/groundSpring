@@ -27,7 +27,9 @@ pub fn hill(x: f64, k: f64, n: f64) -> f64 {
         return 0.0;
     }
     #[cfg(feature = "barracuda")]
-    return barracuda::stats::hill(x, k, n);
+    {
+        barracuda::stats::hill(x, k, n)
+    }
     #[cfg(not(feature = "barracuda"))]
     {
         let xn = x.powf(n);
@@ -51,7 +53,9 @@ pub fn monod(x: f64, r: f64, k: f64) -> f64 {
         return 0.0;
     }
     #[cfg(feature = "barracuda")]
-    return barracuda::stats::monod(x, r, k);
+    {
+        barracuda::stats::monod(x, r, k)
+    }
     #[cfg(not(feature = "barracuda"))]
     {
         r * x / (k + x)
@@ -74,6 +78,7 @@ pub fn hill_repress(x: f64, k: f64, n: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn hill_zero_input() {
@@ -85,7 +90,7 @@ mod tests {
     fn hill_at_half_saturation() {
         let v = hill(1.0, 1.0, 2.0);
         assert!(
-            (v - 0.5).abs() < 1e-12,
+            (v - 0.5).abs() < tol::EXACT,
             "hill(K, K, n) should be 0.5, got {v}"
         );
     }
@@ -106,7 +111,7 @@ mod tests {
     fn hill_repress_at_half_saturation() {
         let v = hill_repress(1.0, 1.0, 2.0);
         assert!(
-            (v - 0.5).abs() < 1e-12,
+            (v - 0.5).abs() < tol::EXACT,
             "hill_repress(K, K, n) should be 0.5, got {v}"
         );
     }
@@ -118,7 +123,7 @@ mod tests {
         let n = 3.0;
         let sum = hill(x, k, n) + hill_repress(x, k, n);
         assert!(
-            (sum - 1.0).abs() < 1e-12,
+            (sum - 1.0).abs() < tol::EXACT,
             "hill + hill_repress should be 1, got {sum}"
         );
     }
@@ -133,7 +138,7 @@ mod tests {
     fn monod_half_saturation() {
         let v = monod(1.0, 2.0, 1.0);
         assert!(
-            (v - 1.0).abs() < 1e-12,
+            (v - 1.0).abs() < tol::EXACT,
             "monod(K, r, K) should be r/2, got {v}"
         );
     }
@@ -149,7 +154,7 @@ mod tests {
         let v1 = monod(5.0, 1.0, 1.0);
         let v2 = monod(5.0, 3.0, 1.0);
         assert!(
-            (v2 / v1 - 3.0).abs() < 1e-12,
+            (v2 / v1 - 3.0).abs() < tol::EXACT,
             "monod should scale linearly with r"
         );
     }

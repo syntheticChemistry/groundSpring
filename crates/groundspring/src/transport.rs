@@ -111,6 +111,7 @@ pub fn transport_exponent(times: &[f64], msds: &[f64]) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     fn almost_mathieu_diag_offdiag(
         n: usize,
@@ -172,8 +173,11 @@ mod tests {
 
         for &t in &[0.0, 1.0, 5.0, 20.0] {
             let (_, norm) = wavepacket_msd(&evals, &evecs, 25, t);
-            // Unitary evolution preserves norm to machine precision; 1e-8 absorbs accumulated rounding in n=51 sum.
-            assert!((norm - 1.0).abs() < 1e-8, "normalization at t={t}: {norm}");
+            // Unitary evolution preserves norm to machine precision; ANALYTICAL absorbs accumulated rounding in n=51 sum.
+            assert!(
+                (norm - 1.0).abs() < tol::ANALYTICAL,
+                "normalization at t={t}: {norm}"
+            );
         }
     }
 
@@ -184,7 +188,7 @@ mod tests {
         let beta = transport_exponent(&times, &msds);
         // Regression on exact σ²=t² data should give β=1.0 within floating-point regression error.
         assert!(
-            (beta - 1.0).abs() < 0.01,
+            (beta - 1.0).abs() < tol::STOCHASTIC,
             "β for σ²~t² should be 1.0, got {beta}"
         );
     }
@@ -196,7 +200,7 @@ mod tests {
         let beta = transport_exponent(&times, &msds);
         // Same as transport_exponent_linear: regression on constant MSD gives β=0.0 within floating-point error.
         assert!(
-            beta.abs() < 0.01,
+            beta.abs() < tol::STOCHASTIC,
             "β for constant MSD should be 0.0, got {beta}"
         );
     }
@@ -237,7 +241,10 @@ mod tests {
         let (diag, offdiag) = almost_mathieu_diag_offdiag(n, 1.0, 0.618_033_988_749_894_9, 0.0);
         let (evals, evecs) = tridiag_eigh(&diag, &offdiag).expect("msd at t=0");
         let (msd, norm) = wavepacket_msd(&evals, &evecs, 10, 0.0);
-        assert!(msd.abs() < 1e-10, "MSD at t=0 should be 0, got {msd}");
-        assert!((norm - 1.0).abs() < 1e-10);
+        assert!(
+            msd.abs() < tol::ANALYTICAL,
+            "MSD at t=0 should be 0, got {msd}"
+        );
+        assert!((norm - 1.0).abs() < tol::ANALYTICAL);
     }
 }

@@ -14,7 +14,9 @@ use groundspring::decompose::decompose_error;
 use groundspring::prng::Xorshift64;
 use groundspring::stats;
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, f64_range, print_provenance_header, usize_field};
+use groundspring_validate::{
+    f64_field, f64_range, print_provenance_header, usize_field, EPS_SAFE_DIV,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str =
@@ -32,7 +34,10 @@ fn wsa_to_d_eff(wsa: &[f64], slope: f64, intercept: f64) -> Vec<f64> {
 
 fn percentile(data: &mut [f64], p: f64) -> f64 {
     data.sort_by(f64::total_cmp);
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "percentile index from n_measurements ≪ 2^53"
+    )]
     let max_idx = (data.len() - 1) as f64;
     let idx = (p / 100.0 * max_idx).clamp(0.0, max_idx);
     #[expect(
@@ -72,11 +77,14 @@ fn validate_state(h: &mut ValidationHarness, label: &str, ctx: &StateCtx<'_>) ->
     let (exp_d_range, exp_cv_range, exp_bf_range) =
         (ctx.exp_d_range, ctx.exp_cv_range, ctx.exp_bf_range);
     let cal_slope = ctx.cal_slope;
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "d_eff len = n_measurements ≪ 2^53"
+    )]
     let n = d_eff.len() as f64;
     let d_mean = d_eff.iter().sum::<f64>() / n;
     let d_var = d_eff.iter().map(|x| (x - d_mean).powi(2)).sum::<f64>() / n;
-    let d_cv = d_var.sqrt() / d_mean.max(1e-10);
+    let d_cv = d_var.sqrt() / d_mean.max(EPS_SAFE_DIV);
 
     h.check_range(
         &format!("{label} d_eff mean"),

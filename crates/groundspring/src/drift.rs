@@ -28,6 +28,7 @@
 //! to a sequential CPU loop otherwise.
 
 use crate::cast::usize_f64;
+use crate::eps;
 use crate::prng::Xorshift64;
 
 /// `N_e` × `s` drift monitor for evolutionary populations.
@@ -100,10 +101,10 @@ impl DriftMonitor {
         mean_fitness: f64,
         best_fitness: f64,
     ) {
-        // Guard: 1e-10 prevents division-by-zero when the population has near-zero
+        // Guard: SAFE_DIV prevents division-by-zero when the population has near-zero
         // fitness (e.g. all-deleterious fixation). Below this threshold, the
         // selection coefficient s is numerically meaningless.
-        let s = if mean_fitness > 1e-10 {
+        let s = if mean_fitness > eps::SAFE_DIV {
             (best_fitness - mean_fitness) / mean_fitness
         } else {
             0.0
@@ -179,7 +180,11 @@ pub fn wright_fisher_fixation(
 
     let n_alleles = 2 * pop_size;
     let n_alleles_f = usize_f64(n_alleles);
-    #[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    #[expect(
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        reason = "freq * 2N is non-negative and ≤ 2N which fits u64"
+    )]
     let mut n_a = (initial_freq * n_alleles_f).round() as u64;
     // Factor 10: Wright-Fisher fixation typically takes O(N) generations;
     // 10× gives headroom for slow selection near neutrality.
@@ -195,8 +200,7 @@ pub fn wright_fisher_fixation(
             return true;
         }
 
-        #[expect(clippy::cast_precision_loss)]
-        let freq_a = n_a as f64 / n_alleles_f;
+        let freq_a = crate::cast::u64_f64(n_a) / n_alleles_f;
         let fitness_a = freq_a * (1.0 + selection);
         let fitness_total = fitness_a + (1.0 - freq_a);
         let prob_a = fitness_a / fitness_total;
@@ -310,10 +314,16 @@ fn wf_batch_gpu(
     let d = wgpu_dev.device();
     let q = wgpu_dev.queue();
 
-    #[expect(clippy::cast_possible_truncation)]
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "n_trials ≤ 10000, fits u32"
+    )]
     let n_pops = n_trials as u32;
     let n_loci: u32 = 1;
-    #[expect(clippy::cast_possible_truncation)]
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "2 * pop_size ≤ 2000, fits u32"
+    )]
     let two_n = (2 * pop_size) as u32;
     let max_gens = 10 * (2 * pop_size);
 
@@ -324,7 +334,10 @@ fn wf_batch_gpu(
     let mut rng = crate::prng::Xorshift64::new(base_seed);
     for _ in 0..n_trials {
         for _ in 0..4 {
-            #[expect(clippy::cast_possible_truncation)]
+            #[expect(
+                clippy::cast_possible_truncation,
+                reason = "RNG u64 → u32 seed; high bits discarded intentionally"
+            )]
             prng_state.push(rng.next_u64() as u32);
         }
     }
@@ -462,7 +475,10 @@ pub fn neutral_diversity_trajectory(
                 break;
             }
             let prob = crate::cast::u64_f64(abundances[sp]) / remaining_prob_mass;
-            #[expect(clippy::cast_possible_truncation)]
+            #[expect(
+                clippy::cast_possible_truncation,
+                reason = "remaining individuals ≤ community_size which fits usize"
+            )]
             let n_remaining = remaining as usize;
             new_abundances[sp] = rng.binomial(n_remaining, prob);
             remaining = remaining.saturating_sub(new_abundances[sp]);
@@ -478,12 +494,16 @@ pub fn neutral_diversity_trajectory(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn kimura_neutral() {
         let p = kimura_fixation_prob(100, 0.0, 0.5);
-        // Kimura formula with s=0 returns initial_freq exactly; 1e-10 absorbs floating-point in special-case branch.
-        assert!((p - 0.5).abs() < 1e-10, "neutral fixation should be p₀");
+        // Kimura formula with s=0 returns initial_freq exactly; ANALYTICAL absorbs floating-point in special-case branch.
+        assert!(
+            (p - 0.5).abs() < tol::ANALYTICAL,
+            "neutral fixation should be p₀"
+        );
     }
 
     #[test]

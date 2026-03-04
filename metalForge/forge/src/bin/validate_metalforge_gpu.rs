@@ -128,7 +128,7 @@ fn run_computation_checks(h: &mut Harness) {
     println!("  CPU: {cpu_us} µs");
     println!("  GPU: {gpu_us} µs");
     if gpu_us > 0 {
-        #[expect(clippy::cast_precision_loss)]
+        #[expect(clippy::cast_precision_loss, reason = "timing values in μs ≪ 2^53")]
         let speedup = cpu_us as f64 / gpu_us as f64;
         println!("  Ratio (CPU/GPU): {speedup:.2}x");
     }
@@ -149,7 +149,7 @@ fn cpu_lyapunov_averaged(
         let gamma = cpu_lyapunov_exponent(&pot, energy);
         total += gamma;
     }
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "n_realizations ≤ N ≪ 2^53")]
     let avg = total / n_realizations as f64;
     avg
 }
@@ -175,7 +175,7 @@ fn cpu_lyapunov_exponent(potential: &[f64], energy: f64) -> f64 {
             v1 /= norm;
         }
     }
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "n ≤ N ≪ 2^53")]
     let avg = log_growth / n as f64;
     avg
 }

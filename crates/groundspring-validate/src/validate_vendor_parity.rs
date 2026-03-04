@@ -16,7 +16,9 @@ use groundspring::prng::Xorshift64;
 use groundspring::stats::pearson_r;
 use groundspring::validate::ValidationHarness;
 use groundspring::wdm::{green_kubo_integrate, synthetic_vacf};
-use groundspring_validate::{f64_field, print_provenance_header, u64_field, usize_field};
+use groundspring_validate::{
+    f64_field, print_provenance_header, u64_field, usize_field, EPS_SAFE_DIV_STRICT,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/vendor_parity/benchmark_vendor_parity.json");
@@ -33,7 +35,7 @@ fn synthetic_vacf_noisy(
     base.into_iter()
         .enumerate()
         .map(|(i, v)| {
-            #[expect(clippy::cast_precision_loss)]
+            #[expect(clippy::cast_precision_loss, reason = "VACF index i ≤ n_steps ≪ 2^53")]
             let t = i as f64 * dt;
             let decay = (-t / tau).exp();
             rng.normal(0.0, noise_amplitude).mul_add(decay, v)
@@ -41,7 +43,10 @@ fn synthetic_vacf_noisy(
         .collect()
 }
 
-#[expect(clippy::too_many_lines)]
+#[expect(
+    clippy::too_many_lines,
+    reason = "validation harness with multiple WDM vendor parity checks"
+)]
 fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut harness = ValidationHarness::stdout("Rust Validation: GPU Vendor Parity");
@@ -75,7 +80,10 @@ fn run() -> i32 {
     let mut d_vendor_b: Vec<f64> = Vec::with_capacity(n_observables);
 
     for i in 0..n_observables {
-        #[expect(clippy::cast_precision_loss)]
+        #[expect(
+            clippy::cast_precision_loss,
+            reason = "loop index i ≤ n_observables ≪ 2^53"
+        )]
         let tau = tau_min + (tau_max - tau_min) * (i as f64) / (denom as f64);
 
         let vacf_a = synthetic_vacf_noisy(c0, tau, n_steps, dt, noise_amplitude, &mut rng_a);
@@ -100,12 +108,12 @@ fn run() -> i32 {
     let mut max_rel_diff = 0.0_f64;
     let mut sum_rel_diff = 0.0_f64;
     for (da, db) in d_vendor_a.iter().zip(d_vendor_b.iter()) {
-        let d_a_safe = da.abs().max(1e-20);
+        let d_a_safe = da.abs().max(EPS_SAFE_DIV_STRICT);
         let rel_diff = (da - db).abs() / d_a_safe;
         max_rel_diff = max_rel_diff.max(rel_diff);
         sum_rel_diff += rel_diff;
     }
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "n_observables from JSON ≪ 2^53")]
     let mean_rel_diff = sum_rel_diff / (n_observables as f64);
 
     // Pearson correlation between D_A and D_B
@@ -117,9 +125,9 @@ fn run() -> i32 {
         .zip(d_vendor_a.iter())
         .map(|(db, da)| db - da)
         .collect();
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "n_observables from JSON ≪ 2^53")]
     let mbe = diff.iter().sum::<f64>() / (n_observables as f64);
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "n_observables from JSON ≪ 2^53")]
     let rmse = (diff.iter().map(|d| d * d).sum::<f64>() / (n_observables as f64)).sqrt();
     let decomp = decompose_error(mbe, rmse);
     let bias_fraction = decomp.bias_fraction;
@@ -132,18 +140,18 @@ fn run() -> i32 {
     let all_within = d_vendor_a
         .iter()
         .zip(d_vendor_b.iter())
-        .all(|(da, db)| (da - db).abs() / da.abs().max(1e-20) <= max_rel_tol); // same 1e-20 guard as above
+        .all(|(da, db)| (da - db).abs() / da.abs().max(EPS_SAFE_DIV_STRICT) <= max_rel_tol); // same guard as above
 
     // Chi-squared per DOF: sum((D_A - D_B)^2 / max(D_A^2, 1e-20)) / n_observables
     let chi2_sum: f64 = d_vendor_a
         .iter()
         .zip(d_vendor_b.iter())
         .map(|(da, db)| {
-            let denom_chi2 = (da * da).max(1e-20); // same 1e-20 guard as relative diff
+            let denom_chi2 = (da * da).max(EPS_SAFE_DIV_STRICT); // same guard as relative diff
             (da - db) * (da - db) / denom_chi2
         })
         .sum();
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "n_observables from JSON ≪ 2^53")]
     let chi2_per_dof = chi2_sum / (n_observables as f64);
 
     println!("\n  Max relative diff: {max_rel_diff:.2e}, mean: {mean_rel_diff:.2e}");

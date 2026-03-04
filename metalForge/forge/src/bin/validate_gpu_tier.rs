@@ -417,7 +417,7 @@ fn validate_wright_fisher_batch_parity(h: &mut Harness) {
     let us = t0.elapsed().as_micros();
 
     let kimura = groundspring::drift::kimura_fixation_prob(pop, selection, freq);
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "count/trials ≤ N ≪ 2^53")]
     let rate = fix_count as f64 / n_trials as f64;
 
     println!("  fixations={fix_count}/{n_trials}, rate={rate:.4}, Kimura={kimura:.4}, {us} µs");
@@ -450,14 +450,14 @@ fn validate_multinomial_batch_parity(h: &mut Harness) {
     });
     h.check("Multinomial batch totals correct", all_correct_total);
 
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "depth ≤ N ≪ 2^53")]
     let depth_f = depth as f64;
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "n_reps ≤ N ≪ 2^53")]
     let n_reps_f = n_reps as f64;
     let mean_first: f64 = batch
         .iter()
         .map(|c| {
-            #[expect(clippy::cast_precision_loss)]
+            #[expect(clippy::cast_precision_loss, reason = "value from small array ≪ 2^53")]
             let v = c[0] as f64;
             v / depth_f
         })

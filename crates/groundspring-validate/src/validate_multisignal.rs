@@ -69,7 +69,11 @@ fn run() -> i32 {
     let dt = f64_field(model, "dt");
     let t_final = f64_field(model, "t_final");
 
-    #[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    #[expect(
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        reason = "t_final/dt positive, ODE steps fit usize"
+    )]
     let n_steps = (t_final / dt) as usize;
 
     let ic = ic_from_json(model);

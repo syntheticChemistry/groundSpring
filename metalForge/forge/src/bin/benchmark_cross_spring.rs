@@ -70,7 +70,7 @@ fn bench_stats_metrics(h: &mut Harness) {
         .iter()
         .enumerate()
         .map(|(i, &v)| {
-            #[expect(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation, reason = "loop index i ≪ 2^32")]
             let idx = i as u32;
             (f64::from(idx) * 0.01).cos().mul_add(0.01, v)
         })

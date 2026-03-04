@@ -79,6 +79,7 @@ pub(crate) fn eigenvalues_from_csr(
 mod tests {
     #[cfg(feature = "barracuda-gpu")]
     use super::*;
+    use crate::tol;
 
     #[test]
     #[cfg(feature = "barracuda-gpu")]
@@ -89,7 +90,10 @@ mod tests {
         let eigs = sparse_eigenvalues(2, &row_ptr, &col_idx, &values, 2, 42);
         assert_eq!(eigs.len(), 2);
         for &e in &eigs {
-            assert!((e - 1.0).abs() < 1e-10, "identity eigenvalue = {e}");
+            assert!(
+                (e - 1.0).abs() < tol::ANALYTICAL,
+                "identity eigenvalue = {e}"
+            );
         }
     }
 

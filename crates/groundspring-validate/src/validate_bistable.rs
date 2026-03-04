@@ -77,7 +77,10 @@ fn validate_stochastic(h: &mut ValidationHarness, ctx: &SimCtx<'_>, exp: &Value)
             crossings += 1;
         }
     }
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "crossings ≤ 50, n_trials=50 ≪ 2^53"
+    )]
     let rate = f64::from(crossings) / n_trials as f64;
     println!("  Switching rate: {crossings}/{n_trials} = {rate:.3}");
 
@@ -114,7 +117,11 @@ fn run() -> i32 {
     let dt = f64_field(model, "dt");
     let t_final = f64_field(model, "t_final");
 
-    #[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    #[expect(
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        reason = "t_final/dt positive, ODE steps fit usize"
+    )]
     let n_steps = (t_final / dt) as usize;
 
     let ic_low = ic_from_json(model, "initial_low_cdg");

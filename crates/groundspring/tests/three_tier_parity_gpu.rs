@@ -11,6 +11,8 @@
 // Bitwise determinism: parity tests intentionally compare exact f64 bits.
 #![allow(clippy::float_cmp)]
 
+use groundspring::tol;
+
 // ══════════════════════════════════════════════════════════════════
 // Pure GPU workload validation
 //
@@ -42,10 +44,10 @@ fn gpu_wright_fisher_kimura_agreement() {
     let n_trials = 500;
     let fix_count = groundspring::drift::wright_fisher_fixation_batch(n, s, p0, n_trials, 42);
     let kimura = groundspring::drift::kimura_fixation_prob(n, s, p0);
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "count/trials ≤ N ≪ 2^53")]
     let observed = fix_count as f64 / n_trials as f64;
     assert!(
-        (observed - kimura).abs() < 0.10,
+        (observed - kimura).abs() < tol::EQUILIBRIUM,
         "GPU WF fixation {observed} vs Kimura {kimura}"
     );
 }
@@ -128,7 +130,10 @@ fn gpu_batch_determinism() {
 fn gpu_mean_matches_cpu_known_value() {
     let data = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
     let m = groundspring::stats::mean(&data);
-    assert!((m - 5.0).abs() < 1e-10, "mean should be 5.0, got {m}");
+    assert!(
+        (m - 5.0).abs() < tol::ANALYTICAL,
+        "mean should be 5.0, got {m}"
+    );
 }
 
 #[test]
@@ -136,7 +141,7 @@ fn gpu_std_dev_matches_cpu_known_value() {
     let data = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
     let s = groundspring::stats::std_dev(&data);
     assert!(
-        (s - 2.0).abs() < 1e-6,
+        (s - 2.0).abs() < tol::CDF_APPROX,
         "population std should be 2.0, got {s}"
     );
 }
@@ -146,7 +151,10 @@ fn gpu_rmse_matches_cpu_known_value() {
     let obs = [1.0, 2.0, 3.0, 4.0, 5.0];
     let modeled = [1.1, 2.1, 3.1, 4.1, 5.1];
     let r = groundspring::stats::rmse(&obs, &modeled);
-    assert!((r - 0.1).abs() < 1e-6, "RMSE of +0.1 bias = 0.1, got {r}");
+    assert!(
+        (r - 0.1).abs() < tol::CDF_APPROX,
+        "RMSE of +0.1 bias = 0.1, got {r}"
+    );
 }
 
 #[test]
@@ -154,7 +162,10 @@ fn gpu_mbe_matches_cpu_known_value() {
     let obs = [1.0, 2.0, 3.0, 4.0, 5.0];
     let modeled = [1.5, 2.5, 3.5, 4.5, 5.5];
     let b = groundspring::stats::mbe(&obs, &modeled);
-    assert!((b - 0.5).abs() < 1e-6, "MBE of +0.5 bias = 0.5, got {b}");
+    assert!(
+        (b - 0.5).abs() < tol::CDF_APPROX,
+        "MBE of +0.5 bias = 0.5, got {b}"
+    );
 }
 
 #[test]
@@ -163,7 +174,7 @@ fn gpu_pearson_perfect_positive() {
     let y = [2.0, 4.0, 6.0, 8.0, 10.0];
     let r = groundspring::stats::pearson_r(&x, &y);
     assert!(
-        (r - 1.0).abs() < 1e-6,
+        (r - 1.0).abs() < tol::CDF_APPROX,
         "perfect positive correlation, got {r}"
     );
 }
@@ -173,14 +184,14 @@ fn gpu_pearson_zero_correlation() {
     let x = [1.0, 2.0, 3.0, 4.0, 5.0];
     let y = [3.0, 3.0, 3.0, 3.0, 3.0];
     let r = groundspring::stats::pearson_r(&x, &y);
-    assert!(r.abs() < 1e-6, "zero correlation, got {r}");
+    assert!(r.abs() < tol::CDF_APPROX, "zero correlation, got {r}");
 }
 
 #[test]
 fn gpu_r_squared_perfect() {
     let x = [1.0, 2.0, 3.0, 4.0, 5.0];
     let r2 = groundspring::stats::r_squared(&x, &x);
-    assert!((r2 - 1.0).abs() < 1e-6, "perfect R², got {r2}");
+    assert!((r2 - 1.0).abs() < tol::CDF_APPROX, "perfect R², got {r2}");
 }
 
 #[test]
@@ -192,7 +203,7 @@ fn gpu_decompose_pythagorean() {
     let d = groundspring::decompose::decompose_error(mbe_val, rmse_val);
     let reconstructed = (d.bias_sq + d.variance).sqrt();
     assert!(
-        (reconstructed - rmse_val).abs() < 1e-6,
+        (reconstructed - rmse_val).abs() < tol::CDF_APPROX,
         "RMSE² = MBE² + σ² must hold across CPU/GPU: reconstructed={reconstructed}, rmse={rmse_val}"
     );
 }
@@ -217,7 +228,7 @@ fn gpu_mae_matches_cpu_known_value() {
     let m = groundspring::stats::mae(&obs, &modeled);
     let expected = (0.2 + 0.2 + 0.3 + 0.3 + 0.1) / 5.0;
     assert!(
-        (m - expected).abs() < 1e-6,
+        (m - expected).abs() < tol::CDF_APPROX,
         "MAE should be {expected:.4}, got {m}"
     );
 }
@@ -229,7 +240,7 @@ fn gpu_nse_matches_r_squared() {
     let nse = groundspring::stats::nash_sutcliffe(&obs, &modeled);
     let r2 = groundspring::stats::r_squared(&obs, &modeled);
     assert!(
-        (nse - r2).abs() < 1e-10,
+        (nse - r2).abs() < tol::ANALYTICAL,
         "NSE ({nse}) should equal R² ({r2})"
     );
     assert!(nse > 0.95, "NSE should be > 0.95, got {nse}");
@@ -260,7 +271,7 @@ fn gpu_jackknife_gpu_parity() {
         .expect("jackknife on 1..=20 integer series");
     let expected_mean = 10.5;
     assert!(
-        (jk.estimate - expected_mean).abs() < 1e-10,
+        (jk.estimate - expected_mean).abs() < tol::ANALYTICAL,
         "jackknife mean should be {expected_mean}, got {}",
         jk.estimate
     );
@@ -510,7 +521,7 @@ fn gpu_shannon_diversity_cross_spring_parity() {
         })
         .sum::<f64>();
     assert!(
-        (h - expected).abs() < 1e-6,
+        (h - expected).abs() < tol::CDF_APPROX,
         "Shannon H={h:.6} should match expected {expected:.6} (wetSpring diversity shader)"
     );
     assert!(h > 0.0, "Shannon H must be positive for mixed community");
@@ -540,7 +551,7 @@ fn gpu_simpson_diversity_cross_spring_parity() {
         .sum();
     let expected = 1.0 - sum_p2;
     assert!(
-        (d - expected).abs() < 1e-6,
+        (d - expected).abs() < tol::CDF_APPROX,
         "Simpson D={d:.6} should match expected {expected:.6} (wetSpring diversity shader)"
     );
     assert!(

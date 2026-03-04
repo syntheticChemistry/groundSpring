@@ -18,6 +18,10 @@ use serde_json::Value;
 const BENCHMARK: &str =
     include_str!("../../../control/drift_selection/benchmark_drift_selection.json");
 
+#[expect(
+    clippy::too_many_lines,
+    reason = "validation harness with neutral + selection sweep checks"
+)]
 fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Drift vs Selection");
@@ -40,7 +44,10 @@ fn run() -> i32 {
         .expect("population_sizes")
         .iter()
         .map(|v| {
-            #[expect(clippy::cast_possible_truncation)]
+            #[expect(
+                clippy::cast_possible_truncation,
+                reason = "JSON population sizes ≤ 10000, fits usize"
+            )]
             let n = v.as_u64().expect("u64") as usize;
             n
         })
@@ -53,7 +60,10 @@ fn run() -> i32 {
         .filter(|&i| wright_fisher_fixation(n_neutral, 0.0, p0, base_seed + i as u64))
         .count();
 
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "fix count and n_trials ≤ 1000 ≪ 2^53"
+    )]
     let neutral_rate = neutral_fixes as f64 / n_trials as f64;
     println!("  N={n_neutral}, s=0: P_fix = {neutral_rate:.3} (expected ~{p0})");
 
@@ -72,12 +82,15 @@ fn run() -> i32 {
             })
             .count();
 
-        #[expect(clippy::cast_precision_loss)]
+        #[expect(
+            clippy::cast_precision_loss,
+            reason = "fix count and n_trials ≤ 1000 ≪ 2^53"
+        )]
         let rate = fixes as f64 / n_trials as f64;
         fix_rates.push(rate);
 
         let kimura = kimura_fixation_prob(n_pop, s_coeff, p0);
-        #[expect(clippy::cast_precision_loss)]
+        #[expect(clippy::cast_precision_loss, reason = "n_pop ≤ 10000 ≪ 2^53")]
         let ns = n_pop as f64 * s_coeff;
         let regime = if ns < 1.0 { "DRIFT" } else { "SELECTION" };
         println!("  N={n_pop:4}, N×s={ns:5.2} ({regime:9}): P_fix={rate:.3} (Kimura={kimura:.3})");

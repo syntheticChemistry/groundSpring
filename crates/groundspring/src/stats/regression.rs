@@ -63,7 +63,11 @@ pub fn fit_linear(xs: &[f64], ys: &[f64]) -> Option<LinearFit> {
     fit_linear_cpu(xs, ys)
 }
 
-#[expect(clippy::similar_names, clippy::suspicious_operation_groupings)]
+#[expect(
+    clippy::similar_names,
+    clippy::suspicious_operation_groupings,
+    reason = "mathematical variable names (sx, sy, sxy, sxx) follow regression notation"
+)]
 fn fit_linear_cpu(xs: &[f64], ys: &[f64]) -> Option<LinearFit> {
     let n = usize_f64(xs.len());
     let x_mean = xs.iter().sum::<f64>() / n;
@@ -170,7 +174,11 @@ fn cramer3(m: [[f64; 3]; 3], rhs: [f64; 3]) -> Option<[f64; 3]> {
     Some(result)
 }
 
-#[expect(clippy::similar_names, clippy::many_single_char_names)]
+#[expect(
+    clippy::similar_names,
+    clippy::many_single_char_names,
+    reason = "mathematical notation: a, b, c coefficients in quadratic fit"
+)]
 fn fit_quadratic_cpu(xs: &[f64], ys: &[f64]) -> Option<NonlinearFit> {
     let n = usize_f64(xs.len());
     let sx: f64 = xs.iter().sum();
@@ -352,15 +360,16 @@ fn fit_logarithmic_cpu(xs: &[f64], ys: &[f64]) -> Option<NonlinearFit> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn perfect_positive_line() {
         let xs = [1.0, 2.0, 3.0, 4.0, 5.0];
         let ys = [3.0, 5.0, 7.0, 9.0, 11.0];
         let fit = fit_linear(&xs, &ys).unwrap();
-        assert!((fit.slope - 2.0).abs() < 1e-10);
-        assert!((fit.intercept - 1.0).abs() < 1e-10);
-        assert!((fit.r_squared - 1.0).abs() < 1e-10);
+        assert!((fit.slope - 2.0).abs() < tol::ANALYTICAL);
+        assert!((fit.intercept - 1.0).abs() < tol::ANALYTICAL);
+        assert!((fit.r_squared - 1.0).abs() < tol::ANALYTICAL);
     }
 
     #[test]
@@ -368,9 +377,9 @@ mod tests {
         let xs = [1.0, 2.0, 3.0, 4.0];
         let ys = [5.0, 5.0, 5.0, 5.0];
         let fit = fit_linear(&xs, &ys).unwrap();
-        assert!(fit.slope.abs() < 1e-10);
-        assert!((fit.intercept - 5.0).abs() < 1e-10);
-        assert!((fit.r_squared - 1.0).abs() < 1e-10);
+        assert!(fit.slope.abs() < tol::ANALYTICAL);
+        assert!((fit.intercept - 5.0).abs() < tol::ANALYTICAL);
+        assert!((fit.r_squared - 1.0).abs() < tol::ANALYTICAL);
     }
 
     #[test]
@@ -391,8 +400,8 @@ mod tests {
         let xs = [0.0, 1.0, 2.0, 3.0];
         let ys = [10.0, 7.0, 4.0, 1.0];
         let fit = fit_linear(&xs, &ys).unwrap();
-        assert!((fit.slope - (-3.0)).abs() < 1e-10);
-        assert!((fit.intercept - 10.0).abs() < 1e-10);
+        assert!((fit.slope - (-3.0)).abs() < tol::ANALYTICAL);
+        assert!((fit.intercept - 10.0).abs() < tol::ANALYTICAL);
     }
 
     #[test]
@@ -403,13 +412,21 @@ mod tests {
             .map(|&x| (2.0 * x).mul_add(x, (-3.0f64).mul_add(x, 1.0)))
             .collect();
         let fit = fit_quadratic(&xs, &ys).unwrap();
-        assert!((fit.params[0] - 2.0).abs() < 1e-8, "a: {}", fit.params[0]);
         assert!(
-            (fit.params[1] - (-3.0)).abs() < 1e-8,
+            (fit.params[0] - 2.0).abs() < tol::INTEGRATION,
+            "a: {}",
+            fit.params[0]
+        );
+        assert!(
+            (fit.params[1] - (-3.0)).abs() < tol::INTEGRATION,
             "b: {}",
             fit.params[1]
         );
-        assert!((fit.params[2] - 1.0).abs() < 1e-8, "c: {}", fit.params[2]);
+        assert!(
+            (fit.params[2] - 1.0).abs() < tol::INTEGRATION,
+            "c: {}",
+            fit.params[2]
+        );
         assert!(fit.r_squared > 0.999);
     }
 
@@ -426,8 +443,16 @@ mod tests {
         let xs: Vec<f64> = (0..10).map(f64::from).collect();
         let ys: Vec<f64> = xs.iter().map(|&x| a * (b * x).exp()).collect();
         let fit = fit_exponential(&xs, &ys).unwrap();
-        assert!((fit.params[0] - a).abs() < 0.1, "a: {}", fit.params[0]);
-        assert!((fit.params[1] - b).abs() < 0.01, "b: {}", fit.params[1]);
+        assert!(
+            (fit.params[0] - a).abs() < tol::EQUILIBRIUM,
+            "a: {}",
+            fit.params[0]
+        );
+        assert!(
+            (fit.params[1] - b).abs() < tol::STOCHASTIC,
+            "b: {}",
+            fit.params[1]
+        );
         assert!(fit.r_squared > 0.99);
     }
 
@@ -445,8 +470,16 @@ mod tests {
         let xs: Vec<f64> = (1..=10).map(f64::from).collect();
         let ys: Vec<f64> = xs.iter().map(|&x| a * x.ln() + b).collect();
         let fit = fit_logarithmic(&xs, &ys).unwrap();
-        assert!((fit.params[0] - a).abs() < 1e-8, "a: {}", fit.params[0]);
-        assert!((fit.params[1] - b).abs() < 1e-8, "b: {}", fit.params[1]);
+        assert!(
+            (fit.params[0] - a).abs() < tol::INTEGRATION,
+            "a: {}",
+            fit.params[0]
+        );
+        assert!(
+            (fit.params[1] - b).abs() < tol::INTEGRATION,
+            "b: {}",
+            fit.params[1]
+        );
         assert!(fit.r_squared > 0.999);
     }
 

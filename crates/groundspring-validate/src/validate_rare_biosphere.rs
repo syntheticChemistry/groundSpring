@@ -125,10 +125,16 @@ fn validate_occupancy_and_singletons(h: &mut ValidationHarness, ctx: &OccupancyC
     let occupancy =
         abundance_occupancy(ctx.community, occ_depth, n_samples, ctx.base_seed + 50_000);
 
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "tier span ≤ community size ≪ 2^53"
+    )]
     let dom_occ: f64 =
         occupancy[ctx.dom.0..ctx.dom.1].iter().sum::<f64>() / (ctx.dom.1 - ctx.dom.0) as f64;
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "tier span ≤ community size ≪ 2^53"
+    )]
     let vr_occ: f64 =
         occupancy[ctx.vr.0..ctx.vr.1].iter().sum::<f64>() / (ctx.vr.1 - ctx.vr.0) as f64;
     println!("  Dominant occupancy: {dom_occ:.3}, Very rare: {vr_occ:.3}");
@@ -189,9 +195,15 @@ fn run() -> i32 {
     let tiers = &model["tier_boundaries"];
     let tier = |name: &str| -> (usize, usize) {
         let arr = array_field(tiers, name);
-        #[expect(clippy::cast_possible_truncation)]
+        #[expect(
+            clippy::cast_possible_truncation,
+            reason = "JSON tier indices ≤ community size, fits usize"
+        )]
         let lo = arr[0].as_u64().expect("lo") as usize;
-        #[expect(clippy::cast_possible_truncation)]
+        #[expect(
+            clippy::cast_possible_truncation,
+            reason = "JSON tier indices ≤ community size, fits usize"
+        )]
         let hi = arr[1].as_u64().expect("hi") as usize;
         (lo, hi)
     };

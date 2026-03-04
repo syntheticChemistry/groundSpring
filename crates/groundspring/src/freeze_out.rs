@@ -569,11 +569,12 @@ pub struct GridFitConfig<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn curve_at_zero() {
         let t = freeze_out_curve(155.0, 0.013, 0.0);
-        assert!((t - 155.0).abs() < 1e-12, "T_f(0) should equal T0");
+        assert!((t - 155.0).abs() < tol::EXACT, "T_f(0) should equal T0");
     }
 
     #[test]
@@ -583,7 +584,7 @@ mod tests {
         let prev = freeze_out_curve(t0, k2, 0.0);
         for mu in (50..=400).step_by(50) {
             let t = freeze_out_curve(t0, k2, f64::from(mu));
-            assert!(t <= prev + 1e-12, "T_f should decrease with mu_B");
+            assert!(t <= prev + tol::EXACT, "T_f should decrease with mu_B");
         }
     }
 
@@ -592,7 +593,7 @@ mod tests {
         let obs = vec![1.0, 2.0, 3.0];
         let pred = vec![1.0, 2.0, 3.0];
         let c2 = chi_squared(&obs, &pred, 1.0).unwrap();
-        assert!(c2.abs() < 1e-14);
+        assert!(c2.abs() < tol::STRICT);
     }
 
     #[test]
@@ -615,13 +616,17 @@ mod tests {
         };
         let r = grid_fit_2d(&cfg).unwrap();
         assert!((r.t0 - t0).abs() < 1.0, "T0: got {}", r.t0);
-        assert!((r.kappa2 - k2).abs() < 0.002, "k2: got {}", r.kappa2);
+        assert!(
+            (r.kappa2 - k2).abs() < tol::DECOMPOSITION,
+            "k2: got {}",
+            r.kappa2
+        );
     }
 
     #[test]
     fn chi2_per_dof_correct() {
         let c = chi_squared_per_dof(14.0, 9, 2);
-        assert!((c - 2.0).abs() < 1e-12);
+        assert!((c - 2.0).abs() < tol::EXACT);
     }
 
     #[test]
@@ -629,10 +634,10 @@ mod tests {
         let obs = vec![1.0, 2.0, 3.0, 4.0, 5.0];
         let pred = obs.clone();
         let a = chi2_analysis(&obs, &pred, 1.0, 2).unwrap();
-        assert!(a.chi2_total.abs() < 1e-14, "perfect fit → χ²=0");
+        assert!(a.chi2_total.abs() < tol::STRICT, "perfect fit → χ²=0");
         assert_eq!(a.dof, 3);
-        assert!(a.residuals.iter().all(|&r| r.abs() < 1e-14));
-        assert!(a.pulls.iter().all(|&p| p.abs() < 1e-14));
+        assert!(a.residuals.iter().all(|&r| r.abs() < tol::STRICT));
+        assert!(a.pulls.iter().all(|&p| p.abs() < tol::STRICT));
     }
 
     #[test]
@@ -643,7 +648,7 @@ mod tests {
         // (0.1/0.1)² + (0.1/0.1)² + (0.2/0.1)² = 1 + 1 + 4 = 6
         let expected_chi2 = 6.0_f64;
         assert!(
-            (a.chi2_total - expected_chi2).abs() < 1e-10,
+            (a.chi2_total - expected_chi2).abs() < tol::ANALYTICAL,
             "χ²={}, expected {expected_chi2}",
             a.chi2_total
         );
@@ -657,11 +662,11 @@ mod tests {
         let pred = vec![4.0, 4.0];
         let a = chi2_analysis(&obs, &pred, 1.0, 0).unwrap();
         assert!(
-            (a.residuals[0] - 1.0).abs() < 1e-14,
+            (a.residuals[0] - 1.0).abs() < tol::STRICT,
             "obs > pred → positive residual"
         );
         assert!(
-            (a.residuals[1] - (-1.0)).abs() < 1e-14,
+            (a.residuals[1] - (-1.0)).abs() < tol::STRICT,
             "obs < pred → negative residual"
         );
     }

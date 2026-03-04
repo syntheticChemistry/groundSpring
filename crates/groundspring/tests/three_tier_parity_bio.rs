@@ -11,13 +11,15 @@
 // Bitwise determinism: parity tests intentionally compare exact f64 bits.
 #![allow(clippy::float_cmp)]
 
+use groundspring::tol;
+
 // ── drift ───────────────────────────────────────────────────────────
 
 #[test]
 fn drift_kimura_parity_neutral() {
     let p = groundspring::drift::kimura_fixation_prob(100, 0.0, 0.5);
     assert!(
-        (p - 0.5).abs() < 1e-10,
+        (p - 0.5).abs() < tol::ANALYTICAL,
         "Kimura neutral should return initial_freq"
     );
 }
@@ -37,7 +39,7 @@ fn drift_kimura_parity_known_value() {
     let four_ns = 4.0;
     let expected = (1.0 - (-four_ns * 0.5_f64).exp()) / (1.0 - (-four_ns).exp());
     assert!(
-        (p - expected).abs() < 1e-12,
+        (p - expected).abs() < tol::EXACT,
         "Kimura known value: got {p}, expected {expected}"
     );
 }
@@ -71,7 +73,7 @@ fn wf_batch_kimura_convergence() {
     let n_trials = 200;
     let fix_count = groundspring::drift::wright_fisher_fixation_batch(n, s, p0, n_trials, 42);
     let kimura = groundspring::drift::kimura_fixation_prob(n, s, p0);
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "count/trials ≤ N ≪ 2^53")]
     let observed = fix_count as f64 / n_trials as f64;
     assert!(
         (observed - kimura).abs() < 0.15,
@@ -85,7 +87,7 @@ fn wf_batch_kimura_convergence() {
 fn jackknife_parity_small_sample() {
     let data = [1.0, 2.0, 3.0, 4.0, 5.0];
     let r = groundspring::jackknife::jackknife_mean_variance(&data).expect("jackknife on [1..5]");
-    assert!((r.estimate - 3.0).abs() < 1e-12);
+    assert!((r.estimate - 3.0).abs() < tol::EXACT);
     assert!(r.variance > 0.0);
     assert!(r.std_error > 0.0);
 }
@@ -108,8 +110,8 @@ fn jackknife_parity_known_variance() {
         groundspring::jackknife::jackknife_mean_variance(&data).expect("jackknife on [1.0, 3.0]");
     // N=2: leave-one-out means are [3.0, 1.0], grand mean 2.0
     // JK var = (2-1)/2 * ((3-2)^2 + (1-2)^2) = 0.5 * 2 = 1.0
-    assert!((r.estimate - 2.0).abs() < 1e-12);
-    assert!((r.variance - 1.0).abs() < 1e-12);
+    assert!((r.estimate - 2.0).abs() < tol::EXACT);
+    assert!((r.variance - 1.0).abs() < tol::EXACT);
 }
 
 // ── rare_biosphere ──────────────────────────────────────────────────
@@ -134,7 +136,7 @@ fn rare_biosphere_chao1_parity() {
     let counts = [100u64, 50, 2, 2, 1, 1, 1];
     let est = groundspring::rare_biosphere::chao1(&counts);
     let expected = 7.0 + 9.0 / 4.0; // S_obs + f1^2/(2*f2) = 7 + 9/4 = 9.25
-    assert!((est - expected).abs() < 1e-10);
+    assert!((est - expected).abs() < tol::ANALYTICAL);
 }
 
 #[test]
@@ -172,7 +174,7 @@ fn rare_biosphere_occupancy_dominant_always_detected() {
 fn quasispecies_error_threshold_parity() {
     let mu_c = groundspring::quasispecies::error_threshold(10.0, 100);
     assert!(
-        (mu_c - 0.02276).abs() < 0.001,
+        (mu_c - 0.02276).abs() < tol::LITERATURE,
         "error threshold: got {mu_c}"
     );
 }
@@ -216,7 +218,10 @@ fn simpson_diversity_parity_known_value() {
     let d1 = groundspring::rarefaction::simpson_diversity(&counts);
     let d2 = groundspring::rarefaction::simpson_diversity(&counts);
     assert_eq!(d1.to_bits(), d2.to_bits(), "simpson bitwise");
-    assert!((d1 - 0.75).abs() < 0.01, "even community D ≈ 0.75: {d1}");
+    assert!(
+        (d1 - 0.75).abs() < tol::STOCHASTIC,
+        "even community D ≈ 0.75: {d1}"
+    );
 }
 
 #[test]
@@ -227,7 +232,7 @@ fn shannon_diversity_parity_known_value() {
     assert_eq!(h1.to_bits(), h2.to_bits(), "shannon bitwise");
     let expected = (4.0_f64).ln();
     assert!(
-        (h1 - expected).abs() < 1e-10,
+        (h1 - expected).abs() < tol::ANALYTICAL,
         "H = ln(4) ≈ {expected}: {h1}"
     );
 }
@@ -238,7 +243,10 @@ fn evenness_parity_known_value() {
     let e1 = groundspring::rarefaction::evenness(&counts);
     let e2 = groundspring::rarefaction::evenness(&counts);
     assert_eq!(e1.to_bits(), e2.to_bits(), "evenness bitwise");
-    assert!((e1 - 1.0).abs() < 1e-10, "perfectly even J = 1.0: {e1}");
+    assert!(
+        (e1 - 1.0).abs() < tol::ANALYTICAL,
+        "perfectly even J = 1.0: {e1}"
+    );
 }
 
 #[test]
@@ -246,7 +254,10 @@ fn bray_curtis_parity_known_value() {
     let a = [10.0, 20.0, 30.0];
     let b = [10.0, 20.0, 30.0];
     let d = groundspring::rarefaction::bray_curtis(&a, &b);
-    assert!((d - 0.0).abs() < 1e-15, "identical => BC = 0: {d}");
+    assert!(
+        (d - 0.0).abs() < tol::DETERMINISM,
+        "identical => BC = 0: {d}"
+    );
 
     let c = [0.0, 0.0, 60.0];
     let d2 = groundspring::rarefaction::bray_curtis(&a, &c);
@@ -273,7 +284,7 @@ fn analytical_rarefaction_parity_deterministic() {
 #[test]
 fn hill_parity_known_value() {
     let y = groundspring::kinetics::hill(10.0, 10.0, 2.0);
-    assert!((y - 0.5).abs() < 1e-10, "hill(K,K,n) = 0.5: {y}");
+    assert!((y - 0.5).abs() < tol::ANALYTICAL, "hill(K,K,n) = 0.5: {y}");
     let y2 = groundspring::kinetics::hill(10.0, 10.0, 2.0);
     assert_eq!(y.to_bits(), y2.to_bits(), "hill bitwise");
 }
@@ -281,7 +292,10 @@ fn hill_parity_known_value() {
 #[test]
 fn hill_parity_extreme() {
     let sat = groundspring::kinetics::hill(1e6, 1.0, 2.0);
-    assert!((sat - 1.0).abs() < 1e-6, "saturated hill ≈ 1.0: {sat}");
+    assert!(
+        (sat - 1.0).abs() < tol::CDF_APPROX,
+        "saturated hill ≈ 1.0: {sat}"
+    );
     let low = groundspring::kinetics::hill(1e-6, 1.0, 2.0);
     assert!(low < 1e-6, "subsaturated hill ≈ 0.0: {low}");
 }
@@ -289,7 +303,7 @@ fn hill_parity_extreme() {
 #[test]
 fn monod_parity_known_value() {
     let y = groundspring::kinetics::monod(10.0, 1.0, 10.0);
-    assert!((y - 0.5).abs() < 1e-10, "monod(K,1,K) = 0.5: {y}");
+    assert!((y - 0.5).abs() < tol::ANALYTICAL, "monod(K,1,K) = 0.5: {y}");
     let y2 = groundspring::kinetics::monod(10.0, 1.0, 10.0);
     assert_eq!(y.to_bits(), y2.to_bits(), "monod bitwise");
 }
@@ -308,7 +322,7 @@ fn gillespie_parity_deterministic() {
 #[test]
 fn gillespie_steady_state_parity() {
     let ss = groundspring::gillespie::steady_state_mean(40.0, 2.2);
-    assert!((ss - 18.182).abs() < 0.01);
+    assert!((ss - 18.182).abs() < tol::STOCHASTIC);
 }
 
 #[test]
@@ -376,7 +390,7 @@ fn shannon_diversity_gpu_parity_known_value() {
     let h = groundspring::rarefaction::shannon_diversity(&counts);
     let expected = 4.0_f64.ln();
     assert!(
-        (h - expected).abs() < 1e-6,
+        (h - expected).abs() < tol::CDF_APPROX,
         "4 even taxa: H'={h}, expected {expected}"
     );
 }
@@ -385,7 +399,10 @@ fn shannon_diversity_gpu_parity_known_value() {
 fn shannon_diversity_gpu_parity_single_species() {
     let counts = vec![1000_u64, 0, 0, 0];
     let h = groundspring::rarefaction::shannon_diversity(&counts);
-    assert!(h.abs() < 1e-10, "single species H' should be 0: {h}");
+    assert!(
+        h.abs() < tol::ANALYTICAL,
+        "single species H' should be 0: {h}"
+    );
 }
 
 #[test]
@@ -394,7 +411,7 @@ fn simpson_diversity_gpu_parity_known_value() {
     let d = groundspring::rarefaction::simpson_diversity(&counts);
     let expected = 4.0_f64.mul_add(-(0.25 * 0.25), 1.0);
     assert!(
-        (d - expected).abs() < 1e-6,
+        (d - expected).abs() < tol::CDF_APPROX,
         "4 even taxa: D={d}, expected {expected}"
     );
 }
@@ -403,7 +420,10 @@ fn simpson_diversity_gpu_parity_known_value() {
 fn simpson_diversity_gpu_parity_single_species() {
     let counts = vec![1000_u64, 0, 0, 0];
     let d = groundspring::rarefaction::simpson_diversity(&counts);
-    assert!(d.abs() < 1e-10, "single species D should be 0: {d}");
+    assert!(
+        d.abs() < tol::ANALYTICAL,
+        "single species D should be 0: {d}"
+    );
 }
 
 #[test]
@@ -440,7 +460,7 @@ fn tissue_anderson_disruption_monotonic() {
     let sweep = groundspring::tissue_anderson::barrier_disruption_sweep(5, 3, 42);
     for i in 1..sweep.len() {
         assert!(
-            sweep[i].d_eff_epidermis >= sweep[i - 1].d_eff_epidermis - 0.1,
+            sweep[i].d_eff_epidermis >= sweep[i - 1].d_eff_epidermis - tol::EQUILIBRIUM,
             "d_eff should be non-decreasing across barrier disruption"
         );
     }

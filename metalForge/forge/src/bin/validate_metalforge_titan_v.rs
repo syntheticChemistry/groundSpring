@@ -42,7 +42,10 @@ struct GpuParams {
     energy_x1000: i32,
 }
 
-#[expect(clippy::cast_possible_truncation)]
+#[expect(
+    clippy::cast_possible_truncation,
+    reason = "seed components masked to 32 bits fit u32"
+)]
 fn generate_seeds(n: usize, base_seed: u64) -> Vec<u32> {
     let mut seeds = Vec::with_capacity(n * 4);
     for i in 0..n {
@@ -118,9 +121,15 @@ fn dispatch_f32(
     let params = GpuParams {
         n_sites: N_SITES,
         n_realizations: N_REALIZATIONS,
-        #[expect(clippy::cast_possible_truncation)]
+        #[expect(
+            clippy::cast_possible_truncation,
+            reason = "DISORDER*1000 in [-2^31, 2^31)"
+        )]
         disorder_x1000: (DISORDER * 1000.0) as i32,
-        #[expect(clippy::cast_possible_truncation)]
+        #[expect(
+            clippy::cast_possible_truncation,
+            reason = "ENERGY*1000 in [-2^31, 2^31)"
+        )]
         energy_x1000: (ENERGY * 1000.0) as i32,
     };
 
@@ -283,7 +292,7 @@ fn validate_f32_results(
     cpu_gamma: f64,
     h: &mut Harness,
 ) {
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "count ≤ N_REALIZATIONS ≪ 2^53")]
     let gpu_gamma_avg: f64 =
         gammas.iter().map(|g| f64::from(*g)).sum::<f64>() / gammas.len() as f64;
     let gpu_xi = if gpu_gamma_avg > 0.0 {

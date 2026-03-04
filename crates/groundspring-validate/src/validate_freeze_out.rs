@@ -136,7 +136,7 @@ fn validate_replicates_and_determinism(
             hits += 1;
         }
     }
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "hits and n_rep ≤ 100 ≪ 2^53")]
     let frac = hits as f64 / ctx.n_rep as f64;
     println!("  Coverage: {hits}/{} = {frac:.2}", ctx.n_rep);
     h.check_min(

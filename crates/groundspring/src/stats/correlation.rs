@@ -119,7 +119,7 @@ fn rank(data: &[f64]) -> Vec<f64> {
             .position(|item| f64::total_cmp(&item.1, &indexed[start].1).is_ne())
             .map_or(indexed.len(), |offset| start + offset);
 
-        let avg_rank = usize_f64(start + tie_end + 1) / 2.0;
+        let avg_rank = f64::midpoint(usize_f64(start + 1), usize_f64(tie_end));
         for &(orig_idx, _) in &indexed[start..tie_end] {
             ranks[orig_idx] = avg_rank;
         }
@@ -166,6 +166,7 @@ fn covariance_cpu(x: &[f64], y: &[f64]) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     // Tolerance key:
     //   1e-12  — exact arithmetic identity, limited only by f64 rounding
@@ -175,27 +176,27 @@ mod tests {
     #[test]
     fn pearson_r_perfect_positive() {
         let x = [1.0, 2.0, 3.0, 4.0, 5.0];
-        assert!((pearson_r(&x, &x) - 1.0).abs() < 1e-12);
+        assert!((pearson_r(&x, &x) - 1.0).abs() < tol::EXACT);
     }
 
     #[test]
     fn pearson_r_perfect_negative() {
         let x = [1.0, 2.0, 3.0, 4.0, 5.0];
         let y = [5.0, 4.0, 3.0, 2.0, 1.0];
-        assert!((pearson_r(&x, &y) + 1.0).abs() < 1e-12);
+        assert!((pearson_r(&x, &y) + 1.0).abs() < tol::EXACT);
     }
 
     #[test]
     fn pearson_r_constant_is_zero() {
         let x = [1.0, 2.0, 3.0];
         let y = [5.0, 5.0, 5.0];
-        assert!(pearson_r(&x, &y).abs() < 1e-12);
+        assert!(pearson_r(&x, &y).abs() < tol::EXACT);
     }
 
     #[test]
     fn pearson_r_empty() {
         let empty: [f64; 0] = [];
-        assert!(pearson_r(&empty, &empty).abs() < 1e-12);
+        assert!(pearson_r(&empty, &empty).abs() < tol::EXACT);
     }
 
     #[test]
@@ -208,7 +209,7 @@ mod tests {
         let r2_via_pearson = r * r;
         let r2_direct = r_squared(&obs, &modeled);
         assert!(
-            (r2_via_pearson - r2_direct).abs() < 0.01,
+            (r2_via_pearson - r2_direct).abs() < tol::STOCHASTIC,
             "r² ≈ R² for near-linear data"
         );
     }
@@ -216,14 +217,14 @@ mod tests {
     #[test]
     fn spearman_r_perfect_monotonic() {
         let x = [1.0, 2.0, 3.0, 4.0, 5.0];
-        assert!((spearman_r(&x, &x) - 1.0).abs() < 1e-12);
+        assert!((spearman_r(&x, &x) - 1.0).abs() < tol::EXACT);
     }
 
     #[test]
     fn spearman_r_perfect_negative_monotonic() {
         let x = [1.0, 2.0, 3.0, 4.0, 5.0];
         let y = [5.0, 4.0, 3.0, 2.0, 1.0];
-        assert!((spearman_r(&x, &y) + 1.0).abs() < 1e-12);
+        assert!((spearman_r(&x, &y) + 1.0).abs() < tol::EXACT);
     }
 
     #[test]
@@ -231,7 +232,7 @@ mod tests {
         let x = [1.0, 2.0, 3.0, 4.0, 5.0];
         let y = [1.0, 4.0, 9.0, 16.0, 25.0];
         assert!(
-            (spearman_r(&x, &y) - 1.0).abs() < 1e-12,
+            (spearman_r(&x, &y) - 1.0).abs() < tol::EXACT,
             "monotonic nonlinear → r_s = 1"
         );
     }
@@ -239,7 +240,7 @@ mod tests {
     #[test]
     fn spearman_r_empty() {
         let empty: [f64; 0] = [];
-        assert!(spearman_r(&empty, &empty).abs() < 1e-12);
+        assert!(spearman_r(&empty, &empty).abs() < tol::EXACT);
     }
 
     #[test]
@@ -257,7 +258,7 @@ mod tests {
         let c = covariance(&x, &y);
         // Cov(x, 2x) = 2·Var(x) = 2·2.5 = 5.0
         assert!(
-            (c - 5.0).abs() < 1e-10,
+            (c - 5.0).abs() < tol::ANALYTICAL,
             "Cov(x, 2x) = 2·Var(x) = 5.0, got {c}"
         );
     }
@@ -266,11 +267,11 @@ mod tests {
     fn covariance_zero_for_independent() {
         let x = [1.0, 2.0, 3.0, 4.0];
         let y = [3.0, 3.0, 3.0, 3.0];
-        assert!(covariance(&x, &y).abs() < 1e-12);
+        assert!(covariance(&x, &y).abs() < tol::EXACT);
     }
 
     #[test]
     fn covariance_single_element() {
-        assert!(covariance(&[42.0], &[42.0]).abs() < 1e-12);
+        assert!(covariance(&[42.0], &[42.0]).abs() < tol::EXACT);
     }
 }

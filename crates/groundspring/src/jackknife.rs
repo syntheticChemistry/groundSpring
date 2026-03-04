@@ -213,6 +213,7 @@ pub fn block_jackknife_variance(
 mod tests {
     use super::*;
     use crate::prng::Xorshift64;
+    use crate::tol;
 
     #[test]
     fn jk_mean_gaussian() {
@@ -225,7 +226,7 @@ mod tests {
             r.estimate
         );
         assert!(
-            r.variance > 0.005 && r.variance < 0.08,
+            r.variance > tol::DECOMPOSITION && r.variance < 0.08,
             "variance of mean should be near sigma^2/N ≈ 0.02, got {}",
             r.variance
         );

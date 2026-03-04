@@ -29,7 +29,10 @@ fn json_number_to_f64(v: &Value) -> f64 {
         .expect("JSON value must be numeric")
 }
 
-#[expect(clippy::too_many_lines)]
+#[expect(
+    clippy::too_many_lines,
+    reason = "validation harness with multiple extrapolation checks"
+)]
 fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Size Convergence");
@@ -76,7 +79,7 @@ fn run() -> i32 {
     let d_mean: Vec<f64> = d_values
         .iter()
         .map(|row| {
-            #[expect(clippy::cast_precision_loss)]
+            #[expect(clippy::cast_precision_loss, reason = "n_replicas from JSON ≪ 2^53")]
             let n_rep = row.len() as f64;
             row.iter().sum::<f64>() / n_rep
         })
@@ -120,7 +123,10 @@ fn run() -> i32 {
         .zip(fitted.iter())
         .map(|(a, b)| a - b)
         .collect();
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "residuals len = system_sizes len ≪ 2^53"
+    )]
     let n_pts = residuals.len() as f64;
     let res_mean = residuals.iter().sum::<f64>() / n_pts;
     let residual_var = residuals

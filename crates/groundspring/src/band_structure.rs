@@ -70,7 +70,9 @@ pub fn find_band_edges(
 ) -> Vec<f64> {
     let coarse = find_band_edges_cpu(potential, hopping, e_lo, e_hi, n_points);
     #[cfg(feature = "barracuda-gpu")]
-    return refine_edges_brent(potential, hopping, e_lo, e_hi, n_points, &coarse);
+    {
+        refine_edges_brent(potential, hopping, e_lo, e_hi, n_points, &coarse)
+    }
     #[cfg(not(feature = "barracuda-gpu"))]
     coarse
 }
@@ -189,7 +191,9 @@ pub fn periodic_hamiltonian(
 #[must_use]
 pub fn detect_band_ranges(eigenvalues: &[f64], gap_factor: f64) -> Vec<(f64, f64)> {
     #[cfg(feature = "barracuda-gpu")]
-    return barracuda::spectral::detect_bands(eigenvalues, gap_factor);
+    {
+        barracuda::spectral::detect_bands(eigenvalues, gap_factor)
+    }
     #[cfg(not(feature = "barracuda-gpu"))]
     detect_band_ranges_cpu(eigenvalues, gap_factor)
 }

@@ -111,7 +111,11 @@ pub fn detection_threshold(abundance: f64, target_power: f64) -> u64 {
             return 0;
         }
         let d = (1.0 - target_power).log(1.0 - abundance);
-        #[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+        #[expect(
+            clippy::cast_possible_truncation,
+            clippy::cast_sign_loss,
+            reason = "detection depth ≤ 2^53; ceil guarantees non-negative"
+        )]
         let result = d.ceil() as u64;
         result
     }
@@ -161,7 +165,7 @@ fn abundance_occupancy_gpu(
         seed: None,
     };
     let gpu = BatchedMultinomialGpu::new(device).ok()?;
-    #[expect(clippy::cast_possible_truncation)]
+    #[expect(clippy::cast_possible_truncation, reason = "GPU u32 counts fit in u64")]
     let counts = gpu
         .sample(
             &cumulative,
@@ -314,7 +318,7 @@ fn tier_detection_rate_gpu(
         seed: None,
     };
     let gpu = BatchedMultinomialGpu::new(device).ok()?;
-    #[expect(clippy::cast_possible_truncation)]
+    #[expect(clippy::cast_possible_truncation, reason = "GPU u32 counts fit in u64")]
     let counts = gpu
         .sample(
             &cumulative,
@@ -391,7 +395,10 @@ fn generate_xoshiro_seeds(n_reps: usize, base_seed: u64) -> Vec<u32> {
     let mut rng = Xorshift64::new(base_seed);
     let mut seeds = Vec::with_capacity(n_reps * 4);
     for _ in 0..n_reps * 4 {
-        #[expect(clippy::cast_possible_truncation)]
+        #[expect(
+            clippy::cast_possible_truncation,
+            reason = "RNG u64 → u32 seed; high bits discarded intentionally"
+        )]
         let s = rng.next_u64() as u32;
         seeds.push(s.max(1));
     }
@@ -401,6 +408,7 @@ fn generate_xoshiro_seeds(n_reps: usize, base_seed: u64) -> Vec<u32> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn chao1_all_abundant() {
@@ -415,7 +423,7 @@ mod tests {
         let f1 = 3.0;
         let f2 = 2.0;
         let expected = s_obs + f1 * f1 / (2.0 * f2);
-        assert!((chao1(&counts) - expected).abs() < 1e-10);
+        assert!((chao1(&counts) - expected).abs() < tol::ANALYTICAL);
     }
 
     #[test]
@@ -424,7 +432,7 @@ mod tests {
         let s_obs = 5.0;
         let f1 = 3.0;
         let expected = s_obs + f1 * (f1 - 1.0) / 2.0;
-        assert!((chao1(&counts) - expected).abs() < 1e-10);
+        assert!((chao1(&counts) - expected).abs() < tol::ANALYTICAL);
     }
 
     #[test]

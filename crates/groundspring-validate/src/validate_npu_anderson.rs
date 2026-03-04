@@ -11,7 +11,7 @@
 
 use groundspring::npu;
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, print_provenance_header, usize_field};
+use groundspring_validate::{f64_field, print_provenance_header, usize_field, EPS_SAFE_DIV};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/npu_anderson/benchmark_npu_anderson.json");
@@ -66,7 +66,7 @@ fn run_cpu_checks(bench: &Value, h: &mut ValidationHarness) {
     for &w in &disorders {
         let features = npu::quantize_features(w, energy, l_f64);
         let w_deq = npu::dequantize_i8(features[0], 0.0, 10.0);
-        let err = (w - w_deq).abs() / w.abs().max(1e-10);
+        let err = (w - w_deq).abs() / w.abs().max(EPS_SAFE_DIV);
         max_err = max_err.max(err);
     }
     h.check_max("Quantization roundtrip max error", max_err, max_tol);

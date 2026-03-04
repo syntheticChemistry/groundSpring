@@ -111,13 +111,14 @@ pub fn integrate<S: OdeState>(state0: &S, dt: f64, n_steps: usize, f: impl Fn(&S
 )]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn rk4_constant_derivative() {
         let state = [1.0, 2.0, 3.0, 4.0, 5.0];
         let result = rk4_step(&state, 0.1, |_s| [1.0, 0.0, -1.0, 0.0, 0.0]);
-        assert!((result[0] - 1.1).abs() < 1e-12);
-        assert!((result[2] - 2.9).abs() < 1e-12);
+        assert!((result[0] - 1.1).abs() < tol::EXACT);
+        assert!((result[2] - 2.9).abs() < tol::EXACT);
     }
 
     #[test]
@@ -157,7 +158,7 @@ mod tests {
         let expected = (-1.0_f64).exp();
         // RK4 global error is O(dt^4) ≈ 1e-12 for dt=0.001, 1000 steps
         assert!(
-            (result[0] - expected).abs() < 1e-10,
+            (result[0] - expected).abs() < tol::ANALYTICAL,
             "exponential decay: got {}, expected {expected}",
             result[0]
         );
@@ -181,19 +182,19 @@ mod tests {
         let expected_x = t.cos();
         let expected_v = -t.sin();
         assert!(
-            (result[0] - expected_x).abs() < 1e-6,
+            (result[0] - expected_x).abs() < tol::CDF_APPROX,
             "SHO x: got {}, expected {expected_x}",
             result[0]
         );
         assert!(
-            (result[1] - expected_v).abs() < 1e-6,
+            (result[1] - expected_v).abs() < tol::CDF_APPROX,
             "SHO v: got {}, expected {expected_v}",
             result[1]
         );
         // Energy conservation: E = ½(x² + v²) should remain ≈ 0.5
         let energy = 0.5 * result[0].mul_add(result[0], result[1] * result[1]);
         assert!(
-            (energy - 0.5).abs() < 1e-8,
+            (energy - 0.5).abs() < tol::INTEGRATION,
             "SHO energy drift: got {energy}, expected 0.5"
         );
     }
@@ -213,13 +214,13 @@ mod tests {
         });
         let t = dt * n_steps as f64;
         assert!(
-            (result[0] - t.sin()).abs() < 1e-10,
+            (result[0] - t.sin()).abs() < tol::ANALYTICAL,
             "rotation x: got {}, expected {}",
             result[0],
             t.sin()
         );
         assert!(
-            (result[1] - t.cos()).abs() < 1e-10,
+            (result[1] - t.cos()).abs() < tol::ANALYTICAL,
             "rotation y: got {}, expected {}",
             result[1],
             t.cos()
@@ -243,7 +244,7 @@ mod tests {
         let t = dt * n_steps as f64;
         let expected = 1.0 / 9.0f64.mul_add((-t).exp(), 1.0);
         assert!(
-            (result[0] - expected).abs() < 1e-8,
+            (result[0] - expected).abs() < tol::INTEGRATION,
             "logistic: got {}, expected {expected}",
             result[0]
         );

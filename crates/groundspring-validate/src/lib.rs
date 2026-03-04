@@ -71,6 +71,10 @@ pub const THRESHOLD_LARGE_GAMMA: f64 = 0.3;
 /// Division-safe epsilon to avoid NaN in `x / y.max(EPS_SAFE_DIV)`.
 pub const EPS_SAFE_DIV: f64 = 1e-10;
 
+/// Strict division-safe epsilon for quantities where physical floor is ~1e-15
+/// (e.g. diffusion coefficients in m²/s). Below any physically meaningful value.
+pub const EPS_SAFE_DIV_STRICT: f64 = 1e-20;
+
 /// Error returned when a benchmark JSON field is missing or has the wrong type.
 #[derive(Debug, Clone)]
 pub struct BenchFieldError {

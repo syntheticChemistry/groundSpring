@@ -45,7 +45,7 @@ struct SimConfig {
 fn validate_analytical(h: &mut ValidationHarness, net: &EnzymeNetwork, pred: &Value) -> (f64, f64) {
     println!("\n--- Part 1: Analytical Steady State ---");
 
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "n_dgc ≤ 100 ≪ 2^53")]
     let total_syn_basal = net.n_dgc as f64 * net.k_syn;
     let ss_mean = steady_state_mean(total_syn_basal, net.total_deg);
     let ss_std = ss_mean.sqrt();
@@ -74,7 +74,8 @@ fn validate_analytical(h: &mut ValidationHarness, net: &EnzymeNetwork, pred: &Va
 #[expect(
     clippy::cast_precision_loss,
     clippy::cast_possible_truncation,
-    clippy::cast_sign_loss
+    clippy::cast_sign_loss,
+    reason = "n_reps and ss_mean from config, t_burnin positive"
 )]
 fn validate_gillespie_basal(
     h: &mut ValidationHarness,
@@ -150,7 +151,7 @@ fn validate_activated_states(
     let mut activated_means = Vec::new();
     for &alpha in alphas {
         let mut rates = vec![net.k_syn; net.n_dgc];
-        #[expect(clippy::cast_precision_loss)]
+        #[expect(clippy::cast_precision_loss, reason = "alpha ≤ 20 ≪ 2^53")]
         {
             rates[0] = net.k_syn * alpha as f64;
         }
@@ -239,7 +240,7 @@ fn run() -> i32 {
     let n_pde = usize_field(net_json, "n_pde");
     let k_syn = f64_field(net_json, "k_syn_per_dgc");
     let k_deg = f64_field(net_json, "k_deg_per_pde");
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "n_pde ≤ 100 ≪ 2^53")]
     let total_deg = n_pde as f64 * k_deg;
 
     let net = EnzymeNetwork {

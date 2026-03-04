@@ -172,7 +172,10 @@ pub fn npu_available() -> bool {
 /// Ranges: W ∈ \[0, 10\], E ∈ \[-3, 3\], L ∈ \[10, 10000\].
 /// Each value maps linearly to \[0, 127\] with clamping.
 #[must_use]
-#[expect(clippy::cast_possible_truncation)]
+#[expect(
+    clippy::cast_possible_truncation,
+    reason = "quantized features clamped to i8 range"
+)]
 pub fn quantize_features(w: f64, e: f64, l: f64) -> [i8; 3] {
     let q = |val: f64, lo: f64, hi: f64| -> i8 {
         let n = ((val - lo) / (hi - lo)).clamp(0.0, 1.0);
@@ -234,7 +237,10 @@ pub fn train_classifier_weights(disorders: &[f64], n_sites: usize) -> [i8; 9] {
     for c in 0..3 {
         let n = counts[c].max(1);
         for j in 0..3 {
-            #[expect(clippy::cast_possible_truncation)]
+            #[expect(
+                clippy::cast_possible_truncation,
+                reason = "mean clamped to [-128, 127] before cast"
+            )]
             let w = (sums[c][j] / i64::from(n)).clamp(-128, 127) as i8;
             weights[c * 3 + j] = w;
         }
@@ -252,7 +258,8 @@ pub fn train_classifier_weights(disorders: &[f64], n_sites: usize) -> [i8; 9] {
 #[expect(
     clippy::cast_sign_loss,
     clippy::cast_possible_truncation,
-    clippy::cast_possible_wrap
+    clippy::cast_possible_wrap,
+    reason = "i8→u8 DMA encoding and u8→RegimeClass with checked bounds"
 )]
 pub fn npu_classify_regime(
     handle: &mut NpuHandle,
@@ -294,9 +301,8 @@ pub struct NpuInferMetrics {
 impl NpuInferMetrics {
     /// Total round-trip in microseconds.
     #[must_use]
-    #[expect(clippy::cast_precision_loss)]
     pub fn total_us(&self) -> f64 {
-        (self.write_ns + self.read_ns) as f64 / NS_PER_US
+        crate::cast::u64_f64(self.write_ns + self.read_ns) / NS_PER_US
     }
 }
 
@@ -305,7 +311,10 @@ impl NpuInferMetrics {
 /// # Errors
 ///
 /// Returns error on DMA failure.
-#[expect(clippy::cast_sign_loss)]
+#[expect(
+    clippy::cast_sign_loss,
+    reason = "i8 weights reinterpreted as u8 for DMA byte buffer"
+)]
 pub fn load_classifier_weights(handle: &mut NpuHandle, weights: &[i8; 9]) -> Result<usize> {
     let bytes: Vec<u8> = weights.iter().map(|&x| x as u8).collect();
     handle.write_raw(&bytes)
@@ -314,6 +323,7 @@ pub fn load_classifier_weights(handle: &mut NpuHandle, weights: &[i8; 9]) -> Res
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn quantize_midpoint() {
@@ -360,13 +370,19 @@ mod tests {
     #[test]
     fn dequantize_midpoint() {
         let val = dequantize_i8(0, 0.0, 10.0);
-        assert!((val - 0.0).abs() < 0.1, "i8(0) → lo, got {val}");
+        assert!(
+            (val - 0.0).abs() < tol::EQUILIBRIUM,
+            "i8(0) → lo, got {val}"
+        );
     }
 
     #[test]
     fn dequantize_max() {
         let val = dequantize_i8(127, 0.0, 10.0);
-        assert!((val - 10.0).abs() < 0.1, "i8(127) → hi, got {val}");
+        assert!(
+            (val - 10.0).abs() < tol::EQUILIBRIUM,
+            "i8(127) → hi, got {val}"
+        );
     }
 
     #[test]

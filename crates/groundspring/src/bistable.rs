@@ -288,6 +288,7 @@ fn integrate_batch_gpu(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     fn default_params() -> BistableParams {
         BistableParams::default()
@@ -371,7 +372,7 @@ mod tests {
         let ic = [0.1, 0.0, 0.0, 0.0, 0.0];
         let final_state = integrate(&ic, &p, 0.01, 20_000);
         assert!(
-            (final_state[0] - 0.975).abs() < 0.1,
+            (final_state[0] - 0.975).abs() < tol::EQUILIBRIUM,
             "cell should reach carrying capacity, got {}",
             final_state[0]
         );

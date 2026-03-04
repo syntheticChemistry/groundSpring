@@ -110,7 +110,7 @@ fn run() -> i32 {
         .iter()
         .enumerate()
         .map(|(i, &t)| {
-            #[expect(clippy::cast_precision_loss)]
+            #[expect(clippy::cast_precision_loss, reason = "day index i ≤ 365 ≪ 2^53")]
             let phase = i as f64 * 0.1;
             phase.sin().mul_add(3.0, t)
         })

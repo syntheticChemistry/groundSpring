@@ -10,6 +10,8 @@
 // Bitwise determinism: parity tests intentionally compare exact f64 bits.
 #![allow(clippy::float_cmp)]
 
+use groundspring::tol;
+
 // ── stats::metrics ────────────────────────────────────────────────
 
 #[test]
@@ -18,7 +20,7 @@ fn mean_parity_known_value() {
     let m1 = groundspring::stats::mean(&vals);
     let m2 = groundspring::stats::mean(&vals);
     assert_eq!(m1.to_bits(), m2.to_bits(), "mean bitwise");
-    assert!((m1 - 3.0).abs() < 1e-15, "mean = 3.0: {m1}");
+    assert!((m1 - 3.0).abs() < tol::DETERMINISM, "mean = 3.0: {m1}");
 }
 
 #[test]
@@ -46,7 +48,10 @@ fn rmse_parity_known_value() {
     let obs = [1.0, 2.0, 3.0, 4.0, 5.0];
     let mod_ = [1.0, 2.0, 3.0, 4.0, 5.0];
     let r = groundspring::stats::rmse(&obs, &mod_);
-    assert!((r - 0.0).abs() < 1e-15, "perfect fit RMSE = 0: {r}");
+    assert!(
+        (r - 0.0).abs() < tol::DETERMINISM,
+        "perfect fit RMSE = 0: {r}"
+    );
     let r2 = groundspring::stats::rmse(&obs, &mod_);
     assert_eq!(r.to_bits(), r2.to_bits(), "rmse bitwise");
 }
@@ -58,14 +63,20 @@ fn mbe_parity_known_value() {
     let b1 = groundspring::stats::mbe(&obs, &mod_);
     let b2 = groundspring::stats::mbe(&obs, &mod_);
     assert_eq!(b1.to_bits(), b2.to_bits(), "mbe bitwise");
-    assert!((b1 - 1.0).abs() < 1e-15, "constant +1 bias: {b1}");
+    assert!(
+        (b1 - 1.0).abs() < tol::DETERMINISM,
+        "constant +1 bias: {b1}"
+    );
 }
 
 #[test]
 fn r_squared_parity_known_value() {
     let obs = [1.0, 2.0, 3.0, 4.0, 5.0];
     let r2v = groundspring::stats::r_squared(&obs, &obs);
-    assert!((r2v - 1.0).abs() < 1e-10, "perfect R² = 1.0: {r2v}");
+    assert!(
+        (r2v - 1.0).abs() < tol::ANALYTICAL,
+        "perfect R² = 1.0: {r2v}"
+    );
     let r2v2 = groundspring::stats::r_squared(&obs, &obs);
     assert_eq!(r2v.to_bits(), r2v2.to_bits(), "r_squared bitwise");
 }
@@ -74,7 +85,7 @@ fn r_squared_parity_known_value() {
 fn index_of_agreement_parity_known_value() {
     let obs = [1.0, 2.0, 3.0, 4.0, 5.0];
     let ia = groundspring::stats::index_of_agreement(&obs, &obs);
-    assert!((ia - 1.0).abs() < 1e-10, "perfect IA = 1.0: {ia}");
+    assert!((ia - 1.0).abs() < tol::ANALYTICAL, "perfect IA = 1.0: {ia}");
     let ia2 = groundspring::stats::index_of_agreement(&obs, &obs);
     assert_eq!(ia.to_bits(), ia2.to_bits(), "ia bitwise");
 }
@@ -84,7 +95,10 @@ fn hit_rate_parity_known_value() {
     let obs = [10.0, 20.0, 30.0];
     let mod_ = [10.0, 20.0, 30.0];
     let hr = groundspring::stats::hit_rate(&obs, &mod_, 5.0);
-    assert!((hr - 1.0).abs() < 1e-15, "perfect hit rate = 1.0: {hr}");
+    assert!(
+        (hr - 1.0).abs() < tol::DETERMINISM,
+        "perfect hit rate = 1.0: {hr}"
+    );
     let hr2 = groundspring::stats::hit_rate(&obs, &mod_, 5.0);
     assert_eq!(hr.to_bits(), hr2.to_bits(), "hit_rate bitwise");
 }
@@ -118,7 +132,10 @@ fn pearson_r_parity_known_value() {
     let r1 = groundspring::stats::pearson_r(&x, &y);
     let r2 = groundspring::stats::pearson_r(&x, &y);
     assert_eq!(r1.to_bits(), r2.to_bits(), "pearson bitwise");
-    assert!((r1 - 1.0).abs() < 1e-10, "perfect linear r = 1.0: {r1}");
+    assert!(
+        (r1 - 1.0).abs() < tol::ANALYTICAL,
+        "perfect linear r = 1.0: {r1}"
+    );
 }
 
 #[test]
@@ -128,7 +145,10 @@ fn spearman_r_parity_known_value() {
     let r1 = groundspring::stats::spearman_r(&x, &y);
     let r2 = groundspring::stats::spearman_r(&x, &y);
     assert_eq!(r1.to_bits(), r2.to_bits(), "spearman bitwise");
-    assert!((r1 - 1.0).abs() < 1e-10, "perfect monotonic rs = 1.0: {r1}");
+    assert!(
+        (r1 - 1.0).abs() < tol::ANALYTICAL,
+        "perfect monotonic rs = 1.0: {r1}"
+    );
 }
 
 #[test]
@@ -158,9 +178,13 @@ fn regression_linear_parity() {
         f2.intercept.to_bits(),
         "intercept bitwise"
     );
-    assert!((f1.slope - 2.0).abs() < 1e-10, "slope = 2.0: {}", f1.slope);
     assert!(
-        (f1.intercept - 1.0).abs() < 1e-10,
+        (f1.slope - 2.0).abs() < tol::ANALYTICAL,
+        "slope = 2.0: {}",
+        f1.slope
+    );
+    assert!(
+        (f1.intercept - 1.0).abs() < tol::ANALYTICAL,
         "intercept = 1.0: {}",
         f1.intercept
     );
@@ -179,7 +203,11 @@ fn regression_quadratic_parity() {
     assert_eq!(f1.params[0].to_bits(), f2.params[0].to_bits(), "a parity");
     assert_eq!(f1.params[1].to_bits(), f2.params[1].to_bits(), "b parity");
     assert_eq!(f1.params[2].to_bits(), f2.params[2].to_bits(), "c parity");
-    assert!((f1.params[0] - 2.0).abs() < 1e-8, "a = {}", f1.params[0]);
+    assert!(
+        (f1.params[0] - 2.0).abs() < tol::INTEGRATION,
+        "a = {}",
+        f1.params[0]
+    );
     assert!(f1.r_squared > 0.999, "R² = {}", f1.r_squared);
 }
 
@@ -206,8 +234,16 @@ fn regression_logarithmic_parity() {
     let f2 = groundspring::stats::fit_logarithmic(&xs, &ys).unwrap();
     assert_eq!(f1.params[0].to_bits(), f2.params[0].to_bits(), "a parity");
     assert_eq!(f1.params[1].to_bits(), f2.params[1].to_bits(), "b parity");
-    assert!((f1.params[0] - a).abs() < 1e-8, "a = {}", f1.params[0]);
-    assert!((f1.params[1] - b).abs() < 1e-8, "b = {}", f1.params[1]);
+    assert!(
+        (f1.params[0] - a).abs() < tol::INTEGRATION,
+        "a = {}",
+        f1.params[0]
+    );
+    assert!(
+        (f1.params[1] - b).abs() < tol::INTEGRATION,
+        "b = {}",
+        f1.params[1]
+    );
 }
 
 // ── bootstrap ─────────────────────────────────────────────────────
@@ -304,5 +340,8 @@ fn moving_window_stats_parity_deterministic() {
 fn moving_window_stats_parity_known_value() {
     let data = [1.0, 2.0, 3.0];
     let r = groundspring::stats::moving_window_stats(&data, 3).unwrap();
-    assert!((r.mean[0] - 2.0).abs() < 1e-10, "window mean = 2.0");
+    assert!(
+        (r.mean[0] - 2.0).abs() < tol::ANALYTICAL,
+        "window mean = 2.0"
+    );
 }

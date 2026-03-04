@@ -80,7 +80,9 @@ pub fn rmse(observed: &[f64], modeled: &[f64]) -> f64 {
         }
     }
     #[cfg(feature = "barracuda")]
-    return barracuda::stats::rmse(observed, modeled);
+    {
+        barracuda::stats::rmse(observed, modeled)
+    }
     #[cfg(not(feature = "barracuda"))]
     rmse_cpu(observed, modeled)
 }
@@ -134,7 +136,9 @@ pub fn mae(observed: &[f64], modeled: &[f64]) -> f64 {
         }
     }
     #[cfg(feature = "barracuda")]
-    return barracuda::stats::mae(observed, modeled);
+    {
+        barracuda::stats::mae(observed, modeled)
+    }
     #[cfg(not(feature = "barracuda"))]
     mae_cpu(observed, modeled)
 }
@@ -192,7 +196,9 @@ pub fn nash_sutcliffe(observed: &[f64], modeled: &[f64]) -> f64 {
         }
     }
     #[cfg(feature = "barracuda")]
-    return barracuda::stats::nash_sutcliffe(observed, modeled);
+    {
+        barracuda::stats::nash_sutcliffe(observed, modeled)
+    }
     #[cfg(not(feature = "barracuda"))]
     coefficient_of_efficiency(observed, modeled)
 }
@@ -220,7 +226,9 @@ pub fn mbe(observed: &[f64], modeled: &[f64]) -> f64 {
         }
     }
     #[cfg(feature = "barracuda")]
-    return barracuda::stats::mbe(observed, modeled);
+    {
+        barracuda::stats::mbe(observed, modeled)
+    }
     #[cfg(not(feature = "barracuda"))]
     mbe_cpu(observed, modeled)
 }
@@ -271,7 +279,9 @@ pub fn r_squared(observed: &[f64], modeled: &[f64]) -> f64 {
         }
     }
     #[cfg(feature = "barracuda")]
-    return barracuda::stats::r_squared(observed, modeled);
+    {
+        barracuda::stats::r_squared(observed, modeled)
+    }
     #[cfg(not(feature = "barracuda"))]
     coefficient_of_efficiency(observed, modeled)
 }
@@ -291,7 +301,9 @@ pub fn index_of_agreement(observed: &[f64], modeled: &[f64]) -> f64 {
         "observed and modeled must have equal length"
     );
     #[cfg(feature = "barracuda")]
-    return barracuda::stats::index_of_agreement(observed, modeled);
+    {
+        barracuda::stats::index_of_agreement(observed, modeled)
+    }
     #[cfg(not(feature = "barracuda"))]
     index_of_agreement_cpu(observed, modeled)
 }
@@ -336,7 +348,9 @@ pub fn hit_rate(observed: &[f64], modeled: &[f64], threshold: f64) -> f64 {
         "observed and modeled must have equal length"
     );
     #[cfg(feature = "barracuda")]
-    return barracuda::stats::hit_rate(observed, modeled, threshold);
+    {
+        barracuda::stats::hit_rate(observed, modeled, threshold)
+    }
     #[cfg(not(feature = "barracuda"))]
     hit_rate_cpu(observed, modeled, threshold)
 }
@@ -358,139 +372,140 @@ fn hit_rate_cpu(observed: &[f64], modeled: &[f64], threshold: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn rmse_identical_is_zero() {
         let x = [1.0, 2.0, 3.0];
-        assert!((rmse(&x, &x)).abs() < 1e-12);
+        assert!((rmse(&x, &x)).abs() < tol::EXACT);
     }
 
     #[test]
     fn rmse_known_value() {
         let obs = [1.0, 2.0, 3.0];
         let modeled = [1.1, 2.1, 3.1];
-        assert!((rmse(&obs, &modeled) - 0.1).abs() < 1e-10);
+        assert!((rmse(&obs, &modeled) - 0.1).abs() < tol::ANALYTICAL);
     }
 
     #[test]
     fn rmse_empty() {
         let empty: [f64; 0] = [];
-        assert!(rmse(&empty, &empty).abs() < 1e-12);
+        assert!(rmse(&empty, &empty).abs() < tol::EXACT);
     }
 
     #[test]
     fn mbe_overestimate_positive() {
         let obs = [1.0, 2.0, 3.0];
         let modeled = [1.5, 2.5, 3.5];
-        assert!((mbe(&obs, &modeled) - 0.5).abs() < 1e-12);
+        assert!((mbe(&obs, &modeled) - 0.5).abs() < tol::EXACT);
     }
 
     #[test]
     fn mbe_empty() {
         let empty: [f64; 0] = [];
-        assert!(mbe(&empty, &empty).abs() < 1e-12);
+        assert!(mbe(&empty, &empty).abs() < tol::EXACT);
     }
 
     #[test]
     fn r2_perfect() {
         let x = [1.0, 2.0, 3.0, 4.0];
-        assert!((r_squared(&x, &x) - 1.0).abs() < 1e-12);
+        assert!((r_squared(&x, &x) - 1.0).abs() < tol::EXACT);
     }
 
     #[test]
     fn r2_mean_model_is_zero() {
         let obs = [1.0, 2.0, 3.0];
         let modeled = [2.0, 2.0, 2.0];
-        assert!(r_squared(&obs, &modeled).abs() < 1e-12);
+        assert!(r_squared(&obs, &modeled).abs() < tol::EXACT);
     }
 
     #[test]
     fn r2_empty() {
         let empty: [f64; 0] = [];
-        assert!(r_squared(&empty, &empty).abs() < 1e-12);
+        assert!(r_squared(&empty, &empty).abs() < tol::EXACT);
     }
 
     #[test]
     fn r2_constant_observation() {
         let obs = [3.0, 3.0, 3.0];
         let modeled = [3.1, 2.9, 3.0];
-        assert!(r_squared(&obs, &modeled).abs() < 1e-12);
+        assert!(r_squared(&obs, &modeled).abs() < tol::EXACT);
     }
 
     #[test]
     fn ia_perfect() {
         let x = [1.0, 2.0, 3.0, 4.0];
-        assert!((index_of_agreement(&x, &x) - 1.0).abs() < 1e-12);
+        assert!((index_of_agreement(&x, &x) - 1.0).abs() < tol::EXACT);
     }
 
     #[test]
     fn ia_empty() {
         let empty: [f64; 0] = [];
-        assert!(index_of_agreement(&empty, &empty).abs() < 1e-12);
+        assert!(index_of_agreement(&empty, &empty).abs() < tol::EXACT);
     }
 
     #[test]
     fn ia_constant_denominator_zero() {
         let obs = [5.0, 5.0, 5.0];
         let modeled = [5.0, 5.0, 5.0];
-        assert!((index_of_agreement(&obs, &modeled)).abs() < 1e-12);
+        assert!((index_of_agreement(&obs, &modeled)).abs() < tol::EXACT);
     }
 
     #[test]
     fn hit_rate_perfect() {
         let obs = [0.0, 5.0, 0.0, 3.0];
-        assert!((hit_rate(&obs, &obs, 0.1) - 1.0).abs() < 1e-12);
+        assert!((hit_rate(&obs, &obs, 0.1) - 1.0).abs() < tol::EXACT);
     }
 
     #[test]
     fn hit_rate_known_value() {
         let obs = [0.0, 5.0, 0.0, 3.0];
         let modeled = [0.0, 4.0, 0.0, 0.0];
-        assert!((hit_rate(&obs, &modeled, 0.1) - 0.75).abs() < 1e-12);
+        assert!((hit_rate(&obs, &modeled, 0.1) - 0.75).abs() < tol::EXACT);
     }
 
     #[test]
     fn hit_rate_empty() {
         let empty: [f64; 0] = [];
-        assert!(hit_rate(&empty, &empty, 0.1).abs() < 1e-12);
+        assert!(hit_rate(&empty, &empty, 0.1).abs() < tol::EXACT);
     }
 
     #[test]
     fn mae_identical_is_zero() {
         let x = [1.0, 2.0, 3.0];
-        assert!(mae(&x, &x).abs() < 1e-12);
+        assert!(mae(&x, &x).abs() < tol::EXACT);
     }
 
     #[test]
     fn mae_known_value() {
         let obs = [1.0, 2.0, 3.0];
         let modeled = [1.5, 2.5, 3.5];
-        assert!((mae(&obs, &modeled) - 0.5).abs() < 1e-12);
+        assert!((mae(&obs, &modeled) - 0.5).abs() < tol::EXACT);
     }
 
     #[test]
     fn mae_empty() {
         let empty: [f64; 0] = [];
-        assert!(mae(&empty, &empty).abs() < 1e-12);
+        assert!(mae(&empty, &empty).abs() < tol::EXACT);
     }
 
     #[test]
     fn nse_perfect() {
         let x = [1.0, 2.0, 3.0, 4.0];
-        assert!((nash_sutcliffe(&x, &x) - 1.0).abs() < 1e-12);
+        assert!((nash_sutcliffe(&x, &x) - 1.0).abs() < tol::EXACT);
     }
 
     #[test]
     fn nse_mean_model_is_zero() {
         let obs = [1.0, 2.0, 3.0];
         let modeled = [2.0, 2.0, 2.0];
-        assert!(nash_sutcliffe(&obs, &modeled).abs() < 1e-12);
+        assert!(nash_sutcliffe(&obs, &modeled).abs() < tol::EXACT);
     }
 
     #[test]
     fn nse_empty() {
         let empty: [f64; 0] = [];
-        assert!(nash_sutcliffe(&empty, &empty).abs() < 1e-12);
+        assert!(nash_sutcliffe(&empty, &empty).abs() < tol::EXACT);
     }
 
     #[test]
@@ -500,7 +515,7 @@ mod tests {
         let nse = nash_sutcliffe(&obs, &modeled);
         let r2 = r_squared(&obs, &modeled);
         assert!(
-            (nse - r2).abs() < 1e-10,
+            (nse - r2).abs() < tol::ANALYTICAL,
             "NSE should equal R² for the same inputs: nse={nse}, r2={r2}"
         );
     }

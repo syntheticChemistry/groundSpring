@@ -13,7 +13,8 @@ use groundspring::anderson::{localization_length, lyapunov_averaged};
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    f64_field, print_provenance_header, usize_field, THRESHOLD_LARGE_GAMMA, TOL_EQUILIBRIUM,
+    f64_field, print_provenance_header, usize_field, EPS_SAFE_DIV, THRESHOLD_LARGE_GAMMA,
+    TOL_EQUILIBRIUM,
 };
 use serde_json::Value;
 
@@ -54,7 +55,7 @@ fn propagate_sensor_noise(
             params.n_realizations,
             base_seed + i as u64,
         );
-        xi_samples.push(1.0 / gamma.max(1e-10));
+        xi_samples.push(1.0 / gamma.max(EPS_SAFE_DIV));
     }
 
     #[expect(
@@ -65,7 +66,7 @@ fn propagate_sensor_noise(
     let mean = xi_samples.iter().sum::<f64>() / n;
     let variance = xi_samples.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / n;
     let std = variance.sqrt();
-    let cv = std / mean.max(1e-10);
+    let cv = std / mean.max(EPS_SAFE_DIV);
 
     (mean, std, cv)
 }
@@ -197,8 +198,8 @@ fn run() -> i32 {
     h.check_true("EC5 has higher CV than CS616", ec5_raw_cv > cs616_raw_cv);
 
     println!("\n--- Bias correction effectiveness ---");
-    let ec5_improvement = 1.0 - ec5_corr_cv / ec5_raw_cv.max(1e-10);
-    let cs616_improvement = 1.0 - cs616_corr_cv / cs616_raw_cv.max(1e-10);
+    let ec5_improvement = 1.0 - ec5_corr_cv / ec5_raw_cv.max(EPS_SAFE_DIV);
+    let cs616_improvement = 1.0 - cs616_corr_cv / cs616_raw_cv.max(EPS_SAFE_DIV);
     println!(
         "  EC5 improvement: {:.1}%, CS616 improvement: {:.1}%",
         ec5_improvement * 100.0,

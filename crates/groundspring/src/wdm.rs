@@ -35,8 +35,7 @@ pub fn green_kubo_integrate(acf: &[f64], dt: f64) -> f64 {
     {
         let x: Vec<f64> = (0..acf.len())
             .map(|i| {
-                #[expect(clippy::cast_precision_loss)]
-                let t = i as f64 * dt;
+                let t = crate::cast::usize_f64(i) * dt;
                 t
             })
             .collect();
@@ -85,8 +84,7 @@ pub fn green_kubo_integrate_f32(acf: &[f64], dt: f64) -> f64 {
 pub fn synthetic_vacf(c0: f64, tau: f64, n_steps: usize, dt: f64) -> Vec<f64> {
     (0..n_steps)
         .map(|i| {
-            #[expect(clippy::cast_precision_loss)]
-            let t = i as f64 * dt;
+            let t = crate::cast::usize_f64(i) * dt;
             c0 * (-t / tau).exp()
         })
         .collect()
@@ -148,6 +146,7 @@ pub fn finite_size_extrapolate(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn green_kubo_exponential_decay() {
@@ -159,7 +158,10 @@ mod tests {
         let integral = green_kubo_integrate(&vacf, dt);
         let analytical = c0 * tau;
         let rel_err = (integral - analytical).abs() / analytical;
-        assert!(rel_err < 0.001, "relative error {rel_err:.6} exceeds 0.1%");
+        assert!(
+            rel_err < tol::LITERATURE,
+            "relative error {rel_err:.6} exceeds 0.1%"
+        );
     }
 
     #[test]
@@ -172,13 +174,16 @@ mod tests {
         let f64_result = green_kubo_integrate(&vacf, dt);
         let f32_result = green_kubo_integrate_f32(&vacf, dt);
         let rel_err = (f32_result - f64_result).abs() / f64_result;
-        assert!(rel_err < 0.01, "f32 relative error {rel_err:.6} exceeds 1%");
+        assert!(
+            rel_err < tol::STOCHASTIC,
+            "f32 relative error {rel_err:.6} exceeds 1%"
+        );
     }
 
     #[test]
     fn analytical_diffusion_3d() {
         let d = analytical_diffusion(1.0, 10.0, 3.0);
-        assert!((d - 10.0 / 3.0).abs() < 1e-10);
+        assert!((d - 10.0 / 3.0).abs() < tol::ANALYTICAL);
     }
 
     #[test]
@@ -192,11 +197,11 @@ mod tests {
             .collect();
         let (d_inf, alpha, r_sq) = finite_size_extrapolate(&sizes, &values, 3.0).unwrap();
         assert!(
-            (d_inf - d_inf_true).abs() < 0.001,
+            (d_inf - d_inf_true).abs() < tol::LITERATURE,
             "D_inf: {d_inf} vs {d_inf_true}"
         );
         assert!(
-            (alpha - alpha_true).abs() < 0.01,
+            (alpha - alpha_true).abs() < tol::STOCHASTIC,
             "alpha: {alpha} vs {alpha_true}"
         );
         assert!(r_sq > 0.999, "R²: {r_sq}");
@@ -234,6 +239,9 @@ mod tests {
         assert!(result.is_ok());
         let (d_inf, _alpha, r_sq) = result.unwrap();
         assert!(d_inf.is_finite());
-        assert!((r_sq - 1.0).abs() < 1e-10, "two-point fit R² = 1.0");
+        assert!(
+            (r_sq - 1.0).abs() < tol::ANALYTICAL,
+            "two-point fit R² = 1.0"
+        );
     }
 }

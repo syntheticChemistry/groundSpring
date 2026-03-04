@@ -64,7 +64,7 @@ crates/
     src/npu.rs             NPU integration for AKD1000 neuromorphic inference (behind npu feature)
     src/biomeos.rs         biomeOS Neural API client: socket discovery, capability routing (behind biomeos feature)
     src/nestgate.rs        NestGate data pipeline: NCBI/NOAA/IRIS providers, provenance (behind biomeos feature)
-  groundspring-validate/   32 validation binaries (hotSpring pattern, 4 NUCLEUS behind biomeos feature)
+  groundspring-validate/   33 validation binaries (hotSpring pattern, 4 NUCLEUS behind biomeos feature)
 metalForge/          Write → Absorb → Lean artifacts
   ABSORPTION_MANIFEST.md  Module-by-module absorption inventory
   shaders/                 Production WGSL shaders for ToadStool absorption
@@ -95,7 +95,7 @@ scripts/             Automation (baselines, benchmarks)
 ### Rust
 
 ```bash
-cargo test --workspace                         # 786+ tests, all PASS
+cargo test --workspace                         # 790 tests, all PASS
 cargo test --workspace --features biomeos      # biomeos tests (NUCLEUS client active)
 cargo test --workspace --features barracuda-gpu # GPU dispatch active
 cargo clippy --workspace --all-targets -D warnings # zero warnings (pedantic + nursery)
@@ -199,13 +199,33 @@ groundSpring follows the **Write → Absorb → Lean** cycle from hotSpring:
 ## Tolerance Philosophy
 
 Tolerances must be:
-- **Documented:** explain why this number, not another.
+- **Named:** use `tol::*` constants, never bare float literals in assertions.
+- **Documented:** explain why this tier, not a tighter one.
 - **Minimal:** as tight as the algorithm allows.
 - **Justified:** cite the mathematical reason (rounding, MC sampling variance, etc.).
 
+The library provides 13 named tolerance tiers in `groundspring::tol`:
+
+| Constant | Value | Regime |
+|---|---|---|
+| `DETERMINISM` | 1e-15 | Bitwise reproducibility (same seed, same path) |
+| `STRICT` | 1e-14 | Compensated arithmetic / extended precision |
+| `EXACT` | 1e-12 | Summation-only f64 paths |
+| `ANALYTICAL` | 1e-10 | One transcendental (sqrt, ln) ~1 ULP |
+| `INTEGRATION` | 1e-8 | ODE RK4 O(dt^4) accumulation |
+| `CDF_APPROX` | 1e-6 | CDF/erf approximation (A&S 7.1.26) |
+| `ROUNDTRIP` | 1e-5 | CDF-PPF round-trip |
+| `RECONSTRUCTION` | 1e-4 | Spectral Tikhonov roundtrip |
+| `LITERATURE` | 0.001 | Published 3-4 significant figures |
+| `DECOMPOSITION` | 0.005 | Bias-variance Pythagorean rounding |
+| `STOCHASTIC` | 0.01 | O(1/sqrt(N)) mean estimator |
+| `NORM_2PCT` | 0.02 | ~2% normalization tolerance |
+| `EQUILIBRIUM` | 0.1 | ODE equilibrium / measurement precision |
+
+Production epsilon guards live in `eps::` (division safety, SSA floor, underflow).
+
 Example:
 ```rust
-// Tol 0.001: random_std = sqrt(RMSE² - MBE²) with 4-decimal inputs
-// introduces ≤ 0.0005 rounding error
-h.check_approx("random_std", computed, expected, 0.001);
+use crate::tol;
+h.check_approx("random_std", computed, expected, tol::LITERATURE);
 ```

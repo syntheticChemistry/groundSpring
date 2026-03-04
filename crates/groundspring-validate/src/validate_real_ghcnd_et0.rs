@@ -127,10 +127,6 @@ fn main() {
 }
 
 #[cfg(feature = "biomeos")]
-#[expect(
-    clippy::cast_possible_truncation,
-    reason = "day-of-year index cast to u16; values are < 366"
-)]
 /// GHCND station parameters for Exp 029.
 ///
 /// Station metadata sourced from NOAA GHCND:
@@ -203,6 +199,10 @@ fn fetch_live_weather(
 
             for (i, (date, tmax)) in tmax_map.iter().enumerate() {
                 if let Some(&tmin) = tmin_map.get(date) {
+                    #[expect(
+                        clippy::cast_possible_truncation,
+                        reason = "day-of-year index; max i < 31, so 152 + i fits u16"
+                    )]
                     let doy = 152 + i as u16;
                     days.push(groundspring::fao56::DailyWeatherInputs {
                         tmax_c: *tmax,

@@ -11,7 +11,9 @@
 use groundspring::bootstrap::{bootstrap_mean, rawr_mean};
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, print_provenance_header, usize_field, TOL_DETERMINISM};
+use groundspring_validate::{
+    f64_field, print_provenance_header, usize_field, EPS_SAFE_DIV, TOL_DETERMINISM,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str =
@@ -31,7 +33,10 @@ fn ci_width(data: &[f64], n_boot: usize, confidence: f64, seed: u64, use_rawr: b
     r.ci_upper - r.ci_lower
 }
 
-#[expect(clippy::too_many_lines)]
+#[expect(
+    clippy::too_many_lines,
+    reason = "validation harness with multiple convergence check sections"
+)]
 fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Resampling Convergence");
@@ -53,7 +58,10 @@ fn run() -> i32 {
         .expect("replicate_counts array")
         .iter()
         .map(|v| {
-            #[expect(clippy::cast_possible_truncation)]
+            #[expect(
+                clippy::cast_possible_truncation,
+                reason = "JSON replicate counts ≤ 10000, fits usize"
+            )]
             let n = v.as_u64().expect("u64 count") as usize;
             n
         })
@@ -104,10 +112,10 @@ fn run() -> i32 {
 
     let len = boot_widths.len();
     if len >= 2 {
-        let rel_boot =
-            (boot_widths[len - 1] - boot_widths[len - 2]).abs() / boot_widths[len - 2].max(1e-10);
-        let rel_rawr =
-            (rawr_widths[len - 1] - rawr_widths[len - 2]).abs() / rawr_widths[len - 2].max(1e-10);
+        let rel_boot = (boot_widths[len - 1] - boot_widths[len - 2]).abs()
+            / boot_widths[len - 2].max(EPS_SAFE_DIV);
+        let rel_rawr = (rawr_widths[len - 1] - rawr_widths[len - 2]).abs()
+            / rawr_widths[len - 2].max(EPS_SAFE_DIV);
         println!("  Relative change 5k→10k: bootstrap={rel_boot:.4} RAWR={rel_rawr:.4}");
 
         h.check_max("Bootstrap converged (5k→10k)", rel_boot, max_rel_change);
@@ -151,7 +159,11 @@ fn run() -> i32 {
 
     // Generate approximate t-distribution via ratio of normals
     let mut rng_ht = Xorshift64::new(ht_seed);
-    #[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    #[expect(
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        reason = "df from JSON positive, t-dist DOF fits usize"
+    )]
     let df_int = ht_df as usize;
     let data_ht: Vec<f64> = (0..data_n)
         .map(|_| {

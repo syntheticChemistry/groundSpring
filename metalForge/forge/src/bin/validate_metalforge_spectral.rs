@@ -34,14 +34,14 @@ fn run_spectral_checks(harness: &mut Harness) {
 
     let tau: Vec<f64> = (1..=n_tau)
         .map(|idx| {
-            #[expect(clippy::cast_precision_loss)]
+            #[expect(clippy::cast_precision_loss, reason = "index/count ≤ n_tau ≪ 2^53")]
             let val = idx as f64 * 2.0 / n_tau as f64;
             val
         })
         .collect();
     let omega: Vec<f64> = (1..=n_omega)
         .map(|idx| {
-            #[expect(clippy::cast_precision_loss)]
+            #[expect(clippy::cast_precision_loss, reason = "index/count ≤ n_omega ≪ 2^53")]
             let val = idx as f64 * 8.0 / n_omega as f64;
             val
         })
@@ -117,7 +117,7 @@ fn run_spectral_checks(harness: &mut Harness) {
     println!("  CPU:        {cpu_us} µs");
     println!("  Dispatched: {disp_us} µs");
     if disp_us > 0 {
-        #[expect(clippy::cast_precision_loss)]
+        #[expect(clippy::cast_precision_loss, reason = "timing values in μs ≪ 2^53")]
         let speedup = cpu_us as f64 / disp_us as f64;
         println!("  Ratio (CPU/Dispatched): {speedup:.2}x");
     }

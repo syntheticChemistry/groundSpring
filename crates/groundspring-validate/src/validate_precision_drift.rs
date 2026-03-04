@@ -31,7 +31,7 @@ fn synthetic_vacf_noisy(
     base.into_iter()
         .enumerate()
         .map(|(i, v)| {
-            #[expect(clippy::cast_precision_loss)]
+            #[expect(clippy::cast_precision_loss, reason = "VACF index i ≤ n_steps ≪ 2^53")]
             let t = i as f64 * dt;
             let decay = (-t / tau).exp();
             rng.normal(0.0, noise_amplitude).mul_add(decay, v)
@@ -39,7 +39,10 @@ fn synthetic_vacf_noisy(
         .collect()
 }
 
-#[expect(clippy::too_many_lines)]
+#[expect(
+    clippy::too_many_lines,
+    reason = "validation harness with f32/f64 precision drift checks"
+)]
 fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Precision Drift");
@@ -66,7 +69,7 @@ fn run() -> i32 {
     let mut rng = Xorshift64::new(seed);
 
     // Noiseless run for f64 vs analytical (check 1)
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "n_steps from JSON ≪ 2^53")]
     let t_max = (n_steps - 1) as f64 * dt;
     let mut f64_noiseless_max_rel_err = 0.0_f64;
     for &tau in &tau_values {
@@ -103,7 +106,10 @@ fn run() -> i32 {
             }
         }
 
-        #[expect(clippy::cast_precision_loss)]
+        #[expect(
+            clippy::cast_precision_loss,
+            reason = "n_realizations from JSON ≪ 2^53"
+        )]
         let n_real = n_realizations as f64;
         let mean_f64 = f64_vals.iter().sum::<f64>() / n_real;
         let variance_f64 = f64_vals.iter().map(|x| (x - mean_f64).powi(2)).sum::<f64>() / n_real;
@@ -111,7 +117,10 @@ fn run() -> i32 {
         let mean_rel = if rel_errors.is_empty() {
             0.0
         } else {
-            #[expect(clippy::cast_precision_loss)]
+            #[expect(
+                clippy::cast_precision_loss,
+                reason = "rel_errors len ≤ n_realizations ≪ 2^53"
+            )]
             {
                 rel_errors.iter().sum::<f64>() / rel_errors.len() as f64
             }
@@ -153,7 +162,10 @@ fn run() -> i32 {
     let mean_rel_err = if errors_f32_minus_f64.is_empty() {
         0.0
     } else {
-        #[expect(clippy::cast_precision_loss)]
+        #[expect(
+            clippy::cast_precision_loss,
+            reason = "errors len = n_realizations × tau count ≪ 2^53"
+        )]
         {
             errors_f32_minus_f64.iter().sum::<f64>() / errors_f32_minus_f64.len() as f64
         }
@@ -172,7 +184,10 @@ fn run() -> i32 {
         .zip(all_integral_f64.iter())
         .map(|(a, b)| a - b)
         .collect();
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "raw_errors len from realizations × tau ≪ 2^53"
+    )]
     let n_errors = raw_errors.len() as f64;
     let mbe = if raw_errors.is_empty() {
         0.0
@@ -241,7 +256,10 @@ fn run() -> i32 {
             .map(|x| (x - mean).powi(2))
             .sum::<f64>()
             / {
-                #[expect(clippy::cast_precision_loss)]
+                #[expect(
+                    clippy::cast_precision_loss,
+                    reason = "errors len from realizations × tau ≪ 2^53"
+                )]
                 {
                     errors_f32_minus_f64.len() as f64
                 }

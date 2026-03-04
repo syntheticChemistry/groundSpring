@@ -23,12 +23,12 @@ use groundspring::npu;
 use groundspring_forge::harness::Harness;
 use std::time::Instant;
 
-#[expect(clippy::cast_precision_loss)]
+#[expect(clippy::cast_precision_loss, reason = "count ≤ N ≪ 2^53")]
 const fn to_f64(n: usize) -> f64 {
     n as f64
 }
 
-#[expect(clippy::cast_precision_loss)]
+#[expect(clippy::cast_precision_loss, reason = "elapsed nanos ≪ 2^53")]
 fn nanos_to_us(t: &Instant) -> f64 {
     t.elapsed().as_nanos() as f64 / 1000.0
 }

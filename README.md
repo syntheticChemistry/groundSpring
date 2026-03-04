@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: March 3, 2026 | **License**: AGPL-3.0-only
-**Status**: 33 modules, 786+ Rust workspace tests + 375 Python tests, 376/376 validation checks (321 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), 81 active barracuda delegations (47 CPU + 34 GPU) — barraCuda v0.3.1, V72: deep audit and debt evolution (zero clippy, zero unsafe, zero TODO, zero production mocks, all files under 1000 lines, BTreeMap for deterministic iteration, silent-default elimination, Python coverage CI enforcement, 6 ODE analytical tests, idiomatic iterator patterns), 30 metalForge workloads, biomeOS Neural API live, NestGate data pipelines
+**Status**: 33 modules, 790 Rust workspace tests + 375 Python tests, 376/376 validation checks (321 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), 81 active barracuda delegations (47 CPU + 34 GPU) — barraCuda v0.3.1, V73: 13-tier named tolerance architecture (`tol::` module), production epsilon guards (`eps::` module), ~170 bare literals → named constants, `f64::midpoint`, idiomatic tail expressions, capability-based discovery evolution, 97.25% line coverage. 30 metalForge workloads, biomeOS Neural API live, NestGate data pipelines
 
 **The gap between what models predict and what instruments measure.**
 
@@ -108,9 +108,9 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace                         # 786+ tests, all PASS
-cargo test --workspace --features biomeos      # ~812 tests (NUCLEUS client active)
-cargo test --workspace --features barracuda-gpu # 785 tests (GPU dispatch active)
+cargo test --workspace                         # 790 tests, all PASS
+cargo test --workspace --features biomeos      # ~816 tests (NUCLEUS client active)
+cargo test --workspace --features barracuda-gpu # 789 tests (GPU dispatch active)
 cargo clippy --workspace --all-targets -- -D warnings -W clippy::pedantic -W clippy::nursery
 cargo fmt --check                              # clean
 
@@ -177,7 +177,7 @@ mypy control/ tests/              # zero errors
 ### Test Coverage
 
 ```bash
-cargo llvm-cov --workspace          # 99.37% workspace line coverage
+cargo llvm-cov --workspace          # 97.25% library line coverage (target 90%)
 ```
 
 ## Performance: Rust vs Python
@@ -250,19 +250,19 @@ hotSpring/wetSpring lineage. 30 metalForge workloads route across 5 substrates
 ```
 Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardware)  →  Phase 4 (NUCLEUS)
   NumPy/SciPy         Pure safe Rust     BarraCUDA/ToadStool   metalForge dispatch    biomeOS Neural API
-  ✓ Complete          ✓ 376/376 PASS     ◐ 76 active           30 workloads           Tower+Node+Squirrel
-  11.5× slower        33/33 experiments    (44+32)              24 GPU + 2 NPU + 2 CPU-only         NestGate data pipes
-                      786+ workspace tests                      PCIe topology          NUCLEUS atomics
+  ✓ Complete          ✓ 376/376 PASS     ◐ 81 active           30 workloads           Tower+Node+Squirrel
+  11.5× slower        33/33 experiments    (47+34)              24 GPU + 2 NPU + 2 CPU-only         NestGate data pipes
+                      790 workspace tests                       PCIe topology          NUCLEUS atomics
                                                                 Pipeline dispatch      Sovereign degradation
 
   Write locally    →  Hand off          →  Lean on upstream   →  Cross-substrate     →  Primal orchestration
   (metalForge)       (wateringHole/)       (barracuda ops)       (metalForge forge)    (biomeOS graphs)
 ```
 
-**Lean progress**: 76 functions delegate to barracuda with graceful sovereign fallback.
-44 CPU delegated via `#[cfg(feature = "barracuda")]`, 32 GPU dispatched via
-`#[cfg(feature = "barracuda-gpu")]`. V68: +L-BFGS refinement (airSpring → freeze-out),
-+4D Anderson + Wegner RG (hotSpring → tissue). V67: +McEt0PropagateGpu, +SeasonalPipelineF64.
+**Lean progress**: 81 functions delegate to barracuda with graceful sovereign fallback.
+47 CPU delegated via `#[cfg(feature = "barracuda")]`, 34 GPU dispatched via
+`#[cfg(feature = "barracuda-gpu")]`. V73: 13-tier tolerance architecture, production
+epsilon guards, ~170 bare literals eliminated. V72: deep audit, silent-default elimination.
 All local shaders absorbed upstream (batched_multinomial S76, mc_et0_propagate S72);
 only 2 unique `anderson_lyapunov*.wgsl` reference shaders remain in metalForge.
 
@@ -329,7 +329,7 @@ groundSpring/
 │   └── shaders/                    # Production WGSL shaders for ToadStool absorption
 ├── graphs/                         # biomeOS pipeline graphs (Tower bootstrap, Node, cross-substrate)
 ├── .github/workflows/ci.yml        # GitHub Actions CI
-├── wateringHole/                   # Handoff directory (V68 current)
+├── wateringHole/                   # Handoff directory (V73 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md      # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md   # GPU kernel gap analysis
@@ -367,4 +367,4 @@ AGPL-3.0-only — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026 | V53 complete rewiring + GPU grid adapters — 57 active: February 28, 2026 | V56 NUCLEUS live validation + ToadStool handoff: March 1, 2026 | V58 cross-spring evolution + deep-debt completion: March 1, 2026 | V59 ToadStool S71+++ catch-up: March 1, 2026 | V60 hotSpring cross-spring absorption — DriftMonitor, ClassificationUncertainty, concept edge detection, Nautilus Shell dep: March 1, 2026 | V63 brain architecture + capability-based discovery + Paper 12: March 2, 2026 | V67 ToadStool S86 catch-up — McEt0 GPU, seasonal pipeline, API rewire: March 2, 2026 | V68 complete rewiring — L-BFGS refinement, 4D Anderson, cross-spring benchmark: March 2, 2026*
+*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026 | V53 complete rewiring + GPU grid adapters — 57 active: February 28, 2026 | V56 NUCLEUS live validation + ToadStool handoff: March 1, 2026 | V58 cross-spring evolution + deep-debt completion: March 1, 2026 | V63 brain architecture + capability-based discovery + Paper 12: March 2, 2026 | V68 complete rewiring — L-BFGS refinement, 4D Anderson: March 2, 2026 | V72 deep audit + debt evolution — zero clippy, BTreeMap determinism: March 3, 2026 | V73 tolerance architecture + epsilon guards + idiomatic evolution: March 4, 2026*

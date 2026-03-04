@@ -119,15 +119,16 @@ fn quasispecies_simulation_cpu(
         let freq = usize_f64(n_master) / pop_f;
         freqs.push(freq);
 
-        #[expect(clippy::cast_precision_loss)]
-        let n_master_f = n_master as f64;
-        #[expect(clippy::cast_precision_loss)]
-        let n_mutant_f = (pop_size - n_master) as f64;
+        let n_master_f = usize_f64(n_master);
+        let n_mutant_f = usize_f64(pop_size - n_master);
         let fitness_total = sigma.mul_add(n_master_f, n_mutant_f);
         let p_master = (sigma * n_master_f) / fitness_total;
 
         let n_selected = rng.binomial(pop_size, p_master);
-        #[expect(clippy::cast_possible_truncation)]
+        #[expect(
+            clippy::cast_possible_truncation,
+            reason = "binomial result ≤ pop_size which fits usize"
+        )]
         {
             n_master = rng.binomial(n_selected as usize, q) as usize;
         }
@@ -147,12 +148,13 @@ pub fn mean_fitness(sigma: f64, master_freq: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn error_threshold_known_value() {
         let mu_c = error_threshold(10.0, 100);
         assert!(
-            (mu_c - 0.02276).abs() < 0.001,
+            (mu_c - 0.02276).abs() < tol::LITERATURE,
             "sigma=10, L=100 → mu_c ≈ 0.02276, got {mu_c}"
         );
     }
@@ -175,7 +177,10 @@ mod tests {
     #[test]
     fn master_freq_at_zero_mutation() {
         let x_m = master_frequency_analytical(10.0, 0.0, 100);
-        assert!((x_m - 1.0).abs() < 1e-10, "zero mutation → x_m = 1");
+        assert!(
+            (x_m - 1.0).abs() < tol::ANALYTICAL,
+            "zero mutation → x_m = 1"
+        );
     }
 
     #[test]
@@ -210,15 +215,15 @@ mod tests {
         let freqs = quasispecies_simulation(2000, 100, 10.0, 0.04, 500, 42);
         let tail_mean: f64 = freqs[250..].iter().sum::<f64>() / 250.0;
         assert!(
-            tail_mean < 0.02,
+            tail_mean < tol::NORM_2PCT,
             "above threshold, master should be rare: {tail_mean}"
         );
     }
 
     #[test]
     fn mean_fitness_correct() {
-        assert!((mean_fitness(10.0, 0.5) - 5.5).abs() < 1e-10);
-        assert!((mean_fitness(10.0, 0.0) - 1.0).abs() < 1e-10);
-        assert!((mean_fitness(10.0, 1.0) - 10.0).abs() < 1e-10);
+        assert!((mean_fitness(10.0, 0.5) - 5.5).abs() < tol::ANALYTICAL);
+        assert!((mean_fitness(10.0, 0.0) - 1.0).abs() < tol::ANALYTICAL);
+        assert!((mean_fitness(10.0, 1.0) - 10.0).abs() < tol::ANALYTICAL);
     }
 }

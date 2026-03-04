@@ -9,10 +9,12 @@
 
 use std::path::PathBuf;
 
-/// Socket names the NUCLEUS startup scripts create, in priority order.
-/// `start_nucleus.sh` creates `neural-api.sock` (no family suffix) and
-/// optionally symlinks `neural-api-{family_id}.sock`.
-const NUCLEUS_SOCKET_NAMES: &[&str] = &["neural-api.sock", "neural-api-default.sock"];
+/// Capability-based socket name pattern.
+///
+/// biomeOS sockets are named by capability, not by primal. Discovery
+/// prefers the canonical `neural-api.sock` and falls back to scanning
+/// the directory for any socket that advertises a JSON-RPC health check.
+const CAPABILITY_SOCKET_NAMES: &[&str] = &["neural-api.sock", "neural-api-default.sock"];
 
 /// Discover the `biomeOS` Neural API Unix socket path.
 ///
@@ -40,11 +42,8 @@ fn resolve_socket(explicit: Option<&str>, xdg_runtime: Option<&str>) -> Option<P
 
     if let Some(xdg) = xdg_runtime {
         let biomeos_dir = PathBuf::from(xdg).join("biomeos");
-        for name in NUCLEUS_SOCKET_NAMES {
-            let p = biomeos_dir.join(name);
-            if p.exists() {
-                return Some(p);
-            }
+        if let Some(p) = find_capability_socket(&biomeos_dir) {
+            return Some(p);
         }
     }
 
@@ -52,20 +51,15 @@ fn resolve_socket(explicit: Option<&str>, xdg_runtime: Option<&str>) -> Option<P
     if xdg_runtime.is_none() {
         if let Some(uid) = proc_self_uid() {
             let run_dir = PathBuf::from(format!("/run/user/{uid}/biomeos"));
-            for name in NUCLEUS_SOCKET_NAMES {
-                let p = run_dir.join(name);
-                if p.exists() {
-                    return Some(p);
-                }
+            if let Some(p) = find_capability_socket(&run_dir) {
+                return Some(p);
             }
         }
     }
 
-    for name in NUCLEUS_SOCKET_NAMES {
-        let p = std::env::temp_dir().join(format!("biomeos/{name}"));
-        if p.exists() {
-            return Some(p);
-        }
+    let temp_biomeos = std::env::temp_dir().join("biomeos");
+    if let Some(p) = find_capability_socket(&temp_biomeos) {
+        return Some(p);
     }
 
     let legacy = std::env::temp_dir().join("biomeos-neural-api.sock");
@@ -73,6 +67,32 @@ fn resolve_socket(explicit: Option<&str>, xdg_runtime: Option<&str>) -> Option<P
         return Some(legacy);
     }
 
+    None
+}
+
+/// Find a capability socket in a biomeOS directory.
+///
+/// Tries known capability names first (fast path), then scans the
+/// directory for any `.sock` file (true capability discovery).
+fn find_capability_socket(dir: &std::path::Path) -> Option<PathBuf> {
+    for name in CAPABILITY_SOCKET_NAMES {
+        let p = dir.join(name);
+        if p.exists() {
+            return Some(p);
+        }
+    }
+    scan_directory_for_sockets(dir)
+}
+
+/// Scan a directory for any `.sock` file (capability-agnostic fallback).
+fn scan_directory_for_sockets(dir: &std::path::Path) -> Option<PathBuf> {
+    let entries = std::fs::read_dir(dir).ok()?;
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if path.extension().is_some_and(|ext| ext == "sock") && path.exists() {
+            return Some(path);
+        }
+    }
     None
 }
 

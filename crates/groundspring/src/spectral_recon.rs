@@ -249,6 +249,7 @@ fn cholesky_solve(a: &[f64], b: &[f64], n: usize) -> Vec<f64> {
 mod tests {
     use super::*;
     use crate::cast::usize_f64;
+    use crate::tol;
 
     #[test]
     fn kernel_shape() {
@@ -275,7 +276,7 @@ mod tests {
         let rho_rec = tikhonov_solve(&kernel, &g, 1e-12, n_tau, n_omega);
         let g_rec = forward_correlator(&kernel, &rho_rec, n_tau, n_omega);
         let r = rmse(&g, &g_rec);
-        assert!(r < 1e-6, "noiseless roundtrip RMSE = {r}");
+        assert!(r < tol::CDF_APPROX, "noiseless roundtrip RMSE = {r}");
     }
 
     #[test]
@@ -305,8 +306,8 @@ mod tests {
         let a = vec![1.0, 0.0, 0.0, 1.0];
         let b = vec![3.0, 7.0];
         let x = cholesky_solve(&a, &b, 2);
-        assert!((x[0] - 3.0).abs() < 1e-14);
-        assert!((x[1] - 7.0).abs() < 1e-14);
+        assert!((x[0] - 3.0).abs() < tol::STRICT);
+        assert!((x[1] - 7.0).abs() < tol::STRICT);
     }
 
     #[test]
@@ -319,7 +320,7 @@ mod tests {
         let rho = gaussian_peak(&omega, 5.0, 1.0, 1.0);
         let integral: f64 = rho.iter().map(|&r| r * dw).sum();
         assert!(
-            (integral - 1.0).abs() < 0.02,
+            (integral - 1.0).abs() < tol::NORM_2PCT,
             "Gaussian peak should integrate to ~1.0, got {integral}"
         );
     }
@@ -341,7 +342,7 @@ mod tests {
         let rho_rec = tikhonov_solve(&kernel, &g, 1e-8, n_tau, n_omega);
         let g_rec = forward_correlator(&kernel, &rho_rec, n_tau, n_omega);
         let r = rmse(&g, &g_rec);
-        assert!(r < 1e-4, "Tikhonov roundtrip RMSE = {r}");
+        assert!(r < tol::RECONSTRUCTION, "Tikhonov roundtrip RMSE = {r}");
 
         let pi = peak_index(&rho_rec);
         assert!(

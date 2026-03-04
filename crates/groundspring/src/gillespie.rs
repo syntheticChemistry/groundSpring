@@ -17,6 +17,8 @@
 //! loop otherwise. [`steady_state_mean`] and [`time_averaged_mean`]
 //! are scalar reductions, Stays Local tier.
 
+#[cfg(feature = "barracuda-gpu")]
+use crate::eps;
 use crate::prng::Xorshift64;
 
 /// A recorded trajectory from a Gillespie SSA run.
@@ -188,14 +190,16 @@ fn birth_death_ssa_batch_gpu(
     let stoich_react: [u32; 2] = [0, 1];
     let stoich_net: [i32; 2] = [1, -1];
 
-    #[expect(clippy::cast_precision_loss)]
-    let initial_states: Vec<f64> = vec![initial as f64; n_trajectories];
+    let initial_states: Vec<f64> = vec![crate::cast::u64_f64(initial); n_trajectories];
 
     let mut prng_seeds = Vec::with_capacity(n_trajectories * 4);
     let mut rng = crate::prng::Xorshift64::new(base_seed);
     for _ in 0..n_trajectories {
         for _ in 0..4 {
-            #[expect(clippy::cast_possible_truncation)]
+            #[expect(
+                clippy::cast_possible_truncation,
+                reason = "RNG u64 → u32 seed; high bits discarded intentionally"
+            )]
             prng_seeds.push(rng.next_u64() as u32);
         }
     }
@@ -220,11 +224,10 @@ fn birth_death_ssa_batch_gpu(
 
     // GPU returns final state per trajectory — approximate time-averaged mean
     // using analytical steady-state weighted by burn-in fraction.
-    // Guard: 1e-15 is ~10× f64 epsilon — prevents division-by-zero in the
-    // steady-state mean when degradation rate is negligible (e.g. pure
-    // synthesis regime). The resulting ss_mean saturates at a large but
-    // finite value rather than producing Inf.
-    let ss_mean = total_syn / total_deg_rate.max(1e-15);
+    // Guard: SSA_FLOOR prevents division-by-zero in the steady-state mean
+    // when degradation rate is negligible (e.g. pure synthesis regime).
+    // The resulting ss_mean saturates at a large but finite value rather than Inf.
+    let ss_mean = total_syn / total_deg_rate.max(eps::SSA_FLOOR);
     let burnin_fraction = (t_burnin / t_max).clamp(0.0, 1.0);
     let post_burnin_weight = 1.0 - burnin_fraction;
 
@@ -322,11 +325,12 @@ pub fn time_averaged_variance(traj: &Trajectory, t_start: f64, mean: f64) -> f64
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
     fn steady_state_analytical() {
         let ss = steady_state_mean(40.0, 2.2);
-        assert!((ss - 18.182).abs() < 0.01);
+        assert!((ss - 18.182).abs() < tol::STOCHASTIC);
     }
 
     #[test]
@@ -364,8 +368,8 @@ mod tests {
 
     #[test]
     fn steady_state_zero_degradation() {
-        assert!((steady_state_mean(10.0, 0.0)).abs() < 1e-12);
-        assert!((steady_state_mean(10.0, -1.0)).abs() < 1e-12);
+        assert!((steady_state_mean(10.0, 0.0)).abs() < tol::EXACT);
+        assert!((steady_state_mean(10.0, -1.0)).abs() < tol::EXACT);
     }
 
     #[test]
@@ -384,7 +388,7 @@ mod tests {
             times: vec![0.0, 1.0],
             states: vec![5, 5],
         };
-        assert!((time_averaged_mean(&traj, 999.0)).abs() < 1e-12);
+        assert!((time_averaged_mean(&traj, 999.0)).abs() < tol::EXACT);
     }
 
     #[test]
@@ -393,7 +397,7 @@ mod tests {
             times: vec![0.0],
             states: vec![7],
         };
-        assert!((time_averaged_mean(&traj, 0.0) - 7.0).abs() < 1e-12);
+        assert!((time_averaged_mean(&traj, 0.0) - 7.0).abs() < tol::EXACT);
     }
 
     #[test]
@@ -402,7 +406,7 @@ mod tests {
             times: vec![0.0, 1.0],
             states: vec![5, 5],
         };
-        assert!((time_averaged_variance(&traj, 999.0, 5.0)).abs() < 1e-12);
+        assert!((time_averaged_variance(&traj, 999.0, 5.0)).abs() < tol::EXACT);
     }
 
     #[test]
@@ -411,7 +415,7 @@ mod tests {
             times: vec![0.0],
             states: vec![7],
         };
-        assert!((time_averaged_variance(&traj, 0.0, 7.0)).abs() < 1e-12);
+        assert!((time_averaged_variance(&traj, 0.0, 7.0)).abs() < tol::EXACT);
     }
 
     #[test]

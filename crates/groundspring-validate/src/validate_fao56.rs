@@ -82,16 +82,24 @@ fn monte_carlo_et0(
         samples.push(fao56::daily_et0(&perturbed));
     }
 
-    #[expect(clippy::cast_precision_loss)]
+    #[expect(clippy::cast_precision_loss, reason = "n_mc ≤ 10000 ≪ 2^53")]
     let n = samples.len() as f64;
     let mean = samples.iter().sum::<f64>() / n;
     let variance = samples.iter().map(|&x| (x - mean).powi(2)).sum::<f64>() / n;
 
     samples.sort_by(f64::total_cmp);
 
-    #[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    #[expect(
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        reason = "percentile index 0.05*n is positive and ≤ n"
+    )]
     let pct_05 = samples[(0.05 * n) as usize];
-    #[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    #[expect(
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        reason = "percentile index 0.95*n is positive and ≤ n"
+    )]
     let pct_95 = samples[(0.95 * n) as usize];
 
     McResult {
@@ -159,14 +167,14 @@ fn sensitivity_analysis(
         let mut rng = Xorshift64::new(seed.wrapping_add(group));
         let mut et0_values = Vec::with_capacity(n_samples);
         for _ in 0..n_samples {
-            #[expect(clippy::cast_possible_truncation)]
+            #[expect(clippy::cast_possible_truncation, reason = "group 0..4 fits usize")]
             let perturbed = perturb_one(base, group as usize, unc, &mut rng);
             et0_values.push(fao56::daily_et0(&perturbed));
         }
-        #[expect(clippy::cast_precision_loss)]
+        #[expect(clippy::cast_precision_loss, reason = "n_samples ≤ 10000 ≪ 2^53")]
         let n = et0_values.len() as f64;
         let mean = et0_values.iter().sum::<f64>() / n;
-        #[expect(clippy::cast_possible_truncation)]
+        #[expect(clippy::cast_possible_truncation, reason = "group 0..4 fits usize")]
         {
             variances[group as usize] =
                 et0_values.iter().map(|&x| (x - mean).powi(2)).sum::<f64>() / n;
@@ -283,13 +291,19 @@ fn run() -> i32 {
         sunshine_hours: f64_field(inp, "sunshine_hours"),
         latitude_deg_n: f64_field(inp, "latitude_deg_n"),
         altitude_m: f64_field(inp, "altitude_m"),
-        #[expect(clippy::cast_possible_truncation)]
+        #[expect(
+            clippy::cast_possible_truncation,
+            reason = "day_of_year 1–366 fits u16"
+        )]
         day_of_year: u64_field(inp, "day_of_year") as u16,
     };
     let expected_et0 = f64_field(ref_day, "expected_et0_mm_day");
 
     let mc_cfg = &bench["monte_carlo_config"];
-    #[expect(clippy::cast_possible_truncation)]
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "n_samples from JSON ≤ 10000, fits usize"
+    )]
     let n_mc = u64_field(mc_cfg, "n_samples") as usize;
     let mc_seed = u64_field(mc_cfg, "seed");
 

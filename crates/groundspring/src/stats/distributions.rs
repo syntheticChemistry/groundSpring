@@ -21,7 +21,9 @@
 #[must_use]
 pub fn norm_cdf(x: f64) -> f64 {
     #[cfg(feature = "barracuda")]
-    return barracuda::stats::norm_cdf(x);
+    {
+        barracuda::stats::norm_cdf(x)
+    }
     #[cfg(not(feature = "barracuda"))]
     norm_cdf_cpu(x)
 }
@@ -58,14 +60,20 @@ fn erf_cpu(x: f64) -> f64 {
 pub fn norm_ppf(p: f64) -> f64 {
     assert!(p > 0.0 && p < 1.0, "norm_ppf requires p ∈ (0, 1), got {p}");
     #[cfg(feature = "barracuda")]
-    return barracuda::stats::norm_ppf(p);
+    {
+        barracuda::stats::norm_ppf(p)
+    }
     #[cfg(not(feature = "barracuda"))]
     norm_ppf_cpu(p)
 }
 
 /// Acklam rational approximation — relative error < 1.15×10⁻⁹.
 #[cfg(not(feature = "barracuda"))]
-#[expect(clippy::suboptimal_flops, clippy::excessive_precision)]
+#[expect(
+    clippy::suboptimal_flops,
+    clippy::excessive_precision,
+    reason = "Acklam rational approximation coefficients require full precision"
+)]
 fn norm_ppf_cpu(p: f64) -> f64 {
     const A: [f64; 6] = [
         -3.969_683_028_665_376e1,
@@ -154,39 +162,39 @@ fn chi2_statistic_cpu(observed: &[f64], expected: &[f64]) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tol;
 
-    // Tolerance key:
-    //   1e-12  — exact arithmetic identity
-    //   1e-10  — known analytical value through one rational expression
-    //   1e-7   — A&S 7.1.26 polynomial bound (max |ε| < 1.5×10⁻⁷)
-    //   1e-6   — erf composition through CDF (two approximation layers)
-    //   1e-5   — CDF↔PPF round-trip (both approximations compound)
-    //   0.001  — Φ(1.96) = 0.975 checked to 3 decimal places
-    //   0.01   — PPF known values checked to 2 decimal places
+    // Tolerance key (crate::tol):
+    //   EXACT       — exact arithmetic identity
+    //   ANALYTICAL  — known analytical value through one rational expression
+    //   CDF_APPROX  — erf composition through CDF (A&S 7.1.26, two layers)
+    //   ROUNDTRIP   — CDF↔PPF round-trip (both approximations compound)
+    //   LITERATURE  — Φ(1.96) = 0.975 checked to 3 decimal places
+    //   STOCHASTIC  — PPF known values checked to 2 decimal places
 
     #[test]
     fn norm_cdf_symmetry() {
-        assert!((norm_cdf(0.0) - 0.5).abs() < 1e-7);
+        assert!((norm_cdf(0.0) - 0.5).abs() < tol::CDF_APPROX);
     }
 
     #[test]
     fn norm_cdf_known_values() {
-        assert!((norm_cdf(1.0) - 0.841_344_746_068_543).abs() < 1e-6);
-        assert!((norm_cdf(-1.0) - 0.158_655_253_931_457).abs() < 1e-6);
-        assert!((norm_cdf(1.96) - 0.975).abs() < 0.001);
+        assert!((norm_cdf(1.0) - 0.841_344_746_068_543).abs() < tol::CDF_APPROX);
+        assert!((norm_cdf(-1.0) - 0.158_655_253_931_457).abs() < tol::CDF_APPROX);
+        assert!((norm_cdf(1.96) - 0.975).abs() < tol::LITERATURE);
     }
 
     #[test]
     fn norm_cdf_complement() {
         let x = 2.0;
-        assert!((norm_cdf(x) + norm_cdf(-x) - 1.0).abs() < 1e-6);
+        assert!((norm_cdf(x) + norm_cdf(-x) - 1.0).abs() < tol::CDF_APPROX);
     }
 
     #[test]
     fn norm_ppf_known_values() {
-        assert!((norm_ppf(0.5)).abs() < 1e-6);
-        assert!((norm_ppf(0.975) - 1.96).abs() < 0.01);
-        assert!((norm_ppf(0.025) + 1.96).abs() < 0.01);
+        assert!((norm_ppf(0.5)).abs() < tol::CDF_APPROX);
+        assert!((norm_ppf(0.975) - 1.96).abs() < tol::STOCHASTIC);
+        assert!((norm_ppf(0.025) + 1.96).abs() < tol::STOCHASTIC);
     }
 
     #[test]
@@ -195,7 +203,7 @@ mod tests {
             let x = norm_ppf(p);
             let p_back = norm_cdf(x);
             assert!(
-                (p - p_back).abs() < 1e-5,
+                (p - p_back).abs() < tol::ROUNDTRIP,
                 "roundtrip: norm_cdf(norm_ppf({p})) = {p_back}"
             );
         }
@@ -204,7 +212,7 @@ mod tests {
     #[test]
     fn chi2_statistic_perfect_fit() {
         let obs = [10.0, 20.0, 30.0];
-        assert!(chi2_statistic(&obs, &obs).abs() < 1e-12);
+        assert!(chi2_statistic(&obs, &obs).abs() < tol::EXACT);
     }
 
     #[test]
@@ -214,7 +222,7 @@ mod tests {
         let chi2 = chi2_statistic(&obs, &exp);
         // (10-15)²/15 + (20-15)²/15 + (30-30)²/30 = 25/15 + 25/15 = 10/3
         assert!(
-            (chi2 - 10.0 / 3.0).abs() < 1e-10,
+            (chi2 - 10.0 / 3.0).abs() < tol::ANALYTICAL,
             "expected 10/3, got {chi2}"
         );
     }
@@ -222,6 +230,6 @@ mod tests {
     #[test]
     fn chi2_statistic_empty() {
         let empty: [f64; 0] = [];
-        assert!(chi2_statistic(&empty, &empty).abs() < 1e-12);
+        assert!(chi2_statistic(&empty, &empty).abs() < tol::EXACT);
     }
 }
