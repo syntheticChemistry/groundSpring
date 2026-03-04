@@ -6,43 +6,26 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: March 2, 2026 (V61 — mixed-hardware pipeline, PCIe topology, NUCLEUS atomics, fallback chains, 120 metalForge tests)
+**Last updated**: March 4, 2026 (V74 — 81 active delegations (47 CPU + 34 GPU), barraCuda v0.3.1 standalone primal, toadStool S93, 790 tests, clippy pedantic clean, 97.25% line coverage)
 
 ## Absorption Status Summary
 
-| Module | Status | Tier | Target |
+| Domain | Status | Count | Notes |
 |---|---|---|---|
-| `stats::pearson_r` | **Lean** — CPU delegated | A | `barracuda::stats::pearson_correlation` |
-| `stats::spearman_r` | **Lean** — CPU delegated | A | `barracuda::stats::correlation::spearman_correlation` |
-| `stats::sample_std_dev` | **Lean** — CPU delegated | A | `barracuda::stats::correlation::std_dev` |
-| `stats::rmse` | **Lean** — CPU delegated | A | `barracuda::stats::rmse` |
-| `stats::mbe` | **Lean** — CPU delegated | A | `barracuda::stats::mbe` |
-| `stats::r_squared` | **Lean** — CPU delegated | A | `barracuda::stats::r_squared` |
-| `stats::index_of_agreement` | **Lean** — CPU delegated | A | `barracuda::stats::index_of_agreement` |
-| `stats::hit_rate` | **Lean** — CPU delegated | A | `barracuda::stats::hit_rate` |
-| `stats::mean` | **Lean** — CPU delegated | A | `barracuda::stats::mean` |
-| `stats::percentile` | **Lean** — CPU delegated | A | `barracuda::stats::percentile` |
-| `rarefaction::shannon_diversity` | **Lean** — CPU delegated | A | `barracuda::stats::shannon` |
-| `rarefaction::evenness` | **Lean** — CPU delegated + S≤1 adapter | A | `barracuda::stats::pielou_evenness` |
-| `prng::Xorshift64` | **Adapt** — needs PRNG alignment | B | `barracuda::ops::PrngXoshiro` |
-| `seismic::grid_search_inversion` | **Write** — parallel grid dispatch | B | new workgroup dispatch |
-| `rarefaction::multinomial_sample` | **Write** — WGSL production shader ready | C | new `ops::batched_multinomial_f64` |
-| `fao56::daily_et0` | **Absorbed** — equation chain in barracuda | — | `barracuda::ops::BatchedElementwiseF64::fao56_et0_batch` |
-| `fao56::daily_et0` (MC wrapper) | **Write** — WGSL production shader ready | C | new `ops::mc_et0_propagate_f64` |
-| `bootstrap::bootstrap_mean` | **Lean** — CPU delegated (GPU shader exists) | A | `barracuda::stats::bootstrap_mean` + `bootstrap_mean_f64.wgsl` |
-| `bootstrap::rawr_mean` | **Lean** — CPU delegated (S66) | A | `barracuda::stats::rawr_mean` |
-| `anderson::lyapunov_exponent` | **Lean** — GPU delegated | A | `barracuda::spectral::lyapunov_exponent` (requires `barracuda-gpu`) |
-| `anderson::lyapunov_averaged` | **Lean** — GPU delegated | A | `barracuda::spectral::lyapunov_averaged` (requires `barracuda-gpu`) |
-| `anderson::anderson_potential` | **Write** — local (matches barracuda when `barracuda-gpu` enabled) | B | `barracuda::spectral::anderson_potential` |
-| `gillespie::birth_death_ssa` | **Write** — local CPU impl | B | `barracuda::ops::bio::GillespieGpu` (GPU-only, no CPU fallback) |
-| `decompose::*` | **Stays local** — scalar math, no GPU benefit | — | N/A |
-| `validate::*` | **Stays local** — harness, not compute | — | N/A |
-| `seismic::haversine_km` | **Stays local** — scalar trig | — | N/A |
-| `seismic::travel_time_1d` | **Stays local** — one sqrt + division | — | N/A |
-| `npu::discover_npu` | **Lean** — wraps `akida_driver::DeviceManager` | A | `akida_driver::discover()` |
-| `npu::quantize_features` | **Write** — int8 quantization for NPU dispatch | B | generic `barracuda::quantize_i8` candidate |
-| `npu::npu_classify_regime` | **Write** — DMA inference on AKD1000 | B | higher-level `akida_driver::classify_i8` candidate |
-| `npu::train_classifier_weights` | **Write** — centroid-based int8 weights | B | `akida_driver::ModelManager` candidate |
+| Stats (CPU) | **Lean** | 27 | agreement, correlation, regression, distributions, diversity, hydrology, bootstrap, jackknife, moving_window |
+| Spectral (GPU) | **Lean** | 15 | Anderson 1D-4D, Lanczos, Almost-Mathieu, Wegner RG, band detect |
+| Bio ops (GPU) | **Lean** | 5 | Gillespie, Wright-Fisher, BatchedMultinomial ×3 |
+| Linalg (GPU) | **Lean** | 2 | eigh_f64, solve_f64_cpu + cholesky |
+| Optimize | **Lean** | 2 | L-BFGS, batched Nelder-Mead GPU |
+| Pipeline (GPU) | **Lean** | 5 | fao56 batch, Hargreaves GPU, McEt0, seasonal pipeline, water balance |
+| ODE (CPU) | **Lean** | 2 | BistableOde, MultiSignalOde |
+| Reduce ops (GPU) | **Lean** | 4 | sum_reduce, variance_reduce, fused_map_reduce, correlation_f64 |
+| ESN (GPU) | **Lean** | 1 | esn_v2::ESN regime classification |
+| Grid ops (GPU) | **Lean** | 1 | grid_search_3d (seismic) |
+| **Total** | | **81** | 47 CPU + 34 GPU |
+| PRNG | **Adapt** | 1 | xorshift64→xoshiro alignment pending |
+| Scalar math | **Stays local** | 5 | decompose, haversine, travel_time |
+| NPU | **Lean** | 1 | akida-driver (ToadStool hardware, not barraCuda math) |
 
 ---
 
@@ -50,18 +33,20 @@
 
 | Shader | Lines | Status | Notes |
 |---|---|---|---|
-| `anderson_lyapunov.wgsl` | ~80 | **Production** — f64 Lyapunov exponent (unique to groundSpring) | No ToadStool equivalent |
-| `anderson_lyapunov_f32.wgsl` | ~80 | **Fallback** — f32 for NAK/NVVM pipelines | f32 variant of above |
+| `anderson_lyapunov.wgsl` | ~80 | **Reference** — f64 Lyapunov exponent | Delegated to `barracuda::spectral::lyapunov_*`; kept as validation reference and provenance artifact |
+| `anderson_lyapunov_f32.wgsl` | ~80 | **Reference** — f32 variant | Superseded by barraCuda universal precision (DF64 fallback on consumer GPUs); kept as provenance artifact |
 
-**Absorbed into ToadStool (removed V62)**:
-- `batched_multinomial.wgsl` — absorbed S76, now `barracuda::stats::gpu::BatchedMultinomialGpu`
-- `mc_et0_propagate.wgsl` — absorbed S72, now `barracuda::stats::hydrology::gpu::McEt0PropagateGpu`
+**Absorbed into barraCuda (removed V62)**:
+- `batched_multinomial.wgsl` → `barracuda::ops::bio::BatchedMultinomialGpu` (S76)
+- `mc_et0_propagate.wgsl` → `barracuda::stats::hydrology::gpu::McEt0PropagateGpu` (S72)
 
 ---
 
-## Tier A — Lean (32 delegated)
+## Tier A — Lean (81 active: 47 CPU + 34 GPU)
 
-### All delegated
+Full delegation inventory as of V74, barraCuda v0.3.1:
+
+### CPU delegations (47)
 
 | Function | BarraCUDA target | Wiring |
 |---|---|---|
@@ -72,69 +57,110 @@
 | `norm_cdf` | `stats::norm_cdf` | `#[cfg(feature = "barracuda")]` direct |
 | `norm_ppf` | `stats::norm_ppf` | `#[cfg(feature = "barracuda")]` direct |
 | `chi2_statistic` | `stats::chi2_decomposed` | `#[cfg(feature = "barracuda")]` struct mapping |
+| `chi2_analysis` | `stats::chi2::chi2_decomposed_weighted` | `#[cfg(feature = "barracuda")]` per-datum residuals |
 | `bootstrap_mean` | `stats::bootstrap_mean` | `#[cfg(feature = "barracuda")]` Result mapping |
-| `rawr_mean` | `stats::rawr_mean` | `#[cfg(feature = "barracuda")]` Result mapping (S66) |
-| `lyapunov_exponent` | `spectral::lyapunov_exponent` | `#[cfg(feature = "barracuda-gpu")]` |
-| `lyapunov_averaged` | `spectral::lyapunov_averaged` | `#[cfg(feature = "barracuda-gpu")]` |
-| `analytical_localization_length` | `special::localization_length` | `#[cfg(feature = "barracuda")]` |
-| `almost_mathieu_hamiltonian` | `spectral::almost_mathieu_hamiltonian` | `#[cfg(feature = "barracuda-gpu")]` |
-| `bistable_derivative` | `BistableOde::cpu_derivative` | `#[cfg(feature = "barracuda")]` OdeSystem trait |
-| `multisignal_derivative` | `MultiSignalOde::cpu_derivative` | `#[cfg(feature = "barracuda")]` OdeSystem trait |
-| `rmse` | `stats::rmse` | `#[cfg(feature = "barracuda")]` direct (S64) |
-| `mbe` | `stats::mbe` | `#[cfg(feature = "barracuda")]` direct (S64) |
-| `r_squared` | `stats::r_squared` | `#[cfg(feature = "barracuda")]` direct (S64) |
-| `index_of_agreement` | `stats::index_of_agreement` | `#[cfg(feature = "barracuda")]` direct (S64) |
-| `hit_rate` | `stats::hit_rate` | `#[cfg(feature = "barracuda")]` direct (S64) |
-| `shannon_diversity` | `stats::shannon` | `#[cfg(feature = "barracuda")]` u64→f64 (S64) |
-| `mean` | `stats::mean` | `#[cfg(feature = "barracuda")]` direct (S64) |
-| `percentile` | `stats::percentile` | `#[cfg(feature = "barracuda")]` direct (S64) |
+| `bootstrap_median` | `stats::bootstrap_median` | `#[cfg(feature = "barracuda")]` S64 |
+| `bootstrap_std` | `stats::bootstrap_std` | `#[cfg(feature = "barracuda")]` S64 |
+| `rawr_mean` | `stats::rawr_mean` | `#[cfg(feature = "barracuda")]` S66 Dirichlet-weighted |
+| `analytical_localization_length` | `special::anderson_transport::localization_length` | `#[cfg(feature = "barracuda")]` |
+| `bistable_derivative` | `numerical::ode_bio::BistableOde::cpu_derivative` | `#[cfg(feature = "barracuda")]` OdeSystem trait |
+| `multisignal_derivative` | `numerical::ode_bio::MultiSignalOde::cpu_derivative` | `#[cfg(feature = "barracuda")]` OdeSystem trait |
+| `rmse` | `stats::rmse` | `#[cfg(feature = "barracuda")]` direct S64 |
+| `mae` | `stats::mae` | `#[cfg(feature = "barracuda")]` direct S66 |
+| `mbe` | `stats::mbe` | `#[cfg(feature = "barracuda")]` direct S64 |
+| `nash_sutcliffe` | `stats::nash_sutcliffe` | `#[cfg(feature = "barracuda")]` S64 |
+| `r_squared` | `stats::r_squared` | `#[cfg(feature = "barracuda")]` direct S64 |
+| `index_of_agreement` | `stats::index_of_agreement` | `#[cfg(feature = "barracuda")]` direct S64 |
+| `hit_rate` | `stats::hit_rate` | `#[cfg(feature = "barracuda")]` direct S64 |
+| `shannon_diversity` | `stats::diversity::shannon` | `#[cfg(feature = "barracuda")]` u64→f64 S64 |
+| `simpson_diversity` | `stats::diversity::simpson` | `#[cfg(feature = "barracuda")]` S64 |
+| `bray_curtis` | `stats::diversity::bray_curtis` | `#[cfg(feature = "barracuda")]` S64 |
+| `analytical_rarefaction` | `stats::diversity::rarefaction_curve` | `#[cfg(feature = "barracuda")]` hypergeometric S64 |
+| `evenness` | `stats::pielou_evenness` | `#[cfg(feature = "barracuda")]` u64→f64 S≤1 adapter |
+| `chao1_classic` | `stats::diversity::chao1_classic` | `#[cfg(feature = "barracuda")]` |
+| `detection_power` | `stats::evolution::detection_power` | `#[cfg(feature = "barracuda")]` |
+| `detection_threshold` | `stats::evolution::detection_threshold` | `#[cfg(feature = "barracuda")]` |
+| `kimura_fixation_prob` | `stats::evolution::kimura_fixation_prob` | `#[cfg(feature = "barracuda")]` S70+ |
+| `error_threshold` | `stats::evolution::error_threshold` | `#[cfg(feature = "barracuda")]` quasispecies |
+| `mean` | `stats::mean` | `#[cfg(feature = "barracuda")]` direct S64 |
+| `percentile` | `stats::percentile` | `#[cfg(feature = "barracuda")]` direct S64 |
+| `hill` | `stats::hill` | `#[cfg(feature = "barracuda")]` domain guard S68 |
+| `monod` | `stats::monod` | `#[cfg(feature = "barracuda")]` S66 |
+| `fit_linear` | `stats::regression::fit_linear` | `#[cfg(feature = "barracuda")]` S66 OLS |
+| `fit_quadratic` | `stats::regression::fit_quadratic` | `#[cfg(feature = "barracuda")]` S66 Cramer |
+| `fit_exponential` | `stats::regression::fit_exponential` | `#[cfg(feature = "barracuda")]` S66 log-linearized |
+| `fit_logarithmic` | `stats::regression::fit_logarithmic` | `#[cfg(feature = "barracuda")]` S66 ln-linearized |
+| `fao56_et0` | `stats::hydrology::fao56_et0` | `#[cfg(feature = "barracuda")]` Penman-Monteith |
+| `hargreaves_et0` | `stats::hydrology::hargreaves_et0` | `#[cfg(feature = "barracuda")]` |
+| `crop_coefficient` | `stats::hydrology::crop_coefficient` | `#[cfg(feature = "barracuda")]` |
+| `soil_water_balance` | `stats::hydrology::soil_water_balance` | `#[cfg(feature = "barracuda")]` |
+| `jackknife_mean_variance` | `stats::jackknife::jackknife_mean_variance` | `#[cfg(feature = "barracuda")]` S70+ |
+| `moving_window_stats` | `stats::moving_window_stats_f64` | `#[cfg(feature = "barracuda")]` S66 |
+| `finite_size_extrapolate` | `stats::regression::fit_linear` | `#[cfg(feature = "barracuda")]` 1/N^(1/d) |
+
+### GPU delegations (34)
+
+| Function | BarraCUDA target | Wiring |
+|---|---|---|
+| `lyapunov_exponent` | `spectral::lyapunov_exponent` | `#[cfg(feature = "barracuda-gpu")]` transfer matrix |
+| `lyapunov_averaged` | `spectral::lyapunov_averaged` | `#[cfg(feature = "barracuda-gpu")]` multi-realization |
+| `almost_mathieu_hamiltonian` | `spectral::almost_mathieu_hamiltonian` | `#[cfg(feature = "barracuda-gpu")]` λ/2 coupling |
+| `almost_mathieu_eigenvalues` | `spectral::find_all_eigenvalues` | `#[cfg(feature = "barracuda-gpu")]` Sturm tridiag **49.5×** |
 | `level_spacing_ratio` | `spectral::level_spacing_ratio` | `#[cfg(feature = "barracuda-gpu")]` sort adapter |
-| `almost_mathieu_eigenvalues` | `spectral::find_all_eigenvalues` | `#[cfg(feature = "barracuda-gpu")]` Sturm tridiag → **49.5× Exp 009** |
-| `evenness` | `stats::pielou_evenness` | `#[cfg(feature = "barracuda")]` u64→f64 + S≤1 adapter |
-| `hill` | `stats::hill` | `#[cfg(feature = "barracuda")]` domain guard (S68) |
-| `tikhonov_solve` | `linalg::solve_f64_cpu` | `#[cfg(feature = "barracuda-gpu")]` Gauss–Jordan fallback |
-| `finite_size_extrapolate` | `stats::regression::fit_linear` | `#[cfg(feature = "barracuda")]` linear regression (S66) |
+| `disorder_sweep` | `spectral::anderson_sweep_averaged` | `#[cfg(feature = "barracuda-gpu")]` + CPU fallback |
+| `anderson_2d_eigenvalues` | `spectral::anderson_2d` + `spectral::lanczos` | `#[cfg(feature = "barracuda-gpu")]` S59 |
+| `anderson_3d_eigenvalues` | `spectral::anderson_3d` + `spectral::lanczos` | `#[cfg(feature = "barracuda-gpu")]` S59 W_c≈16.5 |
+| `anderson_4d` | `spectral::anderson::anderson_4d` | `#[cfg(feature = "barracuda-gpu")]` S88 |
+| `wegner_block_4d` | `spectral::anderson::wegner_block_4d` | `#[cfg(feature = "barracuda-gpu")]` S88 RG |
+| `spectral_bandwidth` | `spectral::spectral_bandwidth` | `#[cfg(feature = "barracuda-gpu")]` |
+| `spectral_condition_number` | `spectral::spectral_condition_number` | `#[cfg(feature = "barracuda-gpu")]` |
+| `classify_spectral_phase` | `spectral::classify_spectral_phase` | `#[cfg(feature = "barracuda-gpu")]` |
+| `detect_band_ranges` | `spectral::detect_bands` | `#[cfg(feature = "barracuda-gpu")]` hotSpring v0.6 |
+| `lanczos_eigenvalues` | `spectral::lanczos` + `spectral::lanczos_eigenvalues` | `#[cfg(feature = "barracuda-gpu")]` S59 Lanczos |
+| `tikhonov_solve` | `linalg::solve_f64_cpu` + `linalg::cholesky_f64` | `#[cfg(feature = "barracuda-gpu")]` Gauss-Jordan fallback |
+| `tridiag_eigh` | `linalg::eigh_f64` | `#[cfg(feature = "barracuda-gpu")]` Jacobi validation |
+| `abundance_occupancy` | `ops::bio::BatchedMultinomialGpu` | `#[cfg(feature = "barracuda-gpu")]` S64 |
+| `tier_detection_rate` | `ops::bio::BatchedMultinomialGpu` | `#[cfg(feature = "barracuda-gpu")]` S64 |
+| `multinomial_sample_batch` | `ops::bio::BatchedMultinomialGpu` | `#[cfg(feature = "barracuda-gpu")]` cumulative prob adapter |
+| `birth_death_ssa_batch` | `ops::bio::GillespieGpu` | `#[cfg(feature = "barracuda-gpu")]` batch dispatch |
+| `wright_fisher_fixation_batch` | `ops::bio::WrightFisherGpu` | `#[cfg(feature = "barracuda-gpu")]` device acquisition |
+| `fao56_et0_batch` | `ops::batched_elementwise_f64::BatchedElementwiseF64` | `#[cfg(feature = "barracuda-gpu")]` |
+| `hargreaves_et0_batch` | `stats::hydrology::HargreavesBatchGpu` | `#[cfg(feature = "barracuda-gpu")]` |
+| `mc_et0_propagate` | `stats::hydrology::gpu::McEt0PropagateGpu` | `#[cfg(feature = "barracuda-gpu")]` seasonal |
+| `seasonal_pipeline` | `stats::hydrology::gpu::SeasonalPipelineF64` | `#[cfg(feature = "barracuda-gpu")]` S88 |
+| `jackknife_mean_gpu` | `ops::bio::JackknifeMeanGpu` | `#[cfg(feature = "barracuda-gpu")]` S71 |
+| `correlation_f64` | `ops::correlation_f64_wgsl::CorrelationF64` | `#[cfg(feature = "barracuda-gpu")]` |
+| `sum_reduce_mean` | `ops::sum_reduce_f64::SumReduceF64::mean` | `#[cfg(feature = "barracuda-gpu")]` |
+| `variance_reduce_std` | `ops::variance_reduce_f64::VarianceReduceF64::population_std` | `#[cfg(feature = "barracuda-gpu")]` |
+| `fused_map_reduce` | `ops::fused_map_reduce_f64::FusedMapReduceF64` | `#[cfg(feature = "barracuda-gpu")]` Shannon/Simpson |
+| `esn_classifier` | `esn_v2::ESN` | `#[cfg(feature = "barracuda-gpu")]` S59 regime classification |
+| `grid_search_3d` | `ops::grid::grid_search_3d` | `#[cfg(feature = "barracuda-gpu")]` seismic |
+| `lbfgs_numerical` | `optimize::lbfgs_numerical` + `LbfgsConfig` | `#[cfg(feature = "barracuda")]` freeze-out refinement |
 
 ---
 
-## Tier B — Adapt
+## Tier B — Adapt (1 remaining)
 
 | Module | Blocker | Action |
 |---|---|---|
-| `prng::Xorshift64` | Different PRNG algorithm | Align to xoshiro; retain xorshift as CPU reference |
-| `seismic::grid_search_inversion` | No grid-search GPU op | Dispatch as 3D workgroup; reduce min RMS |
+| `prng::Xorshift64` | Different PRNG algorithm | Align to xoshiro128**; retain xorshift as CPU reference |
+
+All other Tier B items have been resolved and moved to Tier A:
+- `kimura_fixation_prob` — resolved S70+, now in `barracuda::stats::evolution`
+- `jackknife_mean_variance` — resolved S70+, now in `barracuda::stats::jackknife`
+- `fao56::daily_et0` — resolved S70+, now in `barracuda::stats::hydrology`
+- `seismic::grid_search_inversion` — resolved via `barracuda::ops::grid::grid_search_3d`
+- `gillespie::birth_death_ssa` — resolved via `barracuda::ops::bio::GillespieGpu` batch dispatch
+- `rarefaction::multinomial_sample` — resolved via `barracuda::ops::bio::BatchedMultinomialGpu`
+- `anderson::anderson_potential` — resolved via `barracuda::spectral::anderson_potential`
 
 ---
 
-## Tier C — Write (production WGSL ready for absorption)
+## Tier C — Fully Absorbed
 
-### `batched_multinomial.wgsl`
-
-Runs `n_reps` multinomial draws of `depth` reads from a community.
-
-```
-Params:     { n_taxa: u32, depth: u32, n_reps: u32, _pad: u32 }
-Bindings:   params (uniform), cumulative (read), seeds (rw), counts (rw)
-Dispatch:   (ceil(n_reps / 64), 1, 1) @ workgroup_size(64)
-PRNG:       xoshiro128** (4 × u32 state per replicate)
-Algorithm:  depth draws with binary-search assignment over cumulative probs
-CPU ref:    groundspring::rarefaction::multinomial_sample()
-```
-
-### `mc_et0_propagate.wgsl`
-
-Perturbs weather inputs with normal noise and computes ET₀ through FAO-56.
-
-```
-Params:     { n_samples: u32, _pad × 3 }
-Bindings:   params (uniform), base_inputs (read), uncertainties (read), seeds (rw), output (rw)
-Dispatch:   (ceil(n_samples / 64), 1, 1) @ workgroup_size(64)
-PRNG:       xoshiro128** (4 × u32 state per sample)
-Algorithm:  Box-Muller perturbation → full Penman-Monteith chain
-CPU ref:    validate_fao56::monte_carlo_et0()
-NOTE:       Equation chain is superseded by barracuda Op::Fao56Et0 — when
-            absorbed, replace compute_et0() with the existing batched op.
-```
+Both Tier C shaders have been absorbed upstream and local copies removed (V62):
+- `batched_multinomial.wgsl` → `barracuda::ops::bio::BatchedMultinomialGpu` (S76)
+- `mc_et0_propagate.wgsl` → `barracuda::stats::hydrology::gpu::McEt0PropagateGpu` (S72)
 
 ---
 
@@ -152,46 +178,16 @@ NOTE:       Equation chain is superseded by barracuda Op::Fao56Et0 — when
 
 ## Handoff Checklist (per shader)
 
-- [x] Production WGSL file with documented bindings
-- [x] CPU reference passes all validation checks (376/376 across 33 binaries)
-- [x] Binding layout documented in this manifest
-- [x] Dispatch geometry documented (workgroup size, grid dims)
-- [x] f64 precision throughout (no f32 truncation)
-- [x] PRNG matches barracuda (xoshiro128**)
-- [x] Handoff V14 posted in `wateringHole/handoffs/` (V13, V12, V11, V10, V9, V8 archived)
-- [x] All 37 barracuda dispatch targets use `#[cfg]` or `if let Ok` with CPU fallback always compiled
+- [x] 81 active delegations (47 CPU + 34 GPU) verified, barraCuda v0.3.1, toadStool S93
+- [x] CPU reference passes all validation checks (33 binaries, 790 tests)
+- [x] All delegations use `#[cfg]` or `if let Ok` with CPU fallback always compiled
 - [x] Mathematical parity: 28/28 PROVEN (Python ⇌ Rust, `data/parity_report.json`)
-- [x] PRNG alignment investigated: requires full rebaseline (documented in V8 handoff)
-- [x] ToadStool S64 catch-up: 6 new CPU delegations (metrics + shannon), 3 bug fixes
-- [x] Complete rewiring: 4 more delegations (mean, percentile, level_spacing_ratio, eigenvalues)
-- [x] Exp 009: 49.5× speedup from Sturm tridiag solver (hotSpring S26 spectral)
-- [x] Three-mode revalidation (local / barracuda / barracuda-gpu): all PASS × 3, 0 warnings × 3
-- [x] Fixed OdeSystem trait import, hofstadter module path, dead-code gates
-- [x] V26 MetalForge: groundspring-forge crate (probe, inventory, dispatch, workloads) with 12 tests
-- [x] V26 NPU: `npu.rs` module wrapping akida-driver for Anderson regime classification on AKD1000
-- [x] V26 Live hardware: RTX 4070, Titan V, AKD1000 NPU (80 NPs, ~51 µs DMA), i9-12900K
-- [x] V35 Titan V (NVK GV100): architecture-aware dispatch, NativeF64 capability, adaptive memory batching
-- [x] V35 f64 workloads route to Titan V (1:2 native f64) over RTX 4070 (1:64 DF64)
-- [x] V35 NAK shader compilation confirmed: f64, shader dispatch, timestamps all pass on Volta/NVK
-- [x] V26 Validation: 288/288 experiment checks + 31 metalForge checks (inventory 10, GPU 11, cross-substrate 10)
-- [x] Three-mode benchmark: 20.4s → 9.2s (2.2× overall, 47.7× quasiperiodic)
-- [x] V27 Barracuda evolution review: 29 delegations (23 CPU + 6 GPU), paper controls confirmed, three-tier validation
-- [x] V27 Handoff posted in `wateringHole/handoffs/` (V26, V23-V7 archived)
-- [x] V28 Coverage evolution: 368 tests + 196 Python integrity, xoshiro128** at API parity
-- [x] V28 CI baseline drift detection: `test_baseline_integrity.py` validates all 28 benchmark JSONs
-- [x] V28 Handoff posted: `GROUNDSPRING_TOADSTOOL_V28_BARRACUDA_EVOLUTION_HANDOFF_FEB27_2026.md`
-- [x] V29 Three-tier validation buildout: 391 Rust + 322 Python = 713 total, 32 delegations (26 CPU + 6 GPU)
-- [x] V30 biomeOS Neural API integration: JSON-RPC client, Anderson routing, pipeline graph
-- [x] V31 GPU dispatch wiring: 5 GPU-ready modules, 12 metalForge workloads, 442 Rust (biomeos) + 320 Python = 762 total
-- [x] V29 Three new barracuda CPU delegations: drift::kimura_fixation_prob, jackknife::jackknife_mean_variance, fao56::daily_et0
-- [x] V29 23 three-tier parity integration tests (three_tier_parity.rs) + Python parity tests (test_three_tier_parity.py)
-- [x] V29 8 GPU-annotated modules with barracuda delegation documentation
-- [x] V29 0 clippy warnings, 288/288 validation checks
-- [x] Tolerance comparison: GPU output vs CPU reference (`forge::tolerance` module, 4 tiers, 19 workload specs, 14 tests)
-- [x] Remote substrate discovery: `forge::remote` module (parse remote inventory, merge into local, 12 tests)
-- [x] V61 PCIe topology: `forge::topology` module — 6 bandwidth tiers, device adjacency inference, transfer time estimation
-- [x] V61 Multi-stage pipeline: `forge::pipeline` module — stage chaining, fallback policies (Degrade/Skip/Fail), transfer strategy resolution
-- [x] V61 Fallback chains: `forge::dispatch::fallback_chain()` — ordered substrate degradation (GPU NativeF64 → GPU → NPU → CPU)
-- [x] V61 NUCLEUS atomics: `forge::atomic` module — TowerAtomic, NodeAtomic, NestAtomic, FullNucleus with sovereign degradation
-- [x] V61 Mixed-hardware validation: `validate-mixed-hardware` binary — 42/42 checks, 120 forge tests total
-- [ ] ToadStool absorption of groundSpring shaders confirmed
+- [x] Three-mode revalidation (local / barracuda / barracuda-gpu): all PASS, 0 warnings
+- [x] `cargo clippy -- -D warnings -W clippy::pedantic` PASS (default + barracuda modes)
+- [x] 97.25% line coverage (`cargo llvm-cov`, target 90%)
+- [x] 13-tier named tolerance architecture (`tol::`, `eps::`)
+- [x] ~170 bare float literals → named constants
+- [x] All Tier C shaders absorbed into barraCuda (batched_multinomial S76, mc_et0_propagate S72)
+- [x] ToadStool absorption of groundSpring V68 confirmed (anderson_4d, wegner_block_4d, LbfgsGpu, tridiag_eigenvectors)
+- [x] barraCuda budding complete: standalone primal at `ecoPrimals/barraCuda/`
+- [ ] PRNG alignment (xorshift64 → xoshiro128**) — requires full rebaseline

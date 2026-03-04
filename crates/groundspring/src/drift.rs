@@ -299,6 +299,71 @@ fn wf_batch_cpu(
         .count()
 }
 
+/// Generate xoshiro128**-compatible PRNG state for GPU dispatch.
+///
+/// Each trial needs 4 × u32 state words, seeded deterministically from
+/// a single `Xorshift64` stream.
+#[cfg(feature = "barracuda-gpu")]
+fn wf_generate_prng_state(n_trials: usize, base_seed: u64) -> Vec<u32> {
+    let mut state = Vec::with_capacity(n_trials * 4);
+    let mut rng = crate::prng::Xorshift64::new(base_seed);
+    for _ in 0..n_trials {
+        for _ in 0..4 {
+            #[expect(
+                clippy::cast_possible_truncation,
+                reason = "RNG u64 → u32 seed; high bits discarded intentionally"
+            )]
+            state.push(rng.next_u64() as u32);
+        }
+    }
+    state
+}
+
+/// Map a staging buffer back to the host and count fixation events.
+///
+/// An allele is "fixed" when its final frequency reaches 1.0.
+#[cfg(feature = "barracuda-gpu")]
+fn wf_readback_fixations(
+    device: &wgpu::Device,
+    queue: &wgpu::Queue,
+    source_buf: &wgpu::Buffer,
+    n_trials: usize,
+) -> Option<usize> {
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "n_trials * 8 ≤ 80 000, fits u64"
+    )]
+    let byte_len = (n_trials * 8) as u64;
+
+    let staging = device.create_buffer(&wgpu::BufferDescriptor {
+        label: Some("wf_staging"),
+        size: byte_len,
+        usage: wgpu::BufferUsages::MAP_READ | wgpu::BufferUsages::COPY_DST,
+        mapped_at_creation: false,
+    });
+    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+        label: Some("wf_readback"),
+    });
+    encoder.copy_buffer_to_buffer(source_buf, 0, &staging, 0, byte_len);
+    queue.submit(std::iter::once(encoder.finish()));
+
+    let slice = staging.slice(..);
+    let (tx, rx) = std::sync::mpsc::channel();
+    slice.map_async(wgpu::MapMode::Read, move |r| {
+        tx.send(r).ok();
+    });
+    device.poll(wgpu::Maintain::Wait);
+    rx.recv().ok()?.ok()?;
+
+    let data = slice.get_mapped_range();
+    let freqs: &[f64] = bytemuck::cast_slice(&data);
+    let count = freqs.iter().filter(|&&f| f >= 1.0).count();
+    drop(data);
+    staging.unmap();
+
+    Some(count)
+}
+
 #[cfg(feature = "barracuda-gpu")]
 fn wf_batch_gpu(
     pop_size: usize,
@@ -328,19 +393,7 @@ fn wf_batch_gpu(
     let max_gens = 10 * (2 * pop_size);
 
     let freq_init: Vec<f64> = vec![initial_freq; n_trials];
-    let sel_vec: Vec<f64> = vec![selection];
-
-    let mut prng_state = Vec::with_capacity(n_trials * 4);
-    let mut rng = crate::prng::Xorshift64::new(base_seed);
-    for _ in 0..n_trials {
-        for _ in 0..4 {
-            #[expect(
-                clippy::cast_possible_truncation,
-                reason = "RNG u64 → u32 seed; high bits discarded intentionally"
-            )]
-            prng_state.push(rng.next_u64() as u32);
-        }
-    }
+    let prng_state = wf_generate_prng_state(n_trials, base_seed);
 
     let freq_in_buf = d.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("wf_freq_in"),
@@ -358,7 +411,7 @@ fn wf_batch_gpu(
     });
     let sel_buf = d.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("wf_selection"),
-        contents: bytemuck::cast_slice(&sel_vec),
+        contents: bytemuck::cast_slice(&[selection]),
         usage: wgpu::BufferUsages::STORAGE,
     });
     let prng_buf = d.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -369,7 +422,6 @@ fn wf_batch_gpu(
 
     let gpu = WrightFisherGpu::new(wgpu_dev.clone());
 
-    // Ping-pong buffers across generations.
     for gen in 0..max_gens {
         if gen % 2 == 0 {
             gpu.dispatch(
@@ -394,39 +446,12 @@ fn wf_batch_gpu(
         }
     }
 
-    // Read back final frequencies.
     let final_buf = if max_gens.is_multiple_of(2) {
         &freq_in_buf
     } else {
         &freq_out_buf
     };
-    let staging = d.create_buffer(&wgpu::BufferDescriptor {
-        label: Some("wf_staging"),
-        size: (n_trials * 8) as u64,
-        usage: wgpu::BufferUsages::MAP_READ | wgpu::BufferUsages::COPY_DST,
-        mapped_at_creation: false,
-    });
-    let mut encoder = d.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-        label: Some("wf_readback"),
-    });
-    encoder.copy_buffer_to_buffer(final_buf, 0, &staging, 0, (n_trials * 8) as u64);
-    q.submit(std::iter::once(encoder.finish()));
-
-    let slice = staging.slice(..);
-    let (tx, rx) = std::sync::mpsc::channel();
-    slice.map_async(wgpu::MapMode::Read, move |r| {
-        tx.send(r).ok();
-    });
-    d.poll(wgpu::Maintain::Wait);
-    rx.recv().ok()?.ok()?;
-
-    let data = slice.get_mapped_range();
-    let freqs: &[f64] = bytemuck::cast_slice(&data);
-    let fixation_count = freqs.iter().filter(|&&f| f >= 1.0).count();
-    drop(data);
-    staging.unmap();
-
-    Some(fixation_count)
+    wf_readback_fixations(d, q, final_buf, n_trials)
 }
 
 /// Track Shannon diversity under pure neutral drift (multi-species Wright-Fisher).

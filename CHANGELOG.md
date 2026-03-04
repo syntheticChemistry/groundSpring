@@ -4,6 +4,37 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V74 Deep Debt + ToadStool/barraCuda Catch-Up + Full Validation Benchmark (Mar 4, 2026)
+
+#### Fixed
+- **Clippy pedantic `let_and_return`**: `wdm.rs` map closure simplified to direct expression
+- **Clippy pedantic `too_many_lines`**: `drift.rs` `wf_batch_gpu` refactored — extracted `wf_generate_prng_state` and `wf_readback_fixations` helpers
+- **`eps::UNDERFLOW` dead code**: integrated into `linalg.rs` QL convergence detection against subnormal values
+
+#### Changed
+- **CI clippy pedantic enforcement**: all `cargo clippy` commands in `.github/workflows/ci.yml` now include `-W clippy::pedantic` across default, barracuda, and all-features modes
+- **Tolerance deduplication**: `groundspring-validate` re-exports 7 core tolerance constants from `groundspring::tol` instead of defining local duplicates
+- **`freeze_out.rs` magic numbers → named constants**: 7 L-BFGS constants (behind `#[cfg(feature = "barracuda")]`) + 3 Nelder-Mead constants (behind `#[cfg(feature = "barracuda-gpu")]`) + PRNG seed
+- **`fao56/pipeline.rs` magic numbers → named constants**: `RH_MIN_FLOOR_PCT`, `RH_MAX_CEIL_PCT`, `RHMAX_FLOOR_PCT`, `WIND_SPEED_FLOOR_KMH` for Monte Carlo clamp bounds
+- **`biomeos/mod.rs` magic numbers → named constants**: `DEFAULT_CONNECT_TIMEOUT_SECS`, `DEFAULT_READ_TIMEOUT_SECS`
+- **`benchmark_cross_spring.rs`**: updated to ToadStool S93, barraCuda v0.3.1; added S89 budding and S90-S93 evolution timeline entries; provenance table expanded with barraCuda standalone and D-DF64 transfer
+- **ABSORPTION_MANIFEST.md**: updated from V61 (32 delegations) to V74 (81 delegations) — full inventory with CPU/GPU breakdown, Tier B/C resolution
+- **BARRACUDA_EVOLUTION.md**: V74 header + fresh benchmark table (28 binaries × 2 modes)
+- **CROSS_SPRING_SHADER_EVOLUTION.md**: V74 benchmark results, S87–S93 + barraCuda budding section, universal precision architecture documented, cross-spring provenance for speedups
+
+#### Quality
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace --all-targets -- -D warnings -W clippy::pedantic`: PASS (default + barracuda)
+- `cargo doc --workspace --no-deps`: PASS
+- `cargo test --workspace`: PASS (790 tests)
+- `cargo test --workspace --features barracuda`: PASS
+- **Validation binaries (default)**: 28/28 PASS, 21.7s total (release)
+- **Validation binaries (barracuda CPU)**: 28/28 PASS, 19.6s total (release, **−10%**)
+- **Cross-spring benchmark**: 23/23 PASS, 4.5s
+- **barraCuda**: v0.3.1 (standalone primal, `f6895ca`)
+- **toadStool**: S93 (`9319668d`)
+- **Delegations**: 81 active (47 CPU + 34 GPU), unchanged
+
 ### V73 Tolerance Architecture + Epsilon Guards + Idiomatic Evolution (Mar 4, 2026)
 
 #### Added

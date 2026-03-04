@@ -11,6 +11,17 @@
 
 use super::{crop_coefficient, daily_et0, DailyWeatherInputs};
 
+// ── Physical clamp bounds for perturbed meteorological inputs ────────
+
+/// Minimum relative humidity (%) — physical floor for arid conditions.
+const RH_MIN_FLOOR_PCT: f64 = 5.0;
+/// Maximum relative humidity (%) — saturation ceiling.
+const RH_MAX_CEIL_PCT: f64 = 100.0;
+/// Minimum physically plausible `RH_max` (%) for Monte Carlo perturbation.
+const RHMAX_FLOOR_PCT: f64 = 10.0;
+/// Minimum wind speed (km/h) to avoid division-by-zero in Penman-Monteith.
+const WIND_SPEED_FLOOR_KMH: f64 = 0.5;
+
 // ── Monte Carlo uncertainty propagation ───────────────────────────
 
 /// Uncertainty (σ) for each meteorological input perturbed during
@@ -131,16 +142,16 @@ fn monte_carlo_et0_cpu(
                 .min(base.tmax_c + rng.normal(0.0, unc.sigma_tmin) - 1.0),
             rhmax_pct: rng
                 .normal(base.rhmax_pct, unc.sigma_rhmax)
-                .clamp(10.0, 100.0),
+                .clamp(RHMAX_FLOOR_PCT, RH_MAX_CEIL_PCT),
             rhmin_pct: rng
                 .normal(base.rhmin_pct, unc.sigma_rhmin)
-                .clamp(5.0, 100.0),
+                .clamp(RH_MIN_FLOOR_PCT, RH_MAX_CEIL_PCT),
             wind_speed_10m_km_h: rng
                 .normal(
                     base.wind_speed_10m_km_h,
                     base.wind_speed_10m_km_h * unc.sigma_wind_frac,
                 )
-                .max(0.5),
+                .max(WIND_SPEED_FLOOR_KMH),
             sunshine_hours: rng
                 .normal(
                     base.sunshine_hours,

@@ -140,7 +140,7 @@ fn implicit_ql(d: &mut [f64], e: &mut [f64], z: &mut [f64], n: usize) -> Result<
         loop {
             let mut m = l;
             while m < n - 1 {
-                let threshold = eps * (d[m].abs() + d[m + 1].abs());
+                let threshold = (eps * (d[m].abs() + d[m + 1].abs())).max(crate::eps::UNDERFLOW);
                 if e[m].abs() <= threshold {
                     break;
                 }

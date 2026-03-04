@@ -53,13 +53,19 @@ use transport::rpc_call;
 
 // ─── Configuration ───────────────────────────────────────────────────────────
 
+/// Default connect timeout in seconds when env var is unset.
+const DEFAULT_CONNECT_TIMEOUT_SECS: u64 = 5;
+
+/// Default read timeout in seconds when env var is unset.
+const DEFAULT_READ_TIMEOUT_SECS: u64 = 30;
+
 /// Connect timeout, overridable via `GROUNDSPRING_BIOMEOS_CONNECT_TIMEOUT_SECS`.
 fn connect_timeout() -> Duration {
     Duration::from_secs(
         std::env::var("GROUNDSPRING_BIOMEOS_CONNECT_TIMEOUT_SECS")
             .ok()
             .and_then(|v| v.parse().ok())
-            .unwrap_or(5),
+            .unwrap_or(DEFAULT_CONNECT_TIMEOUT_SECS),
     )
 }
 
@@ -69,7 +75,7 @@ fn read_timeout() -> Duration {
         std::env::var("GROUNDSPRING_BIOMEOS_READ_TIMEOUT_SECS")
             .ok()
             .and_then(|v| v.parse().ok())
-            .unwrap_or(30),
+            .unwrap_or(DEFAULT_READ_TIMEOUT_SECS),
     )
 }
 

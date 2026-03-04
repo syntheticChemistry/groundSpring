@@ -28,6 +28,45 @@
 
 use crate::cast::usize_f64;
 
+// ── L-BFGS refinement configuration ──────────────────────────────────────
+// These defaults produce robust convergence for the 2-parameter freeze-out
+// landscape across the Bazavov et al. benchmark grid.
+
+/// L-BFGS history window: number of past iterations retained.
+#[cfg(feature = "barracuda")]
+const LBFGS_MEMORY: usize = 5;
+/// L-BFGS maximum iterations.
+#[cfg(feature = "barracuda")]
+const LBFGS_MAX_ITER: usize = 200;
+/// L-BFGS gradient tolerance for convergence.
+#[cfg(feature = "barracuda")]
+const LBFGS_GTOL: f64 = 1e-12;
+/// L-BFGS function-value tolerance for convergence.
+#[cfg(feature = "barracuda")]
+const LBFGS_FTOL: f64 = 1e-15;
+/// L-BFGS Wolfe condition c₁ (sufficient decrease).
+#[cfg(feature = "barracuda")]
+const LBFGS_C1: f64 = 1e-4;
+/// L-BFGS Wolfe condition c₂ (curvature).
+#[cfg(feature = "barracuda")]
+const LBFGS_C2: f64 = 0.9;
+/// L-BFGS maximum line-search steps per iteration.
+#[cfg(feature = "barracuda")]
+const LBFGS_MAX_LINESEARCH: usize = 40;
+
+/// Nelder-Mead maximum iterations for batched GPU multi-start.
+#[cfg(feature = "barracuda-gpu")]
+const NM_MAX_ITERS: usize = 500;
+/// Nelder-Mead convergence tolerance (function-value).
+#[cfg(feature = "barracuda-gpu")]
+const NM_TOL: f64 = 1e-12;
+/// Deterministic PRNG seed for Nelder-Mead simplex initialization.
+///
+/// The optimization result is seed-independent; this just ensures
+/// reproducibility across runs.
+#[cfg(feature = "barracuda-gpu")]
+const NM_SEED: u64 = 42;
+
 /// Result of a 2D grid-search chi-squared fit.
 #[derive(Debug, Clone)]
 pub struct GridFitResult {
@@ -156,13 +195,13 @@ fn lbfgs_refine_barracuda(
     };
 
     let lbfgs_config = LbfgsConfig {
-        memory: 5,
-        max_iter: 200,
-        gtol: 1e-12,
-        ftol: 1e-15,
-        c1: 1e-4,
-        c2: 0.9,
-        max_linesearch: 40,
+        memory: LBFGS_MEMORY,
+        max_iter: LBFGS_MAX_ITER,
+        gtol: LBFGS_GTOL,
+        ftol: LBFGS_FTOL,
+        c1: LBFGS_C1,
+        c2: LBFGS_C2,
+        max_linesearch: LBFGS_MAX_LINESEARCH,
     };
 
     let x0 = [coarse.t0, coarse.kappa2];
@@ -478,12 +517,12 @@ fn nelder_mead_multi_start_gpu(
 
     let nm_config = BatchNelderMeadConfig {
         dims: 2,
-        max_iters: 500,
-        tol: 1e-12,
+        max_iters: NM_MAX_ITERS,
+        tol: NM_TOL,
         ..BatchNelderMeadConfig::default()
     };
 
-    let mut rng = crate::prng::Xorshift64::new(42);
+    let mut rng = crate::prng::Xorshift64::new(NM_SEED);
     let mut simplices = Vec::with_capacity(n_starts * 3 * 2);
     for _ in 0..n_starts {
         for vertex in 0..3 {

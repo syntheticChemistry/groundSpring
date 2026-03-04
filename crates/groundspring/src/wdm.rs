@@ -34,10 +34,7 @@ pub fn green_kubo_integrate(acf: &[f64], dt: f64) -> f64 {
     #[cfg(feature = "barracuda")]
     {
         let x: Vec<f64> = (0..acf.len())
-            .map(|i| {
-                let t = crate::cast::usize_f64(i) * dt;
-                t
-            })
+            .map(|i| crate::cast::usize_f64(i) * dt)
             .collect();
         if let Ok(val) = barracuda::numerical::trapz(acf, &x) {
             return val;

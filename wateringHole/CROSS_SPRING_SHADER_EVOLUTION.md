@@ -3,7 +3,7 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 3, 2026 (V72: 81 active delegations (47 CPU + 34 GPU), 1 evolution candidate, barraCuda v0.3.1 (standalone primal), toadStool S93 (`9319668d`) — V72: Deep Audit + Debt Evolution, all gates green, 786+ tests. V71: barraCuda 0.3.1 pin, ecosystem maturation. V70: +5 S80-S87 delegations, barraCuda budding. V69: cross-spring evolution parity, universal precision audit, 30 metalForge workloads, 187 checks)
+**Last Updated**: March 4, 2026 (V74: 81 active delegations (47 CPU + 34 GPU), 1 evolution candidate, barraCuda v0.3.1 (standalone primal), toadStool S93 (`9319668d`). V74: clippy pedantic CI, deep debt evolution (wdm/drift/linalg), tolerance deduplication, optimizer/pipeline named constants, ABSORPTION_MANIFEST V74 catch-up, all quality gates green, 790 tests. V73: 13-tier tolerance architecture. V72: deep audit + debt evolution)
 
 ---
 
@@ -228,9 +228,80 @@ shaders evolve in a cycle where wetSpring (domain biology) and neuralSpring
 
 ---
 
+## S87–S93 + barraCuda Budding Evolution (V70–V74)
+
+The largest structural evolution in the ecosystem: barraCuda budded from
+ToadStool into a standalone math primal, and groundSpring caught up to the
+full S93 state.
+
+### barraCuda Budding (S89, March 3, 2026)
+
+ToadStool's embedded `crates/barracuda/` extracted to `ecoPrimals/barraCuda/`
+as a standalone primal. groundSpring rewired with a zero-code-change path swap
+(V70), confirmed by all 5 Springs:
+
+```
+groundSpring ──→ barraCuda v0.3.1   (WHAT to compute — math primitives)
+toadStool    ──→ barraCuda v0.3.1   (WHERE/HOW — dispatch, scheduling)
+akida-driver remains in ToadStool   (hardware, not math)
+```
+
+### Universal Precision Architecture
+
+barraCuda v0.3.1 compiles every f64-canonical shader to 4 precision tiers:
+
+| Tier | Hardware | Mantissa Bits | Source |
+|------|----------|--------------|--------|
+| F16 | Mobile/NPU | 10 | Downcast from f64 |
+| F32 | Consumer default | 23 | Downcast from f64 |
+| F64 | Compute GPUs (Titan V) | 52 | Native |
+| DF64 | Consumer GPUs (RTX 4070) | ~48 | **hotSpring S58** double-float emulation |
+
+`compile_shader_universal(source, precision)` auto-selects based on
+`Fp64Strategy::probe()` runtime discovery. groundSpring benefits transparently —
+delegated functions get optimal precision per hardware without code changes.
+
+### Cross-Spring Evolution in S87–S93
+
+| Session | Cross-Spring Impact | groundSpring Benefit |
+|---------|--------------------|--------------------|
+| S87 | FHE shader fix (`u64_mod_simple`) from internal audit | No direct impact |
+| S88 | groundSpring V68 absorption: `anderson_4d`, `wegner_block_4d`, `LbfgsGpu`, `tridiag_eigenvectors` | Our tissue immunology shaders now upstream |
+| S89 | barraCuda budding: 767 shaders, standalone primal | Zero-code-change path swap (V70) |
+| S90 | REST→JSON-RPC: all Springs migrate to capability-based discovery | Already JSON-RPC (V30+) |
+| S91-S92 | BearDog sovereignty neutralization, middleware removal | No impact |
+| S93 | D-DF64 transfer to barraCuda team; 12 stale docs removed | DF64 precision now barraCuda-owned |
+
+### Where Cross-Spring Evolution Helped Most
+
+**hotSpring precision → all**: The DF64 core-streaming architecture (S58)
+means groundSpring's statistical computations get f64-class precision
+(~48 mantissa bits) on consumer RTX 4070 hardware — without any
+groundSpring-specific effort. This is the single largest cross-spring win.
+
+**wetSpring bio → groundSpring diversity**: Shannon, Simpson, Bray-Curtis,
+Chao1, rarefaction_curve all came from wetSpring metagenomics (S64). These
+power groundSpring's rare biosphere and sequencing noise experiments.
+
+**airSpring hydrology → groundSpring physics**: FAO-56 ET₀ methods (S66) and
+L-BFGS optimizer (S84) from agricultural sensor calibration now serve QCD
+freeze-out parameter estimation — the optimizer sees an objective function,
+not a domain.
+
+**neuralSpring ML → groundSpring classification**: ESN reservoir networks
+(wetSpring → hotSpring → S59) power groundSpring's Anderson regime classifier
+(Exp 028). The `pow_f64` polyfill fix (neuralSpring S-17) unblocked Ada
+Lovelace GPUs for all Springs.
+
+**groundSpring patterns → all**: The `if let Ok` + CPU fallback delegation
+pattern, `ValidationHarness`, tolerance documentation standard, and
+capability-based discovery are now wateringHole standards adopted by all Springs.
+
+---
+
 ## groundSpring Delegation Lineage
 
-Each of groundSpring's 61 active delegations has a traceable cross-spring history:
+Each of groundSpring's 81 active delegations has a traceable cross-spring history:
 
 | # | groundSpring fn | barracuda fn | Primary Origin | Validated By |
 |---|----------------|--------------|---------------|-------------|
@@ -602,7 +673,25 @@ ToadStool S70+ (sessions 70 through 70+++).
   calculations — a textbook example of how the ecoPrimals "Springs don't import,
   they learn" model creates unexpected cross-pollination.
 
-### V55 Three-Mode Benchmark (March 1, 2026)
+### V74 Full-Suite Benchmark (March 4, 2026)
+
+28 validation binaries, release mode, barraCuda v0.3.1, i9-12900K:
+
+| Mode | Binaries | Total Time | Ratio |
+|------|----------|------------|-------|
+| Default (no barracuda) | 28/28 PASS | 21.7s | 1.0× |
+| barraCuda (CPU delegation) | 28/28 PASS | 19.6s | **1.11×** (−10%) |
+
+**Notable cross-spring speedups in barraCuda mode:**
+- FAO-56 (airSpring hydrology): −78% (74ms → 16ms)
+- Spectral reconstruction (hotSpring Lanczos): −81% (62ms → 12ms)
+- Freeze-out (airSpring L-BFGS): −67% (30ms → 10ms)
+- Jackknife (wetSpring stats): −57% (14ms → 6ms)
+- Precision drift (hotSpring DF64): −17% (4162ms → 3453ms)
+
+Cross-spring benchmark: **23/23 PASS** (4.5s total).
+
+### V55 Three-Mode Benchmark (March 1, 2026, historical)
 
 333 lib tests timed in three feature modes, ToadStool S70+:
 
@@ -616,16 +705,14 @@ ToadStool S70+ (sessions 70 through 70+++).
 hardware — shader compilation fails before dispatch. All 6 fall back to CPU
 correctly in production.
 
-**283/283 validation checks pass** across all 27 experiments in default mode.
-
-### Delegation Summary (V72 Current)
+### Delegation Summary (V74 Current)
 
 | Tier | Count | Notes |
 |------|-------|-------|
 | CPU active | 47 | barraCuda v0.3.1 canonical |
 | GPU active | 34 | includes 4D Anderson, Wegner RG, McEt0, seasonal pipeline, JackknifeMeanGpu, HargreavesBatchGpu |
 | Evolution candidates | 1 | band_edges (algorithm mismatch) |
-| **Total active** | **81** | 786+ tests |
+| **Total active** | **81** | 790 tests, clippy pedantic clean |
 
 ### NUCLEUS Integration (V63)
 

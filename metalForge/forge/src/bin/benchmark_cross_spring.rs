@@ -38,7 +38,7 @@ use std::time::Instant;
 
 fn main() {
     println!("=== groundSpring Cross-Spring Benchmark ===");
-    println!("=== ToadStool S87 / BarraCUDA Universal Precision ===\n");
+    println!("=== ToadStool S93 / barraCuda v0.3.1 / Universal Precision ===\n");
 
     let mut h = Harness::new();
 
@@ -435,14 +435,16 @@ fn print_evolution_timeline() {
     println!("  ├─ ToadStool S68 ──→ dual-layer DF64 (op_preamble + naga IR rewrite)");
     println!("  └─ Result: \"Math is universal, precision is silicon\"\n");
 
-    println!("  Phase 4: Modern Wiring (S70-S87, Feb-Mar 2026)");
+    println!("  Phase 4: Modern Wiring (S70-S93, Feb-Mar 2026)");
     println!("  ┌─ hotSpring → all: DF64 gives f64-class on consumer GPUs (RTX 4070)");
     println!("  ├─ hotSpring → groundSpring: anderson_4d + wegner_block_4d (tissue model)");
     println!("  ├─ airSpring → groundSpring: L-BFGS refinement (freeze-out optimization)");
     println!("  ├─ wetSpring → groundSpring: BatchedMultinomialGpu, DiversityFusionGpu");
     println!("  ├─ neuralSpring → all: AlphaFold2 Evoformer primitives (S69)");
     println!("  ├─ groundSpring → all: InterconnectTopology, SubstratePipeline (S81)");
-    println!("  └─ S87: FHE shader fix, unsafe audit, all ~60+ unsafe sites documented\n");
+    println!("  ├─ S87: FHE shader fix, unsafe audit, all ~60+ unsafe sites documented");
+    println!("  ├─ S89: barraCuda budded to standalone primal (zero toadStool deps)");
+    println!("  └─ S90-S93: REST→JSON-RPC, sovereignty evolution, D-DF64 transfer\n");
 
     println!("  Bidirectional Flow (every spring feeds every other spring):");
     println!("  ┌─ hotSpring precision → wetSpring bio gets f64-class on consumer GPUs");
@@ -453,7 +455,7 @@ fn print_evolution_timeline() {
     println!("  └─ All springs → ToadStool → absorbed → all springs consume\n");
 
     println!("  Current state: barraCuda v0.3.1, 144 ComputeDispatch ops, 844+ f64 shaders");
-    println!("  groundSpring: 81 delegations (47 CPU + 34 GPU), 786+ tests, zero debt");
+    println!("  groundSpring: 81 delegations (47 CPU + 34 GPU), 790 tests, clippy pedantic clean");
 }
 
 fn print_provenance_table() {
@@ -489,6 +491,8 @@ fn print_provenance_table() {
     println!("  │ anderson_4d + wegner_block_4d     │ hotSpring → S84         │ S84    │");
     println!("  │ FHE shader fix (u64_mod_simple)   │ ToadStool internal      │ S87    │");
     println!("  │ is_device_lost() + retry          │ ToadStool resilience    │ S87    │");
+    println!("  │ barraCuda standalone primal        │ ToadStool budding       │ S89    │");
+    println!("  │ D-DF64 transfer to barraCuda       │ ToadStool → barraCuda   │ S93    │");
     println!("  └──────────────────────────────────┴──────────────────────────┴────────┘");
     println!();
     println!("  Key cross-pollination (S70+ evolution):");
@@ -504,6 +508,6 @@ fn print_provenance_table() {
     println!("    groundSpring Anderson sweep → feeds ESN training data cross-spring");
     println!("    airSpring L-BFGS → groundSpring freeze-out post-grid-search refinement");
     println!("    hotSpring anderson_4d → groundSpring tissue immunology (Paper 12)");
-    println!("    ToadStool S87 → FHE u64 mod fix, device-lost resilience");
+    println!("    ToadStool S87-S93 → FHE fix, barraCuda budding, D-DF64 transfer");
     println!("    Universal precision: F16→F32→F64→Df64 from one f64-canonical source");
 }

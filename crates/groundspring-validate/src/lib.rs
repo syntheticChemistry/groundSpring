@@ -11,29 +11,40 @@
 use serde_json::Value;
 use std::fmt;
 
+// ── Tolerances ───────────────────────────────────────────────────────────
+//
+// Re-export from `groundspring::tol` where values match, and define
+// validation-specific tolerances alongside.
+
 /// f64 identity — values computed by the same deterministic path on
 /// identical inputs.  Only IEEE 754 rounding distinguishes them.
-pub const TOL_EXACT: f64 = 1e-12;
+pub const TOL_EXACT: f64 = groundspring::tol::EXACT;
 
 /// Exact arithmetic (add / mul / div) on f64 inputs with at most one
 /// transcendental (sqrt, ln) introducing ~1 ULP accumulated error.
-pub const TOL_ANALYTICAL: f64 = 1e-10;
+pub const TOL_ANALYTICAL: f64 = groundspring::tol::ANALYTICAL;
 
 /// Literature values reported to 3–4 significant decimals (e.g.
 /// Dong et al. 2020 sensor MBE/RMSE calibrations).
-pub const TOL_LITERATURE: f64 = 0.001;
+pub const TOL_LITERATURE: f64 = groundspring::tol::LITERATURE;
 
 /// Bias–variance decomposition fractions where the Pythagorean identity
 /// RMSE² = MBE² + σ² amplifies rounding near the fourth decimal.
-pub const TOL_DECOMPOSITION: f64 = 0.005;
+pub const TOL_DECOMPOSITION: f64 = groundspring::tol::DECOMPOSITION;
 
 /// Finite-sample mean estimators from stochastic algorithms (Gillespie,
 /// Monte Carlo) where sampling noise is O(1/√N).
-pub const TOL_STOCHASTIC_MEAN: f64 = 0.01;
+pub const TOL_STOCHASTIC_MEAN: f64 = groundspring::tol::STOCHASTIC;
 
 /// ODE equilibrium values and meteorological parameters where physical
 /// measurement precision is ~0.1 unit.
-pub const TOL_EQUILIBRIUM: f64 = 0.1;
+pub const TOL_EQUILIBRIUM: f64 = groundspring::tol::EQUILIBRIUM;
+
+/// Deterministic rerun tolerance — same code, same inputs, same seed.
+/// Stricter than `TOL_EXACT` because no algorithmic variation is expected.
+pub const TOL_DETERMINISM: f64 = groundspring::tol::DETERMINISM;
+
+// ── Validation-specific tolerances (no library counterpart) ──────────
 
 /// Rarefaction taxon proportions at moderate sequencing depth — multinomial
 /// sampling variance at N ≈ 50 000.
@@ -42,10 +53,6 @@ pub const TOL_RAREFACTION_PROP: f64 = 0.05;
 /// Coarse stochastic regime classification (e.g. "all taxa detected")
 /// tolerating ±0.5 in count-like quantities.
 pub const TOL_REGIME: f64 = 0.5;
-
-/// Deterministic rerun tolerance — same code, same inputs, same seed.
-/// Stricter than `TOL_EXACT` because no algorithmic variation is expected.
-pub const TOL_DETERMINISM: f64 = 1e-15;
 
 /// Grid-search matching tolerance for locating a disorder/coupling value
 /// in a sweep array (e.g. `(w - target).abs() < TOL_GRID_MATCH`).

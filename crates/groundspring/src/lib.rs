@@ -228,6 +228,9 @@ pub(crate) mod eps {
     #[cfg(feature = "barracuda-gpu")]
     pub const SSA_FLOOR: f64 = 1e-15;
     /// Underflow guard for condition number / matrix element magnitude.
+    ///
+    /// Used by [`crate::linalg`] QL iteration to detect near-zero off-diagonal
+    /// elements that would cause division overflow in implicit shift computation.
     pub const UNDERFLOW: f64 = 1e-300;
 }
 

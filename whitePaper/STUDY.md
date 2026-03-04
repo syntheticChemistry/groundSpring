@@ -215,7 +215,7 @@ All twenty-one experiments have been ported to idiomatic Rust in the `groundspri
 |--------|-------|
 | Validation binaries | 33 (decompose, rarefaction, seismic, weather, fao56, signal-specificity, rawr, anderson, quasiperiodic, bistable, multisignal, transport, resampling-conv, drift, uncertainty-bridge, rare-biosphere, quasispecies, band-edge, jackknife, freeze-out, spectral-recon, et0-anderson, notill-sampling, aggregate-stability, precision-drift, size-convergence, vendor-parity, npu-anderson, ghcnd-et0, ncbi-rare-biosphere, nucleus-stack, iris-seismic, tissue-anderson) |
 | Total checks | 376/376 PASS |
-| Rust tests | 783 |
+| Rust tests | 790 |
 | Python baseline integrity tests | 278 |
 | Clippy warnings | 0 |
 | Rust vs Python | **11.5× faster** excl. LAPACK-bound (104s → 9s); 5.1× overall; Exp 009: 47.7× with Sturm tridiag |
@@ -507,7 +507,7 @@ The evolution path — Python baseline → Rust validation → barracuda CPU →
 ## 24. Evolution Path
 
 - **Phase 0+**: Wire real NOAA CDO data for Exp 002; download IRIS waveforms for Exp 005
-- **Phase 2a (DONE)**: Tier A rewire — **76 active delegations (44 CPU + 32 GPU), 1 evolution candidate — ToadStool S87**. barracuda from `barraCuda` primal (`ecoPrimals/barraCuda/`). GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r) + batch GPU APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64). Rust is **11.5× faster** than Python (excl. LAPACK-bound; Exp 009: 47.7× from Sturm tridiag). 30/30 parity proven. V51: 752 workspace tests, 376/376 checks, 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only), 100+ three-tier parity tests, 9 CPU vs GPU parity tests
+- **Phase 2a (DONE)**: Tier A rewire — **81 active delegations (47 CPU + 34 GPU), 1 evolution candidate — toadStool S93**. barracuda from `barraCuda` primal (`ecoPrimals/barraCuda/`). GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r) + batch GPU APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64). Rust is **11.5× faster** than Python (excl. LAPACK-bound; Exp 009: 47.7× from Sturm tridiag). 30/30 parity proven. V51: 752 workspace tests, 376/376 checks, 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only), 100+ three-tier parity tests, 9 CPU vs GPU parity tests
 - **Phase 2b**: Tier B adapt — PRNG alignment, grid-search dispatch, Gillespie GPU
 - **Phase 2c**: Tier C absorption — MC and multinomial kernels → barracuda; RAWR kernel
 - **Phase 3**: Full GPU pipeline, metalForge cross-substrate validation

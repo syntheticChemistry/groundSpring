@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: March 2, 2026
-**Status**: Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 376/376 PASS (321 core + 55 NUCLEUS), 81 delegations (47 CPU + 34 GPU), 1 evolution candidate — barraCuda v0.3.1, 786+ workspace tests, 100+ three-tier parity tests, 187 metalForge checks, biomeOS Neural API live (Tower + Node + Squirrel validated), NestGate data pipelines (NCBI, NOAA, IRIS), 33 experiments, 33 modules
+**Status**: Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 376/376 PASS (321 core + 55 NUCLEUS), 81 delegations (47 CPU + 34 GPU), 1 evolution candidate — barraCuda v0.3.1, 790 workspace tests, 100+ three-tier parity tests, 187 metalForge checks, biomeOS Neural API live (Tower + Node + Squirrel validated), NestGate data pipelines (NCBI, NOAA, IRIS), 33 experiments, 33 modules
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -15,7 +15,7 @@
 | Phase 4 (NUCLEUS) | 55/55 PASS — 4 NUCLEUS validation binaries (Exp 029–032) |
 | Total Validation | 376/376 PASS across 33 experiments |
 | Mathematical Parity | 28/28 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
-| Rust tests | 786+ workspace + 375 Python = 1158+ total |
+| Rust tests | 790 workspace + 375 Python = 1158+ total |
 | metalForge | 2 production WGSL shaders (anderson_lyapunov, anderson_lyapunov_f32) |
 | Exp 001 | Sensor noise decomposition — EC5 bias-dominated, CS616 mixed |
 | Exp 002 | Observation gap ERA5 vs station — methodology validated |

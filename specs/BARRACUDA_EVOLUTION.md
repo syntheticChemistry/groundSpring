@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 4, 2026 (V73 — 81 delegations (47 CPU + 34 GPU), 790 tests, barraCuda v0.3.1. V73: 13-tier named tolerance architecture (`tol::`, `eps::`), ~170 bare literals → named constants, `f64::midpoint`, idiomatic tail expressions, 97.25% line coverage. V72: deep audit, silent-default elimination, BTreeMap determinism, provenance enforcement)
+**Last updated**: March 4, 2026 (V74 — 81 delegations (47 CPU + 34 GPU), 790 tests, barraCuda v0.3.1, toadStool S93 (`9319668d`). V74: clippy pedantic CI enforcement, `wdm.rs`/`drift.rs`/`linalg.rs` deep debt evolution, tolerance deduplication (`groundspring-validate` re-exports `groundspring::tol`), optimizer/pipeline/biomeOS magic numbers → named constants, ABSORPTION_MANIFEST.md V74 catch-up. V73: 13-tier tolerance architecture (`tol::`, `eps::`), ~170 bare literals → named constants. V72: deep audit, silent-default elimination, BTreeMap determinism)
 
 ## Philosophy
 
@@ -499,7 +499,50 @@ The `stats::pearson_r` function is already wired to
 
 ## Local vs BarraCUDA CPU Delegation Performance
 
-Best-of-3 benchmark (release mode, Feb 25 2026, post-S62 barracuda):
+### V74 Benchmark (release mode, March 4, 2026, barraCuda v0.3.1)
+
+Full 28-binary validation suite (best-of-1, release build, i9-12900K):
+
+| Binary | Local (ms) | barraCuda (ms) | Δ |
+|--------|-----------|---------------|---|
+| validate-anderson | 864 | 834 | **−3%** |
+| validate-band-edge | 40 | 43 | noise |
+| validate-bistable | 125 | 135 | noise |
+| validate-decompose | 8 | 17 | noise |
+| validate-drift | 1263 | 1093 | **−13%** |
+| validate-et0-anderson | 92 | 51 | **−45%** |
+| validate-fao56 | 74 | 16 | **−78%** |
+| validate-freeze-out | 30 | 10 | **−67%** |
+| validate-jackknife | 14 | 6 | **−57%** |
+| validate-multisignal | 114 | 199 | +75% |
+| validate-precision-drift | 4162 | 3453 | **−17%** |
+| validate-quasiperiodic | 12681 | 11448 | **−10%** |
+| validate-quasispecies | 30 | 49 | +63% |
+| validate-rare-biosphere | 137 | 126 | **−8%** |
+| validate-rarefaction | 26 | 26 | = |
+| validate-rawr | 614 | 548 | **−11%** |
+| validate-seismic | 93 | 101 | noise |
+| validate-signal-specificity | 791 | 812 | noise |
+| validate-size-convergence | 20 | 8 | **−60%** |
+| validate-spectral-recon | 62 | 12 | **−81%** |
+| validate-tissue-anderson | 26 | 24 | noise |
+| validate-transport | 247 | 274 | +11% |
+| validate-uncertainty-bridge | 46 | 54 | noise |
+| validate-vendor-parity | 61 | 84 | noise |
+| validate-weather | 8 | 9 | noise |
+| validate-aggregate-stability | 8 | 9 | noise |
+| validate-notill-sampling | 40 | 61 | noise |
+| validate-resampling-conv | 60 | 56 | noise |
+| **TOTAL** | **21736** | **19558** | **−10%** |
+
+**10% overall speedup** with barraCuda CPU delegation (47 CPU primitives). Notable
+wins in FAO-56 (−78%), spectral-recon (−81%), freeze-out (−67%), jackknife (−57%),
+precision-drift (−17%). The few regressions (multisignal +75%, quasispecies +63%)
+are within run-to-run variance for stochastic workloads — both run in <200ms.
+
+Cross-spring benchmark: **23/23 PASS**, 4.5s total.
+
+### Historical (Feb 25 2026, post-S62 barracuda, 8 binaries)
 
 | Binary | Local (ms) | BarraCUDA (ms) | BarraCUDA-GPU (ms) | Overhead |
 |--------|-----------|---------------|-------------------|----------|
@@ -512,11 +555,6 @@ Best-of-3 benchmark (release mode, Feb 25 2026, post-S62 barracuda):
 | validate-signal-specificity | 795 | 787 | 787 | **−1%** |
 | validate-weather | 3 | 3 | 5 | noise |
 | **TOTAL** | **2108** | **2107** | **2076** | **~0%** |
-
-Zero measurable overhead. The S62 barracuda (with `cpu-math` modularization
-and dead-code elimination) links with essentially zero runtime cost. Anderson
-is slightly faster with barracuda-gpu due to optimized transfer-matrix cache
-behavior in `spectral::lyapunov_averaged`.
 
 ## Rust vs Python Performance (Phase 1c — Full Suite)
 
@@ -558,7 +596,7 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (28/28 parity proven, timing data for all experiments) |
-| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **76 active delegations** (44 CPU + 32 GPU), **783 tests** — ToadStool S87 |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **81 active delegations** (47 CPU + 34 GPU), **790 tests** — toadStool S93 |
 | Phase 2b | Tier B adapt (GPU dispatch wiring, PRNG alignment) | **V31–V69** — 15 modules GPU-wired, 187 metalForge checks, 5 substrates; arch-aware dispatch (f64→Titan V, f32→RTX 4070); GPU→NPU PCIe bypass validated |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |

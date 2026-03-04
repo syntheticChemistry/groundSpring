@@ -5,6 +5,22 @@ See [CONTROL_EXPERIMENT_STATUS.md](CONTROL_EXPERIMENT_STATUS.md) for the current
 
 ## Run Log
 
+### Run 43 (V74 Deep Debt + ToadStool/barraCuda Catch-Up + Full Validation Benchmark, Mar 4, 2026)
+
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace --all-targets -- -D warnings -W clippy::pedantic`: PASS (0 warnings, default + barracuda)
+- `RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps`: PASS (0 warnings)
+- `cargo test --workspace` (default): 790 tests, all PASS
+- `cargo test --workspace --features barracuda`: all PASS
+- **Validation binaries (default)**: 28/28 PASS, 21.7s total (release mode)
+- **Validation binaries (barracuda CPU)**: 28/28 PASS, 19.6s total (release mode, **−10%**)
+- **Cross-spring benchmark**: 23/23 PASS, 4.5s (barraCuda v0.3.1, ToadStool S93)
+- **Notable speedups**: FAO-56 −78%, spectral-recon −81%, freeze-out −67%, jackknife −57%
+- **barraCuda**: v0.3.1 (standalone primal, `f6895ca`)
+- **toadStool**: S93 (`9319668d`)
+- **Key changes**: clippy pedantic CI, deep debt (wdm/drift/linalg), tolerance deduplication, ABSORPTION_MANIFEST V74 (32→81 delegations), benchmark cross-spring updated to S93, full cross-spring provenance documented
+- **Handoff**: V74 Deep Debt + ToadStool/barraCuda Catch-Up + Benchmark
+
 ### Run 42 (V73 Tolerance Architecture + Idiomatic Evolution, Mar 4, 2026)
 
 - `cargo fmt --check`: PASS

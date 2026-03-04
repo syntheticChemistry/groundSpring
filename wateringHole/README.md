@@ -3,14 +3,16 @@
 **Purpose**: Handoff documents from groundSpring to ToadStool/BarraCUDA team,
 following the wateringHole inter-primal standard.
 
-**Last Updated**: March 3, 2026
+**Last Updated**: March 4, 2026
 
 ## Active Handoffs
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V72 | [GROUNDSPRING_BARRACUDA_V72_DEEP_AUDIT_HANDOFF_MAR03_2026.md](handoffs/GROUNDSPRING_BARRACUDA_V72_DEEP_AUDIT_HANDOFF_MAR03_2026.md) | Mar 3, 2026 | Deep audit + debt evolution feedback: silent-default elimination, BTreeMap determinism, provenance enforcement, 81 delegations (47 CPU + 34 GPU), tolerance architecture, GPU promotion map, patterns for all Springs |
-| V71 | [GROUNDSPRING_BARRACUDA_V71_MATURATION_HANDOFF_MAR03_2026.md](handoffs/GROUNDSPRING_BARRACUDA_V71_MATURATION_HANDOFF_MAR03_2026.md) | Mar 3, 2026 | barraCuda 0.3.1 pin, ecosystem maturation, toadStool S93 untangle confirmation |
+| V74 Absorption | [GROUNDSPRING_V74_TOADSTOOL_BARRACUDA_ABSORPTION_HANDOFF_MAR04_2026.md](handoffs/GROUNDSPRING_V74_TOADSTOOL_BARRACUDA_ABSORPTION_HANDOFF_MAR04_2026.md) | Mar 4, 2026 | Absorption targets, evolution requests, cross-spring learnings, performance data |
+| V74 Catch-Up | [GROUNDSPRING_BARRACUDA_V74_DEEP_DEBT_CATCHUP_HANDOFF_MAR04_2026.md](handoffs/GROUNDSPRING_BARRACUDA_V74_DEEP_DEBT_CATCHUP_HANDOFF_MAR04_2026.md) | Mar 4, 2026 | Deep debt + clippy pedantic CI + ToadStool S93/barraCuda v0.3.1 full catch-up audit |
+| V73 | [GROUNDSPRING_BARRACUDA_V73_TOLERANCE_ARCHITECTURE_HANDOFF_MAR04_2026.md](handoffs/GROUNDSPRING_BARRACUDA_V73_TOLERANCE_ARCHITECTURE_HANDOFF_MAR04_2026.md) | Mar 4, 2026 | 13-tier tolerance architecture (`tol::`, `eps::`), ~170 bare literals → named constants |
+| Guide | [GROUNDSPRING_TOADSTOOL_BARRACUDA_ABSORPTION_GUIDE_MAR04_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_BARRACUDA_ABSORPTION_GUIDE_MAR04_2026.md) | Mar 4, 2026 | Delegation patterns, feature gating, tolerance tiers, evolution requests |
 
 ## Cross-Spring Documentation
 
