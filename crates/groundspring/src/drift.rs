@@ -329,10 +329,6 @@ fn wf_readback_fixations(
     source_buf: &wgpu::Buffer,
     n_trials: usize,
 ) -> Option<usize> {
-    #[expect(
-        clippy::cast_possible_truncation,
-        reason = "n_trials * 8 ≤ 80 000, fits u64"
-    )]
     let byte_len = (n_trials * 8) as u64;
 
     let staging = device.create_buffer(&wgpu::BufferDescriptor {

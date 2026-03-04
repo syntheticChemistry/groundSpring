@@ -26,9 +26,6 @@ fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Drift vs Selection");
 
-    println!("{}", "=".repeat(72));
-    println!("groundSpring Rust Validation: Drift vs Selection (Exp 014)");
-    println!("{}", "=".repeat(72));
     print_provenance_header(&bench, "Drift vs Selection");
 
     let model = &bench["model"];

@@ -24,7 +24,7 @@ fn generate_community(n_genera: usize, mu: f64, sigma: f64, seed: u64) -> Vec<f6
     let mut raw: Vec<f64> = (0..n_genera)
         .map(|_| {
             let z = rng.next_normal();
-            sigma.mul_add(z, mu).exp().max(1e-12)
+            sigma.mul_add(z, mu).exp().max(1e-12) // floor prevents zero-abundance genera in Shannon ln(p)
         })
         .collect();
     let total: f64 = raw.iter().sum();

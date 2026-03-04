@@ -163,3 +163,11 @@ required-features = ["biomeos"]
 [[bin]]
 name = "validate-tissue-anderson"
 path = "src/validate_tissue_anderson.rs"
+
+[[bin]]
+name = "bench-kokkos-parity"
+path = "src/bench_kokkos_parity.rs"
+
+[[bin]]
+name = "bench-gpu-vs-kokkos"
+path = "src/bench_gpu_vs_kokkos.rs"

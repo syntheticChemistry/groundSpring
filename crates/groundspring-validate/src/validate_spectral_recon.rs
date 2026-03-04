@@ -167,9 +167,6 @@ fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Spectral Function Reconstruction");
 
-    println!("{}", "=".repeat(72));
-    println!("groundSpring Rust Validation: Spectral Recon (Exp 021)");
-    println!("{}", "=".repeat(72));
     print_provenance_header(&bench, "Spectral Function Reconstruction");
 
     let exp = &bench["expected_results"];
