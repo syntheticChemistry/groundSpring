@@ -348,7 +348,10 @@ fn wf_readback_fixations(
     slice.map_async(wgpu::MapMode::Read, move |r| {
         tx.send(r).ok();
     });
-    device.poll(wgpu::Maintain::Wait);
+    let _ = device.poll(wgpu::PollType::Wait {
+        submission_index: None,
+        timeout: None,
+    });
     rx.recv().ok()?.ok()?;
 
     let data = slice.get_mapped_range();

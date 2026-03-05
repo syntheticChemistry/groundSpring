@@ -13,7 +13,7 @@ repository.workspace = true
 workspace = true
 
 [features]
-default = []
+default = ["barracuda"]
 barracuda = ["dep:barracuda"]
 barracuda-gpu = ["barracuda", "barracuda/gpu", "dep:wgpu", "dep:bytemuck"]
 nautilus = ["dep:bingocube-nautilus"]
