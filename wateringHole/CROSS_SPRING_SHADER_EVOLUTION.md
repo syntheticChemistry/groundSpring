@@ -3,13 +3,13 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 4, 2026 (V74: 81 active delegations (47 CPU + 34 GPU), 1 evolution candidate, barraCuda v0.3.1 (standalone primal), toadStool S93 (`9319668d`). V74: clippy pedantic CI, deep debt evolution (wdm/drift/linalg), tolerance deduplication, optimizer/pipeline named constants, ABSORPTION_MANIFEST V74 catch-up, all quality gates green, 790 tests. V73: 13-tier tolerance architecture. V72: deep audit + debt evolution)
+**Last Updated**: March 5, 2026 (V79: 85 active delegations (51 CPU + 34 GPU), 1 evolution candidate, barraCuda v0.3.3 (standalone primal), toadStool S94b (`9d359814`). V79: clippy pedantic CI, deep debt evolution (wdm/drift/linalg), tolerance deduplication, optimizer/pipeline named constants, ABSORPTION_MANIFEST V79 catch-up, all quality gates green, 807 tests. V73: 13-tier tolerance architecture. V72: deep audit + debt evolution)
 
 ---
 
 ## Overview
 
-groundSpring has **81 active delegations** (47 CPU + 34 GPU) with **1 evolution candidate** (band_edges — algorithm mismatch).
+groundSpring has **85 active delegations** (51 CPU + 34 GPU) with **1 evolution candidate** (band_edges — algorithm mismatch).
 Those barracuda functions were not built in isolation — they were refined and
 battle-tested through absorption from **five Springs**, each bringing domain-specific
 requirements that hardened the shared library.
@@ -34,7 +34,7 @@ groundSpring (noise validation) → jackknife, evolution (Kimura fixation, quasi
                                   grid search/fit ops, batched multinomial, MC ET₀ propagation,
                                   L-BFGS refinement, 4D Anderson tissue + Wegner RG
                                   ↓
-                          barraCuda v0.3.1 (standalone primal)
+                          barraCuda v0.3.3 (standalone primal)
                     14,200+ tests, 844 WGSL shaders (f64-canonical, DF64 universal precision, 15 transcendentals)
 ```
 
@@ -301,7 +301,7 @@ capability-based discovery are now wateringHole standards adopted by all Springs
 
 ## groundSpring Delegation Lineage
 
-Each of groundSpring's 81 active delegations has a traceable cross-spring history:
+Each of groundSpring's 85 active delegations has a traceable cross-spring history:
 
 | # | groundSpring fn | barracuda fn | Primary Origin | Validated By |
 |---|----------------|--------------|---------------|-------------|
@@ -673,9 +673,9 @@ ToadStool S70+ (sessions 70 through 70+++).
   calculations — a textbook example of how the ecoPrimals "Springs don't import,
   they learn" model creates unexpected cross-pollination.
 
-### V74 Full-Suite Benchmark (March 4, 2026)
+### V79 Full-Suite Benchmark (March 5, 2026)
 
-28 validation binaries, release mode, barraCuda v0.3.1, i9-12900K:
+28 validation binaries, release mode, barraCuda v0.3.3, i9-12900K:
 
 | Mode | Binaries | Total Time | Ratio |
 |------|----------|------------|-------|
@@ -705,14 +705,14 @@ Cross-spring benchmark: **23/23 PASS** (4.5s total).
 hardware — shader compilation fails before dispatch. All 6 fall back to CPU
 correctly in production.
 
-### Delegation Summary (V74 Current)
+### Delegation Summary (V79 Current)
 
 | Tier | Count | Notes |
 |------|-------|-------|
-| CPU active | 47 | barraCuda v0.3.1 canonical |
+| CPU active | 51 | barraCuda v0.3.3 canonical |
 | GPU active | 34 | includes 4D Anderson, Wegner RG, McEt0, seasonal pipeline, JackknifeMeanGpu, HargreavesBatchGpu |
 | Evolution candidates | 1 | band_edges (algorithm mismatch) |
-| **Total active** | **81** | 790 tests, clippy pedantic clean |
+| **Total active** | **85** | 807 tests, clippy pedantic clean |
 
 ### NUCLEUS Integration (V63)
 

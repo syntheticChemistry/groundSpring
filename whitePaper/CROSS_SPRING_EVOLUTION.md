@@ -1,14 +1,14 @@
 # Cross-Spring Evolution: How ecoPrimals Primals Build on Each Other
 
 **Date**: February 27, 2026
-**groundSpring HEAD**: V78
+**groundSpring HEAD**: V79
 **barraCuda**: v0.3.3
 
 ---
 
 ## The Multi-Spring Architecture
 
-groundSpring's 61 active barracuda delegations (37 CPU + 20 GPU + 4 cross-spring) trace their lineage through 5 ecoPrimals
+groundSpring's 85 active barracuda delegations (51 CPU + 34 GPU) trace their lineage through 5 ecoPrimals
 Springs. Each Spring contributes domain-specific primitives that are absorbed into
 ToadStool's BarraCUDA crate, making them available to all other Springs. This
 document traces exactly which primitives came from where and who benefits.
@@ -118,7 +118,7 @@ the backbone of model-observation comparison across all Springs.
 ### Who benefits from airSpring
 
 - **groundSpring**: 7 error metric delegations (RMSE, MBE, R², IoA, hit_rate,
-  mean, percentile) used across all 33 experiments.
+  mean, percentile) used across all 34 experiments.
 - **wetSpring**: Moving window for time-series diversity.
 - **hotSpring**: IoA for lattice QCD convergence monitoring.
 
@@ -241,4 +241,4 @@ from 14.89s → 3.93s.
 
 *This document is generated from groundSpring's validation infrastructure
 and ToadStool's absorption history. It reflects the state of the ecosystem
-at ToadStool S68+ / groundSpring V35.*
+at ToadStool S94b / groundSpring V79.*

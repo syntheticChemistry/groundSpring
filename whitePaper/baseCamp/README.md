@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: March 3, 2026
 
-**Validation Summary**: 376/376 validation checks (321 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), **81 active delegations (47 CPU + 34 GPU) — barraCuda v0.3.3**, 790 workspace tests + 375 Python tests. All 33 experiments PASS. **28/28 mathematical parity proven**. 97.25% library line coverage. Zero clippy warnings (pedantic + nursery), zero unsafe, zero TODO, zero `.unwrap()` in production lib, zero production mocks, all files < 1000 lines. V77: wgpu 28 migration, barraCuda v0.3.3 sync — DF64 precision tiers (15 ops), fused reduction shaders, TensorContext pooling. Deep debt zero maintained. Paper 12 Exp 033 (29/29): cytokine Anderson lattice + geometry-aware drug scoring. 10 domains, 33 modules.
+**Validation Summary**: 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), **85 active delegations (51 CPU + 34 GPU) — barraCuda v0.3.3**, 807 workspace tests + 375 Python tests. All 34 experiments PASS. **29/29 mathematical parity proven**. 97.25% library line coverage. Zero clippy warnings (pedantic + nursery), zero unsafe, zero TODO, zero `.unwrap()` in production lib, zero production mocks, all files < 1000 lines. V79: Exp 035 (5-method ET₀ cross-validation: PM, Hargreaves, Makkink, Turc, Hamon), seismic delegation strengthening. Deep debt zero maintained. Paper 12 Exp 033 (29/29): cytokine Anderson lattice + geometry-aware drug scoring. 10 domains, 34 modules.
 
 ---
 
@@ -54,7 +54,7 @@ Each faculty extension paper is validated at three tiers:
 | Exp 001 (sensor noise) | Waters → **Exp 006** (signal specificity) | wetSpring (bio sensing) |
 | Exp 003 (error propagation) | Liu → **Exp 007** (RAWR bootstrap) | neuralSpring (confidence) |
 | Exp 005 (seismic inversion) | Bazavov → **Exp 019** (jackknife), **Exp 020** (freeze-out), **Exp 021** (spectral recon) | hotSpring (lattice QCD) |
-| All 33 experiments | Kachkovskiy → **Exp 008** + **Exp 009** + **Exp 015** (uncertainty bridge) | hotSpring (spectral theory) |
+| All 34 experiments | Kachkovskiy → **Exp 008** + **Exp 009** + **Exp 015** (uncertainty bridge) | hotSpring (spectral theory) |
 | Exp 009 (quasiperiodic) | Kachkovskiy → **Almost-Mathieu** (Aubry-André) | hotSpring (spectral theory) |
 | Exp 001 + 006 | Waters → **Exp 010** (bistable switching) | wetSpring (QS bifurcation) |
 | Exp 006 + 010 | Waters → **Exp 011** (multi-signal QS) | wetSpring (dual-signal integration) |

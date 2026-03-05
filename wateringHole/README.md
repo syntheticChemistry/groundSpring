@@ -9,7 +9,7 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V78 Modern Rewire | [GROUNDSPRING_V78_MODERN_REWIRE_CROSS_SPRING_HANDOFF_MAR05_2026.md](handoffs/GROUNDSPRING_V78_MODERN_REWIRE_CROSS_SPRING_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | Fused mean+variance, 3 new ET₀ delegations, cross-spring benchmark evolution, 84 delegations |
+| V79 Exp 035 + Delegation | [GROUNDSPRING_V79_EXP035_ET0_DELEGATION_HANDOFF_MAR05_2026.md](handoffs/GROUNDSPRING_V79_EXP035_ET0_DELEGATION_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | Exp 035 Multi-Method ET₀ (5-method cross-validation, Python+Rust), seismic delegation strengthening, 85 delegations |
 
 ## Cross-Spring Documentation
 
@@ -36,6 +36,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V78 Modern Rewire | Fused mean+variance, 3 new ET₀ delegations, cross-spring benchmark evolution, 84 delegations (superseded by V79) |
 | V77 wgpu 28 | wgpu 28 migration, barraCuda v0.3.3 sync, DF64 precision tiers, migration pattern reference (superseded by V78) |
 | V76 Structural | Structural evolution, deep debt zero, NUCLEUS shared utilities, observation-gap parity chain (superseded by V77) |
 | V76 Absorption | Absorption targets, evolution requests, ToadStool/BarraCUDA delegation patterns (superseded by V77) |

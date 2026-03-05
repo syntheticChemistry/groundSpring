@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 5, 2026 (V78 — 84 delegations (50 CPU + 34 GPU), 806 tests, barraCuda v0.3.3 (`4629bdd`), toadStool S94b (`9d359814`). V78: fused mean_and_std_dev (Welford), 3 new ET₀ delegations (Makkink, Turc, Hamon), cross-spring benchmark evolution. V77: wgpu 28 migration, DF64 precision tiers. V76: structural evolution, deep debt zero. V73: 13-tier tolerance architecture)
+**Last updated**: March 5, 2026 (V79 — 85 delegations (51 CPU + 34 GPU), 807 tests, barraCuda v0.3.3 (`4629bdd`), toadStool S94b (`9d359814`). V79: fused mean_and_std_dev (Welford), 3 new ET₀ delegations (Makkink, Turc, Hamon), cross-spring benchmark evolution. V78: wgpu 28 migration, DF64 precision tiers. V77: structural evolution, deep debt zero. V73: 13-tier tolerance architecture)
 
 ## Philosophy
 
@@ -499,7 +499,7 @@ The `stats::pearson_r` function is already wired to
 
 ## Local vs BarraCUDA CPU Delegation Performance
 
-### V74 Benchmark (release mode, March 4, 2026, barraCuda v0.3.1)
+### V79 Benchmark (release mode, March 5, 2026, barraCuda v0.3.3)
 
 Full 28-binary validation suite (best-of-1, release build, i9-12900K):
 
@@ -596,7 +596,7 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (28/28 parity proven, timing data for all experiments) |
-| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **81 active delegations** (47 CPU + 34 GPU), **790 tests** — toadStool S93 |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **85 active delegations** (51 CPU + 34 GPU), **807 tests** — toadStool S93 |
 | Phase 2b | Tier B adapt (GPU dispatch wiring, PRNG alignment) | **V31–V69** — 15 modules GPU-wired, 187 metalForge checks, 5 substrates; arch-aware dispatch (f64→Titan V, f32→RTX 4070); GPU→NPU PCIe bypass validated |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |

@@ -67,6 +67,7 @@ BENCHMARKS=(
     "control/size_convergence/benchmark_size_convergence.json"
     "control/vendor_parity/benchmark_vendor_parity.json"
     "control/npu_anderson/benchmark_npu_anderson.json"
+    "control/et0_methods/benchmark_et0_methods.json"
 )
 
 BASELINES=(
@@ -98,6 +99,7 @@ BASELINES=(
     "python3 control/size_convergence/size_convergence.py"
     "python3 control/vendor_parity/vendor_parity.py"
     "python3 control/npu_anderson/npu_anderson.py"
+    "python3 control/et0_methods/et0_methods.py"
 )
 
 echo "--- Phase 1: Re-run all Python baselines ---"
