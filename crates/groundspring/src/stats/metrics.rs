@@ -11,6 +11,28 @@
 use crate::cast::f64_usize;
 use crate::cast::usize_f64;
 
+/// Single-pass Welford online mean and population variance.
+///
+/// Returns `(mean, population_variance)`. For empty input returns `(0, 0)`.
+/// Numerically stable — avoids the two-pass mean-then-variance pattern.
+fn welford_population(values: &[f64]) -> (f64, f64) {
+    let mut n = 0.0_f64;
+    let mut mean = 0.0_f64;
+    let mut m2 = 0.0_f64;
+    for &x in values {
+        n += 1.0;
+        let delta = x - mean;
+        mean += delta / n;
+        let delta2 = x - mean;
+        m2 = delta.mul_add(delta2, m2);
+    }
+    if n == 0.0 {
+        (0.0, 0.0)
+    } else {
+        (mean, m2 / n)
+    }
+}
+
 /// Arithmetic mean of a slice.
 ///
 /// When `barracuda-gpu` is enabled and a GPU is available, dispatches to
@@ -67,13 +89,7 @@ pub fn std_dev(values: &[f64]) -> f64 {
 }
 
 fn std_dev_cpu(values: &[f64]) -> f64 {
-    let n = values.len();
-    if n == 0 {
-        return 0.0;
-    }
-    let m = mean(values);
-    let variance = values.iter().map(|v| (v - m).powi(2)).sum::<f64>() / usize_f64(n);
-    variance.sqrt()
+    welford_population(values).1.sqrt()
 }
 
 #[cfg(feature = "barracuda-gpu")]
@@ -85,13 +101,14 @@ fn std_dev_gpu(values: &[f64]) -> Option<f64> {
     barracuda::ops::variance_reduce_f64::VarianceReduceF64::population_std(device, values).ok()
 }
 
-/// Fused population mean + variance in a single GPU dispatch (Welford).
+/// Fused population mean + standard deviation in a single pass.
 ///
 /// Returns `(mean, std_dev)` — population std dev (divides by N).
 /// When `barracuda-gpu` is enabled, uses `VarianceF64::mean_variance` which
 /// computes both in one shader pass (cross-spring: hotSpring DF64 precision
 /// tier evolution gives this ~10× throughput on consumer GPUs).
-/// Falls back to two separate calls when no GPU is available.
+/// CPU fallback uses Welford's online algorithm (single pass, numerically
+/// stable).
 #[must_use]
 pub fn mean_and_std_dev(values: &[f64]) -> (f64, f64) {
     #[cfg(feature = "barracuda-gpu")]
@@ -100,7 +117,8 @@ pub fn mean_and_std_dev(values: &[f64]) -> (f64, f64) {
             return pair;
         }
     }
-    (mean(values), std_dev_cpu(values))
+    let (m, v) = welford_population(values);
+    (m, v.sqrt())
 }
 
 #[cfg(feature = "barracuda-gpu")]
@@ -136,9 +154,9 @@ fn sample_std_dev_cpu(values: &[f64]) -> f64 {
     if n < 2 {
         return 0.0;
     }
-    let m = mean(values);
-    let variance = values.iter().map(|v| (v - m).powi(2)).sum::<f64>() / usize_f64(n - 1);
-    variance.sqrt()
+    let (_, pop_var) = welford_population(values);
+    // Bessel correction: sample_var = pop_var * N / (N-1)
+    (pop_var * usize_f64(n) / usize_f64(n - 1)).sqrt()
 }
 
 /// Percentile of a sorted copy of `values` (0–100 scale).

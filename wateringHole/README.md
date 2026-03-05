@@ -9,7 +9,7 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V79 Exp 035 + Delegation | [GROUNDSPRING_V79_EXP035_ET0_DELEGATION_HANDOFF_MAR05_2026.md](handoffs/GROUNDSPRING_V79_EXP035_ET0_DELEGATION_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | Exp 035 Multi-Method ET₀ (5-method cross-validation, Python+Rust), seismic delegation strengthening, 85 delegations |
+| V80 Fused Ops + Catch-Up | [GROUNDSPRING_V80_FUSED_OPS_BARRACUDA_CATCHUP_HANDOFF_MAR05_2026.md](handoffs/GROUNDSPRING_V80_FUSED_OPS_BARRACUDA_CATCHUP_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | Fused `correlation_full` GPU, Welford single-pass CPU, barraCuda HEAD (`15d3774`) catch-up, toadStool S94b review, 87 delegations (51 CPU + 36 GPU) |
 
 ## Cross-Spring Documentation
 
@@ -36,6 +36,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V79 Exp 035 + Delegation | Exp 035 Multi-Method ET₀, seismic delegation, 85 delegations (superseded by V80) |
 | V78 Modern Rewire | Fused mean+variance, 3 new ET₀ delegations, cross-spring benchmark evolution, 84 delegations (superseded by V79) |
 | V77 wgpu 28 | wgpu 28 migration, barraCuda v0.3.3 sync, DF64 precision tiers, migration pattern reference (superseded by V78) |
 | V76 Structural | Structural evolution, deep debt zero, NUCLEUS shared utilities, observation-gap parity chain (superseded by V77) |

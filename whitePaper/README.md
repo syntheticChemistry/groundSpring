@@ -12,7 +12,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **395/395 checks passed** across 34 validation binaries (340 core + 55 NUCLEUS).
 - Mathematical parity: **29/29 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.6× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.4× from Sturm tridiag**.
-- V79: Exp 035 (5-method ET₀ cross-validation: PM, Hargreaves, Makkink, Turc, Hamon), seismic delegation strengthening. 85 delegations (51 CPU + 34 GPU). 807 Rust (default) + 375 Python = 1182 tests. 187 metalForge checks (130 forge + 57 mixed-hardware). 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). Deep debt zero maintained. biomeOS Neural API live, NestGate data pipelines (NCBI, NOAA, IRIS). Zero TODO/FIXME/unsafe/unwrap in production.
+- V80: Exp 035 (5-method ET₀ cross-validation: PM, Hargreaves, Makkink, Turc, Hamon), seismic delegation strengthening. 87 delegations (51 CPU + 36 GPU). 812 Rust (default) + 375 Python = 1187 tests. 187 metalForge checks (130 forge + 57 mixed-hardware). 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). Deep debt zero maintained. biomeOS Neural API live, NestGate data pipelines (NCBI, NOAA, IRIS). Zero TODO/FIXME/unsafe/unwrap in production.
 
 ### Key Results
 

@@ -4,6 +4,31 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V80 Fused Ops Rewire + barraCuda/ToadStool Catch-Up (Mar 5, 2026)
+
+#### Added
+- **Fused `correlation_full` GPU dispatch**: New `stats::pearson_full()` function and `CorrelationFull` struct expose barraCuda's 5-accumulator `CorrelationF64::correlation_full` shader — returns mean_x, mean_y, var_x, var_y, and Pearson r in a single GPU dispatch (no intermediate readbacks). DF64 precision tier auto-selected on consumer GPUs via `Fp64Strategy::Hybrid`
+- **Covariance GPU path**: `stats::covariance()` now has a GPU dispatch via `correlation_full`, deriving sample covariance from population covariance with Bessel correction. Was CPU-only
+- **5 new tests**: `pearson_full` perfect positive/negative, empty, constant, and agreement-with-`pearson_r` tests
+
+#### Changed
+- **Welford single-pass CPU stats**: `std_dev`, `sample_std_dev`, and `mean_and_std_dev` CPU fallbacks now use `welford_population()` — numerically stable single-pass algorithm replacing the two-pass mean-then-variance pattern
+- **barraCuda catch-up**: Validated against barraCuda HEAD (`15d3774`) — chi_squared GPU feature gate fix, DF64 precision tiers, TensorContext migration inherited as free upgrades via path dependency
+- **Delegation count**: 85 → 87 active delegations (51 CPU + 36 GPU) — +2 GPU from `correlation_full` wiring (pearson_full, covariance)
+- **Test count**: 807 → 812 workspace tests
+
+#### Ecosystem
+- **ToadStool S94b review**: Full primal decoupling confirmed, barraCuda standalone verified, V68 groundSpring work fully absorbed
+- **coralNAK awareness**: New ecosystem primal (sovereign Rust NVIDIA shader compiler) at Phase 2. groundSpring assigned Level 4 (driver/memory/queue) per sovereign compute roadmap
+
+#### Quality
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace --all-targets -- -D warnings`: PASS
+- `cargo doc --workspace --no-deps`: PASS
+- `cargo test --workspace`: PASS (812 tests)
+- Python Phase 0: 29 experiments, 390 checks PASS
+- Rust Phase 1: 34 binaries, 395/395 PASS
+
 ### V79 Exp 035 Multi-Method ET₀ + Delegation Strengthening (Mar 5, 2026)
 
 #### Added

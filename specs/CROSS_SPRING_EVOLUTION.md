@@ -1,6 +1,6 @@
 # Cross-Spring Shader Evolution
 
-**Last updated**: March 5, 2026 (V79 — 85 active delegations (51 CPU + 34 GPU), 807 Rust workspace tests, barraCuda v0.3.3, toadStool S94b)
+**Last updated**: March 5, 2026 (V80 — 87 active delegations (51 CPU + 36 GPU), 812 Rust workspace tests, barraCuda v0.3.3, toadStool S94b)
 
 The ecoPrimals shader ecosystem evolved organically as each spring
 absorbed domain-specific knowledge, then shared it through ToadStool's
