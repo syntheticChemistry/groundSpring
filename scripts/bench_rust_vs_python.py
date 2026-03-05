@@ -196,6 +196,11 @@ EXPERIMENTS = [
         "rust_features": ["npu"],
         "npu_required": True,
     },
+    {
+        "name": "Exp 035: Multi-Method ET₀",
+        "python": [sys.executable, "control/et0_methods/et0_methods.py"],
+        "rust_bin": "validate-et0-methods",
+    },
 ]
 
 

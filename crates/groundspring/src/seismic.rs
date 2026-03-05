@@ -89,22 +89,25 @@ pub struct InversionResult {
 ///
 /// Origin time is the mean of (observed − predicted). RMS is computed from
 /// residuals after subtracting the estimated origin time.
+///
+/// Delegates mean computation to [`crate::stats::mean`] (which uses barracuda
+/// CPU when the `barracuda` feature is enabled).
 fn origin_time_and_rms(obs_times: &[f64], pred_tt: &[f64]) -> (f64, f64) {
-    let n = usize_f64(obs_times.len());
-    let t0: f64 = obs_times
+    let residuals: Vec<f64> = obs_times
         .iter()
         .zip(pred_tt.iter())
         .map(|(o, p)| o - p)
-        .sum::<f64>()
-        / n;
+        .collect();
+
+    let t0 = crate::stats::mean(&residuals);
 
     let rms = (obs_times
         .iter()
         .zip(pred_tt.iter())
         .map(|(o, p)| (o - (t0 + p)).powi(2))
         .sum::<f64>()
-        / n)
-        .sqrt();
+        / usize_f64(obs_times.len()))
+    .sqrt();
 
     (t0, rms)
 }

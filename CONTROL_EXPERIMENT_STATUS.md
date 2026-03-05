@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 4, 2026
+**Last updated**: March 5, 2026
 
 ## Experiment Register
 
@@ -40,21 +40,22 @@
 | 032 | IRIS Seismic via NUCLEUS | Geological (IRIS) | — | 12/12 PASS |
 | 033 | Cytokine Anderson Lattice | Immunological (tissue geometry) | — | 29/29 PASS |
 | 034 | Geometry-Aware Drug Scoring | Immunological (drug repurposing) | — | (combined with 033) |
+| 035 | Multi-Method ET₀ Cross-Validation | Hydrology (ET₀ methods) | 15/15 PASS | 19/19 PASS |
 
-**Python Phase 0**: All 28 experiments passing (375 pass + 2 skip)
-**Rust Phase 1 (core)**: 321/321 PASS across 29 validation binaries (321 core)
+**Python Phase 0**: All 29 experiments passing (390 pass + 2 skip)
+**Rust Phase 1 (core)**: 340/340 PASS across 30 validation binaries (340 core)
 **Rust Phase 1 (NUCLEUS)**: 55/55 PASS across 4 validation binaries (Exp 029–032, `--features biomeos`)
-**Total validation**: 376/376 PASS across 33 validation binaries
-**Rust tests**: 790/790 PASS (default workspace)
-**pytest**: 375/375 PASS + 2 skipped
+**Total validation**: 395/395 PASS across 34 validation binaries
+**Rust tests**: 807/807 PASS (default workspace)
+**pytest**: 390/390 PASS + 2 skipped
 **Three-tier parity**: 101+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
-**BarraCUDA dispatch**: 81 active (47 CPU + 34 GPU) — V74: barraCuda v0.3.1 (standalone primal), Deep Audit + Debt Evolution. toadStool S93
+**BarraCUDA dispatch**: 85 active (51 CPU + 34 GPU) — V79: barraCuda v0.3.3, toadStool S94b. Exp 035 adds seismic `stats::mean` delegation
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); compute.execute + compute.submit validated
 **metalForge workloads**: 30 (24 GPU + 2 NPU + 2 CPU-only), 187 checks (130 forge + 57 mixed-hardware)
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
 **Paper 12**: `tissue_anderson` module — 18 unit tests + 29/29 validation checks + 4D Anderson + Wegner RG (V68)
-**Handoff**: V74 (Deep Debt + ToadStool/barraCuda Catch-Up, all gates green, 790 tests)
+**Handoff**: V79 (Exp 035 + seismic delegation, all gates green, 807 tests)
 
 **Python checks**: ~160 across 28 experiments. **Rust validation checks**: 376 (321 core + 55 NUCLEUS). **metalForge + pipeline checks**: 187.
 

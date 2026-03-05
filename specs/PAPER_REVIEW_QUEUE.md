@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: March 5, 2026 (V78)
+**Last Updated**: March 5, 2026 (V79)
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---
@@ -41,11 +41,12 @@
 | 31 | NUCLEUS Stack Validation | Infrastructure | — | 28/28 | Tower+Node+Squirrel validated live (NUCLEUS Exp 031) |
 | 32 | IRIS Seismic via NUCLEUS | Geological (IRIS) | — | 12/12 | Live IRIS FDSN data validates seismic chain (NUCLEUS Exp 032) |
 | 33 | Cytokine Anderson Lattice (Paper 12) | Immunological | — | 29/29 | Tissue 2D/3D + barrier disruption + dimensional duality (Exp 033) |
+| 34 | Multi-Method ET₀ Cross-Validation | Hydrology (ET₀) | 15/15 | 19/19 | 5-method comparison: PM, Hargreaves, Makkink, Turc, Hamon (Exp 035) |
 
-**Phase 0**: ~261 checks (Python, 28 experiments). **Phase 1**: 376/376 PASS (Rust, 33 experiments). **Speedup**: 11.6× median (excl. LAPACK-bound), 51.2× peak (seismic).
-**Mathematical Parity**: 28/28 PROVEN — Python and Rust both pass against shared benchmark JSONs (Exp 029–033 have no Python baseline).
-**V74 fresh validation**: 376/376 checks (33 binaries), 790 workspace tests, 100+ three-tier parity tests.
-**GPU dispatch (V31–V74)**: 15 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson, tissue_anderson, jackknife. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). 81 delegations (47 CPU + 34 GPU) — barraCuda v0.3.1.
+**Phase 0**: ~276 checks (Python, 29 experiments). **Phase 1**: 395/395 PASS (Rust, 34 experiments). **Speedup**: 11.6× median (excl. LAPACK-bound), 51.2× peak (seismic).
+**Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs (Exp 029–033 have no Python baseline).
+**V79 fresh validation**: 395/395 checks (34 binaries), 807 workspace tests, 100+ three-tier parity tests.
+**GPU dispatch (V31–V79)**: 15 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson, tissue_anderson, jackknife. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). 85 delegations (51 CPU + 34 GPU) — barraCuda v0.3.3.
 **V66 stats Tier A**: MAE, NSE/R² wired to `FusedMapReduceF64` GPU path. Bistable batch ODE via `BatchedOdeRK4F64`. Papers 1-5 stats fully GPU-capable.
 **V67 hydrology GPU**: `McEt0PropagateGpu` + `SeasonalPipelineF64` + `BatchedMultinomialGpu` API fix (3 call sites).
 **V68 spectral GPU**: `anderson_4d` + `wegner_block_4d` (tissue immunology). `lbfgs_numerical` post-grid refinement.
@@ -227,7 +228,9 @@ datasets, no proprietary software dependencies.
 | 31-32 | NUCLEUS sovereign experiments | NOAA ISD, NCBI SRA, IRIS FDSN | US gov open data / public repos | **Yes** |
 | 33 | Tissue Anderson 4D + Wegner RG | Synthetic lattice (analytical) | Reproducible params | **Yes** |
 
-**Status**: All 33 papers use open data or open systems. Zero proprietary dependencies.
+| 34 | Multi-Method ET₀ (Exp 035) | FAO-56 Example 18 (analytical) | Reproducible params | **Yes** |
+
+**Status**: All 34 papers use open data or open systems. Zero proprietary dependencies.
 **Verified V69**: `test_baseline_integrity.py` confirms all baseline JSONs have complete provenance.
 
 ---
@@ -275,9 +278,9 @@ Write → Absorb → Lean cycle:
 | 29-32 | NUCLEUS sovereign experiments | **55/55** | — | Sovereign fallback | Real data (NOAA/NCBI/IRIS) |
 | 33 | Tissue Anderson 4D + Wegner RG | **29/29** | **Wired** (V68 `anderson_4d` + `wegner_block_4d`) | Workload | 4D Anderson + RG GPU |
 
-**CPU tier**: 376/376 PASS across 33 validation binaries.
-**Barracuda**: 81 active delegations (47 CPU + 34 GPU) — toadStool S93. **Performance**: 11.6× faster than Python (excl. LAPACK-bound); 5.1× overall; 53.5× peak (seismic). **Tests**: 790 Rust workspace + 375 Python = 1165. 100+ three-tier parity tests (100% delegation coverage).
-**Mathematical parity**: 28/28 PROVEN. See `data/parity_report.json` and `data/bench_rust_vs_python.json`.
+**CPU tier**: 395/395 PASS across 34 validation binaries.
+**Barracuda**: 85 active delegations (51 CPU + 34 GPU) — toadStool S94b. **Performance**: 11.6× faster than Python (excl. LAPACK-bound); 5.1× overall; 53.5× peak (seismic). **Tests**: 807 Rust workspace + 390 Python = 1197. 100+ three-tier parity tests (100% delegation coverage).
+**Mathematical parity**: 29/29 PROVEN. See `data/parity_report.json` and `data/bench_rust_vs_python.json`.
 **Three-tier parity**: 100+ parity tests validate CPU ↔ barracuda-CPU equivalence (100% delegation coverage).
 **GPU tier**: 15 modules wired with `#[cfg(feature = "barracuda-gpu")]` — stats Tier A complete (MAE, NSE, R²), bistable batch ODE, McEt0PropagateGpu, SeasonalPipelineF64, 4D Anderson + Wegner RG, L-BFGS refinement. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only). GPU grid adapters (seismic, freeze-out). 790 tests pass.
 **metalForge tier**: 30 workloads, 187 checks (groundspring-forge crate, Exp 028 NPU DMA on AKD1000, pipeline dispatch, PCIe topology, GPU→NPU bypass).
@@ -368,10 +371,10 @@ Papers 23, 24 — **partial** (stats GPU, full chain pending).
 ### Tier 1: BarraCUDA CPU (current — 376/376 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
-81 active delegations (47 CPU + 34 GPU) — toadStool S93 (`9319668d`). 11.5× faster than Python (excl. LAPACK-bound).
-790 Rust workspace tests + 375 Python = 1165. 28/28 mathematical parity proven. 100+ three-tier parity tests (100% delegation coverage).
-376/376 validation checks across 33 experiments (V69, zero-debt audit certified).
-All 33 experiments validated. GPU stats dispatch (mean, std_dev, rmse, mbe, mae, nse, r², pearson_r). L-BFGS post-grid refinement (V68). 14 CPU vs GPU parity tests. CPU vs GPU benchmark binary.
+85 active delegations (51 CPU + 34 GPU) — toadStool S94b (`9d359814`). 11.5× faster than Python (excl. LAPACK-bound).
+807 Rust workspace tests + 390 Python = 1197. 29/29 mathematical parity proven. 100+ three-tier parity tests (100% delegation coverage).
+395/395 validation checks across 34 experiments (V79, zero-debt audit certified).
+All 34 experiments validated. GPU stats dispatch (mean, std_dev, rmse, mbe, mae, nse, r², pearson_r). L-BFGS post-grid refinement (V68). 14 CPU vs GPU parity tests. CPU vs GPU benchmark binary.
 
 ### Tier 2: BarraCUDA GPU (34 GPU dispatch targets — V74)
 

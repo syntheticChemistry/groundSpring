@@ -165,6 +165,10 @@ name = "validate-tissue-anderson"
 path = "src/validate_tissue_anderson.rs"
 
 [[bin]]
+name = "validate-et0-methods"
+path = "src/validate_et0_methods.rs"
+
+[[bin]]
 name = "bench-kokkos-parity"
 path = "src/bench_kokkos_parity.rs"
 

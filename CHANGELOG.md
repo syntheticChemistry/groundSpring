@@ -4,6 +4,27 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V79 Exp 035 Multi-Method ET₀ + Delegation Strengthening (Mar 5, 2026)
+
+#### Added
+- **Exp 035: Multi-Method ET₀ Cross-Validation** — New experiment comparing five ET₀ methods (Penman-Monteith, Hargreaves, Makkink, Turc, Hamon) at the FAO-56 Example 18 reference site. Python control (15/15 PASS) + Rust validation binary (19/19 PASS). Validates the full pipeline: Python baseline → pure Rust math → barracuda CPU delegation
+- **Python control**: `control/et0_methods/et0_methods.py` — 5-method comparison with seasonal variation, input sensitivity analysis (Makkink radiation CV, Hamon temperature CV), and cross-method agreement checks
+- **Rust validation binary**: `validate-et0-methods` — matches Python baselines within 0.005 mm/day tolerance (trig intermediate rounding differences documented)
+- **Benchmark JSON**: `control/et0_methods/benchmark_et0_methods.json` — full provenance for Rust validation
+
+#### Changed
+- **Seismic `origin_time_and_rms`**: Now delegates mean computation to `crate::stats::mean` (which uses barracuda CPU when enabled), strengthening the delegation chain
+- **Delegation count**: 84 → 85 active delegations (51 CPU + 34 GPU) — seismic mean delegation
+- **Test count**: 806 → 807 workspace tests
+
+#### Quality
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace --all-targets -- -D warnings`: PASS
+- `cargo doc --workspace --no-deps`: PASS
+- `cargo test --workspace`: PASS (807 tests)
+- Python Phase 0: 29 experiments, 390 checks PASS
+- Rust Phase 1: 34 validation binaries, 395/395 PASS
+
 ### V78 Modern Rewiring + Cross-Spring Benchmark Evolution (Mar 5, 2026)
 
 #### Added

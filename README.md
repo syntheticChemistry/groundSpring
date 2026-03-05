@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: March 5, 2026 | **License**: AGPL-3.0-only
-**Status**: 33 modules, 806 Rust workspace tests + 375 Python tests, 376/376 validation checks (321 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), 84 active barracuda delegations (50 CPU + 34 GPU) — barraCuda v0.3.3 (`4629bdd`), toadStool S94b (`9d359814`). V78: modern rewiring — fused `mean_and_std_dev` via Welford single-pass GPU (replaces 2-dispatch pattern in rarefaction + Gillespie), 3 new ET₀ methods (Makkink, Turc, Hamon from airSpring lineage), cross-spring benchmark evolution with DF64 tier and provenance tracking. Deep debt zero maintained. 30 metalForge workloads, biomeOS Neural API live, NestGate data pipelines
+**Status**: 34 modules, 807 Rust workspace tests + 390 Python tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), 85 active barracuda delegations (51 CPU + 34 GPU) — barraCuda v0.3.3 (`4629bdd`), toadStool S94b (`9d359814`). V79: Exp 035 Multi-Method ET₀ Cross-Validation (PM, Hargreaves, Makkink, Turc, Hamon — 15/15 Python, 19/19 Rust), seismic delegation strengthening, 34 validation binaries. Deep debt zero maintained. 30 metalForge workloads, biomeOS Neural API live, NestGate data pipelines
 
 **The gap between what models predict and what instruments measure.**
 
