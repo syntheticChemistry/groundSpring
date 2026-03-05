@@ -2,7 +2,7 @@
 
 > groundSpring as a **validation science primal** in the biomeOS ecosystem.
 
-**Status**: V76 live (March 4, 2026)
+**Status**: V77 live (March 5, 2026)
 
 ## Role
 

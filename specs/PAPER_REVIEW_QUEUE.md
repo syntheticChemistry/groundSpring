@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: March 5, 2026 (V76)
+**Last Updated**: March 5, 2026 (V77)
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---

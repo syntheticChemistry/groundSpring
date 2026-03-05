@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 4, 2026 (V74 — 81 delegations (47 CPU + 34 GPU), 790 tests, barraCuda v0.3.1, toadStool S93 (`9319668d`). V74: clippy pedantic CI enforcement, `wdm.rs`/`drift.rs`/`linalg.rs` deep debt evolution, tolerance deduplication (`groundspring-validate` re-exports `groundspring::tol`), optimizer/pipeline/biomeOS magic numbers → named constants, ABSORPTION_MANIFEST.md V74 catch-up. V73: 13-tier tolerance architecture (`tol::`, `eps::`), ~170 bare literals → named constants. V72: deep audit, silent-default elimination, BTreeMap determinism)
+**Last updated**: March 5, 2026 (V77 — 81 delegations (47 CPU + 34 GPU), 790 tests, barraCuda v0.3.3 (`4629bdd`), toadStool S94b (`9d359814`). V77: wgpu 28 migration, barraCuda v0.3.3 sync — DF64 precision tiers (15 ops), fused reduction shaders, TensorContext pooling. V76: structural evolution, deep debt zero. V74: clippy pedantic CI, tolerance deduplication, named constants. V73: 13-tier tolerance architecture)
 
 ## Philosophy
 

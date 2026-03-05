@@ -75,8 +75,9 @@ fn probe_f64_pipeline(adapter: &wgpu::Adapter) -> bool {
             required_features: wgpu::Features::SHADER_F64,
             required_limits: wgpu::Limits::default(),
             memory_hints: wgpu::MemoryHints::Performance,
+            experimental_features: wgpu::ExperimentalFeatures::default(),
+            trace: wgpu::Trace::default(),
         },
-        None,
     )) else {
         return false;
     };
@@ -105,7 +106,7 @@ fn try_create_pipeline(
             label: Some("anderson-pipeline"),
             layout: None,
             module: &shader,
-            entry_point: "main",
+            entry_point: Some("main"),
             compilation_options: wgpu::PipelineCompilationOptions::default(),
             cache: None,
         })
@@ -191,7 +192,7 @@ fn dispatch_f32(
             timestamp_writes: None,
         });
         pass.set_pipeline(pipeline);
-        pass.set_bind_group(0, &bind_group, &[]);
+        pass.set_bind_group(0, Some(&bind_group), &[]);
         pass.dispatch_workgroups(N_REALIZATIONS.div_ceil(64), 1, 1);
     }
     encoder.copy_buffer_to_buffer(&output_buf, 0, &staging_buf, 0, output_size);
@@ -202,7 +203,10 @@ fn dispatch_f32(
     slice.map_async(wgpu::MapMode::Read, move |result| {
         tx.send(result).ok();
     });
-    device.poll(wgpu::Maintain::Wait);
+    let _ = device.poll(wgpu::PollType::Wait {
+        submission_index: None,
+        timeout: None,
+    });
 
     match rx.recv() {
         Ok(Ok(())) => {}
@@ -248,22 +252,22 @@ fn run_gpu_compute(adapter: &wgpu::Adapter, gpu_name: &str, h: &mut Harness, cpu
 
     let f64_works = has_f64_feature && probe_f64_pipeline(adapter);
 
-    let (device, queue) =
-        match barracuda::device::test_pool::tokio_block_on(adapter.request_device(
-            &wgpu::DeviceDescriptor {
-                label: Some("compute-f32"),
-                required_features: wgpu::Features::empty(),
-                required_limits: wgpu::Limits::default(),
-                memory_hints: wgpu::MemoryHints::Performance,
-            },
-            None,
-        )) {
-            Ok(pair) => pair,
-            Err(e) => {
-                println!("    SKIP: f32 device creation failed: {e}");
-                return;
-            }
-        };
+    let (device, queue) = match barracuda::device::test_pool::tokio_block_on(
+        adapter.request_device(&wgpu::DeviceDescriptor {
+            label: Some("compute-f32"),
+            required_features: wgpu::Features::empty(),
+            required_limits: wgpu::Limits::default(),
+            memory_hints: wgpu::MemoryHints::Performance,
+            experimental_features: wgpu::ExperimentalFeatures::default(),
+            trace: wgpu::Trace::default(),
+        }),
+    ) {
+        Ok(pair) => pair,
+        Err(e) => {
+            println!("    SKIP: f32 device creation failed: {e}");
+            return;
+        }
+    };
 
     let Some(pipeline) = try_create_pipeline(&device, SHADER_F32, "anderson-f32") else {
         h.check(&format!("{gpu_name}: f32 shader compilation"), false);
@@ -354,12 +358,14 @@ fn main() {
     };
     println!("CPU reference (f64): γ = {cpu_gamma:.6}, ξ = {cpu_xi:.2}  ({cpu_us} µs)\n");
 
-    let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
+    let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
         backends: wgpu::Backends::all(),
         ..Default::default()
     });
 
-    let adapters = instance.enumerate_adapters(wgpu::Backends::all());
+    let adapters = barracuda::device::test_pool::tokio_block_on(
+        instance.enumerate_adapters(wgpu::Backends::all()),
+    );
     let mut gpu_adapters: Vec<_> = adapters
         .into_iter()
         .filter(|a| {

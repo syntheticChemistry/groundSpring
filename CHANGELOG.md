@@ -4,6 +4,31 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V77 wgpu 28 Migration + barraCuda v0.3.3 Sync (Mar 5, 2026)
+
+#### Changed
+- **wgpu 22 → 28**: Bumped `wgpu` dependency from v22 to v28 in both `crates/groundspring/Cargo.toml` and `metalForge/forge/Cargo.toml`, synchronized with barraCuda v0.3.3 (`4629bdd`)
+- **`validate_metalforge_titan_v.rs` wgpu 28 API migration**: `entry_point: Some("main")`, `set_bind_group(0, Some(&bg), &[])`, `Instance::new(&desc)`, async `enumerate_adapters` via `tokio_block_on`, `PollType::Wait` (replaces `Maintain::Wait`), `DeviceDescriptor` new fields (`experimental_features`, `trace`), removed `request_device` trace path argument
+- **`probe.rs` wgpu 28 API migration**: `Instance::new(&desc)`, async `enumerate_adapters` via `barracuda::device::test_pool::tokio_block_on`
+
+#### Free Upgrades (inherited from barraCuda v0.3.3)
+- **DF64 precision tiers**: 15 barracuda ops auto-select f64/DF64/f32 per GPU hardware via `Fp64Strategy`. groundSpring's delegations to `variance_f64`, `correlation_f64`, `covariance_f64`, `beta_f64` etc. get ~10× throughput on consumer GPUs
+- **Fused reduction shaders**: Single-pass Welford mean+variance, 5-accumulator Pearson correlation
+- **TensorContext pooled buffers**: Stats ops use pipeline/buffer caching
+- **DF64 naga rewriter fix**: NAK compound assignment bug fixed — Titan V DF64 works correctly
+- **`sourdough-core` removed**: Broken path dependency eliminated from barracuda
+
+#### Pins
+- **barraCuda**: v0.3.3 (`4629bdd`)
+- **toadStool**: S94b (`9d359814`)
+
+#### Quality
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace --all-targets -- -D warnings`: PASS
+- `cargo doc --workspace --no-deps`: PASS
+- `cargo test --workspace`: PASS (790 tests)
+- Deep debt zero maintained
+
 ### V76 Structural Evolution + Deep Debt Zero + Absorption Handoff (Mar 5, 2026)
 
 #### Changed

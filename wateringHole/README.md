@@ -9,8 +9,7 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V76 Structural | [GROUNDSPRING_V76_STRUCTURAL_EVOLUTION_HANDOFF_MAR05_2026.md](handoffs/GROUNDSPRING_V76_STRUCTURAL_EVOLUTION_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | Structural evolution, tolerance architecture, cross-spring learnings |
-| V76 Absorption | [GROUNDSPRING_V76_TOADSTOOL_BARRACUDA_ABSORPTION_HANDOFF_MAR05_2026.md](handoffs/GROUNDSPRING_V76_TOADSTOOL_BARRACUDA_ABSORPTION_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | Absorption targets, evolution requests, ToadStool/BarraCUDA delegation patterns |
+| V77 wgpu 28 | [GROUNDSPRING_V77_WGPU28_BARRACUDA_SYNC_HANDOFF_MAR05_2026.md](handoffs/GROUNDSPRING_V77_WGPU28_BARRACUDA_SYNC_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | wgpu 28 migration, barraCuda v0.3.3 sync, DF64 precision tiers, migration pattern reference |
 
 ## Cross-Spring Documentation
 
@@ -37,6 +36,8 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V76 Structural | Structural evolution, deep debt zero, NUCLEUS shared utilities, observation-gap parity chain (superseded by V77) |
+| V76 Absorption | Absorption targets, evolution requests, ToadStool/BarraCUDA delegation patterns (superseded by V77) |
 | V70 | barraCuda budding: rewired from phase1/toadstool to standalone barraCuda primal, zero code changes, akida-driver stays with toadStool (superseded by V71) |
 | V69 | S87 pin, universal precision architecture audit, 76 delegations, cross-spring evolution parity (superseded by V70) |
 | V68 | Comprehensive evolution: 76 delegations (44 CPU + 32 GPU), 30 metalForge workloads, GPU parity buildout, GPU→NPU PCIe bypass, NUCLEUS coordination, three-tier hardware matrix (superseded by V69) |
