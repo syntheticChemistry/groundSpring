@@ -64,6 +64,22 @@ WGSL shader source
 
 ## The Sovereignty Gap
 
+### Philosophy: Eliminate the concept of vendors
+
+The long-term vision is not "support multiple vendors" — it is to make the
+concept of GPU vendors irrelevant to the compilation pipeline. Today, every GPU
+goes through a vendor-specific compiler (PTXAS for NVIDIA, ACO for AMD, ANV for
+Intel). coralNAK aims to replace **all** of them with a single sovereign Rust
+compiler that has pluggable ISA backends. The IR, optimizations, f64 lowering
+strategy selection, and scheduling are vendor-agnostic. Only the final
+instruction encoding step knows which hardware it targets — and even that is a
+table-driven process, not a separate codebase.
+
+This also means coralNAK replaces the Mesa C build system and its C dependencies
+entirely — not just for NVIDIA, but for AMD and Intel as well. Mesa's ACO, ANV,
+and NAK are reference implementations to learn from, but the goal is a single
+pure-Rust compiler that makes all three obsolete for compute workloads.
+
 ### Problem: The Titan V is the most valuable GPU but can't be used
 
 The Titan V has **full-rate f64** (1:2 FP64:FP32) — ideal for scientific compute.
@@ -173,39 +189,180 @@ Per `F64_LOWERING_THEORY.md`, lowering strategies using DFMA hardware:
 
 ---
 
-## Multi-Vendor Expansion Roadmap
+## coralNAK Architecture Evolution — Eliminating the Vendor Concept
 
-### Already in barraCuda
+### Current state: NVIDIA-only IR
 
-| Vendor | Detection | Precision | Workarounds | Tested |
-|--------|-----------|-----------|-------------|--------|
-| NVIDIA (proprietary) | `NvidiaProprietary` | Native (Volta+), DF64 (consumer) | Ada f64 transcendentals | Yes |
-| NVIDIA (NVK) | `Nvk` | Native/DF64 | exp/log/sincos crash workarounds | Partially (freezes) |
-| AMD (RADV) | `Radv` | Native (CDNA2), DF64 (RDNA2/3) | None documented | Untested |
-| Intel (ANV) | `Intel` | DF64 (Arc) | None documented | Untested |
-| Apple (Metal) | `AppleM` | Software f64 | N/A | Untested |
-| Software | `Software` | f64 via LLVM | N/A | CI verified |
+Today coralNAK's IR is NVIDIA-specific:
+- `GpuArch` = SM70/75/80/86/89 (NVIDIA shader models only)
+- `MuFuOp` = NVIDIA-specific transcendental unit (Sin, Cos, Rcp64H...)
+- `RegFile` = NVIDIA register files (GPR, UGPR, Pred, Carry, Bar)
+- Encoders: `sm20/`, `sm32/`, `sm50/`, `sm70_encode/` — all NVIDIA instruction formats
 
-### coralNAK vendor expansion (future)
+### Target state: Vendor-agnostic compilation
 
-coralNAK currently targets **NVIDIA only** (SM20–SM120 encoders). To achieve
-multi-vendor sovereignty:
+The goal is **one compiler, one IR, any GPU** — eliminating the concept of
+vendors from the compilation pipeline entirely. The architecture should mirror
+LLVM's approach (one IR, pluggable backends) but for GPU compute:
 
-1. **coral-aco** — AMD GPU compiler (port Mesa ACO to Rust)
-2. **coral-anv** — Intel GPU compiler (port Mesa ANV to Rust)
-3. **coral-metal** — Apple GPU compiler (would need Metal shader binary format)
+```
+WGSL / SPIR-V
+     │
+     ▼
+┌────────────────────────────────────────────────┐
+│  coral-ir  (vendor-agnostic intermediate)      │
+│                                                │
+│  Ops: FAdd, FMul, FMA, Load, Store, Barrier,  │
+│       Reduce, Broadcast, Branch, Call, ...     │
+│  Types: f16, f32, f64, i32, i64, vec2-4, ...  │
+│  Annotations: workgroup_size, shared_mem, ...  │
+│                                                │
+│  Passes (vendor-agnostic):                     │
+│    opt_copy_prop, opt_dce, opt_lop,            │
+│    opt_jump_thread, constant_folding,          │
+│    opt_instr_sched_prepass                     │
+└──────────────────────┬─────────────────────────┘
+                       │
+     ┌─────────────────┼─────────────────┐
+     ▼                 ▼                 ▼
+┌──────────┐    ┌──────────┐    ┌──────────┐
+│ nvidia/  │    │  amd/    │    │ intel/   │
+│          │    │          │    │          │
+│ legalize │    │ legalize │    │ legalize │
+│ f64_lower│    │ f64_lower│    │ f64_lower│
+│ alloc_reg│    │ alloc_reg│    │ alloc_reg│
+│ encode   │    │ encode   │    │ encode   │
+│          │    │          │    │          │
+│ SM70-120 │    │ RDNA2/3  │    │ Xe       │
+│ SASS     │    │ CDNA2/3  │    │ EU ISA   │
+└──────────┘    └──────────┘    └──────────┘
+```
 
-This is a long-term roadmap. In the near term, AMD and Intel sovereign compute
-works through wgpu → RADV/ANV (open-source Mesa drivers) — which is already
-sovereign on those platforms since the drivers are open source.
+### What needs to happen
 
-### NPU support (toadStool + barraCuda)
+#### Phase A: Extract vendor-agnostic IR from NAK IR
 
-| NPU | Driver | Interface | Status |
-|-----|--------|-----------|--------|
-| BrainChip Akida (AKD1000) | akida-driver (VFIO/kernel/userspace) | `NpuDispatch` trait | Implemented, no hardware present |
-| Intel Loihi | — | `NpuDispatch` trait (planned) | Design target |
-| SpiNNaker | — | `NpuDispatch` trait (planned) | Design target |
+The current NAK IR (`nak/ir/`) already has vendor-agnostic concepts buried
+inside vendor-specific types. The refactoring path:
+
+1. **Split `GpuArch`** into a trait:
+   ```rust
+   pub trait GpuTarget {
+       fn has_native_f64(&self) -> bool;
+       fn max_regs(&self) -> u32;
+       fn max_shared_mem(&self) -> u32;
+       fn warp_size(&self) -> u32;     // 32 for NVIDIA, 32/64 for AMD, varies for Intel
+       fn f64_lowering(&self) -> F64Strategy;
+   }
+   ```
+   Current `GpuArch` (SM70-89) becomes one implementation. AMD/Intel add others.
+
+2. **Generalize `MuFuOp`** — NVIDIA's MUFU is vendor-specific. The IR should
+   express intent (`Transcendental::Sin(f64)`) and the backend lowers to:
+   - NVIDIA: MUFU.RSQ64H + Newton iterations
+   - AMD: `v_sqrt_f64` (native on CDNA2) or polynomial on RDNA
+   - Intel: implementation-specific
+
+3. **Generalize `RegFile`** — NVIDIA's register model (GPR/UGPR/Pred) differs
+   from AMD's (VGPR/SGPR/VCC) and Intel's (GRF). The vendor-agnostic IR uses
+   virtual registers; the backend assigns to physical register files.
+
+#### Phase B: AMD backend
+
+AMD GPUs use a different ISA than NVIDIA:
+
+| NVIDIA | AMD | Notes |
+|--------|-----|-------|
+| SASS (SM70-120) | GCN / RDNA / CDNA ISA | Different instruction encoding |
+| MUFU (f32 transcendentals) | `v_rcp_f32`, `v_sqrt_f32` | Similar SFU but different encoding |
+| DFMA (f64 FMA) | `v_fma_f64` | Native on CDNA2; 1:16 on RDNA3 |
+| Warp size = 32 | Wave size = 32 or 64 | AMD supports both (wave32, wave64) |
+| GPR + UGPR | VGPR + SGPR | AMD uses scalar + vector split |
+
+Resources for AMD backend:
+- Mesa ACO compiler (MIT/open-source) — the AMD equivalent of NAK
+- LLVM AMDGPU backend — reference for instruction selection
+- AMD ISA documentation (publicly available for GCN, RDNA, CDNA)
+
+#### Phase C: Intel backend
+
+Intel Xe GPUs use EU (Execution Unit) ISA:
+
+| NVIDIA | Intel | Notes |
+|--------|-------|-------|
+| SASS | EU ISA | Register-based, different encoding |
+| Warp = 32 | SIMD8/16/32 | Variable SIMD width |
+| GPR (255) | GRF (128 × 256-bit) | Larger register file, different layout |
+| f64 1:2 (Volta) | f64 minimal | Consumer Intel has very limited f64 |
+
+Resources:
+- Mesa ANV/iris compiler (open-source)
+- Intel GPU ISA documentation (publicly available for Xe)
+
+### f64 lowering per vendor
+
+The f64 software lowering strategy differs by hardware:
+
+| Vendor | Hardware f64 | Software lowering needed |
+|--------|-------------|------------------------|
+| NVIDIA (Volta/A100) | Native DFMA, MUFU 64H seeds | Only transcendentals (sin, cos, exp, log) |
+| NVIDIA (consumer) | DFMA at 1:64 rate | Everything benefits from DF64 |
+| AMD (CDNA2/3) | Native `v_fma_f64` full-rate | Only transcendentals |
+| AMD (RDNA2/3) | `v_fma_f64` at 1:16 | DF64 beneficial for throughput |
+| Intel (Xe) | Minimal f64 | Full DF64 or software lowering |
+
+barraCuda's `Fp64Strategy` (Native/Hybrid/Concurrent) maps directly to these
+categories. coralNAK should adopt the same classification for its backends.
+
+### NPU as another "backend" (long-term)
+
+The vendor-agnostic IR can eventually target NPU hardware:
+
+| NPU | Interface | Compiler path |
+|-----|-----------|---------------|
+| BrainChip Akida | `NpuDispatch` (toadStool) | IR → sparse inference graph → Akida bitstream |
+| Intel Loihi | `NpuDispatch` (planned) | IR → spiking network graph → Loihi config |
+
+This is a longer-term evolution — NPU compilation is fundamentally different
+from GPU (event-driven vs SIMD) — but the vendor-agnostic IR makes it possible.
+
+### Practical guidance: How to build vendor-agnostic without blocking NVIDIA
+
+The refactoring to vendor-agnostic IR does **not** need to block NVIDIA progress.
+The recommended approach:
+
+1. **Finish NVIDIA end-to-end first** (Phase 3 + 4) — get SPIR-V → SASS binary
+   working with f64 transcendentals. This proves the pipeline works.
+
+2. **Retrospective extraction**: Once NVIDIA works, identify which IR types
+   and optimization passes are truly NVIDIA-specific vs vendor-agnostic. In
+   practice, most of the NAK IR (op types, control flow, SSA form) is already
+   generic — the NVIDIA-specific parts are:
+   - `MuFuOp` (NVIDIA SFU opcodes)
+   - `sm*_encode/` (instruction binary format)
+   - `sm*_instr_latencies` (scheduling tables)
+   - `sph.rs` (Shader Program Header — NVIDIA format)
+   - Register file names (GPR/UGPR vs VGPR/SGPR)
+
+3. **Introduce `coral-ir` crate**: Move generic types to a new crate. The
+   NVIDIA backend re-exports or wraps them. New backends (AMD, Intel) import
+   `coral-ir` directly.
+
+4. **AMD backend first** (after NVIDIA): ACO is well-documented and AMD ISA
+   docs are public. GCN/RDNA instruction encoding is simpler than SASS in some
+   ways (fixed-width, less scheduling complexity). Mesa's ACO is MIT-licensed
+   and can be studied freely.
+
+5. **Key abstraction boundaries** to plan for now (even during NVIDIA work):
+   - `fn compile(ir: &CoralIr, target: &dyn GpuTarget) -> Vec<u8>` — the
+     top-level API should accept a target trait, not a concrete arch enum
+   - `fn lower_f64(op: &Transcendental, target: &dyn GpuTarget) -> Vec<Instr>`
+     — f64 lowering is parameterized by hardware capabilities
+   - `fn encode(instrs: &[Instr], target: &dyn GpuTarget) -> Vec<u8>` — final
+     encoding is the only truly vendor-specific step
+
+This way the NVIDIA path continues at full speed while the architecture
+naturally evolves toward multi-vendor support.
 
 ---
 
@@ -244,16 +401,31 @@ sovereign on those platforms since the drivers are open source.
 7. **coralDriver prototype**: Minimal userspace GPU submission for Volta
    (GV100). groundSpring's Level 4 assignment.
 
-### Long-term (full sovereignty)
+### Long-term (full sovereignty — vendor-free)
 
 8. **Multi-GPU dispatch via coralNAK**: Titan V (native f64 via coralNAK) +
    RTX 4070 (DF64 via coralNAK) — no proprietary drivers needed.
 
-9. **AMD/Intel**: Open-source drivers (RADV/ANV) already provide sovereignty.
-   coral-aco and coral-anv are future expansion points.
+9. **Vendor-agnostic IR** (`coral-ir`): Extract vendor-neutral IR from NAK IR,
+   making optimization passes (copy prop, DCE, scheduling) work for any GPU.
+   See "Eliminating the Vendor Concept" section above.
 
-10. **NPU integration**: When Akida hardware is available, wire
+10. **AMD backend**: Add RDNA/CDNA instruction encoding and register allocation
+    to coralNAK (not a separate project — a backend module within coralNAK).
+    Mesa ACO (MIT-licensed) is the reference implementation.
+
+11. **Intel backend**: Add Xe EU ISA encoding. Mesa ANV/iris is the reference.
+    Both AMD and Intel backends share the same `coral-ir` and optimization
+    passes — only legalization, register allocation, and encoding differ.
+
+12. **NPU backend**: When Akida hardware is available, wire
     `NpuDispatch` through metalForge workloads for GPU→NPU pipeline testing.
+    NPU is a different compute paradigm (event-driven vs SIMD) but the
+    vendor-agnostic IR makes it a natural extension.
+
+13. **coralDriver per architecture**: Userspace GPU drivers for each ISA family,
+    eliminating Mesa/kernel driver dependencies entirely. The goal is a single
+    Rust binary that compiles and dispatches to any GPU without C dependencies.
 
 ---
 
