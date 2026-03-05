@@ -19,6 +19,9 @@ use groundspring_validate::{
     TOL_STOCHASTIC_MEAN,
 };
 
+const BENCHMARK_OBS_GAP: &str =
+    include_str!("../../../control/observation_gap/benchmark_observation_gap.json");
+
 fn run() -> i32 {
     let mut h = ValidationHarness::stdout("Rust Validation: Weather Model-Observation Gap");
 
@@ -139,11 +142,92 @@ fn run() -> i32 {
         TOL_EXACT,
     );
 
+    // ── Benchmark JSON parity chain ─────────────────────────────────
+    validate_observation_gap_benchmark(&mut h);
+
     h.summary()
 }
 
 fn main() {
     std::process::exit(run());
+}
+
+/// Validate the observation-gap benchmark JSON: parse it, extract acceptance
+/// criteria, and confirm that a synthetic dataset matching those criteria
+/// passes our stat functions. This closes the Python→JSON→Rust parity chain.
+fn validate_observation_gap_benchmark(h: &mut ValidationHarness) {
+    println!("\n--- Observation Gap Benchmark JSON Parity ---");
+
+    let v: serde_json::Value = match serde_json::from_str(BENCHMARK_OBS_GAP) {
+        Ok(v) => v,
+        Err(e) => {
+            println!("  Parse error: {e}");
+            h.check_approx("Benchmark JSON parseable", 0.0, 1.0, 0.0);
+            return;
+        }
+    };
+
+    h.check_approx("Benchmark JSON parseable", 1.0, 1.0, TOL_EXACT);
+
+    let temp_r2_min = v["acceptance_criteria"]["temperature_r2_min"]
+        .as_f64()
+        .unwrap_or(0.0);
+    let precip_hr_min = v["acceptance_criteria"]["precip_hit_rate_min"]
+        .as_f64()
+        .unwrap_or(0.0);
+    h.check_min("Acceptance: temp R² threshold > 0", temp_r2_min, 0.5);
+    h.check_min(
+        "Acceptance: precip hit rate threshold > 0",
+        precip_hr_min,
+        0.3,
+    );
+
+    let tmax_rmse_lo = v["variables_compared"]["tmax_c"]["expected_characteristics"]["rmse_range"]
+        [0]
+    .as_f64()
+    .unwrap_or(0.0);
+    let tmax_rmse_hi = v["variables_compared"]["tmax_c"]["expected_characteristics"]["rmse_range"]
+        [1]
+    .as_f64()
+    .unwrap_or(0.0);
+    h.check_min("tmax RMSE range: lo > 0", tmax_rmse_lo, 0.1);
+    h.check_min("tmax RMSE range: hi > lo", tmax_rmse_hi, tmax_rmse_lo + 0.1);
+
+    let n = 365;
+    let obs_synth: Vec<f64> = (0..n)
+        .map(|d| {
+            let doy = f64::from(d);
+            14.5f64.mul_add(
+                (2.0 * std::f64::consts::PI * (doy - 100.0) / 365.0).sin(),
+                8.5,
+            )
+        })
+        .collect();
+    let bias = f64::midpoint(tmax_rmse_lo, tmax_rmse_hi);
+    let mod_synth: Vec<f64> = obs_synth.iter().map(|&t| t + bias).collect();
+
+    let r2_synth = stats::r_squared(&obs_synth, &mod_synth);
+    let rmse_synth = stats::rmse(&obs_synth, &mod_synth);
+    h.check_min(
+        "Synthetic temp R² ≥ benchmark threshold",
+        r2_synth,
+        temp_r2_min,
+    );
+    h.check_range(
+        "Synthetic temp RMSE in benchmark range",
+        rmse_synth,
+        tmax_rmse_lo,
+        tmax_rmse_hi,
+    );
+
+    let obs_rain = [0.0, 5.0, 0.0, 3.0, 0.0, 12.0, 0.0, 0.0, 2.0, 0.0];
+    let mod_rain = [0.0, 4.0, 0.0, 0.0, 0.0, 10.0, 0.0, 0.0, 1.5, 0.0];
+    let hr = stats::hit_rate(&obs_rain, &mod_rain, 0.1);
+    h.check_min(
+        "Synthetic precip hit rate ≥ benchmark threshold",
+        hr,
+        precip_hr_min,
+    );
 }
 
 #[cfg(test)]

@@ -3,16 +3,14 @@
 **Purpose**: Handoff documents from groundSpring to ToadStool/BarraCUDA team,
 following the wateringHole inter-primal standard.
 
-**Last Updated**: March 4, 2026
+**Last Updated**: March 5, 2026
 
 ## Active Handoffs
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V74 Absorption | [GROUNDSPRING_V74_TOADSTOOL_BARRACUDA_ABSORPTION_HANDOFF_MAR04_2026.md](handoffs/GROUNDSPRING_V74_TOADSTOOL_BARRACUDA_ABSORPTION_HANDOFF_MAR04_2026.md) | Mar 4, 2026 | Absorption targets, evolution requests, cross-spring learnings, performance data |
-| V74 Catch-Up | [GROUNDSPRING_BARRACUDA_V74_DEEP_DEBT_CATCHUP_HANDOFF_MAR04_2026.md](handoffs/GROUNDSPRING_BARRACUDA_V74_DEEP_DEBT_CATCHUP_HANDOFF_MAR04_2026.md) | Mar 4, 2026 | Deep debt + clippy pedantic CI + ToadStool S93/barraCuda v0.3.1 full catch-up audit |
-| V73 | [GROUNDSPRING_BARRACUDA_V73_TOLERANCE_ARCHITECTURE_HANDOFF_MAR04_2026.md](handoffs/GROUNDSPRING_BARRACUDA_V73_TOLERANCE_ARCHITECTURE_HANDOFF_MAR04_2026.md) | Mar 4, 2026 | 13-tier tolerance architecture (`tol::`, `eps::`), ~170 bare literals → named constants |
-| Guide | [GROUNDSPRING_TOADSTOOL_BARRACUDA_ABSORPTION_GUIDE_MAR04_2026.md](handoffs/GROUNDSPRING_TOADSTOOL_BARRACUDA_ABSORPTION_GUIDE_MAR04_2026.md) | Mar 4, 2026 | Delegation patterns, feature gating, tolerance tiers, evolution requests |
+| V76 Structural | [GROUNDSPRING_V76_STRUCTURAL_EVOLUTION_HANDOFF_MAR05_2026.md](handoffs/GROUNDSPRING_V76_STRUCTURAL_EVOLUTION_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | Structural evolution, tolerance architecture, cross-spring learnings |
+| V76 Absorption | [GROUNDSPRING_V76_TOADSTOOL_BARRACUDA_ABSORPTION_HANDOFF_MAR05_2026.md](handoffs/GROUNDSPRING_V76_TOADSTOOL_BARRACUDA_ABSORPTION_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | Absorption targets, evolution requests, ToadStool/BarraCUDA delegation patterns |
 
 ## Cross-Spring Documentation
 

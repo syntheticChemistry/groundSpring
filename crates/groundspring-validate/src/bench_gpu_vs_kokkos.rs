@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
-//! GPU head-to-head benchmark: BarraCuda WGSL vs Kokkos CUDA.
+//! GPU head-to-head benchmark: `BarraCuda` WGSL vs Kokkos CUDA.
 //!
 //! Runs the identical algorithms, parameters, and PRNG seeds as
 //! `kokkos_baseline/src/main.cpp` compiled with CUDA, but dispatched
-//! through BarraCuda's WGSL compute shaders via wgpu.
+//! through `BarraCuda`'s WGSL compute shaders via `wgpu`.
 //!
 //! Build:
 //!     cargo run --release --features barracuda-gpu --bin bench-gpu-vs-kokkos
@@ -23,6 +23,10 @@ struct BenchResult {
     elapsed_us: f64,
 }
 
+#[expect(
+    clippy::too_many_lines,
+    reason = "benchmark harness: three workload sections + JSON output"
+)]
 fn main() {
     let gpu_active = groundspring::gpu_available();
 
@@ -60,11 +64,9 @@ fn main() {
         println!("=== Anderson Localization (Lyapunov Exponent) ===");
         println!("  N={N_SITES}, W={DISORDER}, realizations={N_REALIZATIONS}, E={ENERGY}");
 
-        // lyapunov_averaged delegates to barracuda::spectral::lyapunov_averaged
-        // on GPU when barracuda-gpu is enabled.
         let t0 = Instant::now();
         let gamma_avg = lyapunov_averaged(N_SITES, DISORDER, ENERGY, N_REALIZATIONS, BASE_SEED);
-        let elapsed = t0.elapsed().as_micros() as f64;
+        let elapsed = t0.elapsed().as_secs_f64() * 1e6;
 
         let xi = if gamma_avg > 0.0 {
             1.0 / gamma_avg
@@ -87,7 +89,7 @@ fn main() {
         let pot = anderson_potential(N_SITES, DISORDER, BASE_SEED);
         let t0 = Instant::now();
         let gamma_single = lyapunov_exponent(&pot, ENERGY);
-        let elapsed_single = t0.elapsed().as_micros() as f64;
+        let elapsed_single = t0.elapsed().as_secs_f64() * 1e6;
         println!("  single-realization gamma = {gamma_single:.10}  ({elapsed_single:.0} us)");
         results.push(BenchResult {
             name: "anderson_lyapunov_single",
@@ -113,13 +115,12 @@ fn main() {
             data.push(v);
             let mut rng2 = Xorshift64::new(SEED + 1_000_000 + i as u64);
             let noise = rng2.next_f64() * 10.0;
-            data2.push(v * 0.8 + noise + 5.0);
+            data2.push(v.mul_add(0.8, noise + 5.0));
         }
 
-        // mean — SumReduceF64 WGSL shader
         let t0 = Instant::now();
         let m = mean(&data);
-        let mean_us = t0.elapsed().as_micros() as f64;
+        let mean_us = t0.elapsed().as_secs_f64() * 1e6;
         println!("  mean = {m:.10} ({mean_us:.0} us)");
         results.push(BenchResult {
             name: "mean",
@@ -127,11 +128,10 @@ fn main() {
             elapsed_us: mean_us,
         });
 
-        // variance — VarianceReduceF64 WGSL shader
         let t0 = Instant::now();
         let sd = std_dev(&data);
         let var_val = sd * sd;
-        let var_us = t0.elapsed().as_micros() as f64;
+        let var_us = t0.elapsed().as_secs_f64() * 1e6;
         println!("  variance = {var_val:.10} ({var_us:.0} us)");
         results.push(BenchResult {
             name: "variance",
@@ -139,10 +139,9 @@ fn main() {
             elapsed_us: var_us,
         });
 
-        // pearson_r — CorrelationF64 WGSL shader
         let t0 = Instant::now();
         let r = pearson_r(&data, &data2);
-        let pearson_us = t0.elapsed().as_micros() as f64;
+        let pearson_us = t0.elapsed().as_secs_f64() * 1e6;
         println!("  pearson_r = {r:.10} ({pearson_us:.0} us)\n");
         results.push(BenchResult {
             name: "pearson_r",
@@ -165,12 +164,12 @@ fn main() {
         let mut data = Vec::with_capacity(N);
         for i in 0..N {
             let mut rng = Xorshift64::new(SEED + i as u64);
-            data.push(rng.next_f64() * 50.0 + 25.0);
+            data.push(rng.next_f64().mul_add(50.0, 25.0));
         }
 
         let t0 = Instant::now();
         let br = bootstrap_mean(&data, N_REPLICATES, CONFIDENCE, SEED);
-        let elapsed = t0.elapsed().as_micros() as f64;
+        let elapsed = t0.elapsed().as_secs_f64() * 1e6;
 
         println!(
             "    bootstrap: estimate={:.10} ci=[{:.10}, {:.10}]",

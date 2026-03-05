@@ -4,6 +4,27 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V76 Structural Evolution + Deep Debt Zero + Absorption Handoff (Mar 5, 2026)
+
+#### Changed
+- **`validate_gpu_tier.rs` → domain-split binary**: 895-line monolith refactored into `validate_gpu_tier/{main,stats,spectral,bio}.rs` (58+167+290+422 lines). Split follows scientific domain boundaries: stats (metrics/regression/bootstrap/jackknife), spectral (Anderson/Almost-Mathieu/Tikhonov/eigendecomp/PRNG), bio (diversity/kinetics/ODE/Gillespie/Wright-Fisher/FAO-56/tissue)
+- **`groundspring_forge::nucleus` module**: Extracted shared `discover_uid()`, `biomeos_socket_dir()`, and `NucleusHarness` from `validate_nucleus_pipeline.rs` and `validate_nestgate_ncbi.rs` into forge library — eliminates ~120 lines of duplication with 4 unit tests
+- **Observation-gap benchmark parity chain**: `validate_weather.rs` now loads `benchmark_observation_gap.json` via `include_str!` and validates acceptance criteria (temperature R², RMSE range, precipitation hit rate) against synthetic data — 21/21 checks (up from 14/14)
+- **`unwrap()` elimination**: All `unwrap()` calls in production binaries replaced with `if let` / graceful error handling
+- **Tolerance constant migration**: Bare float literals in `validate_gpu_tier.rs` replaced with `tol::ANALYTICAL`, `tol::EXACT`, `tol::CDF_APPROX`, `tol::RECONSTRUCTION`, `tol::INTEGRATION`
+- **Provenance headers**: Runtime provenance prints added to 3 validation binaries missing them
+- **Clippy fixes**: `cast_precision_loss` (u128→f64 via `as_secs_f64()`), `suboptimal_flops` (→ `mul_add`), `doc_markdown` (backticks), `too_many_lines` (`#[expect]`), `manual_midpoint` (→ `f64::midpoint`)
+
+#### Quality
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace -- -D warnings`: PASS
+- `cargo doc --workspace --no-deps`: PASS
+- `cargo test --workspace`: PASS (790 tests)
+- All files < 1000 lines (largest: `bio.rs` at 422)
+- Zero TODO/FIXME/HACK/STUB/MOCK in Rust source
+- Zero `unwrap()` in production code
+- Zero unsafe code
+
 ### V74 Deep Debt + ToadStool/barraCuda Catch-Up + Full Validation Benchmark (Mar 4, 2026)
 
 #### Fixed

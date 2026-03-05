@@ -24,6 +24,7 @@ pub mod atomic;
 pub mod dispatch;
 pub mod harness;
 pub mod inventory;
+pub mod nucleus;
 pub mod pipeline;
 pub mod probe;
 pub mod remote;

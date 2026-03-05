@@ -577,6 +577,9 @@ fn main() {
     println!("========================================================================");
     println!("Mixed Hardware Pipeline Validation");
     println!("========================================================================\n");
+    println!("Provenance: synthetic substrate inventories — no live hardware required.");
+    println!("  Topology, fallback chains, and pipeline planning from constructed test data.");
+    println!("  Cross-substrate parity validated in validate-metalforge-cross-substrate.\n");
 
     validate_topology(&mut h);
     validate_fallback_chains(&mut h);

@@ -13,6 +13,10 @@ use groundspring::bootstrap::bootstrap_mean;
 use groundspring::prng::Xorshift64;
 use groundspring::stats::{mean, pearson_r, std_dev};
 
+#[expect(
+    clippy::too_many_lines,
+    reason = "benchmark harness: three workload sections"
+)]
 fn main() {
     println!("groundSpring Rust Tier 2 Baseline");
     println!("  Backend: CPU (default features)\n");
@@ -37,8 +41,10 @@ fn main() {
             let pot = anderson_potential(N_SITES, DISORDER, seed);
             gamma_sum += lyapunov_exponent(&pot, ENERGY);
         }
-        let gamma_avg = gamma_sum / N_REALIZATIONS as f64;
-        let elapsed = t0.elapsed().as_micros() as f64;
+        #[expect(clippy::cast_precision_loss, reason = "N_REALIZATIONS=500 ≪ 2^53")]
+        let n_real_f = N_REALIZATIONS as f64;
+        let gamma_avg = gamma_sum / n_real_f;
+        let elapsed = t0.elapsed().as_secs_f64() * 1e6;
 
         let xi = if gamma_avg > 0.0 {
             1.0 / gamma_avg
@@ -46,7 +52,10 @@ fn main() {
             f64::INFINITY
         };
         println!("  gamma_avg = {gamma_avg:.10}  (xi = {xi:.4})");
-        println!("  Derrida-Gardner: xi ~ 96/W^2 = {:.4}", 96.0 / (DISORDER * DISORDER));
+        println!(
+            "  Derrida-Gardner: xi ~ 96/W^2 = {:.4}",
+            96.0 / (DISORDER * DISORDER)
+        );
         println!("  elapsed: {elapsed:.0} us\n");
         results.push(("anderson_lyapunov_averaged", gamma_avg, elapsed));
     }
@@ -66,25 +75,25 @@ fn main() {
             data.push(v);
             let mut rng2 = Xorshift64::new(SEED + 1_000_000 + i as u64);
             let noise = rng2.next_f64() * 10.0;
-            data2.push(v * 0.8 + noise + 5.0);
+            data2.push(v.mul_add(0.8, noise + 5.0));
         }
 
         let t0 = Instant::now();
         let m = mean(&data);
-        let mean_us = t0.elapsed().as_micros() as f64;
+        let mean_us = t0.elapsed().as_secs_f64() * 1e6;
         println!("  mean = {m:.10} ({mean_us:.0} us)");
         results.push(("mean", m, mean_us));
 
         let t0 = Instant::now();
         let sd = std_dev(&data);
         let var_val = sd * sd;
-        let var_us = t0.elapsed().as_micros() as f64;
+        let var_us = t0.elapsed().as_secs_f64() * 1e6;
         println!("  variance = {var_val:.10} ({var_us:.0} us)");
         results.push(("variance", var_val, var_us));
 
         let t0 = Instant::now();
         let r = pearson_r(&data, &data2);
-        let pearson_us = t0.elapsed().as_micros() as f64;
+        let pearson_us = t0.elapsed().as_secs_f64() * 1e6;
         println!("  pearson_r = {r:.10} ({pearson_us:.0} us)\n");
         results.push(("pearson_r", r, pearson_us));
     }
@@ -101,12 +110,12 @@ fn main() {
         let mut data = Vec::with_capacity(N);
         for i in 0..N {
             let mut rng = Xorshift64::new(SEED + i as u64);
-            data.push(rng.next_f64() * 50.0 + 25.0);
+            data.push(rng.next_f64().mul_add(50.0, 25.0));
         }
 
         let t0 = Instant::now();
         let br = bootstrap_mean(&data, N_REPLICATES, CONFIDENCE, SEED);
-        let elapsed = t0.elapsed().as_micros() as f64;
+        let elapsed = t0.elapsed().as_secs_f64() * 1e6;
 
         println!(
             "    bootstrap: estimate={:.10} ci=[{:.10}, {:.10}]",

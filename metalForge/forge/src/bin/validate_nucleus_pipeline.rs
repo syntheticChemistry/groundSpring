@@ -18,6 +18,7 @@
 //! Requires: `--features biomeos` and a running Full NUCLEUS.
 
 use groundspring::biomeos;
+use groundspring_forge::nucleus::{biomeos_socket_dir, NucleusHarness as Harness};
 use std::path::{Path, PathBuf};
 
 fn discover_socket() -> Option<PathBuf> {
@@ -28,84 +29,16 @@ fn discover_socket() -> Option<PathBuf> {
     })
 }
 
-/// Discover the biomeOS socket directory.
-///
-/// Priority: `BIOMEOS_SOCKET_DIR` > `XDG_RUNTIME_DIR/biomeos` >
-/// `/run/user/<uid>/biomeos`. Never hardcodes a specific UID.
-fn biomeos_socket_dir() -> String {
-    if let Ok(dir) = std::env::var("BIOMEOS_SOCKET_DIR") {
-        return dir;
-    }
-    if let Ok(xdg) = std::env::var("XDG_RUNTIME_DIR") {
-        return format!("{xdg}/biomeos");
-    }
-    format!("/run/user/{}/biomeos", discover_uid())
-}
-
-/// Discover the current user's UID without `libc` or `unsafe`.
-///
-/// Checks `$UID` (set by most shells), then falls back to parsing
-/// `/proc/self/status` on Linux.
-fn discover_uid() -> String {
-    if let Ok(uid) = std::env::var("UID") {
-        return uid;
-    }
-    #[cfg(target_os = "linux")]
-    if let Ok(status) = std::fs::read_to_string("/proc/self/status") {
-        for line in status.lines() {
-            if let Some(rest) = line.strip_prefix("Uid:") {
-                if let Some(uid_str) = rest.split_whitespace().next() {
-                    return uid_str.to_string();
-                }
-            }
-        }
-    }
-    // Last-resort fallback: most single-user Linux systems use UID 1000.
-    // This path only triggers if $UID is unset AND /proc/self/status is
-    // unreadable (e.g. non-Linux or restricted procfs). The socket path
-    // will fail at connect time if the UID is wrong, producing a clear error.
-    String::from("1000")
-}
-
-struct Harness {
-    passed: u32,
-    failed: u32,
-    total: u32,
-}
-
-impl Harness {
-    const fn new() -> Self {
-        Self {
-            passed: 0,
-            failed: 0,
-            total: 0,
-        }
-    }
-
-    fn check(&mut self, name: &str, ok: bool) {
-        self.total += 1;
-        if ok {
-            self.passed += 1;
-            println!("  PASS  {name}");
-        } else {
-            self.failed += 1;
-            println!("  FAIL  {name}");
-        }
-    }
-
-    fn finish(self) -> bool {
-        println!();
-        println!("=== {}/{} checks passed ===", self.passed, self.total);
-        self.failed == 0
-    }
-}
-
 fn main() {
     println!("========================================================================");
     println!("NUCLEUS Science Pipeline Validation");
     println!("groundSpring capability.call → Neural API → Primal routing");
     println!("========================================================================");
     println!();
+
+    println!("Provenance: NUCLEUS live-infrastructure validation binary.");
+    println!("  Expected values from capability.call routing (live responses).");
+    println!("  No benchmark JSON — pass/fail based on API contract compliance.\n");
 
     let socket = discover_socket().unwrap_or_else(|| {
         eprintln!("ERROR: No Neural API socket found. Is NUCLEUS running?");

@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: March 3, 2026
 
-**Validation Summary**: 376/376 validation checks (321 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), **81 active delegations (47 CPU + 34 GPU) — barraCuda v0.3.1**, 790 workspace tests + 375 Python tests. All 33 experiments PASS. **28/28 mathematical parity proven**. 97.25% library line coverage. Zero clippy warnings (pedantic + nursery), zero unsafe, zero TODO, zero `.unwrap()` in production lib, zero production mocks, all files < 1000 lines. V73: 13-tier named tolerance architecture (`tol::` module, `eps::` module), ~170 bare literals → named constants, `f64::midpoint`, idiomatic tail expressions, capability-based discovery evolution. Paper 12 Exp 033 (29/29): cytokine Anderson lattice + geometry-aware drug scoring. 10 domains, 33 modules.
+**Validation Summary**: 376/376 validation checks (321 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), **81 active delegations (47 CPU + 34 GPU) — barraCuda v0.3.1**, 790 workspace tests + 375 Python tests. All 33 experiments PASS. **28/28 mathematical parity proven**. 97.25% library line coverage. Zero clippy warnings (pedantic + nursery), zero unsafe, zero TODO, zero `.unwrap()` in production lib, zero production mocks, all files < 1000 lines. V76: 13-tier named tolerance architecture (`tol::` module, `eps::` module), ~170 bare literals → named constants, `f64::midpoint`, idiomatic tail expressions, capability-based discovery evolution. Paper 12 Exp 033 (29/29): cytokine Anderson lattice + geometry-aware drug scoring. 10 domains, 33 modules.
 
 ---
 

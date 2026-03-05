@@ -12,7 +12,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **376/376 checks passed** across 33 validation binaries (321 core + 55 NUCLEUS).
 - Mathematical parity: **28/28 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.6× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.4× from Sturm tridiag**.
-- V73: 13-tier named tolerance architecture (`tol::` module), production epsilon guards (`eps::` module), 81 delegations (47 CPU + 34 GPU) — barraCuda v0.3.1. 790 Rust (default) + 375 Python = 1165 tests. 97.25% library line coverage. 187 metalForge checks (130 forge + 57 mixed-hardware). 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). Tissue Anderson (Paper 12, Exp 033 — 29/29). biomeOS Neural API live, NestGate data pipelines (NCBI, NOAA, IRIS).
+- V76: structural evolution (domain-split GPU tier binary, NUCLEUS shared utilities, observation-gap benchmark parity chain), deep debt zero. 13-tier named tolerance architecture (`tol::` module), production epsilon guards (`eps::` module), 81 delegations (47 CPU + 34 GPU) — barraCuda v0.3.1. 790 Rust (default) + 375 Python = 1165 tests. 97.25% library line coverage. 187 metalForge checks (130 forge + 57 mixed-hardware). 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). Tissue Anderson (Paper 12, Exp 033 — 29/29). biomeOS Neural API live, NestGate data pipelines (NCBI, NOAA, IRIS). Zero TODO/FIXME/unsafe/unwrap in production.
 
 ### Key Results
 

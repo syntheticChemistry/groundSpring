@@ -280,7 +280,10 @@ fn bench_chi2_analysis(h: &mut Harness) {
         .collect();
 
     let t0 = Instant::now();
-    let analysis = groundspring::freeze_out::chi2_analysis(&obs, &pred, sigma, 2).unwrap();
+    let Some(analysis) = groundspring::freeze_out::chi2_analysis(&obs, &pred, sigma, 2).ok() else {
+        h.check("Chi² analysis computation", false);
+        return;
+    };
     let us = t0.elapsed().as_micros();
 
     println!("  n = {} data points, σ = {sigma}", obs.len());

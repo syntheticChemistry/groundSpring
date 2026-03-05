@@ -13,6 +13,7 @@
 //! directly to `NestGate`; the Neural API proxy (`rpc_call`) is a biomeOS
 //! evolution item. Primal health checks go through the Unix socket mesh.
 
+use groundspring_forge::nucleus::{biomeos_socket_dir, NucleusHarness as Harness};
 use std::io::{BufRead, BufReader, Read, Write};
 use std::net::TcpStream;
 use std::time::Duration;
@@ -35,33 +36,6 @@ fn nestgate_url() -> String {
         .unwrap_or(FALLBACK_PORT);
     let host = std::env::var("NESTGATE_HOST").unwrap_or_else(|_| String::from("localhost"));
     format!("http://{host}:{port}")
-}
-
-fn biomeos_socket_dir() -> String {
-    if let Ok(dir) = std::env::var("BIOMEOS_SOCKET_DIR") {
-        return dir;
-    }
-    if let Ok(xdg) = std::env::var("XDG_RUNTIME_DIR") {
-        return format!("{xdg}/biomeos");
-    }
-    format!("/run/user/{}/biomeos", discover_uid())
-}
-
-fn discover_uid() -> String {
-    if let Ok(uid) = std::env::var("UID") {
-        return uid;
-    }
-    #[cfg(target_os = "linux")]
-    if let Ok(status) = std::fs::read_to_string("/proc/self/status") {
-        for line in status.lines() {
-            if let Some(rest) = line.strip_prefix("Uid:") {
-                if let Some(uid_str) = rest.split_whitespace().next() {
-                    return uid_str.to_string();
-                }
-            }
-        }
-    }
-    String::from("1000")
 }
 
 fn nestgate_health(base_url: &str) -> Result<String, String> {
@@ -183,45 +157,16 @@ fn primal_health_method(socket_path: &str, method: &str) -> Result<String, Strin
     Ok(response)
 }
 
-struct Harness {
-    passed: u32,
-    failed: u32,
-    total: u32,
-}
-
-impl Harness {
-    const fn new() -> Self {
-        Self {
-            passed: 0,
-            failed: 0,
-            total: 0,
-        }
-    }
-
-    fn check(&mut self, name: &str, ok: bool) {
-        self.total += 1;
-        if ok {
-            self.passed += 1;
-            println!("  PASS  {name}");
-        } else {
-            self.failed += 1;
-            println!("  FAIL  {name}");
-        }
-    }
-
-    fn finish(self) -> bool {
-        println!();
-        println!("=== {}/{} checks passed ===", self.passed, self.total);
-        self.failed == 0
-    }
-}
-
 fn main() {
     println!("========================================================================");
     println!("NestGate NCBI Data Acquisition + NUCLEUS Primal Health Validation");
     println!("baseCamp Papers 01 (Anderson-QS) + 06 (No-Till Anderson)");
     println!("========================================================================");
     println!();
+
+    println!("Provenance: NestGate live-infrastructure + NCBI accession catalog validation.");
+    println!("  Paper 01: Anderson-QS; Paper 06: No-Till Anderson (Zuber 2016 PRJNA305091).");
+    println!("  No benchmark JSON — pass/fail based on HTTP API and primal health contracts.\n");
 
     let mut harness = Harness::new();
     let base_url = nestgate_url();

@@ -55,7 +55,7 @@ path = "src/bin/benchmark_cross_spring.rs"
 
 [[bin]]
 name = "validate-gpu-tier"
-path = "src/bin/validate_gpu_tier.rs"
+path = "src/bin/validate_gpu_tier/main.rs"
 
 [[bin]]
 name = "validate-pure-gpu-workloads"
