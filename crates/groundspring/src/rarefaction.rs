@@ -421,10 +421,8 @@ pub fn rarefaction_at_depth(
         shannon_values.push(shannon_diversity(&counts));
     }
 
-    let genera_mean = crate::stats::mean(&genera_counts);
-    let genera_std = crate::stats::std_dev(&genera_counts);
-    let shannon_mean = crate::stats::mean(&shannon_values);
-    let shannon_std = crate::stats::std_dev(&shannon_values);
+    let (genera_mean, genera_std) = crate::stats::mean_and_std_dev(&genera_counts);
+    let (shannon_mean, shannon_std) = crate::stats::mean_and_std_dev(&shannon_values);
 
     RarefactionResult {
         depth,

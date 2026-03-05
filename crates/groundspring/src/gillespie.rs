@@ -158,11 +158,10 @@ fn birth_death_ssa_batch_cpu(
         let traj = birth_death_ssa(synthesis_rates, total_deg_rate, initial, t_max, seed);
         means.push(time_averaged_mean(&traj, t_burnin));
     }
-    let grand_mean = crate::stats::mean(&means);
-    let variance = crate::stats::std_dev(&means).powi(2);
+    let (grand_mean, std) = crate::stats::mean_and_std_dev(&means);
     BatchResult {
         mean: grand_mean,
-        variance,
+        variance: std * std,
         n_trajectories,
     }
 }
@@ -237,11 +236,10 @@ fn birth_death_ssa_batch_gpu(
         .map(|&s| s.mul_add(post_burnin_weight, ss_mean * burnin_fraction))
         .collect();
 
-    let grand_mean = crate::stats::mean(&means);
-    let variance = crate::stats::std_dev(&means).powi(2);
+    let (grand_mean, std) = crate::stats::mean_and_std_dev(&means);
     Some(BatchResult {
         mean: grand_mean,
-        variance,
+        variance: std * std,
         n_trajectories,
     })
 }

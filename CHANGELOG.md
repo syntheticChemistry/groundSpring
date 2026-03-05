@@ -4,6 +4,27 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V78 Modern Rewiring + Cross-Spring Benchmark Evolution (Mar 5, 2026)
+
+#### Added
+- **Fused `mean_and_std_dev`**: New `stats::mean_and_std_dev()` function uses `VarianceF64::mean_variance()` (Welford single-pass GPU shader) when `barracuda-gpu` is enabled, replacing the 2-dispatch pattern. Wired into `rarefaction::rarefaction_at_depth` (saves 2 GPU dispatches) and `gillespie::birth_death_ssa_batch_{cpu,gpu}` (saves 1 dispatch each)
+- **Makkink ET₀**: `fao56::makkink_et0()` — radiation-only method, delegates to `barracuda::stats::hydrology::makkink_et0` (airSpring → barraCuda v0.3.2)
+- **Turc ET₀**: `fao56::turc_et0()` — temperature + radiation + humidity method, delegates to `barracuda::stats::hydrology::turc_et0` (airSpring → barraCuda v0.3.2)
+- **Hamon ET₀**: `fao56::hamon_et0()` — temperature + daylight hours method, delegates to `barracuda::stats::hydrology::hamon_et0` (airSpring → barraCuda v0.3.2)
+- **16 new unit tests**: 12 for Makkink/Turc/Hamon individual behavior + 1 cross-method comparison, 3 determinism tests
+
+#### Changed
+- **Cross-spring benchmark**: Updated `benchmark_cross_spring.rs` to barraCuda v0.3.3 / toadStool S94b state — added fused mean+variance benchmark, ET₀ method comparison table, Phase 5 evolution timeline (DF64 tiers, fused shaders, TensorContext, new ET₀ ops), 8 new provenance entries in shader table
+- **Delegation count**: 81 → 84 active delegations (50 CPU + 34 GPU) — 3 new CPU delegations (Makkink, Turc, Hamon) + 1 fused GPU optimization
+
+#### Quality
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace --all-targets -- -D warnings`: PASS
+- `cargo doc --workspace --no-deps`: PASS
+- `cargo test --workspace`: PASS (806 tests, up from 790)
+- Deep debt zero maintained
+- Cross-spring provenance tracked for all new delegations
+
 ### V77 wgpu 28 Migration + barraCuda v0.3.3 Sync (Mar 5, 2026)
 
 #### Changed

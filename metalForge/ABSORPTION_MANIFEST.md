@@ -6,13 +6,13 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: March 4, 2026 (V74 — 81 active delegations (47 CPU + 34 GPU), barraCuda v0.3.1 standalone primal, toadStool S93, 790 tests, clippy pedantic clean, 97.25% line coverage)
+**Last updated**: March 5, 2026 (V78 — 84 active delegations (50 CPU + 34 GPU), barraCuda v0.3.3, toadStool S94b, 806 tests, clippy pedantic clean. V78: +3 ET₀ CPU delegations (Makkink, Turc, Hamon), fused mean_and_std_dev GPU optimization)
 
 ## Absorption Status Summary
 
 | Domain | Status | Count | Notes |
 |---|---|---|---|
-| Stats (CPU) | **Lean** | 27 | agreement, correlation, regression, distributions, diversity, hydrology, bootstrap, jackknife, moving_window |
+| Stats (CPU) | **Lean** | 30 | agreement, correlation, regression, distributions, diversity, hydrology (FAO-56, Hargreaves, Makkink, Turc, Hamon), bootstrap, jackknife, moving_window |
 | Spectral (GPU) | **Lean** | 15 | Anderson 1D-4D, Lanczos, Almost-Mathieu, Wegner RG, band detect |
 | Bio ops (GPU) | **Lean** | 5 | Gillespie, Wright-Fisher, BatchedMultinomial ×3 |
 | Linalg (GPU) | **Lean** | 2 | eigh_f64, solve_f64_cpu + cholesky |
@@ -22,7 +22,7 @@
 | Reduce ops (GPU) | **Lean** | 4 | sum_reduce, variance_reduce, fused_map_reduce, correlation_f64 |
 | ESN (GPU) | **Lean** | 1 | esn_v2::ESN regime classification |
 | Grid ops (GPU) | **Lean** | 1 | grid_search_3d (seismic) |
-| **Total** | | **81** | 47 CPU + 34 GPU |
+| **Total** | | **84** | 50 CPU + 34 GPU |
 | PRNG | **Adapt** | 1 | xorshift64→xoshiro alignment pending |
 | Scalar math | **Stays local** | 5 | decompose, haversine, travel_time |
 | NPU | **Lean** | 1 | akida-driver (ToadStool hardware, not barraCuda math) |

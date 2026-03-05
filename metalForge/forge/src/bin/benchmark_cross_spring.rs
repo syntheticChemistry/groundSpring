@@ -38,14 +38,16 @@ use std::time::Instant;
 
 fn main() {
     println!("=== groundSpring Cross-Spring Benchmark ===");
-    println!("=== ToadStool S93 / barraCuda v0.3.1 / Universal Precision ===\n");
+    println!("=== ToadStool S94b / barraCuda v0.3.3 / wgpu 28 / DF64 Precision Tiers ===\n");
 
     let mut h = Harness::new();
 
     bench_stats_metrics(&mut h);
+    bench_fused_mean_variance(&mut h);
     bench_bootstrap_rawr(&mut h);
     bench_regression(&mut h);
     bench_diversity(&mut h);
+    bench_et0_methods(&mut h);
     bench_anderson(&mut h);
     bench_anderson_sweep(&mut h);
     bench_chi2_analysis(&mut h);
@@ -93,6 +95,37 @@ fn bench_stats_metrics(h: &mut Harness) {
     h.check("NSE near 1 (good fit)", nse > 0.99);
     h.check("R² near 1", r2 > 0.99);
     h.check("IA near 1", ia > 0.99);
+}
+
+fn bench_fused_mean_variance(h: &mut Harness) {
+    println!("\n--- Fused Mean+Variance (hotSpring DF64 → Welford single-pass) ---\n");
+
+    let data: Vec<f64> = (0..50_000)
+        .map(|i| (f64::from(i) * 0.001).sin().mul_add(100.0, 50.0))
+        .collect();
+
+    let t0 = Instant::now();
+    let (fused_mean, fused_std) = groundspring::stats::mean_and_std_dev(&data);
+    let fused_us = t0.elapsed().as_micros();
+
+    let t1 = Instant::now();
+    let sep_mean = groundspring::stats::mean(&data);
+    let sep_std = groundspring::stats::std_dev(&data);
+    let sep_us = t1.elapsed().as_micros();
+
+    println!("  n = {} values", data.len());
+    println!("  Fused:    mean={fused_mean:.8}, std={fused_std:.8}  ({fused_us} µs)");
+    println!("  Separate: mean={sep_mean:.8},  std={sep_std:.8}  ({sep_us} µs)");
+    println!("  Provenance: hotSpring DF64 → Welford mean_variance_f64.wgsl (barraCuda v0.3.3)");
+
+    h.check(
+        "Fused mean matches separate mean",
+        (fused_mean - sep_mean).abs() < 1e-10,
+    );
+    h.check(
+        "Fused std matches separate std",
+        (fused_std - sep_std).abs() < 1e-10,
+    );
 }
 
 fn bench_bootstrap_rawr(h: &mut Harness) {
@@ -196,6 +229,62 @@ fn bench_diversity(h: &mut Harness) {
 
     h.check("Shannon > 0 for non-trivial community", shannon > 0.0);
     h.check("Evenness in (0, 1]", even > 0.0 && even <= 1.0);
+}
+
+fn bench_et0_methods(h: &mut Harness) {
+    println!("\n--- ET₀ Method Comparison (airSpring → barraCuda v0.3.2) ---\n");
+    println!("  Cross-spring: airSpring V068/V069 evolved Makkink, Turc, Hamon to barraCuda.");
+    println!("  groundSpring delegates with sovereign fallback. All springs benefit.\n");
+
+    let inp = groundspring::fao56::example_18_inputs();
+    let tmean = f64::midpoint(inp.tmax_c, inp.tmin_c);
+    let rh_mean = f64::midpoint(inp.rhmax_pct, inp.rhmin_pct);
+    let ra = groundspring::fao56::extraterrestrial_radiation(inp.latitude_deg_n, inp.day_of_year);
+    let big_n = groundspring::fao56::daylight_hours(inp.latitude_deg_n, inp.day_of_year);
+    let n = inp.sunshine_hours.min(big_n).max(0.0);
+    let rs = groundspring::fao56::solar_radiation_from_sunshine(n, big_n, ra);
+
+    let t0 = Instant::now();
+    let pm = groundspring::fao56::daily_et0(&inp);
+    let pm_us = t0.elapsed().as_micros();
+
+    let t1 = Instant::now();
+    let hg = groundspring::fao56::hargreaves_et0(
+        inp.tmax_c,
+        inp.tmin_c,
+        inp.latitude_deg_n,
+        inp.day_of_year,
+    );
+    let hargreaves_us = t1.elapsed().as_micros();
+
+    let t2 = Instant::now();
+    let mk = groundspring::fao56::makkink_et0(tmean, rs);
+    let makkink_us = t2.elapsed().as_micros();
+
+    let t3 = Instant::now();
+    let tu = groundspring::fao56::turc_et0(tmean, rs, rh_mean);
+    let turc_us = t3.elapsed().as_micros();
+
+    let t4 = Instant::now();
+    let hamon = groundspring::fao56::hamon_et0(tmean, big_n);
+    let hamon_us = t4.elapsed().as_micros();
+
+    println!("  Site: Uccle (50.8°N), July 6  (FAO-56 Example 18)");
+    println!("  ┌──────────────────────┬──────────┬──────────┐");
+    println!("  │ Method               │ ET₀ mm/d │ Time µs  │");
+    println!("  ├──────────────────────┼──────────┼──────────┤");
+    println!("  │ Penman-Monteith      │ {pm:8.4} │ {pm_us:>8} │");
+    println!("  │ Hargreaves           │ {hg:8.4} │ {hargreaves_us:>8} │");
+    println!("  │ Makkink (v0.3.2)     │ {mk:8.4} │ {makkink_us:>8} │");
+    println!("  │ Turc (v0.3.2)        │ {tu:8.4} │ {turc_us:>8} │");
+    println!("  │ Hamon (v0.3.2)       │ {hamon:8.4} │ {hamon_us:>8} │");
+    println!("  └──────────────────────┴──────────┴──────────┘");
+
+    h.check("PM ET₀ positive", pm > 0.0);
+    h.check(
+        "All methods in (0, 20) mm/day",
+        [pm, hg, mk, tu, hamon].iter().all(|&v| v > 0.0 && v < 20.0),
+    );
 }
 
 fn bench_anderson(h: &mut Harness) {
@@ -457,8 +546,19 @@ fn print_evolution_timeline() {
     println!("  ├─ groundSpring bootstrap → wetSpring rarefaction confidence intervals");
     println!("  └─ All springs → ToadStool → absorbed → all springs consume\n");
 
-    println!("  Current state: barraCuda v0.3.1, 144 ComputeDispatch ops, 844+ f64 shaders");
-    println!("  groundSpring: 81 delegations (47 CPU + 34 GPU), 790 tests, clippy pedantic clean");
+    println!("  Phase 5: Modern Rewiring (S94b + v0.3.3, Mar 2026)");
+    println!("  ┌─ barraCuda v0.3.3 → wgpu 28, DF64 precision tiers (15 ops)");
+    println!("  ├─ barraCuda v0.3.3 → fused mean+variance Welford, 5-acc Pearson");
+    println!("  ├─ barraCuda v0.3.3 → TensorContext pooled buffers for stats ops");
+    println!("  ├─ barraCuda v0.3.2 → 3 new ET₀ ops (Makkink, Turc, Hamon) from airSpring");
+    println!("  ├─ toadStool S94b ──→ full primal decoupling, barraCuda standalone");
+    println!("  ├─ groundSpring V78 → fused mean_and_std_dev replaces 2-dispatch pattern");
+    println!("  └─ groundSpring V78 → 3 new ET₀ delegations from airSpring lineage\n");
+
+    println!("  Current state: barraCuda v0.3.3, 845+ WGSL shaders, DF64 15-op precision tiers");
+    println!(
+        "  groundSpring: 84 delegations (50 CPU + 34 GPU), 806 tests, wgpu 28, deep debt zero"
+    );
 }
 
 fn print_provenance_table() {
@@ -496,6 +596,13 @@ fn print_provenance_table() {
     println!("  │ is_device_lost() + retry          │ ToadStool resilience    │ S87    │");
     println!("  │ barraCuda standalone primal        │ ToadStool budding       │ S89    │");
     println!("  │ D-DF64 transfer to barraCuda       │ ToadStool → barraCuda   │ S93    │");
+    println!("  │ wgpu 28 migration                 │ barraCuda standalone    │ v0.3.3 │");
+    println!("  │ DF64 precision tiers (15 ops)     │ hotSpring precision     │ v0.3.3 │");
+    println!("  │ Fused mean+variance (Welford)     │ hotSpring stats         │ v0.3.3 │");
+    println!("  │ Fused 5-acc Pearson correlation   │ hotSpring stats         │ v0.3.3 │");
+    println!("  │ Makkink/Turc/Hamon ET₀            │ airSpring V068/V069    │ v0.3.2 │");
+    println!("  │ TensorContext pooled buffers       │ hotSpring + airSpring   │ v0.3.3 │");
+    println!("  │ S94b full primal decoupling        │ ToadStool evolution     │ S94b   │");
     println!("  └──────────────────────────────────┴──────────────────────────┴────────┘");
     println!();
     println!("  Key cross-pollination (S70+ evolution):");

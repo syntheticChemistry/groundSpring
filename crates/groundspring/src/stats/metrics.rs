@@ -85,6 +85,35 @@ fn std_dev_gpu(values: &[f64]) -> Option<f64> {
     barracuda::ops::variance_reduce_f64::VarianceReduceF64::population_std(device, values).ok()
 }
 
+/// Fused population mean + variance in a single GPU dispatch (Welford).
+///
+/// Returns `(mean, std_dev)` — population std dev (divides by N).
+/// When `barracuda-gpu` is enabled, uses `VarianceF64::mean_variance` which
+/// computes both in one shader pass (cross-spring: hotSpring DF64 precision
+/// tier evolution gives this ~10× throughput on consumer GPUs).
+/// Falls back to two separate calls when no GPU is available.
+#[must_use]
+pub fn mean_and_std_dev(values: &[f64]) -> (f64, f64) {
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Some(pair) = mean_and_std_dev_gpu(values) {
+            return pair;
+        }
+    }
+    (mean(values), std_dev_cpu(values))
+}
+
+#[cfg(feature = "barracuda-gpu")]
+fn mean_and_std_dev_gpu(values: &[f64]) -> Option<(f64, f64)> {
+    if values.is_empty() {
+        return Some((0.0, 0.0));
+    }
+    let device = crate::gpu::get_device()?;
+    let var_op = barracuda::ops::variance_f64_wgsl::VarianceF64::new(device).ok()?;
+    let [m, v] = var_op.mean_variance(values, 0).ok()?;
+    Some((m, v.sqrt()))
+}
+
 /// Sample standard deviation (Bessel-corrected, divides by N−1).
 ///
 /// When the `barracuda` feature is enabled, delegates to
