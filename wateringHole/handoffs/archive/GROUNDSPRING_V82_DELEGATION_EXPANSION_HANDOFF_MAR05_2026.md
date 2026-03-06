@@ -7,7 +7,7 @@
 **To:** barraCuda team (absorption guidance), toadStool team (shader evolution)
 **License:** AGPL-3.0-only
 **Covers:** V81 → V82 (Thornthwaite ET₀, fit_all regression, smart refactoring, deep debt audit)
-**Pins:** barraCuda `a4c20a5`, toadStool S95 (`d4817e2e`), coralReef `2e89541`
+**Pins:** barraCuda `cf1602c`, toadStool S96c (`d77fc546`), coralReef `1e048be`
 
 ---
 
@@ -187,9 +187,9 @@ groundSpring V82
   cargo test --workspace:                         PASS (824 tests, 0 failures)
   Experiments:                                    34/34 validated (395/395 checks)
   Delegations:                                    91 active (54 CPU + 37 GPU)
-  barraCuda pin:                                  a4c20a5
-  toadStool pin:                                  S95 (d4817e2e)
-  coralReef pin:                                  2e89541
+  barraCuda pin:                                  cf1602c
+  toadStool pin:                                  S96c (d77fc546)
+  coralReef pin:                                  1e048be
   Deep debt:                                      Zero (0 unsafe, 0 unwrap, 0 TODO)
   Max file size:                                  717 lines (freeze_out.rs)
 ```

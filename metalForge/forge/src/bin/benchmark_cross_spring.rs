@@ -552,12 +552,17 @@ fn print_evolution_timeline() {
     println!("  ├─ barraCuda v0.3.3 → TensorContext pooled buffers for stats ops");
     println!("  ├─ barraCuda v0.3.2 → 3 new ET₀ ops (Makkink, Turc, Hamon) from airSpring");
     println!("  ├─ toadStool S94b ──→ full primal decoupling, barraCuda standalone");
+    println!("  ├─ toadStool S96c ──→ HardwareFingerprint, SubstrateCapabilityKind, god file splits");
     println!("  ├─ groundSpring V80 → fused correlation_full GPU, Welford single-pass CPU");
-    println!("  └─ groundSpring V81 → BootstrapMeanGpu, coralReef sovereign compiler\n");
+    println!("  ├─ groundSpring V81 → BootstrapMeanGpu, coralReef sovereign compiler");
+    println!("  └─ groundSpring V82 → Thornthwaite ET₀, fit_all regression, smart refactoring\n");
 
-    println!("  Current state: barraCuda a4c20a5, 845+ WGSL shaders, DF64 precision tiers");
+    println!("  Current state: barraCuda cf1602c, 708 WGSL shaders, 3471+ tests, DF64 precision tiers");
     println!(
-        "  groundSpring: 88 delegations (51 CPU + 37 GPU), 812+ tests, wgpu 28, deep debt zero"
+        "  groundSpring: 91 delegations (54 CPU + 37 GPU), 824 tests, wgpu 28, deep debt zero"
+    );
+    println!(
+        "  coralReef: 1e048be, 672 tests, codegen/ vendor-neutral, Frontend trait, Phase 6"
     );
 }
 

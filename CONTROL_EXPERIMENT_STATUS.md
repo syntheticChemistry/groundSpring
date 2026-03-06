@@ -49,13 +49,13 @@
 **Rust tests**: 824/824 PASS (default workspace)
 **pytest**: 390/390 PASS + 2 skipped
 **Three-tier parity**: 101+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
-**BarraCUDA dispatch**: 91 active (54 CPU + 37 GPU) — V82: barraCuda `a4c20a5`, toadStool S95 (`d4817e2e`). V82 adds BootstrapMeanGpu dispatch, freeze_out gate fix
+**BarraCUDA dispatch**: 91 active (54 CPU + 37 GPU) — V83: barraCuda `cf1602c`, toadStool S96c (`d77fc546`), coralReef `1e048be`. V83 pin refresh — all deps verified compatible
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); compute.execute + compute.submit validated
 **metalForge workloads**: 30 (24 GPU + 2 NPU + 2 CPU-only), 187 checks (130 forge + 57 mixed-hardware)
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
 **Paper 12**: `tissue_anderson` module — 18 unit tests + 29/29 validation checks + 4D Anderson + Wegner RG (V68)
-**Handoff**: V82 (Thornthwaite ET₀ + fit_all, deep debt audit, all gates green, 824 tests)
+**Handoff**: V83 (pin refresh — barraCuda cf1602c, toadStool S96c, coralReef 1e048be, all gates green, 824 tests)
 
 **Python checks**: ~160 across 28 experiments. **Rust validation checks**: 395 (340 core + 55 NUCLEUS). **metalForge + pipeline checks**: 187.
 
@@ -565,7 +565,7 @@ Each experiment is validated at three hardware tiers:
 | **GPU** | `barracuda` feature + GPU adapter | GPU matches CPU within tolerance |
 | **metalForge** | Mixed hardware dispatch | Cross-substrate agreement |
 
-### Current Status (V82)
+### Current Status (V83)
 
 | # | Experiment | CPU | GPU | metalForge | GPU Status |
 |---|-----------|:---:|:---:|:----------:|------------|
@@ -604,7 +604,7 @@ Each experiment is validated at three hardware tiers:
 **GPU tier**: 25 of 34 papers have GPU wiring (76%). 91 delegations (54 CPU + 37 GPU). 30/30 metalForge parity.
 **metalForge tier**: 30 workloads, 187 checks (57 mixed-hardware). Exp 028 NPU 9/9 PASS (AKD1000 DMA). GPU→NPU→CPU pipeline dispatch validated.
 
-### BarraCUDA Integration Status (V82 — toadStool S95)
+### BarraCUDA Integration Status (V83 — toadStool S96c)
 
 **91 active delegations** (54 CPU + 37 GPU). V82: `BootstrapMeanGpu` GPU dispatch, `freeze_out` gate fix. V81: fused `correlation_full` GPU. V68: `lbfgs_numerical`, `anderson_4d`, `wegner_block_4d`. All active delegations use `if let Ok` / `#[cfg]` with always-compiled CPU fallback.
 
@@ -656,7 +656,7 @@ Each experiment is validated at three hardware tiers:
 - **Phase 1**: Rust CPU validation — **COMPLETE** (395/395 across 34 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
 - **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 001-033: all domains)
-- **Phase 2a**: Tier A rewire — **COMPLETE** — 91 active delegations (54 CPU + 37 GPU), toadStool S95
+- **Phase 2a**: Tier A rewire — **COMPLETE** — 91 active delegations (54 CPU + 37 GPU), toadStool S96c
 - **Phase 2b**: BarraCUDA CPU parity — **PROVEN** — 11.6× faster than Python (excl. LAPACK-bound), 28/28 math parity
 - **Phase 2c**: BarraCUDA GPU tier — **PROVEN** — 30/30 three-tier parity, 2.2× total GPU speedup, 47.4× peak (Exp 009)
   - GPU-wired: 25 of 34 papers (76%) — stats, hydrology, spectral, bio ODE, multinomial, optimization, 4D Anderson
@@ -778,7 +778,7 @@ Unidirectional streaming reduces dispatch round-trips.
 
 **Three-Tier Parity**: 30/30 experiments PROVEN. See `data/three_tier_parity_report.json`.
 
-### Stage 4: metalForge Cross-System (CPU ↔ GPU ↔ NPU) — V82 VALIDATED
+### Stage 4: metalForge Cross-System (CPU ↔ GPU ↔ NPU) — V83 VALIDATED
 
 30 metalForge workloads route to optimal substrate per operation.
 187 total checks (130 forge + 57 mixed-hardware).
@@ -816,8 +816,9 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V74: Deep Debt + ToadStool Catch-Up | 81 delegations (47 CPU + 34 GPU), clippy pedantic CI, 790 tests, barraCuda v0.3.1, toadStool S93 | Archived |
 | V79: Exp 035 + seismic delegation | 85 delegations (51 CPU + 34 GPU), 807 tests, barraCuda v0.3.3, toadStool S94b | Archived |
 | V80: Fused Ops + BarraCuda Catch-Up | 87 delegations (51 CPU + 36 GPU), 812 tests, barraCuda v0.3.3+, toadStool S94b | Archived |
-| V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `a4c20a5`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
-| V82: Modern Rewire + coralReef | 91 delegations (54 CPU + 37 GPU), 824 tests, barraCuda `a4c20a5`, toadStool S95 (d4817e2e), coralReef (390 tests), 27/27 cross-spring | **Current** |
+| V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `cf1602c`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
+| V83: Pin Refresh + Catch-Up | 91 delegations (54 CPU + 37 GPU), 824 tests, barraCuda `cf1602c`, toadStool S96c (`d77fc546`), coralReef `1e048be` (672 tests), all deps verified | **Current** |
+| V82: Delegation Expansion | 91 delegations (54 CPU + 37 GPU), 824 tests, Thornthwaite ET₀, fit_all, smart refactoring, deep debt audit | Archived |
 | V67: S86 Catch-Up | `McEt0PropagateGpu`, `SeasonalPipelineF64`, `BatchedMultinomialGpu` API fix, Cholesky GPU | Archived |
 | V55: barracuda Evolution Review + Docs Cleanup | Complete 57-delegation inventory, cross-spring lineage, recommended evolutions, stale refs cleaned. | Archived |
 | V54: Full Control Validation + CPU Parity Proof | 283/283 checks, 95/95 parity, Rust 11.6× faster than Python. | Archived |
@@ -863,7 +864,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_V82_MODERN_REWIRE_HANDOFF_MAR05_2026.md`
+Active: `wateringHole/handoffs/GROUNDSPRING_V83_PIN_REFRESH_HANDOFF_MAR06_2026.md`
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

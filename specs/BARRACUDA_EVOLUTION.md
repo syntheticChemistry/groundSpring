@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 5, 2026 (V82 — 91 delegations (54 CPU + 37 GPU), 824+ tests, barraCuda `a4c20a5`, toadStool S95 `d4817e2e`, coralReef `2e89541`. V82: BootstrapMeanGpu dispatch, freeze_out gate fix, coralReef sovereign compiler. V81: V80 updates. V80: fused correlation_full GPU, Welford single-pass CPU. V78: modern rewiring, fused ops, ET₀. V77: wgpu 28, DF64 precision tiers. V73: 13-tier tolerance architecture)
+**Last updated**: March 5, 2026 (V83 — 91 delegations (54 CPU + 37 GPU), 824+ tests, barraCuda `cf1602c`, toadStool S96c `d77fc546`, coralReef `1e048be`. V83: pin refresh (barraCuda, toadStool, coralReef). V82: BootstrapMeanGpu dispatch, freeze_out gate fix, coralReef sovereign compiler. V81: V80 updates. V80: fused correlation_full GPU, Welford single-pass CPU. V78: modern rewiring, fused ops, ET₀. V77: wgpu 28, DF64 precision tiers. V73: 13-tier tolerance architecture)
 
 ## Philosophy
 
@@ -596,7 +596,7 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (28/28 parity proven, timing data for all experiments) |
-| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **91 active delegations** (54 CPU + 37 GPU), **824+ tests** — barraCuda `a4c20a5`, toadStool S95 (d4817e2e) |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **91 active delegations** (54 CPU + 37 GPU), **824+ tests** — barraCuda `cf1602c`, toadStool S96c (d77fc546) |
 | Phase 2b | Tier B adapt (GPU dispatch wiring, PRNG alignment) | **V31–V69** — 15 modules GPU-wired, 187 metalForge checks, 5 substrates; arch-aware dispatch (f64→Titan V, f32→RTX 4070); GPU→NPU PCIe bypass validated |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |

@@ -3,14 +3,14 @@
 **Purpose**: Handoff documents from groundSpring to ToadStool/BarraCUDA team,
 following the wateringHole inter-primal standard.
 
-**Last Updated**: March 5, 2026
+**Last Updated**: March 6, 2026
 
 ## Active Handoffs
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V82 Modern Rewire | [GROUNDSPRING_V82_MODERN_REWIRE_HANDOFF_MAR05_2026.md](handoffs/GROUNDSPRING_V82_MODERN_REWIRE_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | BootstrapMeanGpu GPU dispatch, freeze_out gate fix, coralReef cloned (390 tests), 27/27 cross-spring checks, 91 delegations (54 CPU + 37 GPU), barraCuda `a4c20a5`, toadStool S95 `d4817e2e`, 824 tests |
-| Sovereign Pipeline | [SOVEREIGN_PIPELINE_CROSS_PRIMAL_HANDOFF_MAR05_2026.md](handoffs/SOVEREIGN_PIPELINE_CROSS_PRIMAL_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | Cross-primal sovereign pipeline map: coralReef Phase 5, DF64 utilization strategy, vendor-agnostic IR roadmap |
+| V83 Pin Refresh | [GROUNDSPRING_V83_PIN_REFRESH_HANDOFF_MAR06_2026.md](handoffs/GROUNDSPRING_V83_PIN_REFRESH_HANDOFF_MAR06_2026.md) | Mar 6, 2026 | Dependency catch-up: barraCuda `cf1602c` (deep debt, GpuView, AutocorrelationF64, CoralCompiler, 708 shaders, 3471+ tests), toadStool S96c (HardwareFingerprint, SubstrateCapabilityKind), coralReef `1e048be` (codegen/ vendor-neutral, Frontend trait, 672 tests). 91 delegations verified compatible, 824 tests |
+| Sovereign Pipeline | [SOVEREIGN_PIPELINE_CROSS_PRIMAL_HANDOFF_MAR05_2026.md](handoffs/SOVEREIGN_PIPELINE_CROSS_PRIMAL_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | Cross-primal sovereign pipeline map: coralReef Phase 6, DF64 utilization strategy, vendor-agnostic IR roadmap |
 
 ## Cross-Spring Documentation
 
@@ -37,6 +37,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V82 Delegation Expansion | Thornthwaite ET₀, fit_all regression, esn/fao56 smart-refactored, deep debt audit, 91 delegations (54 CPU + 37 GPU), 824 tests (superseded by V83) |
 | V81 Modern Rewire | BootstrapMeanGpu GPU dispatch, freeze_out gate fix, coralReef (390 tests), 88 delegations (51 CPU + 37 GPU), barraCuda `a4c20a5`, toadStool S95 (superseded by V82) |
 | V80 Fused Ops + Catch-Up | Fused `correlation_full` GPU, Welford single-pass CPU, barraCuda HEAD catch-up, toadStool S94b review, 87 delegations (superseded by V81) |
 | V79 Exp 035 + Delegation | Exp 035 Multi-Method ET₀, seismic delegation, 85 delegations (superseded by V80) |

@@ -4,6 +4,24 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V83 Dependency Catch-Up + Pin Refresh (Mar 6, 2026)
+
+#### Changed
+- **barraCuda pin**: `a4c20a5` → `cf1602c` — deep debt resolved (JSON-RPC 2.0 compliance, unsafe elimination, zero-copy docs), GpuView persistent buffers, AutocorrelationF64 GPU op, CoralCompiler for coralReef integration, anderson_lyapunov f32/f64 WGSL shaders, fft_radix2_f64 shader, Kokkos parity benchmarks started. 708 shaders, 3,471+ tests
+- **toadStool pin**: S95 (`d4817e2e`) → S96c (`d77fc546`) — HardwareFingerprint with sovereign capability detection, SubstrateCapabilityKind (12 variants), 5 god file splits (<1000 LOC), crates/api/ fossilized, V4L2 unsafe documented. 18,028 tests
+- **coralReef pin**: `2e89541` → `1e048be` — `nak/` → `codegen/` vendor-neutral rename, pluggable `Frontend` trait (NagaFrontend default), Phase 5.5 naming evolution complete, Phase 6 multi-vendor in progress. 672 tests (up from 390)
+
+#### Ecosystem — Cross-Spring Evolution Observations
+- **barraCuda cf1602c**: New GPU primitives (AutocorrelationF64 for time-series, GpuView<T> for zero-copy GPU-resident computation, anderson_lyapunov f32/f64 shaders for transfer-matrix Lyapunov), CoralCompiler for coralReef native binary integration, DF64 naga rewrite validated with compound assignments, 15 ops gain Fp64Strategy-based shader selection
+- **toadStool S96c**: Sovereign pipeline infrastructure (HardwareFingerprint estimated_tflops, SubstrateType expanded to 8 variants including NPU/TPU/FPGA), capability-scored discovery with `is_sovereign_capable()`, safe allocation limits for NVK
+- **coralReef 1e048be**: Vendor-neutral architecture evolution — `codegen/` replaces `nak/`, `TranscendentalOp` replaces `MuFuOp`, pluggable Frontend trait decouples shader language from compiler core. NVIDIA backend complete, AMD/Intel backends in progress
+
+#### Quality
+- `cargo check --workspace`: PASS (clean build with updated deps)
+- `cargo clippy --workspace --all-targets -- -D warnings`: PASS (0 warnings)
+- `cargo test --workspace`: PASS (824 tests, 0 failures)
+- No API changes required — all 91 delegations verified compatible
+
 ### V82 Delegation Expansion + Smart Refactoring (Mar 5, 2026)
 
 #### Added

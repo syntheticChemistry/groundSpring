@@ -114,12 +114,12 @@ This eliminates NAK, NVK, and nouveau from the pipeline entirely.
 
 ---
 
-## coralReef Status (Phases 1–5 Complete)
+## coralReef Status (Phases 1–6 Complete)
 
-### Current state (as of March 5, 2026 — commit 2e89541)
+### Current state (as of March 5, 2026 — commit 1e048be)
 
-- **390 tests**, 0 failures, 2 ignored
-- **Phases 1–5 all complete** — sovereign Rust compiler, no Mesa C dependencies
+- **672 tests**, 0 failures, 2 ignored
+- **Phases 1–6 all complete** — sovereign Rust compiler, no Mesa C dependencies
 - **Rename complete**: `coralNAK` → `coralReef` across all crates, dirs, and docs
 - `cargo check`, `cargo clippy -D warnings`, `cargo fmt --check`, `cargo doc` — all PASS
 - 37.1% line / 44.9% function coverage (structural floor from encoder match arms)
@@ -137,7 +137,7 @@ coralReef has been actively absorbing patterns from ecoPrimals springs:
 | Hardcoded `/tmp/` → `std::env::temp_dir()` | ecoPrimals sovereignty standard | `opt_instr_sched_common.rs` |
 | Cross-spring provenance doc-comments | CROSS_SPRING_SHADER_EVOLUTION | `lower_f64/` |
 
-### Smart refactoring (commit 2e89541)
+### Smart refactoring (commit 1e048be)
 
 Three files at the 1000 LOC ceiling split by algorithm/concern (not mechanical):
 

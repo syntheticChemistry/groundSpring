@@ -1,7 +1,7 @@
 # Cross-Spring Evolution: How ecoPrimals Primals Build on Each Other
 
 **Date**: February 27, 2026
-**groundSpring HEAD**: V82
+**groundSpring HEAD**: V83
 **barraCuda**: v0.3.3
 
 ---
@@ -242,4 +242,4 @@ from 14.89s → 3.93s.
 
 *This document is generated from groundSpring's validation infrastructure
 and ToadStool's absorption history. It reflects the state of the ecosystem
-at ToadStool S95 (d4817e2e) / groundSpring V82.
+at ToadStool S96c (d77fc546) / groundSpring V83.

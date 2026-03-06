@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: March 5, 2026
 
-**Validation Summary**: 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), **91 active delegations (54 CPU + 37 GPU) — barraCuda `a4c20a5`, toadStool S95 (d4817e2e)**. 824 workspace tests + 390 Python tests. All 34 experiments PASS. **29/29 mathematical parity proven**. 97.25% library line coverage. Zero clippy warnings (pedantic + nursery, -D warnings), zero unsafe, zero TODO, zero `.unwrap()` in production lib, zero production mocks, all files < 1000 lines. V82: BootstrapMeanGpu GPU dispatch, freeze_out gate fix, coralReef sovereign compiler (390 tests, Phase 5 complete), 27/27 cross-spring checks. Deep debt zero maintained. Paper 12 Exp 033 (29/29): cytokine Anderson lattice + geometry-aware drug scoring. 10 domains, 34 modules.
+**Validation Summary**: 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), **91 active delegations (54 CPU + 37 GPU) — barraCuda `cf1602c`, toadStool S96c (d77fc546)**. 824 workspace tests + 390 Python tests. All 34 experiments PASS. **29/29 mathematical parity proven**. 97.25% library line coverage. Zero clippy warnings (pedantic + nursery, -D warnings), zero unsafe, zero TODO, zero `.unwrap()` in production lib, zero production mocks, all files < 1000 lines. V83: BootstrapMeanGpu GPU dispatch, freeze_out gate fix, coralReef sovereign compiler (672 tests, Phase 6 complete), 27/27 cross-spring checks. Deep debt zero maintained. Paper 12 Exp 033 (29/29): cytokine Anderson lattice + geometry-aware drug scoring. 10 domains, 34 modules.
 
 ---
 

@@ -3,7 +3,7 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 5, 2026 (V82: 91 active delegations (54 CPU + 37 GPU), barraCuda `a4c20a5`, toadStool S95, coralReef `2e89541`. V82: BootstrapMeanGpu dispatch, freeze_out gate fix, coralReef sovereign compiler. V81: fused correlation_full GPU, Welford single-pass CPU. V73: 13-tier tolerance architecture. V72: deep audit + debt evolution)
+**Last Updated**: March 5, 2026 (V83: 91 active delegations (54 CPU + 37 GPU), barraCuda `cf1602c`, toadStool S96c, coralReef `1e048be`. V83: pin refresh (barraCuda, toadStool, coralReef). V82: BootstrapMeanGpu dispatch, freeze_out gate fix, coralReef sovereign compiler. V81: fused correlation_full GPU, Welford single-pass CPU. V73: 13-tier tolerance architecture. V72: deep audit + debt evolution)
 
 ---
 
@@ -705,7 +705,7 @@ Cross-spring benchmark: **23/23 PASS** (4.5s total).
 hardware — shader compilation fails before dispatch. All 6 fall back to CPU
 correctly in production.
 
-### Delegation Summary (V82 Current)
+### Delegation Summary (V83 Current)
 
 | Tier | Count | Notes |
 |------|-------|-------|
