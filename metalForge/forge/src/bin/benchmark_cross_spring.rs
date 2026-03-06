@@ -554,8 +554,8 @@ fn print_evolution_timeline() {
     println!("  ├─ toadStool S94b ──→ full primal decoupling, barraCuda standalone");
     println!("  ├─ toadStool S96c ──→ HardwareFingerprint, SubstrateCapabilityKind, god file splits");
     println!("  ├─ groundSpring V80 → fused correlation_full GPU, Welford single-pass CPU");
-    println!("  ├─ groundSpring V81 → BootstrapMeanGpu, coralReef sovereign compiler");
-    println!("  └─ groundSpring V82 → Thornthwaite ET₀, fit_all regression, smart refactoring\n");
+    println!("  ├─ groundSpring V84 → Dual-GPU probe, DF64 green, f64 shared-mem issue found");
+    println!("  └─ groundSpring V85 → coralReef sovereign compilation, f64 reduction SM70/SM89\n");
 
     println!("  Current state: barraCuda cf1602c, 708 WGSL shaders, 3471+ tests, DF64 precision tiers");
     println!(

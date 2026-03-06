@@ -4,7 +4,20 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
-### V85 coralReef Sovereign Compilation (Mar 6, 2026)
+### V85 coralReef Sovereign Compilation + Docs Cleanup (Mar 6, 2026)
+
+#### Documentation
+- **Root docs refresh**: README, CONTROL_EXPERIMENT_STATUS, CONTROL_RUN_LOG updated to V85 with coralReef `849fedd` pin
+- **whitePaper/baseCamp**: Updated validation summary with V85 sovereign compilation achievement
+- **ecoPrimals/whitePaper/gen3/baseCamp**: Updated groundSpring provenance line (V83 → V85) and cross-spring provenance
+- **experiments/README.md**: Updated barraCuda pin to include coralReef `849fedd`
+- **wateringHole/README.md**: Added V85 toadStool/barraCuda evolution handoff and coralReef sovereign handoff to active list
+- **specs/**: Updated version references in BARRACUDA_EVOLUTION, CROSS_SPRING_EVOLUTION, PAPER_REVIEW_QUEUE to V85
+- **metalForge/ABSORPTION_MANIFEST.md**: Updated version and coralReef pin
+- **Cross-spring shader docs**: Updated wateringHole and whitePaper CROSS_SPRING_EVOLUTION to V85
+- **CONTROL_RUN_LOG.md**: Added historical note (V75–V85 tracked via CHANGELOG and handoffs)
+- **benchmark_cross_spring.rs**: Updated evolution banner from V82 to V85
+- **New handoff**: `GROUNDSPRING_V85_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR06_2026.md` — comprehensive evolution handoff for toadStool/barraCuda/coralReef teams with f64 pipeline analysis, sovereign compilation findings, and per-primal evolution requests
 
 #### Fixed (in coralReef — commit `849fedd`)
 - **CFG edge loss in opt_jump_thread**: `translate_if` now emits conditional branches (`@!cond BRA reject`), preventing `rewrite_cfg` from losing structural edges to reject blocks. Fixes compilation of shaders with 3+ `workgroupBarrier()` calls

@@ -9,7 +9,9 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V84 GPU Validation | [GROUNDSPRING_V84_GPU_VALIDATION_HANDOFF_MAR06_2026.md](handoffs/GROUNDSPRING_V84_GPU_VALIDATION_HANDOFF_MAR06_2026.md) | Mar 6, 2026 | Dual-GPU validation (RTX 4070 + Titan V): DF64/tensor/FHE green, f64 reduction shaders return 0 (naga shared memory issue). CoralCompiler tokio fix. Hardware fingerprint extensions proposed. 17/32 GPU tests pass |
+| V85 toadStool/barraCuda Evolution | [GROUNDSPRING_V85_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR06_2026.md](handoffs/GROUNDSPRING_V85_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR06_2026.md) | Mar 6, 2026 | Comprehensive evolution handoff: f64 shared-memory failure analysis, coralReef sovereign compilation success, evolution requests for barraCuda (f64 fallback strategy, sovereign dispatch), toadStool (HardwareFingerprint extensions, f64 routing), coralReef (coralDriver, f64 instruction emission) |
+| V85 coralReef Sovereign | [CORALREEF_SOVEREIGN_COMPILATION_HANDOFF_MAR06_2026.md](handoffs/CORALREEF_SOVEREIGN_COMPILATION_HANDOFF_MAR06_2026.md) | Mar 6, 2026 | 2 critical coralReef bugs fixed (CFG edge loss + multi-pred RA merge), f64 shared-memory reduction shaders compile to native SM70/SM89 (6/6), coralDriver gap, BAR.SYNC encoding |
+| V84 GPU Validation | [GROUNDSPRING_V84_GPU_VALIDATION_HANDOFF_MAR06_2026.md](handoffs/GROUNDSPRING_V84_GPU_VALIDATION_HANDOFF_MAR06_2026.md) | Mar 6, 2026 | Dual-GPU probe (RTX 4070 + Titan V): DF64/tensor/FHE green, f64 reduction returns 0 (naga shared memory issue). CoralCompiler tokio fix. 17/32 GPU tests pass |
 | Sovereign Pipeline | [SOVEREIGN_PIPELINE_CROSS_PRIMAL_HANDOFF_MAR05_2026.md](handoffs/SOVEREIGN_PIPELINE_CROSS_PRIMAL_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | Cross-primal sovereign pipeline map: coralReef Phase 6, DF64 utilization strategy, vendor-agnostic IR roadmap |
 
 ## Cross-Spring Documentation
@@ -37,7 +39,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
-| V83 Pin Refresh | Dependency catch-up: barraCuda `cf1602c`, toadStool S96c, coralReef `1e048be`. 91 delegations verified compatible, 824 tests (superseded by V84) |
+| V83 Pin Refresh | Dependency catch-up: barraCuda `cf1602c`, toadStool S96c, coralReef `1e048be`. 91 delegations verified compatible, 824 tests (superseded by V85) |
 | V82 Delegation Expansion | Thornthwaite ET₀, fit_all regression, esn/fao56 smart-refactored, deep debt audit, 91 delegations (54 CPU + 37 GPU), 824 tests (superseded by V83) |
 | V81 Modern Rewire | BootstrapMeanGpu GPU dispatch, freeze_out gate fix, coralReef (390 tests), 88 delegations (51 CPU + 37 GPU), barraCuda `a4c20a5`, toadStool S95 (superseded by V82) |
 | V80 Fused Ops + Catch-Up | Fused `correlation_full` GPU, Welford single-pass CPU, barraCuda HEAD catch-up, toadStool S94b review, 87 delegations (superseded by V81) |

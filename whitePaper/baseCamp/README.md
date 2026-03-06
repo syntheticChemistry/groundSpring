@@ -3,9 +3,9 @@
 **Purpose**: Per-faculty research briefings for groundSpring noise characterization
 reproductions and extensions.
 
-**Last Updated**: March 5, 2026
+**Last Updated**: March 6, 2026
 
-**Validation Summary**: 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), **91 active delegations (54 CPU + 37 GPU) — barraCuda `cf1602c`, toadStool S96c (d77fc546)**. 824 workspace tests + 390 Python tests. All 34 experiments PASS. **29/29 mathematical parity proven**. 97.25% library line coverage. Zero clippy warnings (pedantic + nursery, -D warnings), zero unsafe, zero TODO, zero `.unwrap()` in production lib, zero production mocks, all files < 1000 lines. V83: BootstrapMeanGpu GPU dispatch, freeze_out gate fix, coralReef sovereign compiler (672 tests, Phase 6 complete), 27/27 cross-spring checks. Deep debt zero maintained. Paper 12 Exp 033 (29/29): cytokine Anderson lattice + geometry-aware drug scoring. 10 domains, 34 modules.
+**Validation Summary**: 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), **91 active delegations (54 CPU + 37 GPU) — barraCuda `cf1602c`, toadStool S96c (`d77fc546`), coralReef `849fedd`**. 824 workspace tests + 672 coralReef tests + 390 Python tests. All 35 experiments PASS. **29/29 mathematical parity proven**. 97.25% library line coverage. Zero clippy warnings (pedantic + nursery, -D warnings), zero unsafe, zero TODO, zero `.unwrap()` in production lib, zero production mocks, all files < 1000 lines. V85: coralReef sovereign compilation — 2 critical CFG/RA bugs fixed, f64 shared-memory reduction shaders compile to native SM70/SM89 binaries (6/6), bypassing the naga/SPIR-V/NVK pipeline that returns 0. V84: dual-GPU probe (RTX 4070 + Titan V), DF64 green, CoralCompiler tokio fix. Deep debt zero maintained. Paper 12 Exp 033 (29/29): cytokine Anderson lattice + geometry-aware drug scoring. 10 domains, 34 modules.
 
 ---
 
