@@ -45,6 +45,17 @@ impl Xorshift64 {
     ///
     /// A seed of zero is replaced with a non-zero constant because
     /// xorshift requires non-zero state.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let mut rng = groundspring::prng::Xorshift64::new(42);
+    /// let v = rng.next_f64();
+    /// assert!((0.0..1.0).contains(&v));
+    /// // Deterministic: same seed produces same stream.
+    /// let mut rng2 = groundspring::prng::Xorshift64::new(42);
+    /// assert_eq!(rng2.next_u64(), groundspring::prng::Xorshift64::new(42).next_u64());
+    /// ```
     #[must_use]
     pub const fn new(seed: u64) -> Self {
         let state = if seed == 0 {

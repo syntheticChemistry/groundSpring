@@ -26,11 +26,7 @@ fn welford_population(values: &[f64]) -> (f64, f64) {
         let delta2 = x - mean;
         m2 = delta.mul_add(delta2, m2);
     }
-    if n == 0.0 {
-        (0.0, 0.0)
-    } else {
-        (mean, m2 / n)
-    }
+    if n == 0.0 { (0.0, 0.0) } else { (mean, m2 / n) }
 }
 
 /// Arithmetic mean of a slice.
@@ -39,6 +35,15 @@ fn welford_population(values: &[f64]) -> (f64, f64) {
 /// `SumReduceF64::mean`. Otherwise delegates to `barracuda::stats::mean`
 /// (CPU) or the local implementation.
 /// Returns `0.0` for empty slices.
+///
+/// # Examples
+///
+/// ```
+/// let data = [1.0, 2.0, 3.0, 4.0, 5.0];
+/// let m = groundspring::stats::mean(&data);
+/// assert!((m - 3.0).abs() < 1e-12);
+/// assert_eq!(groundspring::stats::mean(&[]), 0.0);
+/// ```
 #[must_use]
 pub fn mean(values: &[f64]) -> f64 {
     #[cfg(feature = "barracuda-gpu")]

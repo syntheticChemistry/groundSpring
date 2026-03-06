@@ -18,6 +18,14 @@ use crate::cast::{u64_f64, usize_f64};
 /// delegates to `FusedMapReduceF64::simpson_index` for GPU-accelerated
 /// computation. Falls back to `barracuda::stats::simpson` CPU delegation
 /// when `barracuda` is enabled.
+///
+/// # Examples
+///
+/// ```
+/// let even_4 = vec![100u64, 100, 100, 100];
+/// let d = groundspring::rarefaction::simpson_diversity(&even_4);
+/// assert!((d - 0.75).abs() < 1e-12);  // 1 − 4×0.25²
+/// ```
 #[must_use]
 pub fn simpson_diversity(counts: &[u64]) -> f64 {
     #[cfg(feature = "barracuda-gpu")]
@@ -92,11 +100,7 @@ fn bray_curtis_cpu(a: &[f64], b: &[f64]) -> f64 {
         num += (ai - bi).abs();
         den += ai + bi;
     }
-    if den == 0.0 {
-        0.0
-    } else {
-        num / den
-    }
+    if den == 0.0 { 0.0 } else { num / den }
 }
 
 /// Analytical (hypergeometric) rarefaction curve: expected species at
@@ -174,6 +178,14 @@ fn log_hypergeometric_absent(big_n: u64, ni: u64, n: u64) -> f64 {
 /// when `barracuda` is enabled, or to the local CPU implementation.
 ///
 /// Operates on a count vector.  Returns `0.0` if the total count is zero.
+///
+/// # Examples
+///
+/// ```
+/// let even_4 = vec![100u64, 100, 100, 100];
+/// let h = groundspring::rarefaction::shannon_diversity(&even_4);
+/// assert!((h - 4.0_f64.ln()).abs() < 1e-12);
+/// ```
 #[must_use]
 pub fn shannon_diversity(counts: &[u64]) -> f64 {
     #[cfg(feature = "barracuda-gpu")]

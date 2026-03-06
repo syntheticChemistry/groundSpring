@@ -67,7 +67,7 @@ fn validate_diversity_parity(h: &mut Harness) {
 }
 
 fn validate_kinetics_parity(h: &mut Harness) {
-    println!("\n--- Hill Kinetics Parity (wetSpring S68) ---\n");
+    println!("\n--- Hill Kinetics Parity (bio-kinetics lineage S68) ---\n");
 
     let hill_val = groundspring::kinetics::hill(1.0, 0.5, 2.0);
     let repress = groundspring::kinetics::hill_repress(1.0, 0.5, 2.0);
@@ -86,7 +86,7 @@ fn validate_kinetics_parity(h: &mut Harness) {
 }
 
 fn validate_bistable_ode_parity(h: &mut Harness) {
-    println!("\n--- Bistable ODE Parity (wetSpring S58) ---\n");
+    println!("\n--- Bistable ODE Parity (bio-dynamics lineage S58) ---\n");
 
     let params = groundspring::bistable::BistableParams::default();
     let y = [0.1, 0.5, 0.3, 0.2, 0.1];
@@ -110,7 +110,7 @@ fn validate_bistable_ode_parity(h: &mut Harness) {
 }
 
 fn validate_rare_biosphere_cpu_gpu_parity(h: &mut Harness) {
-    println!("\n--- Rare Biosphere Parity (groundSpring→neuralSpring S64) ---\n");
+    println!("\n--- Rare Biosphere Parity (bio-rarefaction lineage S64) ---\n");
 
     let community = vec![0.5, 0.3, 0.15, 0.04, 0.01];
     let depth = 500_u64;

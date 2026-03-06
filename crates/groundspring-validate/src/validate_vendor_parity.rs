@@ -17,7 +17,7 @@ use groundspring::stats::pearson_r;
 use groundspring::validate::ValidationHarness;
 use groundspring::wdm::{green_kubo_integrate, synthetic_vacf};
 use groundspring_validate::{
-    f64_field, print_provenance_header, u64_field, usize_field, EPS_SAFE_DIV_STRICT,
+    EPS_SAFE_DIV_STRICT, f64_field, print_provenance_header, u64_field, usize_field,
 };
 use serde_json::Value;
 

@@ -13,7 +13,7 @@
 //! directly to `NestGate`; the Neural API proxy (`rpc_call`) is a biomeOS
 //! evolution item. Primal health checks go through the Unix socket mesh.
 
-use groundspring_forge::nucleus::{biomeos_socket_dir, NucleusHarness as Harness};
+use groundspring_forge::nucleus::{NucleusHarness as Harness, biomeos_socket_dir};
 use std::io::{BufRead, BufReader, Read, Write};
 use std::net::TcpStream;
 use std::time::Duration;

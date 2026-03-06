@@ -80,11 +80,7 @@ pub fn compare(cpu: f64, gpu: f64, tier: ToleranceTier) -> Result<f64, f64> {
     } else {
         (gpu - cpu).abs()
     };
-    if diff <= tol {
-        Ok(diff)
-    } else {
-        Err(diff)
-    }
+    if diff <= tol { Ok(diff) } else { Err(diff) }
 }
 
 /// Compare slices of GPU and CPU results, returning per-element results.

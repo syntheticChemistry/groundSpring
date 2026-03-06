@@ -9,7 +9,7 @@
 //!
 //! Reference: Srivastava, Waters et al. (2011) J Bacteriology 194:122-136
 
-use groundspring::multisignal::{integrate, stochastic_integrate, MultiSignalParams};
+use groundspring::multisignal::{MultiSignalParams, integrate, stochastic_integrate};
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{array_field, f64_field, print_provenance_header};
 use serde_json::Value;

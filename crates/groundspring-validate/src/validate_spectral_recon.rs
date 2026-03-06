@@ -18,7 +18,7 @@ use groundspring::spectral_recon::{
 };
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    f64_field, f64_range, print_provenance_header, u64_field, usize_field, TOL_EXACT,
+    TOL_EXACT, f64_field, f64_range, print_provenance_header, u64_field, usize_field,
 };
 use serde_json::Value;
 

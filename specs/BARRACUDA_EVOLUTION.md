@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 6, 2026 (V85 — 91 delegations (54 CPU + 37 GPU), 824+ tests, barraCuda `cf1602c`, toadStool S96c `d77fc546`, coralReef `849fedd`. V85: coralReef sovereign compilation — 2 CFG/RA bugs fixed, f64 reduction shaders compile to native SM70/SM89. V84: dual-GPU probe, DF64 green, f64 reduction returns 0 via naga. V83: pin refresh. V82: BootstrapMeanGpu, coralReef Phase 6. V80: fused correlation_full GPU. V77: wgpu 28, DF64 precision tiers. V73: 13-tier tolerance architecture)
+**Last updated**: March 6, 2026 (V86 — 91 delegations (54 CPU + 37 GPU), 824+ tests, barraCuda `e1184f3`, toadStool S96c `d77fc546`, coralReef `849fedd`. V86: Fp64Strategy wired into SumReduceF64/VarianceReduceF64 — DF64 shaders for consumer GPUs. V85: coralReef sovereign compilation — 2 CFG/RA bugs fixed, f64 reduction shaders compile to native SM70/SM89. V84: dual-GPU probe, DF64 green, f64 reduction returns 0 via naga. V83: pin refresh. V82: BootstrapMeanGpu, coralReef Phase 6. V80: fused correlation_full GPU. V77: wgpu 28, DF64 precision tiers. V73: 13-tier tolerance architecture)
 
 ## Philosophy
 
@@ -596,7 +596,7 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (28/28 parity proven, timing data for all experiments) |
-| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **91 active delegations** (54 CPU + 37 GPU), **824+ tests** — barraCuda `cf1602c`, toadStool S96c (d77fc546) |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **91 active delegations** (54 CPU + 37 GPU), **824+ tests** — barraCuda `e1184f3`, toadStool S96c (d77fc546) |
 | Phase 2b | Tier B adapt (GPU dispatch wiring, PRNG alignment) | **V31–V69** — 15 modules GPU-wired, 187 metalForge checks, 5 substrates; arch-aware dispatch (f64→Titan V, f32→RTX 4070); GPU→NPU PCIe bypass validated |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |

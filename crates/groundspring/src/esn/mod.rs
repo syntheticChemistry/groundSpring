@@ -32,8 +32,8 @@
 //!
 //! # Module structure
 //!
-//! - [`brain`] — Concept edge detection, drift actions, multi-head uncertainty
-//! - [`classifier`] — Rule-based and ESN-based regime classification
+//! - `brain` — Concept edge detection ([`detect_concept_edges`], [`DriftAction`], [`multi_head_uncertainty`])
+//! - `classifier` — Rule-based ([`classify_by_lyapunov`], [`classify_by_spacing_ratio`]) and ESN-based regime classification
 //!
 //! # barracuda delegation
 //!
@@ -44,14 +44,14 @@ mod brain;
 mod classifier;
 
 pub use brain::{
-    classification_uncertainty, detect_concept_edges, multi_head_uncertainty, seed_around_edges,
     ClassificationUncertainty, ConceptEdge, DriftAction, MultiHeadUncertainty,
-};
-pub use classifier::{
-    classify_by_lyapunov, classify_by_spacing_ratio, spectral_features, GOE_R, POISSON_R,
+    classification_uncertainty, detect_concept_edges, multi_head_uncertainty, seed_around_edges,
 };
 #[cfg(feature = "barracuda-gpu")]
 pub use classifier::EsnClassifier;
+pub use classifier::{
+    GOE_R, POISSON_R, classify_by_lyapunov, classify_by_spacing_ratio, spectral_features,
+};
 
 /// Localization regime labels for Anderson model classification.
 ///

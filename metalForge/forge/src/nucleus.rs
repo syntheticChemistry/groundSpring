@@ -20,10 +20,10 @@ pub fn discover_uid() -> String {
     #[cfg(target_os = "linux")]
     if let Ok(status) = std::fs::read_to_string("/proc/self/status") {
         for line in status.lines() {
-            if let Some(rest) = line.strip_prefix("Uid:") {
-                if let Some(uid_str) = rest.split_whitespace().next() {
-                    return uid_str.to_string();
-                }
+            if let Some(rest) = line.strip_prefix("Uid:")
+                && let Some(uid_str) = rest.split_whitespace().next()
+            {
+                return uid_str.to_string();
             }
         }
     }

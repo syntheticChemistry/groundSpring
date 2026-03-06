@@ -12,7 +12,7 @@ use groundspring::bootstrap::{bootstrap_mean, rawr_mean};
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    f64_field, print_provenance_header, usize_field, EPS_SAFE_DIV, TOL_DETERMINISM,
+    EPS_SAFE_DIV, TOL_DETERMINISM, f64_field, print_provenance_header, usize_field,
 };
 use serde_json::Value;
 

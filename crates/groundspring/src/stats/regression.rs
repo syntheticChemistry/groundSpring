@@ -251,8 +251,8 @@ fn fit_exponential_cpu(xs: &[f64], ys: &[f64]) -> Option<NonlinearFit> {
     let valid: Vec<(f64, f64)> = xs
         .iter()
         .zip(ys)
-        .filter(|(_, &y)| y > 0.0)
-        .map(|(&x, &y)| (x, y))
+        .filter(|(_, y)| **y > 0.0)
+        .map(|(x, y)| (*x, *y))
         .collect();
     if valid.len() < 2 {
         return None;
@@ -324,8 +324,8 @@ fn fit_logarithmic_cpu(xs: &[f64], ys: &[f64]) -> Option<NonlinearFit> {
     let valid: Vec<(f64, f64)> = xs
         .iter()
         .zip(ys)
-        .filter(|(&x, _)| x > 0.0)
-        .map(|(&x, &y)| (x, y))
+        .filter(|(x, _)| **x > 0.0)
+        .map(|(x, y)| (*x, *y))
         .collect();
     if valid.len() < 2 {
         return None;

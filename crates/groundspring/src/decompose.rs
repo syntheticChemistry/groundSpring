@@ -41,6 +41,15 @@ pub struct Decomposition {
 /// # Panics
 ///
 /// Never panics; guards against negative variance from floating-point error.
+///
+/// # Examples
+///
+/// ```
+/// let d = groundspring::decompose::decompose_error(0.5, 1.0);
+/// assert!((d.bias_fraction - 0.25).abs() < 1e-12);
+/// assert!((d.noise_fraction - 0.75).abs() < 1e-12);
+/// assert!((d.random_std - 0.75_f64.sqrt()).abs() < 1e-12);
+/// ```
 #[must_use]
 pub fn decompose_error(mbe: f64, rmse: f64) -> Decomposition {
     let bias_sq = mbe.powi(2);

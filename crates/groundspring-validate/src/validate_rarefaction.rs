@@ -17,7 +17,7 @@ use groundspring::rarefaction::{
 };
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    print_provenance_header, TOL_ANALYTICAL, TOL_RAREFACTION_PROP, TOL_REGIME,
+    TOL_ANALYTICAL, TOL_RAREFACTION_PROP, TOL_REGIME, print_provenance_header,
 };
 use serde_json::Value;
 

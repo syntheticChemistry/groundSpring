@@ -72,6 +72,14 @@ pub fn anderson_potential(n: usize, disorder: f64, seed: u64) -> Vec<f64> {
 /// ```
 ///
 /// Returns `γ = (1/N) Σ ln(norm)`, the largest Lyapunov exponent.
+///
+/// # Examples
+///
+/// ```
+/// let potential = groundspring::anderson::anderson_potential(1000, 2.0, 42);
+/// let gamma = groundspring::anderson::lyapunov_exponent(&potential, 0.0);
+/// assert!(gamma > 0.0, "all 1D states are localized (γ > 0)");
+/// ```
 #[must_use]
 pub fn lyapunov_exponent(potential: &[f64], energy: f64) -> f64 {
     #[cfg(feature = "barracuda-gpu")]

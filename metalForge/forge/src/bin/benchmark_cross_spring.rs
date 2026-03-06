@@ -3,6 +3,11 @@
 
 //! Cross-spring benchmark: CPU-local vs barracuda-CPU vs barracuda-GPU.
 //!
+//! **Sovereignty note**: This binary is a provenance documentation tool that
+//! records the historical lineage of cross-spring shader evolution. Spring
+//! names appear as provenance labels (not runtime coupling or discovery).
+//! No runtime dependency on sibling primals exists.
+//!
 //! Measures performance across the three execution tiers for workloads
 //! that span the cross-spring shader ecosystem:
 //!
@@ -552,17 +557,21 @@ fn print_evolution_timeline() {
     println!("  ├─ barraCuda v0.3.3 → TensorContext pooled buffers for stats ops");
     println!("  ├─ barraCuda v0.3.2 → 3 new ET₀ ops (Makkink, Turc, Hamon) from airSpring");
     println!("  ├─ toadStool S94b ──→ full primal decoupling, barraCuda standalone");
-    println!("  ├─ toadStool S96c ──→ HardwareFingerprint, SubstrateCapabilityKind, god file splits");
+    println!(
+        "  ├─ toadStool S96c ──→ HardwareFingerprint, SubstrateCapabilityKind, god file splits"
+    );
     println!("  ├─ groundSpring V80 → fused correlation_full GPU, Welford single-pass CPU");
     println!("  ├─ groundSpring V84 → Dual-GPU probe, DF64 green, f64 shared-mem issue found");
     println!("  └─ groundSpring V85 → coralReef sovereign compilation, f64 reduction SM70/SM89\n");
 
-    println!("  Current state: barraCuda cf1602c, 708 WGSL shaders, 3471+ tests, DF64 precision tiers");
+    println!(
+        "  Current state: barraCuda e1184f3, 710 WGSL shaders, 3471+ tests, DF64 reduce ops wired"
+    );
     println!(
         "  groundSpring: 91 delegations (54 CPU + 37 GPU), 824 tests, wgpu 28, deep debt zero"
     );
     println!(
-        "  coralReef: 1e048be, 672 tests, codegen/ vendor-neutral, Frontend trait, Phase 6"
+        "  coralReef: 849fedd, 672 tests, NVIDIA backend complete, f64 reduction SM70/SM89, Phase 5+"
     );
 }
 

@@ -21,7 +21,7 @@ pub fn validate_all(h: &mut Harness) {
 }
 
 fn validate_anderson_spectral_parity(h: &mut Harness) {
-    println!("\n--- Anderson Localization Parity (hotSpring S26) ---\n");
+    println!("\n--- Anderson Localization Parity (spectral-localization lineage S26) ---\n");
 
     let n_sites = 200;
     let disorder = 2.0;
@@ -55,7 +55,7 @@ fn validate_anderson_spectral_parity(h: &mut Harness) {
 }
 
 fn validate_almost_mathieu_parity(h: &mut Harness) {
-    println!("\n--- Almost-Mathieu Parity (hotSpring S26) ---\n");
+    println!("\n--- Almost-Mathieu Parity (spectral-quasiperiodic lineage S26) ---\n");
 
     let n = 50;
     let coupling = 1.5;
@@ -85,7 +85,7 @@ fn validate_almost_mathieu_parity(h: &mut Harness) {
 }
 
 fn validate_spectral_recon_parity(h: &mut Harness) {
-    println!("\n--- Spectral Reconstruction Parity (hotSpring S39) ---\n");
+    println!("\n--- Spectral Reconstruction Parity (spectral-recon lineage S39) ---\n");
 
     let n_tau: u32 = 20;
     let n_omega: u32 = 30;
@@ -213,7 +213,7 @@ fn validate_tridiag_eigh_parity(h: &mut Harness) {
 }
 
 fn validate_band_structure_parity(h: &mut Harness) {
-    println!("\n--- Band Structure Parity (hotSpring S26) ---\n");
+    println!("\n--- Band Structure Parity (spectral-band lineage S26) ---\n");
 
     let n_periods = 20;
     let potential = &[0.5, -0.5];

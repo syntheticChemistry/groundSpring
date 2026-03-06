@@ -13,7 +13,7 @@ use groundspring::anderson::lyapunov_exponent;
 use groundspring::transport::{transport_exponent, tridiag_eigh, wavepacket_msd};
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    f64_field, f64_range, print_provenance_header, usize_field, TOL_GRID_MATCH, TOL_MONOTONIC_SLACK,
+    TOL_GRID_MATCH, TOL_MONOTONIC_SLACK, f64_field, f64_range, print_provenance_header, usize_field,
 };
 use serde_json::Value;
 

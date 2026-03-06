@@ -6,15 +6,18 @@
 //! floating-point paths (thread scheduling, unordered reductions, etc.).
 
 // Bitwise determinism: tests intentionally compare exact f64 bits across runs.
-#![allow(clippy::float_cmp)]
+#![expect(
+    clippy::float_cmp,
+    reason = "determinism tests require bitwise f64 equality"
+)]
 
 use groundspring::almost_mathieu::{eigenvalues, level_spacing_ratio, potential};
 use groundspring::anderson::lyapunov_exponent;
-use groundspring::bistable::{integrate as bistable_integrate, BistableParams};
+use groundspring::bistable::{BistableParams, integrate as bistable_integrate};
 use groundspring::bootstrap::{bootstrap_mean, rawr_mean};
 use groundspring::drift::wright_fisher_fixation;
 use groundspring::gillespie::birth_death_ssa;
-use groundspring::multisignal::{integrate as multi_integrate, MultiSignalParams};
+use groundspring::multisignal::{MultiSignalParams, integrate as multi_integrate};
 use groundspring::prng::Xorshift64;
 use groundspring::rarefaction::{multinomial_sample, rarefaction_at_depth};
 use groundspring::transport::{tridiag_eigh, wavepacket_msd};

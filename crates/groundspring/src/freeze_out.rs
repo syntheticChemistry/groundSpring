@@ -160,7 +160,14 @@ pub fn grid_fit_2d(config: &GridFitConfig<'_>) -> Result<GridFitResult, crate::e
     )
 )]
 fn lbfgs_refine(
-    #[cfg_attr(not(feature = "barracuda-gpu"), allow(unused))] config: &GridFitConfig<'_>,
+    #[cfg_attr(
+        not(feature = "barracuda-gpu"),
+        expect(
+            unused,
+            reason = "config only used in barracuda-gpu L-BFGS refinement path"
+        )
+    )]
+    config: &GridFitConfig<'_>,
     coarse: GridFitResult,
 ) -> GridFitResult {
     #[cfg(feature = "barracuda-gpu")]
@@ -177,7 +184,7 @@ fn lbfgs_refine_barracuda(
     config: &GridFitConfig<'_>,
     coarse: &GridFitResult,
 ) -> Option<GridFitResult> {
-    use barracuda::optimize::{lbfgs_numerical, LbfgsConfig};
+    use barracuda::optimize::{LbfgsConfig, lbfgs_numerical};
 
     let n_data = config.observed.len();
     let inv_sigma2 = 1.0 / (config.sigma * config.sigma);

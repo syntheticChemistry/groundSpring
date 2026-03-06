@@ -49,7 +49,7 @@
 **Rust tests**: 824/824 PASS (default workspace)
 **pytest**: 390/390 PASS + 2 skipped
 **Three-tier parity**: 101+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
-**BarraCUDA dispatch**: 91 active (54 CPU + 37 GPU) — V85: barraCuda `cf1602c+1`, toadStool S96c (`d77fc546`), coralReef `849fedd`. V85 coralReef sovereign compilation — 2 CFG/RA bugs fixed, f64 shared-memory reduction shaders now compile to native SM70/SM89 (6/6 shader compilation). V84 GPU validation — DF64/tensor/FHE green, f64 reduction shaders return 0 via wgpu (naga shared memory issue), CoralCompiler tokio fix applied
+**BarraCUDA dispatch**: 91 active (54 CPU + 37 GPU) — V85: barraCuda `e1184f3+1`, toadStool S96c (`d77fc546`), coralReef `849fedd`. V85 coralReef sovereign compilation — 2 CFG/RA bugs fixed, f64 shared-memory reduction shaders now compile to native SM70/SM89 (6/6 shader compilation). V84 GPU validation — DF64/tensor/FHE green, f64 reduction shaders return 0 via wgpu (naga shared memory issue), CoralCompiler tokio fix applied
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); compute.execute + compute.submit validated
 **metalForge workloads**: 30 (24 GPU + 2 NPU + 2 CPU-only), 187 checks (130 forge + 57 mixed-hardware)
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
@@ -816,10 +816,10 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V74: Deep Debt + ToadStool Catch-Up | 81 delegations (47 CPU + 34 GPU), clippy pedantic CI, 790 tests, barraCuda v0.3.1, toadStool S93 | Archived |
 | V79: Exp 035 + seismic delegation | 85 delegations (51 CPU + 34 GPU), 807 tests, barraCuda v0.3.3, toadStool S94b | Archived |
 | V80: Fused Ops + BarraCuda Catch-Up | 87 delegations (51 CPU + 36 GPU), 812 tests, barraCuda v0.3.3+, toadStool S94b | Archived |
-| V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `cf1602c`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
+| V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `e1184f3`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
 | V85: coralReef Sovereign + Evolution Handoff | 91 delegations, 824 CPU tests + 672 coralReef, coralReef CFG/RA fixes, f64 reduction compiles to native SM70/SM89, toadStool/barraCuda evolution handoff | **Current** |
 | V84: GPU Validation | 91 delegations, 824 CPU tests, 17/32 GPU tests, RTX 4070 + Titan V probed, DF64 green, f64 reduction broken (naga), CoralCompiler fix | Archived |
-| V83: Pin Refresh + Catch-Up | 91 delegations (54 CPU + 37 GPU), 824 tests, barraCuda `cf1602c`, toadStool S96c (`d77fc546`), coralReef `1e048be` (672 tests), all deps verified | Archived |
+| V83: Pin Refresh + Catch-Up | 91 delegations (54 CPU + 37 GPU), 824 tests, barraCuda `e1184f3`, toadStool S96c (`d77fc546`), coralReef `1e048be` (672 tests), all deps verified | Archived |
 | V82: Delegation Expansion | 91 delegations (54 CPU + 37 GPU), 824 tests, Thornthwaite ET₀, fit_all, smart refactoring, deep debt audit | Archived |
 | V67: S86 Catch-Up | `McEt0PropagateGpu`, `SeasonalPipelineF64`, `BatchedMultinomialGpu` API fix, Cholesky GPU | Archived |
 | V55: barracuda Evolution Review + Docs Cleanup | Complete 57-delegation inventory, cross-spring lineage, recommended evolutions, stale refs cleaned. | Archived |

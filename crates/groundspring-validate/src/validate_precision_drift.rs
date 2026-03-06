@@ -234,11 +234,7 @@ fn run() -> i32 {
         .collect();
     let corr = if abs_errors.len() >= 2 && abs_errors.len() == expected_magnitudes.len() {
         let r = stats::pearson_r(&abs_errors, &expected_magnitudes);
-        if r.is_nan() {
-            0.0
-        } else {
-            r
-        }
+        if r.is_nan() { 0.0 } else { r }
     } else {
         0.0
     };

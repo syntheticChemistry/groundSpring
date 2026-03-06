@@ -4,6 +4,26 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V86 DF64 Reduce Wiring + Full Stats Benchmark (Mar 6, 2026)
+
+#### barraCuda Evolution (`e1184f3`)
+- **Fp64Strategy wired into SumReduceF64 and VarianceReduceF64**: Consumer GPUs (Hybrid strategy) now route to DF64 shaders instead of broken f64 workgroup shared memory shaders
+- **New WGSL shaders**: `sum_reduce_f64_via_df64.wgsl` (sum/max/min) and `variance_reduce_f64_via_df64.wgsl` (Welford variance) — f64 I/O, DF64 internal shared memory
+- **BootstrapMeanGpu**: Confirmed no workgroup shared memory — no DF64 routing needed
+
+#### Benchmark Results
+- **Precision parity PROVEN**: 4/5 kernels bitwise identical across Python, Kokkos CUDA, and Rust CPU
+- **Speed**: Rust CPU 21× faster than Python, Kokkos CUDA 73× faster
+- **Energy**: Kokkos 74.6× less energy than Python, Rust CPU 35.1× less
+- **DF64 projection**: anderson_lyapunov on RTX 4070 — DF64 ≈ 12,556 µs vs Kokkos 34,741 µs (2.8×)
+
+#### Documentation
+- **Commit pins updated**: barraCuda `cf1602c` → `e1184f3` across all specs, docs, and benchmarks
+- **New handoff**: `GROUNDSPRING_V86_FULL_STATS_HANDOFF_MAR06_2026.md` — DF64 reduce wiring, full 4-tier benchmark results, energy comparison, GPU pipeline root cause analysis
+
+#### Known Issues
+- GPU reduce ops still return 0 — root cause is in `compile_shader_f64` pipeline (SovereignCompiler/SPIRV passthrough), not shader selection. Even pre-existing DF64-wired `VarianceF64` returns 0 on tested hardware
+
 ### V85 coralReef Sovereign Compilation + Docs Cleanup (Mar 6, 2026)
 
 #### Documentation
@@ -61,12 +81,12 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 ### V83 Dependency Catch-Up + Pin Refresh (Mar 6, 2026)
 
 #### Changed
-- **barraCuda pin**: `a4c20a5` → `cf1602c` — deep debt resolved (JSON-RPC 2.0 compliance, unsafe elimination, zero-copy docs), GpuView persistent buffers, AutocorrelationF64 GPU op, CoralCompiler for coralReef integration, anderson_lyapunov f32/f64 WGSL shaders, fft_radix2_f64 shader, Kokkos parity benchmarks started. 708 shaders, 3,471+ tests
+- **barraCuda pin**: `a4c20a5` → `e1184f3` — deep debt resolved (JSON-RPC 2.0 compliance, unsafe elimination, zero-copy docs), GpuView persistent buffers, AutocorrelationF64 GPU op, CoralCompiler for coralReef integration, anderson_lyapunov f32/f64 WGSL shaders, fft_radix2_f64 shader, Kokkos parity benchmarks started. 708 shaders, 3,471+ tests
 - **toadStool pin**: S95 (`d4817e2e`) → S96c (`d77fc546`) — HardwareFingerprint with sovereign capability detection, SubstrateCapabilityKind (12 variants), 5 god file splits (<1000 LOC), crates/api/ fossilized, V4L2 unsafe documented. 18,028 tests
 - **coralReef pin**: `2e89541` → `1e048be` — `nak/` → `codegen/` vendor-neutral rename, pluggable `Frontend` trait (NagaFrontend default), Phase 5.5 naming evolution complete, Phase 6 multi-vendor in progress. 672 tests (up from 390)
 
 #### Ecosystem — Cross-Spring Evolution Observations
-- **barraCuda cf1602c**: New GPU primitives (AutocorrelationF64 for time-series, GpuView<T> for zero-copy GPU-resident computation, anderson_lyapunov f32/f64 shaders for transfer-matrix Lyapunov), CoralCompiler for coralReef native binary integration, DF64 naga rewrite validated with compound assignments, 15 ops gain Fp64Strategy-based shader selection
+- **barraCuda e1184f3**: New GPU primitives (AutocorrelationF64 for time-series, GpuView<T> for zero-copy GPU-resident computation, anderson_lyapunov f32/f64 shaders for transfer-matrix Lyapunov), CoralCompiler for coralReef native binary integration, DF64 naga rewrite validated with compound assignments, 15 ops gain Fp64Strategy-based shader selection
 - **toadStool S96c**: Sovereign pipeline infrastructure (HardwareFingerprint estimated_tflops, SubstrateType expanded to 8 variants including NPU/TPU/FPGA), capability-scored discovery with `is_sovereign_capable()`, safe allocation limits for NVK
 - **coralReef 1e048be**: Vendor-neutral architecture evolution — `codegen/` replaces `nak/`, `TranscendentalOp` replaces `MuFuOp`, pluggable Frontend trait decouples shader language from compiler core. NVIDIA backend complete, AMD/Intel backends in progress
 

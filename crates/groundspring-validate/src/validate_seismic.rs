@@ -9,10 +9,10 @@
 //! Reference: Kennett & Engdahl (1991) IASP91, Geophysical Journal International.
 
 use groundspring::seismic::{
-    grid_search_inversion, haversine_km, travel_time_1d, GridSearchConfig, Station,
+    GridSearchConfig, Station, grid_search_inversion, haversine_km, travel_time_1d,
 };
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{array_field, f64_field, print_provenance_header, TOL_ANALYTICAL};
+use groundspring_validate::{TOL_ANALYTICAL, array_field, f64_field, print_provenance_header};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/seismic/benchmark_seismic.json");

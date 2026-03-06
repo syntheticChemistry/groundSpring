@@ -21,7 +21,7 @@
 
 use crate::cast::usize_f64;
 
-pub use crate::linalg::{tridiag_eigh, EighError};
+pub use crate::linalg::{EighError, tridiag_eigh};
 
 #[cfg(feature = "barracuda-gpu")]
 pub use crate::linalg::tridiag_eigh_barracuda;
@@ -101,8 +101,8 @@ pub fn transport_exponent(times: &[f64], msds: &[f64]) -> f64 {
     let (log_t, log_sigma): (Vec<f64>, Vec<f64>) = times
         .iter()
         .zip(msds.iter())
-        .filter(|(&t, &m)| t > 0.0 && m > MSD_MIN_THRESHOLD)
-        .map(|(&t, &m)| (t.ln(), 0.5 * m.ln()))
+        .filter(|(t, m)| **t > 0.0 && **m > MSD_MIN_THRESHOLD)
+        .map(|(t, m)| (t.ln(), 0.5 * m.ln()))
         .unzip();
 
     crate::stats::fit_linear(&log_t, &log_sigma).map_or(0.0, |f| f.slope)

@@ -12,7 +12,7 @@ use groundspring::fao56::{self, DailyWeatherInputs};
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    array_field, f64_field, print_provenance_header, u64_field, TOL_EQUILIBRIUM,
+    TOL_EQUILIBRIUM, array_field, f64_field, print_provenance_header, u64_field,
 };
 use serde_json::Value;
 

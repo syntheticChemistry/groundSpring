@@ -10,10 +10,10 @@
 //!
 //! Reference: Fernandez, Waters et al. (2020) PNAS 117:26058-26068
 
-use groundspring::bistable::{integrate, stochastic_integrate, BistableParams};
+use groundspring::bistable::{BistableParams, integrate, stochastic_integrate};
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    array_field, f64_field, f64_range, print_provenance_header, TOL_ANALYTICAL,
+    TOL_ANALYTICAL, array_field, f64_field, f64_range, print_provenance_header,
 };
 use serde_json::Value;
 

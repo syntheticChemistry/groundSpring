@@ -8,9 +8,6 @@
 //! within-tolerance) outputs. Also includes the dispatch target
 //! inventory sentinel.
 
-// Bitwise determinism: parity tests intentionally compare exact f64 bits.
-#![allow(clippy::float_cmp)]
-
 use groundspring::tol;
 
 // ══════════════════════════════════════════════════════════════════
@@ -503,8 +500,8 @@ fn gpu_tissue_4d_wegner_rg_coarsen() {
 // through the evolution pipeline.
 // ══════════════════════════════════════════════════════════════════
 
-/// Shannon diversity via `FusedMapReduceF64::shannon_entropy` (`wetSpring` S64
-/// biodiversity → `ToadStool` → `groundSpring` delegation).
+/// Shannon diversity via `FusedMapReduceF64::shannon_entropy` (biodiversity
+/// lineage S64 → compute-primal → `groundSpring` delegation).
 ///
 /// Known community: 5 species with counts \[100, 50, 25, 15, 10\] = 200 total.
 /// H = -Σ(`p_i` ln `p_i`). Validated against manual calculation.
@@ -522,7 +519,7 @@ fn gpu_shannon_diversity_cross_spring_parity() {
         .sum::<f64>();
     assert!(
         (h - expected).abs() < tol::CDF_APPROX,
-        "Shannon H={h:.6} should match expected {expected:.6} (wetSpring diversity shader)"
+        "Shannon H={h:.6} should match expected {expected:.6} (biodiversity diversity shader)"
     );
     assert!(h > 0.0, "Shannon H must be positive for mixed community");
     let h2 = groundspring::rarefaction::shannon_diversity(&counts);
@@ -533,8 +530,8 @@ fn gpu_shannon_diversity_cross_spring_parity() {
     );
 }
 
-/// Simpson diversity via `FusedMapReduceF64::simpson_index` (`wetSpring` S64
-/// biodiversity → `ToadStool` → `groundSpring` delegation).
+/// Simpson diversity via `FusedMapReduceF64::simpson_index` (biodiversity
+/// lineage S64 → compute-primal → `groundSpring` delegation).
 ///
 /// Same known community. D = 1 - Σ(`p_i`²). Validated against manual calculation.
 #[test]
@@ -552,7 +549,7 @@ fn gpu_simpson_diversity_cross_spring_parity() {
     let expected = 1.0 - sum_p2;
     assert!(
         (d - expected).abs() < tol::CDF_APPROX,
-        "Simpson D={d:.6} should match expected {expected:.6} (wetSpring diversity shader)"
+        "Simpson D={d:.6} should match expected {expected:.6} (biodiversity diversity shader)"
     );
     assert!(
         d > 0.0 && d < 1.0,
@@ -613,8 +610,8 @@ fn gpu_seismic_grid_search_cross_spring_parity() {
     );
 }
 
-/// Anderson 2D eigenvalues via Lanczos on sparse CSR (`hotSpring` S59
-/// sparse Lanczos → `ToadStool` → `groundSpring` delegation).
+/// Anderson 2D eigenvalues via Lanczos on sparse CSR (spectral-localization
+/// lineage S59, sparse Lanczos → compute-primal → `groundSpring` delegation).
 ///
 /// Small 5×5 lattice (25 sites) with moderate disorder. Eigenvalues
 /// must be finite and bounded by ±(4 + W/2) for a 2D tight-binding model.
@@ -638,8 +635,8 @@ fn gpu_anderson_2d_eigenvalues_cross_spring_parity() {
 
 /// Anderson 3D eigenvalues — same pattern. The 3D model has a true
 /// metal-insulator transition at `W_c` ≈ 16.5 (Slevin & Ohtsuki 1999).
-/// Cross-spring: `hotSpring` `anderson_3d` (S59, correlated disorder for
-/// WDM transport) → `ToadStool` GPU sparse eigensolver.
+/// Cross-spring: spectral-localization `anderson_3d` (S59, correlated disorder
+/// for WDM transport) → compute-primal GPU sparse eigensolver.
 #[cfg(feature = "barracuda-gpu")]
 #[test]
 fn gpu_anderson_3d_eigenvalues_cross_spring_parity() {

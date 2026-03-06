@@ -66,6 +66,16 @@ fn coefficient_of_efficiency_gpu(observed: &[f64], modeled: &[f64]) -> Option<f6
 /// # Panics
 ///
 /// Panics if `observed` and `modeled` have different lengths.
+///
+/// # Examples
+///
+/// ```
+/// let obs = [1.0, 2.0, 3.0];
+/// let mod_ = [1.1, 2.0, 2.9];
+/// let r = groundspring::stats::rmse(&obs, &mod_);
+/// assert!(r > 0.0 && r < 0.15);
+/// assert_eq!(groundspring::stats::rmse(&[], &[]), 0.0);
+/// ```
 #[must_use]
 pub fn rmse(observed: &[f64], modeled: &[f64]) -> f64 {
     assert_eq!(

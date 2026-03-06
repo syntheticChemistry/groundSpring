@@ -184,11 +184,7 @@ fn pearson_r_cpu(x: &[f64], y: &[f64]) -> f64 {
         vy += dy * dy;
     }
     let denom = (vx * vy).sqrt();
-    if denom == 0.0 {
-        0.0
-    } else {
-        cov / denom
-    }
+    if denom == 0.0 { 0.0 } else { cov / denom }
 }
 
 /// Spearman rank correlation coefficient.

@@ -70,13 +70,13 @@ pub fn route<'a>(workload: &Workload, substrates: &'a [Substrate]) -> Option<Dec
         return None;
     }
 
-    if let Some(pref) = workload.preferred_substrate {
-        if let Some(s) = capable.iter().find(|s| s.kind == pref) {
-            return Some(Decision {
-                substrate: s,
-                reason: Reason::Preferred,
-            });
-        }
+    if let Some(pref) = workload.preferred_substrate
+        && let Some(s) = capable.iter().find(|s| s.kind == pref)
+    {
+        return Some(Decision {
+            substrate: s,
+            reason: Reason::Preferred,
+        });
     }
 
     let needs_f64 = workload.required.contains(&Capability::F64Compute);
@@ -122,13 +122,13 @@ pub fn fallback_chain<'a>(workload: &Workload, substrates: &'a [Substrate]) -> V
 
     let mut chain = Vec::new();
 
-    if let Some(pref) = workload.preferred_substrate {
-        if let Some(&s) = capable.iter().find(|s| s.kind == pref) {
-            chain.push(Decision {
-                substrate: s,
-                reason: Reason::Preferred,
-            });
-        }
+    if let Some(pref) = workload.preferred_substrate
+        && let Some(&s) = capable.iter().find(|s| s.kind == pref)
+    {
+        chain.push(Decision {
+            substrate: s,
+            reason: Reason::Preferred,
+        });
     }
 
     let needs_f64 = workload.required.contains(&Capability::F64Compute);

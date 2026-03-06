@@ -12,8 +12,8 @@
 use groundspring::decompose::{decompose_error, noise_floor_reduction};
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    array_field, f64_field, print_provenance_header, TOL_ANALYTICAL, TOL_DECOMPOSITION,
-    TOL_LITERATURE,
+    TOL_ANALYTICAL, TOL_DECOMPOSITION, TOL_LITERATURE, array_field, f64_field,
+    print_provenance_header,
 };
 use serde_json::Value;
 

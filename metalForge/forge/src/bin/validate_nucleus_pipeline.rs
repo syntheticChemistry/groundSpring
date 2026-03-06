@@ -18,7 +18,7 @@
 //! Requires: `--features biomeos` and a running Full NUCLEUS.
 
 use groundspring::biomeos;
-use groundspring_forge::nucleus::{biomeos_socket_dir, NucleusHarness as Harness};
+use groundspring_forge::nucleus::{NucleusHarness as Harness, biomeos_socket_dir};
 use std::path::{Path, PathBuf};
 
 fn discover_socket() -> Option<PathBuf> {

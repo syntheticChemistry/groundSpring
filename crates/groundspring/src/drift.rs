@@ -421,8 +421,8 @@ fn wf_batch_gpu(
 
     let gpu = WrightFisherGpu::new(wgpu_dev.clone());
 
-    for gen in 0..max_gens {
-        if gen % 2 == 0 {
+    for generation in 0..max_gens {
+        if generation % 2 == 0 {
             gpu.dispatch(
                 &freq_in_buf,
                 &sel_buf,
@@ -578,8 +578,8 @@ mod tests {
     #[test]
     fn drift_monitor_strong_selection() {
         let mut mon = DriftMonitor::default();
-        for gen in 0..5 {
-            mon.record(gen, 24, 0.5, 0.8);
+        for generation in 0..5 {
+            mon.record(generation, 24, 0.5, 0.8);
         }
         assert!(!mon.is_drifting());
         assert!(mon.latest_ne_s() > 1.0);
@@ -589,8 +589,8 @@ mod tests {
     #[test]
     fn drift_monitor_detects_drift() {
         let mut mon = DriftMonitor::default();
-        for gen in 0..5 {
-            mon.record(gen, 24, 0.5, 0.502);
+        for generation in 0..5 {
+            mon.record(generation, 24, 0.5, 0.502);
         }
         assert!(mon.is_drifting());
         assert_eq!(mon.recommendation(), DriftAction::IncreaseSelection);
@@ -599,8 +599,8 @@ mod tests {
     #[test]
     fn drift_monitor_prolonged_drift_recommends_pop_increase() {
         let mut mon = DriftMonitor::default();
-        for gen in 0..15 {
-            mon.record(gen, 24, 0.5, 0.501);
+        for generation in 0..15 {
+            mon.record(generation, 24, 0.5, 0.501);
         }
         assert!(mon.is_drifting());
         assert_eq!(mon.recommendation(), DriftAction::IncreasePop(2.0));
@@ -609,13 +609,13 @@ mod tests {
     #[test]
     fn drift_monitor_recovery() {
         let mut mon = DriftMonitor::default();
-        for gen in 0..5 {
-            mon.record(gen, 24, 0.5, 0.501);
+        for generation in 0..5 {
+            mon.record(generation, 24, 0.5, 0.501);
         }
         assert!(mon.is_drifting());
         // Strong selection restores
-        for gen in 5..8 {
-            mon.record(gen, 24, 0.5, 0.8);
+        for generation in 5..8 {
+            mon.record(generation, 24, 0.5, 0.8);
         }
         assert!(!mon.is_drifting());
         assert_eq!(mon.recommendation(), DriftAction::Continue);
@@ -624,9 +624,9 @@ mod tests {
     #[test]
     fn drift_monitor_custom_threshold() {
         let mut mon = DriftMonitor::with_threshold(5.0);
-        for gen in 0..5 {
+        for generation in 0..5 {
             // N_e·s = 24 * (0.6-0.5)/0.5 = 4.8, below threshold of 5.0
-            mon.record(gen, 24, 0.5, 0.6);
+            mon.record(generation, 24, 0.5, 0.6);
         }
         assert!(mon.is_drifting());
     }

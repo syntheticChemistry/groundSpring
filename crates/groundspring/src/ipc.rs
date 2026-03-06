@@ -23,7 +23,10 @@
 // tarpc::service macro generates code that triggers pedantic lints on
 // pass-by-value args and argument counts. These are inherent to the
 // RPC trait pattern and not actionable.
-#![allow(clippy::too_many_arguments)]
+#![expect(
+    clippy::too_many_arguments,
+    reason = "tarpc::service macro generates many-arg internal code"
+)]
 
 /// groundSpring science capabilities exposed to the ecosystem.
 ///
@@ -40,7 +43,7 @@ pub trait GroundSpringScience {
 
     /// Run noise decomposition (bias-variance) on provided measurements.
     async fn noise_decomposition(observed: Vec<f64>, predicted: Vec<f64>)
-        -> Result<String, String>;
+    -> Result<String, String>;
 
     /// Check cross-substrate parity for an experiment.
     async fn parity_check(exp_id: u32, substrate: String) -> Result<String, String>;

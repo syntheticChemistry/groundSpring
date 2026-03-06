@@ -387,25 +387,28 @@ mod tests {
         let mut node = NodeAtomic::with_inventory("eastgate", test_inventory());
         node.compute = PrimalHealth::Healthy;
         assert!(node.can_compute());
-        assert!(node
-            .capabilities()
-            .contains(&AtomicCapability::ComputeDispatch));
+        assert!(
+            node.capabilities()
+                .contains(&AtomicCapability::ComputeDispatch)
+        );
     }
 
     #[test]
     fn node_has_npu_inference_when_discovered() {
         let node = NodeAtomic::with_inventory("biomegate", test_inventory());
-        assert!(node
-            .capabilities()
-            .contains(&AtomicCapability::NpuInference));
+        assert!(
+            node.capabilities()
+                .contains(&AtomicCapability::NpuInference)
+        );
     }
 
     #[test]
     fn node_always_has_pipeline_orchestration() {
         let node = NodeAtomic::with_inventory("eastgate", test_inventory());
-        assert!(node
-            .capabilities()
-            .contains(&AtomicCapability::PipelineOrchestration));
+        assert!(
+            node.capabilities()
+                .contains(&AtomicCapability::PipelineOrchestration)
+        );
     }
 
     #[test]

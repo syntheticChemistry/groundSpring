@@ -10,13 +10,13 @@
 //! - Bazavov et al. (2016) Phys Rev D 93, 014512
 
 use groundspring::freeze_out::{
-    chi_squared, chi_squared_per_dof, freeze_out_curve, grid_fit_2d, GridFitConfig,
+    GridFitConfig, chi_squared, chi_squared_per_dof, freeze_out_curve, grid_fit_2d,
 };
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    f64_field, f64_range, print_provenance_header, u64_field, usize_field, TOL_ANALYTICAL,
-    TOL_EXACT,
+    TOL_ANALYTICAL, TOL_EXACT, f64_field, f64_range, print_provenance_header, u64_field,
+    usize_field,
 };
 use serde_json::Value;
 

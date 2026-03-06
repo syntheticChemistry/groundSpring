@@ -13,9 +13,9 @@
 //! Reference: Paper 12 — Anderson Localization in Immunological Signaling
 
 use groundspring::tissue_anderson::{
-    ad_drug_panel, barrier_disruption_sweep, dimensional_duality_sweep, effective_disorder,
-    geometry_drug_score, healthy_dermis, healthy_epidermis, inflamed_dermis, pielou_evenness,
-    score_drug_panel, simulate_tissue, DeliveryRoute, DrugCandidate, SkinLayer, TissueState,
+    DeliveryRoute, DrugCandidate, SkinLayer, TissueState, ad_drug_panel, barrier_disruption_sweep,
+    dimensional_duality_sweep, effective_disorder, geometry_drug_score, healthy_dermis,
+    healthy_epidermis, inflamed_dermis, pielou_evenness, score_drug_panel, simulate_tissue,
 };
 use groundspring::validate::ValidationHarness;
 

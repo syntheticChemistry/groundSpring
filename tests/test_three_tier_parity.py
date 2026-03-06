@@ -147,6 +147,74 @@ class TestRustValidationGreen:
         assert passed == total, f"{bin_name}: {passed}/{total}"
 
 
+def _build_with_features(features: str) -> bool:
+    """Build workspace with specific features, return success."""
+    cmd = ["cargo", "build", "--release", "--workspace"]
+    if features:
+        cmd.extend(["--features", features])
+    result = subprocess.run(
+        cmd, capture_output=True, text=True, timeout=300,
+        check=False, cwd=str(ROOT),
+    )
+    return result.returncode == 0
+
+
+def _run_binary_with_features(bin_name: str, features: str) -> tuple[int, str, float]:
+    """Run a validation binary built with specific features."""
+    cmd = ["cargo", "run", "--release", "--bin", bin_name]
+    if features:
+        cmd.extend(["--features", features])
+    start = time.monotonic()
+    result = subprocess.run(
+        cmd, capture_output=True, text=True, timeout=180,
+        check=False, cwd=str(ROOT),
+    )
+    elapsed = time.monotonic() - start
+    return result.returncode, result.stdout + result.stderr, elapsed
+
+
+TIER_BINARIES = [
+    "validate-decompose",
+    "validate-anderson",
+    "validate-rarefaction",
+    "validate-weather",
+    "validate-drift",
+    "validate-rawr",
+]
+
+
+class TestBarracudaCpuParity:
+    """Validation binaries produce identical results with barracuda CPU."""
+
+    @pytest.fixture(autouse=True, scope="class")
+    def _build(self) -> None:
+        if not _build_with_features("barracuda"):
+            pytest.skip("barracuda feature build failed")
+
+    @pytest.mark.parametrize("bin_name", TIER_BINARIES)
+    def test_barracuda_cpu_passes(self, bin_name: str) -> None:
+        rc, output, _elapsed = _run_binary_with_features(bin_name, "barracuda")
+        passed, total = _parse_pass_count(output)
+        assert rc == 0, f"barracuda {bin_name} failed:\n{output}"
+        assert passed == total, f"barracuda {bin_name}: {passed}/{total}"
+
+
+class TestBarracudaGpuParity:
+    """Validation binaries produce identical results with barracuda GPU."""
+
+    @pytest.fixture(autouse=True, scope="class")
+    def _build(self) -> None:
+        if not _build_with_features("barracuda-gpu"):
+            pytest.skip("barracuda-gpu feature build failed")
+
+    @pytest.mark.parametrize("bin_name", TIER_BINARIES)
+    def test_barracuda_gpu_passes(self, bin_name: str) -> None:
+        rc, output, _elapsed = _run_binary_with_features(bin_name, "barracuda-gpu")
+        passed, total = _parse_pass_count(output)
+        assert rc == 0, f"barracuda-gpu {bin_name} failed:\n{output}"
+        assert passed == total, f"barracuda-gpu {bin_name}: {passed}/{total}"
+
+
 class TestRustFasterThanPython:
     """Rust CPU math must be faster than interpreted Python.
 
@@ -221,3 +289,66 @@ class TestPythonRustBenchmarkParity:
             data = json.loads(bf.read_text())
             assert "_source" in data, f"{bf.name} missing _source"
             assert "_provenance" in data, f"{bf.name} missing _provenance"
+
+
+class TestPythonBaselineXorshiftParity:
+    """Python Xorshift64 baseline matches Rust values exactly.
+
+    Runs baseline_runner.py (pure Python, same PRNG) and
+    bench-kokkos-parity (Rust CPU) and compares numerical output.
+    """
+
+    def test_python_rust_values_match(self) -> None:
+        baseline_script = CONTROL_DIR / "baseline_runner.py"
+        if not baseline_script.exists():
+            pytest.skip("baseline_runner.py not found")
+
+        py_result = subprocess.run(
+            [sys.executable, str(baseline_script), "--json-only"],
+            capture_output=True, text=True, timeout=300,
+            check=False, cwd=str(ROOT),
+        )
+        if py_result.returncode != 0:
+            pytest.skip(f"Python baseline failed: {py_result.stderr[:200]}")
+
+        py_data = json.loads(py_result.stdout)
+
+        rust_result = subprocess.run(
+            ["cargo", "run", "--release", "--bin", "bench-kokkos-parity"],
+            capture_output=True, text=True, timeout=180,
+            check=False, cwd=str(ROOT),
+        )
+        assert rust_result.returncode == 0, "Rust bench-kokkos-parity failed"
+
+        output = rust_result.stdout
+        json_start = output.rfind("{")
+        for i in range(len(output) - 1, -1, -1):
+            if output[i] == "{":
+                depth = 0
+                for j in range(i, len(output)):
+                    if output[j] == "{":
+                        depth += 1
+                    elif output[j] == "}":
+                        depth -= 1
+                        if depth == 0:
+                            json_start = i
+                            json_end = j
+                            break
+                break
+        rust_data = json.loads(output[json_start : json_end + 1])
+
+        py_by_name = {r["name"]: r["value"] for r in py_data["results"]}
+        rust_by_name = {r["name"]: r["value"] for r in rust_data["results"]}
+
+        for name in ["anderson_lyapunov_averaged", "mean", "pearson_r",
+                      "bootstrap_mean"]:
+            py_val = py_by_name.get(name)
+            rust_val = rust_by_name.get(name)
+            if py_val is None or rust_val is None:
+                continue
+            diff = abs(py_val - rust_val)
+            rel = diff / abs(py_val) if py_val != 0 else diff
+            assert rel < 1e-12, (
+                f"{name}: Python={py_val:.15e} Rust={rust_val:.15e} "
+                f"rel_diff={rel:.2e}"
+            )

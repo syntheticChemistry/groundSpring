@@ -16,7 +16,7 @@ pub fn validate_all(h: &mut Harness) {
 }
 
 fn validate_stats_cpu_delegation_parity(h: &mut Harness) {
-    println!("\n--- Stats Metrics Parity (airSpring+groundSpring S64) ---\n");
+    println!("\n--- Stats Metrics Parity (agreement-metrics lineage S64) ---\n");
 
     let observed = vec![2.5, 3.1, 4.2, 5.0, 3.8, 4.5, 2.9, 3.6, 4.1, 3.3];
     let simulated = vec![2.4, 3.3, 4.0, 5.2, 3.7, 4.6, 2.8, 3.5, 4.3, 3.1];
@@ -47,7 +47,7 @@ fn validate_stats_cpu_delegation_parity(h: &mut Harness) {
 }
 
 fn validate_regression_parity(h: &mut Harness) {
-    println!("\n--- Regression Parity (airSpring S66) ---\n");
+    println!("\n--- Regression Parity (curve-fitting lineage S66) ---\n");
 
     let x: Vec<f64> = (0..100).map(|i| f64::from(i) * 0.1).collect();
     let y: Vec<f64> = x.iter().map(|&xi| 2.5f64.mul_add(xi, 1.0)).collect();
@@ -68,7 +68,7 @@ fn validate_regression_parity(h: &mut Harness) {
     }
 
     let fit2 = groundspring::stats::fit_linear(&x, &y);
-    if let (Some(ref f1), Some(ref f2)) = (&fit, &fit2) {
+    if let (Some(f1), Some(f2)) = (&fit, &fit2) {
         h.check(
             "Regression deterministic",
             f1.r_squared.to_bits() == f2.r_squared.to_bits(),

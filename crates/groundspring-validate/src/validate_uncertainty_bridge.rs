@@ -13,8 +13,8 @@ use groundspring::anderson::{localization_length, lyapunov_averaged};
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    f64_field, print_provenance_header, usize_field, EPS_SAFE_DIV, THRESHOLD_LARGE_GAMMA,
-    TOL_EQUILIBRIUM,
+    EPS_SAFE_DIV, THRESHOLD_LARGE_GAMMA, TOL_EQUILIBRIUM, f64_field, print_provenance_header,
+    usize_field,
 };
 use serde_json::Value;
 

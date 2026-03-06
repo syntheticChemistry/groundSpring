@@ -8,9 +8,6 @@
 //! and FAO-56 functions produce identical results regardless of
 //! feature mode (default / barracuda / barracuda-gpu).
 
-// Bitwise determinism: parity tests intentionally compare exact f64 bits.
-#![allow(clippy::float_cmp)]
-
 use groundspring::tol;
 
 // ── anderson ───────────────────────────────────────────────────────
@@ -181,7 +178,7 @@ fn freeze_out_chi2_parity() {
 
 #[test]
 fn freeze_out_grid_fit_recovers_noiseless() {
-    use groundspring::freeze_out::{freeze_out_curve, grid_fit_2d, GridFitConfig};
+    use groundspring::freeze_out::{GridFitConfig, freeze_out_curve, grid_fit_2d};
     let t0 = 155.0;
     let k2 = 0.013;
     let mu_b: Vec<f64> = (0..9).map(|i| f64::from(i) * 50.0).collect();
@@ -204,7 +201,7 @@ fn freeze_out_grid_fit_recovers_noiseless() {
 
 #[test]
 fn freeze_out_grid_fit_bitwise_deterministic() {
-    use groundspring::freeze_out::{freeze_out_curve, grid_fit_2d, GridFitConfig};
+    use groundspring::freeze_out::{GridFitConfig, freeze_out_curve, grid_fit_2d};
     let mu_b: Vec<f64> = (0..5).map(|i| f64::from(i) * 100.0).collect();
     let obs: Vec<f64> = mu_b
         .iter()

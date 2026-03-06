@@ -36,8 +36,8 @@ pub use et0_methods::{
     hamon_et0, makkink_et0, thornthwaite_et0, thornthwaite_heat_index, turc_et0,
 };
 pub use pipeline::{
-    monte_carlo_et0, seasonal_multi_day, seasonal_step, Et0Uncertainties, McEt0Result,
-    SeasonalCellInputs, SeasonalOutput, SeasonalParams,
+    Et0Uncertainties, McEt0Result, SeasonalCellInputs, SeasonalOutput, SeasonalParams,
+    monte_carlo_et0, seasonal_multi_day, seasonal_step,
 };
 
 use constants::{HARGREAVES_COEFF, HARGREAVES_TEMP_OFFSET};
@@ -617,7 +617,9 @@ mod tests {
         let ha = hamon_et0(tmean, big_n);
 
         // Thornthwaite outputs mm/month — normalize to mm/day for comparison.
-        let monthly = [2.0, 3.0, 7.0, 12.0, 16.9, 20.0, 22.0, 21.0, 17.0, 12.0, 6.0, 3.0];
+        let monthly = [
+            2.0, 3.0, 7.0, 12.0, 16.9, 20.0, 22.0, 21.0, 17.0, 12.0, 6.0, 3.0,
+        ];
         let hi = thornthwaite_heat_index(&monthly);
         let th_monthly = thornthwaite_et0(tmean, hi, big_n, 30.0);
         let th = th_monthly / 30.0;

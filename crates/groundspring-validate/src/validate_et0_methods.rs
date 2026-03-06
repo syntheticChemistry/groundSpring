@@ -24,7 +24,7 @@
 
 use groundspring::fao56::{self, DailyWeatherInputs};
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, print_provenance_header, TOL_EQUILIBRIUM};
+use groundspring_validate::{TOL_EQUILIBRIUM, f64_field, print_provenance_header};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/et0_methods/benchmark_et0_methods.json");

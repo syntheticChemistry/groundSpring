@@ -38,6 +38,15 @@ pub struct BootstrapResult {
 /// # Panics
 ///
 /// Panics if `data` is empty or `confidence` is outside (0, 1).
+///
+/// # Examples
+///
+/// ```
+/// let data: Vec<f64> = (0..100).map(|i| f64::from(i) * 0.01).collect();
+/// let ci = groundspring::bootstrap::bootstrap_mean(&data, 500, 0.05, 42);
+/// assert!(ci.ci_lower < ci.ci_upper);
+/// assert!(ci.ci_lower <= ci.estimate && ci.estimate <= ci.ci_upper);
+/// ```
 #[must_use]
 pub fn bootstrap_mean(
     data: &[f64],

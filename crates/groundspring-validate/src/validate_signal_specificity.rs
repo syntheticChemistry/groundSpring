@@ -14,7 +14,7 @@ use groundspring::gillespie::{
 };
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    f64_field, f64_range, print_provenance_header, usize_field, TOL_STOCHASTIC_MEAN,
+    TOL_STOCHASTIC_MEAN, f64_field, f64_range, print_provenance_header, usize_field,
 };
 use serde_json::Value;
 

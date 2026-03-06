@@ -154,8 +154,8 @@ fn chi2_statistic_cpu(observed: &[f64], expected: &[f64]) -> f64 {
     observed
         .iter()
         .zip(expected)
-        .filter(|(_, &e)| e != 0.0)
-        .map(|(&o, &e)| (o - e).powi(2) / e)
+        .filter(|(_, e)| **e != 0.0)
+        .map(|(o, e)| (*o - *e).powi(2) / *e)
         .sum()
 }
 

@@ -255,7 +255,7 @@ fn validate_regression_parity(h: &mut Harness) {
     let fit = groundspring::stats::fit_linear(&x, &y);
     let fit2 = groundspring::stats::fit_linear(&x, &y);
 
-    if let (Some(ref f), Some(ref f2)) = (&fit, &fit2) {
+    if let (Some(f), Some(f2)) = (&fit, &fit2) {
         println!(
             "    slope={:.6}, intercept={:.6}, R²={:.10}",
             f.slope, f.intercept, f.r_squared

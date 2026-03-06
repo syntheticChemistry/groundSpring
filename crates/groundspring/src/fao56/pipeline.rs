@@ -9,7 +9,7 @@
 //! - Seasonal: airSpring V035 → barraCuda S80 `SeasonalPipelineF64`
 //! - Multi-day: airSpring V039 → barraCuda S80 `StatefulPipeline`
 
-use super::{crop_coefficient, daily_et0, DailyWeatherInputs};
+use super::{DailyWeatherInputs, crop_coefficient, daily_et0};
 
 // ── Physical clamp bounds for perturbed meteorological inputs ────────
 

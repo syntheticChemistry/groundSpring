@@ -15,7 +15,7 @@ use groundspring::prng::Xorshift64;
 use groundspring::stats;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    f64_field, f64_range, print_provenance_header, usize_field, EPS_SAFE_DIV,
+    EPS_SAFE_DIV, f64_field, f64_range, print_provenance_header, usize_field,
 };
 use serde_json::Value;
 

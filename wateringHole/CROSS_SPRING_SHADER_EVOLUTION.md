@@ -3,7 +3,7 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 6, 2026 (V85: 91 active delegations (54 CPU + 37 GPU), barraCuda `cf1602c`, toadStool S96c, coralReef `849fedd`. V85: coralReef sovereign compilation — f64 reduction shaders compile to native SM70/SM89. V84: dual-GPU probe, DF64 green. V83: pin refresh. V82: BootstrapMeanGpu dispatch. V73: 13-tier tolerance architecture)
+**Last Updated**: March 6, 2026 (V85: 91 active delegations (54 CPU + 37 GPU), barraCuda `e1184f3`, toadStool S96c, coralReef `849fedd`. V85: coralReef sovereign compilation — f64 reduction shaders compile to native SM70/SM89. V84: dual-GPU probe, DF64 green. V83: pin refresh. V82: BootstrapMeanGpu dispatch. V73: 13-tier tolerance architecture)
 
 ---
 

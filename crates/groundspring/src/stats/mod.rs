@@ -27,10 +27,10 @@ pub mod moving_window;
 mod regression;
 
 pub use agreement::{hit_rate, index_of_agreement, mae, mbe, nash_sutcliffe, r_squared, rmse};
-pub use correlation::{covariance, pearson_full, pearson_r, spearman_r, CorrelationFull};
+pub use correlation::{CorrelationFull, covariance, pearson_full, pearson_r, spearman_r};
 pub use distributions::{chi2_statistic, norm_cdf, norm_ppf};
 pub use metrics::{mean, mean_and_std_dev, percentile, sample_std_dev, std_dev};
-pub use moving_window::{moving_window_stats, MovingWindowResult};
+pub use moving_window::{MovingWindowResult, moving_window_stats};
 pub use regression::{
-    fit_all, fit_exponential, fit_linear, fit_logarithmic, fit_quadratic, LinearFit, NonlinearFit,
+    LinearFit, NonlinearFit, fit_all, fit_exponential, fit_linear, fit_logarithmic, fit_quadratic,
 };

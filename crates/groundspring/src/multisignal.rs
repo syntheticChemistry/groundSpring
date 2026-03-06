@@ -359,10 +359,11 @@ mod tests {
         let ic = [0.5, 1.0, 1.0, 0.5, 0.3, 0.5, 0.2];
         let a = stochastic_integrate(&ic, &p, 0.01, 1000, 0.1, 42);
         let b = stochastic_integrate(&ic, &p, 0.01, 1000, 0.1, 99);
-        assert!(a
-            .iter()
-            .zip(b.iter())
-            .any(|(x, y)| x.to_bits() != y.to_bits()));
+        assert!(
+            a.iter()
+                .zip(b.iter())
+                .any(|(x, y)| x.to_bits() != y.to_bits())
+        );
     }
 
     #[test]

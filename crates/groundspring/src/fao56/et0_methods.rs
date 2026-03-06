@@ -131,11 +131,12 @@ pub fn thornthwaite_et0(
 ) -> f64 {
     #[cfg(feature = "barracuda")]
     {
-        if let Some(et0) =
-            barracuda::stats::hydrology::thornthwaite_et0(
-                t_mean_c, heat_index, daylight_hours, days_in_month,
-            )
-        {
+        if let Some(et0) = barracuda::stats::hydrology::thornthwaite_et0(
+            t_mean_c,
+            heat_index,
+            daylight_hours,
+            days_in_month,
+        ) {
             return et0;
         }
     }
@@ -153,7 +154,10 @@ fn thornthwaite_et0_cpu(
     }
     let hi2 = heat_index.powi(2);
     let hi3 = heat_index.powi(3);
-    let a = 6.75e-7_f64.mul_add(hi3, (-7.71e-5_f64).mul_add(hi2, 1.792e-2_f64.mul_add(heat_index, 0.49239)));
+    let a = 6.75e-7_f64.mul_add(
+        hi3,
+        (-7.71e-5_f64).mul_add(hi2, 1.792e-2_f64.mul_add(heat_index, 0.49239)),
+    );
     let et_unadj = 16.0 * (10.0 * t_mean_c / heat_index).powf(a);
     et_unadj * (daylight_hours / 12.0) * (days_in_month / 30.0)
 }
@@ -278,7 +282,9 @@ mod tests {
     // ── Thornthwaite ET₀ tests ──
 
     fn sample_monthly_temps() -> [f64; 12] {
-        [-2.0, 0.5, 5.0, 10.0, 15.0, 20.0, 25.0, 24.0, 18.0, 12.0, 5.0, -1.0]
+        [
+            -2.0, 0.5, 5.0, 10.0, 15.0, 20.0, 25.0, 24.0, 18.0, 12.0, 5.0, -1.0,
+        ]
     }
 
     #[test]
