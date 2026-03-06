@@ -36,6 +36,7 @@
 
 #[cfg(not(feature = "barracuda"))]
 use crate::eps;
+#[cfg(not(feature = "barracuda"))]
 use crate::prng::Xorshift64;
 
 /// Derrida-Gardner constant for ξ ≈ C / W² at band center.
@@ -46,11 +47,26 @@ const DERRIDA_GARDNER_CONSTANT: f64 = 96.0;
 ///
 /// Each site gets `V(n) ~ Uniform[-W/2, W/2]` where `W = disorder`.
 /// Returns the zero vector for `disorder <= 0`.
+///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::spectral::anderson_potential` which uses `LcgRng`
+/// internally. The local fallback uses `Xorshift64`. Both PRNGs
+/// produce uniform distributions with identical statistical properties;
+/// individual potential values differ across feature gates (documented
+/// in module header and `specs/BARRACUDA_EVOLUTION.md` Phase 2b).
 #[must_use]
 pub fn anderson_potential(n: usize, disorder: f64, seed: u64) -> Vec<f64> {
     if disorder <= 0.0 {
         return vec![0.0; n];
     }
+    #[cfg(feature = "barracuda")]
+    return barracuda::spectral::anderson_potential(n, disorder, seed);
+    #[cfg(not(feature = "barracuda"))]
+    anderson_potential_cpu(n, disorder, seed)
+}
+
+#[cfg(not(feature = "barracuda"))]
+fn anderson_potential_cpu(n: usize, disorder: f64, seed: u64) -> Vec<f64> {
     let half_w = disorder / 2.0;
     let mut rng = Xorshift64::new(seed);
     (0..n)

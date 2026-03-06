@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: March 6, 2026 | **License**: AGPL-3.0-only
-**Status**: 34 modules, 824 Rust workspace tests + 672 coralReef tests + 390 Python tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), 91 active barracuda delegations (54 CPU + 37 GPU) — barraCuda v0.3.3+ (`e1184f3+1`), toadStool S96c (`d77fc546`), coralReef Phase 6 (`849fedd`). V85: coralReef sovereign compilation — 2 critical CFG/RA bugs fixed, f64 shared-memory reduction shaders now compile to native SM70 (Titan V) and SM89 (RTX 4070) binaries (the exact pattern that fails through naga/SPIR-V/NVK). 6/6 shader compilation (basic f64 through 8-step unrolled reduction). Gap to execution: coralDriver (Phase 7). V84: GPU validation — DF64/tensor/FHE green, f64 reduction returns 0 via wgpu (naga shared memory issue). CPU path 824/824 green. 30 metalForge workloads, biomeOS Neural API live, NestGate data pipelines
+**Status**: 34 modules, 824 Rust workspace tests + 672 coralReef tests + 390 Python tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), 93 active barracuda delegations (56 CPU + 37 GPU) — barraCuda v0.3.3+ (`e1184f3+1`), toadStool S96c (`d77fc546`), coralReef Phase 6 (`849fedd`). V85: coralReef sovereign compilation — 2 critical CFG/RA bugs fixed, f64 shared-memory reduction shaders now compile to native SM70 (Titan V) and SM89 (RTX 4070) binaries (the exact pattern that fails through naga/SPIR-V/NVK). 6/6 shader compilation (basic f64 through 8-step unrolled reduction). Gap to execution: coralDriver (Phase 7). V84: GPU validation — DF64/tensor/FHE green, f64 reduction returns 0 via wgpu (naga shared memory issue). CPU path 824/824 green. 30 metalForge workloads, biomeOS Neural API live, NestGate data pipelines
 
 **The gap between what models predict and what instruments measure.**
 
@@ -259,8 +259,8 @@ Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardwar
   (metalForge)       (wateringHole/)       (barracuda ops)       (metalForge forge)    (biomeOS graphs)
 ```
 
-**Lean progress**: 91 functions delegate to barracuda with graceful sovereign fallback.
-54 CPU delegated via `#[cfg(feature = "barracuda")]`, 37 GPU dispatched via
+**Lean progress**: 93 functions delegate to barracuda with graceful sovereign fallback.
+56 CPU delegated via `#[cfg(feature = "barracuda")]`, 37 GPU dispatched via
 `#[cfg(feature = "barracuda-gpu")]`. V82: Thornthwaite ET₀ + heat_index, fit_all
 regression, esn/fao56 smart-refactored, deep debt audit clean.
 V81: BootstrapMeanGpu GPU dispatch, freeze_out gate fix, coralReef cloned, 27/27 cross-spring checks.

@@ -3,13 +3,13 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 6, 2026 (V85: 91 active delegations (54 CPU + 37 GPU), barraCuda `e1184f3`, toadStool S96c, coralReef `849fedd`. V85: coralReef sovereign compilation — f64 reduction shaders compile to native SM70/SM89. V84: dual-GPU probe, DF64 green. V83: pin refresh. V82: BootstrapMeanGpu dispatch. V73: 13-tier tolerance architecture)
+**Last Updated**: March 6, 2026 (V87: 93 active delegations (56 CPU + 37 GPU), barraCuda `e1184f3`, toadStool S96c, coralReef `849fedd`. V87: Tier B resolution — `multinomial_sample` CPU-delegated (wetSpring S15 → barraCuda S93), `anderson_potential` CPU-delegated (hotSpring S26 → barraCuda spectral); 5 stale Tier B entries resolved (already wired); `quasispecies_simulation` + `band_structure` coarse scan documented as CPU-by-design. V86: Fp64Strategy DF64 reduce wiring. V85: coralReef sovereign compilation. V84: dual-GPU probe. V82: BootstrapMeanGpu. V73: 13-tier tolerance architecture)
 
 ---
 
 ## Overview
 
-groundSpring has **91 active delegations** (54 CPU + 37 GPU) with **1 evolution candidate** (band_edges — algorithm mismatch).
+groundSpring has **93 active delegations** (56 CPU + 37 GPU) with **0 evolution candidates** — Tier B fully resolved (V87).
 Those barracuda functions were not built in isolation — they were refined and
 battle-tested through absorption from **five Springs**, each bringing domain-specific
 requirements that hardened the shared library.
@@ -228,6 +228,75 @@ shaders evolve in a cycle where wetSpring (domain biology) and neuralSpring
 
 ---
 
+## V87 Bidirectional Cross-Spring Provenance
+
+V87 resolves all Tier B evolution candidates, completing groundSpring's
+delegation story. Each resolution traces through cross-spring provenance:
+
+### hotSpring Precision Foundation → ALL Springs
+
+`df64_core.wgsl` (S58) is the single most impactful cross-spring contribution:
+**every** Spring's f64 GPU operations work on consumer GPUs because hotSpring's
+nuclear physics precision requirements forced DF64 double-float emulation.
+
+Flow: hotSpring S58 `df64_core.wgsl` → toadStool absorption → barraCuda universal
+precision tier → groundSpring `SumReduceF64`, `VarianceReduceF64` (V86 Hybrid
+strategy) → wetSpring bio-stats diversity → neuralSpring spectral density → airSpring
+error metrics.
+
+Welford mean+variance (hotSpring S26) flows to wetSpring (diversity stats) and
+groundSpring (bootstrap, sensor noise). The lattice QCD SU(3) shaders adopted by
+neuralSpring for spectral density analysis — nuclear physics informing neural
+network theory via shared matrix algebra.
+
+### wetSpring Bio Primitives ↔ groundSpring Ecology
+
+Shannon/Simpson/Bray-Curtis diversity (wetSpring S15 metagenomics) adopted by
+groundSpring (rarefaction Exp 004, rare biosphere Exp 016) and neuralSpring
+(fitness landscape analysis). Gillespie SSA (wetSpring S27) adopted by groundSpring
+birth-death models. Wright-Fisher drift (wetSpring S66) adopted by groundSpring
+quasispecies (CPU-by-design — single-locus mutation overhead exceeds GPU dispatch).
+
+**Bidirectional**: `multinomial_sample` originated in groundSpring (V62), was absorbed
+by toadStool, transferred to barraCuda S93, and now groundSpring delegates back to
+`barracuda::ops::bio::multinomial_sample_cpu` — a complete round-trip.
+
+wetSpring's `log_f64()` precision fix (~1e-3 → 1e-15 coefficient error) flowed back
+to hotSpring, improving nuclear force calculations. Cross-domain precision hardening.
+
+### neuralSpring ML Infrastructure → ALL Springs
+
+`pow_f64` polyfill (neuralSpring S-17) unblocked Ada Lovelace (RTX 40xx) for ALL
+Springs — a single bug fix enabling an entire GPU architecture family.
+
+Pairwise distance ops (neuralSpring) adopted by wetSpring for bio pipelines.
+`domain_ops` dispatch pattern (neuralSpring S52 `device: Option<&Arc<WgpuDevice>>`)
+adopted by groundSpring for all GPU wiring — the blueprint for `if let Some(device)`.
+
+HMM forward/backward (neuralSpring) adopted by wetSpring (sequence alignment) and
+hotSpring (nuclear level transition models). ESN reservoir networks (wetSpring →
+hotSpring → neuralSpring S59) power groundSpring's Anderson regime classifier.
+
+### airSpring Hydrology → groundSpring Physics
+
+RMSE/MBE/NSE/R² error metrics (airSpring S64) unified for ALL Springs — both
+airSpring (agricultural) and groundSpring (noise validation) independently needed
+the same error metrics for different domains.
+
+Brent root-finding (airSpring V035 Richards PDE) adopted by groundSpring band edge
+refinement — agricultural soil physics → condensed-matter band structure. L-BFGS
+optimizer (airSpring) adopted by groundSpring freeze-out QCD curve fitting —
+sensor calibration → nuclear parameter estimation.
+
+### groundSpring Validation Patterns → ALL Springs
+
+The 13-tier tolerance architecture (V73) adopted by wetSpring (expanded to 164
+tiers for metagenomics). The `if let Ok` + CPU fallback delegation pattern adopted
+as wateringHole standard. Three-mode validation (local / barracuda / barracuda-gpu)
+proves correctness across feature configurations — adopted by all Springs.
+
+---
+
 ## S87–S93 + barraCuda Budding Evolution (V70–V74)
 
 The largest structural evolution in the ecosystem: barraCuda budded from
@@ -348,6 +417,8 @@ Each of groundSpring's 91 active delegations has a traceable cross-spring histor
 | 41 | `grid_fit_2d` (L-BFGS refine) | `optimize::lbfgs_numerical` | airSpring V035 param fit → `ToadStool` S84 | V68 — Post-grid-search gradient refinement (sub-grid precision) |
 | 42 | `tissue_4d_simulation` | `spectral::anderson::anderson_4d` | hotSpring S26 spectral → `ToadStool` S84 | V68 — 4D Anderson lattice for spatio-temporal tissue disorder |
 | 43 | `tissue_4d_rg_coarsen` | `spectral::anderson::wegner_block_4d` | hotSpring condensed matter → `ToadStool` S84 | V68 — 4D Wegner RG coarsening reveals disorder flow at tissue cluster scale |
+| 44 | `multinomial_sample` | `ops::bio::multinomial_sample_cpu` | wetSpring S15 → groundSpring V62 → barraCuda S93 | V87 — CPU delegation via cumulative prob adapter; batch path via `BatchedMultinomialGpu` |
+| 45 | `anderson_potential` | `spectral::anderson_potential` | hotSpring S26 (Anderson localization) → barraCuda spectral | V87 — CPU delegation with documented PRNG divergence (Xorshift64 vs LcgRng) |
 
 ---
 
@@ -394,7 +465,7 @@ FMA fusion: `Mul(a,b) + c` → `fma(a,b,c)` benefits all 694 WGSL shaders.
 | airSpring + groundSpring | `stats::metrics`: rmse, mbe, r², IoA, hit_rate, mean, percentile | **#15-19, #21-22** |
 | wetSpring | `stats::diversity`: shannon, simpson, chao1, bray_curtis | **#20** (shannon) |
 | hotSpring | 8 lattice WGSL: su3_math, prng_pcg, gauge_force, kinetic_energy | Nuclear physics shaders |
-| groundSpring | `batched_multinomial` (GPU + CPU) | Future rewiring (signature adapter needed) |
+| groundSpring | `batched_multinomial` (GPU + CPU) | **WIRED** (V87) — `multinomial_sample` CPU-delegated via cumulative prob adapter; batch path via `BatchedMultinomialGpu` |
 
 ### S65 — Smart Refactoring
 
@@ -620,6 +691,7 @@ The 844 barracuda WGSL shaders that groundSpring's delegations ultimately depend
 | Mar 2 | **groundSpring V67** | **ToadStool S87 catch-up**: `McEt0PropagateGpu` + `SeasonalPipelineF64` GPU wirings, `BatchedMultinomialGpu::sample` API break fix (3 sites), 73 delegations (43 CPU + 30 GPU), 28 metalForge workloads |
 | Mar 2 | **groundSpring V68** | **Complete rewiring + cross-spring benchmark**: L-BFGS refinement (airSpring V035 → S84 → freeze_out), 4D Anderson + Wegner RG (hotSpring precision → S84 → tissue_anderson), 76 delegations (44 CPU + 32 GPU), 30 metalForge workloads. Cross-spring lineage: hotSpring precision shaders enable tissue 4D; airSpring optimizer enables freeze-out sub-grid refinement; wetSpring bio + neuralSpring infra form foundation for all stochastic GPU dispatch |
 | Mar 2 | **groundSpring V69** | **S87 pin + cross-spring evolution parity**: 5 new parity tests validating cross-spring shader evolution — Shannon diversity (wetSpring S64), Simpson diversity (wetSpring S64), Seismic grid search (groundSpring S71+++), Anderson 2D (hotSpring S59), Anderson 3D (hotSpring S59). Cross-spring evolution timeline (4-phase) + provenance table (+6 S72-S87 ops). Universal precision audit: "Math is universal, precision is silicon." 783 tests, 187 checks |
+| Mar 6 | **groundSpring V87** | **Tier B resolution + cross-spring delegation completion**: `multinomial_sample` CPU-delegated (wetSpring bio → barraCuda S93 cumulative prob adapter), `anderson_potential` CPU-delegated (hotSpring spectral → barraCuda LcgRng), 5 stale Tier B entries resolved (freeze_out/seismic/rare_biosphere already wired, gillespie batch wired), `quasispecies_simulation` + band_structure coarse scan confirmed CPU-by-design. 93 active delegations (56 CPU + 37 GPU), 0 evolution candidates remaining |
 
 ---
 
@@ -705,14 +777,15 @@ Cross-spring benchmark: **23/23 PASS** (4.5s total).
 hardware — shader compilation fails before dispatch. All 6 fall back to CPU
 correctly in production.
 
-### Delegation Summary (V83 Current)
+### Delegation Summary (V87 Current)
 
 | Tier | Count | Notes |
 |------|-------|-------|
-| CPU active | 54 | barraCuda v0.3.3 canonical |
+| CPU active | 56 | barraCuda v0.3.3 canonical — V87: +multinomial_sample, +anderson_potential |
 | GPU active | 37 | includes 4D Anderson, Wegner RG, McEt0, seasonal pipeline, JackknifeMeanGpu, HargreavesBatchGpu |
-| Evolution candidates | 1 | band_edges (algorithm mismatch) |
-| **Total active** | **91** | 824 tests, clippy pedantic clean |
+| CPU by design | 2 | `quasispecies_simulation` (per-gen mutation thinning), `band_structure` coarse scan (data-dependent matrix chains) |
+| Evolution candidates | 0 | Tier B fully resolved |
+| **Total active** | **93** | 804+ tests, clippy pedantic clean |
 
 ### NUCLEUS Integration (V63)
 

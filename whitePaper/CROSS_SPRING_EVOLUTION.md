@@ -1,14 +1,14 @@
 # Cross-Spring Evolution: How ecoPrimals Primals Build on Each Other
 
 **Date**: February 27, 2026
-**groundSpring HEAD**: V85
+**groundSpring HEAD**: V87
 **barraCuda**: v0.3.3
 
 ---
 
 ## The Multi-Spring Architecture
 
-groundSpring's 91 active barracuda delegations (54 CPU + 37 GPU) trace their lineage through 5 ecoPrimals
+groundSpring's 93 active barracuda delegations (56 CPU + 37 GPU) trace their lineage through 5 ecoPrimals
 Springs. Each Spring contributes domain-specific primitives that are absorbed into
 ToadStool's BarraCUDA crate, making them available to all other Springs. This
 document traces exactly which primitives came from where and who benefits.

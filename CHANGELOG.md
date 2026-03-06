@@ -4,6 +4,27 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V87 Tier B Resolution + Cross-Spring Delegation Completion (Mar 6, 2026)
+
+#### New Delegations
+- **`rarefaction::multinomial_sample`** CPU-delegated to `barracuda::ops::bio::multinomial_sample_cpu` — cumulative prob adapter, Xorshift64 RNG via closure. Cross-spring round-trip: groundSpring V62 → toadStool → barraCuda S93 → groundSpring V87
+- **`anderson::anderson_potential`** CPU-delegated to `barracuda::spectral::anderson_potential` — documented PRNG divergence (Xorshift64 vs LcgRng, distributional parity)
+
+#### Tier B Resolution
+- **5 stale entries resolved**: `freeze_out::grid_fit_2d`, `seismic::grid_search_inversion`, `rare_biosphere::abundance_occupancy`, `rare_biosphere::tier_detection_rate`, `gillespie::birth_death_ssa` — all already wired in V42-V68
+- **2 CPU-by-design**: `quasispecies::quasispecies_simulation` (per-gen mutation thinning overhead), `band_structure::find_band_edges` coarse scan (data-dependent matrix chains)
+- **New batch API**: `quasispecies_simulation_batch` for multi-replicate trajectories
+- **Delegation count**: 91 → 93 (56 CPU + 37 GPU), 0 evolution candidates remaining
+
+#### Documentation
+- **`specs/BARRACUDA_EVOLUTION.md`**: Tier B table fully resolved, delegation count updated, V87 timeline entries
+- **`wateringHole/CROSS_SPRING_SHADER_EVOLUTION.md`**: Bidirectional provenance narratives (hotSpring precision → all; wetSpring ↔ groundSpring bio; airSpring → physics; neuralSpring → dispatch); delegation lineage #44-45
+- **New handoff**: `GROUNDSPRING_V87_TIER_B_RESOLUTION_HANDOFF_MAR06_2026.md`
+
+#### Validation
+- 804+ tests pass in both default and barracuda modes
+- 0 clippy warnings (pedantic) in both modes
+
 ### V86 DF64 Reduce Wiring + Full Stats Benchmark (Mar 6, 2026)
 
 #### barraCuda Evolution (`e1184f3`)

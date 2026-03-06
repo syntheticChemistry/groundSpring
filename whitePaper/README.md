@@ -12,7 +12,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **395/395 checks passed** across 34 validation binaries (340 core + 55 NUCLEUS).
 - Mathematical parity: **29/29 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.6× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.4× from Sturm tridiag**.
-- V85: coralReef sovereign compilation — 2 critical CFG/RA bugs fixed, f64 shared-memory reduction shaders compile to native SM70/SM89 (6/6). V84: dual-GPU probe (RTX 4070 + Titan V), DF64 green, f64 reduction returns 0 via naga. 91 delegations (54 CPU + 37 GPU). 824 Rust + 672 coralReef + 390 Python tests. 187 metalForge checks (130 forge + 57 mixed-hardware). 30 metalForge workloads. Deep debt zero maintained. biomeOS Neural API live, NestGate data pipelines (NCBI, NOAA, IRIS). Zero TODO/FIXME/unsafe/unwrap in production.
+- V85: coralReef sovereign compilation — 2 critical CFG/RA bugs fixed, f64 shared-memory reduction shaders compile to native SM70/SM89 (6/6). V84: dual-GPU probe (RTX 4070 + Titan V), DF64 green, f64 reduction returns 0 via naga. 93 delegations (56 CPU + 37 GPU). 824 Rust + 672 coralReef + 390 Python tests. 187 metalForge checks (130 forge + 57 mixed-hardware). 30 metalForge workloads. Deep debt zero maintained. biomeOS Neural API live, NestGate data pipelines (NCBI, NOAA, IRIS). Zero TODO/FIXME/unsafe/unwrap in production.
 
 ### Key Results
 

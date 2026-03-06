@@ -73,6 +73,21 @@ pub fn master_frequency_analytical(sigma: f64, mu: f64, genome_length: usize) ->
 /// `Q = (1 − mu)^L`. Back-mutation is neglected (exponentially rare
 /// for large L).
 ///
+/// # Delegation rationale (CPU by design)
+///
+/// `WrightFisherGpu` (barraCuda S66+, wetSpring → neuralSpring provenance)
+/// handles allele-frequency selection+drift. However, quasispecies dynamics
+/// require a two-step per generation: (1) WF selection+drift, then
+/// (2) binomial mutation thinning (master→mutant with prob 1−Q). The
+/// mutation step requires a GPU→CPU round-trip per generation.
+///
+/// For a single-locus model, per-generation GPU dispatch overhead (~0.1ms)
+/// dominates the actual compute (~0.001ms for N binomial draws), making
+/// GPU dispatch a net negative. This mirrors `birth_death_ssa` (Gillespie)
+/// which also stays CPU for single-trajectory simulations.
+///
+/// For batched replicates, see [`quasispecies_simulation_batch`].
+///
 /// # Panics
 ///
 /// Panics if `pop_size` is zero.
@@ -85,18 +100,32 @@ pub fn quasispecies_simulation(
     n_generations: usize,
     seed: u64,
 ) -> Vec<f64> {
-    // WrightFisherGpu (S66+, neuralSpring metalForge provenance) operates on allele
-    // frequencies with selection coefficients, not on the Eigen quasispecies model's
-    // fitness-proportionate + mutation two-step. The kernel applies:
-    //   p' = p·w_A / (p·w_A + (1-p))  then  Binomial(2N, p')
-    // but quasispecies needs selection THEN mutation (master→mutant with prob 1-Q).
-    // A single locus WF dispatch only handles the selection+drift step; the mutation
-    // step (binomial thinning by Q) must run on host between generations.
-    //
-    // GPU acceleration is most valuable for BATCHED replicates (many independent
-    // trajectories in parallel). The single-trajectory case below stays CPU; the
-    // benchmark binary in metalForge demonstrates the batched GPU path.
     quasispecies_simulation_cpu(pop_size, genome_length, sigma, mu, n_generations, seed)
+}
+
+/// Batch multiple independent quasispecies trajectories.
+///
+/// Returns `n_replicates` frequency trajectories. Each replicate uses
+/// `base_seed + i` as its PRNG seed, ensuring reproducibility and
+/// independence.
+///
+/// CPU by design — see [`quasispecies_simulation`] delegation rationale.
+#[must_use]
+pub fn quasispecies_simulation_batch(
+    pop_size: usize,
+    genome_length: usize,
+    sigma: f64,
+    mu: f64,
+    n_generations: usize,
+    n_replicates: usize,
+    base_seed: u64,
+) -> Vec<Vec<f64>> {
+    (0..n_replicates)
+        .map(|i| {
+            let seed = base_seed.wrapping_add(i as u64);
+            quasispecies_simulation_cpu(pop_size, genome_length, sigma, mu, n_generations, seed)
+        })
+        .collect()
 }
 
 fn quasispecies_simulation_cpu(

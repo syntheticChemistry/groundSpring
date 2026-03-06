@@ -817,7 +817,9 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V79: Exp 035 + seismic delegation | 85 delegations (51 CPU + 34 GPU), 807 tests, barraCuda v0.3.3, toadStool S94b | Archived |
 | V80: Fused Ops + BarraCuda Catch-Up | 87 delegations (51 CPU + 36 GPU), 812 tests, barraCuda v0.3.3+, toadStool S94b | Archived |
 | V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `e1184f3`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
-| V85: coralReef Sovereign + Evolution Handoff | 91 delegations, 824 CPU tests + 672 coralReef, coralReef CFG/RA fixes, f64 reduction compiles to native SM70/SM89, toadStool/barraCuda evolution handoff | **Current** |
+| V87: Tier B Resolution + Cross-Spring Completion | 93 delegations (56 CPU + 37 GPU), 804+ tests, Tier B fully resolved, multinomial_sample + anderson_potential CPU-delegated, quasispecies + band_structure CPU-by-design, bidirectional provenance documented | **Current** |
+| V86: DF64 Reduce Wiring + Full Stats Benchmark | 91 delegations, Fp64Strategy wired into SumReduceF64/VarianceReduceF64, 4-tier benchmark (Python/Kokkos/Rust CPU/GPU), GPU reduce returns 0 (pipeline issue) | Archived |
+| V85: coralReef Sovereign + Evolution Handoff | 91 delegations, 824 CPU tests + 672 coralReef, coralReef CFG/RA fixes, f64 reduction compiles to native SM70/SM89, toadStool/barraCuda evolution handoff | Archived |
 | V84: GPU Validation | 91 delegations, 824 CPU tests, 17/32 GPU tests, RTX 4070 + Titan V probed, DF64 green, f64 reduction broken (naga), CoralCompiler fix | Archived |
 | V83: Pin Refresh + Catch-Up | 91 delegations (54 CPU + 37 GPU), 824 tests, barraCuda `e1184f3`, toadStool S96c (`d77fc546`), coralReef `1e048be` (672 tests), all deps verified | Archived |
 | V82: Delegation Expansion | 91 delegations (54 CPU + 37 GPU), 824 tests, Thornthwaite ET₀, fit_all, smart refactoring, deep debt audit | Archived |

@@ -271,17 +271,48 @@ pub fn taxa_detected(counts: &[u64]) -> usize {
 /// For each of `depth` reads, assigns to a taxon proportional to
 /// `abundances` (which must sum to ~1.0).
 ///
+/// When the `barracuda` feature is enabled, delegates to
+/// `barracuda::ops::bio::multinomial_sample_cpu` (absorbed from
+/// wetSpring S15, groundSpring V62 → barraCuda S93). Uses barraCuda's
+/// LCG PRNG — sequences differ from the local Xorshift64 path but
+/// distributional properties are identical.
+///
 /// This is a pure-Rust replacement for `NumPy`'s `rng.multinomial()`.
 #[must_use]
 pub fn multinomial_sample(abundances: &[f64], depth: u64, seed: u64) -> Vec<u64> {
+    let n = abundances.len();
+    if n == 0 || depth == 0 {
+        return vec![0u64; n];
+    }
+
+    #[cfg(feature = "barracuda")]
+    {
+        multinomial_sample_barracuda(abundances, depth, seed)
+    }
+    #[cfg(not(feature = "barracuda"))]
+    multinomial_sample_cpu(abundances, depth, seed)
+}
+
+#[cfg(feature = "barracuda")]
+fn multinomial_sample_barracuda(abundances: &[f64], depth: u64, seed: u64) -> Vec<u64> {
+    let cumulative = abundances_to_cumulative(abundances);
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "sequencing depth ≤ 10^6, fits u32"
+    )]
+    let depth_u32 = depth as u32;
+    let mut rng = crate::prng::Xorshift64::new(seed);
+    let counts_u32 =
+        barracuda::ops::bio::multinomial_sample_cpu(&cumulative, depth_u32, &mut || rng.next_f64());
+    counts_u32.iter().map(|&c| u64::from(c)).collect()
+}
+
+#[cfg(not(feature = "barracuda"))]
+fn multinomial_sample_cpu(abundances: &[f64], depth: u64, seed: u64) -> Vec<u64> {
     use crate::prng::Xorshift64;
 
     let n = abundances.len();
     let mut counts = vec![0u64; n];
-    if n == 0 || depth == 0 {
-        return counts;
-    }
-
     let cumulative: Vec<f64> = abundances_to_cumulative(abundances);
 
     let mut rng = Xorshift64::new(seed);

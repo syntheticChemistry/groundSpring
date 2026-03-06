@@ -6,7 +6,7 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: March 6, 2026 (V85 — 91 active delegations (54 CPU + 37 GPU), barraCuda `e1184f3`, toadStool S96c, coralReef `849fedd`, 824 tests, clippy pedantic clean. V85: coralReef sovereign compilation. V84: dual-GPU probe. V83: pin refresh. V82: BootstrapMeanGpu dispatch)
+**Last updated**: March 6, 2026 (V87 — 93 active delegations (56 CPU + 37 GPU), barraCuda `e1184f3`, toadStool S96c, coralReef `849fedd`, 824 tests, clippy pedantic clean. V87: coralReef sovereign compilation. V84: dual-GPU probe. V83: pin refresh. V82: BootstrapMeanGpu dispatch)
 
 ## Absorption Status Summary
 
@@ -22,7 +22,7 @@
 | Reduce ops (GPU) | **Lean** | 4 | sum_reduce, variance_reduce, fused_map_reduce, correlation_f64 |
 | ESN (GPU) | **Lean** | 1 | esn_v2::ESN regime classification |
 | Grid ops (GPU) | **Lean** | 1 | grid_search_3d (seismic) |
-| **Total** | | **91** | 54 CPU + 37 GPU |
+| **Total** | | **93** | 56 CPU + 37 GPU |
 | PRNG | **Adapt** | 1 | xorshift64→xoshiro alignment pending |
 | Scalar math | **Stays local** | 5 | decompose, haversine, travel_time |
 | NPU | **Lean** | 1 | akida-driver (ToadStool hardware, not barraCuda math) |
@@ -42,7 +42,7 @@
 
 ---
 
-## Tier A — Lean (91 active: 54 CPU + 37 GPU)
+## Tier A — Lean (93 active: 56 CPU + 37 GPU)
 
 Full delegation inventory as of V83, barraCuda v0.3.3:
 
@@ -178,7 +178,7 @@ Both Tier C shaders have been absorbed upstream and local copies removed (V62):
 
 ## Handoff Checklist (per shader)
 
-- [x] 91 active delegations (54 CPU + 37 GPU) verified, barraCuda `e1184f3`, toadStool S96c
+- [x] 93 active delegations (56 CPU + 37 GPU) verified, barraCuda `e1184f3`, toadStool S96c
 - [x] CPU reference passes all validation checks (34 binaries, 824 tests)
 - [x] All delegations use `#[cfg]` or `if let Ok` with CPU fallback always compiled
 - [x] Mathematical parity: 28/28 PROVEN (Python ⇌ Rust, `data/parity_report.json`)

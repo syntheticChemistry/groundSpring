@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 6, 2026 (V86 — 91 delegations (54 CPU + 37 GPU), 824+ tests, barraCuda `e1184f3`, toadStool S96c `d77fc546`, coralReef `849fedd`. V86: Fp64Strategy wired into SumReduceF64/VarianceReduceF64 — DF64 shaders for consumer GPUs. V85: coralReef sovereign compilation — 2 CFG/RA bugs fixed, f64 reduction shaders compile to native SM70/SM89. V84: dual-GPU probe, DF64 green, f64 reduction returns 0 via naga. V83: pin refresh. V82: BootstrapMeanGpu, coralReef Phase 6. V80: fused correlation_full GPU. V77: wgpu 28, DF64 precision tiers. V73: 13-tier tolerance architecture)
+**Last updated**: March 6, 2026 (V87 — 93 delegations (56 CPU + 37 GPU), 824+ tests, barraCuda `e1184f3`, toadStool S96c `d77fc546`, coralReef `849fedd`. V87: Tier B resolution — `multinomial_sample` and `anderson_potential` CPU-delegated; `quasispecies_simulation` and `band_structure::find_band_edges` coarse scan documented as CPU-by-design; 5 stale Tier B entries resolved (already wired). V86: Fp64Strategy wired into SumReduceF64/VarianceReduceF64 — DF64 shaders for consumer GPUs. V85: coralReef sovereign compilation — 2 CFG/RA bugs fixed, f64 reduction shaders compile to native SM70/SM89. V84: dual-GPU probe, DF64 green, f64 reduction returns 0 via naga. V83: pin refresh. V82: BootstrapMeanGpu, coralReef Phase 6. V80: fused correlation_full GPU. V77: wgpu 28, DF64 precision tiers. V73: 13-tier tolerance architecture)
 
 ## Philosophy
 
@@ -311,6 +311,8 @@ graph.
 | `bootstrap::bootstrap_median` | `stats::bootstrap_median` | **DONE** (CPU delegated) | S64 absorption — robust CI for median |
 | `bootstrap::bootstrap_std` | `stats::bootstrap_std` | **DONE** (CPU delegated) | S64 absorption — CI for standard deviation |
 | `stats::moving_window_stats` | `stats::moving_window_stats_f64` | **DONE** (CPU delegated) | S66 absorption — sliding window mean/var/min/max |
+| `rarefaction::multinomial_sample` | `ops::bio::multinomial_sample_cpu` | **DONE** (CPU delegated, V87) | Cumulative prob adapter; PRNG via closure (Xorshift64) |
+| `anderson::anderson_potential` | `spectral::anderson_potential` | **DONE** (CPU delegated, V87) | LcgRng vs Xorshift64 — distributional parity documented |
 
 ### Tier B — Adapt (needs alignment or wrapper)
 
@@ -320,23 +322,23 @@ graph.
 | ~~`jackknife::jackknife_mean_variance`~~ | ~~`stats::jackknife_mean_variance`~~ | **RESOLVED** — now in barracuda S70+ | Moved to Tier A |
 | ~~`fao56::daily_et0`~~ | ~~`stats::hydrology::fao56_et0`~~ | **RESOLVED** — now in barracuda S70+ | Moved to Tier A |
 | `prng::Xorshift64` | `ops::PrngXoshiro` (f64) | Different PRNG algorithm | Align to xoshiro; retain xorshift as CPU reference |
-| `seismic::grid_search_inversion` | Parallel 3D grid dispatch | No existing grid-search op | GPU: dispatch as (lat,lon,depth) workgroup; reduce min RMS |
-| `rarefaction::multinomial_sample` | `ops::PrngXoshiro` + binary search | No batched multinomial | Production WGSL in metalForge |
-| `gillespie::birth_death_ssa` | `ops::bio::GillespieGpu` | GPU-only (batched trajectories) | Serial per-trajectory, parallel across replicates |
-| `freeze_out::grid_fit_2d` | Parallel 2D grid dispatch | No existing grid-search op | GPU: dispatch as (T₀,κ₂) workgroup; reduce min χ² |
-| `band_structure::find_band_edges` | Per-energy parallel dispatch | No existing per-energy op | GPU: one thread per energy, L sequential 2×2 multiplies |
-| `quasispecies::quasispecies_simulation` | `ops::bio::WrightFisherGpu` | Needs multi-gen wrapper (S66 per-step exists) | GPU: parallel across replicates, serial per-generation |
-| `rare_biosphere::abundance_occupancy` | `BatchedMultinomialGpu` | Needs occupancy wrapper (S64 low-level exists) | GPU: parallel multinomial across replicates |
-| `rare_biosphere::tier_detection_rate` | `BatchedMultinomialGpu` | Needs tier-rate wrapper | GPU: tier-sliced multinomial |
+| ~~`seismic::grid_search_inversion`~~ | ~~Parallel 3D grid dispatch~~ | **RESOLVED** — already wired to `barracuda::ops::grid::grid_search_3d` | Moved to Tier A (stale entry) |
+| ~~`rarefaction::multinomial_sample`~~ | ~~`ops::PrngXoshiro` + binary search~~ | **RESOLVED** (V87) — CPU delegated to `barracuda::ops::bio::multinomial_sample_cpu` via cumulative prob adapter; batch path uses `BatchedMultinomialGpu` | Moved to Tier A |
+| ~~`gillespie::birth_death_ssa`~~ | ~~`ops::bio::GillespieGpu`~~ | **RESOLVED** — batch path wired to `GillespieGpu`; single trajectory CPU by design | Moved to Tier A (stale entry) |
+| ~~`freeze_out::grid_fit_2d`~~ | ~~Parallel 2D grid dispatch~~ | **RESOLVED** — already wired to `barracuda::ops::grid::grid_search_3d` + L-BFGS | Moved to Tier A (stale entry) |
+| `band_structure::find_band_edges` | Per-energy parallel dispatch | **CPU by design** — Brent refinement delegated (`barracuda::optimize::brent`); coarse scan is data-dependent matrix chains (L=2-10), below GPU dispatch threshold | Stays partially delegated |
+| `quasispecies::quasispecies_simulation` | `ops::bio::WrightFisherGpu` | **CPU by design** — single-locus model, per-generation mutation thinning requires round-trip; dispatch overhead dominates for O(N) scalar binomial draws | Stays CPU; batch API added (V87) |
+| ~~`rare_biosphere::abundance_occupancy`~~ | ~~`BatchedMultinomialGpu`~~ | **RESOLVED** — already wired to `BatchedMultinomialGpu` | Moved to Tier A (stale entry) |
+| ~~`rare_biosphere::tier_detection_rate`~~ | ~~`BatchedMultinomialGpu`~~ | **RESOLVED** — already wired to `BatchedMultinomialGpu` | Moved to Tier A (stale entry) |
 | ~~`bootstrap::rawr_mean`~~ | ~~New: `ops::rawr_weighted_mean_f64`~~ | **RESOLVED** — absorbed as `stats::rawr_mean` in S66 | Moved to Tier A (#26) |
-| `anderson::anderson_potential` | `spectral::anderson_potential` | Requires `barracuda-gpu` feature | Align PRNG seeds |
+| ~~`anderson::anderson_potential`~~ | ~~`spectral::anderson_potential`~~ | **RESOLVED** (V87) — CPU delegated to `barracuda::spectral::anderson_potential`; PRNG mismatch (Xorshift64 vs LcgRng) documented as expected | Moved to Tier A |
 
 ### Tier C — ~~New Kernel Required~~ → Partially Absorbed
 
 | Proposed Kernel | Status | Notes |
 |---|---|---|
 | `ops::mc_et0_propagate_f64` | **SUPERSEDED** — `BatchedElementwiseF64::fao56_et0_batch()` already in barracuda | ToadStool absorbed FAO-56 as `Op::Fao56Et0` with 9-input batch (tmax, tmin, rh_max, rh_min, wind, Rs, elev, lat, doy). GPU + CPU reference. groundSpring's `mc_et0_propagate.wgsl` MC wrapper remains valuable for uncertainty propagation. |
-| `ops::batched_multinomial_f64` | **ABSORBED** — `BatchedMultinomialGpu` + `multinomial_sample_cpu` in barracuda S64 | groundSpring rewiring deferred (signature mismatch: barracuda takes cumulative_probs + closure RNG) |
+| `ops::batched_multinomial_f64` | **ABSORBED** — `BatchedMultinomialGpu` + `multinomial_sample_cpu` in barracuda S64 | **WIRED** (V87) — `multinomial_sample` CPU-delegated via cumulative prob adapter; `multinomial_sample_batch` GPU-delegated via `BatchedMultinomialGpu` |
 
 ### Stays Local (no GPU benefit)
 
@@ -596,7 +598,7 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (28/28 parity proven, timing data for all experiments) |
-| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **91 active delegations** (54 CPU + 37 GPU), **824+ tests** — barraCuda `e1184f3`, toadStool S96c (d77fc546) |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **93 active delegations** (56 CPU + 37 GPU), **824+ tests** — barraCuda `e1184f3`, toadStool S96c (d77fc546). V87: multinomial_sample + anderson_potential CPU-delegated; Tier B resolved |
 | Phase 2b | Tier B adapt (GPU dispatch wiring, PRNG alignment) | **V31–V69** — 15 modules GPU-wired, 187 metalForge checks, 5 substrates; arch-aware dispatch (f64→Titan V, f32→RTX 4070); GPU→NPU PCIe bypass validated |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |
@@ -610,14 +612,14 @@ and pipeline stage for GPU promotion readiness.
 |---|---|---|---|
 | `anderson` | `anderson_lyapunov.wgsl` (ref) | spectral/localization | **Delegated** — `barracuda::spectral::lyapunov_*` |
 | `almost_mathieu` | — | spectral/eigenvalue | **Delegated** — `barracuda::spectral::find_all_eigenvalues` (49.5×) |
-| `band_structure` | — | spectral/band-detect | **Delegated** — `barracuda::spectral::detect_bands` |
+| `band_structure` | — | spectral/band-detect | **Delegated** — `barracuda::spectral::detect_bands` + `barracuda::optimize::brent` (Brent refinement); coarse scan CPU by design |
 | `spectral_recon` | — | linalg/solve | **Delegated** — `barracuda::linalg::solve_f64_cpu` |
 | `rare_biosphere` | *(absorbed S76)* | bio/multinomial | **GPU live** — `BatchedMultinomialGpu` (shader now in ToadStool) |
 | `rarefaction` | *(absorbed S76)* | bio/multinomial | **GPU live** — `BatchedMultinomialGpu` (shader now in ToadStool) |
 | `fao56` | *(absorbed S72)* | agri/et0-mc | **GPU live** — `BatchedElementwiseF64` + `HargreavesBatchGpu` (shader now in ToadStool) |
-| `freeze_out` | — | grid/fit-2d | **GPU-ready** — blocked on `barracuda::ops::grid::grid_fit_2d_f64` |
-| `seismic` | — | grid/search-3d | **GPU-ready** — blocked on `barracuda::ops::grid::grid_search_3d_f64` |
-| `quasispecies` | — | bio/wright-fisher | **GPU-ready** — blocked on `barracuda::ops::bio::wright_fisher_simulate` wrapper |
+| `freeze_out` | — | grid/fit-2d | **Delegated** — `barracuda::ops::grid::grid_search_3d` + L-BFGS |
+| `seismic` | — | grid/search-3d | **Delegated** — `barracuda::ops::grid::grid_search_3d` |
+| `quasispecies` | — | bio/wright-fisher | **CPU by design** — single-locus model; per-gen mutation thinning overhead exceeds GPU dispatch benefit; batch API available |
 | `bistable` | — | ode/biosystems | **Delegated** — `BistableOde::cpu_derivative` |
 | `multisignal` | — | ode/biosystems | **Delegated** — `MultiSignalOde::cpu_derivative` |
 | `kinetics` | — | bio/hill | **Delegated** — `barracuda::stats::hill` |

@@ -22,12 +22,18 @@
 //!
 //! # barracuda delegation
 //!
-//! The energy scan in [`find_band_edges`] and [`count_bands`] is
-//! embarrassingly parallel — one thread per energy point, each
-//! performing L sequential 2×2 matrix multiplications. GPU promotion
-//! via `barracuda-gpu` is a high-value target for fine energy grids.
-//! [`transfer_matrix_half_trace`] stays local on CPU (L is small,
-//! latency-dominated).
+//! [`find_band_edges`] is partially delegated:
+//! - **Brent refinement** (barracuda-gpu): coarse edges are refined to
+//!   machine precision via `barracuda::optimize::brent` (airSpring V035
+//!   → barraCuda S71+++). This is the high-value delegation — refinement
+//!   dominates accuracy improvement.
+//! - **Coarse scan** (CPU): evaluates `|Tr(T(E))/2|` at `n_points` energies.
+//!   Each point performs L sequential 2×2 matrix multiplications —
+//!   data-dependent chains not expressible in current barraCuda ops.
+//!   For typical periods (L=2-10) at 2000 points, this is ~20K
+//!   multiplications on CPU, well below GPU dispatch threshold.
+//! - [`detect_band_ranges`]: fully delegated to `barracuda::spectral::detect_bands`.
+//! - [`transfer_matrix_half_trace`], [`count_bands`]: stays local (CPU).
 
 use crate::cast::usize_f64;
 
