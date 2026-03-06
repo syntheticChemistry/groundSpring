@@ -380,6 +380,7 @@ mod tests {
 
     #[test]
     fn flat_params_roundtrip() {
+        // flat[0] = mu_max (0.8), flat[18] = alpha_fb (3.0) from Default impl
         let p = default_params();
         let flat = p.to_flat();
         assert_eq!(flat.len(), 21);

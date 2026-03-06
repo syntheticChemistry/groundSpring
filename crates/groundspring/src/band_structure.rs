@@ -260,6 +260,9 @@ mod tests {
 
     #[test]
     fn free_lattice_single_band() {
+        // Analytical: 1D tight-binding with zero on-site potential has a single
+        // band E ∈ [−2t, 2t]. With t = 1.0, edges are exactly ±2.0.
+        // Tolerance 0.05 accounts for finite grid discretisation (2000 points).
         let edges = find_band_edges(&[0.0], 1.0, -4.0, 4.0, 2000);
         assert_eq!(edges.len(), 2, "free lattice should have 2 edges");
         assert!((edges[0] - (-2.0)).abs() < 0.05);

@@ -251,6 +251,12 @@ mod tests {
     use crate::cast::usize_f64;
     use crate::tol;
 
+    /// Tikhonov regularization strengths (λ) for tests.
+    /// Stronger regularisation → smoother but biased; weaker → faithful but noisy.
+    const LAMBDA_NOISELESS: f64 = 1e-12;
+    const LAMBDA_NOISY: f64 = 1e-6;
+    const LAMBDA_PARITY: f64 = 1e-8;
+
     #[test]
     fn kernel_shape() {
         let tau = vec![0.1, 0.5, 1.0];
@@ -273,7 +279,7 @@ mod tests {
         let kernel = build_kernel(&tau, &omega);
         let g = forward_correlator(&kernel, &rho, n_tau, n_omega);
 
-        let rho_rec = tikhonov_solve(&kernel, &g, 1e-12, n_tau, n_omega);
+        let rho_rec = tikhonov_solve(&kernel, &g, LAMBDA_NOISELESS, n_tau, n_omega);
         let g_rec = forward_correlator(&kernel, &rho_rec, n_tau, n_omega);
         let r = rmse(&g, &g_rec);
         assert!(r < tol::CDF_APPROX, "noiseless roundtrip RMSE = {r}");
@@ -292,7 +298,7 @@ mod tests {
         let rho = gaussian_peak(&omega, 3.0, 0.5, 1.0);
         let kernel = build_kernel(&tau, &omega);
         let g = forward_correlator(&kernel, &rho, n_tau, n_omega);
-        let rho_rec = tikhonov_solve(&kernel, &g, 1e-6, n_tau, n_omega);
+        let rho_rec = tikhonov_solve(&kernel, &g, LAMBDA_NOISY, n_tau, n_omega);
         let pi = peak_index(&rho_rec);
         assert!(
             (omega[pi] - 3.0).abs() < 1.0,
@@ -339,7 +345,7 @@ mod tests {
         let kernel = build_kernel(&tau, &omega);
         let g = forward_correlator(&kernel, &rho_true, n_tau, n_omega);
 
-        let rho_rec = tikhonov_solve(&kernel, &g, 1e-8, n_tau, n_omega);
+        let rho_rec = tikhonov_solve(&kernel, &g, LAMBDA_PARITY, n_tau, n_omega);
         let g_rec = forward_correlator(&kernel, &rho_rec, n_tau, n_omega);
         let r = rmse(&g, &g_rec);
         assert!(r < tol::RECONSTRUCTION, "Tikhonov roundtrip RMSE = {r}");

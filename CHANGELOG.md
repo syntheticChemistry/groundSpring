@@ -4,6 +4,32 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V88 Deep Audit + Evolution (Mar 6, 2026)
+
+#### Quality Evolution
+- **Structured logging**: Added `log = "0.4"` to groundspring + forge. All `eprintln!` in library code evolved to `log::warn!` (`biomeos/mod.rs`, `nucleus.rs`)
+- **Formal provenance schema**: New `specs/PROVENANCE_SCHEMA.md` — defines required vs optional benchmark JSON fields, enforcement mechanisms, stochastic experiment rules
+- **Auto-discovery drift guard**: `regenerate_benchmarks.sh` now uses `find control -name 'benchmark_*.json'` instead of hardcoded 29-element array. New experiments are automatically picked up
+- **Fixed `benchmark_et0_methods.json`**: Added missing `_doi` field (`10.1016/S0378-3774(98)00053-4`). Python provenance tests: 261/261 PASS (was 260/261)
+- **Provenance comments**: Documented analytical derivations for all hardcoded expected values in tests (`band_structure`, `multisignal`, `bistable`, `seismic`)
+- **Named constants**: Extracted inline Tikhonov regularization strengths to `LAMBDA_NOISELESS`, `LAMBDA_NOISY`, `LAMBDA_PARITY` in `spectral_recon.rs` and `validate_gpu_tier/spectral.rs`
+
+#### Documentation
+- **Root docs**: Updated README (35 experiments, 395/395, V88 status), CONTRIBUTING (34 modules), CONTROL_EXPERIMENT_STATUS (93 delegations), specs/README
+- **whitePaper**: Updated baseCamp README, neuralAPI status, CROSS_SPRING_EVOLUTION date, experiments README
+- **wateringHole**: New "What This Is" and "Conventions" sections, naming convention aligned to actual pattern, V88 handoff
+- **Archive**: 6 local + 9 ecoPrimals wateringHole superseded handoffs moved to archive/
+- **gen3 baseCamp**: Updated groundSpring version to V88 with structured logging and provenance schema
+
+#### Handoff
+- **New**: `GROUNDSPRING_V88_DEEP_AUDIT_EVOLUTION_HANDOFF_MAR06_2026.md` — full codebase audit results, PRNG alignment roadmap, test coverage gaps, evolution requests for barraCuda/toadStool/coralReef
+- **Copied** to `ecoPrimals/wateringHole/handoffs/`
+
+#### Validation
+- 824+ tests pass, 0 failures
+- `cargo fmt` + `cargo clippy --workspace -- -D warnings` + `cargo doc` all clean
+- 261/261 Python provenance tests pass
+
 ### V87 Tier B Resolution + Cross-Spring Delegation Completion (Mar 6, 2026)
 
 #### New Delegations

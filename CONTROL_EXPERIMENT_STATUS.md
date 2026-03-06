@@ -601,7 +601,7 @@ Each experiment is validated at three hardware tiers:
 | 33 | Tissue Anderson 4D + Wegner RG | **29/29 PASS** | **Wired** | Workload | `anderson_4d` + `wegner_block_4d` (V68) |
 
 **CPU tier**: 395/395 PASS (34 binaries, complete)
-**GPU tier**: 25 of 34 papers have GPU wiring (76%). 91 delegations (54 CPU + 37 GPU). 30/30 metalForge parity.
+**GPU tier**: 25 of 34 papers have GPU wiring (76%). 93 delegations (56 CPU + 37 GPU). 30/30 metalForge parity.
 **metalForge tier**: 30 workloads, 187 checks (57 mixed-hardware). Exp 028 NPU 9/9 PASS (AKD1000 DMA). GPU→NPU→CPU pipeline dispatch validated.
 
 ### BarraCUDA Integration Status (V85 — toadStool S96c, coralReef `849fedd`)
@@ -800,7 +800,7 @@ Python (interpreted)     107.1s   ─── math correctness (open data + open s
 Rust (compiled)           20.5s   ─── pure safe Rust, same math (28/28 parity)
   │  ~0% overhead                     395/395 validation checks (34 experiments)
 barracuda-CPU             22.8s   ─── delegation proves portability (30/30 parity)
-  │  2.2× faster                     91 delegations (54 CPU + 37 GPU)
+  │  2.2× faster                     93 delegations (56 CPU + 37 GPU)
 barracuda-GPU              9.8s   ─── GPU proves the math is truly portable
   │                                    47.4× peak (hotSpring Sturm eigensolver)
   │                                    ToadStool unidirectional streaming

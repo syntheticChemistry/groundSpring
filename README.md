@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: March 6, 2026 | **License**: AGPL-3.0-only
-**Status**: 34 modules, 824 Rust workspace tests + 672 coralReef tests + 390 Python tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), 93 active barracuda delegations (56 CPU + 37 GPU) — barraCuda v0.3.3+ (`e1184f3+1`), toadStool S96c (`d77fc546`), coralReef Phase 6 (`849fedd`). V85: coralReef sovereign compilation — 2 critical CFG/RA bugs fixed, f64 shared-memory reduction shaders now compile to native SM70 (Titan V) and SM89 (RTX 4070) binaries (the exact pattern that fails through naga/SPIR-V/NVK). 6/6 shader compilation (basic f64 through 8-step unrolled reduction). Gap to execution: coralDriver (Phase 7). V84: GPU validation — DF64/tensor/FHE green, f64 reduction returns 0 via wgpu (naga shared memory issue). CPU path 824/824 green. 30 metalForge workloads, biomeOS Neural API live, NestGate data pipelines
+**Status**: V88 — 34 modules, 35 experiments, 824+ Rust workspace tests + 261 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks, 93 active barracuda delegations (56 CPU + 37 GPU) — barraCuda v0.3.3+ (`e1184f3`), toadStool S96c (`d77fc546`), coralReef Phase 6 (`849fedd`). `log` crate for structured logging, formal provenance schema (`specs/PROVENANCE_SCHEMA.md`), auto-discovery benchmark drift guard, all inline magic numbers documented. `cargo fmt` + `cargo clippy --workspace -- -D warnings` + `cargo doc` + `cargo test --workspace` all clean. Zero TODO/FIXME/unsafe/unwrap in production
 
 **The gap between what models predict and what instruments measure.**
 
@@ -62,8 +62,9 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | 031: NUCLEUS Stack | Infrastructure | — | 28/28 PASS | Full NUCLEUS primal validation: Tower + Node + Squirrel + Nest |
 | 032: IRIS Seismic | Geological (IRIS) | — | 12/12 PASS | IRIS FDSN station geometry + travel times via NestGate |
 | 033: Tissue Anderson | Immunological (Paper 12) | — | 29/29 PASS | Cytokine Anderson lattice + geometry-aware drug scoring |
+| 034: ET₀ Methods | Agricultural (FAO-56) | 15/15 PASS | 19/19 PASS | 5-method ET₀ cross-validation: PM, Hargreaves, Makkink, Turc, Hamon |
 
-**Phase 1 total: 376/376 PASS across 33 validation binaries** (321 core + 55 NUCLEUS via `--features biomeos`).
+**Phase 1 total: 395/395 PASS across 34 validation binaries** (340 core + 55 NUCLEUS via `--features biomeos`).
 
 ## Library Modules
 

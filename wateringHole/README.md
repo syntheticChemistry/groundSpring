@@ -1,19 +1,26 @@
 # groundSpring wateringHole — Cross-Primal Handoffs
 
-**Purpose**: Handoff documents from groundSpring to ToadStool/BarraCUDA team,
-following the wateringHole inter-primal standard.
+**Purpose**: Unidirectional handoff documents from groundSpring to the
+toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
+inter-primal standard.
 
 **Last Updated**: March 6, 2026
+
+## What This Is
+
+groundSpring writes handoffs; toadStool/barraCuda/coralReef read them.
+Handoffs are unidirectional — no response expected. They document:
+delegation state, evolution requests, cross-spring learnings, and
+quality certificates. The toadStool/barraCuda team uses these to
+prioritize absorption, evolve primitives, and validate GPU parity.
 
 ## Active Handoffs
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V87 Tier B Resolution | [GROUNDSPRING_V87_TIER_B_RESOLUTION_HANDOFF_MAR06_2026.md](handoffs/GROUNDSPRING_V87_TIER_B_RESOLUTION_HANDOFF_MAR06_2026.md) | Mar 6, 2026 | Tier B resolution complete: 93 delegations (56 CPU + 37 GPU), 0 evolution candidates, multinomial_sample + anderson_potential wired, toadStool d77fc546 |
-| V85 toadStool/barraCuda Evolution | [GROUNDSPRING_V85_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR06_2026.md](handoffs/GROUNDSPRING_V85_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR06_2026.md) | Mar 6, 2026 | Comprehensive evolution handoff: f64 shared-memory failure analysis, coralReef sovereign compilation success, evolution requests for barraCuda (f64 fallback strategy, sovereign dispatch), toadStool (HardwareFingerprint extensions, f64 routing), coralReef (coralDriver, f64 instruction emission) |
-| V85 coralReef Sovereign | [CORALREEF_SOVEREIGN_COMPILATION_HANDOFF_MAR06_2026.md](handoffs/CORALREEF_SOVEREIGN_COMPILATION_HANDOFF_MAR06_2026.md) | Mar 6, 2026 | 2 critical coralReef bugs fixed (CFG edge loss + multi-pred RA merge), f64 shared-memory reduction shaders compile to native SM70/SM89 (6/6), coralDriver gap, BAR.SYNC encoding |
-| V84 GPU Validation | [GROUNDSPRING_V84_GPU_VALIDATION_HANDOFF_MAR06_2026.md](handoffs/GROUNDSPRING_V84_GPU_VALIDATION_HANDOFF_MAR06_2026.md) | Mar 6, 2026 | Dual-GPU probe (RTX 4070 + Titan V): DF64/tensor/FHE green, f64 reduction returns 0 (naga shared memory issue). CoralCompiler tokio fix. 17/32 GPU tests pass |
-| Sovereign Pipeline | [SOVEREIGN_PIPELINE_CROSS_PRIMAL_HANDOFF_MAR05_2026.md](handoffs/SOVEREIGN_PIPELINE_CROSS_PRIMAL_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | Cross-primal sovereign pipeline map: coralReef Phase 6, DF64 utilization strategy, vendor-agnostic IR roadmap |
+| V88 Deep Audit + Evolution | [GROUNDSPRING_V88_DEEP_AUDIT_EVOLUTION_HANDOFF_MAR06_2026.md](handoffs/GROUNDSPRING_V88_DEEP_AUDIT_EVOLUTION_HANDOFF_MAR06_2026.md) | Mar 6, 2026 | Full codebase audit, structured logging, provenance schema, auto-discovery drift guard, PRNG alignment roadmap, coverage gaps, evolution requests |
+| V87 Tier B Resolution | [GROUNDSPRING_V87_TIER_B_RESOLUTION_HANDOFF_MAR06_2026.md](handoffs/GROUNDSPRING_V87_TIER_B_RESOLUTION_HANDOFF_MAR06_2026.md) | Mar 6, 2026 | Tier B resolution complete: 93 delegations (56 CPU + 37 GPU), multinomial_sample + anderson_potential wired |
+| Sovereign Pipeline | [SOVEREIGN_PIPELINE_CROSS_PRIMAL_HANDOFF_MAR05_2026.md](handoffs/SOVEREIGN_PIPELINE_CROSS_PRIMAL_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | Cross-primal sovereign pipeline map: coralReef Phase 6, DF64 utilization strategy |
 
 ## Cross-Spring Documentation
 
@@ -21,22 +28,15 @@ following the wateringHole inter-primal standard.
 |----------|---------|
 | [CROSS_SPRING_SHADER_EVOLUTION.md](CROSS_SPRING_SHADER_EVOLUTION.md) | How hotSpring, wetSpring, and neuralSpring evolved barraCuda into what groundSpring delegates to |
 
-## Canonical Location
+## Conventions
 
-The authoritative copy of each handoff also lives at
-`ecoPrimals/wateringHole/handoffs/GROUNDSPRING_TOADSTOOL_V{N}_*.md` (the shared
-ecoPrimals wateringHole). This local copy is for convenience
-and groundSpring-centric context.
+**Naming**: `GROUNDSPRING_V{N}_{TOPIC}_HANDOFF_{MON}{DD}_{YYYY}.md`
 
-## Naming Convention
+**Flow**: groundSpring → barraCuda / toadStool / coralReef (unidirectional)
 
-```
-GROUNDSPRING_BARRACUDA_V{N}_{TOPIC}_{DATE}.md
-```
+**Canonical location**: Also copied to `ecoPrimals/wateringHole/handoffs/`.
 
-## Archive
-
-Superseded handoffs are moved to `handoffs/archive/`.
+**Archive**: Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|

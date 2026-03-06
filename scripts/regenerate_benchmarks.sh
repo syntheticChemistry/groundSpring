@@ -38,69 +38,34 @@ echo "  Date: $TODAY"
 echo "================================================================"
 echo ""
 
-BENCHMARKS=(
-    "control/sensor_noise/benchmark_sensor_noise.json"
-    "control/observation_gap/benchmark_observation_gap.json"
-    "control/error_propagation/benchmark_error_propagation.json"
-    "control/sequencing_noise/benchmark_sequencing_noise.json"
-    "control/seismic/benchmark_seismic.json"
-    "control/signal_specificity/benchmark_signal_specificity.json"
-    "control/rawr_resampling/benchmark_rawr_resampling.json"
-    "control/anderson_localization/benchmark_anderson_localization.json"
-    "control/quasiperiodic/benchmark_quasiperiodic.json"
-    "control/bistable_switching/benchmark_bistable.json"
-    "control/multisignal_qs/benchmark_multisignal.json"
-    "control/spin_transport/benchmark_spin_transport.json"
-    "control/resampling_convergence/benchmark_resampling_convergence.json"
-    "control/drift_selection/benchmark_drift_selection.json"
-    "control/uncertainty_bridge/benchmark_uncertainty_bridge.json"
-    "control/rare_biosphere/benchmark_rare_biosphere.json"
-    "control/quasispecies_threshold/benchmark_quasispecies.json"
-    "control/band_edge/benchmark_band_edge.json"
-    "control/jackknife_estimation/benchmark_jackknife.json"
-    "control/freeze_out_inverse/benchmark_freeze_out.json"
-    "control/spectral_recon/benchmark_spectral_recon.json"
-    "control/et0_anderson_propagation/benchmark_et0_anderson.json"
-    "control/notill_sampling/benchmark_notill_sampling.json"
-    "control/aggregate_stability/benchmark_aggregate_stability.json"
-    "control/precision_drift/benchmark_precision_drift.json"
-    "control/size_convergence/benchmark_size_convergence.json"
-    "control/vendor_parity/benchmark_vendor_parity.json"
-    "control/npu_anderson/benchmark_npu_anderson.json"
-    "control/et0_methods/benchmark_et0_methods.json"
-)
+# Auto-discover all benchmark JSONs and their companion Python scripts.
+# Each control/<experiment>/benchmark_*.json is paired with the Python
+# script listed in its _provenance.validation_script field.
+mapfile -t BENCHMARKS < <(find control -name 'benchmark_*.json' -type f | sort)
 
-BASELINES=(
-    "python3 control/sensor_noise/sensor_noise_decomposition.py"
-    "python3 control/observation_gap/observation_gap.py"
-    "python3 control/error_propagation/error_propagation_fao56.py"
-    "python3 control/sequencing_noise/sequencing_noise.py"
-    "python3 control/seismic/seismic_inversion.py"
-    "python3 control/signal_specificity/signal_specificity.py"
-    "python3 control/rawr_resampling/rawr_resampling.py"
-    "python3 control/anderson_localization/anderson_localization.py"
-    "python3 control/quasiperiodic/quasiperiodic_localization.py"
-    "python3 control/bistable_switching/bistable_switching.py"
-    "python3 control/multisignal_qs/multisignal_qs.py"
-    "python3 control/spin_transport/spin_chain_transport.py"
-    "python3 control/resampling_convergence/resampling_convergence.py"
-    "python3 control/drift_selection/drift_selection.py"
-    "python3 control/uncertainty_bridge/uncertainty_bridge.py"
-    "python3 control/rare_biosphere/rare_biosphere.py"
-    "python3 control/quasispecies_threshold/quasispecies_threshold.py"
-    "python3 control/band_edge/band_edge.py"
-    "python3 control/jackknife_estimation/jackknife_estimation.py"
-    "python3 control/freeze_out_inverse/freeze_out_inverse.py"
-    "python3 control/spectral_recon/spectral_recon.py"
-    "python3 control/et0_anderson_propagation/et0_anderson_propagation.py"
-    "python3 control/notill_sampling/notill_sampling.py"
-    "python3 control/aggregate_stability/aggregate_stability.py"
-    "python3 control/precision_drift/precision_drift.py"
-    "python3 control/size_convergence/size_convergence.py"
-    "python3 control/vendor_parity/vendor_parity.py"
-    "python3 control/npu_anderson/npu_anderson.py"
-    "python3 control/et0_methods/et0_methods.py"
-)
+if [[ ${#BENCHMARKS[@]} -eq 0 ]]; then
+    echo "ERROR: No benchmark JSONs found under control/"
+    exit 1
+fi
+
+BASELINES=()
+for bench in "${BENCHMARKS[@]}"; do
+    script="$(python3 -c "
+import json, sys
+with open('$bench') as f:
+    d = json.load(f)
+cmd = d.get('_provenance', {}).get('command', '')
+if not cmd:
+    script = d.get('_provenance', {}).get('validation_script', '')
+    cmd = 'python3 ' + script if script else ''
+print(cmd)
+")"
+    if [[ -z "$script" ]]; then
+        echo "WARNING: No command in _provenance for $bench — skipping"
+        continue
+    fi
+    BASELINES+=("$script")
+done
 
 echo "--- Phase 1: Re-run all Python baselines ---"
 echo ""

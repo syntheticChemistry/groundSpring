@@ -14,6 +14,7 @@
   },
   "_description": "5-method ET\u2080 cross-validation: PM, Hargreaves, Makkink, Turc, Hamon",
   "_groundspring_question": "Do simplified ET\u2080 methods (fewer inputs) agree with the full Penman-Monteith equation chain?",
+  "_doi": "10.1016/S0378-3774(98)00053-4",
   "_references": [
     "Allen et al. (1998) FAO-56",
     "Makkink (1957) Neth J Agr Sci 5:290-305",

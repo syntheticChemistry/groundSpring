@@ -9,6 +9,10 @@ use groundspring::tol;
 use groundspring_forge::harness::Harness;
 use std::time::Instant;
 
+/// Tikhonov regularization strengths (λ): algorithm parameters, not tolerances.
+const LAMBDA_NOISY: f64 = 1e-6;
+const LAMBDA_PARITY: f64 = 1e-8;
+
 /// Run all spectral-domain parity checks.
 pub fn validate_all(h: &mut Harness) {
     validate_anderson_spectral_parity(h);
@@ -100,8 +104,10 @@ fn validate_spectral_recon_parity(h: &mut Harness) {
     let n_tau = n_tau as usize;
     let n_omega = n_omega as usize;
 
-    let rho = groundspring::spectral_recon::tikhonov_solve(&kernel, &g, 1e-6, n_tau, n_omega);
-    let rho2 = groundspring::spectral_recon::tikhonov_solve(&kernel, &g, 1e-6, n_tau, n_omega);
+    let rho =
+        groundspring::spectral_recon::tikhonov_solve(&kernel, &g, LAMBDA_NOISY, n_tau, n_omega);
+    let rho2 =
+        groundspring::spectral_recon::tikhonov_solve(&kernel, &g, LAMBDA_NOISY, n_tau, n_omega);
 
     println!("  n_tau={n_tau}, n_omega={n_omega}, rho[0]={:.6}", rho[0]);
 
@@ -130,7 +136,8 @@ fn validate_cholesky_gpu_parity(h: &mut Harness) {
     let g = groundspring::spectral_recon::forward_correlator(&kernel, &rho_true, n_tau, n_omega);
 
     let t0 = Instant::now();
-    let rho_rec = groundspring::spectral_recon::tikhonov_solve(&kernel, &g, 1e-8, n_tau, n_omega);
+    let rho_rec =
+        groundspring::spectral_recon::tikhonov_solve(&kernel, &g, LAMBDA_PARITY, n_tau, n_omega);
     let us = t0.elapsed().as_micros();
 
     let g_rec = groundspring::spectral_recon::forward_correlator(&kernel, &rho_rec, n_tau, n_omega);
@@ -142,7 +149,8 @@ fn validate_cholesky_gpu_parity(h: &mut Harness) {
     h.check("Cholesky RMSE < RECONSTRUCTION", rmse < tol::RECONSTRUCTION);
     h.check("Cholesky peak near 2.5", (omega[peak] - 2.5).abs() < 1.0);
 
-    let rho2 = groundspring::spectral_recon::tikhonov_solve(&kernel, &g, 1e-8, n_tau, n_omega);
+    let rho2 =
+        groundspring::spectral_recon::tikhonov_solve(&kernel, &g, LAMBDA_PARITY, n_tau, n_omega);
     h.check(
         "Cholesky deterministic",
         rho_rec

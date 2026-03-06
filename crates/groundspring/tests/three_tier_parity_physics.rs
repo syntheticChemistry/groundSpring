@@ -111,6 +111,9 @@ fn transport_eigh_parity_2x2() {
 
 #[test]
 fn seismic_haversine_parity() {
+    // NYC (40.7128°N, 74.0060°W) → London (51.5074°N, 0.1278°W) ≈ 5570 km.
+    // Reference: great-circle distance via WGS-84 ellipsoid ≈ 5570 km.
+    // Tolerance 50 km: haversine uses spherical Earth (R = 6371 km).
     let d = groundspring::seismic::haversine_km(40.7128, -74.0060, 51.5074, -0.1278);
     assert!((d - 5570.0).abs() < 50.0);
 }

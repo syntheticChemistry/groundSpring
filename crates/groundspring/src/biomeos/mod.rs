@@ -298,7 +298,7 @@ pub fn register_capabilities(socket: &Path) -> Result<usize> {
         match capability_call_value(socket, "capability.register", &args) {
             Ok(_) => registered += 1,
             Err(e) => {
-                eprintln!("warn: failed to register {cap}: {e}");
+                log::warn!("failed to register {cap}: {e}");
             }
         }
     }

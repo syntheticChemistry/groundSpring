@@ -558,6 +558,7 @@ dependencies = [
  "barracuda",
  "bingocube-nautilus",
  "bytemuck",
+ "log",
  "proptest",
  "serde",
  "serde_json",
@@ -574,6 +575,7 @@ dependencies = [
  "barracuda",
  "bytemuck",
  "groundspring",
+ "log",
  "serde_json",
  "wgpu",
 ]

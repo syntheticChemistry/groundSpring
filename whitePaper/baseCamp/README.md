@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: March 6, 2026
 
-**Validation Summary**: 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), **93 active delegations (56 CPU + 37 GPU) — barraCuda `e1184f3`, toadStool S96c (`d77fc546`), coralReef `849fedd`**. 824 workspace tests + 672 coralReef tests + 390 Python tests. All 35 experiments PASS. **29/29 mathematical parity proven**. 97.25% library line coverage. Zero clippy warnings (pedantic + nursery, -D warnings), zero unsafe, zero TODO, zero `.unwrap()` in production lib, zero production mocks, all files < 1000 lines. V85: coralReef sovereign compilation — 2 critical CFG/RA bugs fixed, f64 shared-memory reduction shaders compile to native SM70/SM89 binaries (6/6), bypassing the naga/SPIR-V/NVK pipeline that returns 0. V84: dual-GPU probe (RTX 4070 + Titan V), DF64 green, CoralCompiler tokio fix. Deep debt zero maintained. Paper 12 Exp 033 (29/29): cytokine Anderson lattice + geometry-aware drug scoring. 10 domains, 34 modules.
+**Validation Summary**: V88 — 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks, **93 active delegations (56 CPU + 37 GPU) — barraCuda `e1184f3`, toadStool S96c (`d77fc546`), coralReef `849fedd`**. 824+ workspace tests + 261 Python provenance tests. All 35 experiments PASS. **29/29 mathematical parity proven**. Zero clippy warnings (pedantic + nursery), zero unsafe, zero TODO, zero `.unwrap()` in production, all files < 1000 lines. Structured logging (`log` crate), formal provenance schema, auto-discovery drift guard. 10 domains, 34 modules.
 
 ---
 

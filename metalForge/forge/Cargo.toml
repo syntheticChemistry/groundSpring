@@ -15,6 +15,7 @@ npu = ["groundspring/npu"]
 biomeos = ["groundspring/biomeos"]
 
 [dependencies]
+log = "0.4"
 groundspring = { path = "../../crates/groundspring" }
 barracuda = { path = "../../../barraCuda/crates/barracuda", features = ["gpu"] }
 wgpu = { version = "28", default-features = false, features = [

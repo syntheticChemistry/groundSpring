@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
-**Last Updated**: March 5, 2026
-**Status**: Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 93 delegations (56 CPU + 37 GPU) — barraCuda `e1184f3`, toadStool S96c (d77fc546), 824+ workspace tests, 100+ three-tier parity tests, 187 metalForge checks, biomeOS Neural API live (Tower + Node + Squirrel validated), NestGate data pipelines (NCBI, NOAA, IRIS), 34 experiments, 34 modules
+**Last Updated**: March 6, 2026
+**Status**: V88 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 93 delegations (56 CPU + 37 GPU) — barraCuda `e1184f3`, toadStool S96c (d77fc546), 824+ workspace tests, 261 provenance tests, 100+ three-tier parity tests, 187 metalForge checks, 35 experiments, 34 modules
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -11,9 +11,9 @@
 | Metric | Value |
 |--------|-------|
 | Phase 0 (Python) | 28/28 experiments PASS across 9 scientific domains (~288 checks) |
-| Phase 1 (Rust) | 376/376 PASS — 33 validation binaries (321 core + 55 NUCLEUS) |
+| Phase 1 (Rust) | 395/395 PASS — 34 validation binaries (340 core + 55 NUCLEUS) |
 | Phase 4 (NUCLEUS) | 55/55 PASS — 4 NUCLEUS validation binaries (Exp 029–032) |
-| Total Validation | 376/376 PASS across 33 experiments |
+| Total Validation | 395/395 PASS across 34 experiments |
 | Mathematical Parity | 28/28 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
 | Rust tests | 824 workspace + 375 Python = 1199+ total |
 | metalForge | 2 production WGSL shaders (anderson_lyapunov, anderson_lyapunov_f32) |
@@ -62,6 +62,7 @@
 
 | Spec | Status | Description |
 |------|--------|-------------|
+| [PROVENANCE_SCHEMA.md](PROVENANCE_SCHEMA.md) | Active | Benchmark JSON provenance schema — required/optional fields, enforcement |
 | [PAPER_REVIEW_QUEUE.md](PAPER_REVIEW_QUEUE.md) | Active | Papers to review/reproduce, prioritized by tier |
 | [BARRACUDA_REQUIREMENTS.md](BARRACUDA_REQUIREMENTS.md) | Active | GPU kernel requirements and gap analysis |
 | [BARRACUDA_EVOLUTION.md](BARRACUDA_EVOLUTION.md) | Active | Module → GPU promotion mapping (Tier A/B/C) |

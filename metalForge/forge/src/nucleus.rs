@@ -27,8 +27,8 @@ pub fn discover_uid() -> String {
             }
         }
     }
-    eprintln!(
-        "WARNING: UID discovery failed ($UID unset, /proc/self/status unreadable). \
+    log::warn!(
+        "UID discovery failed ($UID unset, /proc/self/status unreadable). \
          Falling back to UID 1000. Set $UID or $BIOMEOS_SOCKET_DIR to override."
     );
     String::from("1000")
