@@ -71,15 +71,15 @@ ToadStool S94b completed full primal decoupling. Key findings:
 
 No action needed — groundSpring already correctly depends on standalone barraCuda.
 
-### 5. coralNAK Ecosystem Awareness
+### 5. coralReef Ecosystem Awareness
 
-New ecosystem primal at `ecoPrimals/coralNAK/` — sovereign Rust NVIDIA
+New ecosystem primal at `ecoPrimals/coralReef/` — sovereign Rust
 shader compiler (Mesa NAK fork). Phase 2: NAK sources wired, 17 compile
 errors remaining. groundSpring is assigned Level 4 work (userspace GPU
 driver, memory management, command buffer builder) per
 `wateringHole/SOVEREIGN_COMPUTE_EVOLUTION.md`.
 
-No immediate action — coralNAK is in early phases.
+No immediate action — coralReef is in early phases.
 
 ---
 

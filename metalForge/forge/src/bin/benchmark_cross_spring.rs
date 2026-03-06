@@ -552,12 +552,12 @@ fn print_evolution_timeline() {
     println!("  ├─ barraCuda v0.3.3 → TensorContext pooled buffers for stats ops");
     println!("  ├─ barraCuda v0.3.2 → 3 new ET₀ ops (Makkink, Turc, Hamon) from airSpring");
     println!("  ├─ toadStool S94b ──→ full primal decoupling, barraCuda standalone");
-    println!("  ├─ groundSpring V78 → fused mean_and_std_dev replaces 2-dispatch pattern");
-    println!("  └─ groundSpring V78 → 3 new ET₀ delegations from airSpring lineage\n");
+    println!("  ├─ groundSpring V80 → fused correlation_full GPU, Welford single-pass CPU");
+    println!("  └─ groundSpring V81 → BootstrapMeanGpu, coralReef sovereign compiler\n");
 
-    println!("  Current state: barraCuda v0.3.3, 845+ WGSL shaders, DF64 15-op precision tiers");
+    println!("  Current state: barraCuda a4c20a5, 845+ WGSL shaders, DF64 precision tiers");
     println!(
-        "  groundSpring: 84 delegations (50 CPU + 34 GPU), 806 tests, wgpu 28, deep debt zero"
+        "  groundSpring: 88 delegations (51 CPU + 37 GPU), 812+ tests, wgpu 28, deep debt zero"
     );
 }
 

@@ -2,8 +2,8 @@
 
 **Date**: March 5, 2026
 **From**: groundSpring V80b
-**To**: barraCuda, toadStool, coralNAK teams
-**Purpose**: Map the sovereign pipeline, identify gaps, accelerate coralNAK
+**To**: barraCuda, toadStool, coralReef teams
+**Purpose**: Map the sovereign pipeline, identify gaps, accelerate coralReef
 
 ---
 
@@ -64,21 +64,31 @@ WGSL shader source
 
 ## The Sovereignty Gap
 
-### Philosophy: Eliminate the concept of vendors
+### Philosophy: Eliminate friction, not teams
 
-The long-term vision is not "support multiple vendors" — it is to make the
-concept of GPU vendors irrelevant to the compilation pipeline. Today, every GPU
-goes through a vendor-specific compiler (PTXAS for NVIDIA, ACO for AMD, ANV for
-Intel). coralNAK aims to replace **all** of them with a single sovereign Rust
-compiler that has pluggable ISA backends. The IR, optimizations, f64 lowering
-strategy selection, and scheduling are vendor-agnostic. Only the final
-instruction encoding step knows which hardware it targets — and even that is a
-table-driven process, not a separate codebase.
+The goal is not to replace Mesa's compiler teams — it is to give them a better
+foundation. NAK, ACO, and ANV developers are ISA experts. They know scheduling,
+register allocation, and instruction encoding deeply. What they spend too much
+time on is C build systems, memory bugs, vendor detection boilerplate, and
+precision guesswork.
 
-This also means coralNAK replaces the Mesa C build system and its C dependencies
-entirely — not just for NVIDIA, but for AMD and Intel as well. Mesa's ACO, ANV,
-and NAK are reference implementations to learn from, but the goal is a single
-pure-Rust compiler that makes all three obsolete for compute workloads.
+coralReef provides a pure-Rust compiler stack with:
+- **Working IR, optimizer, and register allocator** — the infrastructure is done
+- **Validated precision** — 11,161+ checks across 70+ papers, documented ULP budgets
+- **DF64 three-tier precision** — every card is useful, no hardware left idle
+- **Entire classes of bugs eliminated** — Rust ownership, no C FFI, no memory corruption
+- **AGPL-3.0** — stays open, nobody forks it proprietary
+
+The pitch to ISA experts: adopt Rust and these scientific standards, and you
+spend all your time on the fun math and optimizations, none on whether you
+have the right hardware or the right build system. coralReef handles the
+vendor-agnostic IR, precision strategy, and validation pipeline. You bring
+ISA knowledge and make your backend sing.
+
+The architecture makes this natural: vendor-agnostic optimization passes
+are shared, and only the final instruction encoding is backend-specific.
+An AMD developer adds RDNA/CDNA encoding tables. An Intel developer adds
+Xe EU encoding. They reuse everything else.
 
 ### Problem: The Titan V is the most valuable GPU but can't be used
 
@@ -94,94 +104,142 @@ But it's on nouveau, and NVK's NAK compiler:
 Bind Titan V to the proprietary nvidia driver (both GPUs on same driver).
 This gives full f64 + DF64 hybrid on consumer GPU — but requires proprietary software.
 
-### Sovereign fix (coralNAK)
+### Sovereign fix (coralReef)
 
 ```
-barraCuda (future):  WGSL → naga → coral-nak → native binary → coralDriver → GPU
+barraCuda (future):  WGSL → naga → coral-reef → native binary → coralDriver → GPU
 ```
 
 This eliminates NAK, NVK, and nouveau from the pipeline entirely.
 
 ---
 
-## coralNAK Status and Critical Path
+## coralReef Status (Phases 1–5 Complete)
 
-### Current state (Phase 2 complete)
+### Current state (as of March 5, 2026 — commit 2e89541)
 
-- **183 tests**, 0 errors, `cargo check` clean
-- NAK sources (72 files, 51K LOC) compile against Rust stubs
-- 12 Mesa stub modules evolved to real implementations
-- SM20–SM120 instruction encoders compiled
-- ISA tables, latency models, SPH generation in place
-- **Missing**: SPIR-V frontend, f64 lowering, userspace driver
+- **390 tests**, 0 failures, 2 ignored
+- **Phases 1–5 all complete** — sovereign Rust compiler, no Mesa C dependencies
+- **Rename complete**: `coralNAK` → `coralReef` across all crates, dirs, and docs
+- `cargo check`, `cargo clippy -D warnings`, `cargo fmt --check`, `cargo doc` — all PASS
+- 37.1% line / 44.9% function coverage (structural floor from encoder match arms)
+- 0 files > 1000 LOC (all oversized files smart-refactored by algorithm/concern)
 
-### Phase roadmap
+### Spring absorption (commit 567e3e6)
 
-| Phase | Status | What it enables | Effort |
-|-------|--------|-----------------|--------|
-| 2 — Wire NAK | **Complete** | NAK compiles in pure Rust | Done |
-| 3 — SPIR-V frontend | Not started | End-to-end shader compilation | Medium |
-| 4 — f64 lowering | Not started | **Sovereign f64 transcendentals** | Medium |
-| 5 — Standalone | In progress | Remove all Mesa deps | Low |
-| 6 — coralDriver | Not started | Userspace GPU submission | High |
+coralReef has been actively absorbing patterns from ecoPrimals springs:
 
-### Phase 3: SPIR-V frontend (critical path)
+| Pattern | Source | Applied in |
+|---------|--------|------------|
+| `HashMap` → `BTreeMap` (deterministic serialization) | groundSpring V73 tolerance arch | `health.rs` |
+| `unsafe unwrap_unchecked` → safe `unwrap()` | groundSpring CONTRIBUTING | `builder/mod.rs` |
+| Silent-default `unwrap_or(0)` → direct cast | groundSpring V76 "silent defaults are bugs" | `program.rs` |
+| Hardcoded `/tmp/` → `std::env::temp_dir()` | ecoPrimals sovereignty standard | `opt_instr_sched_common.rs` |
+| Cross-spring provenance doc-comments | CROSS_SPRING_SHADER_EVOLUTION | `lower_f64/` |
 
-- Add `from_spirv.rs` — translate naga SPIR-V → coral-nak IR
-- Wire into `compile()` (currently returns `NotImplemented`)
-- End-to-end test: SPIR-V compute shader → native binary
-- **Dependency**: naga 24 (already a dev-dependency)
+### Smart refactoring (commit 2e89541)
 
-### Phase 4: f64 lowering (the sovereignty-enabling phase)
+Three files at the 1000 LOC ceiling split by algorithm/concern (not mechanical):
 
-Per `F64_LOWERING_THEORY.md`, lowering strategies using DFMA hardware:
+| Before | After | Strategy |
+|--------|-------|----------|
+| `poly.rs` (998 LOC) | `poly/{mod,exp2,log2,trig}.rs` (129+182+142+349) | Split by algorithm family |
+| `opt_copy_prop.rs` (998 LOC) | `opt_copy_prop/{mod,types,tests}.rs` (688+51+264) | Extracted types + tests |
+| `func.rs` (986 LOC) | `func.rs` (590) + `func_builtins.rs` (163) + `func_math.rs` (247) | Extracted builtin resolution + math translation |
 
-| Function | Strategy | ULP budget |
-|----------|----------|------------|
-| `sqrt(f64)` | `MUFU.RSQ64H` seed + 2 Newton iterations via DFMA | ≤ 1 |
-| `rcp(f64)` | `MUFU.RCP64H` seed + 2 Newton iterations via DFMA | ≤ 1 |
-| `exp2(f64)` | Integer/fraction split + degree-6 minimax polynomial | ≤ 2 |
-| `log2(f64)` | Exponent extraction + `MUFU.LOG2(f32)` + Newton refinement | ≤ 2 |
-| `sin/cos(f64)` | Cody-Waite range reduction + degree-7 minimax polynomial | ≤ 4 |
+Panic evolution in IR types:
+- `StCacheOp::select` store-to-constant `panic!` → `debug_assert` + safe fallback (`WriteThrough`)
+- `AtomType::F/U/I` constructors `panic!` → `Option<AtomType>` (callers handle `None`)
 
-### Phase 6: coralDriver (full sovereignty)
+### Phase completion summary
 
-- Userspace GPU driver (no kernel-mode driver needed beyond basic DRM)
-- Memory management (coralMem)
-- Command buffer builder and submission (coralQueue)
-- **groundSpring is assigned Level 4 work** per `SOVEREIGN_COMPUTE_EVOLUTION.md`
+| Phase | Status | What was delivered |
+|-------|--------|-------------------|
+| 1 — Scaffold | **Complete** | NAK extracted (72 files), stub crate, ISA crate |
+| 1.5 — Foundation | **Complete** | UniBin, JSON-RPC 2.0 IPC, AGPL-3.0, capability discovery |
+| 2 — Wire NAK | **Complete** | Full pipeline compiles in pure Rust |
+| 2.5–2.9 — Refactor | **Complete** | All files split < 1000 LOC, 8.7K dead code removed |
+| 3 — naga Frontend | **Complete** | `from_spirv/` (2,530 LOC): WGSL/SPIR-V → NAK SSA IR |
+| 3.5 — Deep Debt | **Complete** | 4 legacy FFI stubs deleted, Result propagation, zero-copy IPC |
+| 4 — f64 Lowering | **Complete** | `lower_f64/` (1,557 LOC): all 6 transcendentals via DFMA |
+| 4.5 — Error Safety | **Complete** | Pipeline fully fallible, 36 panics evolved to Result |
+| 5 — Standalone | **Complete** | All 7 stub modules evolved to pure Rust (including QMD for Kepler–Blackwell) |
+
+### f64 transcendental precision (delivered)
+
+| Function | Strategy | Precision |
+|----------|----------|-----------|
+| `sqrt(f64)` | `MUFU.RSQ64H` seed + 2 Newton-Raphson via DFMA | Full f64 |
+| `rcp(f64)` | `MUFU.RCP64H` seed + 2 Newton-Raphson via DFMA | Full f64 |
+| `exp2(f64)` | Range reduction + degree-6 Horner polynomial + ldexp | Full f64 |
+| `log2(f64)` | `MUFU.LOG2` seed + Newton refinement (EX2/RCP correction) | ~46-bit |
+| `sin(f64)` | Cody-Waite reduction + minimax polynomial + quadrant correction | Full domain |
+| `cos(f64)` | Cody-Waite reduction + minimax polynomial + quadrant correction | Full domain |
+
+### End-to-end pipeline (now working)
+
+```
+WGSL source → parse_wgsl() → naga Module
+    → from_spirv::translate() → NAK SSA IR (Shader)
+    → opt_copy_prop → opt_dce → opt_crs → opt_lop → opt_prmt
+    → opt_out → opt_jump_thread → opt_bar_prop → opt_uniform_instrs
+    → opt_instr_sched_prepass
+    → lower_f64_transcendentals (F64Sqrt → MUFU+Newton, etc.)
+    → legalize() → assign_regs() → lower_par_copies → lower_copy_swap
+    → assign_deps_serial → opt_instr_sched_postpass
+    → gather_info() → encode_shader()
+    → CompiledShader { header, code }
+```
+
+### What remains
+
+| Phase | Status | Description |
+|-------|--------|-------------|
+| 6 — coralDriver | Not started | Userspace GPU submission (DRM ioctl + memory mapping) |
+| 7 — coralGpu | Not started | Unified Rust GPU abstraction replacing wgpu |
+| Precision refinement | Future | log2 second Newton iteration (→ full f64), exp2 subnormal handling |
+| Vendor-agnostic IR | Future | Extract `coral-ir` for AMD/Intel/NPU backends (see below) |
+| naga 24 → 28 upgrade | Future | Evaluate for breaking changes |
+| barraCuda integration | Future | Replace `wgpu SPIR-V passthrough` with `coral-nak → coralDriver` |
+
+**groundSpring is assigned Level 4 work** (coralDriver, coralMem, coralQueue)
+per `SOVEREIGN_COMPUTE_EVOLUTION.md`.
 
 ---
 
 ## What Each Primal Contributes
 
-### barraCuda → coralNAK
+### barraCuda → coralReef
 
-| Asset | Location | How it helps |
-|-------|----------|--------------|
-| DF64 math implementations | `shaders/math/math_f64.wgsl` | Cody-Waite + minimax polynomials — direct source for Phase 4 coefficients |
-| DF64 transcendentals | `shaders/math/df64_transcendentals.wgsl` | 15 f64 functions with Lanczos/Horner patterns |
-| NAK workaround catalog | `device/driver_profile/workarounds.rs` | 5 documented NAK deficiencies to test against |
-| NAK stress-test shaders | `batched_eigh_nak_optimized_f64.wgsl` | Encode loop unrolling, spills, scheduling, FMA fusion issues |
-| f64 precision benchmarks | `bench_f64_builtins` | Validation targets for coralNAK f64 output |
-| DF64 naga rewriter | `df64_rewrite.rs` | Patterns for NAK compound-assignment bugs |
-| Driver profile system | `device/driver_profile/` | `GpuArch`, `Fp64Rate`, `Fp64Strategy` — coralNAK can reuse detection |
+coralReef has **already absorbed** the f64 polynomial strategies from Phase 4
+guidance. Remaining assets to share:
 
-### toadStool → coralNAK
+| Asset | Location | Status | How it helps |
+|-------|----------|--------|--------------|
+| DF64 math implementations | `shaders/math/math_f64.wgsl` | **Absorbed** — polynomial coefficients now in `lower_f64/poly.rs` | Cody-Waite + minimax already ported |
+| DF64 transcendentals | `shaders/math/df64_transcendentals.wgsl` | Partially absorbed | 15 f64 functions — coralReef covers 6, remaining useful for DF64-as-utilization-tier |
+| NAK workaround catalog | `device/driver_profile/workarounds.rs` | Still relevant | 5 documented NAK deficiencies — coralReef should verify it doesn't reproduce them |
+| NAK stress-test shaders | `batched_eigh_nak_optimized_f64.wgsl` | Still relevant | Test encoding: loop unrolling, spills, scheduling, FMA fusion |
+| f64 precision benchmarks | `bench_f64_builtins` | Still relevant | Validation targets for coralReef compiled f64 output vs PTXAS |
+| DF64 naga rewriter | `df64_rewrite.rs` | **Absorbed for NVIDIA path** | Pattern knowledge reusable for AMD/Intel DF64 backends |
+| Driver profile system | `device/driver_profile/` | Still relevant | `Fp64Rate`, `Fp64Strategy` → coralReef should adopt three-tier precision model |
+| DF64 utilization strategy | `Fp64Strategy::Concurrent` | **Key for all backends** | Three-tier precision (f32/DF64/f64) as hardware utilization strategy |
+
+### toadStool → coralReef
 
 | Asset | Location | How it helps |
 |-------|----------|--------------|
 | GPU adapter discovery | `capabilities.rs` | Enumerate GPUs, detect f64 support, workgroup limits |
-| `TOADSTOOL_GPU_ADAPTER` | `capabilities.rs` | Multi-GPU selection (coralNAK needs to target specific adapters) |
+| `TOADSTOOL_GPU_ADAPTER` | `capabilities.rs` | Multi-GPU selection (coralReef needs to target specific adapters) |
 | NPU dispatch traits | `npu_dispatch.rs` | Vendor-agnostic neuromorphic interface for future NPU compilation |
 | Latency models | `SOVEREIGN_COMPUTE.md` | SM70–SM89, RDNA2/3, Apple M, Intel Xe models |
 | Backend strategy | `strategy.rs` | `SovereignOnly` mode that refuses proprietary paths |
 
-### groundSpring → coralNAK
+### groundSpring → coralReef
 
 | Asset | Location | How it helps |
 |-------|----------|--------------|
-| Validation pipeline | 34 binaries, 395 checks | End-to-end validation targets for coralNAK-compiled shaders |
+| Validation pipeline | 34 binaries, 395 checks | End-to-end validation targets for coralReef-compiled shaders |
 | f64 precision baselines | Python controls + Rust match | Ground truth for f64 transcendental accuracy |
 | Mixed-hardware experience | metalForge | Real workloads spanning GPU + NPU + CPU |
 | Level 4 assignment | SOVEREIGN_COMPUTE_EVOLUTION | coralDriver, coralMem, coralQueue implementation |
@@ -189,21 +247,22 @@ Per `F64_LOWERING_THEORY.md`, lowering strategies using DFMA hardware:
 
 ---
 
-## coralNAK Architecture Evolution — Eliminating the Vendor Concept
+## coralReef Architecture Evolution — Eliminating the Vendor Concept
 
 ### Current state: NVIDIA-only IR
 
-Today coralNAK's IR is NVIDIA-specific:
+Today coralReef's IR is NVIDIA-specific:
 - `GpuArch` = SM70/75/80/86/89 (NVIDIA shader models only)
 - `MuFuOp` = NVIDIA-specific transcendental unit (Sin, Cos, Rcp64H...)
 - `RegFile` = NVIDIA register files (GPR, UGPR, Pred, Carry, Bar)
 - Encoders: `sm20/`, `sm32/`, `sm50/`, `sm70_encode/` — all NVIDIA instruction formats
 
-### Target state: Vendor-agnostic compilation
+### Target state: Vendor-agnostic foundation for ISA experts
 
-The goal is **one compiler, one IR, any GPU** — eliminating the concept of
-vendors from the compilation pipeline entirely. The architecture should mirror
-LLVM's approach (one IR, pluggable backends) but for GPU compute:
+The goal is **one IR, shared optimizations, pluggable backends** — so that ISA
+experts from any vendor can contribute encoding tables and scheduling heuristics
+without rebuilding the entire compiler stack. The architecture mirrors LLVM's
+model (shared IR + pluggable backends) but for GPU compute:
 
 ```
 WGSL / SPIR-V
@@ -267,11 +326,12 @@ inside vendor-specific types. The refactoring path:
    from AMD's (VGPR/SGPR/VCC) and Intel's (GRF). The vendor-agnostic IR uses
    virtual registers; the backend assigns to physical register files.
 
-#### Phase B: AMD backend
+#### Phase B: AMD backend — contribution surface for ACO developers
 
-AMD GPUs use a different ISA than NVIDIA:
+AMD GPUs use a different ISA. An ACO developer already knows this table — what
+coralReef gives them is a working IR/optimizer/RA to plug their knowledge into:
 
-| NVIDIA | AMD | Notes |
+| NVIDIA (done) | AMD (contribution target) | Notes |
 |--------|-----|-------|
 | SASS (SM70-120) | GCN / RDNA / CDNA ISA | Different instruction encoding |
 | MUFU (f32 transcendentals) | `v_rcp_f32`, `v_sqrt_f32` | Similar SFU but different encoding |
@@ -279,40 +339,66 @@ AMD GPUs use a different ISA than NVIDIA:
 | Warp size = 32 | Wave size = 32 or 64 | AMD supports both (wave32, wave64) |
 | GPR + UGPR | VGPR + SGPR | AMD uses scalar + vector split |
 
-Resources for AMD backend:
-- Mesa ACO compiler (MIT/open-source) — the AMD equivalent of NAK
-- LLVM AMDGPU backend — reference for instruction selection
-- AMD ISA documentation (publicly available for GCN, RDNA, CDNA)
+What an ACO contributor brings: encoding tables, wave32/64 scheduling, VGPR/SGPR
+allocation strategy. What coralReef already provides: IR, copy propagation, DCE,
+f64 lowering framework, DF64 three-tier precision, validation pipeline.
 
-#### Phase C: Intel backend
+#### Phase C: Intel backend — contribution surface for ANV developers
 
-Intel Xe GPUs use EU (Execution Unit) ISA:
+Same pattern. Intel Xe EU ISA is the encoding target:
 
-| NVIDIA | Intel | Notes |
+| NVIDIA (done) | Intel (contribution target) | Notes |
 |--------|-------|-------|
 | SASS | EU ISA | Register-based, different encoding |
 | Warp = 32 | SIMD8/16/32 | Variable SIMD width |
 | GPR (255) | GRF (128 × 256-bit) | Larger register file, different layout |
-| f64 1:2 (Volta) | f64 minimal | Consumer Intel has very limited f64 |
+| f64 1:2 (Volta) | f64 minimal | Consumer Intel has very limited f64 — DF64 is the primary precision path |
 
-Resources:
-- Mesa ANV/iris compiler (open-source)
-- Intel GPU ISA documentation (publicly available for Xe)
+What an ANV contributor brings: EU encoding, SIMD width selection, GRF layout.
+What they get for free: everything above the backend.
+
+### DF64: Utilization strategy, not workaround
+
+DF64 (double-float f32-pair arithmetic, ~48-bit mantissa) is **not** a
+workaround for hardware that lacks f64. It is a **core utilization strategy**:
+
+- **Every GPU has massive f32 core counts.** Most sit idle during f64 workloads
+  because native f64 units are scarce (1:2 at best on Volta/A100, 1:64 on
+  consumer NVIDIA, 1:16 on RDNA3).
+- **Most scientific compute needs more than f32 (24-bit) but not full f64
+  (53-bit).** DF64's ~48-bit mantissa covers the vast majority of real-world
+  precision requirements: climate models, correlation, hydrology, population
+  genetics.
+- **DF64 turns idle f32 cores into a precision pool.** On an RTX 4070 with
+  1:64 f64 rate, DF64 gets ~32x more throughput than native f64 while
+  delivering ~48-bit precision. On Volta with 1:2 f64, DF64 still provides a
+  second parallel pool of f32 cores doing useful precision work.
+- **Idle cores on a card is waste card.** DF64 is how you stop wasting them.
+
+This creates three precision tiers available on **all** hardware:
+
+| Tier | Precision | Source | Use case |
+|------|-----------|--------|----------|
+| f32 | ~24-bit mantissa | Native f32 cores | Visualization, inference, throughput workloads |
+| DF64 ("fp48") | ~48-bit mantissa | f32 core pairs (idle capacity) | Most scientific compute, statistics, correlation |
+| f64 | ~53-bit mantissa | Native f64 units (scarce) | Reference validation, accumulation, edge cases requiring full IEEE 754 |
 
 ### f64 lowering per vendor
 
-The f64 software lowering strategy differs by hardware:
+The choice between f64 and DF64 is **precision vs utilization**, not
+"has f64 vs doesn't":
 
-| Vendor | Hardware f64 | Software lowering needed |
-|--------|-------------|------------------------|
-| NVIDIA (Volta/A100) | Native DFMA, MUFU 64H seeds | Only transcendentals (sin, cos, exp, log) |
-| NVIDIA (consumer) | DFMA at 1:64 rate | Everything benefits from DF64 |
-| AMD (CDNA2/3) | Native `v_fma_f64` full-rate | Only transcendentals |
-| AMD (RDNA2/3) | `v_fma_f64` at 1:16 | DF64 beneficial for throughput |
-| Intel (Xe) | Minimal f64 | Full DF64 or software lowering |
+| Vendor | Native f64 | DF64 opportunity | Recommended strategy |
+|--------|-----------|-----------------|---------------------|
+| NVIDIA (Volta/A100) | DFMA at 1:2 rate | Massive idle f32 pool | **Concurrent**: f64 for accumulators, DF64 for bulk math |
+| NVIDIA (consumer) | DFMA at 1:64 rate | ~32x throughput gain | **Hybrid**: DF64 for everything except final accumulation |
+| AMD (CDNA2/3) | `v_fma_f64` full-rate | f32 cores still available | **Concurrent**: both pools active |
+| AMD (RDNA2/3) | `v_fma_f64` at 1:16 | ~8x throughput gain | **Hybrid**: DF64 for bulk, f64 for precision-critical |
+| Intel (Xe) | Minimal f64 | Only precision path | **DF64-primary**: f64 reserved for validation |
 
 barraCuda's `Fp64Strategy` (Native/Hybrid/Concurrent) maps directly to these
-categories. coralNAK should adopt the same classification for its backends.
+categories. coralReef should adopt the same three-tier model for its backends,
+and every backend should support DF64 regardless of native f64 capability.
 
 ### NPU as another "backend" (long-term)
 
@@ -380,50 +466,60 @@ naturally evolves toward multi-vendor support.
 2. **Run `cargo test --features barracuda-gpu`** — validate all 812 tests on
    real GPU hardware (RTX 4070 DF64 path).
 
-### Short-term (coralNAK acceleration)
+### Short-term (coralReef evolution)
 
-3. **Phase 3: SPIR-V frontend** — implement `from_spirv.rs` using naga's SPIR-V
-   module. This is the gate for everything else. barraCuda's `spv_emit` tests
-   provide SPIR-V payloads to test against.
+3. **~~Phase 3: SPIR-V frontend~~** — **COMPLETE**. `from_spirv/` now split into
+   `func.rs` (590 LOC) + `func_builtins.rs` (163) + `func_math.rs` (247).
+   Handles: GlobalInvocationId, LocalInvocationId, WorkGroupId, NumWorkGroups,
+   SubgroupInvocationId, LocalInvocationIndex. Math: abs, min, max, clamp,
+   floor, ceil, round, sqrt, inverseSqrt, sin, cos, exp2, log2, fma.
 
-4. **Phase 4: f64 lowering** — port barraCuda's `math_f64.wgsl` polynomial
-   coefficients into coralNAK's instruction emitter. Start with `sqrt` and `rcp`
-   (simplest — just MUFU seed + Newton iterations).
+4. **~~Phase 4: f64 lowering~~** — **COMPLETE**. `lower_f64/` split into
+   `poly/{exp2,log2,trig}.rs` + `newton.rs`. All 6 transcendentals implemented.
+   Coefficients from Cephes/FDLIBM, Cody-Waite for sin/cos.
+
+5. **log2 precision refinement** — currently ~46-bit. Second Newton-Raphson
+   iteration would bring it to full f64 (~52-bit). Straightforward: add one
+   more EX2/RCP correction pass in `poly/log2.rs`.
+
+6. **Naga 24 → 28 upgrade** — coralReef is on naga 24, barraCuda/wgpu on 28.
+   Alignment needed to prevent IR mismatch when sharing SPIR-V payloads.
 
 ### Medium-term (sovereign pipeline)
 
-5. **Integration test**: `WGSL → naga → SPIR-V → coral-nak → binary`, compare
+7. **Integration test**: `WGSL → naga → coral-reef → binary`, compare
    output against `WGSL → naga → SPIR-V → NVK/NAK → binary` on the same shader.
+   coralReef's end-to-end pipeline is wired — needs real shader validation.
 
-6. **Benchmark**: Compare coralNAK-compiled f64 transcendentals against
+8. **Benchmark**: Compare coralReef-compiled f64 transcendentals against
    NVIDIA proprietary PTXAS output for ULP accuracy and throughput.
 
-7. **coralDriver prototype**: Minimal userspace GPU submission for Volta
+9. **coralDriver prototype**: Minimal userspace GPU submission for Volta
    (GV100). groundSpring's Level 4 assignment.
 
 ### Long-term (full sovereignty — vendor-free)
 
-8. **Multi-GPU dispatch via coralNAK**: Titan V (native f64 via coralNAK) +
-   RTX 4070 (DF64 via coralNAK) — no proprietary drivers needed.
+10. **Multi-GPU dispatch via coralReef**: Titan V (native f64 via coralReef) +
+    RTX 4070 (DF64 via coralReef) — no proprietary drivers needed.
 
-9. **Vendor-agnostic IR** (`coral-ir`): Extract vendor-neutral IR from NAK IR,
+11. **Vendor-agnostic IR** (`coral-ir`): Extract vendor-neutral IR from NAK IR,
    making optimization passes (copy prop, DCE, scheduling) work for any GPU.
    See "Eliminating the Vendor Concept" section above.
 
-10. **AMD backend**: Add RDNA/CDNA instruction encoding and register allocation
-    to coralNAK (not a separate project — a backend module within coralNAK).
+12. **AMD backend**: Add RDNA/CDNA instruction encoding and register allocation
+    to coralReef (not a separate project — a backend module within coralReef).
     Mesa ACO (MIT-licensed) is the reference implementation.
 
-11. **Intel backend**: Add Xe EU ISA encoding. Mesa ANV/iris is the reference.
+13. **Intel backend**: Add Xe EU ISA encoding. Mesa ANV/iris is the reference.
     Both AMD and Intel backends share the same `coral-ir` and optimization
     passes — only legalization, register allocation, and encoding differ.
 
-12. **NPU backend**: When Akida hardware is available, wire
+14. **NPU backend**: When Akida hardware is available, wire
     `NpuDispatch` through metalForge workloads for GPU→NPU pipeline testing.
     NPU is a different compute paradigm (event-driven vs SIMD) but the
     vendor-agnostic IR makes it a natural extension.
 
-13. **coralDriver per architecture**: Userspace GPU drivers for each ISA family,
+15. **coralDriver per architecture**: Userspace GPU drivers for each ISA family,
     eliminating Mesa/kernel driver dependencies entirely. The goal is a single
     Rust binary that compiles and dispatches to any GPU without C dependencies.
 
@@ -455,7 +551,7 @@ toadStool ──→ wgpu 28 (GPU discovery)
            └→ akida-driver (NPU)
            └→ sourDough (primal lifecycle)
 
-coralNAK ──→ naga 24 (dev-dep, SPIR-V frontend)
+coralReef ──→ naga 24 (dev-dep, SPIR-V frontend — needs upgrade to 28)
            └→ sourDough (primal lifecycle)
            └→ (no wgpu — generates native binaries directly)
 

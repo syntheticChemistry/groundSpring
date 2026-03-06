@@ -33,25 +33,25 @@ use crate::cast::usize_f64;
 // landscape across the Bazavov et al. benchmark grid.
 
 /// L-BFGS history window: number of past iterations retained.
-#[cfg(feature = "barracuda")]
+#[cfg(feature = "barracuda-gpu")]
 const LBFGS_MEMORY: usize = 5;
 /// L-BFGS maximum iterations.
-#[cfg(feature = "barracuda")]
+#[cfg(feature = "barracuda-gpu")]
 const LBFGS_MAX_ITER: usize = 200;
 /// L-BFGS gradient tolerance for convergence.
-#[cfg(feature = "barracuda")]
+#[cfg(feature = "barracuda-gpu")]
 const LBFGS_GTOL: f64 = 1e-12;
 /// L-BFGS function-value tolerance for convergence.
-#[cfg(feature = "barracuda")]
+#[cfg(feature = "barracuda-gpu")]
 const LBFGS_FTOL: f64 = 1e-15;
 /// L-BFGS Wolfe condition c₁ (sufficient decrease).
-#[cfg(feature = "barracuda")]
+#[cfg(feature = "barracuda-gpu")]
 const LBFGS_C1: f64 = 1e-4;
 /// L-BFGS Wolfe condition c₂ (curvature).
-#[cfg(feature = "barracuda")]
+#[cfg(feature = "barracuda-gpu")]
 const LBFGS_C2: f64 = 0.9;
 /// L-BFGS maximum line-search steps per iteration.
-#[cfg(feature = "barracuda")]
+#[cfg(feature = "barracuda-gpu")]
 const LBFGS_MAX_LINESEARCH: usize = 40;
 
 /// Nelder-Mead maximum iterations for batched GPU multi-start.
@@ -153,17 +153,17 @@ pub fn grid_fit_2d(config: &GridFitConfig<'_>) -> Result<GridFitResult, crate::e
 /// barraCuda S84 `barracuda::optimize::lbfgs_numerical` →
 /// groundSpring freeze-out refinement.
 #[cfg_attr(
-    not(feature = "barracuda"),
+    not(feature = "barracuda-gpu"),
     expect(
         clippy::missing_const_for_fn,
-        reason = "const only in non-barracuda builds; runtime dispatch with barracuda"
+        reason = "const only in non-barracuda-gpu builds; runtime dispatch with GPU"
     )
 )]
 fn lbfgs_refine(
-    #[cfg_attr(not(feature = "barracuda"), allow(unused))] config: &GridFitConfig<'_>,
+    #[cfg_attr(not(feature = "barracuda-gpu"), allow(unused))] config: &GridFitConfig<'_>,
     coarse: GridFitResult,
 ) -> GridFitResult {
-    #[cfg(feature = "barracuda")]
+    #[cfg(feature = "barracuda-gpu")]
     {
         if let Some(refined) = lbfgs_refine_barracuda(config, &coarse) {
             return refined;
@@ -172,7 +172,7 @@ fn lbfgs_refine(
     coarse
 }
 
-#[cfg(feature = "barracuda")]
+#[cfg(feature = "barracuda-gpu")]
 fn lbfgs_refine_barracuda(
     config: &GridFitConfig<'_>,
     coarse: &GridFitResult,

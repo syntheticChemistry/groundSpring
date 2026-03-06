@@ -9,13 +9,14 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V80 Fused Ops + Catch-Up | [GROUNDSPRING_V80_FUSED_OPS_BARRACUDA_CATCHUP_HANDOFF_MAR05_2026.md](handoffs/GROUNDSPRING_V80_FUSED_OPS_BARRACUDA_CATCHUP_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | Fused `correlation_full` GPU, Welford single-pass CPU, barraCuda HEAD (`15d3774`) catch-up, toadStool S94b review, 87 delegations (51 CPU + 36 GPU) |
+| V81 Modern Rewire | [GROUNDSPRING_V81_MODERN_REWIRE_HANDOFF_MAR05_2026.md](handoffs/GROUNDSPRING_V81_MODERN_REWIRE_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | BootstrapMeanGpu GPU dispatch, freeze_out gate fix, coralReef cloned (390 tests), 27/27 cross-spring checks, 88 delegations (51 CPU + 37 GPU), barraCuda `a4c20a5`, toadStool S94b `bc89fa61` |
+| Sovereign Pipeline | [SOVEREIGN_PIPELINE_CROSS_PRIMAL_HANDOFF_MAR05_2026.md](handoffs/SOVEREIGN_PIPELINE_CROSS_PRIMAL_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | Cross-primal sovereign pipeline map: coralReef Phase 5, DF64 utilization strategy, vendor-agnostic IR roadmap |
 
 ## Cross-Spring Documentation
 
 | Document | Purpose |
 |----------|---------|
-| [CROSS_SPRING_SHADER_EVOLUTION.md](CROSS_SPRING_SHADER_EVOLUTION.md) | How hotSpring, wetSpring, and neuralSpring evolved BarraCUDA into what groundSpring delegates to |
+| [CROSS_SPRING_SHADER_EVOLUTION.md](CROSS_SPRING_SHADER_EVOLUTION.md) | How hotSpring, wetSpring, and neuralSpring evolved barraCuda into what groundSpring delegates to |
 
 ## Canonical Location
 
@@ -36,6 +37,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V80 Fused Ops + Catch-Up | Fused `correlation_full` GPU, Welford single-pass CPU, barraCuda HEAD catch-up, toadStool S94b review, 87 delegations (superseded by V81) |
 | V79 Exp 035 + Delegation | Exp 035 Multi-Method ET₀, seismic delegation, 85 delegations (superseded by V80) |
 | V78 Modern Rewire | Fused mean+variance, 3 new ET₀ delegations, cross-spring benchmark evolution, 84 delegations (superseded by V79) |
 | V77 wgpu 28 | wgpu 28 migration, barraCuda v0.3.3 sync, DF64 precision tiers, migration pattern reference (superseded by V78) |

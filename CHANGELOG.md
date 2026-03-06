@@ -4,6 +4,31 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V81 Modern Rewire + Cross-Spring Validation (Mar 5, 2026)
+
+#### Added
+- **`BootstrapMeanGpu` GPU dispatch**: `bootstrap_mean()` now dispatches to barraCuda's `BootstrapMeanGpu` for parallel resample computation when `barracuda-gpu` is enabled. Falls back to CPU `barracuda::stats::bootstrap_mean`, then to local Xorshift64 implementation
+- **coralReef cloned**: Sovereign shader compiler (`ecoPrimals/coralReef`) cloned via SSH — 390 tests, Phase 5 complete, WGSL/SPIR-V → native SM70+ binary with f64 transcendentals
+
+#### Fixed
+- **`freeze_out::lbfgs_refine` feature gate**: barraCuda moved `optimize` module behind `gpu` feature; updated groundSpring gate from `barracuda` to `barracuda-gpu` for L-BFGS refinement and associated constants
+
+#### Ecosystem — Cross-Spring Evolution Observations
+- **coralReef 2e89541**: Absorbed groundSpring patterns (BTreeMap deterministic serialization, unsafe removal, silent-default audit, cross-spring provenance doc-comments in `lower_f64/`). Smart-refactored `poly.rs` by algorithm family (exp2/log2/trig), evolved `AtomType` panics to `Option<AtomType>`
+- **barraCuda a4c20a5**: Fused reduction shaders (Welford mean+variance, 5-accumulator Pearson), DF64 three-tier precision (f32/DF64/f64), TensorContext pooled buffers, subgroup capability detection — all inherited via path dependency
+- **toadStool S94b**: 5,369 tests, 144 ComputeDispatch ops migrated, full primal decoupling. Shaders transferred to standalone barraCuda (S93). neuralSpring pinned at V85/S127
+- **Cross-spring shader provenance**: hotSpring DF64 → all springs get f64-class precision on consumer GPUs; wetSpring bio (Smith-Waterman, Gillespie) → neuralSpring → groundSpring delegation; airSpring L-BFGS → groundSpring freeze-out refinement; groundSpring RAWR → wetSpring rarefaction CIs; groundSpring Anderson sweep → ESN training data cross-spring
+
+#### Benchmarks
+- **27/27 cross-spring checks passed** (benchmark-cross-spring)
+- **CPU vs GPU benchmark**: 16 workloads profiled. GPU path inactive (nouveau Titan V freeze deferred; RTX 4070 proprietary driver pending). Batch dispatch parity confirmed on CPU fallback
+- **coralReef 390 tests green**, clippy/fmt/doc clean
+
+#### Quality
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace --all-targets -- -D warnings`: PASS
+- `cargo test --workspace`: PASS (812+ tests, 27 validation binaries, 0 failures)
+
 ### V80 Fused Ops Rewire + barraCuda/ToadStool Catch-Up (Mar 5, 2026)
 
 #### Added
@@ -19,7 +44,7 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 #### Ecosystem
 - **ToadStool S94b review**: Full primal decoupling confirmed, barraCuda standalone verified, V68 groundSpring work fully absorbed
-- **coralNAK awareness**: New ecosystem primal (sovereign Rust NVIDIA shader compiler) at Phase 2. groundSpring assigned Level 4 (driver/memory/queue) per sovereign compute roadmap
+- **coralReef awareness**: New ecosystem primal (sovereign Rust shader compiler) at Phase 2. groundSpring assigned Level 4 (driver/memory/queue) per sovereign compute roadmap
 
 #### Quality
 - `cargo fmt --check`: PASS

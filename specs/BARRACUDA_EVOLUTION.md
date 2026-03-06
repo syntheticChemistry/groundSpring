@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 5, 2026 (V80 — 87 delegations (51 CPU + 36 GPU), 812 tests, barraCuda v0.3.3 (`15d3774`), toadStool S94b (`9d359814`). V79: fused mean_and_std_dev (Welford), 3 new ET₀ delegations (Makkink, Turc, Hamon), cross-spring benchmark evolution. V78: wgpu 28 migration, DF64 precision tiers. V77: structural evolution, deep debt zero. V73: 13-tier tolerance architecture)
+**Last updated**: March 5, 2026 (V81 — 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `a4c20a5`, toadStool S94b `bc89fa61`, coralReef `2e89541`. V81: BootstrapMeanGpu dispatch, freeze_out gate fix, coralReef sovereign compiler. V80: fused correlation_full GPU, Welford single-pass CPU. V78: modern rewiring, fused ops, ET₀. V77: wgpu 28, DF64 precision tiers. V73: 13-tier tolerance architecture)
 
 ## Philosophy
 
@@ -596,7 +596,7 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (28/28 parity proven, timing data for all experiments) |
-| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **87 active delegations** (51 CPU + 36 GPU), **812 tests** — toadStool S94b |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **88 active delegations** (51 CPU + 37 GPU), **812+ tests** — barraCuda `a4c20a5`, toadStool S94b |
 | Phase 2b | Tier B adapt (GPU dispatch wiring, PRNG alignment) | **V31–V69** — 15 modules GPU-wired, 187 metalForge checks, 5 substrates; arch-aware dispatch (f64→Titan V, f32→RTX 4070); GPU→NPU PCIe bypass validated |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |

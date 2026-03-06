@@ -30,8 +30,10 @@ pub struct BootstrapResult {
 
 /// Standard percentile bootstrap confidence interval for the mean.
 ///
-/// When the `barracuda` feature is enabled, delegates to
-/// `barracuda::stats::bootstrap_mean`.
+/// When `barracuda-gpu` is enabled, dispatches via `BootstrapMeanGpu`
+/// for parallel resample computation on GPU. Falls back to
+/// `barracuda::stats::bootstrap_mean` (CPU), then to a local
+/// implementation.
 ///
 /// # Panics
 ///
@@ -49,6 +51,13 @@ pub fn bootstrap_mean(
         "confidence must be in (0, 1)"
     );
 
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Some(result) = bootstrap_mean_gpu(data, n_replicates, confidence, seed) {
+            return result;
+        }
+    }
+
     #[cfg(feature = "barracuda")]
     {
         if let Ok(ci) = barracuda::stats::bootstrap_mean(data, n_replicates, confidence, seed) {
@@ -62,6 +71,23 @@ pub fn bootstrap_mean(
     }
 
     bootstrap_mean_cpu(data, n_replicates, confidence, seed)
+}
+
+#[cfg(feature = "barracuda-gpu")]
+fn bootstrap_mean_gpu(
+    data: &[f64],
+    n_replicates: usize,
+    confidence: f64,
+    seed: u64,
+) -> Option<BootstrapResult> {
+    let device = crate::gpu::get_device()?;
+    let gpu = barracuda::stats::bootstrap::BootstrapMeanGpu::new(device).ok()?;
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "n_replicates and seed fit in u32 for GPU dispatch"
+    )]
+    let means = gpu.dispatch(data, n_replicates as u32, seed as u32).ok()?;
+    Some(percentile_ci(&means, means.len(), confidence))
 }
 
 fn bootstrap_mean_cpu(

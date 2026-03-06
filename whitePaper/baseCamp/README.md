@@ -3,9 +3,9 @@
 **Purpose**: Per-faculty research briefings for groundSpring noise characterization
 reproductions and extensions.
 
-**Last Updated**: March 3, 2026
+**Last Updated**: March 5, 2026
 
-**Validation Summary**: 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), **87 active delegations (51 CPU + 36 GPU) — barraCuda v0.3.3**, 812 workspace tests + 375 Python tests. All 34 experiments PASS. **29/29 mathematical parity proven**. 97.25% library line coverage. Zero clippy warnings (pedantic + nursery), zero unsafe, zero TODO, zero `.unwrap()` in production lib, zero production mocks, all files < 1000 lines. V80: Exp 035 (5-method ET₀ cross-validation: PM, Hargreaves, Makkink, Turc, Hamon), seismic delegation strengthening. Deep debt zero maintained. Paper 12 Exp 033 (29/29): cytokine Anderson lattice + geometry-aware drug scoring. 10 domains, 34 modules.
+**Validation Summary**: 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), **88 active delegations (51 CPU + 37 GPU) — barraCuda `a4c20a5`, toadStool S94b `bc89fa61`**, 812+ workspace tests + 390 Python tests. All 34 experiments PASS. **29/29 mathematical parity proven**. 97.25% library line coverage. Zero clippy warnings (pedantic + nursery, -D warnings), zero unsafe, zero TODO, zero `.unwrap()` in production lib, zero production mocks, all files < 1000 lines. V81: BootstrapMeanGpu GPU dispatch, freeze_out gate fix, coralReef sovereign compiler (390 tests, Phase 5 complete), 27/27 cross-spring checks. V80: Fused `correlation_full` GPU, Welford single-pass CPU stats. Deep debt zero maintained. Paper 12 Exp 033 (29/29): cytokine Anderson lattice + geometry-aware drug scoring. 10 domains, 34 modules.
 
 ---
 

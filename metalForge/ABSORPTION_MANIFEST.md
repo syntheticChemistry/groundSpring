@@ -6,7 +6,7 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: March 5, 2026 (V80 — 87 active delegations (51 CPU + 36 GPU), barraCuda v0.3.3, toadStool S94b, 812 tests, clippy pedantic clean. V80: fused correlation_full GPU, Welford single-pass CPU, barraCuda catch-up)
+**Last updated**: March 5, 2026 (V81 — 88 active delegations (51 CPU + 37 GPU), barraCuda `a4c20a5`, toadStool S94b, 812+ tests, clippy pedantic clean. V81: BootstrapMeanGpu dispatch, freeze_out gate fix, coralReef. V80: fused correlation_full GPU, Welford single-pass CPU)
 
 ## Absorption Status Summary
 
@@ -42,7 +42,7 @@
 
 ---
 
-## Tier A — Lean (87 active: 51 CPU + 36 GPU)
+## Tier A — Lean (88 active: 51 CPU + 37 GPU)
 
 Full delegation inventory as of V80, barraCuda v0.3.3:
 
@@ -178,7 +178,7 @@ Both Tier C shaders have been absorbed upstream and local copies removed (V62):
 
 ## Handoff Checklist (per shader)
 
-- [x] 87 active delegations (51 CPU + 36 GPU) verified, barraCuda v0.3.3, toadStool S94b
+- [x] 88 active delegations (51 CPU + 37 GPU) verified, barraCuda `a4c20a5`, toadStool S94b
 - [x] CPU reference passes all validation checks (34 binaries, 812 tests)
 - [x] All delegations use `#[cfg]` or `if let Ok` with CPU fallback always compiled
 - [x] Mathematical parity: 28/28 PROVEN (Python ⇌ Rust, `data/parity_report.json`)

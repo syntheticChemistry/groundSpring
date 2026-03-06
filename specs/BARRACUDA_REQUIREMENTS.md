@@ -11,9 +11,9 @@ groundSpring Phase 0 (Python), Phase 1 (Rust), and Phase 2a (barracuda CPU) are 
 
 - 395/395 validation checks across 34 binaries (340 core + 55 NUCLEUS)
 - 30 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, almost_mathieu, bistable, multisignal, kinetics, transport, drift, rare_biosphere, quasispecies, band_structure, jackknife, freeze_out, spectral_recon, wdm, biomeos, nestgate (+cast, validate, npu, error, linalg)
-- 812 Rust workspace tests (default) + 390 Python tests = 1202+ total. 0 clippy warnings (pedantic + nursery). 87 delegations (51 CPU + 36 GPU), 1 evolution candidate — barraCuda v0.3.3. 187 metalForge checks (130 forge + 57 mixed-hardware). biomeOS Neural API live.
+- 812+ Rust workspace tests (default) + 390 Python tests = 1202+ total. 0 clippy warnings (pedantic + nursery). 88 delegations (51 CPU + 37 GPU) — barraCuda `a4c20a5`. 187 metalForge checks (130 forge + 57 mixed-hardware). biomeOS Neural API live.
 - Two feature gates: `barracuda` (51 active CPU delegations) and `barracuda-gpu` (36 GPU delegations including Sturm tridiag, tikhonov solve, detect_bands, BatchedMultinomialGpu). Three-mode CI validates all configurations.
-- 87 delegations (51 CPU + 36 GPU; includes GPU grid adapters, GPU stats dispatch, batch APIs, regression suite, kimura, jackknife, fao56_et0, chao1, error_threshold, detection_power, detection_threshold — barraCuda v0.3.3)
+- 88 delegations (51 CPU + 37 GPU; includes GPU grid adapters, GPU stats dispatch, batch APIs, regression suite, kimura, jackknife, fao56_et0, chao1, error_threshold, detection_power, detection_threshold, bootstrap_mean — barraCuda `a4c20a5`)
 - 2 production WGSL shaders in `metalForge/shaders/` (261 combined lines)
 - All matrices use flat row-major `Vec<f64>` — GPU-promotable layout
 - Rust is **11.6× faster** than Python (excl. LAPACK-bound); 5.1× overall. Exp 009: **47.7× from Sturm tridiag**

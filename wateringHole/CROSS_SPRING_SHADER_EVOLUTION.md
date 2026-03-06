@@ -3,13 +3,13 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 5, 2026 (V80: 87 active delegations (51 CPU + 36 GPU), 1 evolution candidate, barraCuda v0.3.3 (standalone primal), toadStool S94b (`9d359814`). V80: fused correlation_full GPU, Welford single-pass CPU, barraCuda catch-up, all quality gates green, 812 tests. V73: 13-tier tolerance architecture. V72: deep audit + debt evolution)
+**Last Updated**: March 5, 2026 (V81: 88 active delegations (51 CPU + 37 GPU), barraCuda `a4c20a5`, toadStool S94b, coralReef `2e89541`. V81: BootstrapMeanGpu dispatch, freeze_out gate fix, coralReef sovereign compiler. V80: fused correlation_full GPU, Welford single-pass CPU. V73: 13-tier tolerance architecture. V72: deep audit + debt evolution)
 
 ---
 
 ## Overview
 
-groundSpring has **87 active delegations** (51 CPU + 36 GPU) with **1 evolution candidate** (band_edges — algorithm mismatch).
+groundSpring has **88 active delegations** (51 CPU + 37 GPU) with **1 evolution candidate** (band_edges — algorithm mismatch).
 Those barracuda functions were not built in isolation — they were refined and
 battle-tested through absorption from **five Springs**, each bringing domain-specific
 requirements that hardened the shared library.
@@ -301,7 +301,7 @@ capability-based discovery are now wateringHole standards adopted by all Springs
 
 ## groundSpring Delegation Lineage
 
-Each of groundSpring's 87 active delegations has a traceable cross-spring history:
+Each of groundSpring's 88 active delegations has a traceable cross-spring history:
 
 | # | groundSpring fn | barracuda fn | Primary Origin | Validated By |
 |---|----------------|--------------|---------------|-------------|
