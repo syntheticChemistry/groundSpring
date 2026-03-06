@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: March 5, 2026 | **License**: AGPL-3.0-only
-**Status**: 34 modules, 824 Rust workspace tests + 672 coralReef tests + 390 Python tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), 91 active barracuda delegations (54 CPU + 37 GPU) — barraCuda v0.3.3+ (`cf1602c`), toadStool S96c (`d77fc546`), coralReef Phase 6 (`1e048be`). V83: dependency catch-up — barraCuda deep debt resolved (JSON-RPC 2.0, GpuView, AutocorrelationF64, CoralCompiler, 708 shaders, 3471+ tests), toadStool sovereign pipeline infra (HardwareFingerprint, SubstrateCapabilityKind), coralReef vendor-neutral evolution (nak→codegen, Frontend trait, 672 tests). Titan V (SM70) sovereign path via coralReef, RTX 4070 (SM89) DF64 utilization. 34 validation binaries. Deep debt zero maintained. 30 metalForge workloads, biomeOS Neural API live, NestGate data pipelines
+**Status**: 34 modules, 824 Rust workspace tests + 672 coralReef tests + 390 Python tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), 91 active barracuda delegations (54 CPU + 37 GPU) — barraCuda v0.3.3+ (`cf1602c+1`), toadStool S96c (`d77fc546`), coralReef Phase 6 (`1e048be`). V84: GPU validation — RTX 4070 (SM89) + Titan V (SM70) dual-GPU probed, DF64/tensor/FHE paths green (validate_gpu 6/6), f64 reduction shaders return 0 (naga/SPIR-V shared memory issue — both GPUs, both drivers). Fixed CoralCompiler tokio::spawn panic. 17/32 GPU tests pass. CPU path 824/824 green. Deep debt zero maintained. 30 metalForge workloads, biomeOS Neural API live, NestGate data pipelines
 
 **The gap between what models predict and what instruments measure.**
 

@@ -4,6 +4,26 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V84 GPU Validation Discovery (Mar 6, 2026)
+
+#### Added
+- **GPU validation handoff**: `GROUNDSPRING_V84_GPU_VALIDATION_HANDOFF_MAR06_2026.md` — comprehensive dual-GPU probe results, f64 pipeline diagnostics, and evolution guidance for barraCuda/coralReef/toadStool
+
+#### Fixed
+- **CoralCompiler tokio panic**: `barraCuda/coral_compiler.rs` — `spawn_coral_compile()` now checks `tokio::runtime::Handle::try_current()` before spawning, preventing panic in synchronous contexts (e.g., groundSpring GPU tests without Tokio runtime)
+- **Device selection strategy**: `gpu.rs` — switched from `new_f64_capable()` (could select Titan V/NVK with broken compute) to `new()` (high-performance discrete GPU, proprietary driver preferred)
+
+#### Discovered
+- **f64 WGSL shared memory pipeline issue**: All f64 reduction shaders with `var<workgroup> shared_data: array<f64, 256>` return 0 on both GPUs (RTX 4070 proprietary + Titan V NVK). Root cause: naga/SPIR-V compilation pipeline for f64 workgroup shared memory. Simple f64 arithmetic (basic_f64 probe) works; complex shaders with barriers + tree reduction fail
+- **RTX 4070 (SM89 Ada)**: DF64 path green (tensor matmul, DF64 add/sub, FHE NTT), f64 builtins 3/9 native (sqrt, fma, abs/min/max), Fp64Strategy correctly detected as Hybrid
+- **Titan V (SM70 Volta)**: Same f64 shared memory issue via NVK/NAK. f64 probe runs without system freeze (previous crash was heavy compute, not simple probes). Fp64Strategy detected as Native but broken through NVK
+
+#### Quality
+- `cargo test --workspace`: PASS (824 tests, 0 failures) — CPU path unaffected
+- `cargo test --features barracuda-gpu`: 17/32 pass (14 fail = f64 reduction returning 0)
+- `cargo clippy --workspace -- -D warnings`: PASS (0 warnings)
+- `validate_gpu` (barraCuda): 6/6 pass on RTX 4070 (DF64, tensor matmul, FHE NTT)
+
 ### V83 Dependency Catch-Up + Pin Refresh (Mar 6, 2026)
 
 #### Changed

@@ -8,13 +8,14 @@
 //! GPU-accelerated paths in [`rare_biosphere`](crate::rare_biosphere)
 //! and [`quasispecies`](crate::quasispecies).
 //!
-//! # Precision strategy (barraCuda S68+)
+//! # Device selection strategy
 //!
-//! Uses `new_f64_capable()` which consults barracuda's device registry
-//! and runtime f64 probe cache. On NVK/NAK where `SHADER_F64` is
-//! advertised but f64 compilation actually fails (groundSpring V35/V37
-//! discovery), the probe returns `false` and the device falls back to
-//! DF64 emulation (double-float f32-pair, ~48-bit mantissa).
+//! 1. `WgpuDevice::new()` — high-performance discrete GPU (proprietary driver
+//!    preferred over NVK for compute reliability).
+//! 2. `WgpuDevice::new_f64_capable()` — f64-capable GPU (may select NVK/Titan V
+//!    which has compute issues; reserved for when coralReef sovereign path is ready).
+//!
+//! Override with `WGPU_ADAPTER_NAME` environment variable for explicit selection.
 
 use std::sync::{Arc, OnceLock};
 
@@ -24,18 +25,18 @@ static DEVICE: OnceLock<Option<Arc<WgpuDevice>>> = OnceLock::new();
 
 /// Get the cached GPU device, creating it on first call.
 ///
-/// Prefers f64-capable GPUs via `WgpuDevice::new_f64_capable()`,
-/// falling back to any available GPU if none support native f64.
+/// Uses `WgpuDevice::new()` which selects the high-performance discrete GPU.
+/// On multi-GPU systems this picks the proprietary-driver GPU (RTX 4070)
+/// over NVK (Titan V) which has known GPU compute reliability issues.
+///
+/// Override: set `WGPU_ADAPTER_NAME=NVIDIA TITAN V` to force Titan V
+/// (useful once coralReef sovereign path is available).
+///
 /// Returns `None` if no GPU is available (CI, headless, etc.).
 pub fn get_device() -> Option<Arc<WgpuDevice>> {
     DEVICE
         .get_or_init(|| {
-            let future = async {
-                match WgpuDevice::new_f64_capable().await {
-                    Ok(dev) => Ok(dev),
-                    Err(_) => WgpuDevice::new().await,
-                }
-            };
+            let future = async { WgpuDevice::new().await };
             barracuda::device::test_pool::tokio_block_on(future)
                 .ok()
                 .map(Arc::new)
