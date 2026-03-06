@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
-//! Alternative reference ET₀ methods (Makkink, Turc, Hamon).
+//! Alternative reference ET₀ methods (Makkink, Turc, Hamon, Thornthwaite).
 //!
 //! Simpler methods requiring fewer inputs than the full FAO-56
 //! Penman-Monteith equation. Added for Exp 035 multi-method validation.
@@ -103,6 +103,83 @@ fn hamon_et0_cpu(t_mean_c: f64, daylight_hours_n: f64) -> f64 {
     (0.55 * (daylight_hours_n / 12.0).powi(2) * es_mbar / 100.0).max(0.0)
 }
 
+/// Thornthwaite monthly reference ET₀ from temperature and heat index (mm month⁻¹).
+///
+/// `ET₀ = 16 · (10·T/I)^a · (N/12) · (d/30)`
+///
+/// where `I` = annual heat index, `a` = cubic polynomial in `I`,
+/// `N` = daylight hours, `d` = days in month.
+///
+/// Thornthwaite's original method — monthly resolution, temperature-only.
+/// Widely used for climate classification and long-term water balance.
+///
+/// Returns 0.0 if `heat_index ≤ 0`, `t_mean < 0`, or barraCuda returns `None`.
+///
+/// Delegates to `barracuda::stats::hydrology::thornthwaite_et0` when the
+/// `barracuda` feature is enabled.
+///
+/// # Reference
+///
+/// Thornthwaite (1948) "An approach toward a rational classification of climate"
+/// Geographical Review 38(1):55–94.
+#[must_use]
+pub fn thornthwaite_et0(
+    t_mean_c: f64,
+    heat_index: f64,
+    daylight_hours: f64,
+    days_in_month: f64,
+) -> f64 {
+    #[cfg(feature = "barracuda")]
+    {
+        if let Some(et0) =
+            barracuda::stats::hydrology::thornthwaite_et0(
+                t_mean_c, heat_index, daylight_hours, days_in_month,
+            )
+        {
+            return et0;
+        }
+    }
+    thornthwaite_et0_cpu(t_mean_c, heat_index, daylight_hours, days_in_month)
+}
+
+fn thornthwaite_et0_cpu(
+    t_mean_c: f64,
+    heat_index: f64,
+    daylight_hours: f64,
+    days_in_month: f64,
+) -> f64 {
+    if heat_index <= 0.0 || t_mean_c < 0.0 {
+        return 0.0;
+    }
+    let hi2 = heat_index.powi(2);
+    let hi3 = heat_index.powi(3);
+    let a = 6.75e-7_f64.mul_add(hi3, (-7.71e-5_f64).mul_add(hi2, 1.792e-2_f64.mul_add(heat_index, 0.49239)));
+    let et_unadj = 16.0 * (10.0 * t_mean_c / heat_index).powf(a);
+    et_unadj * (daylight_hours / 12.0) * (days_in_month / 30.0)
+}
+
+/// Compute the Thornthwaite annual heat index from 12 monthly mean temperatures.
+///
+/// `I = Σ (t_i / 5)^1.514` for months where `t_i > 0`.
+///
+/// Delegates to `barracuda::stats::hydrology::thornthwaite_heat_index`
+/// when the `barracuda` feature is enabled.
+#[must_use]
+pub fn thornthwaite_heat_index(monthly_temps: &[f64; 12]) -> f64 {
+    #[cfg(feature = "barracuda")]
+    {
+        barracuda::stats::hydrology::thornthwaite_heat_index(monthly_temps)
+    }
+    #[cfg(not(feature = "barracuda"))]
+    {
+        monthly_temps
+            .iter()
+            .filter(|&&t| t > 0.0)
+            .map(|&t| (t / 5.0).powf(1.514))
+            .sum()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -195,6 +272,90 @@ mod tests {
     fn hamon_deterministic() {
         let a = hamon_et0(20.0, 14.0);
         let b = hamon_et0(20.0, 14.0);
+        assert!((a - b).abs() < f64::EPSILON);
+    }
+
+    // ── Thornthwaite ET₀ tests ──
+
+    fn sample_monthly_temps() -> [f64; 12] {
+        [-2.0, 0.5, 5.0, 10.0, 15.0, 20.0, 25.0, 24.0, 18.0, 12.0, 5.0, -1.0]
+    }
+
+    #[test]
+    fn thornthwaite_heat_index_positive() {
+        let hi = thornthwaite_heat_index(&sample_monthly_temps());
+        assert!(
+            hi > 0.0,
+            "heat index should be positive for temperate climate, got {hi}"
+        );
+    }
+
+    #[test]
+    fn thornthwaite_heat_index_zero_for_frozen() {
+        let frozen = [-10.0; 12];
+        let hi = thornthwaite_heat_index(&frozen);
+        assert!(
+            hi.abs() < f64::EPSILON,
+            "heat index should be 0 when all months below 0, got {hi}"
+        );
+    }
+
+    #[test]
+    fn thornthwaite_et0_positive_summer() {
+        let hi = thornthwaite_heat_index(&sample_monthly_temps());
+        let et0 = thornthwaite_et0(20.0, hi, 14.0, 30.0);
+        assert!(
+            et0 > 0.0,
+            "Thornthwaite summer ET₀ should be positive, got {et0}"
+        );
+    }
+
+    #[test]
+    fn thornthwaite_et0_zero_for_cold() {
+        let hi = thornthwaite_heat_index(&sample_monthly_temps());
+        let et0 = thornthwaite_et0(-5.0, hi, 8.0, 31.0);
+        assert!(
+            et0.abs() < f64::EPSILON,
+            "Thornthwaite should be 0 for negative temps, got {et0}"
+        );
+    }
+
+    #[test]
+    fn thornthwaite_et0_zero_for_zero_heat_index() {
+        let et0 = thornthwaite_et0(20.0, 0.0, 14.0, 30.0);
+        assert!(
+            et0.abs() < f64::EPSILON,
+            "Thornthwaite should be 0 when heat_index=0, got {et0}"
+        );
+    }
+
+    #[test]
+    fn thornthwaite_et0_increases_with_temperature() {
+        let hi = thornthwaite_heat_index(&sample_monthly_temps());
+        let cool = thornthwaite_et0(10.0, hi, 12.0, 30.0);
+        let warm = thornthwaite_et0(25.0, hi, 12.0, 30.0);
+        assert!(
+            warm > cool,
+            "warmer → more ET₀: cool={cool:.2}, warm={warm:.2}"
+        );
+    }
+
+    #[test]
+    fn thornthwaite_et0_daylight_scaling() {
+        let hi = thornthwaite_heat_index(&sample_monthly_temps());
+        let short = thornthwaite_et0(20.0, hi, 8.0, 30.0);
+        let long = thornthwaite_et0(20.0, hi, 16.0, 30.0);
+        assert!(
+            long > short,
+            "longer days → more ET₀: short={short:.2}, long={long:.2}"
+        );
+    }
+
+    #[test]
+    fn thornthwaite_et0_deterministic() {
+        let hi = thornthwaite_heat_index(&sample_monthly_temps());
+        let a = thornthwaite_et0(20.0, hi, 14.0, 30.0);
+        let b = thornthwaite_et0(20.0, hi, 14.0, 30.0);
         assert!((a - b).abs() < f64::EPSILON);
     }
 }

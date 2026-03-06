@@ -32,7 +32,9 @@ mod et0_methods;
 mod pipeline;
 
 pub use equations::*;
-pub use et0_methods::{hamon_et0, makkink_et0, turc_et0};
+pub use et0_methods::{
+    hamon_et0, makkink_et0, thornthwaite_et0, thornthwaite_heat_index, turc_et0,
+};
 pub use pipeline::{
     monte_carlo_et0, seasonal_multi_day, seasonal_step, Et0Uncertainties, McEt0Result,
     SeasonalCellInputs, SeasonalOutput, SeasonalParams,
@@ -614,7 +616,20 @@ mod tests {
         let tu = turc_et0(tmean, rs, rh_mean);
         let ha = hamon_et0(tmean, big_n);
 
-        for (name, val) in [("PM", pm), ("HG", hg), ("MK", mk), ("TU", tu), ("HA", ha)] {
+        // Thornthwaite outputs mm/month — normalize to mm/day for comparison.
+        let monthly = [2.0, 3.0, 7.0, 12.0, 16.9, 20.0, 22.0, 21.0, 17.0, 12.0, 6.0, 3.0];
+        let hi = thornthwaite_heat_index(&monthly);
+        let th_monthly = thornthwaite_et0(tmean, hi, big_n, 30.0);
+        let th = th_monthly / 30.0;
+
+        for (name, val) in [
+            ("PM", pm),
+            ("HG", hg),
+            ("MK", mk),
+            ("TU", tu),
+            ("HA", ha),
+            ("TH", th),
+        ] {
             assert!(
                 val > 0.0 && val < 20.0,
                 "{name} ET₀ should be in (0, 20) mm/day, got {val:.2}"

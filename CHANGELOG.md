@@ -4,6 +4,28 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V82 Delegation Expansion + Smart Refactoring (Mar 5, 2026)
+
+#### Added
+- **Thornthwaite ET₀ delegation**: `fao56::thornthwaite_et0()` and `fao56::thornthwaite_heat_index()` delegate to `barracuda::stats::hydrology`. Monthly temperature-based ET₀ for climate classification (Thornthwaite 1948)
+- **`fit_all` unified regression**: `stats::fit_all()` runs linear, quadratic, exponential, and logarithmic fits in one call, delegates to `barracuda::stats::regression::fit_all`. Useful for automated model comparison
+- **12 new tests**: 8 Thornthwaite (heat index, ET₀ positivity, edge cases, temperature/daylight scaling), 4 fit_all (multi-model, best R², empty/insufficient data)
+
+#### Changed
+- **Delegation count**: 88 → 91 active delegations (54 CPU + 37 GPU) — +2 from Thornthwaite, +1 from fit_all
+- **Test count**: 812 → 824 workspace tests
+
+#### Refactored
+- **`esn.rs` smart-split**: 816 lines → `esn/brain.rs` (brain architecture: DriftAction, ConceptEdge, uncertainty), `esn/classifier.rs` (regime classification, spectral features, EsnClassifier), `esn/mod.rs` (shared RegimeLabel, re-exports). Semantic split by domain, not mechanical line count
+- **`fao56/mod.rs` smart-split**: 811 lines → `fao56/mod.rs` (624, core Penman-Monteith + Hargreaves) + `fao56/et0_methods.rs` (alternative ET₀: Makkink, Turc, Hamon, Thornthwaite). All submodules under 625 lines
+
+#### Quality
+- `cargo fmt --check`: PASS
+- `cargo clippy --workspace --all-targets -- -D warnings`: PASS (0 warnings)
+- `cargo test --workspace`: PASS (824 tests, 0 failures)
+- No files > 720 lines (down from 816 max)
+- Deep debt audit: 0 unsafe, 0 production unwrap, 0 TODO/FIXME, 0 production mocks, 0 hardcoded paths
+
 ### V81 Modern Rewire + Cross-Spring Validation (Mar 5, 2026)
 
 #### Added
