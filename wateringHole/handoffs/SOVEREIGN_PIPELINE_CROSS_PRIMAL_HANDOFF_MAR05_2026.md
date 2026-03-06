@@ -463,7 +463,7 @@ naturally evolves toward multi-vendor support.
    # Option B: Use NVIDIA persistence daemon for both GPUs
    ```
 
-2. **Run `cargo test --features barracuda-gpu`** — validate all 812 tests on
+2. **Run `cargo test --features barracuda-gpu`** — validate all 824 tests on
    real GPU hardware (RTX 4070 DF64 path).
 
 ### Short-term (coralReef evolution)

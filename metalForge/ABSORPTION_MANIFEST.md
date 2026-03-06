@@ -6,7 +6,7 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: March 5, 2026 (V81 — 88 active delegations (51 CPU + 37 GPU), barraCuda `a4c20a5`, toadStool S94b, 812+ tests, clippy pedantic clean. V81: BootstrapMeanGpu dispatch, freeze_out gate fix, coralReef. V80: fused correlation_full GPU, Welford single-pass CPU)
+**Last updated**: March 5, 2026 (V82 — 91 active delegations (54 CPU + 37 GPU), barraCuda `a4c20a5`, toadStool S95, 824 tests, clippy pedantic clean. V82: BootstrapMeanGpu dispatch, freeze_out gate fix, coralReef. V81: fused correlation_full GPU, Welford single-pass CPU)
 
 ## Absorption Status Summary
 
@@ -22,7 +22,7 @@
 | Reduce ops (GPU) | **Lean** | 4 | sum_reduce, variance_reduce, fused_map_reduce, correlation_f64 |
 | ESN (GPU) | **Lean** | 1 | esn_v2::ESN regime classification |
 | Grid ops (GPU) | **Lean** | 1 | grid_search_3d (seismic) |
-| **Total** | | **87** | 51 CPU + 36 GPU |
+| **Total** | | **91** | 54 CPU + 37 GPU |
 | PRNG | **Adapt** | 1 | xorshift64→xoshiro alignment pending |
 | Scalar math | **Stays local** | 5 | decompose, haversine, travel_time |
 | NPU | **Lean** | 1 | akida-driver (ToadStool hardware, not barraCuda math) |
@@ -42,9 +42,9 @@
 
 ---
 
-## Tier A — Lean (88 active: 51 CPU + 37 GPU)
+## Tier A — Lean (91 active: 54 CPU + 37 GPU)
 
-Full delegation inventory as of V80, barraCuda v0.3.3:
+Full delegation inventory as of V82, barraCuda v0.3.3:
 
 ### CPU delegations (51)
 
@@ -98,7 +98,7 @@ Full delegation inventory as of V80, barraCuda v0.3.3:
 | `moving_window_stats` | `stats::moving_window_stats_f64` | `#[cfg(feature = "barracuda")]` S66 |
 | `finite_size_extrapolate` | `stats::regression::fit_linear` | `#[cfg(feature = "barracuda")]` 1/N^(1/d) |
 
-### GPU delegations (36)
+### GPU delegations (37)
 
 | Function | BarraCUDA target | Wiring |
 |---|---|---|
@@ -178,8 +178,8 @@ Both Tier C shaders have been absorbed upstream and local copies removed (V62):
 
 ## Handoff Checklist (per shader)
 
-- [x] 88 active delegations (51 CPU + 37 GPU) verified, barraCuda `a4c20a5`, toadStool S94b
-- [x] CPU reference passes all validation checks (34 binaries, 812 tests)
+- [x] 91 active delegations (54 CPU + 37 GPU) verified, barraCuda `a4c20a5`, toadStool S95
+- [x] CPU reference passes all validation checks (34 binaries, 824 tests)
 - [x] All delegations use `#[cfg]` or `if let Ok` with CPU fallback always compiled
 - [x] Mathematical parity: 28/28 PROVEN (Python ⇌ Rust, `data/parity_report.json`)
 - [x] Three-mode revalidation (local / barracuda / barracuda-gpu): all PASS, 0 warnings

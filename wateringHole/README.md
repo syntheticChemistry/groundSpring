@@ -9,7 +9,7 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V81 Modern Rewire | [GROUNDSPRING_V81_MODERN_REWIRE_HANDOFF_MAR05_2026.md](handoffs/GROUNDSPRING_V81_MODERN_REWIRE_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | BootstrapMeanGpu GPU dispatch, freeze_out gate fix, coralReef cloned (390 tests), 27/27 cross-spring checks, 88 delegations (51 CPU + 37 GPU), barraCuda `a4c20a5`, toadStool S95 `d4817e2e` |
+| V82 Modern Rewire | [GROUNDSPRING_V82_MODERN_REWIRE_HANDOFF_MAR05_2026.md](handoffs/GROUNDSPRING_V82_MODERN_REWIRE_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | BootstrapMeanGpu GPU dispatch, freeze_out gate fix, coralReef cloned (390 tests), 27/27 cross-spring checks, 91 delegations (54 CPU + 37 GPU), barraCuda `a4c20a5`, toadStool S95 `d4817e2e`, 824 tests |
 | Sovereign Pipeline | [SOVEREIGN_PIPELINE_CROSS_PRIMAL_HANDOFF_MAR05_2026.md](handoffs/SOVEREIGN_PIPELINE_CROSS_PRIMAL_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | Cross-primal sovereign pipeline map: coralReef Phase 5, DF64 utilization strategy, vendor-agnostic IR roadmap |
 
 ## Cross-Spring Documentation
@@ -37,6 +37,7 @@ Superseded handoffs are moved to `handoffs/archive/`.
 
 | Version | Scope |
 |---------|-------|
+| V81 Modern Rewire | BootstrapMeanGpu GPU dispatch, freeze_out gate fix, coralReef (390 tests), 88 delegations (51 CPU + 37 GPU), barraCuda `a4c20a5`, toadStool S95 (superseded by V82) |
 | V80 Fused Ops + Catch-Up | Fused `correlation_full` GPU, Welford single-pass CPU, barraCuda HEAD catch-up, toadStool S94b review, 87 delegations (superseded by V81) |
 | V79 Exp 035 + Delegation | Exp 035 Multi-Method ET₀, seismic delegation, 85 delegations (superseded by V80) |
 | V78 Modern Rewire | Fused mean+variance, 3 new ET₀ delegations, cross-spring benchmark evolution, 84 delegations (superseded by V79) |

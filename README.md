@@ -108,9 +108,9 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace                         # 812+ tests, all PASS
+cargo test --workspace                         # 824 tests, all PASS
 cargo test --workspace --features biomeos      # ~822 tests (NUCLEUS client active)
-cargo test --workspace --features barracuda-gpu # 812+ tests (GPU dispatch active)
+cargo test --workspace --features barracuda-gpu # 824 tests (GPU dispatch active)
 cargo clippy --workspace --all-targets -- -D warnings -W clippy::pedantic -W clippy::nursery
 cargo fmt --check                              # clean
 
@@ -252,17 +252,18 @@ Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardwar
   NumPy/SciPy         Pure safe Rust     BarraCUDA/ToadStool   metalForge dispatch    biomeOS Neural API
   ✓ Complete          ✓ 376/376 PASS     ◐ 84 active           30 workloads           Tower+Node+Squirrel
   11.5× slower        33/33 experiments    (50+34)              24 GPU + 2 NPU + 2 CPU-only         NestGate data pipes
-                      812+ workspace tests                      PCIe topology          NUCLEUS atomics
+                      824 workspace tests                       PCIe topology          NUCLEUS atomics
                                                                 Pipeline dispatch      Sovereign degradation
 
   Write locally    →  Hand off          →  Lean on upstream   →  Cross-substrate     →  Primal orchestration
   (metalForge)       (wateringHole/)       (barracuda ops)       (metalForge forge)    (biomeOS graphs)
 ```
 
-**Lean progress**: 88 functions delegate to barracuda with graceful sovereign fallback.
-51 CPU delegated via `#[cfg(feature = "barracuda")]`, 37 GPU dispatched via
-`#[cfg(feature = "barracuda-gpu")]`. V81: BootstrapMeanGpu GPU dispatch, freeze_out
-gate fix, coralReef cloned (sovereign shader compiler), 27/27 cross-spring checks.
+**Lean progress**: 91 functions delegate to barracuda with graceful sovereign fallback.
+54 CPU delegated via `#[cfg(feature = "barracuda")]`, 37 GPU dispatched via
+`#[cfg(feature = "barracuda-gpu")]`. V82: Thornthwaite ET₀ + heat_index, fit_all
+regression, esn/fao56 smart-refactored, deep debt audit clean.
+V81: BootstrapMeanGpu GPU dispatch, freeze_out gate fix, coralReef cloned, 27/27 cross-spring checks.
 V80: fused `correlation_full` GPU (5-accumulator single-pass), Welford single-pass
 CPU stats, covariance GPU path. V78: modern rewiring — fused `mean_and_std_dev`,
 3 new ET₀ delegations. V77: wgpu 28, DF64 precision tiers. V76: deep debt zero.
@@ -332,7 +333,7 @@ groundSpring/
 │   └── shaders/                    # Production WGSL shaders for ToadStool absorption
 ├── graphs/                         # biomeOS pipeline graphs (Tower bootstrap, Node, cross-substrate)
 ├── .github/workflows/ci.yml        # GitHub Actions CI
-├── wateringHole/                   # Handoff directory (V81 current)
+├── wateringHole/                   # Handoff directory (V82 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md      # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md   # GPU kernel gap analysis

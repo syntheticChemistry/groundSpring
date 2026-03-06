@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: March 5, 2026 (V80)
+**Last Updated**: March 5, 2026 (V82)
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---
@@ -45,8 +45,8 @@
 
 **Phase 0**: ~276 checks (Python, 29 experiments). **Phase 1**: 395/395 PASS (Rust, 34 experiments). **Speedup**: 11.6× median (excl. LAPACK-bound), 51.2× peak (seismic).
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs (Exp 029–033 have no Python baseline).
-**V81 fresh validation**: 395/395 checks (34 binaries), 812+ workspace tests, 100+ three-tier parity tests.
-**GPU dispatch (V31–V81)**: 16 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson, tissue_anderson, jackknife, bootstrap. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). 88 delegations (51 CPU + 37 GPU) — barraCuda `a4c20a5`.
+**V82 fresh validation**: 395/395 checks (34 binaries), 824+ workspace tests, 100+ three-tier parity tests.
+**GPU dispatch (V31–V82)**: 16 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson, tissue_anderson, jackknife, bootstrap. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). 91 delegations (54 CPU + 37 GPU) — barraCuda `a4c20a5`.
 **V66 stats Tier A**: MAE, NSE/R² wired to `FusedMapReduceF64` GPU path. Bistable batch ODE via `BatchedOdeRK4F64`. Papers 1-5 stats fully GPU-capable.
 **V67 hydrology GPU**: `McEt0PropagateGpu` + `SeasonalPipelineF64` + `BatchedMultinomialGpu` API fix (3 call sites).
 **V68 spectral GPU**: `anderson_4d` + `wegner_block_4d` (tissue immunology). `lbfgs_numerical` post-grid refinement.
@@ -279,10 +279,10 @@ Write → Absorb → Lean cycle:
 | 33 | Tissue Anderson 4D + Wegner RG | **29/29** | **Wired** (V68 `anderson_4d` + `wegner_block_4d`) | Workload | 4D Anderson + RG GPU |
 
 **CPU tier**: 395/395 PASS across 34 validation binaries.
-**Barracuda**: 88 active delegations (51 CPU + 37 GPU) — barraCuda `a4c20a5`, toadStool S94b. **Performance**: 11.6× faster than Python (excl. LAPACK-bound); 5.1× overall; 53.5× peak (seismic). **Tests**: 812+ Rust workspace + 390 Python = 1202+. 100+ three-tier parity tests (100% delegation coverage).
+**Barracuda**: 91 active delegations (54 CPU + 37 GPU) — barraCuda `a4c20a5`, toadStool S95 (d4817e2e). **Performance**: 11.6× faster than Python (excl. LAPACK-bound); 5.1× overall; 53.5× peak (seismic). **Tests**: 824+ Rust workspace + 390 Python = 1214+. 100+ three-tier parity tests (100% delegation coverage).
 **Mathematical parity**: 29/29 PROVEN. See `data/parity_report.json` and `data/bench_rust_vs_python.json`.
 **Three-tier parity**: 100+ parity tests validate CPU ↔ barracuda-CPU equivalence (100% delegation coverage).
-**GPU tier**: 15 modules wired with `#[cfg(feature = "barracuda-gpu")]` — stats Tier A complete (MAE, NSE, R²), bistable batch ODE, McEt0PropagateGpu, SeasonalPipelineF64, 4D Anderson + Wegner RG, L-BFGS refinement. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only). GPU grid adapters (seismic, freeze-out). 812 tests pass.
+**GPU tier**: 15 modules wired with `#[cfg(feature = "barracuda-gpu")]` — stats Tier A complete (MAE, NSE, R²), bistable batch ODE, McEt0PropagateGpu, SeasonalPipelineF64, 4D Anderson + Wegner RG, L-BFGS refinement. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only). GPU grid adapters (seismic, freeze-out). 824 tests pass.
 **metalForge tier**: 30 workloads, 187 checks (groundspring-forge crate, Exp 028 NPU DMA on AKD1000, pipeline dispatch, PCIe topology, GPU→NPU bypass).
 
 ### GPU / metalForge Progression (updated V74 — toadStool S93)
@@ -371,12 +371,12 @@ Papers 23, 24 — **partial** (stats GPU, full chain pending).
 ### Tier 1: BarraCUDA CPU (current — 376/376 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
-88 active delegations (51 CPU + 37 GPU) — barraCuda `a4c20a5`, toadStool S94b. 11.5× faster than Python (excl. LAPACK-bound).
-812 Rust workspace tests + 390 Python = 1202. 29/29 mathematical parity proven. 100+ three-tier parity tests (100% delegation coverage).
-395/395 validation checks across 34 experiments (V80, zero-debt audit certified).
+91 active delegations (54 CPU + 37 GPU) — barraCuda `a4c20a5`, toadStool S95 (d4817e2e). 11.5× faster than Python (excl. LAPACK-bound).
+824 Rust workspace tests + 390 Python = 1214. 29/29 mathematical parity proven. 100+ three-tier parity tests (100% delegation coverage).
+395/395 validation checks across 34 experiments (V82, zero-debt audit certified).
 All 34 experiments validated. GPU stats dispatch (mean, std_dev, rmse, mbe, mae, nse, r², pearson_r). L-BFGS post-grid refinement (V68). 14 CPU vs GPU parity tests. CPU vs GPU benchmark binary.
 
-### Tier 2: BarraCUDA GPU (36 GPU dispatch targets — V80)
+### Tier 2: BarraCUDA GPU (36 GPU dispatch targets — V82)
 
 GPU wiring covers 25 of 33 papers (76%). Unidirectional streaming via
 `toadStool` dispatch reduces round trips — CPU uploads once, GPU computes
