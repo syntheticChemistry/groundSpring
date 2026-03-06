@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 5, 2026 (V81 — 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `a4c20a5`, toadStool S94b `bc89fa61`, coralReef `2e89541`. V81: BootstrapMeanGpu dispatch, freeze_out gate fix, coralReef sovereign compiler. V80: fused correlation_full GPU, Welford single-pass CPU. V78: modern rewiring, fused ops, ET₀. V77: wgpu 28, DF64 precision tiers. V73: 13-tier tolerance architecture)
+**Last updated**: March 5, 2026 (V81 — 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `a4c20a5`, toadStool S95 `d4817e2e`, coralReef `2e89541`. V81: BootstrapMeanGpu dispatch, freeze_out gate fix, coralReef sovereign compiler. V80: fused correlation_full GPU, Welford single-pass CPU. V78: modern rewiring, fused ops, ET₀. V77: wgpu 28, DF64 precision tiers. V73: 13-tier tolerance architecture)
 
 ## Philosophy
 

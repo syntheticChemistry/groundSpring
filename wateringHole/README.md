@@ -9,7 +9,7 @@ following the wateringHole inter-primal standard.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V81 Modern Rewire | [GROUNDSPRING_V81_MODERN_REWIRE_HANDOFF_MAR05_2026.md](handoffs/GROUNDSPRING_V81_MODERN_REWIRE_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | BootstrapMeanGpu GPU dispatch, freeze_out gate fix, coralReef cloned (390 tests), 27/27 cross-spring checks, 88 delegations (51 CPU + 37 GPU), barraCuda `a4c20a5`, toadStool S94b `bc89fa61` |
+| V81 Modern Rewire | [GROUNDSPRING_V81_MODERN_REWIRE_HANDOFF_MAR05_2026.md](handoffs/GROUNDSPRING_V81_MODERN_REWIRE_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | BootstrapMeanGpu GPU dispatch, freeze_out gate fix, coralReef cloned (390 tests), 27/27 cross-spring checks, 88 delegations (51 CPU + 37 GPU), barraCuda `a4c20a5`, toadStool S95 `d4817e2e` |
 | Sovereign Pipeline | [SOVEREIGN_PIPELINE_CROSS_PRIMAL_HANDOFF_MAR05_2026.md](handoffs/SOVEREIGN_PIPELINE_CROSS_PRIMAL_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | Cross-primal sovereign pipeline map: coralReef Phase 5, DF64 utilization strategy, vendor-agnostic IR roadmap |
 
 ## Cross-Spring Documentation

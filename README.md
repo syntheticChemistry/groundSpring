@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: March 5, 2026 | **License**: AGPL-3.0-only
-**Status**: 34 modules, 812+ Rust workspace tests + 390 Python tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), 88 active barracuda delegations (51 CPU + 37 GPU) — barraCuda v0.3.3+ (`a4c20a5`), toadStool S94b (`bc89fa61`), coralReef Phase 5 (`2e89541`). V81: BootstrapMeanGpu wired, freeze_out gate fix, 27/27 cross-spring checks, coralReef cloned (390 tests, WGSL→native SM70+ binary). 34 validation binaries. Deep debt zero maintained. 30 metalForge workloads, biomeOS Neural API live, NestGate data pipelines
+**Status**: 34 modules, 812+ Rust workspace tests + 390 Python tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks (130 forge + 57 mixed-hardware), 88 active barracuda delegations (51 CPU + 37 GPU) — barraCuda v0.3.3+ (`a4c20a5`), toadStool S95 (`d4817e2e`), coralReef Phase 5 (`2e89541`). V81: BootstrapMeanGpu wired, freeze_out gate fix, 27/27 cross-spring checks, coralReef cloned (390 tests, WGSL→native SM70+ binary). Titan V (SM70) sovereign path via coralReef, RTX 4070 (SM89) DF64 utilization. 34 validation binaries. Deep debt zero maintained. 30 metalForge workloads, biomeOS Neural API live, NestGate data pipelines
 
 **The gap between what models predict and what instruments measure.**
 

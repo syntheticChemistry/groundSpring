@@ -49,7 +49,7 @@
 **Rust tests**: 812/812 PASS (default workspace)
 **pytest**: 390/390 PASS + 2 skipped
 **Three-tier parity**: 101+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
-**BarraCUDA dispatch**: 88 active (51 CPU + 37 GPU) — V81: barraCuda `a4c20a5`, toadStool S94b. V81 adds BootstrapMeanGpu dispatch, freeze_out gate fix
+**BarraCUDA dispatch**: 88 active (51 CPU + 37 GPU) — V81: barraCuda `a4c20a5`, toadStool S95 (`d4817e2e`). V81 adds BootstrapMeanGpu dispatch, freeze_out gate fix
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); compute.execute + compute.submit validated
 **metalForge workloads**: 30 (24 GPU + 2 NPU + 2 CPU-only), 187 checks (130 forge + 57 mixed-hardware)
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains

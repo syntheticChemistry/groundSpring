@@ -487,39 +487,59 @@ naturally evolves toward multi-vendor support.
 
 ### Medium-term (sovereign pipeline)
 
-7. **Integration test**: `WGSL → naga → coral-reef → binary`, compare
+7. **Titan V as coralReef proving ground**: The Titan V (SM70, Volta) is the
+   ideal first target for coralReef's sovereign pipeline. It has native f64
+   (1:2 ratio), is coralReef's reference platform (default `GpuArch::Sm70`),
+   and currently causes system freezes under NVK/nouveau when doing GPU compute.
+   coralReef + coralDriver would bypass NVK entirely, solving the driver issue
+   while proving sovereignty. groundSpring's Anderson spectral analysis (Exp 008,
+   009) and WDM transport (Exp 025-027) are ideal validation workloads — they
+   demand f64 precision and are already validated on CPU.
+
+8. **RTX 4070 as DF64 utilization target**: The RTX 4070 (SM89, Ada) has
+   consumer f64 (1:32 ratio) but abundant idle f32 cores. coralReef's DF64
+   lowering (exp2, log2, sin, cos via DFMA) would give ~48-bit precision
+   at near-f32 throughput. groundSpring's 34 experiments span a precision
+   spectrum — some need full f64 (Anderson eigensolvers), many thrive at
+   DF64/fp48 (bootstrap, correlation, regression). The hardware pair proves
+   the utilization strategy: Titan V for f64-native, RTX 4070 for DF64,
+   same WGSL source for both.
+
+9. **Integration test**: `WGSL → naga → coral-reef → binary`, compare
    output against `WGSL → naga → SPIR-V → NVK/NAK → binary` on the same shader.
    coralReef's end-to-end pipeline is wired — needs real shader validation.
 
-8. **Benchmark**: Compare coralReef-compiled f64 transcendentals against
-   NVIDIA proprietary PTXAS output for ULP accuracy and throughput.
+10. **Benchmark**: Compare coralReef-compiled f64 transcendentals against
+    NVIDIA proprietary PTXAS output for ULP accuracy and throughput.
 
-9. **coralDriver prototype**: Minimal userspace GPU submission for Volta
-   (GV100). groundSpring's Level 4 assignment.
+11. **coralDriver prototype**: Minimal userspace GPU submission for Volta
+    (GV100). Once coralDriver exists, groundSpring can validate the full
+    sovereign path: WGSL → barraCuda → coralReef → coralDriver → Titan V
+    — zero C, zero vendor, zero Mesa.
 
 ### Long-term (full sovereignty — vendor-free)
 
-10. **Multi-GPU dispatch via coralReef**: Titan V (native f64 via coralReef) +
+12. **Multi-GPU dispatch via coralReef**: Titan V (native f64 via coralReef) +
     RTX 4070 (DF64 via coralReef) — no proprietary drivers needed.
 
-11. **Vendor-agnostic IR** (`coral-ir`): Extract vendor-neutral IR from NAK IR,
-   making optimization passes (copy prop, DCE, scheduling) work for any GPU.
-   See "Eliminating the Vendor Concept" section above.
+13. **Vendor-agnostic IR** (`coral-ir`): Extract vendor-neutral IR from NAK IR,
+    making optimization passes (copy prop, DCE, scheduling) work for any GPU.
+    See "Eliminating the Vendor Concept" section above.
 
-12. **AMD backend**: Add RDNA/CDNA instruction encoding and register allocation
+14. **AMD backend**: Add RDNA/CDNA instruction encoding and register allocation
     to coralReef (not a separate project — a backend module within coralReef).
     Mesa ACO (MIT-licensed) is the reference implementation.
 
-13. **Intel backend**: Add Xe EU ISA encoding. Mesa ANV/iris is the reference.
+15. **Intel backend**: Add Xe EU ISA encoding. Mesa ANV/iris is the reference.
     Both AMD and Intel backends share the same `coral-ir` and optimization
     passes — only legalization, register allocation, and encoding differ.
 
-14. **NPU backend**: When Akida hardware is available, wire
+16. **NPU backend**: When Akida hardware is available, wire
     `NpuDispatch` through metalForge workloads for GPU→NPU pipeline testing.
     NPU is a different compute paradigm (event-driven vs SIMD) but the
     vendor-agnostic IR makes it a natural extension.
 
-15. **coralDriver per architecture**: Userspace GPU drivers for each ISA family,
+17. **coralDriver per architecture**: Userspace GPU drivers for each ISA family,
     eliminating Mesa/kernel driver dependencies entirely. The goal is a single
     Rust binary that compiles and dispatches to any GPU without C dependencies.
 
