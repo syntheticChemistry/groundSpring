@@ -250,10 +250,10 @@ fn hargreaves_et0_batch_gpu(ra: &[f64], tmax: &[f64], tmin: &[f64]) -> Option<Ve
     use barracuda::ops::batched_elementwise_f64::{BatchedElementwiseF64, Op};
 
     let device = crate::gpu::get_device()?;
-    if let Ok(gpu) = barracuda::stats::hydrology::HargreavesBatchGpu::new(device.clone()) {
-        if let Ok(result) = gpu.dispatch(ra, tmax, tmin) {
-            return Some(result);
-        }
+    if let Ok(gpu) = barracuda::stats::hydrology::HargreavesBatchGpu::new(device.clone())
+        && let Ok(result) = gpu.dispatch(ra, tmax, tmin)
+    {
+        return Some(result);
     }
     let gpu = BatchedElementwiseF64::new(device).ok()?;
     let n = ra.len();

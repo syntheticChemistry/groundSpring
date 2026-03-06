@@ -48,12 +48,12 @@ fn resolve_socket(explicit: Option<&str>, xdg_runtime: Option<&str>) -> Option<P
     }
 
     #[cfg(target_os = "linux")]
-    if xdg_runtime.is_none() {
-        if let Some(uid) = proc_self_uid() {
-            let run_dir = PathBuf::from(format!("/run/user/{uid}/biomeos"));
-            if let Some(p) = find_capability_socket(&run_dir) {
-                return Some(p);
-            }
+    if xdg_runtime.is_none()
+        && let Some(uid) = proc_self_uid()
+    {
+        let run_dir = PathBuf::from(format!("/run/user/{uid}/biomeos"));
+        if let Some(p) = find_capability_socket(&run_dir) {
+            return Some(p);
         }
     }
 

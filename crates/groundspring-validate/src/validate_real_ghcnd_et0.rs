@@ -165,57 +165,56 @@ fn fetch_live_weather(
     )?;
 
     let mut days = Vec::new();
-    if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&raw) {
-        if let Some(results) = parsed
+    if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&raw)
+        && let Some(results) = parsed
             .get("data")
             .and_then(|d| d.get("results"))
             .and_then(|r| r.as_array())
-        {
-            let mut tmax_map = std::collections::BTreeMap::new();
-            let mut tmin_map = std::collections::BTreeMap::new();
+    {
+        let mut tmax_map = std::collections::BTreeMap::new();
+        let mut tmin_map = std::collections::BTreeMap::new();
 
-            for record in results {
-                let Some(datatype) = record["datatype"].as_str() else {
-                    continue;
-                };
-                let Some(date) = record["date"].as_str() else {
-                    continue;
-                };
-                let Some(value) = record["value"].as_f64() else {
-                    continue;
-                };
-                let value_c = value / 10.0;
+        for record in results {
+            let Some(datatype) = record["datatype"].as_str() else {
+                continue;
+            };
+            let Some(date) = record["date"].as_str() else {
+                continue;
+            };
+            let Some(value) = record["value"].as_f64() else {
+                continue;
+            };
+            let value_c = value / 10.0;
 
-                match datatype {
-                    "TMAX" => {
-                        tmax_map.insert(date.to_string(), value_c);
-                    }
-                    "TMIN" => {
-                        tmin_map.insert(date.to_string(), value_c);
-                    }
-                    _ => {}
+            match datatype {
+                "TMAX" => {
+                    tmax_map.insert(date.to_string(), value_c);
                 }
+                "TMIN" => {
+                    tmin_map.insert(date.to_string(), value_c);
+                }
+                _ => {}
             }
+        }
 
-            for (i, (date, tmax)) in tmax_map.iter().enumerate() {
-                if let Some(&tmin) = tmin_map.get(date) {
-                    #[expect(
-                        clippy::cast_possible_truncation,
-                        reason = "day-of-year index; max i < 31, so 152 + i fits u16"
-                    )]
-                    let doy = 152 + i as u16;
-                    days.push(groundspring::fao56::DailyWeatherInputs {
-                        tmax_c: *tmax,
-                        tmin_c: tmin,
-                        rhmax_pct: station::RHMAX_PCT,
-                        rhmin_pct: station::RHMIN_PCT,
-                        wind_speed_10m_km_h: station::WIND_SPEED_10M_KM_H,
-                        sunshine_hours: station::SUNSHINE_HOURS,
-                        latitude_deg_n: station::LATITUDE_DEG_N,
-                        altitude_m: station::ALTITUDE_M,
-                        day_of_year: doy,
-                    });
-                }
+        for (i, (date, tmax)) in tmax_map.iter().enumerate() {
+            if let Some(&tmin) = tmin_map.get(date) {
+                #[expect(
+                    clippy::cast_possible_truncation,
+                    reason = "day-of-year index; max i < 31, so 152 + i fits u16"
+                )]
+                let doy = 152 + i as u16;
+                days.push(groundspring::fao56::DailyWeatherInputs {
+                    tmax_c: *tmax,
+                    tmin_c: tmin,
+                    rhmax_pct: station::RHMAX_PCT,
+                    rhmin_pct: station::RHMIN_PCT,
+                    wind_speed_10m_km_h: station::WIND_SPEED_10M_KM_H,
+                    sunshine_hours: station::SUNSHINE_HOURS,
+                    latitude_deg_n: station::LATITUDE_DEG_N,
+                    altitude_m: station::ALTITUDE_M,
+                    day_of_year: doy,
+                });
             }
         }
     }

@@ -285,15 +285,15 @@ pub fn multinomial_sample(abundances: &[f64], depth: u64, seed: u64) -> Vec<u64>
         return vec![0u64; n];
     }
 
-    #[cfg(feature = "barracuda")]
+    #[cfg(feature = "barracuda-gpu")]
     {
         multinomial_sample_barracuda(abundances, depth, seed)
     }
-    #[cfg(not(feature = "barracuda"))]
+    #[cfg(not(feature = "barracuda-gpu"))]
     multinomial_sample_cpu(abundances, depth, seed)
 }
 
-#[cfg(feature = "barracuda")]
+#[cfg(feature = "barracuda-gpu")]
 fn multinomial_sample_barracuda(abundances: &[f64], depth: u64, seed: u64) -> Vec<u64> {
     let cumulative = abundances_to_cumulative(abundances);
     #[expect(
@@ -307,7 +307,7 @@ fn multinomial_sample_barracuda(abundances: &[f64], depth: u64, seed: u64) -> Ve
     counts_u32.iter().map(|&c| u64::from(c)).collect()
 }
 
-#[cfg(not(feature = "barracuda"))]
+#[cfg(not(feature = "barracuda-gpu"))]
 fn multinomial_sample_cpu(abundances: &[f64], depth: u64, seed: u64) -> Vec<u64> {
     use crate::prng::Xorshift64;
 

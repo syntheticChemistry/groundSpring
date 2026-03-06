@@ -15,7 +15,7 @@ workspace = true
 [features]
 default = ["barracuda"]
 barracuda = ["dep:barracuda"]
-barracuda-gpu = ["barracuda", "barracuda/gpu", "dep:wgpu", "dep:bytemuck"]
+barracuda-gpu = ["barracuda", "barracuda/gpu", "barracuda/domain-esn", "dep:wgpu", "dep:bytemuck"]
 nautilus = ["dep:bingocube-nautilus"]
 biomeos = ["dep:serde_json"]
 npu = ["dep:akida-driver"]
@@ -30,7 +30,7 @@ wgpu = { version = "28", optional = true, default-features = false, features = [
 bytemuck = { version = "1", optional = true, features = ["derive"] }
 serde_json = { version = "1", optional = true }
 serde = { version = "1", optional = true, features = ["derive"] }
-tarpc = { version = "0.35", optional = true, features = ["serde-transport", "tokio1"] }
+tarpc = { version = "0.37", optional = true, features = ["serde-transport", "tokio1"] }
 tokio = { version = "1", optional = true, features = ["rt", "net"] }
 
 [dev-dependencies]

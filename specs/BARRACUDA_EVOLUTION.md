@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 6, 2026 (V87 — 93 delegations (56 CPU + 37 GPU), 824+ tests, barraCuda `e1184f3`, toadStool S96c `d77fc546`, coralReef `849fedd`. V87: Tier B resolution — `multinomial_sample` and `anderson_potential` CPU-delegated; `quasispecies_simulation` and `band_structure::find_band_edges` coarse scan documented as CPU-by-design; 5 stale Tier B entries resolved (already wired). V86: Fp64Strategy wired into SumReduceF64/VarianceReduceF64 — DF64 shaders for consumer GPUs. V85: coralReef sovereign compilation — 2 CFG/RA bugs fixed, f64 reduction shaders compile to native SM70/SM89. V84: dual-GPU probe, DF64 green, f64 reduction returns 0 via naga. V83: pin refresh. V82: BootstrapMeanGpu, coralReef Phase 6. V80: fused correlation_full GPU. V77: wgpu 28, DF64 precision tiers. V73: 13-tier tolerance architecture)
+**Last updated**: March 6, 2026 (V89 — 93 delegations (56 CPU + 37 GPU), 500+ tests, barraCuda `ed82625`, toadStool S128b `22d1a2c7`, coralReef Phase 9 `b7f8ab4`. V89: tarpc 0.35→0.37, `barracuda::ops` re-gated to `barracuda-gpu`, `domain-esn` feature wired, Rust 2024 unsafe model, 8 collapsible_if resolved. GPU tests blocked by barraCuda Fp64Strategy regression. V88: deep audit, structured logging, provenance schema, auto-discovery. V87: Tier B resolution. V86: Fp64Strategy. V85: coralReef sovereign compilation. V84: dual-GPU probe. V82: BootstrapMeanGpu. V80: fused correlation_full GPU. V77: wgpu 28, DF64 precision tiers. V73: 13-tier tolerance architecture)
 
 ## Philosophy
 

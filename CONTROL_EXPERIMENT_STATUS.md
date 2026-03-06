@@ -49,7 +49,7 @@
 **Rust tests**: 824/824 PASS (default workspace)
 **pytest**: 390/390 PASS + 2 skipped
 **Three-tier parity**: 101+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
-**BarraCUDA dispatch**: 91 active (54 CPU + 37 GPU) — V85: barraCuda `e1184f3+1`, toadStool S96c (`d77fc546`), coralReef `849fedd`. V85 coralReef sovereign compilation — 2 CFG/RA bugs fixed, f64 shared-memory reduction shaders now compile to native SM70/SM89 (6/6 shader compilation). V84 GPU validation — DF64/tensor/FHE green, f64 reduction shaders return 0 via wgpu (naga shared memory issue), CoralCompiler tokio fix applied
+**BarraCUDA dispatch**: 93 active (56 CPU + 37 GPU) — V89: barraCuda `ed82625`, toadStool S128b (`22d1a2c7`), coralReef Phase 9 (`b7f8ab4`). V89: tarpc 0.37, ops GPU-gated rewire, domain-esn feature, Rust 2024 unsafe model. GPU tests blocked by barraCuda Fp64Strategy regression
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); compute.execute + compute.submit validated
 **metalForge workloads**: 30 (24 GPU + 2 NPU + 2 CPU-only), 187 checks (130 forge + 57 mixed-hardware)
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
@@ -604,7 +604,7 @@ Each experiment is validated at three hardware tiers:
 **GPU tier**: 25 of 34 papers have GPU wiring (76%). 93 delegations (56 CPU + 37 GPU). 30/30 metalForge parity.
 **metalForge tier**: 30 workloads, 187 checks (57 mixed-hardware). Exp 028 NPU 9/9 PASS (AKD1000 DMA). GPU→NPU→CPU pipeline dispatch validated.
 
-### BarraCUDA Integration Status (V85 — toadStool S96c, coralReef `849fedd`)
+### BarraCUDA Integration Status (V89 — toadStool S128b, coralReef Phase 9)
 
 **91 active delegations** (54 CPU + 37 GPU). V82: `BootstrapMeanGpu` GPU dispatch, `freeze_out` gate fix. V81: fused `correlation_full` GPU. V68: `lbfgs_numerical`, `anderson_4d`, `wegner_block_4d`. All active delegations use `if let Ok` / `#[cfg]` with always-compiled CPU fallback.
 
@@ -817,7 +817,8 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V79: Exp 035 + seismic delegation | 85 delegations (51 CPU + 34 GPU), 807 tests, barraCuda v0.3.3, toadStool S94b | Archived |
 | V80: Fused Ops + BarraCuda Catch-Up | 87 delegations (51 CPU + 36 GPU), 812 tests, barraCuda v0.3.3+, toadStool S94b | Archived |
 | V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `e1184f3`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
-| V87: Tier B Resolution + Cross-Spring Completion | 93 delegations (56 CPU + 37 GPU), 804+ tests, Tier B fully resolved, multinomial_sample + anderson_potential CPU-delegated, quasispecies + band_structure CPU-by-design, bidirectional provenance documented | **Current** |
+| V89: Rewire to barraCuda/toadStool/coralReef Evolution | 93 delegations (56 CPU + 37 GPU), 500+ tests, tarpc 0.37, ops GPU-gated, domain-esn, Rust 2024 unsafe model, pins updated | **Current** |
+| V87: Tier B Resolution + Cross-Spring Completion | 93 delegations (56 CPU + 37 GPU), 804+ tests, Tier B fully resolved, multinomial_sample + anderson_potential CPU-delegated, quasispecies + band_structure CPU-by-design, bidirectional provenance documented | Archived |
 | V86: DF64 Reduce Wiring + Full Stats Benchmark | 91 delegations, Fp64Strategy wired into SumReduceF64/VarianceReduceF64, 4-tier benchmark (Python/Kokkos/Rust CPU/GPU), GPU reduce returns 0 (pipeline issue) | Archived |
 | V85: coralReef Sovereign + Evolution Handoff | 91 delegations, 824 CPU tests + 672 coralReef, coralReef CFG/RA fixes, f64 reduction compiles to native SM70/SM89, toadStool/barraCuda evolution handoff | Archived |
 | V84: GPU Validation | 91 delegations, 824 CPU tests, 17/32 GPU tests, RTX 4070 + Titan V probed, DF64 green, f64 reduction broken (naga), CoralCompiler fix | Archived |

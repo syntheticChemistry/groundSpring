@@ -4,6 +4,30 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V89 Rewire to barraCuda/toadStool/coralReef Evolution (Mar 6, 2026)
+
+#### Breaking API Rewire
+- **tarpc 0.35 → 0.37**: Aligned with barraCuda workspace. `#[tarpc::service]` traits unchanged; tarpc 0.37 no longer triggers `clippy::too_many_arguments` internally, so the unfulfilled `#[expect]` was removed from `ipc.rs`
+- **`barracuda::ops` GPU-gated**: barraCuda moved `pub mod ops` behind `#[cfg(feature = "gpu")]`. `rarefaction::multinomial_sample` delegation re-gated from `barracuda` to `barracuda-gpu`; CPU fallback now compiles correctly without GPU feature
+- **`domain-esn` feature**: barraCuda's `esn_v2` module now requires `domain-esn` feature. Added to groundSpring's `barracuda-gpu` feature
+
+#### Code Quality
+- **Rust 2024 unsafe model**: `set_var`/`remove_var` are unsafe in edition 2024. Workspace lint changed from `forbid` to `deny`; all three `lib.rs` files assert `#![forbid(unsafe_code)]` for production code. Test file uses `#[allow(unsafe_code)]` with documented SAFETY comments
+- **Collapsible if**: 8 `collapsible_if` warnings resolved across `fao56/mod.rs`, `biomeos/discovery.rs`, `validate_real_ghcnd_et0.rs`, `validate_iris_seismic.rs`, `validate_anderson.rs`, `validate_nucleus_pipeline.rs` using Rust 2024 `let` chains
+
+#### Pin Updates
+- **barraCuda**: `e1184f3` → `ed82625` (Fp64Strategy wired into SumReduceF64/VarianceReduceF64)
+- **toadStool**: S96c `d77fc546` → S128b `22d1a2c7` (f64 shared-memory routing, PrecisionRoutingAdvice, sovereign_binary_capable, shader compilation IPC)
+- **coralReef**: Phase 6 `849fedd` → Phase 9 `b7f8ab4` (sovereign pipeline complete, zero C dependencies, NVIDIA SM70-89 + AMD RDNA2)
+
+#### Known Issue
+- **GPU test regression**: 6 GPU-dispatched tests fail with barraCuda `ed82625` (`Fp64Strategy` integration into `SumReduceF64`/`VarianceReduceF64`). All 500 CPU tests pass. Filed as evolution request in V89 handoff
+
+#### Validation
+- 500+ tests pass (476 lib + 24 integration), 0 failures (CPU-only)
+- `cargo fmt` + `cargo clippy --workspace --all-features` zero warnings
+- 261/261 Python provenance tests pass
+
 ### V88 Deep Audit + Evolution (Mar 6, 2026)
 
 #### Quality Evolution

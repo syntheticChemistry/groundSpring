@@ -449,13 +449,13 @@ fn validate_crypto_direct(harness: &mut Harness) {
         let name = entry.file_name();
         let path = entry.path();
         let path_str = path.to_string_lossy();
-        if name.to_string_lossy().ends_with(".sock") && !path_str.contains("neural-api") {
-            if let Ok(resp) = rpc_to_socket(&path_str, "crypto.sha256", r#"{"data":"dGVzdA=="}"#) {
-                if resp.contains("hash") {
-                    harness.check("crypto.sha256 via direct discovery", true);
-                    return;
-                }
-            }
+        if name.to_string_lossy().ends_with(".sock")
+            && !path_str.contains("neural-api")
+            && let Ok(resp) = rpc_to_socket(&path_str, "crypto.sha256", r#"{"data":"dGVzdA=="}"#)
+            && resp.contains("hash")
+        {
+            harness.check("crypto.sha256 via direct discovery", true);
+            return;
         }
     }
     harness.check("crypto provider discovered", false);

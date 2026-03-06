@@ -209,25 +209,25 @@ fn fetch_iris_stations(socket: &std::path::Path) -> groundspring::biomeos::Resul
     let raw = nestgate::iris_stations(socket, 34.0, 40.0, -92.0, -87.0)?;
 
     let mut stations = Vec::new();
-    if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&raw) {
-        if let Some(rows) = parsed.get("stations").and_then(|s| s.as_array()) {
-            for row in rows {
-                let Some(code) = row.get("station").and_then(|s| s.as_str()) else {
-                    continue;
-                };
-                let Some(lat) = row.get("latitude").and_then(serde_json::Value::as_f64) else {
-                    continue;
-                };
-                let Some(lon) = row.get("longitude").and_then(serde_json::Value::as_f64) else {
-                    continue;
-                };
-                if lat.abs() > 0.01 {
-                    stations.push(Station {
-                        code: code.to_string(),
-                        lat,
-                        lon,
-                    });
-                }
+    if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&raw)
+        && let Some(rows) = parsed.get("stations").and_then(|s| s.as_array())
+    {
+        for row in rows {
+            let Some(code) = row.get("station").and_then(|s| s.as_str()) else {
+                continue;
+            };
+            let Some(lat) = row.get("latitude").and_then(serde_json::Value::as_f64) else {
+                continue;
+            };
+            let Some(lon) = row.get("longitude").and_then(serde_json::Value::as_f64) else {
+                continue;
+            };
+            if lat.abs() > 0.01 {
+                stations.push(Station {
+                    code: code.to_string(),
+                    lat,
+                    lon,
+                });
             }
         }
     }

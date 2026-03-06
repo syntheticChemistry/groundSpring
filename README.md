@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: March 6, 2026 | **License**: AGPL-3.0-only
-**Status**: V88 — 34 modules, 35 experiments, 824+ Rust workspace tests + 261 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks, 93 active barracuda delegations (56 CPU + 37 GPU) — barraCuda v0.3.3+ (`e1184f3`), toadStool S96c (`d77fc546`), coralReef Phase 6 (`849fedd`). `log` crate for structured logging, formal provenance schema (`specs/PROVENANCE_SCHEMA.md`), auto-discovery benchmark drift guard, all inline magic numbers documented. `cargo fmt` + `cargo clippy --workspace -- -D warnings` + `cargo doc` + `cargo test --workspace` all clean. Zero TODO/FIXME/unsafe/unwrap in production
+**Status**: V89 — 34 modules, 35 experiments, 500+ Rust workspace tests + 261 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks, 93 active barracuda delegations (56 CPU + 37 GPU) — barraCuda v0.3.3+ (`ed82625`), toadStool S128b (`22d1a2c7`), coralReef Phase 9 (`b7f8ab4`). tarpc 0.35→0.37 aligned with barraCuda. `barracuda::ops` gate evolved from `barracuda` to `barracuda-gpu` (barraCuda ops now GPU-only). `domain-esn` feature wired. Rust 2024 `unsafe_code` model: workspace `deny` + lib.rs `#![forbid]`. All collapsible_if and unfulfilled lint expectations resolved. `cargo fmt` + `cargo clippy --workspace --all-features` zero warnings. All CPU tests pass; GPU tests blocked by barraCuda `Fp64Strategy` regression (`ed82625`)
 
 **The gap between what models predict and what instruments measure.**
 

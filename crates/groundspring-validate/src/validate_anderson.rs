@@ -35,22 +35,22 @@ fn lyapunov_via_provider(
     n_real: usize,
     seed: u64,
 ) -> f64 {
-    if groundspring::biomeos::is_enabled() {
-        if let Some(socket) = groundspring::biomeos::discover_socket() {
-            let params = format!(
-                r#"{{"op":"lyapunov_averaged","n_sites":{n_sites},"disorder":{disorder},"energy":{energy},"n_realizations":{n_real},"seed":{seed}}}"#,
-            );
-            match groundspring::biomeos::capability_call(&socket, "compute.execute", &params) {
-                Ok(result) => {
-                    if let Ok(val) = result.trim().parse::<f64>() {
-                        println!("    [biomeOS] routed via compute.execute");
-                        return val;
-                    }
-                    println!("    [biomeOS] parse error, sovereign fallback");
+    if groundspring::biomeos::is_enabled()
+        && let Some(socket) = groundspring::biomeos::discover_socket()
+    {
+        let params = format!(
+            r#"{{"op":"lyapunov_averaged","n_sites":{n_sites},"disorder":{disorder},"energy":{energy},"n_realizations":{n_real},"seed":{seed}}}"#,
+        );
+        match groundspring::biomeos::capability_call(&socket, "compute.execute", &params) {
+            Ok(result) => {
+                if let Ok(val) = result.trim().parse::<f64>() {
+                    println!("    [biomeOS] routed via compute.execute");
+                    return val;
                 }
-                Err(e) => {
-                    println!("    [biomeOS] {e}, sovereign fallback");
-                }
+                println!("    [biomeOS] parse error, sovereign fallback");
+            }
+            Err(e) => {
+                println!("    [biomeOS] {e}, sovereign fallback");
             }
         }
     }

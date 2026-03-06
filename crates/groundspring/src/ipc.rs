@@ -20,14 +20,6 @@
 //! - `storage.*` — Provenance and data
 //! - `data.*` — Live data pipelines (NCBI, NOAA, IRIS)
 
-// tarpc::service macro generates code that triggers pedantic lints on
-// pass-by-value args and argument counts. These are inherent to the
-// RPC trait pattern and not actionable.
-#![expect(
-    clippy::too_many_arguments,
-    reason = "tarpc::service macro generates many-arg internal code"
-)]
-
 /// groundSpring science capabilities exposed to the ecosystem.
 ///
 /// These are the capabilities groundSpring registers with `biomeOS` for

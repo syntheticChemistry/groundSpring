@@ -29,22 +29,26 @@ fn discover_socket_returns_none_when_no_socket_exists() {
 }
 
 #[test]
+#[allow(unsafe_code)]
 fn discover_socket_with_explicit_env_var() {
     let dir = tempfile::tempdir().unwrap();
     let sock = dir.path().join("test-neural-api.sock");
     std::fs::write(&sock, "").unwrap();
 
-    // Temporarily set the env var (test isolation via unique socket name)
     let key = "GROUNDSPRING_BIOMEOS_SOCKET";
     let old = std::env::var(key).ok();
-    std::env::set_var(key, sock.to_str().unwrap());
+    // SAFETY: Single-threaded test; env restored below.
+    unsafe { std::env::set_var(key, sock.to_str().unwrap()) };
 
     let result = biomeos::discover_socket();
     assert_eq!(result, Some(sock));
 
-    match old {
-        Some(v) => std::env::set_var(key, v),
-        None => std::env::remove_var(key),
+    // SAFETY: Restoring original env state.
+    unsafe {
+        match old {
+            Some(v) => std::env::set_var(key, v),
+            None => std::env::remove_var(key),
+        }
     }
 }
 
@@ -303,6 +307,7 @@ fn nucleus_nestgate_noaa_ghcnd() {
 // ── XDG Discovery ────────────────────────────────────────────────────
 
 #[test]
+#[allow(unsafe_code)]
 fn discover_socket_xdg_biomeos_path() {
     let dir = tempfile::tempdir().unwrap();
     let biomeos_dir = dir.path().join("biomeos");
@@ -315,18 +320,25 @@ fn discover_socket_xdg_biomeos_path() {
     let old_socket = std::env::var(key_socket).ok();
     let old_xdg = std::env::var(key_xdg).ok();
 
-    std::env::remove_var(key_socket);
-    std::env::set_var(key_xdg, dir.path().to_str().unwrap());
+    // SAFETY: This test runs single-threaded (no #[test] parallelism concern
+    // for XDG_RUNTIME_DIR). Env vars are restored in the cleanup block below.
+    unsafe {
+        std::env::remove_var(key_socket);
+        std::env::set_var(key_xdg, dir.path().to_str().unwrap());
+    }
 
     let result = biomeos::discover_socket();
     assert_eq!(result, Some(sock));
 
-    match old_socket {
-        Some(v) => std::env::set_var(key_socket, v),
-        None => std::env::remove_var(key_socket),
-    }
-    match old_xdg {
-        Some(v) => std::env::set_var(key_xdg, v),
-        None => std::env::remove_var(key_xdg),
+    // SAFETY: Restoring original env state; same single-threaded guarantee.
+    unsafe {
+        match old_socket {
+            Some(v) => std::env::set_var(key_socket, v),
+            None => std::env::remove_var(key_socket),
+        }
+        match old_xdg {
+            Some(v) => std::env::set_var(key_xdg, v),
+            None => std::env::remove_var(key_xdg),
+        }
     }
 }

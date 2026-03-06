@@ -18,9 +18,8 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V88 Deep Audit + Evolution | [GROUNDSPRING_V88_DEEP_AUDIT_EVOLUTION_HANDOFF_MAR06_2026.md](handoffs/GROUNDSPRING_V88_DEEP_AUDIT_EVOLUTION_HANDOFF_MAR06_2026.md) | Mar 6, 2026 | Full codebase audit, structured logging, provenance schema, auto-discovery drift guard, PRNG alignment roadmap, coverage gaps, evolution requests |
+| V89 Rewire Evolution | [GROUNDSPRING_V89_REWIRE_EVOLUTION_HANDOFF_MAR06_2026.md](handoffs/GROUNDSPRING_V89_REWIRE_EVOLUTION_HANDOFF_MAR06_2026.md) | Mar 6, 2026 | Rewire to barraCuda/toadStool/coralReef evolution: tarpc 0.37, ops GPU-gated, domain-esn, Rust 2024 unsafe model, GPU regression report |
 | V87 Tier B Resolution | [GROUNDSPRING_V87_TIER_B_RESOLUTION_HANDOFF_MAR06_2026.md](handoffs/GROUNDSPRING_V87_TIER_B_RESOLUTION_HANDOFF_MAR06_2026.md) | Mar 6, 2026 | Tier B resolution complete: 93 delegations (56 CPU + 37 GPU), multinomial_sample + anderson_potential wired |
-| Sovereign Pipeline | [SOVEREIGN_PIPELINE_CROSS_PRIMAL_HANDOFF_MAR05_2026.md](handoffs/SOVEREIGN_PIPELINE_CROSS_PRIMAL_HANDOFF_MAR05_2026.md) | Mar 5, 2026 | Cross-primal sovereign pipeline map: coralReef Phase 6, DF64 utilization strategy |
 
 ## Cross-Spring Documentation
 
