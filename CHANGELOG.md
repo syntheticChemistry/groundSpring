@@ -4,6 +4,27 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V85 coralReef Sovereign Compilation (Mar 6, 2026)
+
+#### Fixed (in coralReef — commit `849fedd`)
+- **CFG edge loss in opt_jump_thread**: `translate_if` now emits conditional branches (`@!cond BRA reject`), preventing `rewrite_cfg` from losing structural edges to reject blocks. Fixes compilation of shaders with 3+ `workgroupBarrier()` calls
+- **Multi-predecessor RA merge**: Register allocator now merges SSA→register mappings from ALL predecessors at merge points (not just `pred[0]`)
+- **OpBar encoding**: BAR.SYNC instruction encoder fields now populated (src, reduction op, barrier mode, predicate)
+
+#### Achieved
+- **Sovereign f64 reduction compilation**: coralReef compiles the exact f64 shared-memory reduction shaders that fail through `naga → SPIR-V → NVK/NAK` to native SM70 (Titan V) and SM89 (RTX 4070) binaries
+- **6/6 shader compilation**: basic f64, storage r/w, shared_mem simple, 2-barrier, 3-barrier, 8-step unrolled reduction — all compile for both GPU architectures
+
+#### Documented
+- **Handoff**: `CORALREEF_SOVEREIGN_COMPILATION_HANDOFF_MAR06_2026.md` — detailed findings, remaining gaps (coralDriver, BAR.SYNC encoding, f64 instruction emission), and evolution guidance
+
+#### Remaining Gaps
+- **coralDriver**: Native binaries compile but cannot be submitted to GPU yet (no cubin ELF wrapper or userspace driver)
+- **BAR.SYNC opex**: nvdisasm reports undefined opex table value 0x10 — barrier count field encoding needs Volta reference
+- **f64 instructions**: Basic shaders disassemble as FMUL/FADD (f32) instead of DMUL/DADD (f64)
+- **Loop compilation**: Loop-based tree reduction hits `opt_instr_sched_prepass` assertion (unrolled works)
+- **Uniform buffers**: `var<uniform>` bindings not yet supported in compute prologue
+
 ### V84 GPU Validation Discovery (Mar 6, 2026)
 
 #### Added
