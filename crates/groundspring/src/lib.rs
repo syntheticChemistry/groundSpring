@@ -106,6 +106,20 @@ pub fn gpu_available() -> bool {
     }
 }
 
+/// Hardware-aware precision routing advice for GPU dispatch paths.
+///
+/// Queries the barraCuda `GpuDriverProfile` to determine which f64 precision
+/// strategy is safe for the detected hardware. Returns `None` when compiled
+/// without `barracuda-gpu` or when no GPU is available.
+///
+/// See [`barracuda::device::driver_profile::PrecisionRoutingAdvice`] for
+/// the four routing tiers (`F64Native`, `F64NativeNoSharedMem`, `Df64Only`, `F32Only`).
+#[cfg(feature = "barracuda-gpu")]
+#[must_use]
+pub fn gpu_precision_routing() -> Option<gpu::PrecisionRoutingAdvice> {
+    gpu::precision_routing()
+}
+
 #[cfg(feature = "biomeos")]
 pub mod biomeos;
 

@@ -41,11 +41,13 @@ fn coefficient_of_efficiency_gpu(observed: &[f64], modeled: &[f64]) -> Option<f6
     if observed.is_empty() {
         return Some(0.0);
     }
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
     let fmr = barracuda::ops::fused_map_reduce_f64::FusedMapReduceF64::new(device).ok()?;
-    let mean_obs =
-        barracuda::ops::sum_reduce_f64::SumReduceF64::mean(crate::gpu::get_device()?, observed)
-            .ok()?;
+    let mean_obs = barracuda::ops::sum_reduce_f64::SumReduceF64::mean(
+        crate::gpu::get_device_f64_safe()?,
+        observed,
+    )
+    .ok()?;
     let residuals: Vec<f64> = observed.iter().zip(modeled).map(|(o, m)| o - m).collect();
     let deviations: Vec<f64> = observed.iter().map(|o| o - mean_obs).collect();
     let ss_res = fmr.sum_of_squares(&residuals).ok()?;
@@ -102,7 +104,7 @@ fn rmse_gpu(observed: &[f64], modeled: &[f64]) -> Option<f64> {
     if observed.is_empty() {
         return Some(0.0);
     }
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
     let residuals: Vec<f64> = observed.iter().zip(modeled).map(|(o, m)| o - m).collect();
     let gpu = barracuda::ops::fused_map_reduce_f64::FusedMapReduceF64::new(device).ok()?;
     let ss = gpu.sum_of_squares(&residuals).ok()?;
@@ -159,7 +161,7 @@ fn mae_gpu(observed: &[f64], modeled: &[f64]) -> Option<f64> {
         return Some(0.0);
     }
     let residuals: Vec<f64> = observed.iter().zip(modeled).map(|(o, m)| o - m).collect();
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
     let fmr = barracuda::ops::fused_map_reduce_f64::FusedMapReduceF64::new(device).ok()?;
     let l1 = fmr.l1_norm(&residuals).ok()?;
     Some(l1 / crate::cast::usize_f64(residuals.len()))

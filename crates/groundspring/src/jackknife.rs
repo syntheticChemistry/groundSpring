@@ -62,7 +62,7 @@ pub fn jackknife_mean_variance(data: &[f64]) -> Result<JackknifeResult, InputErr
 
 #[cfg(feature = "barracuda-gpu")]
 fn jackknife_mean_gpu(data: &[f64]) -> Option<JackknifeResult> {
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
     let gpu = barracuda::stats::jackknife::JackknifeMeanGpu::new(device).ok()?;
     let result = gpu.dispatch(data).ok()?;
     Some(JackknifeResult {

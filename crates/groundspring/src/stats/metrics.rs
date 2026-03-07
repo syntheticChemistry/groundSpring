@@ -131,7 +131,7 @@ fn mean_and_std_dev_gpu(values: &[f64]) -> Option<(f64, f64)> {
     if values.is_empty() {
         return Some((0.0, 0.0));
     }
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
     let var_op = barracuda::ops::variance_f64_wgsl::VarianceF64::new(device).ok()?;
     let [m, v] = var_op.mean_variance(values, 0).ok()?;
     Some((m, v.sqrt()))

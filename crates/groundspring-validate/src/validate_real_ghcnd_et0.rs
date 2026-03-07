@@ -17,10 +17,6 @@
 compile_error!("Exp 029 requires --features biomeos");
 
 #[cfg(feature = "biomeos")]
-#[expect(
-    clippy::cast_precision_loss,
-    reason = "day counts ≤ 366 cast to f64 for averaging"
-)]
 fn main() {
     use groundspring::biomeos;
     use groundspring::fao56::{self, DailyWeatherInputs};

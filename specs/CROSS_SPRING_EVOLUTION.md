@@ -1,15 +1,15 @@
 # Cross-Spring Shader Evolution
 
-**Last updated**: March 7, 2026 (V95 — 102 active delegations (61 CPU + 41 GPU), 907 Rust workspace tests, barraCuda v0.3.3, toadStool S129, coralReef Phase 11)
+**Last updated**: March 7, 2026 (V96 — 102 active delegations (61 CPU + 41 GPU), 925 Rust workspace tests, barraCuda `2a6c072`, toadStool S130, coralReef Iteration 7)
 
 The ecoPrimals shader ecosystem evolved organically as each spring
-absorbed domain-specific knowledge, then shared it through ToadStool's
-BarraCUDA library. This document maps the provenance and
+absorbed domain-specific knowledge, then shared it through barraCuda
+(the standalone compute primal). This document maps the provenance and
 cross-pollination of shaders across springs.
 
 ## Overview
 
-ToadStool S68+ has absorbed 700 WGSL shaders from five springs, compiled
+barraCuda v0.3.3 has absorbed 708 WGSL shaders from five springs, compiled
 through a universal precision pipeline (`compile_shader_universal()` +
 naga IR rewrite) that gives every spring f64-class precision on any GPU.
 
@@ -121,56 +121,57 @@ to biodiversity assessment.
 | S67 | Feb 27 | `compile_shader_universal()` | Transparent precision upgrade |
 | S68 | Feb 27 | Dual-layer precision, zero f32-only | Universal precision complete |
 
-## Benchmark Results (V42, February 28, 2026)
+## Benchmark Results (V96, March 7, 2026)
 
 Three-mode benchmark (`benchmark-cross-spring --release`):
 
-### CPU-Local (no barracuda)
+### Cross-Spring Provenance Benchmark (barraCuda `2a6c072`, toadStool S130)
 
-| Workload | Time | Notes |
+| Workload | Origin Spring | Time | Notes |
+|---|---|---|---|
+| Stats metrics (6, n=10K) | airSpring + groundSpring → S64 | 2.9s | GPU dispatch (precision-routed) |
+| Fused mean+variance (n=50K) | hotSpring DF64 → Welford | 3.7ms | hotSpring `df64_core.wgsl` lineage |
+| Bootstrap RAWR (n=5K, B=1K) | groundSpring → S66 | 30.3ms | RAWR resampling |
+| Regression fits (3 models, n=1K) | airSpring → S66 | 25µs | Linear/quadratic/exponential |
+| Shannon diversity (S=200) | wetSpring → S64 | 1.5ms | Pielou evenness included |
+| ET₀ 5 methods (Uccle) | airSpring → barraCuda v0.3.2 | <1µs each | PM/Hargreaves/Makkink/Turc/Hamon |
+| Anderson Lyapunov (L=200, R=500) | hotSpring → S26 | 2.4ms | Transfer matrix, spectral theory |
+
+### CPU vs GPU Benchmark (bench-cpu-vs-gpu)
+
+| Workload | CPU (ms) | GPU (ms) | Notes |
+|---|---|---|---|
+| Gillespie SSA (100 traj) | 5.2 | 23.3 | GPU overhead dominates at small batch |
+| Wright-Fisher (100 trials) | 19.5 | 232.7 | GPU overhead; wins at 10K+ trials |
+| Multinomial (200 reps × 6 taxa) | 1.0 | 4.4 | GPU crossover at ~1K reps |
+| Covariance (5K pairs, GPU) | 0.43 | — | CovarianceF64 single-pass |
+| Autocorrelation (10K, lag 200) | 0.40 | — | AutocorrelationF64 |
+| Seismic grid (31×31×7) | 7210 | — | CPU-intensive, GPU candidate |
+
+### Precision Routing (V96)
+
+11 GPU dispatch paths now check `PrecisionRoutingAdvice` via `get_device_f64_safe()`:
+- `F64Native` → proceed (workgroup f64 reductions safe)
+- `Df64Only` → proceed (barraCuda routes DF64 shaders internally)
+- `F64NativeNoSharedMem` → skip GPU, fall back to CPU (naga shared-mem f64 zeros bug)
+- `F32Only` → skip GPU, fall back to CPU
+
+### Three-Tier Parity (V96)
+
+| Tier | Tests | Status |
 |---|---|---|
-| Stats metrics (6 metrics, n=10K) | 59 µs | Pure groundSpring |
-| Bootstrap RAWR (n=5K, B=1000) | 38,702 µs | Resampling-heavy |
-| Regression fits (3 models, n=1K) | 18 µs | OLS + log-transform |
-| Shannon diversity (S=200) | <1 µs | Instant |
-| Anderson Lyapunov (L=200, R=500) | 2,625 µs | Transfer matrix |
-| Rare biosphere occupancy (S=15, n=200) | 974 µs | Multinomial sampling |
+| Physics (Anderson, band, transport, seismic, freeze-out) | 27 | PASS |
+| Stats (bootstrap, RMSE, regression, correlation) | 24 | PASS |
+| Bio (drift, jackknife, rare biosphere, quasispecies, rarefaction) | — | PASS |
+| GPU (workloads, CPU vs GPU dispatch) | — | PASS |
 
-### barracuda-GPU (S68+ universal precision)
-
-| Workload | Time | Notes |
-|---|---|---|
-| Stats metrics (6 metrics, n=10K) | 62 µs | CPU delegation (≈parity) |
-| Bootstrap RAWR (n=5K, B=1000) | 34,366 µs | CPU delegation |
-| Regression fits (3 models, n=1K) | 25 µs | CPU delegation |
-| Shannon diversity (S=200) | 1 µs | CPU delegation |
-| Anderson Lyapunov (L=200, R=500) | 3,883 µs | CPU function via spectral |
-| Rare biosphere occupancy (S=15, n=200) | 4,374,552 µs | **GPU first-call** (device+shader init ~4.3s) |
-| Rare biosphere tier detection | 9,490 µs | GPU (device cached) |
-| Rarefaction scaling n=50 | 5,208 µs | GPU overhead dominates |
-| Rarefaction scaling n=500 | 3,767 µs | GPU overhead amortized |
-| Rarefaction scaling n=1000 | 4,978 µs | GPU ≈ CPU crossover |
-
-**Key observations**:
-- CPU delegations (stats, regression, bootstrap) show near-parity: barracuda
-  adds <5% overhead, confirming zero-cost abstraction for scalar work.
-- GPU multinomial has ~4.3s first-call overhead (device creation + shader
-  compilation). After init, scales sub-linearly with n_samples.
-- GPU crossover vs CPU occurs at ~n_samples=1000 for this workload size.
-  For larger communities (S=1000+) and deeper rarefaction, GPU wins earlier.
-- Anderson Lyapunov is CPU-only in both modes (barracuda's `spectral::`
-  functions are CPU, gated behind `gpu` feature for module access).
-
-## GPU Delegation Status (V42)
+## GPU Delegation Status (V96 — 102 delegations)
 
 | Delegation | Status | Shader Origin |
 |---|---|---|
-| `abundance_occupancy` → `BatchedMultinomialGpu` | **WIRED** (V42) | groundSpring → neuralSpring metalForge |
-| `tier_detection_rate` → `BatchedMultinomialGpu` | **WIRED** (V42) | groundSpring → neuralSpring metalForge |
-| `quasispecies_simulation` → `WrightFisherGpu` | Documented (needs multi-gen host loop) | neuralSpring metalForge |
-| `kimura_fixation_prob` | Pending (not in barracuda) | — |
-| `jackknife_mean_variance` | Pending (not in barracuda) | — |
-| `fao56::daily_et0` | Pending (scalar not in barracuda) | — |
-| `grid_fit_2d` | Pending (not in barracuda) | — |
-| `find_band_edges` | Pending (not in barracuda) | — |
-| `grid_search_inversion` | Pending (not in barracuda) | — |
+| 61 CPU delegations (stats, bio, hydrology, linalg, spectral) | **WIRED** | Cross-spring via barraCuda |
+| 41 GPU delegations (reductions, multinomial, ODE, optimization) | **WIRED** | Cross-spring via barraCuda GPU ops |
+| 11 GPU paths with precision routing | **WIRED** (V96) | `get_device_f64_safe()` guard |
+| `BatchedOdeRK45F64` (adaptive RK45) | Available | wetSpring V95 → barraCuda |
+| `GpuView<T>` (persistent GPU buffer) | Available | barraCuda pipeline |
+| `LSCFRK` (lattice integrators) | Available | hotSpring lattice QCD |

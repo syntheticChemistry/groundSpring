@@ -176,7 +176,7 @@ pub fn autocorrelation(data: &[f64], max_lag: usize) -> Vec<f64> {
 
 #[cfg(feature = "barracuda-gpu")]
 fn autocorrelation_gpu(data: &[f64], max_lag: usize) -> Option<Vec<f64>> {
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
     let gpu = barracuda::ops::autocorrelation_f64_wgsl::AutocorrelationF64::new(device).ok()?;
     gpu.autocorrelation(data, max_lag).ok()
 }

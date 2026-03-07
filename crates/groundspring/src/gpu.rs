@@ -20,6 +20,7 @@
 use std::sync::{Arc, OnceLock};
 
 use barracuda::device::WgpuDevice;
+pub use barracuda::device::driver_profile::PrecisionRoutingAdvice;
 
 static DEVICE: OnceLock<Option<Arc<WgpuDevice>>> = OnceLock::new();
 
@@ -47,4 +48,49 @@ pub fn get_device() -> Option<Arc<WgpuDevice>> {
                 .map(Arc::new)
         })
         .clone()
+}
+
+/// Query precision routing advice for the cached GPU device.
+///
+/// Returns the hardware-appropriate precision strategy based on driver
+/// profile detection (barraCuda `GpuDriverProfile` from toadStool S128):
+///
+/// - [`PrecisionRoutingAdvice::F64Native`] — workgroup f64 reductions safe
+/// - [`PrecisionRoutingAdvice::F64NativeNoSharedMem`] — avoid `var<workgroup>` f64
+/// - [`PrecisionRoutingAdvice::Df64Only`] — use DF64 (f32-pair) for f64 work
+/// - [`PrecisionRoutingAdvice::F32Only`] — no f64 support
+///
+/// Returns `None` if no GPU is available.
+#[must_use]
+pub fn precision_routing() -> Option<PrecisionRoutingAdvice> {
+    use barracuda::device::driver_profile::GpuDriverProfile;
+    let device = get_device()?;
+    let profile = GpuDriverProfile::from_device(&device);
+    Some(profile.precision_routing())
+}
+
+/// Returns `true` when the GPU can safely run f64 workgroup-reduction
+/// shaders (sum, variance, correlation, etc.).
+///
+/// Returns `false` for `F64NativeNoSharedMem` (naga/SPIR-V zeros bug),
+/// `F32Only` (no f64 at all), or when no GPU is available.
+/// Returns `true` for `F64Native` and `Df64Only` (barraCuda routes DF64
+/// shaders internally via `Fp64Strategy`).
+#[must_use]
+pub fn f64_reductions_safe() -> bool {
+    matches!(
+        precision_routing(),
+        Some(PrecisionRoutingAdvice::F64Native | PrecisionRoutingAdvice::Df64Only)
+    )
+}
+
+/// Get the device only when f64 reductions are safe. Convenience for GPU
+/// dispatch paths that depend on workgroup f64 shared-memory reductions.
+#[must_use]
+pub fn get_device_f64_safe() -> Option<Arc<WgpuDevice>> {
+    if f64_reductions_safe() {
+        get_device()
+    } else {
+        None
+    }
 }

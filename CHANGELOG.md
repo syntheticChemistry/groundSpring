@@ -4,6 +4,42 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V96 Upstream Rewire + Precision Routing (Mar 7, 2026)
+
+#### Precision Routing
+- **`PrecisionRoutingAdvice` wired**: `gpu::precision_routing()` queries barraCuda `GpuDriverProfile` for hardware-appropriate f64 routing (F64Native / F64NativeNoSharedMem / Df64Only / F32Only)
+- **Public API**: `groundspring::gpu_precision_routing()` re-exported with `#[cfg(feature = "barracuda-gpu")]` gate
+- Provenance: originated in groundSpring V84-V85, absorbed into toadStool S128, re-exported from barraCuda `device::driver_profile`, now round-tripped back as first-class API
+
+#### Upstream Pin Updates
+- barraCuda `0bd401f` → `2a6c072` (module decomposition, shader.compile.* IPC alignment, lint hardening, LSCFRK integrators, DF64 bug fix)
+- toadStool S129 → S130 (`88a545df`, cross-spring shader rewiring, coralReef proxy, provenance tracking)
+- coralReef Phase 11 → Iteration 7 (`72e6d13`, safety boundary, ioctl layout tests, CFG domain-split)
+
+#### Precision Routing Wiring (V96b)
+- 11 GPU dispatch paths now check `PrecisionRoutingAdvice` via `get_device_f64_safe()`:
+  `pearson_full_gpu`, `pearson_r_gpu`, `covariance_gpu`, `mean_and_std_dev_gpu`,
+  `coefficient_of_efficiency_gpu`, `rmse_gpu`, `mae_gpu`, `jackknife_mean_gpu`,
+  `simpson_diversity_gpu`, `shannon_diversity_gpu`, `autocorrelation_gpu`
+- Added `gpu::f64_reductions_safe()` and `gpu::get_device_f64_safe()` helpers
+- Skips GPU dispatch when `F64NativeNoSharedMem` or `F32Only` (naga shared-mem zeros bug)
+- Three-tier parity tests: 51/51 PASS (physics 27, stats 24)
+- Cross-spring benchmark validated with provenance annotations
+
+#### Cross-Spring Shader Evolution
+- Updated `specs/CROSS_SPRING_EVOLUTION.md` with modern provenance (708 shaders, 5 springs)
+- Documented origin → consumer matrix, precision evolution timeline, and evolution examples
+
+#### Quality
+- 925 tests (was 907), 102 delegations (61 CPU + 41 GPU), all quality gates pass
+- Fixed stale `#[expect(clippy::cast_precision_loss)]` in `validate_real_ghcnd_et0.rs`
+- Collapsed nested `if let` in `stats/correlation.rs` per clippy `collapsible_if`
+- Doc sync: README, CONTROL_EXPERIMENT_STATUS, BARRACUDA_EVOLUTION updated
+
+#### Handoff
+- V96 handoff: upstream rewire, precision routing integration, delegation summary, evolution requests
+- V95 handoff archived
+
 ### V95 coralReef Breakthrough + Doc Sync + Handoff (Mar 7, 2026)
 
 #### coralReef Phase 11

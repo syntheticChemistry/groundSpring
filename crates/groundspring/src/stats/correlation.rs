@@ -85,7 +85,7 @@ fn pearson_full_gpu(x: &[f64], y: &[f64]) -> Option<CorrelationFull> {
             pearson_r: 0.0,
         });
     }
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
     let gpu = barracuda::ops::correlation_f64_wgsl::CorrelationF64::new(device).ok()?;
     let r = gpu.correlation_full(x, y).ok()?;
     Some(CorrelationFull {
@@ -177,7 +177,7 @@ fn pearson_r_gpu(x: &[f64], y: &[f64]) -> Option<f64> {
     if x.is_empty() {
         return Some(0.0);
     }
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
     let gpu = barracuda::ops::correlation_f64_wgsl::CorrelationF64::new(device).ok()?;
     let r = gpu.correlation(x, y).ok()?;
     Some(if r.is_nan() { 0.0 } else { r })
@@ -293,13 +293,13 @@ fn covariance_gpu(x: &[f64], y: &[f64]) -> Option<f64> {
     if n < 2 {
         return Some(0.0);
     }
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
     // Prefer dedicated CovarianceF64 (barraCuda S128+) — single-pass,
     // avoids deriving from r * sqrt(var_x * var_y).
-    if let Ok(gpu) = barracuda::ops::covariance_f64_wgsl::CovarianceF64::new(device.clone()) {
-        if let Ok(c) = gpu.sample_covariance(x, y) {
-            return Some(c);
-        }
+    if let Ok(gpu) = barracuda::ops::covariance_f64_wgsl::CovarianceF64::new(device.clone())
+        && let Ok(c) = gpu.sample_covariance(x, y)
+    {
+        return Some(c);
     }
     // Fallback: derive from CorrelationF64::correlation_full.
     let gpu = barracuda::ops::correlation_f64_wgsl::CorrelationF64::new(device).ok()?;

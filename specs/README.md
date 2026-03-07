@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: March 7, 2026
-**Status**: V95 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 102 delegations (61 CPU + 41 GPU) — barraCuda v0.3.3, toadStool S129, coralReef Phase 11, 907 workspace tests, 261 provenance tests, 100+ three-tier parity tests, 187 metalForge checks, 35 experiments, 34 modules
+**Status**: V96 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 102 delegations (61 CPU + 41 GPU) — barraCuda `2a6c072`, toadStool S130, coralReef Iteration 7, 925 workspace tests, 261 provenance tests, 100+ three-tier parity tests, 187 metalForge checks, 35 experiments, 34 modules. `PrecisionRoutingAdvice` wired into 11 GPU dispatch paths
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -15,7 +15,7 @@
 | Phase 4 (NUCLEUS) | 55/55 PASS — 4 NUCLEUS validation binaries (Exp 029–032) |
 | Total Validation | 395/395 PASS across 34 experiments |
 | Mathematical Parity | 28/28 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
-| Rust tests | 907 workspace + 261 Python = 1168+ total |
+| Rust tests | 925 workspace + 261 Python = 1186+ total |
 | metalForge | 2 production WGSL shaders (anderson_lyapunov, anderson_lyapunov_f32) |
 | Exp 001 | Sensor noise decomposition — EC5 bias-dominated, CS616 mixed |
 | Exp 002 | Observation gap ERA5 vs station — methodology validated |
@@ -49,7 +49,7 @@
 | Exp 030 | Real NCBI 16S — rare biosphere detection on real/synthetic NCBI metagenomes (NUCLEUS) |
 | Exp 031 | NUCLEUS Stack — full primal validation: Tower + Node + Squirrel + Nest |
 | Exp 032 | IRIS Seismic — IRIS FDSN station geometry + travel times via NestGate (NUCLEUS) |
-| Barracuda | 102 delegations (61 CPU + 41 GPU) — barraCuda `0bd401f`. GPU grid adapters + batch APIs. 187 metalForge checks |
+| Barracuda | 102 delegations (61 CPU + 41 GPU) — barraCuda `2a6c072`. GPU grid adapters + batch APIs. 187 metalForge checks. PrecisionRoutingAdvice wired |
 | NUCLEUS | biomeOS Neural API live: Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) |
 | Performance | 11.5× faster than Python (excl. LAPACK-bound); 5.1× overall |
 | Faculty | Bazavov, Waters, Liu, Kachkovskiy, R. Anderson, Dolson, Gonzales |

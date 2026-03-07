@@ -49,7 +49,7 @@ pub fn simpson_diversity(counts: &[u64]) -> f64 {
 
 #[cfg(feature = "barracuda-gpu")]
 fn simpson_diversity_gpu(f_counts: &[f64]) -> Option<f64> {
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
     let fmr = barracuda::ops::fused_map_reduce_f64::FusedMapReduceF64::new(device).ok()?;
     fmr.simpson_index(f_counts).ok()
 }
@@ -142,7 +142,7 @@ pub fn shannon_diversity(counts: &[u64]) -> f64 {
 
 #[cfg(feature = "barracuda-gpu")]
 fn shannon_diversity_gpu(f_counts: &[f64]) -> Option<f64> {
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
     let fmr = barracuda::ops::fused_map_reduce_f64::FusedMapReduceF64::new(device).ok()?;
     fmr.shannon_entropy(f_counts).ok()
 }

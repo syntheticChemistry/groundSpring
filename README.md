@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: March 7, 2026 | **License**: AGPL-3.0-only
-**Status**: V95 — 34 modules, 35 experiments, 907 Rust workspace tests + 261 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda `0bd401f`, toadStool S129, coralReef Phase 11. **coralReef breakthrough**: push buffer encoding fixed (Kepler+ mthd_incr field swap), NVIF constants aligned to Mesa, SET_OBJECT + INVALIDATE_SHADER_CACHES + SET_SHADER_LOCAL_MEMORY_WINDOW all surviving on Titan V via sovereign EXEC path — full compute method dispatch proven without NAK/NVK/Vulkan
+**Status**: V96 — 34 modules, 35 experiments, 925 Rust workspace tests + 261 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda `2a6c072` (module decomposition + shader.compile.* IPC alignment), toadStool S130 (`88a545df`, cross-spring shader rewiring + coralReef proxy), coralReef Iteration 7 (`72e6d13`, safety boundary + ioctl layout tests). **Precision routing**: `PrecisionRoutingAdvice` wired from barraCuda `GpuDriverProfile` (F64Native / F64NativeNoSharedMem / Df64Only / F32Only) — GPU ops can now route reductions based on hardware f64 shared-memory reliability
 
 **The gap between what models predict and what instruments measure.**
 
@@ -109,7 +109,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace                         # 907 tests, all PASS
+cargo test --workspace                         # 925 tests, all PASS
 cargo test --workspace --features biomeos      # NUCLEUS client active
 cargo test --workspace --features barracuda-gpu # GPU dispatch active
 cargo clippy --workspace --all-targets -- -D warnings -W clippy::pedantic -W clippy::nursery
@@ -240,20 +240,22 @@ eigenvalue solver (from hotSpring S26 spectral), GPU reduce ops
 (FusedMapReduceF64, SumReduceF64, VarianceReduceF64, CorrelationF64),
 and batch dispatch APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64),
 giving **47.7× speedup** for Exp 009. Cross-spring evolution validated
-by 76 active delegations (44 CPU + 32 GPU), including
+by 102 active delegations (61 CPU + 41 GPU), including
 ESN regime classification, Lanczos sparse eigensolver, 2D/3D/4D Anderson eigenvalues,
 L-BFGS refinement, Wegner RG coarsening, and decomposed chi-squared analysis from
 hotSpring/wetSpring lineage. 30 metalForge workloads route across 5 substrates
 (24 GPU + 2 NPU + 2 CPU-only) with architecture-aware routing.
+`PrecisionRoutingAdvice` (V96) guards all 11 f64 reduction GPU paths via
+`get_device_f64_safe()` — hardware-aware routing (F64Native / Df64Only / F32Only).
 
 ## Evolution Path
 
 ```
 Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardware)  →  Phase 4 (NUCLEUS)
   NumPy/SciPy         Pure safe Rust     BarraCUDA/ToadStool   metalForge dispatch    biomeOS Neural API
-  ✓ Complete          ✓ 376/376 PASS     ◐ 84 active           30 workloads           Tower+Node+Squirrel
-  11.5× slower        33/33 experiments    (50+34)              24 GPU + 2 NPU + 2 CPU-only         NestGate data pipes
-                      824 workspace tests                       PCIe topology          NUCLEUS atomics
+  ✓ Complete          ✓ 395/395 PASS     ◐ 102 active          30 workloads           Tower+Node+Squirrel
+  11.5× slower        35/35 experiments    (61+41)              24 GPU + 2 NPU + 2 CPU-only         NestGate data pipes
+                      925 workspace tests                       PCIe topology          NUCLEUS atomics
                                                                 Pipeline dispatch      Sovereign degradation
 
   Write locally    →  Hand off          →  Lean on upstream   →  Cross-substrate     →  Primal orchestration
@@ -334,7 +336,7 @@ groundSpring/
 │   └── shaders/                    # Production WGSL shaders for ToadStool absorption
 ├── graphs/                         # biomeOS pipeline graphs (Tower bootstrap, Node, cross-substrate)
 ├── .github/workflows/ci.yml        # GitHub Actions CI
-├── wateringHole/                   # Handoff directory (V85 current)
+├── wateringHole/                   # Handoff directory (V96 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md      # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md   # GPU kernel gap analysis
@@ -372,4 +374,4 @@ AGPL-3.0-only — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026 | V53 complete rewiring + GPU grid adapters — 57 active: February 28, 2026 | V56 NUCLEUS live validation + ToadStool handoff: March 1, 2026 | V58 cross-spring evolution + deep-debt completion: March 1, 2026 | V63 brain architecture + capability-based discovery + Paper 12: March 2, 2026 | V68 complete rewiring — L-BFGS refinement, 4D Anderson: March 2, 2026 | V72 deep audit + debt evolution — zero clippy, BTreeMap determinism: March 3, 2026 | V73 tolerance architecture + epsilon guards + idiomatic evolution: March 4, 2026 | V74 deep debt + clippy pedantic CI + ToadStool/barraCuda full catch-up: March 4, 2026 | V76 structural evolution + deep debt zero + toadstool/barracuda absorption handoff: March 5, 2026 | V77 wgpu 28 migration + barraCuda v0.3.3 sync + DF64 precision tiers: March 5, 2026 | V78 modern rewiring + fused ops + ET₀ methods + cross-spring benchmark evolution: March 5, 2026 | V80 fused correlation_full GPU + Welford CPU stats + covariance GPU: March 5, 2026 | V81 BootstrapMeanGpu + freeze_out gate fix + coralReef sovereign compiler: March 5, 2026 | V84 GPU validation — RTX 4070 + Titan V dual-GPU probed, f64 shared memory issue found: March 6, 2026 | V85 coralReef sovereign compilation — CFG/RA fixes, f64 reduction compiles to native SM70/SM89: March 6, 2026*
+*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026 | V53 complete rewiring + GPU grid adapters — 57 active: February 28, 2026 | V56 NUCLEUS live validation + ToadStool handoff: March 1, 2026 | V58 cross-spring evolution + deep-debt completion: March 1, 2026 | V63 brain architecture + capability-based discovery + Paper 12: March 2, 2026 | V68 complete rewiring — L-BFGS refinement, 4D Anderson: March 2, 2026 | V72 deep audit + debt evolution — zero clippy, BTreeMap determinism: March 3, 2026 | V73 tolerance architecture + epsilon guards + idiomatic evolution: March 4, 2026 | V74 deep debt + clippy pedantic CI + ToadStool/barraCuda full catch-up: March 4, 2026 | V76 structural evolution + deep debt zero + toadstool/barracuda absorption handoff: March 5, 2026 | V77 wgpu 28 migration + barraCuda v0.3.3 sync + DF64 precision tiers: March 5, 2026 | V78 modern rewiring + fused ops + ET₀ methods + cross-spring benchmark evolution: March 5, 2026 | V80 fused correlation_full GPU + Welford CPU stats + covariance GPU: March 5, 2026 | V81 BootstrapMeanGpu + freeze_out gate fix + coralReef sovereign compiler: March 5, 2026 | V84 GPU validation — RTX 4070 + Titan V dual-GPU probed, f64 shared memory issue found: March 6, 2026 | V85 coralReef sovereign compilation — CFG/RA fixes, f64 reduction compiles to native SM70/SM89: March 6, 2026 | V96 upstream rewire + PrecisionRoutingAdvice — 925 tests, barraCuda 2a6c072, toadStool S130, coralReef Iteration 7: March 7, 2026*
