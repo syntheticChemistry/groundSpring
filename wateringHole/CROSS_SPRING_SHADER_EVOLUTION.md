@@ -3,7 +3,7 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 7, 2026 (V94: 102 active delegations (61 CPU + 41 GPU), barraCuda `e1184f3`, toadStool S129, coralReef Phase 10. V87: Tier B resolution — `multinomial_sample` CPU-delegated (wetSpring S15 → barraCuda S93), `anderson_potential` CPU-delegated (hotSpring S26 → barraCuda spectral); 5 stale Tier B entries resolved (already wired); `quasispecies_simulation` + `band_structure` coarse scan documented as CPU-by-design. V86: Fp64Strategy DF64 reduce wiring. V85: coralReef sovereign compilation. V84: dual-GPU probe. V82: BootstrapMeanGpu. V73: 13-tier tolerance architecture)
+**Last Updated**: March 7, 2026 (V94: 102 active delegations (61 CPU + 41 GPU), barraCuda `0bd401f`, toadStool S129, coralReef Phase 10. V87: Tier B resolution — `multinomial_sample` CPU-delegated (wetSpring S15 → barraCuda S93), `anderson_potential` CPU-delegated (hotSpring S26 → barraCuda spectral); 5 stale Tier B entries resolved (already wired); `quasispecies_simulation` + `band_structure` coarse scan documented as CPU-by-design. V86: Fp64Strategy DF64 reduce wiring. V85: coralReef sovereign compilation. V84: dual-GPU probe. V82: BootstrapMeanGpu. V73: 13-tier tolerance architecture)
 
 ---
 

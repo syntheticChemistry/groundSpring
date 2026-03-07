@@ -9,7 +9,7 @@
 #   Tier 2: barracuda-CPU (Rust + barracuda CPU delegations)
 #   Tier 3: barracuda-GPU (Rust + barracuda CPU + GPU delegations)
 #
-# Each tier runs the same 27 validation binaries and records pass/total.
+# Each tier runs the same 28 validation binaries and records pass/total.
 # Parity = all three tiers produce identical pass counts for every experiment.
 #
 # Usage:
@@ -53,6 +53,7 @@ BINS=(
     validate-precision-drift
     validate-size-convergence
     validate-vendor-parity
+    validate-et0-methods
 )
 
 EXP_NAMES=(
@@ -83,6 +84,7 @@ EXP_NAMES=(
     "Exp 025: Precision Drift"
     "Exp 026: Size Convergence"
     "Exp 027: Vendor Parity"
+    "Exp 035: ET0 Methods"
 )
 
 MODES=("default" "barracuda" "barracuda-gpu")
@@ -92,13 +94,13 @@ declare -A CHECKS
 declare -A TIMES
 
 DATE=$(date -Iseconds)
-TOADSTOOL_HEAD=$(cd ../barraCuda && git rev-parse --short HEAD 2>/dev/null || echo 'N/A')
+BARRACUDA_HEAD=$(cd ../barraCuda && git rev-parse --short HEAD 2>/dev/null || echo 'N/A')
 GS_HEAD=$(git rev-parse --short HEAD)
 
 echo "========================================================================"
 echo "  groundSpring — Three-Tier Parity Certificate"
 echo "  Date: $DATE"
-echo "  barraCuda HEAD: $TOADSTOOL_HEAD"
+echo "  barraCuda HEAD: $BARRACUDA_HEAD"
 echo "  groundSpring HEAD: $GS_HEAD"
 echo "========================================================================"
 echo ""
@@ -166,10 +168,10 @@ done
 
 echo ""
 if $all_parity; then
-    echo "  ALL 27 EXPERIMENTS: THREE-TIER PARITY PROVEN"
+    echo "  ALL 28 EXPERIMENTS: THREE-TIER PARITY PROVEN"
     echo ""
     echo "  Pure Rust math (default) = barracuda CPU = barracuda GPU"
-    echo "  ToadStool S68+ universal precision architecture verified."
+    echo "  barraCuda + toadStool S129 universal precision architecture verified."
 else
     echo "  WARNING: PARITY MISMATCH DETECTED"
 fi
@@ -183,7 +185,7 @@ cat > "$ROOT/data/three_tier_parity_report.json" << JSONEOF
   "title": "groundSpring Three-Tier Parity Certificate",
   "date": "$DATE",
   "groundspring_head": "$GS_HEAD",
-  "toadstool_head": "$TOADSTOOL_HEAD",
+  "barracuda_head": "$BARRACUDA_HEAD",
   "all_parity": $all_parity,
   "tiers": ["default", "barracuda", "barracuda-gpu"],
   "experiments": [$json_entries]

@@ -54,6 +54,7 @@
 | 031 | [NUCLEUS Stack](031_nucleus_stack.md) | Infrastructure | NUCLEUS Neural API | — | 28/28 | biomeOS multi-primal |
 | 032 | [IRIS Seismic](032_iris_seismic.md) | Geological (IRIS) | IRIS FDSN | — | 12/12 | NestGate live data |
 | 033 | [Tissue Anderson](033_tissue_anderson.md) | Immunological | Paper 12 (Gonzales) | — | 29/29 | Uses anderson GPU |
+| 035 | [Multi-Method ET₀](035_et0_methods.md) | Hydrology | FAO-56 + airSpring lineage | — | 5/5 | 3 ET₀ methods delegated |
 
 ## Three-Tier Control Plan
 
@@ -64,10 +65,10 @@ Each experiment is validated at three levels:
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
 Current status: **CPU complete** (340/340 core + 55 NUCLEUS = 395 total),
-**102 active delegations (61 CPU + 41 GPU) — toadStool S129, barraCuda `e1184f3`**.
+**102 active delegations (61 CPU + 41 GPU) — toadStool S129, barraCuda `0bd401f`**.
 **NUCLEUS**: biomeOS Neural API live — 4 experiments exercise Tower, Node, Squirrel, Nest
 with sovereign fallback. All delegations use sovereign fallback.
-34/34 experiments validated. 907 Rust workspace tests + 390 Python = 1297 total.
+35/35 experiments validated. 907 Rust workspace tests + 261 Python provenance tests.
 **bench-cpu-vs-gpu**: Dedicated binary for CPU vs GPU performance comparison across 6 workloads.
 **metalForge tier**: groundspring-forge crate with live hardware validation
 (RTX 4070, Titan V, AKD1000 NPU). 5 validation binaries, 187 metalForge checks (130 forge + 57 mixed-hardware), 5+ substrates.
