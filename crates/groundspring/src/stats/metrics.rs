@@ -15,7 +15,10 @@ use crate::cast::usize_f64;
 ///
 /// Returns `(mean, population_variance)`. For empty input returns `(0, 0)`.
 /// Numerically stable — avoids the two-pass mean-then-variance pattern.
-fn welford_population(values: &[f64]) -> (f64, f64) {
+/// Welford's single-pass population mean and variance.
+///
+/// Returns `(mean, population_variance)`.  Numerically stable for large `N`.
+pub fn welford_population(values: &[f64]) -> (f64, f64) {
     let mut n = 0.0_f64;
     let mut mean = 0.0_f64;
     let mut m2 = 0.0_f64;
@@ -65,7 +68,7 @@ fn mean_gpu(values: &[f64]) -> Option<f64> {
     if values.is_empty() {
         return Some(0.0);
     }
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
     barracuda::ops::sum_reduce_f64::SumReduceF64::mean(device, values).ok()
 }
 
@@ -102,7 +105,7 @@ fn std_dev_gpu(values: &[f64]) -> Option<f64> {
     if values.is_empty() {
         return Some(0.0);
     }
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
     barracuda::ops::variance_reduce_f64::VarianceReduceF64::population_std(device, values).ok()
 }
 

@@ -13,6 +13,14 @@ const GPU_RETRY_LIMIT: u32 = 2;
 ///
 /// Tracks individual check outcomes and terminates the process with
 /// exit code 1 if any check fails.
+///
+/// ```
+/// use groundspring_forge::harness::Harness;
+///
+/// let mut h = Harness::new();
+/// h.check("two plus two", 2 + 2 == 4);
+/// // pass count is tracked internally; `finish()` exits 0 when all pass
+/// ```
 pub struct Harness {
     pass: u32,
     fail: u32,

@@ -1,6 +1,6 @@
 # Cross-Spring Shader Evolution
 
-**Last updated**: March 7, 2026 (V96 — 102 active delegations (61 CPU + 41 GPU), 925 Rust workspace tests, barraCuda `2a6c072`, toadStool S130, coralReef Iteration 7)
+**Last updated**: March 7, 2026 (V97 — 102 active delegations (61 CPU + 41 GPU), 936 Rust workspace tests, three-tier parity proven: 29/29 at all 3 tiers)
 
 The ecoPrimals shader ecosystem evolved organically as each spring
 absorbed domain-specific knowledge, then shared it through barraCuda
@@ -121,7 +121,7 @@ to biodiversity assessment.
 | S67 | Feb 27 | `compile_shader_universal()` | Transparent precision upgrade |
 | S68 | Feb 27 | Dual-layer precision, zero f32-only | Universal precision complete |
 
-## Benchmark Results (V96, March 7, 2026)
+## Benchmark Results (V97, March 7, 2026)
 
 Three-mode benchmark (`benchmark-cross-spring --release`):
 
@@ -148,7 +148,7 @@ Three-mode benchmark (`benchmark-cross-spring --release`):
 | Autocorrelation (10K, lag 200) | 0.40 | — | AutocorrelationF64 |
 | Seismic grid (31×31×7) | 7210 | — | CPU-intensive, GPU candidate |
 
-### Precision Routing (V96)
+### Precision Routing (V97)
 
 11 GPU dispatch paths now check `PrecisionRoutingAdvice` via `get_device_f64_safe()`:
 - `F64Native` → proceed (workgroup f64 reductions safe)
@@ -156,7 +156,7 @@ Three-mode benchmark (`benchmark-cross-spring --release`):
 - `F64NativeNoSharedMem` → skip GPU, fall back to CPU (naga shared-mem f64 zeros bug)
 - `F32Only` → skip GPU, fall back to CPU
 
-### Three-Tier Parity (V96)
+### Three-Tier Parity (V97)
 
 | Tier | Tests | Status |
 |---|---|---|
@@ -165,13 +165,13 @@ Three-mode benchmark (`benchmark-cross-spring --release`):
 | Bio (drift, jackknife, rare biosphere, quasispecies, rarefaction) | — | PASS |
 | GPU (workloads, CPU vs GPU dispatch) | — | PASS |
 
-## GPU Delegation Status (V96 — 102 delegations)
+## GPU Delegation Status (V97 — 102 delegations)
 
 | Delegation | Status | Shader Origin |
 |---|---|---|
 | 61 CPU delegations (stats, bio, hydrology, linalg, spectral) | **WIRED** | Cross-spring via barraCuda |
 | 41 GPU delegations (reductions, multinomial, ODE, optimization) | **WIRED** | Cross-spring via barraCuda GPU ops |
-| 11 GPU paths with precision routing | **WIRED** (V96) | `get_device_f64_safe()` guard |
+| 21 GPU paths with precision routing | **WIRED** (V97) | `get_device_f64_safe()` + runtime f64 smoke test |
 | `BatchedOdeRK45F64` (adaptive RK45) | Available | wetSpring V95 → barraCuda |
 | `GpuView<T>` (persistent GPU buffer) | Available | barraCuda pipeline |
 | `LSCFRK` (lattice integrators) | Available | hotSpring lattice QCD |

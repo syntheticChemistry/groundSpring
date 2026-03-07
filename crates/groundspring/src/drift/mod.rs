@@ -289,7 +289,7 @@ fn wf_batch_gpu(
     use barracuda::ops::bio::WrightFisherGpu;
     use wgpu::util::DeviceExt;
 
-    let wgpu_dev = crate::gpu::get_device()?;
+    let wgpu_dev = crate::gpu::get_device_f64_safe()?;
     let d = wgpu_dev.device();
     let q = wgpu_dev.queue();
 

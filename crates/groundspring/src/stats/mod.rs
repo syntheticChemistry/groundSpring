@@ -22,7 +22,7 @@
 mod agreement;
 mod correlation;
 mod distributions;
-mod metrics;
+pub(crate) mod metrics;
 pub mod moving_window;
 mod regression;
 

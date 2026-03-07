@@ -72,16 +72,40 @@ pub fn precision_routing() -> Option<PrecisionRoutingAdvice> {
 /// Returns `true` when the GPU can safely run f64 workgroup-reduction
 /// shaders (sum, variance, correlation, etc.).
 ///
-/// Returns `false` for `F64NativeNoSharedMem` (naga/SPIR-V zeros bug),
-/// `F32Only` (no f64 at all), or when no GPU is available.
-/// Returns `true` for `F64Native` and `Df64Only` (barraCuda routes DF64
-/// shaders internally via `Fp64Strategy`).
+/// Checks **both** the driver profile classification (fast, no dispatch)
+/// **and** a one-time runtime smoke test that actually runs a small
+/// `SumReduceF64::mean` on `[1.0; 4]`.  This catches GPUs that the
+/// driver profile classifies as `F64Native` but whose naga/SPIR-V
+/// path silently produces zeros for workgroup shared-memory f64.
+///
+/// Returns `false` for `F64NativeNoSharedMem`, `F32Only`, no GPU,
+/// or a failed runtime smoke test.
 #[must_use]
 pub fn f64_reductions_safe() -> bool {
-    matches!(
-        precision_routing(),
-        Some(PrecisionRoutingAdvice::F64Native | PrecisionRoutingAdvice::Df64Only)
-    )
+    static SAFE: OnceLock<bool> = OnceLock::new();
+    *SAFE.get_or_init(|| {
+        let profile_ok = matches!(
+            precision_routing(),
+            Some(PrecisionRoutingAdvice::F64Native | PrecisionRoutingAdvice::Df64Only)
+        );
+        if !profile_ok {
+            return false;
+        }
+        f64_reduction_smoke_test()
+    })
+}
+
+/// Run a tiny GPU reduction and verify the result is non-zero.
+fn f64_reduction_smoke_test() -> bool {
+    let Some(device) = get_device() else {
+        return false;
+    };
+    let test_data = [1.0_f64; 4];
+    let Ok(result) = barracuda::ops::sum_reduce_f64::SumReduceF64::mean(device, &test_data)
+    else {
+        return false;
+    };
+    (result - 1.0).abs() < 0.01
 }
 
 /// Get the device only when f64 reductions are safe. Convenience for GPU

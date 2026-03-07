@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: March 7, 2026
-**Status**: V96 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 102 delegations (61 CPU + 41 GPU) — barraCuda `2a6c072`, toadStool S130, coralReef Iteration 7, 925 workspace tests, 261 provenance tests, 100+ three-tier parity tests, 187 metalForge checks, 35 experiments, 34 modules. `PrecisionRoutingAdvice` wired into 11 GPU dispatch paths
+**Status**: V97 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 102 delegations (61 CPU + 41 GPU) — 936 workspace tests, 382 provenance tests, 187 metalForge checks, 35 experiments, 34 modules. Runtime f64 reduction smoke test + three-tier parity proven: 29/29 validation binaries PASS at default CPU, barracuda-CPU, and barracuda-GPU tiers
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---

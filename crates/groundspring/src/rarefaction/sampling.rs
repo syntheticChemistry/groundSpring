@@ -129,7 +129,7 @@ fn multinomial_sample_batch_gpu(
 ) -> Option<Vec<Vec<u64>>> {
     use barracuda::ops::bio::{BatchedMultinomialConfig, BatchedMultinomialGpu};
 
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
     let cumulative = abundances_to_cumulative(abundances);
     let n_taxa = abundances.len();
 

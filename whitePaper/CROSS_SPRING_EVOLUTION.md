@@ -8,7 +8,7 @@
 
 ## The Multi-Spring Architecture
 
-groundSpring's 93 active barracuda delegations (56 CPU + 37 GPU) trace their lineage through 5 ecoPrimals
+groundSpring's 102 active barracuda delegations (61 CPU + 41 GPU) trace their lineage through 5 ecoPrimals
 Springs. Each Spring contributes domain-specific primitives that are absorbed into
 ToadStool's BarraCUDA crate, making them available to all other Springs. This
 document traces exactly which primitives came from where and who benefits.
@@ -242,4 +242,4 @@ from 14.89s → 3.93s.
 
 *This document is generated from groundSpring's validation infrastructure
 and ToadStool's absorption history. It reflects the state of the ecosystem
-at ToadStool S96c (d77fc546) / groundSpring V83.
+at ToadStool S96c (d77fc546) / groundSpring V97.

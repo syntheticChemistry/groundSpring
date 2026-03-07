@@ -149,7 +149,7 @@ fn grid_search_inversion_gpu<S: AsRef<str>>(
     stations: &[Station],
     config: &GridSearchConfig,
 ) -> Option<InversionResult> {
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
 
     let obs_map: std::collections::HashMap<&str, f64> = observed
         .iter()

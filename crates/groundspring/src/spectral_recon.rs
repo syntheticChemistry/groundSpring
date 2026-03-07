@@ -17,9 +17,11 @@
 //! the linear system solve to `barracuda::linalg::solve_f64_cpu` (Gauss–Jordan
 //! with partial pivoting). Falls back to the local Cholesky solver on error.
 //!
-//! GPU path: `build_kernel` and `tikhonov_solve` are natural GPU candidates:
-//! kernel construction is embarrassingly parallel, and the Cholesky solve
-//! maps to batched dense linear algebra (`BatchedEighGpu`, `CholeskyF64`).
+//! GPU path: the Cholesky solve maps to `barracuda::linalg::cholesky_f64`.
+//! The matrix products (`KᵀK`, `KᵀG`) remain local: typical spectral
+//! reconstruction problems have small dimensions (`n_tau`, `n_omega` ~ 10–100)
+//! where GPU dispatch overhead exceeds compute savings.  If problem sizes
+//! grow, `barracuda::linalg::GemmF64::execute` provides a batched GPU path.
 
 /// Build the Laplace-transform kernel matrix (row-major, `n_tau × n_omega`).
 ///

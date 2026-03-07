@@ -568,7 +568,7 @@ fn print_evolution_timeline() {
         "  Current state: barraCuda e1184f3, 710 WGSL shaders, 3471+ tests, DF64 reduce ops wired"
     );
     println!(
-        "  groundSpring: 93 delegations (56 CPU + 37 GPU), 824 tests, wgpu 28, deep debt zero"
+        "  groundSpring: 102 delegations (61 CPU + 41 GPU), 936 tests, wgpu 28, three-tier parity proven"
     );
     println!(
         "  coralReef: 849fedd, 672 tests, NVIDIA backend complete, f64 reduction SM70/SM89, Phase 5+"

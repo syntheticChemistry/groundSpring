@@ -18,6 +18,14 @@
 //! | Quantized | 0.25 | NPU int8 classification (round-trip error) |
 
 /// Tolerance tier for cross-substrate comparison.
+///
+/// ```
+/// use groundspring_forge::tolerance::ToleranceTier;
+///
+/// let tier = ToleranceTier::Exact;
+/// assert!(tier.relative_tolerance() < 1e-10);
+/// assert_eq!(tier, ToleranceTier::Exact);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ToleranceTier {
     /// Deterministic f64 — should match to machine epsilon.

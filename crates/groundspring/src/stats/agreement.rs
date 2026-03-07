@@ -250,7 +250,7 @@ fn mbe_gpu(observed: &[f64], modeled: &[f64]) -> Option<f64> {
     if observed.is_empty() {
         return Some(0.0);
     }
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
     let residuals: Vec<f64> = observed.iter().zip(modeled).map(|(o, m)| m - o).collect();
     barracuda::ops::sum_reduce_f64::SumReduceF64::mean(device, &residuals).ok()
 }

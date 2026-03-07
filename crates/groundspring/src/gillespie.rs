@@ -178,7 +178,7 @@ fn birth_death_ssa_batch_gpu(
 ) -> Option<BatchResult> {
     use barracuda::ops::bio::gillespie::{GillespieGpu, GillespieModel};
 
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
 
     let total_syn: f64 = synthesis_rates.iter().sum();
 

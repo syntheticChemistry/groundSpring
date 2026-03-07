@@ -96,7 +96,7 @@ fn monte_carlo_et0_gpu(
         Fao56BaseInputs, Fao56Uncertainties, McEt0PropagateGpu,
     };
 
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
     let gpu = McEt0PropagateGpu::new(device).ok()?;
 
     let base_inputs = Fao56BaseInputs {
@@ -166,10 +166,30 @@ fn monte_carlo_et0_cpu(
     summarize_mc_samples(&mut samples)
 }
 
+/// Population mean and variance via Welford's algorithm (single-pass, stable).
+///
+/// When `barracuda-gpu` is enabled, tries the fused GPU reduce path first.
+fn mc_mean_variance(data: &[f64]) -> (f64, f64) {
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Some(pair) = mc_mean_variance_gpu(data) {
+            return pair;
+        }
+    }
+    crate::stats::metrics::welford_population(data)
+}
+
+#[cfg(feature = "barracuda-gpu")]
+fn mc_mean_variance_gpu(data: &[f64]) -> Option<(f64, f64)> {
+    let device = crate::gpu::get_device_f64_safe()?;
+    let var_op = barracuda::ops::variance_f64_wgsl::VarianceF64::new(device).ok()?;
+    let mv: (f64, f64) = var_op.mean_variance(data, 0).ok()?.into();
+    Some(mv)
+}
+
 fn summarize_mc_samples(samples: &mut [f64]) -> McEt0Result {
+    let (mean, variance) = mc_mean_variance(samples);
     let n = crate::cast::usize_f64(samples.len());
-    let mean = samples.iter().sum::<f64>() / n;
-    let variance = samples.iter().map(|&x| (x - mean).powi(2)).sum::<f64>() / n;
 
     samples.sort_by(f64::total_cmp);
 
@@ -328,7 +348,7 @@ fn seasonal_step_gpu(
 ) -> Option<Vec<SeasonalOutput>> {
     use barracuda::stats::hydrology::gpu::{SeasonalGpuParams, SeasonalPipelineF64};
 
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
     let gpu = SeasonalPipelineF64::new(device).ok()?;
 
     let mut cell_weather = Vec::with_capacity(cells.len() * 9);

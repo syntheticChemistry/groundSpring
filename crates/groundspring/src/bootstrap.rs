@@ -89,7 +89,7 @@ fn bootstrap_mean_gpu(
     confidence: f64,
     seed: u64,
 ) -> Option<BootstrapResult> {
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
     let gpu = barracuda::stats::bootstrap::BootstrapMeanGpu::new(device).ok()?;
     #[expect(
         clippy::cast_possible_truncation,

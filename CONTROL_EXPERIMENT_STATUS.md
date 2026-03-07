@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 7, 2026 (V96 — 925 tests, 102 delegations, PrecisionRoutingAdvice wired, upstream rewire barraCuda `2a6c072`, toadStool S130, coralReef Iteration 7)
+**Last updated**: March 7, 2026 (V97 — 936 tests, 102 delegations, PrecisionRoutingAdvice wired, upstream rewire barraCuda `2a6c072`, toadStool S130, coralReef Iteration 7)
 
 ## Experiment Register
 
@@ -818,7 +818,8 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V79: Exp 035 + seismic delegation | 85 delegations (51 CPU + 34 GPU), 807 tests, barraCuda v0.3.3, toadStool S94b | Archived |
 | V80: Fused Ops + BarraCuda Catch-Up | 87 delegations (51 CPU + 36 GPU), 812 tests, barraCuda v0.3.3+, toadStool S94b | Archived |
 | V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `0bd401f`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
-| V96: Upstream Rewire + Precision Routing | 102 delegations (61 CPU + 41 GPU), 925 tests, barraCuda `2a6c072`, toadStool S130, coralReef Iteration 7, PrecisionRoutingAdvice wired, shader.compile.* IPC alignment, doc sync | **Current** |
+| V97: GPU Smoke Test + Three-Tier Parity | 102 delegations (61 CPU + 41 GPU), 936 tests, runtime f64 reduction smoke test, three-tier parity 29/29 at all tiers, 382 Python provenance tests | **Current** |
+| V96: Upstream Rewire + Precision Routing | 102 delegations (61 CPU + 41 GPU), 925 tests, barraCuda `2a6c072`, toadStool S130, coralReef Iteration 7, PrecisionRoutingAdvice wired, shader.compile.* IPC alignment, doc sync | Archived |
 | V95: coralReef Breakthrough | coralReef Phase 11, sovereign GPU dispatch on Titan V, push buffer encoding fixed, V95 handoff, doc sync | Superseded |
 | V94: Ecosystem Sync + Shannon Delegation | 102 delegations (61 CPU + 41 GPU), 907 tests, tarpc 0.37, ops GPU-gated, domain-esn, Rust 2024 unsafe model, pins updated | Archived |
 | V87: Tier B Resolution + Cross-Spring Completion | 93 delegations (56 CPU + 37 GPU), 804+ tests, Tier B fully resolved, multinomial_sample + anderson_potential CPU-delegated, quasispecies + band_structure CPU-by-design, bidirectional provenance documented | Archived |

@@ -142,3 +142,121 @@ proptest! {
         prop_assert!((0.0..=1.0).contains(&p), "CDF({z}) = {p}");
     }
 }
+
+// ---------------------------------------------------------------------------
+// Anderson localization: Lyapunov exponent invariants
+// ---------------------------------------------------------------------------
+
+use groundspring::anderson::{anderson_potential, lyapunov_exponent};
+
+proptest! {
+    #[test]
+    fn lyapunov_is_nonnegative(w in 1.0_f64..10.0, seed in 1_u64..10_000) {
+        let pot = anderson_potential(500, w, seed);
+        let gamma = lyapunov_exponent(&pot, 0.0);
+        prop_assert!(gamma >= -tol::STOCHASTIC, "gamma(W={w}, seed={seed}) = {gamma}");
+    }
+
+    #[test]
+    fn lyapunov_increases_with_disorder(seed in 1_u64..1000) {
+        let weak = anderson_potential(500, 1.0, seed);
+        let strong = anderson_potential(500, 6.0, seed);
+        let g_weak = lyapunov_exponent(&weak, 0.0);
+        let g_strong = lyapunov_exponent(&strong, 0.0);
+        prop_assert!(
+            g_strong > g_weak - tol::STOCHASTIC,
+            "gamma(W=6) = {g_strong} should exceed gamma(W=1) = {g_weak}"
+        );
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Rarefaction: diversity index invariants
+// ---------------------------------------------------------------------------
+
+use groundspring::rarefaction::{shannon_diversity, simpson_diversity};
+
+fn abundance_vec(min_len: usize, max_len: usize) -> impl Strategy<Value = Vec<u64>> {
+    proptest::collection::vec(1_u64..1000, min_len..=max_len)
+}
+
+proptest! {
+    #[test]
+    fn shannon_is_nonnegative(counts in abundance_vec(2, 50)) {
+        let h = shannon_diversity(&counts);
+        prop_assert!(h >= -tol::EXACT, "H = {h}");
+    }
+
+    #[test]
+    fn simpson_bounded_01(counts in abundance_vec(2, 50)) {
+        let d = simpson_diversity(&counts);
+        prop_assert!(
+            (-tol::EXACT..=1.0 + tol::EXACT).contains(&d),
+            "D = {d}"
+        );
+    }
+
+    #[test]
+    fn simpson_monoculture_is_zero(n in 1_u64..10_000) {
+        let counts = vec![n];
+        let d = simpson_diversity(&counts);
+        prop_assert!(d.abs() < tol::EXACT, "monoculture D = {d}");
+    }
+
+    #[test]
+    fn shannon_monoculture_is_zero(n in 1_u64..10_000) {
+        let counts = vec![n];
+        let h = shannon_diversity(&counts);
+        prop_assert!(h.abs() < tol::EXACT, "monoculture H = {h}");
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Decompose: bias-variance invariants
+// ---------------------------------------------------------------------------
+
+use groundspring::decompose::decompose_error;
+
+proptest! {
+    #[test]
+    fn decompose_pythagorean(
+        mbe_val in -100.0_f64..100.0,
+        rmse_val in 0.01_f64..200.0,
+    ) {
+        let rmse_val = rmse_val.max(mbe_val.abs());
+        let d = decompose_error(mbe_val, rmse_val);
+        let pythagorean = (d.bias_fraction + d.noise_fraction - 1.0).abs();
+        prop_assert!(
+            pythagorean < tol::DECOMPOSITION,
+            "bias_frac + noise_frac = {} (expect ~1.0)",
+            d.bias_fraction + d.noise_fraction
+        );
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Bootstrap: CI invariants
+// ---------------------------------------------------------------------------
+
+use groundspring::bootstrap::bootstrap_mean;
+
+proptest! {
+    #[test]
+    fn bootstrap_ci_contains_mean(v in positive_vec(10, 100)) {
+        let m = mean(&v);
+        let ci = bootstrap_mean(&v, 500, 0.95, 42);
+        prop_assert!(
+            ci.ci_lower <= m + tol::STOCHASTIC && ci.ci_upper >= m - tol::STOCHASTIC,
+            "mean {m} outside CI [{}, {}]", ci.ci_lower, ci.ci_upper
+        );
+    }
+
+    #[test]
+    fn bootstrap_ci_ordered(v in positive_vec(5, 100)) {
+        let ci = bootstrap_mean(&v, 200, 0.95, 42);
+        prop_assert!(
+            ci.ci_lower <= ci.ci_upper + tol::EXACT,
+            "lo={} > hi={}", ci.ci_lower, ci.ci_upper
+        );
+    }
+}

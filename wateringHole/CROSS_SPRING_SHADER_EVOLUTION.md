@@ -3,7 +3,7 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 7, 2026 (V96: 102 active delegations (61 CPU + 41 GPU), barraCuda `2a6c072`, toadStool S130, coralReef Iteration 7. V96: PrecisionRoutingAdvice wired into 11 GPU dispatch paths, upstream rewire to barraCuda `2a6c072`/toadStool S130/coralReef Iteration 7, 925 tests. V95: coralReef push buffer breakthrough — sovereign GPU dispatch on Titan V, mthd_incr field swap fixed. V87: Tier B resolution. V85: coralReef sovereign compilation. V84: dual-GPU probe. V82: BootstrapMeanGpu. V73: 13-tier tolerance architecture)
+**Last Updated**: March 7, 2026 (V97: 102 active delegations (61 CPU + 41 GPU), barraCuda `2a6c072`, toadStool S130, coralReef Iteration 7. V96: PrecisionRoutingAdvice wired into 11 GPU dispatch paths, upstream rewire to barraCuda `2a6c072`/toadStool S130/coralReef Iteration 7, 936 tests. V95: coralReef push buffer breakthrough — sovereign GPU dispatch on Titan V, mthd_incr field swap fixed. V87: Tier B resolution. V85: coralReef sovereign compilation. V84: dual-GPU probe. V82: BootstrapMeanGpu. V73: 13-tier tolerance architecture)
 
 ---
 
@@ -785,7 +785,7 @@ correctly in production.
 | GPU active | 41 | includes 4D Anderson, Wegner RG, McEt0, seasonal pipeline, JackknifeMeanGpu, HargreavesBatchGpu |
 | CPU by design | 2 | `quasispecies_simulation` (per-gen mutation thinning), `band_structure` coarse scan (data-dependent matrix chains) |
 | Evolution candidates | 0 | Tier B fully resolved |
-| **Total active** | **102** | 925 tests, clippy pedantic clean |
+| **Total active** | **102** | 936 tests, clippy pedantic clean |
 
 ### NUCLEUS Integration (V63)
 

@@ -155,7 +155,7 @@ fn abundance_occupancy_gpu(
     use crate::cast::usize_f64;
     use barracuda::ops::bio::{BatchedMultinomialConfig, BatchedMultinomialGpu};
 
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
 
     let cumulative = community_to_cumulative(community);
     let mut seeds = generate_xoshiro_seeds(n_samples, base_seed);
@@ -308,7 +308,7 @@ fn tier_detection_rate_gpu(
     use crate::cast::usize_f64;
     use barracuda::ops::bio::{BatchedMultinomialConfig, BatchedMultinomialGpu};
 
-    let device = crate::gpu::get_device()?;
+    let device = crate::gpu::get_device_f64_safe()?;
 
     let cumulative = community_to_cumulative(community);
     let mut seeds = generate_xoshiro_seeds(n_replicates, base_seed);

@@ -9,7 +9,7 @@ that proves Python baselines can be faithfully ported to Rust and eventually
 promoted to GPU acceleration via the Write → Absorb → Lean cycle.
 
 ```
-control/             Python Phase 0 experiments (28 experiments across 9 domains + 4 NUCLEUS)
+control/             Python Phase 0 experiments (29 experiments across 9 domains + 5 NUCLEUS)
   common.py          Shared statistical primitives
   sensor_noise/      Exp 001: Bias-variance decomposition
   observation_gap/   Exp 002: Model-observation gap
@@ -95,7 +95,7 @@ scripts/             Automation (baselines, benchmarks)
 ### Rust
 
 ```bash
-cargo test --workspace                         # 925 tests, all PASS
+cargo test --workspace                         # 936 tests, all PASS
 cargo test --workspace --features biomeos      # biomeos tests (NUCLEUS client active)
 cargo test --workspace --features barracuda-gpu # GPU dispatch active
 cargo clippy --workspace --all-targets -D warnings # zero warnings (pedantic + nursery)

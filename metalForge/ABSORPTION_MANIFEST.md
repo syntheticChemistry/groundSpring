@@ -6,7 +6,7 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: March 7, 2026 (V96 — 102 active delegations (61 CPU + 41 GPU), barraCuda `2a6c072`, toadStool S130, coralReef Iteration 7, 925 tests, clippy pedantic clean. V96: PrecisionRoutingAdvice wired into 11 GPU dispatch paths. V95: coralReef push buffer breakthrough — sovereign GPU dispatch on Titan V. V84: dual-GPU probe. V82: BootstrapMeanGpu dispatch)
+**Last updated**: March 7, 2026 (V97 — 102 active delegations (61 CPU + 41 GPU), barraCuda `2a6c072`, toadStool S130, coralReef Iteration 7, 936 tests, clippy pedantic clean. V96: PrecisionRoutingAdvice wired into 11 GPU dispatch paths. V95: coralReef push buffer breakthrough — sovereign GPU dispatch on Titan V. V84: dual-GPU probe. V82: BootstrapMeanGpu dispatch)
 
 ## Absorption Status Summary
 
@@ -42,9 +42,9 @@
 
 ---
 
-## Tier A — Lean (93 active: 56 CPU + 37 GPU)
+## Tier A — Lean (102 active: 61 CPU + 41 GPU)
 
-Full delegation inventory as of V83, barraCuda v0.3.3:
+Full delegation inventory as of V97, barraCuda v0.3.3:
 
 ### CPU delegations (51)
 
@@ -179,7 +179,7 @@ Both Tier C shaders have been absorbed upstream and local copies removed (V62):
 ## Handoff Checklist (per shader)
 
 - [x] 102 active delegations (61 CPU + 41 GPU) verified, barraCuda `2a6c072`, toadStool S130, coralReef Iteration 7
-- [x] CPU reference passes all validation checks (34 binaries, 925 tests)
+- [x] CPU reference passes all validation checks (34 binaries, 936 tests)
 - [x] All delegations use `#[cfg]` or `if let Ok` with CPU fallback always compiled
 - [x] Mathematical parity: 28/28 PROVEN (Python ⇌ Rust, `data/parity_report.json`)
 - [x] Three-mode revalidation (local / barracuda / barracuda-gpu): all PASS, 0 warnings
