@@ -46,6 +46,7 @@ BINS=(
     validate-precision-drift
     validate-size-convergence
     validate-vendor-parity
+    validate-et0-methods
 )
 
 # NPU binary: requires --features npu and physical NPU hardware (/dev/akida0)

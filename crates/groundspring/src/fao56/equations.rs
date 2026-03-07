@@ -188,3 +188,142 @@ pub fn penman_monteith(
     let denominator = gamma.mul_add(PM_WIND_DENOM.mul_add(u2, 1.0), delta);
     numerator / denominator
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn saturation_vp_at_20c() {
+        // FAO-56 Table 2.3: e°(20) ≈ 2.338 kPa
+        let es = saturation_vapour_pressure(20.0);
+        assert!(
+            (es - 2.338).abs() < 0.01,
+            "e°(20°C) = {es}, expected ~2.338"
+        );
+    }
+
+    #[test]
+    fn saturation_vp_monotone() {
+        let es_10 = saturation_vapour_pressure(10.0);
+        let es_30 = saturation_vapour_pressure(30.0);
+        assert!(es_30 > es_10, "VP should increase with temperature");
+    }
+
+    #[test]
+    fn slope_vp_positive() {
+        let slope = slope_vapour_pressure_curve(20.0);
+        assert!(slope > 0.0, "slope should be positive");
+    }
+
+    #[test]
+    fn atmospheric_pressure_sea_level() {
+        let p = atmospheric_pressure(0.0);
+        assert!((p - 101.3).abs() < 0.1, "P(z=0) = {p}, expected ~101.3");
+    }
+
+    #[test]
+    fn atmospheric_pressure_decreases_with_altitude() {
+        let p_0 = atmospheric_pressure(0.0);
+        let p_1000 = atmospheric_pressure(1000.0);
+        assert!(p_1000 < p_0, "pressure should decrease with altitude");
+    }
+
+    #[test]
+    fn psychrometric_constant_sea_level() {
+        // FAO-56: γ ≈ 0.0674 at sea level
+        let gamma = psychrometric_constant(101.3);
+        assert!(
+            (gamma - 0.0674).abs() < 0.001,
+            "γ = {gamma}, expected ~0.0674"
+        );
+    }
+
+    #[test]
+    fn wind_speed_identity_at_2m() {
+        let u2 = wind_speed_at_2m(2.0, 2.0);
+        assert!((u2 - 2.0).abs() < 0.01, "u2 at z=2 should be ~input");
+    }
+
+    #[test]
+    fn wind_speed_higher_at_10m() {
+        let u10 = 3.0;
+        let u2 = wind_speed_at_2m(u10, 10.0);
+        assert!(u2 < u10, "wind at 2m should be less than at 10m");
+    }
+
+    #[test]
+    fn mean_saturation_vp_is_average() {
+        let es = mean_saturation_vapour_pressure(30.0, 10.0);
+        let manual = f64::midpoint(
+            saturation_vapour_pressure(30.0),
+            saturation_vapour_pressure(10.0),
+        );
+        assert!((es - manual).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn solar_declination_summer_positive() {
+        // Summer solstice ~DOY 172: declination should be positive (northern hemisphere tilt)
+        let delta = solar_declination(172);
+        assert!(delta > 0.0, "summer solstice δ = {delta}, expected > 0");
+    }
+
+    #[test]
+    fn solar_declination_winter_negative() {
+        // Winter solstice ~DOY 355: declination should be negative
+        let delta = solar_declination(355);
+        assert!(delta < 0.0, "winter solstice δ = {delta}, expected < 0");
+    }
+
+    #[test]
+    fn extraterrestrial_radiation_positive() {
+        let ra = extraterrestrial_radiation(42.0, 172);
+        assert!(ra > 0.0, "Ra should be positive");
+    }
+
+    #[test]
+    fn daylight_summer_longer_than_winter() {
+        let n_summer = daylight_hours(42.0, 172);
+        let n_winter = daylight_hours(42.0, 355);
+        assert!(
+            n_summer > n_winter,
+            "summer N={n_summer}, winter N={n_winter}"
+        );
+    }
+
+    #[test]
+    fn net_shortwave_less_than_incoming() {
+        let rs = 20.0;
+        let rns = net_shortwave_radiation(rs);
+        assert!(rns < rs, "Rns should be less than Rs (albedo reflection)");
+        assert!(rns > 0.0);
+    }
+
+    #[test]
+    fn clear_sky_radiation_positive() {
+        let ra = extraterrestrial_radiation(42.0, 172);
+        let rso = clear_sky_radiation(200.0, ra);
+        assert!(rso > 0.0 && rso < ra, "Rso should be between 0 and Ra");
+    }
+
+    #[test]
+    fn penman_monteith_typical_range() {
+        // Typical summer day inputs for mid-latitude location
+        let rn = 15.0;
+        let g = 0.5;
+        let tmean = 25.0;
+        let u2 = 2.0;
+        let delta = slope_vapour_pressure_curve(tmean);
+        let gamma = psychrometric_constant(atmospheric_pressure(200.0));
+        let es = mean_saturation_vapour_pressure(30.0, 20.0);
+        let ea = actual_vapour_pressure_rh(30.0, 20.0, 80.0, 40.0);
+        let vpd = es - ea;
+
+        let et0 = penman_monteith(rn, g, tmean, u2, vpd, delta, gamma);
+        assert!(
+            (1.0..12.0).contains(&et0),
+            "ET₀ = {et0} mm/day, expected 1-12 for typical conditions"
+        );
+    }
+}

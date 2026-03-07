@@ -134,3 +134,128 @@ pub fn dimensional_duality_sweep(
         })
         .collect()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn barrier_sweep_correct_length() {
+        let sweep = barrier_disruption_sweep(5, 2, 42);
+        assert_eq!(sweep.len(), 5);
+    }
+
+    #[test]
+    fn barrier_sweep_first_healthy() {
+        let sweep = barrier_disruption_sweep(5, 2, 42);
+        assert!(
+            sweep[0].breach_fraction.abs() < f64::EPSILON,
+            "first point should be 0.0"
+        );
+        assert!(
+            !sweep[0].barrier_breached,
+            "healthy barrier should not be breached"
+        );
+    }
+
+    #[test]
+    fn barrier_sweep_last_breached() {
+        let sweep = barrier_disruption_sweep(5, 2, 42);
+        let last = sweep.last().unwrap();
+        assert!(
+            (last.breach_fraction - 1.0).abs() < f64::EPSILON,
+            "last point should be 1.0"
+        );
+    }
+
+    #[test]
+    fn barrier_sweep_monotonic_d_eff() {
+        let sweep = barrier_disruption_sweep(5, 3, 42);
+        for pair in sweep.windows(2) {
+            assert!(
+                pair[1].d_eff_epidermis >= pair[0].d_eff_epidermis - 0.1,
+                "d_eff should generally increase with breach"
+            );
+        }
+    }
+
+    #[test]
+    fn barrier_sweep_positive_gamma() {
+        let sweep = barrier_disruption_sweep(3, 3, 42);
+        for p in &sweep {
+            assert!(p.gamma_epidermis > 0.0, "gamma should be positive");
+            assert!(p.gamma_dermis > 0.0, "gamma should be positive");
+        }
+    }
+
+    #[test]
+    fn barrier_sweep_single_point() {
+        let sweep = barrier_disruption_sweep(1, 2, 42);
+        assert_eq!(sweep.len(), 1);
+        assert!(sweep[0].breach_fraction.abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn duality_sweep_correct_length() {
+        let sweep = dimensional_duality_sweep(7, 3, 42);
+        assert_eq!(sweep.len(), 7);
+    }
+
+    #[test]
+    fn duality_sweep_parameter_range() {
+        let sweep = dimensional_duality_sweep(5, 2, 42);
+        assert!(
+            (sweep[0].parameter - (-1.0)).abs() < f64::EPSILON,
+            "first param should be -1"
+        );
+        assert!(
+            (sweep.last().unwrap().parameter - 1.0).abs() < f64::EPSILON,
+            "last param should be +1"
+        );
+    }
+
+    #[test]
+    fn duality_sweep_regimes() {
+        let sweep = dimensional_duality_sweep(5, 2, 42);
+        assert_eq!(
+            sweep[0].regime, "localized",
+            "collapse end should be localized"
+        );
+        assert_eq!(
+            sweep.last().unwrap().regime,
+            "extended",
+            "promotion end should be extended"
+        );
+    }
+
+    #[test]
+    fn duality_sweep_contexts() {
+        let sweep = dimensional_duality_sweep(5, 2, 42);
+        assert_eq!(sweep[0].context, "collapse (tillage)");
+        assert_eq!(sweep.last().unwrap().context, "promotion (scratching)");
+    }
+
+    #[test]
+    fn duality_sweep_d_eff_bounded() {
+        let sweep = dimensional_duality_sweep(9, 3, 42);
+        for p in &sweep {
+            assert!(
+                (2.0..=3.0).contains(&p.d_eff),
+                "d_eff={} out of [2,3]",
+                p.d_eff
+            );
+        }
+    }
+
+    #[test]
+    fn duality_sweep_deterministic() {
+        let s1 = dimensional_duality_sweep(5, 3, 42);
+        let s2 = dimensional_duality_sweep(5, 3, 42);
+        for (a, b) in s1.iter().zip(s2.iter()) {
+            assert!(
+                (a.gamma - b.gamma).abs() < f64::EPSILON,
+                "should be deterministic"
+            );
+        }
+    }
+}
