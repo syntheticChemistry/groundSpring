@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: March 6, 2026 (V87)
+**Last Updated**: March 7, 2026 (V93)
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---
@@ -279,10 +279,10 @@ Write → Absorb → Lean cycle:
 | 33 | Tissue Anderson 4D + Wegner RG | **29/29** | **Wired** (V68 `anderson_4d` + `wegner_block_4d`) | Workload | 4D Anderson + RG GPU |
 
 **CPU tier**: 395/395 PASS across 34 validation binaries.
-**Barracuda**: 93 active delegations (56 CPU + 37 GPU) — barraCuda `e1184f3`, toadStool S96c (d77fc546). **Performance**: 11.6× faster than Python (excl. LAPACK-bound); 5.1× overall; 53.5× peak (seismic). **Tests**: 824+ Rust workspace + 390 Python = 1214+. 100+ three-tier parity tests (100% delegation coverage).
+**Barracuda**: 101 active delegations (60 CPU + 41 GPU) — barraCuda `e1184f3`, toadStool S96c (d77fc546). **Performance**: 11.6× faster than Python (excl. LAPACK-bound); 5.1× overall; 53.5× peak (seismic). **Tests**: 903 Rust workspace + 390 Python = 1293+. 100+ three-tier parity tests (100% delegation coverage).
 **Mathematical parity**: 29/29 PROVEN. See `data/parity_report.json` and `data/bench_rust_vs_python.json`.
 **Three-tier parity**: 100+ parity tests validate CPU ↔ barracuda-CPU equivalence (100% delegation coverage).
-**GPU tier**: 15 modules wired with `#[cfg(feature = "barracuda-gpu")]` — stats Tier A complete (MAE, NSE, R²), bistable batch ODE, McEt0PropagateGpu, SeasonalPipelineF64, 4D Anderson + Wegner RG, L-BFGS refinement. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only). GPU grid adapters (seismic, freeze-out). 824 tests pass.
+**GPU tier**: 15 modules wired with `#[cfg(feature = "barracuda-gpu")]` — stats Tier A complete (MAE, NSE, R²), bistable batch ODE, McEt0PropagateGpu, SeasonalPipelineF64, 4D Anderson + Wegner RG, L-BFGS refinement. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only). GPU grid adapters (seismic, freeze-out). 903 tests pass.
 **metalForge tier**: 30 workloads, 187 checks (groundspring-forge crate, Exp 028 NPU DMA on AKD1000, pipeline dispatch, PCIe topology, GPU→NPU bypass).
 
 ### GPU / metalForge Progression (updated V74 — toadStool S93)

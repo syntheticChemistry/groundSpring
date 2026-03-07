@@ -2,14 +2,13 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 7, 2026 (V91 — 100 delegations (59 CPU + 41 GPU), 807 tests,
+**Last updated**: March 7, 2026 (V93 — 101 delegations (60 CPU + 41 GPU), 903 tests,
 barraCuda v0.3.3, toadStool S128, coralReef Phase 9.
-V91: complete ecosystem rewire — AutocorrelationF64 GPU wired (WDM), empirical spectral
-density wired (Anderson RMT), PeakDetectF64 wired (disorder sweep transition detection),
-5 new benchmarks, 14 new tests, cross-spring shader evolution provenance documented
-(specs/CROSS_SPRING_SHADER_EVOLUTION.md). 21 benchmark workloads.
-V90: deep debt — unsafe eliminated, 11 validation binaries migrated to barracuda::stats,
-CovarianceF64 GPU wired, Marchenko-Pastur bounds wired, FFT gap closed.
+V93: smart refactoring (rarefaction, drift, tissue_anderson) + FFT wired into spectral_recon
+via Fft1DF64 for lattice correlator analysis. 3 module splits, 67 new tests.
+V91: complete ecosystem rewire — AutocorrelationF64, ESD, PeakDetectF64, CovarianceF64,
+Marchenko-Pastur. 21 benchmark workloads. Cross-spring shader evolution documented.
+V90: deep debt — unsafe eliminated, 11 validation binaries migrated to barracuda::stats.
 V89: tarpc 0.37, domain-esn, Rust 2024. V88: deep audit. V85: coralReef.
 V80: fused correlation_full GPU. V73: 13-tier tolerance)
 
@@ -607,7 +606,7 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (28/28 parity proven, timing data for all experiments) |
-| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **93 active delegations** (56 CPU + 37 GPU), **824+ tests** — barraCuda `e1184f3`, toadStool S96c (d77fc546). V87: multinomial_sample + anderson_potential CPU-delegated; Tier B resolved |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **101 active delegations** (60 CPU + 41 GPU), **903 tests** — barraCuda `e1184f3`, toadStool S96c (d77fc546). V87: multinomial_sample + anderson_potential CPU-delegated; Tier B resolved |
 | Phase 2b | Tier B adapt (GPU dispatch wiring, PRNG alignment) | **V31–V69** — 15 modules GPU-wired, 187 metalForge checks, 5 substrates; arch-aware dispatch (f64→Titan V, f32→RTX 4070); GPU→NPU PCIe bypass validated |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |

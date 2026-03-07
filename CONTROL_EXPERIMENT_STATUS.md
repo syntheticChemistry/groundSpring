@@ -46,10 +46,10 @@
 **Rust Phase 1 (core)**: 340/340 PASS across 30 validation binaries (340 core)
 **Rust Phase 1 (NUCLEUS)**: 55/55 PASS across 4 validation binaries (Exp 029–032, `--features biomeos`)
 **Total validation**: 395/395 PASS across 34 validation binaries
-**Rust tests**: 824/824 PASS (default workspace)
+**Rust tests**: 903/903 PASS (default workspace)
 **pytest**: 390/390 PASS + 2 skipped
 **Three-tier parity**: 101+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
-**BarraCUDA dispatch**: 93 active (56 CPU + 37 GPU) — V89: barraCuda `ed82625`, toadStool S128b (`22d1a2c7`), coralReef Phase 9 (`b7f8ab4`). V89: tarpc 0.37, ops GPU-gated rewire, domain-esn feature, Rust 2024 unsafe model. GPU tests blocked by barraCuda Fp64Strategy regression
+**BarraCUDA dispatch**: 101 active (60 CPU + 41 GPU) — V93: barraCuda v0.3.3, toadStool S128, coralReef Phase 9. tarpc 0.37, ops GPU-gated rewire, domain-esn feature, Rust 2024 unsafe model. GPU tests blocked by barraCuda Fp64Strategy regression
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); compute.execute + compute.submit validated
 **metalForge workloads**: 30 (24 GPU + 2 NPU + 2 CPU-only), 187 checks (130 forge + 57 mixed-hardware)
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
@@ -461,7 +461,7 @@ Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classi
 | Rust doc test | 2 | Documentation example test |
 | Rust forge | 49 | groundspring-forge crate tests (incl. 14 V35 arch-aware routing) |
 | Rust biomeos | 32 | biomeOS client + integration tests (feature-gated) |
-| **Total Rust (default)** | **824** | |
+| **Total Rust (default)** | **903** | |
 | **Total Rust (barracuda-gpu)** | **814** | |
 | **Total Python** | **375** | (+3 skipped) |
 | **Grand Total** | **1,182** | |
@@ -601,12 +601,12 @@ Each experiment is validated at three hardware tiers:
 | 33 | Tissue Anderson 4D + Wegner RG | **29/29 PASS** | **Wired** | Workload | `anderson_4d` + `wegner_block_4d` (V68) |
 
 **CPU tier**: 395/395 PASS (34 binaries, complete)
-**GPU tier**: 25 of 34 papers have GPU wiring (76%). 93 delegations (56 CPU + 37 GPU). 30/30 metalForge parity.
+**GPU tier**: 25 of 34 papers have GPU wiring (76%). 101 delegations (60 CPU + 41 GPU). 30/30 metalForge parity.
 **metalForge tier**: 30 workloads, 187 checks (57 mixed-hardware). Exp 028 NPU 9/9 PASS (AKD1000 DMA). GPU→NPU→CPU pipeline dispatch validated.
 
-### BarraCUDA Integration Status (V89 — toadStool S128b, coralReef Phase 9)
+### BarraCUDA Integration Status (V93 — toadStool S128, coralReef Phase 9)
 
-**91 active delegations** (54 CPU + 37 GPU). V82: `BootstrapMeanGpu` GPU dispatch, `freeze_out` gate fix. V81: fused `correlation_full` GPU. V68: `lbfgs_numerical`, `anderson_4d`, `wegner_block_4d`. All active delegations use `if let Ok` / `#[cfg]` with always-compiled CPU fallback.
+**101 active delegations** (60 CPU + 41 GPU). V82: `BootstrapMeanGpu` GPU dispatch, `freeze_out` gate fix. V81: fused `correlation_full` GPU. V68: `lbfgs_numerical`, `anderson_4d`, `wegner_block_4d`. All active delegations use `if let Ok` / `#[cfg]` with always-compiled CPU fallback.
 
 | # | Module | BarraCUDA Target | Feature Gate | Status |
 |---|--------|-----------------|:------------:|--------|
@@ -656,7 +656,7 @@ Each experiment is validated at three hardware tiers:
 - **Phase 1**: Rust CPU validation — **COMPLETE** (395/395 across 34 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
 - **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 001-033: all domains)
-- **Phase 2a**: Tier A rewire — **COMPLETE** — 91 active delegations (54 CPU + 37 GPU), toadStool S96c
+- **Phase 2a**: Tier A rewire — **COMPLETE** — 101 active delegations (60 CPU + 41 GPU), toadStool S128
 - **Phase 2b**: BarraCUDA CPU parity — **PROVEN** — 11.6× faster than Python (excl. LAPACK-bound), 28/28 math parity
 - **Phase 2c**: BarraCUDA GPU tier — **PROVEN** — 30/30 three-tier parity, 2.2× total GPU speedup, 47.4× peak (Exp 009)
   - GPU-wired: 25 of 34 papers (76%) — stats, hydrology, spectral, bio ODE, multinomial, optimization, 4D Anderson
@@ -680,9 +680,9 @@ Each experiment is validated at three hardware tiers:
 | `cargo clippy --features barracuda` | PASS (0 warnings) |
 | `cargo clippy --features barracuda-gpu` | PASS (0 warnings) |
 | `cargo doc --no-deps` | PASS (0 warnings) |
-| `cargo test` | 824/824 PASS (default) |
+| `cargo test` | 903/903 PASS (default) |
 | `cargo test --features biomeos` | ~830 PASS |
-| `cargo test --features barracuda` | 824/824 PASS |
+| `cargo test --features barracuda` | 903/903 PASS |
 | `cargo test --features barracuda-gpu` | 814/814 PASS |
 | Validation binaries (local) | 395/395 PASS (34 binaries) |
 | Validation binaries (barracuda-gpu) | 395/395 PASS |
@@ -800,7 +800,7 @@ Python (interpreted)     107.1s   ─── math correctness (open data + open s
 Rust (compiled)           20.5s   ─── pure safe Rust, same math (28/28 parity)
   │  ~0% overhead                     395/395 validation checks (34 experiments)
 barracuda-CPU             22.8s   ─── delegation proves portability (30/30 parity)
-  │  2.2× faster                     93 delegations (56 CPU + 37 GPU)
+  │  2.2× faster                     101 delegations (60 CPU + 41 GPU)
 barracuda-GPU              9.8s   ─── GPU proves the math is truly portable
   │                                    47.4× peak (hotSpring Sturm eigensolver)
   │                                    ToadStool unidirectional streaming
@@ -817,7 +817,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V79: Exp 035 + seismic delegation | 85 delegations (51 CPU + 34 GPU), 807 tests, barraCuda v0.3.3, toadStool S94b | Archived |
 | V80: Fused Ops + BarraCuda Catch-Up | 87 delegations (51 CPU + 36 GPU), 812 tests, barraCuda v0.3.3+, toadStool S94b | Archived |
 | V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `e1184f3`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
-| V89: Rewire to barraCuda/toadStool/coralReef Evolution | 93 delegations (56 CPU + 37 GPU), 500+ tests, tarpc 0.37, ops GPU-gated, domain-esn, Rust 2024 unsafe model, pins updated | **Current** |
+| V93: Rewire to barraCuda/toadStool/coralReef Evolution | 101 delegations (60 CPU + 41 GPU), 903 tests, tarpc 0.37, ops GPU-gated, domain-esn, Rust 2024 unsafe model, pins updated | **Current** |
 | V87: Tier B Resolution + Cross-Spring Completion | 93 delegations (56 CPU + 37 GPU), 804+ tests, Tier B fully resolved, multinomial_sample + anderson_potential CPU-delegated, quasispecies + band_structure CPU-by-design, bidirectional provenance documented | Archived |
 | V86: DF64 Reduce Wiring + Full Stats Benchmark | 91 delegations, Fp64Strategy wired into SumReduceF64/VarianceReduceF64, 4-tier benchmark (Python/Kokkos/Rust CPU/GPU), GPU reduce returns 0 (pipeline issue) | Archived |
 | V85: coralReef Sovereign + Evolution Handoff | 91 delegations, 824 CPU tests + 672 coralReef, coralReef CFG/RA fixes, f64 reduction compiles to native SM70/SM89, toadStool/barraCuda evolution handoff | Archived |

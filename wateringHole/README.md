@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 7, 2026 (V91)
+**Last Updated**: March 7, 2026 (V93)
 
 ## What This Is
 
@@ -18,8 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V89 Rewire Evolution | [GROUNDSPRING_V89_REWIRE_EVOLUTION_HANDOFF_MAR06_2026.md](handoffs/GROUNDSPRING_V89_REWIRE_EVOLUTION_HANDOFF_MAR06_2026.md) | Mar 6, 2026 | Rewire to barraCuda/toadStool/coralReef evolution: tarpc 0.37, ops GPU-gated, domain-esn, Rust 2024 unsafe model, GPU regression report |
-| V87 Tier B Resolution | [GROUNDSPRING_V87_TIER_B_RESOLUTION_HANDOFF_MAR06_2026.md](handoffs/GROUNDSPRING_V87_TIER_B_RESOLUTION_HANDOFF_MAR06_2026.md) | Mar 6, 2026 | Tier B resolution complete: 93 delegations (56 CPU + 37 GPU), multinomial_sample + anderson_potential wired |
+| V93 Evolution | [GROUNDSPRING_V93_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR07_2026.md](handoffs/GROUNDSPRING_V93_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR07_2026.md) | Mar 7, 2026 | 903 tests, 101 delegations, FFT wired, 3 modules refactored, Fp64Strategy P0 still open |
 
 ## Cross-Spring Documentation
 
