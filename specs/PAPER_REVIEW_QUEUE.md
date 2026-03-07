@@ -325,7 +325,7 @@ Write → Absorb → Lean cycle:
 | `SeasonalPipelineF64` | 3, 22 | **WIRED** (V67) — fused seasonal water balance GPU | ~~HIGH~~ Done |
 | `lbfgs_numerical` | 8 | **WIRED** (V68) — post-grid-search L-BFGS refinement | ~~HIGH~~ Done |
 | `anderson_4d` + `wegner_block_4d` | 33 | **WIRED** (V68) — 4D tissue Anderson + Wegner RG | ~~HIGH~~ Done |
-| FFT (real, complex) | 6 (optional) | **AVAILABLE** — barraCuda `ops::fft::{Fft1D, Fft1DF64, Fft2D, Fft3D, Rfft}` (Cooley-Tukey radix-2 WGSL). Wire into spectral_recon for lattice correlator analysis. | MEDIUM |
+| FFT (real, complex) | 6 (optional) | **WIRED** (V93) — `spectral_recon::fft_power_spectrum()` delegates to `Fft1DF64`. CPU DFT fallback. | ~~MEDIUM~~ Done |
 | `JackknifeMeanGpu` | 7 | **WIRED** (V59) — `jackknife_mean_f64.wgsl` | ~~MEDIUM~~ Done |
 | RAWR weighted resampling | 12, 13 | **ABSORBED** — `stats::rawr_mean` (S66) | ~~MEDIUM~~ Done |
 | Grid search 3D dispatch | 5, 8 | **WIRED** (V53) — GPU grid adapter + argmin | ~~MEDIUM~~ Done |

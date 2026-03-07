@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: March 7, 2026 | **License**: AGPL-3.0-only
-**Status**: V91 — 34 modules, 35 experiments, 807 Rust workspace tests + 261 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks, 100 active barracuda delegations (59 CPU + 41 GPU) — barraCuda v0.3.3, toadStool S128, coralReef Phase 9. Deep debt eliminated: zero unsafe code (temp-env RAII), 11 validation binaries migrated to `barracuda::stats`, 91.55% line coverage. New delegations: `CovarianceF64`, `AutocorrelationF64`, `PeakDetectF64`, `empirical_spectral_density`, `marchenko_pastur_bounds`. 21 benchmark workloads. Cross-spring shader provenance documented. All CPU tests pass; GPU tests blocked by barraCuda `Fp64Strategy` regression
+**Status**: V93 — 34 modules, 35 experiments, 903 Rust workspace tests + 261 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks, 101 active barracuda delegations (60 CPU + 41 GPU) — barraCuda v0.3.3, toadStool S128, coralReef Phase 9. Smart refactoring: 3 large modules split (rarefaction → diversity/sampling/orchestration, drift → monitor/simulation, tissue_anderson → geometry/simulation). FFT wired into spectral_recon via `barracuda::ops::fft::Fft1DF64` for lattice correlator analysis. All CPU tests pass; GPU tests blocked by barraCuda `Fp64Strategy` regression
 
 **The gap between what models predict and what instruments measure.**
 

@@ -4,6 +4,24 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V93 Smart Refactoring + FFT Wiring + Coverage Expansion (Mar 7, 2026)
+
+#### Smart Module Splits
+- **rarefaction.rs** (743 lines) → `rarefaction/mod.rs` (200) + `rarefaction/diversity.rs` (325) + `rarefaction/sampling.rs` (259): diversity indices (Simpson, Shannon, Bray-Curtis, Pielou) separated from multinomial sampling engine and rarefaction orchestration. Full backward compat via `pub use` re-exports
+- **drift.rs** (669 lines) → `drift/mod.rs` (496) + `drift/monitor.rs` (192): `DriftMonitor` advisory system extracted from Wright-Fisher/Kimura simulation. Monitor is reusable by any evolutionary optimizer
+- **tissue_anderson/mod.rs** (670 lines) → `mod.rs` (427) + `geometry.rs` (258): skin layers, cell types, disorder functions, and potential generation extracted from simulation functions. Types are the building blocks; simulation is the consumer
+
+#### FFT Wiring
+- `spectral_recon::fft_power_spectrum()`: computes |FFT(G)|² for lattice correlator spectral analysis (Bazavov 2025). GPU path delegates to `barracuda::ops::fft::Fft1DF64` via `tokio_block_on`. CPU fallback uses O(N²) DFT. 3 new tests
+- Delegation count: 101 (60 CPU + 41 GPU), up from 100
+
+#### Coverage Expansion
+- 16 new tests: fao56/equations.rs (16 tests covering all PM building-block functions)
+- 10 new tests: tissue_anderson/compartments.rs (preset constructors)
+- 12 new tests: tissue_anderson/sweeps.rs (barrier disruption, dimensional duality)
+- 3 new tests: spectral_recon (FFT power spectrum)
+- Total: 903 Rust workspace tests, 0 failures
+
 ### V91 Complete Ecosystem Rewire + Cross-Spring Evolution (Mar 7, 2026)
 
 #### New Delegations

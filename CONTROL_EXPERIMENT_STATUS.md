@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 7, 2026 (V91 — 807 tests, 100 delegations, 91.55% coverage)
+**Last updated**: March 7, 2026 (V93 — 903 tests, 101 delegations, 3 modules refactored, FFT wired)
 
 ## Experiment Register
 

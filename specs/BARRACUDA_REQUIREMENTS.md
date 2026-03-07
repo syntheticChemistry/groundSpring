@@ -49,7 +49,7 @@ GPU promotion mapping.
 
 | Operation | Paper | GPU Target | Priority | Effort |
 |-----------|-------|------------|----------|--------|
-| **FFT (spectral reconstruction)** | Bazavov 2025 | Complex FFT for lattice correlator analysis | **AVAILABLE** | barraCuda `ops::fft::{Fft1D, Fft1DF64, Fft2D, Fft3D, Rfft}` — Cooley-Tukey radix-2 WGSL. Wire pending. |
+| **FFT (spectral reconstruction)** | Bazavov 2025 | Complex FFT for lattice correlator analysis | **WIRED** | `spectral_recon::fft_power_spectrum()` delegates to `Fft1DF64` (V93). CPU DFT fallback. |
 | **Jackknife/bootstrap** | Bazavov 2025, Liu 2021 | Parallel resampling with structured covariance | **P1** | Low — embarrassingly parallel |
 | **Stochastic simulation (Gillespie)** | Waters/Massie 2012 | Parallel trajectory ensemble on GPU | **P1** | Medium — PRNG + exponential |
 | **Lanczos iterative eigensolve** | Kachkovskiy 2016, 2018 | Large sparse Hamiltonian diagonalization for spectral analysis. Foundation for Anderson localization studies | **P1** | Medium — tridiagonalization + QR; shared with hotSpring |
@@ -100,7 +100,7 @@ GPU MC sampling     ────────→  Jackknife/bootstrap (Bazavov pr
 GPU grid search     ────────→  Regularized inversion (spectral recon)
 GPU Gillespie       ────────→  Batched trajectory ensemble
 GPU Anderson        ────────→  BatchIprGpu for spectral statistics
-barracuda::ops::fft ────────→  FFT 1D/2D/3D f32/f64 (now available, wire pending)
+barracuda::ops::fft ────────→  FFT 1D/2D/3D f32/f64 (WIRED V93: spectral_recon::fft_power_spectrum)
 N/A                 ────────→  RAWR GPU kernel (new)
 N/A                 ────────→  Lanczos eigensolve (Kachkovskiy spectral)
 ```

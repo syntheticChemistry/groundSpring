@@ -245,6 +245,107 @@ fn cholesky_solve(a: &[f64], b: &[f64], n: usize) -> Vec<f64> {
     x
 }
 
+/// Compute the power spectrum |FFT(G)|² of a real-valued correlator.
+///
+/// For lattice correlator analysis (Bazavov 2025): the FFT reveals the
+/// frequency content of G(τ) directly, complementing the Tikhonov
+/// reconstruction which solves the inverse Laplace transform.
+///
+/// Returns `(frequencies, power)` where `frequencies[k] = k / (N Δτ)`
+/// and `power[k] = |X[k]|²`.  Only the first `N/2 + 1` (positive
+/// frequencies) are returned.
+///
+/// When `barracuda-gpu` is enabled, delegates to `barracuda::ops::fft::Fft1DF64`
+/// (GPU Cooley-Tukey radix-2).  Falls back to a CPU DFT otherwise.
+///
+/// # Panics
+///
+/// Panics if `correlator` is empty.
+#[must_use]
+pub fn fft_power_spectrum(correlator: &[f64], d_tau: f64) -> (Vec<f64>, Vec<f64>) {
+    assert!(!correlator.is_empty(), "correlator must be non-empty");
+
+    let n = correlator.len().next_power_of_two();
+    let n_out = n / 2 + 1;
+
+    let (re, im) = fft_correlator(correlator, n);
+
+    let frequencies: Vec<f64> = (0..n_out)
+        .map(|k| crate::cast::usize_f64(k) / (crate::cast::usize_f64(n) * d_tau))
+        .collect();
+
+    let power: Vec<f64> = re[..n_out]
+        .iter()
+        .zip(&im[..n_out])
+        .map(|(&r, &i)| r.mul_add(r, i * i))
+        .collect();
+
+    (frequencies, power)
+}
+
+/// Compute the FFT of a real correlator, returning (re, im) arrays.
+///
+/// Zero-pads to the next power of two. Returns full N-point transform.
+fn fft_correlator(correlator: &[f64], n: usize) -> (Vec<f64>, Vec<f64>) {
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Some(result) = fft_correlator_gpu(correlator, n) {
+            return result;
+        }
+    }
+    fft_correlator_cpu(correlator, n)
+}
+
+/// CPU DFT: O(N²) naive implementation, sufficient for correlators (N < 1000).
+fn fft_correlator_cpu(correlator: &[f64], n: usize) -> (Vec<f64>, Vec<f64>) {
+    let mut re = vec![0.0_f64; n];
+    let mut im = vec![0.0_f64; n];
+    let n_f = crate::cast::usize_f64(n);
+
+    for k in 0..n {
+        let mut sum_re = 0.0_f64;
+        let mut sum_im = 0.0_f64;
+        for (j, &g_j) in correlator.iter().enumerate() {
+            let angle = -std::f64::consts::TAU * crate::cast::usize_f64(k * j) / n_f;
+            sum_re = angle.cos().mul_add(g_j, sum_re);
+            sum_im = angle.sin().mul_add(g_j, sum_im);
+        }
+        re[k] = sum_re;
+        im[k] = sum_im;
+    }
+
+    (re, im)
+}
+
+/// GPU FFT path via `barracuda::ops::fft::Fft1DF64`.
+#[cfg(feature = "barracuda-gpu")]
+fn fft_correlator_gpu(correlator: &[f64], n: usize) -> Option<(Vec<f64>, Vec<f64>)> {
+    use barracuda::ops::fft::Fft1DF64;
+    use barracuda::tensor::Tensor;
+
+    let device = crate::gpu::get_device()?;
+
+    let mut interleaved = vec![0.0_f64; n * 2];
+    for (i, &g) in correlator.iter().enumerate() {
+        interleaved[i * 2] = g;
+    }
+
+    let tensor = Tensor::from_data(&interleaved, vec![n, 2], device.inner_arc()).ok()?;
+
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "FFT degree n is always a power of 2 ≤ 2^20, fits u32"
+    )]
+    let fft = Fft1DF64::new(tensor, n as u32).ok()?;
+    let result = barracuda::device::test_pool::tokio_block_on(fft.execute()).ok()?;
+    let data = result.to_vec_f64().ok()?;
+
+    let re: Vec<f64> = data.iter().step_by(2).copied().collect();
+    let im: Vec<f64> = data.iter().skip(1).step_by(2).copied().collect();
+
+    Some((re, im))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -329,6 +430,52 @@ mod tests {
             (integral - 1.0).abs() < tol::NORM_2PCT,
             "Gaussian peak should integrate to ~1.0, got {integral}"
         );
+    }
+
+    #[test]
+    fn fft_single_cosine() {
+        let n = 64;
+        let d_tau = 0.01;
+        let freq_hz = 10.0;
+        let correlator: Vec<f64> = (0..n)
+            .map(|i| {
+                let t = usize_f64(i) * d_tau;
+                (std::f64::consts::TAU * freq_hz * t).cos()
+            })
+            .collect();
+
+        let (frequencies, power) = fft_power_spectrum(&correlator, d_tau);
+        let peak_idx = power
+            .iter()
+            .enumerate()
+            .max_by(|(_, a), (_, b)| a.total_cmp(b))
+            .unwrap()
+            .0;
+
+        assert!(
+            (frequencies[peak_idx] - freq_hz).abs() < 2.0 / (usize_f64(n) * d_tau),
+            "FFT peak at {}, expected ~{freq_hz}",
+            frequencies[peak_idx]
+        );
+    }
+
+    #[test]
+    fn fft_dc_signal() {
+        let correlator = vec![1.0; 32];
+        let (_, power) = fft_power_spectrum(&correlator, 0.1);
+        assert!(
+            power[0] > power[1..].iter().copied().fold(0.0, f64::max),
+            "DC signal should have peak at k=0"
+        );
+    }
+
+    #[test]
+    fn fft_output_length() {
+        let correlator = vec![1.0, 0.0, -1.0, 0.0, 0.5, -0.5];
+        let (freqs, power) = fft_power_spectrum(&correlator, 0.1);
+        let n_padded = correlator.len().next_power_of_two();
+        assert_eq!(freqs.len(), n_padded / 2 + 1);
+        assert_eq!(power.len(), n_padded / 2 + 1);
     }
 
     #[test]
