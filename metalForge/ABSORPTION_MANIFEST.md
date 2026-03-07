@@ -6,7 +6,7 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: March 7, 2026 (V94 — 102 active delegations (61 CPU + 41 GPU), barraCuda `0bd401f`, toadStool S129, coralReef Phase 10, 907 tests, clippy pedantic clean. V87: coralReef sovereign compilation. V84: dual-GPU probe. V83: pin refresh. V82: BootstrapMeanGpu dispatch)
+**Last updated**: March 7, 2026 (V95 — 102 active delegations (61 CPU + 41 GPU), barraCuda `0bd401f`, toadStool S129, coralReef Phase 11, 907 tests, clippy pedantic clean. V95: coralReef push buffer breakthrough — sovereign GPU dispatch on Titan V. V87: coralReef sovereign compilation. V84: dual-GPU probe. V83: pin refresh. V82: BootstrapMeanGpu dispatch)
 
 ## Absorption Status Summary
 

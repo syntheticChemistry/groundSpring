@@ -38,17 +38,17 @@
   },
   "expected_results": {
     "d_inf_tolerance": 0.3,
-    "alpha_range": [
-      5.0,
-      20.0
-    ],
+    "d_inf_tolerance_rationale": "Yeh-Hummer D(N)=D_inf+alpha/N^(1/3) fit with noise_std=0.05 and 20 replicas per size; 0.3 is 12% of D_inf=2.5, covering finite-size extrapolation uncertainty from 9 system sizes.",
+    "alpha_range": [5.0, 20.0],
+    "alpha_range_rationale": "Hydrodynamic correction alpha=2*pi*eta*kBT/(6*pi*L) scales with box size; true value 10.0, range [5,20] covers 2x fitting uncertainty from noise.",
     "r_squared_min": 0.95,
+    "r_squared_min_rationale": "Linear fit D(N) vs N^(-1/3) with 9 points and noise_std=0.05 on D_inf=2.5 should achieve R^2 > 0.99; 0.95 is a conservative floor.",
     "extrapolation_relative_error_max": 0.1,
+    "extrapolation_relative_error_max_rationale": "|D_fit - D_inf| / D_inf < 10%: 20 replicas reduce standard error to ~0.05/sqrt(20) ≈ 0.011, so 10% is a 23x margin.",
     "convergence_n_max": 1000000,
-    "mean_at_largest_n_range": [
-      2.0,
-      3.5
-    ],
-    "residual_std_max": 0.2
+    "mean_at_largest_n_range": [2.0, 3.5],
+    "mean_at_largest_n_range_rationale": "At N=1e6, D(N) ≈ D_inf + alpha/100 ≈ 2.6; [2.0, 3.5] provides symmetric margin around true D_inf=2.5.",
+    "residual_std_max": 0.2,
+    "residual_std_max_rationale": "Fit residuals from 9-point regression with noise_std=0.05 per point; 0.2 is 4x per-point noise, covering any systematic finite-size deviation."
   }
 }

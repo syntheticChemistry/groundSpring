@@ -11,7 +11,7 @@
 
 use groundspring::prng::Xorshift64;
 use groundspring::rare_biosphere::chao1;
-use groundspring::rarefaction::{multinomial_sample, shannon_diversity};
+use groundspring::rarefaction::{multinomial_sample_batch, shannon_diversity};
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{f64_field, f64_range, print_provenance_header, usize_field};
 use serde_json::Value;
@@ -53,12 +53,13 @@ fn rarefy_at_depth(
     n_reps: usize,
     base_seed: u64,
 ) -> RarefactionResult {
+    let batch_seed = base_seed.wrapping_add(depth);
+    let batch = multinomial_sample_batch(community, depth, n_reps, batch_seed);
     let mut shannon_sum = 0.0;
     let mut chao1_sum = 0.0;
-    for r in 0..n_reps {
-        let counts = multinomial_sample(community, depth, base_seed + depth + r as u64);
-        shannon_sum += shannon_diversity(&counts);
-        chao1_sum += chao1(&counts);
+    for counts in &batch {
+        shannon_sum += shannon_diversity(counts);
+        chao1_sum += chao1(counts);
     }
     #[expect(clippy::cast_precision_loss, reason = "n_reps ≤ 20")]
     let n = n_reps as f64;
@@ -159,8 +160,12 @@ fn validate_diversity(
         notill.shannon_1k > tilled.shannon_1k,
     );
 
-    let sat_n = find_saturation_depth(&notill.curve, notill_true_h, 5.0);
-    let sat_t = find_saturation_depth(&tilled.curve, tilled_true_h, 5.0);
+    let sat_pct = exp
+        .get("saturation_threshold_pct")
+        .and_then(serde_json::Value::as_f64)
+        .unwrap_or(5.0);
+    let sat_n = find_saturation_depth(&notill.curve, notill_true_h, sat_pct);
+    let sat_t = find_saturation_depth(&tilled.curve, tilled_true_h, sat_pct);
     println!("  Saturation: no-till={sat_n}, tilled={sat_t}");
 
     let notill_sat_range = f64_range(&exp["saturation_depth_notill_range"]);

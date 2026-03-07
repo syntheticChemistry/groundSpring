@@ -10,7 +10,7 @@
 //!
 //! ## Module structure
 //!
-//! - [`monitor`] — `DriftMonitor` advisory system for `N_e`·`s` tracking
+//! - `monitor` — `DriftMonitor` advisory system for `N_e`·`s` tracking
 //! - This module — Wright-Fisher simulation, Kimura fixation, neutral drift
 //!
 //! # References

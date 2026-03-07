@@ -4,7 +4,7 @@
 > a shared compute fabric where each spring benefits from every other's
 > domain-specific innovations.
 
-**Last updated**: March 7, 2026 (V94)
+**Last updated**: March 7, 2026 (V95)
 
 ## Philosophy
 
@@ -158,7 +158,7 @@ Mar 6-7     groundSpring V90-V91: deep debt, rewire to modern ecosystem
 ## Sovereign Compilation Path (coralReef)
 
 All WGSL shaders in barraCuda (708) can now be compiled to native GPU binary
-via coralReef Phase 10:
+via coralReef Phase 11:
 
 | Target | Backend | Status |
 |--------|---------|--------|

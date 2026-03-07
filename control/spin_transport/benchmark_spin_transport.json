@@ -39,12 +39,19 @@
   },
   "expected_results": {
     "ballistic_beta_range": [0.75, 1.0],
+    "ballistic_beta_range_rationale": "For lambda<2, purely AC spectrum gives beta=1 (ballistic); finite chain (N=201) and finite time (t=40) cause underestimation; 0.75 floor from power-law fit uncertainty.",
     "localized_beta_max": 0.15,
+    "localized_beta_max_rationale": "For lambda>2, purely PP spectrum gives beta=0 (localized); finite-time MSD residual growth gives apparent beta ~ 0.05-0.10; 0.15 provides 1.5x margin.",
     "critical_beta_range": [0.05, 0.85],
+    "critical_beta_range_rationale": "At lambda=2, singular continuous spectrum gives anomalous transport 0<beta<1; exact beta depends on theta, chain length, and time range; wide range reflects genuine theoretical uncertainty.",
     "msd_localized_bounded_max": 25.0,
+    "msd_localized_bounded_max_rationale": "Localization length xi ~ 1/ln(lambda/2); for lambda=3, xi~0.85, so MSD saturates at ~xi^2 ~ 0.7; 25.0 provides margin for finite-time transient spreading.",
     "normalization_tolerance": 1e-10,
+    "normalization_tolerance_rationale": "Wavepacket normalization |psi|^2 = 1 preserved by unitary evolution; finite-precision eigendecomposition introduces O(machine epsilon) drift; 1e-10 is 1e5 * machine epsilon.",
     "lyapunov_extended_max": 0.01,
+    "lyapunov_extended_max_rationale": "For lambda<2, gamma=0 analytically; transfer matrix computation with N=100000 sites gives gamma ~ O(1/N) numerical residual; 0.01 provides 100x margin.",
     "lyapunov_localized_min": 0.2,
+    "lyapunov_localized_min_rationale": "For lambda=3, Herman formula gamma=ln(3/2)=0.405; for lambda=4, gamma=ln(2)=0.693; 0.2 floor is well below theoretical minimum at lambda=3.",
     "transport_monotonicity": true
   }
 }

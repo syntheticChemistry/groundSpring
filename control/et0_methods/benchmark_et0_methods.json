@@ -1,10 +1,11 @@
 {
   "_source": "groundSpring Exp 035 \u2014 Multi-Method ET\u2080 Cross-Validation",
+  "_doi": "10.13140/2.1.1945.2161",
   "_provenance": {
     "generated_by": "5-method ET\u2080 comparison at FAO-56 Example 18 reference site",
     "data_origin": "FAO-56 Example 18 (Uccle, Belgium, 6 July). Makkink (1957), Turc (1961), Hamon (1963), Hargreaves & Samani (1985).",
-    "baseline_date": "2026-03-05",
-    "baseline_commit": "a29480fd0c3a31a875168547d43ca5ebf091ff04",
+    "baseline_date": "2026-03-07",
+    "baseline_commit": "2b691c5a56761a08b7a2523c91197fb6d90694b8",
     "validation_script": "control/et0_methods/et0_methods.py",
     "command": "python3 control/et0_methods/et0_methods.py",
     "python_version": "3.10.12",
@@ -14,7 +15,6 @@
   },
   "_description": "5-method ET\u2080 cross-validation: PM, Hargreaves, Makkink, Turc, Hamon",
   "_groundspring_question": "Do simplified ET\u2080 methods (fewer inputs) agree with the full Penman-Monteith equation chain?",
-  "_doi": "10.1016/S0378-3774(98)00053-4",
   "_references": [
     "Allen et al. (1998) FAO-56",
     "Makkink (1957) Neth J Agr Sci 5:290-305",

@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 7, 2026 (V94)
+**Last Updated**: March 7, 2026 (V95)
 
 ## What This Is
 
@@ -18,7 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V94 Evolution | [GROUNDSPRING_V94_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR07_2026.md](handoffs/GROUNDSPRING_V94_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR07_2026.md) | Mar 7, 2026 | 907 tests, 102 delegations, FFT wired, 3 modules refactored, Fp64Strategy P0 still open |
+| V95 coralReef Breakthrough | [GROUNDSPRING_V95_TOADSTOOL_BARRACUDA_CORALREEF_HANDOFF_MAR07_2026.md](handoffs/GROUNDSPRING_V95_TOADSTOOL_BARRACUDA_CORALREEF_HANDOFF_MAR07_2026.md) | Mar 7, 2026 | coralReef push buffer encoding breakthrough, sovereign GPU dispatch on Titan V, 907 tests, 102 delegations |
 
 ## Cross-Spring Documentation
 
@@ -38,6 +38,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | Scope |
 |---------|-------|
+| V94 Evolution | 907 tests, 102 delegations, Shannon delegation, CorrelationFull API evolution, coralReef Phase 10 (superseded by V95) |
 | V83 Pin Refresh | Dependency catch-up: barraCuda `0bd401f`, toadStool S96c, coralReef `1e048be`. 91 delegations verified compatible, 824 tests (superseded by V85) |
 | V82 Delegation Expansion | Thornthwaite ET₀, fit_all regression, esn/fao56 smart-refactored, deep debt audit, 91 delegations (54 CPU + 37 GPU), 824 tests (superseded by V83) |
 | V81 Modern Rewire | BootstrapMeanGpu GPU dispatch, freeze_out gate fix, coralReef (390 tests), 88 delegations (51 CPU + 37 GPU), barraCuda `a4c20a5`, toadStool S95 (superseded by V82) |

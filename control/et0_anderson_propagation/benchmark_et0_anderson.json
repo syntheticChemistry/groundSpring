@@ -58,12 +58,18 @@
   },
   "expected": {
     "et0_mean_range": [3.5, 4.3],
+    "et0_mean_range_rationale": "FAO-56 Example 18 (Uccle, 6 July) yields ET0 ≈ 3.88 mm/day; [3.5, 4.3] covers ±10% from MC perturbation of T, RH, wind, Rs inputs.",
     "et0_cv_range": [0.02, 0.10],
+    "et0_cv_range_rationale": "Input uncertainties (T±0.5°C, RH±5%, wind±0.3, Rs±1.0) propagated through PM equation; CV ~ 0.04 analytically, [0.02, 0.10] covers nonlinear coupling.",
     "theta_final_range": [0.10, 0.45],
+    "theta_final_range_rationale": "30-day water balance from theta_initial=0.35 with ET0~3.9 and P=2.0 mm/day; bounded by [theta_min=0.08, theta_max=0.45] with margin.",
     "theta_cv_range": [0.01, 0.30],
+    "theta_cv_range_rationale": "Soil moisture CV depends on cumulative ET0 uncertainty over 30 days; range covers both low-variance (wet) and high-variance (dry) trajectories.",
     "xi_cv_range": [0.01, 0.50],
+    "xi_cv_range_rationale": "Localization length xi ∝ 1/gamma depends nonlinearly on disorder W = slope*theta + intercept; CV amplification from theta to xi can be large near Anderson transition.",
     "humidity_dominates_et0": true,
     "et0_uncertainty_propagates_through_anderson": true,
-    "xi_cv_to_et0_cv_ratio_min": 0.5
+    "xi_cv_to_et0_cv_ratio_min": 0.5,
+    "xi_cv_to_et0_cv_ratio_min_rationale": "Anderson localization amplifies input uncertainty: xi_cv / et0_cv > 0.5 means the localization channel preserves at least half the input noise."
   }
 }

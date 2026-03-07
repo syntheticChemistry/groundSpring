@@ -298,23 +298,17 @@
   },
   "expected": {
     "notill_higher_diversity": true,
-    "notill_shannon_range": [
-      3.0,
-      5.5
-    ],
-    "tilled_shannon_range": [
-      0.5,
-      4.0
-    ],
+    "notill_shannon_range": [3.0, 5.5],
+    "notill_shannon_range_rationale": "Log-normal community (mu=-4, sigma=1.5) with 150 genera yields H' ~ 4.0-4.5; [3.0, 5.5] provides 2x margin for multinomial sampling variance at depths 100-50000.",
+    "tilled_shannon_range": [0.5, 4.0],
+    "tilled_shannon_range_rationale": "Tilled community (mu=-3, sigma=2.5) with 100 genera is dominance-skewed; H' ~ 1.5-2.5 with [0.5, 4.0] covering extreme log-normal draws.",
     "notill_chao1_converges_higher": true,
     "distinguishable_at_1000_reads": true,
-    "saturation_depth_notill_range": [
-      500,
-      20000
-    ],
-    "saturation_depth_tilled_range": [
-      500,
-      10000
-    ]
+    "saturation_threshold_pct": 5.0,
+    "saturation_threshold_pct_rationale": "Shannon within 5% of true H': at 50000 reads with 150 genera, multinomial sampling CV < 2% (Anderson et al. 2015); 5% provides 2.5x margin.",
+    "saturation_depth_notill_range": [500, 20000],
+    "saturation_depth_notill_range_rationale": "150-genus log-normal community saturates at ~5000 reads (Anderson et al. 2015 genus saturation); [500, 20000] covers stochastic variation across 20 replicates.",
+    "saturation_depth_tilled_range": [500, 10000],
+    "saturation_depth_tilled_range_rationale": "100-genus dominance-skewed community saturates faster due to fewer rare taxa; [500, 10000] covers replicate variance."
   }
 }

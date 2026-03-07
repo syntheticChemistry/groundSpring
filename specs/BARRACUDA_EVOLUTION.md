@@ -2,8 +2,11 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 7, 2026 (V94 — 102 delegations (61 CPU + 41 GPU), 907 tests,
-barraCuda v0.3.3, toadStool S129, coralReef Phase 10.
+**Last updated**: March 7, 2026 (V95 — 102 delegations (61 CPU + 41 GPU), 907 tests,
+barraCuda v0.3.3, toadStool S129, coralReef Phase 11.
+V95: coralReef push buffer encoding breakthrough — Kepler+ mthd_incr field swap fixed,
+NVIF constants aligned to Mesa nvif/ioctl.h, sovereign GPU method dispatch proven on Titan V.
+V94: ecosystem sync — Shannon delegation, CorrelationFull API evolution.
 V93: smart refactoring (rarefaction, drift, tissue_anderson) + FFT wired into spectral_recon
 via Fft1DF64 for lattice correlator analysis. 3 module splits, 67 new tests.
 V91: complete ecosystem rewire — AutocorrelationF64, ESD, PeakDetectF64, CovarianceF64,

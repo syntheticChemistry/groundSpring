@@ -318,6 +318,10 @@ fn fft_correlator_cpu(correlator: &[f64], n: usize) -> (Vec<f64>, Vec<f64>) {
 }
 
 /// GPU FFT path via `barracuda::ops::fft::Fft1DF64`.
+///
+/// Uploads interleaved `[re, im]` f64 data via `Tensor::from_data_pod`,
+/// dispatches Cooley-Tukey radix-2 on GPU, then reads back via `to_vec()`
+/// (f32 view of raw bytes) and reinterprets as f64 via `bytemuck`.
 #[cfg(feature = "barracuda-gpu")]
 fn fft_correlator_gpu(correlator: &[f64], n: usize) -> Option<(Vec<f64>, Vec<f64>)> {
     use barracuda::ops::fft::Fft1DF64;
@@ -330,7 +334,7 @@ fn fft_correlator_gpu(correlator: &[f64], n: usize) -> Option<(Vec<f64>, Vec<f64
         interleaved[i * 2] = g;
     }
 
-    let tensor = Tensor::from_data(&interleaved, vec![n, 2], device.inner_arc()).ok()?;
+    let tensor = Tensor::from_data_pod(&interleaved, vec![n, 2], device).ok()?;
 
     #[expect(
         clippy::cast_possible_truncation,
@@ -338,7 +342,9 @@ fn fft_correlator_gpu(correlator: &[f64], n: usize) -> Option<(Vec<f64>, Vec<f64
     )]
     let fft = Fft1DF64::new(tensor, n as u32).ok()?;
     let result = barracuda::device::test_pool::tokio_block_on(fft.execute()).ok()?;
-    let data = result.to_vec_f64().ok()?;
+
+    let f32_data = result.to_vec().ok()?;
+    let data: &[f64] = bytemuck::cast_slice(&f32_data);
 
     let re: Vec<f64> = data.iter().step_by(2).copied().collect();
     let im: Vec<f64> = data.iter().skip(1).step_by(2).copied().collect();

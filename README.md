@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: March 7, 2026 | **License**: AGPL-3.0-only
-**Status**: V94 — 34 modules, 35 experiments, 907 Rust workspace tests + 261 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda `0bd401f`, toadStool S129, coralReef Phase 10. Ecosystem sync: `CorrelationFull` API evolved with `.r_squared()`/`.covariance()`, Shannon delegation to `barracuda::stats::shannon`, covariance GPU path simplified. Fp64Strategy regression in `SumReduceF64`/`VarianceReduceF64` confirmed still present in barraCuda `0bd401f`
+**Status**: V95 — 34 modules, 35 experiments, 907 Rust workspace tests + 261 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda `0bd401f`, toadStool S129, coralReef Phase 11. **coralReef breakthrough**: push buffer encoding fixed (Kepler+ mthd_incr field swap), NVIF constants aligned to Mesa, SET_OBJECT + INVALIDATE_SHADER_CACHES + SET_SHADER_LOCAL_MEMORY_WINDOW all surviving on Titan V via sovereign EXEC path — full compute method dispatch proven without NAK/NVK/Vulkan
 
 **The gap between what models predict and what instruments measure.**
 

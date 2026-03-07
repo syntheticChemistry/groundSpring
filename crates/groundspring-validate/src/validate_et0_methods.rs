@@ -32,6 +32,10 @@ const BENCHMARK: &str = include_str!("../../../control/et0_methods/benchmark_et0
 /// Rust vs Python ET₀ tolerance: same equations, small rounding diffs from
 /// trig intermediates (Ra), Kelvin convention (273.0 vs 273.16), `mul_add`
 /// vs multiply-then-add. Hargreaves amplifies Ra differences.
+///
+/// Provenance: `control/et0_methods/et0_methods.py` (commit `a29480fd`,
+/// 2026-03-05) — `python3 control/et0_methods/et0_methods.py`.
+/// Observed max delta: PM 0.002, HG 0.004, MK 0.001, TU 0.001, HA 0.001.
 const TOL_ET0: f64 = 0.005;
 
 /// Build the reference-site weather input from the benchmark JSON.

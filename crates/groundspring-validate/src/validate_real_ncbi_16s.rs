@@ -35,42 +35,40 @@ fn main() {
     println!("  Exp 030: Real NCBI 16S Metagenomes → Rare Biosphere Detection");
     println!("{}", "=".repeat(72));
     println!();
-    println!("  Provenance: NUCLEUS live-data validation binary");
-    println!("  Data source: NCBI SRA soil metagenome 16S amplicon or synthetic");
+    println!(
+        "  Provenance: NUCLEUS validation binary (synthetic community, NCBI-seeded when available)"
+    );
+    println!(
+        "  Data source: Synthetic log-series community; NCBI SRA result count used as PRNG seed"
+    );
     println!("  Baseline: Analytical (Chao1 1984, Shannon entropy, rarefaction)");
     println!("  Note: No benchmark JSON — validates diversity pipeline against");
     println!("        ecological invariants, not Python baseline comparison.");
     println!();
 
     let socket = biomeos::auto_connect();
-    let data_source = if socket.is_some() {
-        "LIVE NCBI SRA"
-    } else {
-        "SYNTHETIC"
-    };
-    println!("  Data source: {data_source}");
-    println!();
-
-    let community: Vec<u64> = socket.as_ref().map_or_else(
+    let (community, data_source): (Vec<u64>, &str) = socket.as_ref().map_or_else(
         || {
             println!("  No NUCLEUS available, using synthetic community");
-            synthetic_community()
+            (synthetic_community(), "SYNTHETIC (no NUCLEUS)")
         },
         |sock| match fetch_ncbi_community_structure(sock) {
             Ok(c) => {
                 println!(
-                    "  Fetched real community: {} taxa, {} reads",
+                    "  Fetched NCBI-seeded community: {} taxa, {} reads",
                     c.len(),
                     c.iter().sum::<u64>()
                 );
-                c
+                (c, "SYNTHETIC (seeded by NCBI SRA result count)")
             }
             Err(e) => {
                 println!("  Live fetch failed ({e}), using synthetic community");
-                synthetic_community()
+                (synthetic_community(), "SYNTHETIC (NCBI fetch failed)")
             }
         },
     );
+    println!("  Data source: {data_source}");
+    println!();
 
     let total_reads: u64 = community.iter().sum();
     let n_taxa = community.len();

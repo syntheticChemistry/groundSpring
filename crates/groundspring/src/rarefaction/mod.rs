@@ -9,8 +9,8 @@
 //!
 //! ## Module structure
 //!
-//! - [`diversity`] — Simpson, Shannon, Bray-Curtis, Pielou evenness, taxa count
-//! - [`sampling`] — deterministic multinomial sampling (CPU + GPU batch)
+//! - `diversity` — Simpson, Shannon, Bray-Curtis, Pielou evenness, taxa count
+//! - `sampling` — deterministic multinomial sampling (CPU + GPU batch)
 //! - This module — analytical rarefaction curves and depth-sweep orchestration
 
 mod diversity;
@@ -106,6 +106,12 @@ pub struct RarefactionResult {
 }
 
 /// Run rarefaction at a given depth with multiple replicates.
+///
+/// Uses [`multinomial_sample_batch`] so the full set of replicates is
+/// dispatched to `BatchedMultinomialGpu` when the `barracuda-gpu`
+/// feature is enabled, falling back to sequential CPU sampling
+/// otherwise.  Seed scheme: `base_seed + depth + i` for replicate `i`,
+/// matching the original per-sample loop for bitwise determinism.
 #[must_use]
 pub fn rarefaction_at_depth(
     abundances: &[f64],
@@ -113,14 +119,14 @@ pub fn rarefaction_at_depth(
     n_replicates: usize,
     base_seed: u64,
 ) -> RarefactionResult {
+    let batch_seed = base_seed.wrapping_add(depth);
+    let batch = multinomial_sample_batch(abundances, depth, n_replicates, batch_seed);
+
     let mut genera_counts = Vec::with_capacity(n_replicates);
     let mut shannon_values = Vec::with_capacity(n_replicates);
-
-    for rep in 0..n_replicates {
-        let seed = base_seed.wrapping_add(depth).wrapping_add(rep as u64);
-        let counts = multinomial_sample(abundances, depth, seed);
-        genera_counts.push(usize_f64(taxa_detected(&counts)));
-        shannon_values.push(shannon_diversity(&counts));
+    for counts in &batch {
+        genera_counts.push(usize_f64(taxa_detected(counts)));
+        shannon_values.push(shannon_diversity(counts));
     }
 
     let (genera_mean, genera_std) = crate::stats::mean_and_std_dev(&genera_counts);

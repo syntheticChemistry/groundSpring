@@ -531,12 +531,106 @@ mod tests {
         let data = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
         let r1 = rawr_mean(&data, 500, 0.95, 42);
         let r2 = rawr_mean(&data, 500, 0.95, 99);
-        // CI bounds should differ even if barracuda normalizes the estimate.
         assert!(
             r1.ci_lower.to_bits() != r2.ci_lower.to_bits()
                 || r1.ci_upper.to_bits() != r2.ci_upper.to_bits()
                 || r1.estimate.to_bits() != r2.estimate.to_bits(),
             "at least one field should differ between seeds"
+        );
+    }
+
+    #[test]
+    fn bootstrap_mean_cpu_direct() {
+        let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+        let r = bootstrap_mean_cpu(&data, 200, 0.95, 42);
+        assert!(r.ci_lower < r.ci_upper);
+        assert!((r.estimate - 3.0).abs() < 1.0);
+    }
+
+    #[test]
+    fn rawr_mean_cpu_direct() {
+        let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+        let r = rawr_mean_cpu(&data, 200, 0.95, 42);
+        assert!(r.ci_lower < r.ci_upper);
+        assert!((r.estimate - 3.0).abs() < 1.0);
+    }
+
+    #[test]
+    fn bootstrap_median_cpu_direct() {
+        let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+        let r = bootstrap_median_cpu(&data, 200, 0.95, 42);
+        assert!(r.ci_lower <= r.estimate);
+        assert!(r.estimate <= r.ci_upper);
+    }
+
+    #[test]
+    fn bootstrap_std_cpu_direct() {
+        let data = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
+        let r = bootstrap_std_cpu(&data, 200, 0.95, 42);
+        assert!(r.estimate > 0.0);
+        assert!(r.ci_lower > 0.0);
+    }
+
+    #[test]
+    fn percentile_ci_known_values() {
+        let data: Vec<f64> = (0..100).map(f64::from).collect();
+        let r = percentile_ci(&data, 100, 0.95);
+        assert!((r.estimate - 49.5).abs() < 0.01);
+        assert!(r.ci_lower < r.ci_upper);
+        assert!(r.std_error > 0.0);
+    }
+
+    #[test]
+    fn bootstrap_mean_large_sample() {
+        let data: Vec<f64> = (0..500).map(|i| f64::from(i) * 0.1).collect();
+        let r = bootstrap_mean(&data, 200, 0.95, 7);
+        assert!((r.estimate - 24.95).abs() < 2.0);
+        assert!(r.std_error > 0.0);
+    }
+
+    #[test]
+    fn rawr_single_value() {
+        let data = vec![42.0];
+        let r = rawr_mean(&data, 200, 0.95, 1);
+        assert!((r.estimate - 42.0).abs() < 1e-12);
+    }
+
+    #[test]
+    fn bootstrap_median_even_length() {
+        let data = vec![1.0, 2.0, 3.0, 4.0];
+        let r = bootstrap_median(&data, 500, 0.95, 42);
+        assert!(r.ci_lower <= r.estimate);
+        assert!(r.estimate <= r.ci_upper);
+    }
+
+    #[test]
+    fn bootstrap_std_uniform_data() {
+        let data = vec![5.0; 20];
+        let r = bootstrap_std(&data, 200, 0.95, 42);
+        assert!(r.estimate < 1e-12, "std of constant data should be ~0");
+    }
+
+    #[test]
+    fn rawr_ci_narrows_with_n() {
+        let mut rng = crate::prng::Xorshift64::new(77);
+        let small: Vec<f64> = (0..20).map(|_| rng.next_f64() * 10.0).collect();
+        let large: Vec<f64> = (0..200).map(|_| rng.next_f64() * 10.0).collect();
+        let r_small = rawr_mean(&small, 500, 0.95, 42);
+        let r_large = rawr_mean(&large, 500, 0.95, 42);
+        assert!(
+            r_large.ci_upper - r_large.ci_lower < r_small.ci_upper - r_small.ci_lower,
+            "larger sample should have narrower RAWR CI"
+        );
+    }
+
+    #[test]
+    fn bootstrap_confidence_level_90() {
+        let data: Vec<f64> = (1..=100).map(f64::from).collect();
+        let r90 = bootstrap_mean(&data, 1000, 0.90, 42);
+        let r95 = bootstrap_mean(&data, 1000, 0.95, 42);
+        assert!(
+            r90.ci_upper - r90.ci_lower <= r95.ci_upper - r95.ci_lower + 1.0,
+            "90% CI should generally be narrower than 95% CI"
         );
     }
 }

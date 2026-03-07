@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: March 7, 2026 (V94)
+**Last Updated**: March 7, 2026 (V95)
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---
@@ -46,7 +46,7 @@
 **Phase 0**: ~276 checks (Python, 29 experiments). **Phase 1**: 395/395 PASS (Rust, 34 experiments). **Speedup**: 11.6× median (excl. LAPACK-bound), 51.2× peak (seismic).
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs (Exp 029–033 have no Python baseline).
 **V83 fresh validation**: 395/395 checks (34 binaries), 824+ workspace tests, 100+ three-tier parity tests.
-**GPU dispatch (V31–V83)**: 16 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson, tissue_anderson, jackknife, bootstrap. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). 93 delegations (56 CPU + 37 GPU) — barraCuda `0bd401f`.
+**GPU dispatch (V31–V95)**: 16 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson, tissue_anderson, jackknife, bootstrap. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). 102 delegations (61 CPU + 41 GPU). V95: Exp 023/024 promoted Partial→Wired via `multinomial_sample_batch`.
 **V66 stats Tier A**: MAE, NSE/R² wired to `FusedMapReduceF64` GPU path. Bistable batch ODE via `BatchedOdeRK4F64`. Papers 1-5 stats fully GPU-capable.
 **V67 hydrology GPU**: `McEt0PropagateGpu` + `SeasonalPipelineF64` + `BatchedMultinomialGpu` API fix (3 call sites).
 **V68 spectral GPU**: `anderson_4d` + `wegner_block_4d` (tissue immunology). `lbfgs_numerical` post-grid refinement.
@@ -271,8 +271,8 @@ Write → Absorb → Lean cycle:
 | 20 | Drift vs selection | **7/7** | **Wired** (V63 `WrightFisherGpu` + multinomial) | — | fixation sim GPU |
 | 21 | Rare biosphere signal detection | **12/12** | **Wired** (V31 `BatchedMultinomialGpu`) | Workload | occupancy GPU |
 | 22 | ET₀ → Anderson uncertainty | **7/7** | **Wired** (V67 `McEt0PropagateGpu`) | — | MC→spectral GPU chain |
-| 23 | No-till sampling design | **7/7** | **Partial** (Shannon/Simpson via `FusedMapReduceF64`) | — | stats GPU |
-| 24 | Aggregate stability noise | **8/8** | **Partial** (bias-variance GPU stats) | — | stats GPU |
+| 23 | No-till sampling design | **7/7** | **Wired** (`BatchedMultinomialGpu` + Shannon GPU) | — | rarefaction GPU (V95) |
+| 24 | Aggregate stability noise | **8/8** | **Wired** (`rmse`/`mbe`/`mean_and_std_dev` GPU) | — | stats GPU (V95) |
 | 25-27 | WDM sub-thesis 07 | **21/21** | CPU delegation (analytical math) | — | No GPU path needed |
 | 28 | NPU Anderson classification | **9/9** | — | **Live** (AKD1000 DMA) | int8 centroid on NPU |
 | 29-32 | NUCLEUS sovereign experiments | **55/55** | — | Sovereign fallback | Real data (NOAA/NCBI/IRIS) |
@@ -305,8 +305,8 @@ Write → Absorb → Lean cycle:
 | 20 | R. Anderson mBio | **7/7 PASS** | **Wired** (V63 WF + multinomial) | — | `WrightFisherGpu` + `BatchedMultinomialGpu` |
 | 21 | R. Anderson FEMS | **12/12 PASS** | **Wired** (V31 rare biosphere GPU) | Workload defined | `BatchedMultinomialGpu` occupancy |
 | 22 | ET₀ → Anderson | **7/7 PASS** | **Wired** (V67 McEt0 GPU) | — | `McEt0PropagateGpu` + Anderson spectral |
-| 23 | No-till sampling | **7/7 PASS** | **Partial** (stats GPU) | — | Shannon/Simpson GPU via FusedMapReduce |
-| 24 | Aggregate stability | **8/8 PASS** | **Partial** (stats GPU) | — | Bias-variance via GPU stats |
+| 23 | No-till sampling | **7/7 PASS** | **Wired** (`BatchedMultinomialGpu` + Shannon) | — | Rarefaction GPU chain (V95) |
+| 24 | Aggregate stability | **8/8 PASS** | **Wired** (`rmse`/`mbe`/`mean_and_std_dev` GPU) | — | All stats GPU (V95) |
 | 25-27 | WDM sub-thesis 07 | **21/21 PASS** | CPU delegation | — | CPU math proven, no GPU path needed |
 | 28 | NPU Anderson | **9/9 PASS** | — | **Live** (AKD1000) | int8 DMA on NPU hardware |
 | 29-32 | NUCLEUS experiments | **55/55 PASS** | — | sovereign fallback | Real data (NOAA, NCBI, IRIS) |
@@ -343,9 +343,8 @@ Write → Absorb → Lean cycle:
 
 ### GPU-Ready vs GPU-Blocked
 
-**GPU-Ready** (25 of 33 papers have GPU wiring — 76%):
-Papers 1-11, 14, 15, 16, 18, 20, 21, 22, 33 — **fully wired** with active GPU delegation.
-Papers 23, 24 — **partial** (stats GPU, full chain pending).
+**GPU-Ready** (27 of 33 papers have GPU wiring — 82%):
+Papers 1-11, 14, 15, 16, 18, 20, 21, 22, 23, 24, 33 — **fully wired** with active GPU delegation.
 
 **GPU-Blocked** (remaining gaps):
 - Paper 17 — eigenvector solver (Sturm finds eigenvalues on GPU, eigenvectors still CPU)

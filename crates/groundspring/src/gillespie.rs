@@ -176,7 +176,7 @@ fn birth_death_ssa_batch_gpu(
     t_burnin: f64,
     base_seed: u64,
 ) -> Option<BatchResult> {
-    use barracuda::ops::bio::GillespieGpu;
+    use barracuda::ops::bio::gillespie::{GillespieGpu, GillespieModel};
 
     let device = crate::gpu::get_device()?;
 
@@ -204,16 +204,19 @@ fn birth_death_ssa_batch_gpu(
     }
 
     let gpu = GillespieGpu::new(&device);
-    let config = barracuda::ops::bio::GillespieConfig {
+    let model = GillespieModel {
+        rate_k: &rate_k,
+        stoich_react: &stoich_react,
+        stoich_net: &stoich_net,
+    };
+    let config = barracuda::ops::bio::gillespie::GillespieConfig {
         t_max,
         max_steps: 1_000_000,
     };
 
     let result = gpu
         .simulate(
-            &rate_k,
-            &stoich_react,
-            &stoich_net,
+            &model,
             &initial_states,
             &prng_seeds,
             n_trajectories,

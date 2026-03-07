@@ -56,9 +56,11 @@
     "dual_hapr_represses_biofilm": true,
     "deterministic_trajectories_agree": true,
     "determinism_tolerance": 1e-10,
+    "determinism_tolerance_rationale": "RK4 ODE with dt=0.01 is fully deterministic; 1e-10 is 1e6 * machine epsilon, covering any FMA reordering between CPU and barracuda paths.",
     "dual_lower_variance": true,
     "dual_signal_variance_ratio_max": 1.5,
     "dual_signal_variance_ratio_max_rationale": "Dual-signal c-di-GMP std must be at most 1.5x single-signal std; signal integration reduces noise.",
-    "low_noise_cdg_agreement_tol": 0.5
+    "low_noise_cdg_agreement_tol": 0.5,
+    "low_noise_cdg_agreement_tol_rationale": "Absolute tolerance for c-di-GMP steady state between deterministic and low-noise stochastic paths; ODE c-di-GMP ~ 2-5, so 0.5 is ~10-25% relative tolerance covering Gillespie sampling noise."
   }
 }

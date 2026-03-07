@@ -64,7 +64,7 @@ crates/
     src/npu.rs             NPU integration for AKD1000 neuromorphic inference (behind npu feature)
     src/biomeos.rs         biomeOS Neural API client: socket discovery, capability routing (behind biomeos feature)
     src/nestgate.rs        NestGate data pipeline: NCBI/NOAA/IRIS providers, provenance (behind biomeos feature)
-  groundspring-validate/   33 validation binaries (hotSpring pattern, 4 NUCLEUS behind biomeos feature)
+  groundspring-validate/   34 validation binaries (hotSpring pattern, 4 NUCLEUS behind biomeos feature)
 metalForge/          Write → Absorb → Lean artifacts
   ABSORPTION_MANIFEST.md  Module-by-module absorption inventory
   shaders/                 Production WGSL shaders for ToadStool absorption

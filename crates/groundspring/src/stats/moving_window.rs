@@ -142,4 +142,81 @@ mod tests {
         let data = vec![1.0, 2.0, 3.0];
         assert!(moving_window_stats(&data, 0).is_none());
     }
+
+    #[test]
+    fn window_size_one() {
+        let data = vec![3.0, 1.0, 4.0, 1.0, 5.0];
+        let r = moving_window_stats(&data, 1).unwrap();
+        assert_eq!(r.mean.len(), 5);
+        for (i, &m) in r.mean.iter().enumerate() {
+            assert!((m - data[i]).abs() < f64::EPSILON);
+        }
+        for &v in &r.variance {
+            assert!(
+                v.abs() < f64::EPSILON,
+                "single-element window has zero variance"
+            );
+        }
+        for (i, &mn) in r.min.iter().enumerate() {
+            assert!((mn - data[i]).abs() < f64::EPSILON);
+        }
+    }
+
+    #[test]
+    fn variance_correctness() {
+        let data = vec![2.0, 4.0, 6.0];
+        let r = moving_window_stats(&data, 3).unwrap();
+        let expected_var = 8.0 / 3.0;
+        assert!(
+            (r.variance[0] - expected_var).abs() < tol::ANALYTICAL,
+            "expected var {expected_var}, got {}",
+            r.variance[0]
+        );
+    }
+
+    #[test]
+    fn negative_data() {
+        let data = vec![-5.0, -3.0, -1.0, 1.0, 3.0];
+        let r = moving_window_stats(&data, 3).unwrap();
+        assert!((r.mean[0] - (-3.0)).abs() < tol::ANALYTICAL);
+        assert!((r.mean[2] - 1.0).abs() < tol::ANALYTICAL);
+        assert!((r.min[0] - (-5.0)).abs() < f64::EPSILON);
+        assert!((r.max[2] - 3.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn returns_none_for_empty() {
+        let data: Vec<f64> = vec![];
+        assert!(moving_window_stats(&data, 1).is_none());
+    }
+
+    #[test]
+    fn cpu_direct_call() {
+        let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+        let r = moving_window_stats_cpu(&data, 2);
+        assert_eq!(r.mean.len(), 4);
+        assert!((r.mean[0] - 1.5).abs() < tol::ANALYTICAL);
+        assert!((r.mean[3] - 4.5).abs() < tol::ANALYTICAL);
+    }
+
+    #[test]
+    fn large_window() {
+        let data: Vec<f64> = (0..100).map(f64::from).collect();
+        let r = moving_window_stats(&data, 50).unwrap();
+        assert_eq!(r.mean.len(), 51);
+        assert!((r.mean[0] - 24.5).abs() < tol::ANALYTICAL);
+        assert!((r.mean[50] - 74.5).abs() < tol::ANALYTICAL);
+    }
+
+    #[test]
+    fn sliding_min_max_correctness() {
+        let data = vec![5.0, 1.0, 3.0, 2.0, 4.0];
+        let r = moving_window_stats(&data, 2).unwrap();
+        assert!((r.min[0] - 1.0).abs() < f64::EPSILON);
+        assert!((r.max[0] - 5.0).abs() < f64::EPSILON);
+        assert!((r.min[1] - 1.0).abs() < f64::EPSILON);
+        assert!((r.max[1] - 3.0).abs() < f64::EPSILON);
+        assert!((r.min[3] - 2.0).abs() < f64::EPSILON);
+        assert!((r.max[3] - 4.0).abs() < f64::EPSILON);
+    }
 }

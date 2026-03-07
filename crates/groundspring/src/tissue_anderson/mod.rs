@@ -11,7 +11,7 @@
 //! - [`geometry`] — skin layers, cell types, disorder functions, potentials
 //! - [`compartments`] — preset tissue compartment constructors
 //! - [`sweeps`] — parameter sweep functions (barrier disruption, dimensional duality)
-//! - [`drug_scoring`] — geometry-aware drug repurposing scores
+//! - `drug_scoring` — geometry-aware drug repurposing scores
 //! - This module — simulation functions (Lyapunov, correlated, 4D, RG)
 //!
 //! # Tissue as Anderson lattice

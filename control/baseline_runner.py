@@ -24,10 +24,25 @@ from __future__ import annotations
 
 import json
 import math
+import subprocess
 import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
+
+
+def _git_commit_hash() -> str:
+    """Return the current HEAD commit hash, or 'unknown' if git is unavailable."""
+    try:
+        return subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=Path(__file__).resolve().parent.parent,
+        ).stdout.strip()
+    except Exception:
+        return "unknown"
 
 
 # ---------------------------------------------------------------------------
@@ -265,9 +280,11 @@ def main() -> None:
         "_source": "Python Tier 0 baseline — groundSpring",
         "_provenance": {
             "baseline_date": "2026-03-06",
+            "baseline_commit": _git_commit_hash(),
             "backend": "CPython + pure Python math",
             "python_version": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
             "generated_by": "control/baseline_runner.py",
+            "command": "python3 control/baseline_runner.py",
         },
         "results": [
             {"name": r.name, "value": r.value, "elapsed_us": r.elapsed_us}

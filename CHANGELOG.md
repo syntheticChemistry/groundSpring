@@ -4,6 +4,26 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V95 coralReef Breakthrough + Doc Sync + Handoff (Mar 7, 2026)
+
+#### coralReef Phase 11
+- **Push buffer encoding fixed**: `mthd_incr` (Kepler+ Type 1 INCR header) had `count` and `method/4` fields transposed — produced `0x20000001` instead of `0x20010000` for SET_OBJECT. PBDMA interpreted data words as illegal Type 0 headers → `[PBENTRY]` fault
+- **NVIF constants aligned**: `ROUTE_NVIF=0x00`, `ROUTE_HIDDEN=0xFF`, `OWNER_NVIF=0x00`, `OWNER_ANY=0xFF` — matched to Mesa `nvif/ioctl.h`
+- **Sovereign GPU method dispatch proven**: SET_OBJECT, INVALIDATE_SHADER_CACHES, SET_SHADER_LOCAL_MEMORY_WINDOW all surviving on Titan V via DRM EXEC path without NAK/NVK/Vulkan
+- Discovery method: NVK ioctl trace via LD_PRELOAD spy → cross-referenced `NVC0_FIFO_PKHDR_SQ` in Mesa `nv_push.h` → found field swap
+
+#### Documentation
+- README bumped to V95; coralReef Phase 10 → 11
+- specs/README test counts corrected (824→907 Rust, 375→261 Python)
+- BARRACUDA_EVOLUTION.md: V95 coralReef breakthrough noted
+- whitePaper baseCamp and ecoPrimals gen3 baseCamp updated
+- CONTRIBUTING.md: validation binary count fixed (33→34)
+- CONTROL_RUN_LOG.md: version reference updated
+
+#### Handoff
+- V95 handoff: comprehensive coralReef breakthrough + push buffer root cause + sovereign pipeline E2E status + barraCuda/toadStool evolution requests (P0: QMD CBUF binding, Fp64Strategy; P1: CoralReefDevice backend, absorption tracker)
+- V94 handoff archived
+
 ### V94 Ecosystem Sync + API Evolution + Shannon Delegation (Mar 7, 2026)
 
 #### Ecosystem Sync

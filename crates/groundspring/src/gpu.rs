@@ -27,15 +27,20 @@ static DEVICE: OnceLock<Option<Arc<WgpuDevice>>> = OnceLock::new();
 ///
 /// Uses `WgpuDevice::new()` which selects the high-performance discrete GPU.
 /// On multi-GPU systems this picks the proprietary-driver GPU (RTX 4070)
-/// over NVK (Titan V) which has known GPU compute reliability issues.
+/// over NVK (Titan V) which has known GPU compute reliability issues
+/// (NAK driver can cause hard system freezes on compute dispatch).
 ///
-/// Override: set `WGPU_ADAPTER_NAME=NVIDIA TITAN V` to force Titan V
-/// (useful once coralReef sovereign path is available).
+/// Set `GROUNDSPRING_GPU=0` to disable GPU dispatch entirely (safe mode).
+/// Set `WGPU_ADAPTER_NAME=NVIDIA TITAN V` to force Titan V (only when
+/// coralReef sovereign compilation path is available).
 ///
-/// Returns `None` if no GPU is available (CI, headless, etc.).
+/// Returns `None` if no GPU is available, disabled, or init fails.
 pub fn get_device() -> Option<Arc<WgpuDevice>> {
     DEVICE
         .get_or_init(|| {
+            if std::env::var("GROUNDSPRING_GPU").as_deref() == Ok("0") {
+                return None;
+            }
             let future = async { WgpuDevice::new().await };
             barracuda::device::test_pool::tokio_block_on(future)
                 .ok()
