@@ -4,6 +4,25 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V94 Ecosystem Sync + API Evolution + Shannon Delegation (Mar 7, 2026)
+
+#### Ecosystem Sync
+- Synced against barraCuda `0bd401f` (cross-spring evolution + API debt elimination), toadStool S129, coralReef Phase 10
+- Verified Fp64Strategy regression still present in `SumReduceF64`/`VarianceReduceF64` (no `Fp64Strategy` branching in 0bd401f)
+- toadStool absorption tracker stale at V85 — updated V94 handoff corrects to 907 tests, 102 delegations
+
+#### New Delegation
+- `barracuda::stats::shannon` in `drift::neutral_diversity_trajectory`: Shannon diversity computation now delegates to barraCuda CPU (absorbed S70+). Local CPU fallback retained for no-barracuda builds
+- Delegation count: 102 (61 CPU + 41 GPU), up from 101
+
+#### API Evolution
+- `CorrelationFull::r_squared()` and `CorrelationFull::covariance()`: convenience methods mirroring barraCuda's `CorrelationResult` (0bd401f). 4 new tests
+- `covariance_gpu`: simplified to use `CorrelationResult::covariance()` directly instead of manual `r * sqrt(var_x * var_y)`
+
+#### Handoff
+- New V94 handoff supersedes V93; documents absorption tracker delta (V85→V94), confirms P0 Fp64Strategy open, notes coralReef Phase 10 shader compilation status (Anderson Lyapunov SM70 PASS)
+- V93 handoff archived
+
 ### V93 Smart Refactoring + FFT Wiring + Coverage Expansion (Mar 7, 2026)
 
 #### Smart Module Splits

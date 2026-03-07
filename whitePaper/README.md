@@ -12,7 +12,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **395/395 checks passed** across 34 validation binaries (340 core + 55 NUCLEUS).
 - Mathematical parity: **29/29 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.6× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.4× from Sturm tridiag**.
-- V93: Smart refactoring + FFT wiring. 101 delegations (60 CPU + 41 GPU). 903 Rust tests, 261 Python provenance tests. 187 metalForge checks. 3 large modules refactored (rarefaction, drift, tissue_anderson). FFT wired via `Fft1DF64`. `cargo fmt` + `clippy` (pedantic+nursery) + `doc` + `test` all clean.
+- V94: Ecosystem sync + Shannon delegation. 102 delegations (61 CPU + 41 GPU). 907 Rust tests, 261 Python provenance tests. 187 metalForge checks. 3 large modules refactored (rarefaction, drift, tissue_anderson). FFT wired via `Fft1DF64`. `cargo fmt` + `clippy` (pedantic+nursery) + `doc` + `test` all clean.
 - V91: Complete ecosystem rewire. 100 delegations (59 CPU + 41 GPU). 807 Rust tests. 91.55% coverage. Zero TODO/FIXME/unsafe/unwrap in production. All files < 1000 lines. 21 benchmark workloads. Cross-spring shader evolution documented.
 
 ### Key Results

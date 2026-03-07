@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 7, 2026 (V93)
+**Last Updated**: March 7, 2026 (V94)
 
 ## What This Is
 
@@ -18,7 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V93 Evolution | [GROUNDSPRING_V93_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR07_2026.md](handoffs/GROUNDSPRING_V93_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR07_2026.md) | Mar 7, 2026 | 903 tests, 101 delegations, FFT wired, 3 modules refactored, Fp64Strategy P0 still open |
+| V94 Evolution | [GROUNDSPRING_V94_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR07_2026.md](handoffs/GROUNDSPRING_V94_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR07_2026.md) | Mar 7, 2026 | 907 tests, 102 delegations, FFT wired, 3 modules refactored, Fp64Strategy P0 still open |
 
 ## Cross-Spring Documentation
 

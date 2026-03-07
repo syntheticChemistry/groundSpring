@@ -39,6 +39,36 @@ pub use monitor::{DriftAction, DriftMonitor};
 use crate::cast::usize_f64;
 use crate::prng::Xorshift64;
 
+/// Shannon diversity from integer abundances.
+///
+/// When `barracuda` is enabled, delegates to `barracuda::stats::shannon`
+/// (CPU, absorbed S70+). Otherwise uses a direct −Σ p ln p loop.
+fn shannon_from_abundances(abundances: &[u64]) -> f64 {
+    #[cfg(feature = "barracuda")]
+    {
+        let counts: Vec<f64> = abundances
+            .iter()
+            .map(|&a| crate::cast::u64_f64(a))
+            .collect();
+        barracuda::stats::shannon(&counts)
+    }
+    #[cfg(not(feature = "barracuda"))]
+    {
+        let total: f64 = abundances.iter().map(|&a| crate::cast::u64_f64(a)).sum();
+        if total == 0.0 {
+            return 0.0;
+        }
+        let mut h = 0.0;
+        for &a in abundances {
+            if a > 0 {
+                let p = crate::cast::u64_f64(a) / total;
+                h -= p * p.ln();
+            }
+        }
+        h
+    }
+}
+
 /// Run one Wright-Fisher trial until the advantaged allele fixes or is lost.
 ///
 /// Models `pop_size` diploid individuals (2N alleles). Allele A has fitness
@@ -361,16 +391,9 @@ pub fn neutral_diversity_trajectory(
     abundances[0] += remainder as u64;
 
     let mut diversities = Vec::with_capacity(n_generations);
-    let pop_f = usize_f64(pop_size);
 
     for _ in 0..n_generations {
-        let mut shannon = 0.0;
-        for &a in &abundances {
-            if a > 0 {
-                let p = crate::cast::u64_f64(a) / pop_f;
-                shannon -= p * p.ln();
-            }
-        }
+        let shannon = shannon_from_abundances(&abundances);
         diversities.push(shannon);
 
         let mut remaining = pop_size as u64;

@@ -6,7 +6,7 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: March 6, 2026 (V93 — 101 active delegations (60 CPU + 41 GPU), barraCuda `e1184f3`, toadStool S96c, coralReef `849fedd`, 903 tests, clippy pedantic clean. V87: coralReef sovereign compilation. V84: dual-GPU probe. V83: pin refresh. V82: BootstrapMeanGpu dispatch)
+**Last updated**: March 7, 2026 (V94 — 102 active delegations (61 CPU + 41 GPU), barraCuda `e1184f3`, toadStool S129, coralReef Phase 10, 907 tests, clippy pedantic clean. V87: coralReef sovereign compilation. V84: dual-GPU probe. V83: pin refresh. V82: BootstrapMeanGpu dispatch)
 
 ## Absorption Status Summary
 
@@ -22,7 +22,7 @@
 | Reduce ops (GPU) | **Lean** | 4 | sum_reduce, variance_reduce, fused_map_reduce, correlation_f64 |
 | ESN (GPU) | **Lean** | 1 | esn_v2::ESN regime classification |
 | Grid ops (GPU) | **Lean** | 1 | grid_search_3d (seismic) |
-| **Total** | | **101** | 60 CPU + 41 GPU |
+| **Total** | | **102** | 61 CPU + 41 GPU |
 | PRNG | **Adapt** | 1 | xorshift64→xoshiro alignment pending |
 | Scalar math | **Stays local** | 5 | decompose, haversine, travel_time |
 | NPU | **Lean** | 1 | akida-driver (ToadStool hardware, not barraCuda math) |
@@ -178,8 +178,8 @@ Both Tier C shaders have been absorbed upstream and local copies removed (V62):
 
 ## Handoff Checklist (per shader)
 
-- [x] 101 active delegations (60 CPU + 41 GPU) verified, barraCuda `e1184f3`, toadStool S96c
-- [x] CPU reference passes all validation checks (34 binaries, 903 tests)
+- [x] 102 active delegations (61 CPU + 41 GPU) verified, barraCuda `e1184f3`, toadStool S129
+- [x] CPU reference passes all validation checks (34 binaries, 907 tests)
 - [x] All delegations use `#[cfg]` or `if let Ok` with CPU fallback always compiled
 - [x] Mathematical parity: 28/28 PROVEN (Python ⇌ Rust, `data/parity_report.json`)
 - [x] Three-mode revalidation (local / barracuda / barracuda-gpu): all PASS, 0 warnings

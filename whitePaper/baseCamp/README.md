@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: March 7, 2026
 
-**Validation Summary**: V93 — 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks, **101 active delegations (60 CPU + 41 GPU) — barraCuda v0.3.3, toadStool S128, coralReef Phase 9**. 903 workspace tests + 261 Python provenance tests. All 35 experiments PASS. **29/29 mathematical parity proven**. 3 large modules smart-refactored (rarefaction, drift, tissue_anderson). FFT wired into spectral_recon via `Fft1DF64`. Zero clippy warnings (pedantic + nursery), zero unsafe, zero TODO, zero `.unwrap()` in production, all files < 1000 lines. 21 benchmark workloads. Cross-spring shader evolution documented. 10 domains, 34 modules.
+**Validation Summary**: V94 — 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks, **102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.3, toadStool S129, coralReef Phase 10**. 907 workspace tests + 261 Python provenance tests. All 35 experiments PASS. **29/29 mathematical parity proven**. 3 large modules smart-refactored (rarefaction, drift, tissue_anderson). FFT wired into spectral_recon via `Fft1DF64`. Zero clippy warnings (pedantic + nursery), zero unsafe, zero TODO, zero `.unwrap()` in production, all files < 1000 lines. 21 benchmark workloads. Cross-spring shader evolution documented. 10 domains, 34 modules.
 
 ---
 

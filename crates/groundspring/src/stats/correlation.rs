@@ -20,6 +20,9 @@ use super::metrics::mean;
 /// On GPU, this maps to barraCuda's fused 5-accumulator `correlation_full`
 /// shader (one dispatch, no intermediate readbacks). On CPU, uses a single-pass
 /// Welford-style algorithm.
+///
+/// Convenience methods [`Self::r_squared`] and [`Self::covariance`] mirror
+/// barraCuda's `CorrelationResult` API (added 0bd401f, Mar 7 2026).
 #[derive(Debug, Clone, Copy)]
 pub struct CorrelationFull {
     /// Mean of x.
@@ -32,6 +35,20 @@ pub struct CorrelationFull {
     pub var_y: f64,
     /// Pearson correlation coefficient.
     pub pearson_r: f64,
+}
+
+impl CorrelationFull {
+    /// Coefficient of determination (Pearson r²).
+    #[must_use]
+    pub fn r_squared(self) -> f64 {
+        self.pearson_r * self.pearson_r
+    }
+
+    /// Population covariance derived from the fused accumulators.
+    #[must_use]
+    pub fn covariance(self) -> f64 {
+        self.pearson_r * self.var_x.sqrt() * self.var_y.sqrt()
+    }
 }
 
 /// Fused Pearson correlation with full statistics.
@@ -288,8 +305,7 @@ fn covariance_gpu(x: &[f64], y: &[f64]) -> Option<f64> {
     let gpu = barracuda::ops::correlation_f64_wgsl::CorrelationF64::new(device).ok()?;
     let r = gpu.correlation_full(x, y).ok()?;
     let nf = usize_f64(n);
-    let pop_cov = r.pearson_r * (r.var_x * r.var_y).sqrt();
-    Some(pop_cov * nf / usize_f64(n - 1))
+    Some(r.covariance() * nf / usize_f64(n - 1))
 }
 
 fn covariance_cpu(x: &[f64], y: &[f64]) -> f64 {
@@ -467,5 +483,44 @@ mod tests {
         let cf = pearson_full(&x, &y);
         assert!(cf.pearson_r.abs() < tol::EXACT);
         assert!(cf.var_y.abs() < tol::EXACT);
+    }
+
+    #[test]
+    fn correlation_full_r_squared_perfect() {
+        let x = [1.0, 2.0, 3.0, 4.0, 5.0];
+        let cf = pearson_full(&x, &x);
+        assert!((cf.r_squared() - 1.0).abs() < tol::EXACT);
+    }
+
+    #[test]
+    fn correlation_full_r_squared_partial() {
+        let x = [1.0, 2.0, 3.0, 4.0, 5.0];
+        let y = [1.1, 2.2, 2.8, 4.3, 4.9];
+        let cf = pearson_full(&x, &y);
+        let expected = cf.pearson_r * cf.pearson_r;
+        assert!(
+            (cf.r_squared() - expected).abs() < tol::EXACT,
+            "r_squared() should equal pearson_r²"
+        );
+    }
+
+    #[test]
+    fn correlation_full_covariance_positive() {
+        let x = [1.0, 2.0, 3.0, 4.0, 5.0];
+        let y = [2.0, 4.0, 6.0, 8.0, 10.0];
+        let cf = pearson_full(&x, &y);
+        let pop_cov = cf.covariance();
+        assert!(
+            (pop_cov - 4.0).abs() < tol::ANALYTICAL,
+            "population Cov(x, 2x) = 2·Var(x) = 4.0, got {pop_cov}"
+        );
+    }
+
+    #[test]
+    fn correlation_full_covariance_zero_for_constant() {
+        let x = [1.0, 2.0, 3.0];
+        let y = [5.0, 5.0, 5.0];
+        let cf = pearson_full(&x, &y);
+        assert!(cf.covariance().abs() < tol::EXACT);
     }
 }
