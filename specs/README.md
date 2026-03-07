@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
-**Last Updated**: March 6, 2026
-**Status**: V88 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 93 delegations (56 CPU + 37 GPU) — barraCuda `e1184f3`, toadStool S96c (d77fc546), 824+ workspace tests, 261 provenance tests, 100+ three-tier parity tests, 187 metalForge checks, 35 experiments, 34 modules
+**Last Updated**: March 7, 2026
+**Status**: V91 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 100 delegations (59 CPU + 41 GPU) — barraCuda v0.3.3, toadStool S128, coralReef Phase 9, 807 workspace tests, 261 provenance tests, 100+ three-tier parity tests, 187 metalForge checks, 35 experiments, 34 modules, 91.55% coverage
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---

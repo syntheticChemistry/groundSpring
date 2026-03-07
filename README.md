@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
-**Date**: March 6, 2026 | **License**: AGPL-3.0-only
-**Status**: V89 — 34 modules, 35 experiments, 500+ Rust workspace tests + 261 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks, 93 active barracuda delegations (56 CPU + 37 GPU) — barraCuda v0.3.3+ (`ed82625`), toadStool S128b (`22d1a2c7`), coralReef Phase 9 (`b7f8ab4`). tarpc 0.35→0.37 aligned with barraCuda. `barracuda::ops` gate evolved from `barracuda` to `barracuda-gpu` (barraCuda ops now GPU-only). `domain-esn` feature wired. Rust 2024 `unsafe_code` model: workspace `deny` + lib.rs `#![forbid]`. All collapsible_if and unfulfilled lint expectations resolved. `cargo fmt` + `cargo clippy --workspace --all-features` zero warnings. All CPU tests pass; GPU tests blocked by barraCuda `Fp64Strategy` regression (`ed82625`)
+**Date**: March 7, 2026 | **License**: AGPL-3.0-only
+**Status**: V91 — 34 modules, 35 experiments, 807 Rust workspace tests + 261 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks, 100 active barracuda delegations (59 CPU + 41 GPU) — barraCuda v0.3.3, toadStool S128, coralReef Phase 9. Deep debt eliminated: zero unsafe code (temp-env RAII), 11 validation binaries migrated to `barracuda::stats`, 91.55% line coverage. New delegations: `CovarianceF64`, `AutocorrelationF64`, `PeakDetectF64`, `empirical_spectral_density`, `marchenko_pastur_bounds`. 21 benchmark workloads. Cross-spring shader provenance documented. All CPU tests pass; GPU tests blocked by barraCuda `Fp64Strategy` regression
 
 **The gap between what models predict and what instruments measure.**
 
@@ -72,7 +72,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 |--------|---------|----------|
 | `stats::agreement` | RMSE, MAE, MBE, NSE, R², IA, hit rate (R²/NSE deduplicated via shared `coefficient_of_efficiency`) | **GPU dispatched** (rmse, mbe via FusedMapReduceF64/SumReduceF64) + CPU delegated |
 | `stats::metrics` | mean, std_dev, sample_std_dev, percentile | **GPU dispatched** (mean via SumReduceF64, std_dev via VarianceReduceF64) + CPU delegated |
-| `stats::correlation` | Pearson/Spearman correlation, covariance | **GPU dispatched** (pearson_r via CorrelationF64) + CPU delegated |
+| `stats::correlation` | Pearson/Spearman correlation, covariance | **GPU dispatched** (pearson_r via CorrelationF64, covariance via CovarianceF64) + CPU delegated |
 | `stats::distributions` | norm_cdf, norm_ppf, χ² | 3 CPU delegated |
 | `stats::regression` | Linear, quadratic, exponential, logarithmic fits | 4 CPU delegated |
 | `decompose` | Bias-variance decomposition, noise floor | CPU-only (scalar) |
@@ -82,7 +82,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | `seismic` | Haversine, travel time, grid-search inversion | **GPU-ready** (V31 dispatch) |
 | `gillespie` | Gillespie SSA for stochastic chemical kinetics | **GPU dispatched** (batch via GillespieGpu) |
 | `bootstrap` | Bootstrap (mean/median/std) + RAWR confidence intervals | A Lean (`barracuda::stats`) |
-| `anderson` | Anderson localization, Lyapunov exponents, analytical ξ(W,E), 2D/3D eigenvalues, disorder sweep | A Lean (`barracuda::spectral` + `special`) |
+| `anderson` | Anderson localization, Lyapunov exponents, analytical ξ(W,E), 2D/3D eigenvalues, disorder sweep, spectral diagnostics, empirical spectral density, Marchenko-Pastur bounds, transition detection | A Lean (`barracuda::spectral` + `special` + `stats::spectral_density` + `ops::peak_detect_f64`) |
 | `almost_mathieu` | Almost-Mathieu quasiperiodic localization, level spacing | A Lean (`barracuda::spectral`) |
 | `linalg` | Tridiag eigensolver (implicit QL with Wilkinson shifts) — shared by transport + band_structure | B (adapt) |
 | `transport` | Wavepacket MSD, transport exponent (re-exports `linalg::tridiag_eigh` for compat) | B (adapt) |
@@ -109,9 +109,9 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace                         # 824 tests, all PASS
-cargo test --workspace --features biomeos      # ~822 tests (NUCLEUS client active)
-cargo test --workspace --features barracuda-gpu # 824 tests (GPU dispatch active)
+cargo test --workspace                         # 807 tests, all PASS
+cargo test --workspace --features biomeos      # NUCLEUS client active
+cargo test --workspace --features barracuda-gpu # GPU dispatch active
 cargo clippy --workspace --all-targets -- -D warnings -W clippy::pedantic -W clippy::nursery
 cargo fmt --check                              # clean
 

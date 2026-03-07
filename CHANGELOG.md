@@ -4,6 +4,44 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V91 Complete Ecosystem Rewire + Cross-Spring Evolution (Mar 7, 2026)
+
+#### New Delegations
+- **AutocorrelationF64 GPU**: `wdm::autocorrelation()` delegates to `barracuda::ops::autocorrelation_f64_wgsl::AutocorrelationF64` for GPU-accelerated ACF computation. `wdm::optimal_block_size()` uses ACF to estimate integrated autocorrelation time → recommended jackknife block size. Provenance: hotSpring MD VACF → barraCuda S128
+- **Empirical Spectral Density**: `anderson::empirical_spectral_density()` delegates to `barracuda::stats::spectral_density`. Provenance: neuralSpring V69 → barraCuda
+- **PeakDetectF64**: `anderson::detect_transition()` delegates to `barracuda::ops::peak_detect_f64::PeakDetectF64` for GPU peak detection in disorder sweep derivatives to find Anderson metal-insulator transition W_c
+- **CovarianceF64 GPU**: `stats::covariance()` GPU path now uses `barracuda::ops::covariance_f64_wgsl::CovarianceF64::sample_covariance()` directly instead of deriving from `CorrelationF64::correlation_full`
+- **Marchenko-Pastur**: `anderson::marchenko_pastur_upper()` delegates to `barracuda::stats::spectral_density::marchenko_pastur_bounds()`. `anderson::spectral_diagnostics_auto()` convenience wrapper added
+
+#### Benchmarks
+- 5 new workloads in `bench-cpu-vs-gpu`: Autocorrelation (10k, lag 200), Covariance (5k pairs), Spectral diagnostics (1k eigs), ESD (5k eigs, 50 bins), Optimal block size (5k AR(1))
+- Total: 21 benchmark workloads
+
+#### Cross-Spring Evolution
+- New `specs/CROSS_SPRING_SHADER_EVOLUTION.md`: full provenance tree showing how WGSL shaders flow between springs via barraCuda absorption. Documents which spring created each shader, when it was absorbed, and which springs now benefit
+
+#### Tests
+- 14 new tests: autocorrelation (5), empirical spectral density (2), transition detection (2), Marchenko-Pastur (2), spectral_diagnostics_auto (1), covariance (1), optimal block size (1)
+- Total: 807 tests, 0 failures
+
+#### Delegation Count
+- 100 active delegations (59 CPU + 41 GPU), up from 93
+
+### V90 Deep Debt Execution (Mar 7, 2026)
+
+#### Unsafe Code Eliminated
+- All `unsafe { std::env::set_var() }` in `tests/biomeos_integration.rs` replaced with `temp_env::with_var()` / `temp_env::with_vars()` (RAII-based). `#[allow(unsafe_code)]` attributes removed. `#![forbid(unsafe_code)]` now fully honoured workspace-wide
+
+#### Validation Binary Migration
+- 11 binaries migrated from inline mean/variance/mbe/rmse to `groundspring::stats::*` (→ barracuda delegation): validate_real_ghcnd_et0, validate_uncertainty_bridge, validate_fao56, validate_et0_anderson, validate_aggregate_stability, validate_signal_specificity, validate_vendor_parity, validate_precision_drift, validate_quasispecies
+
+#### Tolerance Documentation
+- 6 bare numeric tolerances documented with mathematical justifications: eigenvalue band fraction, eigenvalue percentage, Xoshiro mean, γ parity, PM/Hargreaves ratio, mean absolute difference, band edges
+
+#### Coverage Expansion
+- 18 new tests: fao56/pipeline.rs (6, coverage 0→99.6%), bootstrap.rs (5, +8%), stats/regression.rs (5, +12%), anderson.rs (2)
+- Overall line coverage: 91.55%
+
 ### V89 Rewire to barraCuda/toadStool/coralReef Evolution (Mar 6, 2026)
 
 #### Breaking API Rewire

@@ -82,29 +82,16 @@ fn monte_carlo_et0(
         samples.push(fao56::daily_et0(&perturbed));
     }
 
-    #[expect(clippy::cast_precision_loss, reason = "n_mc ≤ 10000 ≪ 2^53")]
-    let n = samples.len() as f64;
-    let mean = samples.iter().sum::<f64>() / n;
-    let variance = samples.iter().map(|&x| (x - mean).powi(2)).sum::<f64>() / n;
+    let (mean, std) = groundspring::stats::mean_and_std_dev(&samples);
 
     samples.sort_by(f64::total_cmp);
 
-    #[expect(
-        clippy::cast_possible_truncation,
-        clippy::cast_sign_loss,
-        reason = "percentile index 0.05*n is positive and ≤ n"
-    )]
-    let pct_05 = samples[(0.05 * n) as usize];
-    #[expect(
-        clippy::cast_possible_truncation,
-        clippy::cast_sign_loss,
-        reason = "percentile index 0.95*n is positive and ≤ n"
-    )]
-    let pct_95 = samples[(0.95 * n) as usize];
+    let pct_05 = groundspring::stats::percentile(&samples, 5.0).expect("valid percentile");
+    let pct_95 = groundspring::stats::percentile(&samples, 95.0).expect("valid percentile");
 
     McResult {
         mean,
-        std: variance.sqrt(),
+        std,
         pct_05,
         pct_95,
     }
@@ -171,13 +158,10 @@ fn sensitivity_analysis(
             let perturbed = perturb_one(base, group as usize, unc, &mut rng);
             et0_values.push(fao56::daily_et0(&perturbed));
         }
-        #[expect(clippy::cast_precision_loss, reason = "n_samples ≤ 10000 ≪ 2^53")]
-        let n = et0_values.len() as f64;
-        let mean = et0_values.iter().sum::<f64>() / n;
+        let (_, std) = groundspring::stats::mean_and_std_dev(&et0_values);
         #[expect(clippy::cast_possible_truncation, reason = "group 0..4 fits usize")]
         {
-            variances[group as usize] =
-                et0_values.iter().map(|&x| (x - mean).powi(2)).sum::<f64>() / n;
+            variances[group as usize] = std * std;
         }
     }
 

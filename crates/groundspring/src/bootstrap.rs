@@ -481,4 +481,62 @@ mod tests {
             "larger sample should have narrower CI"
         );
     }
+
+    #[test]
+    fn bootstrap_mean_single_value() {
+        let data = vec![7.0];
+        let r = bootstrap_mean(&data, 200, 0.95, 42);
+        assert!(
+            (r.estimate - 7.0).abs() < 1e-12,
+            "single-value bootstrap mean should be 7.0"
+        );
+        assert!(r.std_error < 1e-12, "single-value bootstrap has zero SE");
+    }
+
+    #[test]
+    fn rawr_ci_width_positive() {
+        let data: Vec<f64> = (0..50).map(f64::from).collect();
+        let r = rawr_mean(&data, 500, 0.95, 42);
+        assert!(r.ci_upper > r.ci_lower, "RAWR CI width must be positive");
+        assert!(r.std_error > 0.0);
+    }
+
+    #[test]
+    fn bootstrap_std_ci_contains_analytical() {
+        let data: Vec<f64> = (1..=100).map(f64::from).collect();
+        let r = bootstrap_std(&data, 1000, 0.95, 42);
+        let analytical_std = 29.01; // std of 1..100 ≈ 29.01
+        assert!(
+            r.ci_lower < analytical_std && analytical_std < r.ci_upper,
+            "CI [{}, {}] should contain analytical std ~{analytical_std}",
+            r.ci_lower,
+            r.ci_upper,
+        );
+    }
+
+    #[test]
+    fn bootstrap_median_ci_contains_analytical() {
+        let data: Vec<f64> = (1..=99).map(f64::from).collect();
+        let r = bootstrap_median(&data, 1000, 0.95, 42);
+        assert!(
+            r.ci_lower < 50.0 && 50.0 < r.ci_upper,
+            "CI [{}, {}] should contain 50.0",
+            r.ci_lower,
+            r.ci_upper,
+        );
+    }
+
+    #[test]
+    fn rawr_different_seeds_differ() {
+        let data = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
+        let r1 = rawr_mean(&data, 500, 0.95, 42);
+        let r2 = rawr_mean(&data, 500, 0.95, 99);
+        // CI bounds should differ even if barracuda normalizes the estimate.
+        assert!(
+            r1.ci_lower.to_bits() != r2.ci_lower.to_bits()
+                || r1.ci_upper.to_bits() != r2.ci_upper.to_bits()
+                || r1.estimate.to_bits() != r2.estimate.to_bits(),
+            "at least one field should differ between seeds"
+        );
+    }
 }

@@ -51,7 +51,7 @@
 
 ```bash
 # From Eastgate:
-cd /home/eastgate/Development/ecoPrimals/phase2/biomeOS
+cd "$ECOPRIMALS_ROOT/phase2/biomeOS"
 ./livespore-usb/x86_64/scripts/deploy_to_gate.sh <westgate-ip> westgate
 
 # On Westgate:
@@ -106,7 +106,7 @@ Once 2+ gates are connected:
 
 ```bash
 # Start full NUCLEUS on Eastgate:
-cd /home/eastgate/Development/ecoPrimals/phase2/biomeOS
+cd "$ECOPRIMALS_ROOT/phase2/biomeOS"
 NODE_ID=eastgate ./scripts/start_nucleus.sh full
 
 # Start NestGate separately (HTTP API, requires JWT):

@@ -3,9 +3,9 @@
 Historical run log extracted from CONTROL_EXPERIMENT_STATUS.md.
 See [CONTROL_EXPERIMENT_STATUS.md](CONTROL_EXPERIMENT_STATUS.md) for the current experiment register and status.
 
-> **Note**: V75–V85 runs are documented in CHANGELOG.md and per-version handoffs
+> **Note**: V75+ runs are documented in CHANGELOG.md and per-version handoffs
 > in `wateringHole/handoffs/`. This log covers the structured run format used
-> through V74. Current status: V85, 824/824 tests, 395/395 checks.
+> through V74. Current status: V91, 807 tests, 395/395 checks, 100 delegations.
 
 ## Run Log
 

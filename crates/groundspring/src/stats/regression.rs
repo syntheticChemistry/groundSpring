@@ -579,4 +579,62 @@ mod tests {
         let fits: Vec<NonlinearFit> = fit_all(&[], &[]);
         assert!(fits.is_empty());
     }
+
+    #[test]
+    fn exponential_growth() {
+        let xs: Vec<f64> = (0..8).map(|i| f64::from(i) * 0.5).collect();
+        let a = 2.0_f64;
+        let b = 0.8_f64;
+        let ys: Vec<f64> = xs.iter().map(|&x| a * (b * x).exp()).collect();
+        let fit = fit_exponential(&xs, &ys).expect("exponential fit");
+        assert!((fit.params[0] - a).abs() < 0.1);
+        assert!((fit.params[1] - b).abs() < 0.1);
+        assert!(fit.r_squared > 0.99);
+    }
+
+    #[test]
+    fn logarithmic_noisy() {
+        let xs: Vec<f64> = (1..=20).map(f64::from).collect();
+        let a = 4.0;
+        let b = 1.5;
+        let ys: Vec<f64> = xs.iter().map(|&x| a * x.ln() + b).collect();
+        let fit = fit_logarithmic(&xs, &ys).expect("logarithmic fit");
+        assert!((fit.params[0] - a).abs() < 0.01);
+        assert!((fit.params[1] - b).abs() < 0.01);
+        assert!(fit.r_squared > 0.99);
+    }
+
+    #[test]
+    fn quadratic_concave_up() {
+        let xs: Vec<f64> = (0..10).map(|i| f64::from(i) - 5.0).collect();
+        let ys: Vec<f64> = xs
+            .iter()
+            .map(|&x| 2.0_f64.mul_add(x * x, x) + 3.0)
+            .collect();
+        let fit = fit_quadratic(&xs, &ys).expect("quadratic fit");
+        assert!((fit.params[0] - 2.0).abs() < tol::ANALYTICAL);
+        assert!((fit.params[1] - 1.0).abs() < tol::ANALYTICAL);
+        assert!((fit.params[2] - 3.0).abs() < tol::ANALYTICAL);
+        assert!(fit.r_squared > 0.999);
+    }
+
+    #[test]
+    fn linear_with_noise_reasonable_r2() {
+        let xs: Vec<f64> = (0..20).map(f64::from).collect();
+        let ys: Vec<f64> = xs
+            .iter()
+            .enumerate()
+            .map(|(i, &x)| 2.0f64.mul_add(x, 1.0) + if i % 2 == 0 { 0.5 } else { -0.5 })
+            .collect();
+        let fit = fit_linear(&xs, &ys).expect("linear fit");
+        assert!((fit.slope - 2.0).abs() < 0.2);
+        assert!(fit.r_squared > 0.95);
+    }
+
+    #[test]
+    fn logarithmic_no_positive_x() {
+        let xs = [-1.0, -2.0, -3.0, -4.0];
+        let ys = [1.0, 2.0, 3.0, 4.0];
+        assert!(fit_logarithmic(&xs, &ys).is_none());
+    }
 }

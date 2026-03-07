@@ -58,14 +58,7 @@ fn propagate_sensor_noise(
         xi_samples.push(1.0 / gamma.max(EPS_SAFE_DIV));
     }
 
-    #[expect(
-        clippy::cast_precision_loss,
-        reason = "n_mc ≤ 200, fits in f64 mantissa"
-    )]
-    let n = xi_samples.len() as f64;
-    let mean = xi_samples.iter().sum::<f64>() / n;
-    let variance = xi_samples.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / n;
-    let std = variance.sqrt();
+    let (mean, std) = groundspring::stats::mean_and_std_dev(&xi_samples);
     let cv = std / mean.max(EPS_SAFE_DIV);
 
     (mean, std, cv)

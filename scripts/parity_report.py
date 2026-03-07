@@ -239,6 +239,12 @@ EXPERIMENTS = [
         "rust_features": ["npu"],
         "npu_required": True,
     },
+    {
+        "name": "Exp 035: ET0 Methods",
+        "benchmark": "control/et0_methods/benchmark_et0_methods.json",
+        "python": [sys.executable, "control/et0_methods/et0_methods.py"],
+        "rust_bin": "validate-et0-methods",
+    },
 ]
 
 

@@ -138,9 +138,7 @@ fn tail_mean(freqs: &[f64], skip: usize) -> f64 {
     if tail.is_empty() {
         return 0.0;
     }
-    #[expect(clippy::cast_precision_loss, reason = "tail len ≤ n_gen ≪ 2^53")]
-    let n = tail.len() as f64;
-    tail.iter().sum::<f64>() / n
+    groundspring::stats::mean(tail)
 }
 
 fn main() {

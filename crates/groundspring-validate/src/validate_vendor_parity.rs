@@ -125,10 +125,8 @@ fn run() -> i32 {
         .zip(d_vendor_a.iter())
         .map(|(db, da)| db - da)
         .collect();
-    #[expect(clippy::cast_precision_loss, reason = "n_observables from JSON ≪ 2^53")]
-    let mbe = diff.iter().sum::<f64>() / (n_observables as f64);
-    #[expect(clippy::cast_precision_loss, reason = "n_observables from JSON ≪ 2^53")]
-    let rmse = (diff.iter().map(|d| d * d).sum::<f64>() / (n_observables as f64)).sqrt();
+    let mbe = groundspring::stats::mbe(&d_vendor_a, &d_vendor_b);
+    let rmse = groundspring::stats::rmse(&d_vendor_a, &d_vendor_b);
     let decomp = decompose_error(mbe, rmse);
     let bias_fraction = decomp.bias_fraction;
 

@@ -106,24 +106,11 @@ fn run() -> i32 {
             }
         }
 
-        #[expect(
-            clippy::cast_precision_loss,
-            reason = "n_realizations from JSON ≪ 2^53"
-        )]
-        let n_real = n_realizations as f64;
-        let mean_f64 = f64_vals.iter().sum::<f64>() / n_real;
-        let variance_f64 = f64_vals.iter().map(|x| (x - mean_f64).powi(2)).sum::<f64>() / n_real;
-        let std_f64 = variance_f64.sqrt();
+        let (mean_f64, std_f64) = groundspring::stats::mean_and_std_dev(&f64_vals);
         let mean_rel = if rel_errors.is_empty() {
             0.0
         } else {
-            #[expect(
-                clippy::cast_precision_loss,
-                reason = "rel_errors len ≤ n_realizations ≪ 2^53"
-            )]
-            {
-                rel_errors.iter().sum::<f64>() / rel_errors.len() as f64
-            }
+            groundspring::stats::mean(&rel_errors)
         };
         println!(
             "  tau={tau:.1}: f64 mean={mean_f64:.6}, std={std_f64:.6}, mean_rel_err={mean_rel:.6}"
@@ -162,13 +149,7 @@ fn run() -> i32 {
     let mean_rel_err = if errors_f32_minus_f64.is_empty() {
         0.0
     } else {
-        #[expect(
-            clippy::cast_precision_loss,
-            reason = "errors len = n_realizations × tau count ≪ 2^53"
-        )]
-        {
-            errors_f32_minus_f64.iter().sum::<f64>() / errors_f32_minus_f64.len() as f64
-        }
+        groundspring::stats::mean(&errors_f32_minus_f64)
     };
     let (mean_lo, mean_hi) = f64_range(&exp["mean_relative_error_range"]);
     h.check_range(
@@ -184,21 +165,15 @@ fn run() -> i32 {
         .zip(all_integral_f64.iter())
         .map(|(a, b)| a - b)
         .collect();
-    #[expect(
-        clippy::cast_precision_loss,
-        reason = "raw_errors len from realizations × tau ≪ 2^53"
-    )]
-    let n_errors = raw_errors.len() as f64;
     let mbe = if raw_errors.is_empty() {
         0.0
     } else {
-        raw_errors.iter().sum::<f64>() / n_errors
+        groundspring::stats::mean(&raw_errors)
     };
     let rmse = if raw_errors.is_empty() {
         0.0
     } else {
-        let sq_sum: f64 = raw_errors.iter().map(|e| e.powi(2)).sum();
-        (sq_sum / n_errors).sqrt()
+        groundspring::stats::rmse(&all_integral_f64, &all_integral_f32)
     };
     let decomp = decompose_error(mbe, rmse);
     h.check_min(

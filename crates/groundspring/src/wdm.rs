@@ -4,7 +4,8 @@
 //! Warm Dense Matter transport analysis utilities.
 //!
 //! Provides Green-Kubo integration, synthetic autocorrelation generation,
-//! and finite-size extrapolation for WDM transport coefficient analysis.
+//! autocorrelation computation from raw velocity data, and finite-size
+//! extrapolation for WDM transport coefficient analysis.
 //!
 //! These functions support groundSpring's uncertainty quantification
 //! methodology applied to molecular dynamics transport coefficients.
@@ -16,6 +17,9 @@
 //!   (trapezoidal rule on explicit x-y arrays). Falls back on error.
 //! - [`finite_size_extrapolate`] delegates linear regression to
 //!   `barracuda::stats::regression::fit_linear` via [`crate::stats::fit_linear`].
+//! - [`autocorrelation`] delegates to
+//!   `barracuda::ops::autocorrelation_f64_wgsl::AutocorrelationF64` on GPU
+//!   (single-pass WGSL shader). Falls back to CPU O(N×L) direct computation.
 
 /// Numerically integrate an autocorrelation function using the trapezoidal rule.
 ///
@@ -140,6 +144,92 @@ pub fn finite_size_extrapolate(
     Ok((fit.intercept, fit.slope, fit.r_squared))
 }
 
+/// Compute the autocorrelation function of a time series up to `max_lag`.
+///
+/// Returns a vector of length `max_lag + 1` where element `k` is the
+/// normalized autocorrelation at lag `k`: `C(k) = ⟨(x_t − μ)(x_{t+k} − μ)⟩ / σ²`.
+///
+/// When `barracuda-gpu` is enabled, delegates to
+/// `barracuda::ops::autocorrelation_f64_wgsl::AutocorrelationF64` which
+/// computes all lags in a single GPU dispatch.
+///
+/// Cross-spring lineage: hotSpring MD VACF analysis → barraCuda S128
+/// `autocorrelation_f64.wgsl` → groundSpring WDM transport coefficients.
+///
+/// # Panics
+///
+/// Panics if `data` is empty.
+#[must_use]
+pub fn autocorrelation(data: &[f64], max_lag: usize) -> Vec<f64> {
+    assert!(!data.is_empty(), "autocorrelation requires non-empty data");
+    let lag = max_lag.min(data.len() - 1);
+
+    #[cfg(feature = "barracuda-gpu")]
+    {
+        if let Some(acf) = autocorrelation_gpu(data, lag) {
+            return acf;
+        }
+    }
+
+    autocorrelation_cpu(data, lag)
+}
+
+#[cfg(feature = "barracuda-gpu")]
+fn autocorrelation_gpu(data: &[f64], max_lag: usize) -> Option<Vec<f64>> {
+    let device = crate::gpu::get_device()?;
+    let gpu = barracuda::ops::autocorrelation_f64_wgsl::AutocorrelationF64::new(device).ok()?;
+    gpu.autocorrelation(data, max_lag).ok()
+}
+
+fn autocorrelation_cpu(data: &[f64], max_lag: usize) -> Vec<f64> {
+    let n = data.len();
+    let n_f = crate::cast::usize_f64(n);
+    let mean = data.iter().sum::<f64>() / n_f;
+    let var: f64 = data.iter().map(|&x| (x - mean).powi(2)).sum::<f64>() / n_f;
+
+    if var < f64::EPSILON {
+        return vec![1.0; max_lag + 1];
+    }
+
+    (0..=max_lag)
+        .map(|k| {
+            let sum: f64 = data[..n - k]
+                .iter()
+                .zip(&data[k..])
+                .map(|(&a, &b)| (a - mean) * (b - mean))
+                .sum();
+            sum / (n_f * var)
+        })
+        .collect()
+}
+
+/// Estimate optimal block size for block jackknife from autocorrelation.
+///
+/// Computes the integrated autocorrelation time `τ_int` and returns
+/// `max(1, ⌈2τ_int⌉)` as the recommended block size.
+///
+/// Uses [`autocorrelation`] which delegates to GPU when available.
+#[must_use]
+pub fn optimal_block_size(data: &[f64], max_lag: usize) -> usize {
+    let acf = autocorrelation(data, max_lag);
+    // τ_int = 0.5 + Σ_{k=1}^{L} C(k), truncated when C(k) < 0
+    let mut tau_int = 0.5;
+    for &c in &acf[1..] {
+        if c < 0.0 {
+            break;
+        }
+        tau_int += c;
+    }
+    #[expect(
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        reason = "tau_int is always positive and bounded by max_lag"
+    )]
+    {
+        (2.0 * tau_int).ceil().max(1.0) as usize
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -239,6 +329,80 @@ mod tests {
         assert!(
             (r_sq - 1.0).abs() < tol::ANALYTICAL,
             "two-point fit R² = 1.0"
+        );
+    }
+
+    #[test]
+    fn acf_lag_zero_is_one() {
+        let data = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
+        let acf = autocorrelation(&data, 5);
+        assert!(
+            (acf[0] - 1.0).abs() < tol::EXACT,
+            "ACF(0) must be 1.0, got {}",
+            acf[0]
+        );
+    }
+
+    #[test]
+    fn acf_exponential_decay() {
+        let mut rng = crate::prng::Xorshift64::new(42);
+        let n = 2000;
+        let phi: f64 = 0.9;
+        let mut data = vec![0.0; n];
+        data[0] = rng.normal(0.0, 1.0);
+        for i in 1..n {
+            data[i] = phi.mul_add(data[i - 1], rng.normal(0.0, phi.mul_add(-phi, 1.0).sqrt()));
+        }
+        let acf = autocorrelation(&data, 20);
+        // AR(1) theoretical ACF(k) = φ^k, should decay
+        assert!(
+            acf[1] > 0.5,
+            "AR(1) φ=0.9 should have high lag-1 ACF, got {}",
+            acf[1]
+        );
+        assert!(
+            acf[10] < acf[1],
+            "ACF should decay: ACF(10)={} >= ACF(1)={}",
+            acf[10],
+            acf[1]
+        );
+    }
+
+    #[test]
+    fn acf_constant_data() {
+        let data = vec![5.0; 100];
+        let acf = autocorrelation(&data, 10);
+        assert_eq!(acf.len(), 11);
+        assert!((acf[0] - 1.0).abs() < tol::EXACT);
+    }
+
+    #[test]
+    fn optimal_block_size_uncorrelated() {
+        let mut rng = crate::prng::Xorshift64::new(99);
+        let data: Vec<f64> = (0..500).map(|_| rng.normal(0.0, 1.0)).collect();
+        let bs = optimal_block_size(&data, 50);
+        // Uncorrelated data: τ_int ≈ 0.5, block size ≈ 1
+        assert!(
+            bs <= 5,
+            "uncorrelated data should have small block size, got {bs}"
+        );
+    }
+
+    #[test]
+    fn optimal_block_size_correlated() {
+        let mut rng = crate::prng::Xorshift64::new(42);
+        let n = 2000;
+        let phi: f64 = 0.9;
+        let mut data = vec![0.0; n];
+        data[0] = rng.normal(0.0, 1.0);
+        for i in 1..n {
+            data[i] = phi.mul_add(data[i - 1], rng.normal(0.0, phi.mul_add(-phi, 1.0).sqrt()));
+        }
+        let bs = optimal_block_size(&data, 100);
+        // AR(1) φ=0.9: τ_int ≈ 1/(1-φ) ≈ 10, block ≈ 20
+        assert!(
+            bs >= 5,
+            "correlated data should have larger block size, got {bs}"
         );
     }
 }

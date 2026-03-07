@@ -57,6 +57,9 @@ fn almost_mathieu_eigenvalues_parity() {
 fn band_structure_free_lattice_parity() {
     let edges = groundspring::band_structure::find_band_edges(&[0.0], 1.0, -4.0, 4.0, 2000);
     assert_eq!(edges.len(), 2, "free lattice: 2 band edges");
+    // 0.05: Brent bisection on a 2000-point grid; Δε = 8/2000 = 0.004,
+    // but edge detection uses sign changes in the transfer-matrix trace
+    // which round to nearest grid point. 0.05 ≈ 12× grid spacing.
     assert!((edges[0] - (-2.0)).abs() < 0.05);
     assert!((edges[1] - 2.0).abs() < 0.05);
 }

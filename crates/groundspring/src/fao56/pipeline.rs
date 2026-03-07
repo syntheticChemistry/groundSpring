@@ -445,3 +445,158 @@ fn seasonal_multi_day_loop(
     }
     all_outputs
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn test_base() -> DailyWeatherInputs {
+        DailyWeatherInputs {
+            tmax_c: 30.0,
+            tmin_c: 18.0,
+            rhmax_pct: 80.0,
+            rhmin_pct: 40.0,
+            wind_speed_10m_km_h: 8.0,
+            sunshine_hours: 10.0,
+            latitude_deg_n: 42.0,
+            altitude_m: 200.0,
+            day_of_year: 180,
+        }
+    }
+
+    fn test_unc() -> Et0Uncertainties {
+        Et0Uncertainties {
+            sigma_tmax: 0.5,
+            sigma_tmin: 0.5,
+            sigma_rhmax: 3.0,
+            sigma_rhmin: 3.0,
+            sigma_wind_frac: 0.10,
+            sigma_sun_frac: 0.05,
+        }
+    }
+
+    fn test_cell() -> SeasonalCellInputs {
+        SeasonalCellInputs {
+            tmax_c: 30.0,
+            tmin_c: 18.0,
+            rhmax_pct: 80.0,
+            rhmin_pct: 40.0,
+            wind_2m_ms: 2.0,
+            rs_mj: 20.0,
+            altitude_m: 200.0,
+            latitude_deg_n: 42.0,
+            theta_prev: 80.0,
+        }
+    }
+
+    fn test_params() -> SeasonalParams {
+        SeasonalParams {
+            day_of_year: 180,
+            stage_length: 30,
+            day_in_stage: 15,
+            kc_prev: 0.6,
+            kc_next: 1.15,
+            taw: 120.0,
+            raw_fraction: 0.5,
+            field_capacity: 100.0,
+        }
+    }
+
+    #[test]
+    fn monte_carlo_cpu_produces_valid_distribution() {
+        let result = monte_carlo_et0(&test_base(), &test_unc(), 500, 42);
+        assert!(result.mean > 0.0 && result.mean < 15.0);
+        assert!(result.std > 0.0 && result.std < result.mean);
+        assert!(result.pct_05 < result.mean);
+        assert!(result.pct_95 > result.mean);
+        assert!(result.pct_05 < result.pct_95);
+    }
+
+    #[test]
+    fn monte_carlo_cpu_deterministic() {
+        let a = monte_carlo_et0(&test_base(), &test_unc(), 200, 42);
+        let b = monte_carlo_et0(&test_base(), &test_unc(), 200, 42);
+        assert_eq!(a.mean.to_bits(), b.mean.to_bits());
+        assert_eq!(a.std.to_bits(), b.std.to_bits());
+    }
+
+    #[test]
+    fn monte_carlo_different_seeds_differ() {
+        let a = monte_carlo_et0(&test_base(), &test_unc(), 200, 42);
+        let b = monte_carlo_et0(&test_base(), &test_unc(), 200, 99);
+        assert_ne!(a.mean.to_bits(), b.mean.to_bits());
+    }
+
+    #[test]
+    fn seasonal_step_single_cell() {
+        let cells = vec![test_cell()];
+        let outputs = seasonal_step(&cells, &test_params());
+        assert_eq!(outputs.len(), 1);
+        let out = &outputs[0];
+        assert!(out.et0 > 0.0 && out.et0 < 15.0);
+        assert!(out.kc > 0.0);
+        assert!(out.etc > 0.0);
+        assert!(out.theta_new >= 0.0 && out.theta_new <= test_params().field_capacity);
+        assert!((0.0..=1.0).contains(&out.stress));
+    }
+
+    #[test]
+    fn seasonal_step_deterministic() {
+        let cells = vec![test_cell()];
+        let a = seasonal_step(&cells, &test_params());
+        let b = seasonal_step(&cells, &test_params());
+        assert_eq!(a[0].et0.to_bits(), b[0].et0.to_bits());
+        assert_eq!(a[0].theta_new.to_bits(), b[0].theta_new.to_bits());
+    }
+
+    #[test]
+    fn seasonal_multi_day_carries_state() {
+        let cells = vec![test_cell()];
+        let days: Vec<SeasonalParams> = (0..5)
+            .map(|i| SeasonalParams {
+                day_of_year: 180 + i,
+                day_in_stage: 15 + u32::from(i),
+                ..test_params()
+            })
+            .collect();
+        let outputs = seasonal_multi_day(&cells, &days);
+        assert_eq!(outputs.len(), 5);
+        for day_out in &outputs {
+            assert_eq!(day_out.len(), 1);
+            assert!(day_out[0].et0 > 0.0);
+        }
+        let soil: Vec<f64> = outputs.iter().map(|d| d[0].theta_new).collect();
+        assert!(
+            soil.windows(2).all(|w| w[0] >= w[1]),
+            "soil moisture should decrease or stay constant with ET"
+        );
+    }
+
+    #[test]
+    fn seasonal_kc_interpolation() {
+        let cells = vec![test_cell()];
+        let start = SeasonalParams {
+            day_in_stage: 0,
+            ..test_params()
+        };
+        let mid = test_params();
+        let end = SeasonalParams {
+            day_in_stage: 30,
+            ..test_params()
+        };
+        let o_start = seasonal_step(&cells, &start);
+        let o_mid = seasonal_step(&cells, &mid);
+        let o_end = seasonal_step(&cells, &end);
+        assert!(o_start[0].kc <= o_mid[0].kc);
+        assert!(o_mid[0].kc <= o_end[0].kc);
+    }
+
+    #[test]
+    fn summarize_mc_samples_known_values() {
+        let mut samples: Vec<f64> = (1..=100).map(f64::from).collect();
+        let result = summarize_mc_samples(&mut samples);
+        assert!((result.mean - 50.5).abs() < 0.01);
+        assert!(result.pct_05 < 10.0);
+        assert!(result.pct_95 > 90.0);
+    }
+}

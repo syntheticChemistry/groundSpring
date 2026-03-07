@@ -77,14 +77,8 @@ fn validate_state(h: &mut ValidationHarness, label: &str, ctx: &StateCtx<'_>) ->
     let (exp_d_range, exp_cv_range, exp_bf_range) =
         (ctx.exp_d_range, ctx.exp_cv_range, ctx.exp_bf_range);
     let cal_slope = ctx.cal_slope;
-    #[expect(
-        clippy::cast_precision_loss,
-        reason = "d_eff len = n_measurements ≪ 2^53"
-    )]
-    let n = d_eff.len() as f64;
-    let d_mean = d_eff.iter().sum::<f64>() / n;
-    let d_var = d_eff.iter().map(|x| (x - d_mean).powi(2)).sum::<f64>() / n;
-    let d_cv = d_var.sqrt() / d_mean.max(EPS_SAFE_DIV);
+    let (d_mean, d_std) = groundspring::stats::mean_and_std_dev(d_eff);
+    let d_cv = d_std / d_mean.max(EPS_SAFE_DIV);
 
     h.check_range(
         &format!("{label} d_eff mean"),

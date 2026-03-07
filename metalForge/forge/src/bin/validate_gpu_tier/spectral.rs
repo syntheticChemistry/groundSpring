@@ -232,6 +232,8 @@ fn validate_band_structure_parity(h: &mut Harness) {
     let (eigenvalues, _) =
         groundspring::transport::tridiag_eigh(&diag, &offdiag).expect("eigendecomposition");
     let bands = groundspring::band_structure::detect_band_ranges(&eigenvalues, 2.0);
+    // Band-edge matching tolerance: 0.05 accounts for finite grid
+    // discretisation (n_periods=20, 2 points per period → Δk ≈ 0.05).
     let frac = groundspring::band_structure::eigenvalue_band_fraction(
         &eigenvalues,
         potential,
@@ -248,6 +250,8 @@ fn validate_band_structure_parity(h: &mut Harness) {
 
     h.check("Eigenvalues computed", !eigenvalues.is_empty());
     h.check("At least 1 band detected", !bands.is_empty());
+    // 95% threshold: periodic Bloch theory guarantees all eigenvalues lie in
+    // bands; 5% slack accommodates finite-chain edge effects (N=20 periods).
     h.check("≥95% eigenvalues within bands", frac >= 0.95);
 
     let (eigenvalues2, _) =
@@ -285,6 +289,8 @@ fn validate_prng_stream_parity(h: &mut Harness) {
 
     let mean: f64 = vals.iter().sum::<f64>() / 10_000.0;
     println!("  Xoshiro mean={mean:.6} (expected ~0.5)");
+    // 0.02 tolerance: E[U(0,1)] = 0.5, σ = 1/√12, SE = σ/√N ≈ 0.0029 for
+    // N=10000. Threshold ≈ 7 SE — generous for deterministic check.
     h.check("Xoshiro mean near 0.5", (mean - 0.5).abs() < 0.02);
 
     let mut xor = groundspring::prng::DefaultRng::new(42);

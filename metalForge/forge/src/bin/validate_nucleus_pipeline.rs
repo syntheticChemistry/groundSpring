@@ -384,6 +384,9 @@ fn validate_compute_roundtrip(socket: &Path, harness: &mut Harness) {
                 {
                     let diff = (local_gamma - remote_gamma).abs();
                     println!("  Remote GPU: γ={remote_gamma:.6}, diff={diff:.2e}");
+                    // 0.1 tolerance: PRNG mismatch (CPU xorshift64 vs GPU xoshiro128**)
+                    // means stochastic Lyapunov averages differ. Tolerance is ~10% of
+                    // typical γ ≈ 0.5–2.0 at W=4.0, covering PRNG + GPU f64 rounding.
                     harness.check("Round-trip γ parity (< 0.1)", diff < 0.1);
                 } else {
                     println!("  Could not parse gamma from: {resp}");

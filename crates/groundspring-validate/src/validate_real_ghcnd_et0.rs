@@ -90,8 +90,8 @@ fn main() {
 
     if !pm_values.is_empty() && !harg_values.is_empty() {
         let n = pm_values.len().min(harg_values.len());
-        let pm_mean: f64 = pm_values[..n].iter().sum::<f64>() / n as f64;
-        let harg_mean: f64 = harg_values[..n].iter().sum::<f64>() / n as f64;
+        let pm_mean = groundspring::stats::mean(&pm_values[..n]);
+        let harg_mean = groundspring::stats::mean(&harg_values[..n]);
 
         println!();
         println!("  PM mean ET₀:        {pm_mean:.3} mm/day");
@@ -100,6 +100,9 @@ fn main() {
         if harg_mean > 0.0 {
             let ratio = pm_mean / harg_mean;
             println!("  Ratio PM/Harg:       {ratio:.3}");
+            // [0.3, 3.5]: FAO-56 §4 notes Hargreaves overestimates in humid
+            // climates (~×0.7) and underestimates in arid/windy (~×2). Range
+            // encompasses all documented agroclimate zones with 50% margin.
             h.check_range("PM/Hargreaves ratio", ratio, 0.3, 3.5);
         }
 
@@ -108,8 +111,11 @@ fn main() {
             .zip(&harg_values[..n])
             .map(|(pm, harg)| (pm - harg).abs())
             .collect();
-        let mean_abs_diff: f64 = diffs.iter().sum::<f64>() / n as f64;
+        let mean_abs_diff = groundspring::stats::mean(&diffs);
         println!("  Mean |PM - Harg|:    {mean_abs_diff:.3} mm/day");
+        // 10.0 mm/day: PM peak ≈ 12 mm/day in continental summer; Hargreaves
+        // peak ≈ 8 mm/day. Mean abs diff typically < 3 mm/day. 10.0 is a
+        // generous guard against data pipeline failures, not a precision claim.
         h.check_max("Mean absolute difference", mean_abs_diff, 10.0);
     }
 

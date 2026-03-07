@@ -3,9 +3,9 @@
 **Purpose**: Per-faculty research briefings for groundSpring noise characterization
 reproductions and extensions.
 
-**Last Updated**: March 6, 2026
+**Last Updated**: March 7, 2026
 
-**Validation Summary**: V88 — 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks, **93 active delegations (56 CPU + 37 GPU) — barraCuda `e1184f3`, toadStool S96c (`d77fc546`), coralReef `849fedd`**. 824+ workspace tests + 261 Python provenance tests. All 35 experiments PASS. **29/29 mathematical parity proven**. Zero clippy warnings (pedantic + nursery), zero unsafe, zero TODO, zero `.unwrap()` in production, all files < 1000 lines. Structured logging (`log` crate), formal provenance schema, auto-discovery drift guard. 10 domains, 34 modules.
+**Validation Summary**: V91 — 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks, **100 active delegations (59 CPU + 41 GPU) — barraCuda v0.3.3, toadStool S128, coralReef Phase 9**. 807 workspace tests + 261 Python provenance tests. All 35 experiments PASS. **29/29 mathematical parity proven**. 91.55% line coverage. Zero clippy warnings (pedantic + nursery), zero unsafe, zero TODO, zero `.unwrap()` in production, all files < 1000 lines. 21 benchmark workloads. Cross-spring shader evolution documented. 10 domains, 34 modules.
 
 ---
 

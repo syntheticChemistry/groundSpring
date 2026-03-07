@@ -168,6 +168,10 @@ run_experiment \
     "Exp 028: NPU Anderson (Python)" \
     "python3 control/npu_anderson/npu_anderson.py"
 
+run_experiment \
+    "Exp 035: ET0 Methods (Python)" \
+    "python3 control/et0_methods/et0_methods.py"
+
 echo ""
 echo "╔══════════════════════════════════════════════════════════════╗"
 echo "║  PHASE 1: Rust Validation Binaries                         ║"
@@ -283,6 +287,10 @@ if command -v cargo &> /dev/null; then
     run_experiment \
         "Rust: Vendor Parity" \
         "cargo run --release --bin validate-vendor-parity"
+
+    run_experiment \
+        "Rust: ET0 Methods" \
+        "cargo run --release --bin validate-et0-methods"
 
     if [[ -e /dev/akida0 ]]; then
         cargo build --release --workspace --features npu 2>&1 | tail -1

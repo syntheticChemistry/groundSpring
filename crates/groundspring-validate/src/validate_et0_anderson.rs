@@ -98,11 +98,7 @@ struct McResult {
 }
 
 fn mc_stats(samples: &[f64]) -> (f64, f64, f64) {
-    #[expect(clippy::cast_precision_loss, reason = "n ≤ 500")]
-    let n = samples.len() as f64;
-    let mean = samples.iter().sum::<f64>() / n;
-    let var = samples.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / n;
-    let std = var.sqrt();
+    let (mean, std) = groundspring::stats::mean_and_std_dev(samples);
     let cv = std / mean.max(EPS_SAFE_DIV);
     (mean, std, cv)
 }

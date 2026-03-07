@@ -72,10 +72,9 @@ fn validate_analytical(h: &mut ValidationHarness, net: &EnzymeNetwork, pred: &Va
 /// with 200 replicates of `t_max`=500 (burnin=100), the ensemble mean
 /// converges to within ±1 of the analytical value.
 #[expect(
-    clippy::cast_precision_loss,
     clippy::cast_possible_truncation,
     clippy::cast_sign_loss,
-    reason = "n_reps and ss_mean from config, t_burnin positive"
+    reason = "ss_mean as u64 and loop index i as u64"
 )]
 fn validate_gillespie_basal(
     h: &mut ValidationHarness,
@@ -103,9 +102,9 @@ fn validate_gillespie_basal(
         basal_vars.push(v);
     }
 
-    let ensemble_mean: f64 = basal_means.iter().sum::<f64>() / sim.n_reps as f64;
-    let mean_var: f64 = basal_vars.iter().sum::<f64>() / sim.n_reps as f64;
-    let basal_std = (basal_vars.iter().sum::<f64>() / sim.n_reps as f64).sqrt();
+    let ensemble_mean = groundspring::stats::mean(&basal_means);
+    let mean_var = groundspring::stats::mean(&basal_vars);
+    let basal_std = mean_var.sqrt();
 
     println!("  Ensemble mean: {ensemble_mean:.3} (analytical: {ss_mean:.3})");
 
@@ -130,7 +129,6 @@ fn validate_gillespie_basal(
 /// Response-ratio tolerances from JSON; the ranges [1.1, 1.4] and [1.3, 1.7]
 /// for α=10 and α=20 absorb stochastic variation across 200 replicates.
 #[expect(
-    clippy::cast_precision_loss,
     clippy::cast_possible_truncation,
     clippy::cast_sign_loss,
     clippy::too_many_arguments,
@@ -168,7 +166,7 @@ fn validate_activated_states(
             let m = time_averaged_mean(&traj, sim.t_burnin);
             act_means.push(m);
         }
-        let act_ensemble = act_means.iter().sum::<f64>() / sim.n_reps as f64;
+        let act_ensemble = groundspring::stats::mean(&act_means);
         activated_means.push((alpha, act_ensemble));
         println!("  α={alpha}: mean={act_ensemble:.3}");
     }

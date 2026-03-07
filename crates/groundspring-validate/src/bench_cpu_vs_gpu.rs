@@ -477,6 +477,118 @@ fn bench_transport_msd(iters: u32) -> BenchEntry {
     }
 }
 
+fn bench_autocorrelation(iters: u32) -> BenchEntry {
+    let mut rng = groundspring::prng::Xorshift64::new(42);
+    let n = 10_000;
+    let phi: f64 = 0.9;
+    let mut data = vec![0.0_f64; n];
+    data[0] = rng.normal(0.0, 1.0);
+    for i in 1..n {
+        data[i] = phi.mul_add(data[i - 1], rng.normal(0.0, phi.mul_add(-phi, 1.0).sqrt()));
+    }
+
+    let cpu_ms = bench(
+        || {
+            let acf = groundspring::wdm::autocorrelation(&data, 200);
+            std::hint::black_box(acf);
+        },
+        iters,
+    );
+
+    BenchEntry {
+        name: "Autocorrelation (10k points, lag 200)",
+        cpu_ms,
+        gpu_ms: None,
+        speedup: None,
+    }
+}
+
+fn bench_covariance(iters: u32) -> BenchEntry {
+    let mut rng = groundspring::prng::Xorshift64::new(42);
+    let n = 5_000;
+    let x: Vec<f64> = (0..n).map(|_| rng.normal(0.0, 1.0)).collect();
+    let y: Vec<f64> = (0..n).map(|_| rng.normal(0.0, 1.0)).collect();
+
+    let cpu_ms = bench(
+        || {
+            let c = groundspring::stats::covariance(&x, &y);
+            std::hint::black_box(c);
+        },
+        iters,
+    );
+
+    BenchEntry {
+        name: "Covariance (5k pairs, CovarianceF64 GPU)",
+        cpu_ms,
+        gpu_ms: None,
+        speedup: None,
+    }
+}
+
+fn bench_spectral_diagnostics(iters: u32) -> BenchEntry {
+    let eigs: Vec<f64> = (0..1000).map(|i| 0.01_f64 * f64::from(i)).collect();
+
+    let cpu_ms = bench(
+        || {
+            let d = groundspring::anderson::spectral_diagnostics_auto(&eigs, 1.0);
+            std::hint::black_box(d);
+        },
+        iters,
+    );
+
+    BenchEntry {
+        name: "Spectral diagnostics (1k eigenvalues, MP)",
+        cpu_ms,
+        gpu_ms: None,
+        speedup: None,
+    }
+}
+
+fn bench_esd(iters: u32) -> BenchEntry {
+    let eigs: Vec<f64> = (0..5000).map(|i| 0.002_f64 * f64::from(i)).collect();
+
+    let cpu_ms = bench(
+        || {
+            let (c, d) = groundspring::anderson::empirical_spectral_density(&eigs, 50);
+            std::hint::black_box((c, d));
+        },
+        iters,
+    );
+
+    BenchEntry {
+        name: "Empirical spectral density (5k eigs, 50 bins)",
+        cpu_ms,
+        gpu_ms: None,
+        speedup: None,
+    }
+}
+
+fn bench_optimal_block_size(iters: u32) -> BenchEntry {
+    let mut rng = groundspring::prng::Xorshift64::new(42);
+    let n = 5_000;
+    let phi: f64 = 0.8;
+    let mut data = vec![0.0_f64; n];
+    data[0] = rng.normal(0.0, 1.0);
+    for i in 1..n {
+        data[i] = phi.mul_add(data[i - 1], rng.normal(0.0, phi.mul_add(-phi, 1.0).sqrt()));
+    }
+
+    let cpu_ms = bench(
+        || {
+            let bs = groundspring::wdm::optimal_block_size(&data, 100);
+            std::hint::black_box(bs);
+        },
+        iters,
+    );
+
+    BenchEntry {
+        name: "Optimal block size (5k AR(1), ACF→τ_int)",
+        cpu_ms,
+        gpu_ms: None,
+        speedup: None,
+    }
+}
+
 fn print_results(entries: &[BenchEntry]) {
     println!(
         "\n{:<45} {:>10} {:>14} {:>10}",
@@ -543,6 +655,11 @@ fn main() {
         bench_tikhonov(iters),
         bench_tridiag_eigh(iters),
         bench_transport_msd(iters),
+        bench_autocorrelation(iters),
+        bench_covariance(iters),
+        bench_spectral_diagnostics(iters),
+        bench_esd(iters),
+        bench_optimal_block_size(iters),
     ];
 
     print_results(&entries);

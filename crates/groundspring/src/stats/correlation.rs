@@ -277,9 +277,16 @@ fn covariance_gpu(x: &[f64], y: &[f64]) -> Option<f64> {
         return Some(0.0);
     }
     let device = crate::gpu::get_device()?;
+    // Prefer dedicated CovarianceF64 (barraCuda S128+) — single-pass,
+    // avoids deriving from r * sqrt(var_x * var_y).
+    if let Ok(gpu) = barracuda::ops::covariance_f64_wgsl::CovarianceF64::new(device.clone()) {
+        if let Ok(c) = gpu.sample_covariance(x, y) {
+            return Some(c);
+        }
+    }
+    // Fallback: derive from CorrelationF64::correlation_full.
     let gpu = barracuda::ops::correlation_f64_wgsl::CorrelationF64::new(device).ok()?;
     let r = gpu.correlation_full(x, y).ok()?;
-    // cov = r * sqrt(var_x * var_y), Bessel-correct by multiplying by N/(N-1)
     let nf = usize_f64(n);
     let pop_cov = r.pearson_r * (r.var_x * r.var_y).sqrt();
     Some(pop_cov * nf / usize_f64(n - 1))
