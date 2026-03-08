@@ -86,23 +86,52 @@ proxy is wired end-to-end.
 
 ---
 
-## 3. Quality Gates
+## 3. Three-Tier Benchmark (29 validation binaries, release mode)
+
+| Mode | Wall time (s) | Speedup vs local |
+|------|--------------|------------------|
+| Local (no features) | 12.5 | baseline |
+| BarraCUDA CPU | 18.4 | 0.68× (dispatch overhead on small workloads) |
+| **BarraCUDA GPU** | **9.9** | **1.27× faster** |
+
+Workspace test benchmark: local 50.3s → barracuda-CPU 29.0s (**1.73× faster**).
+
+Kokkos parity: Anderson γ=0.1579, bootstrap CI verified. 396/396 Python
+correctness tests pass (zero baseline drift).
+
+## 4. Quality Gates
 
 ```
 cargo fmt --check                         → PASS
 cargo clippy --workspace --all-targets    → 0 warnings (pedantic + nursery)
 cargo test --workspace                    → 936 passed, 0 failed
 cargo test --workspace --features barracuda → 936 passed, 0 failed
-validation binaries (barracuda-gpu)       → 29/29 PASS
+validation binaries (×3 tiers)            → 87/87 PASS (29 × 3)
 metalForge tests                          → 140 passed, 0 failed
+Python correctness                        → 396 passed, 1 timing flake, 3 skipped
 ```
 
----
+## 5. Cross-Spring Shader Provenance
 
-## 4. Delegation Inventory (unchanged)
+groundSpring V98 now documents full cross-spring shader evolution in
+`specs/CROSS_SPRING_EVOLUTION.md`:
+
+| Spring | Key Contributions | Consumed By |
+|--------|-------------------|-------------|
+| hotSpring | DF64 core + transcendentals, Sturm tridiag, stress virial | ALL springs |
+| wetSpring | Gillespie SSA, smith_waterman, fused_map_reduce, HMM | neuralSpring, airSpring |
+| neuralSpring | chi², KL divergence, matrix correlation, ESN | ALL springs |
+| airSpring | Hargreaves ET₀, seasonal pipeline, moving window | wetSpring, neuralSpring |
+| groundSpring | Anderson Lyapunov, chi², Welford, f64 bug discovery | ALL springs |
+
+All 5 springs both contribute and consume. groundSpring's `chi_squared_f64`
+and f64 shared-memory discovery reach all springs. hotSpring's DF64 core
+reaches all four others.
+
+## 6. Delegation Inventory (unchanged)
 
 102 active delegations (61 CPU + 41 GPU). No new delegations — this release
-focuses on upstream pin sync.
+focuses on upstream pin sync, benchmark, and provenance documentation.
 
 Full inventory in `specs/BARRACUDA_EVOLUTION.md`.
 

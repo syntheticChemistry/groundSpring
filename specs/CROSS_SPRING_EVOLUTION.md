@@ -148,30 +148,81 @@ Three-mode benchmark (`benchmark-cross-spring --release`):
 | Autocorrelation (10K, lag 200) | 0.40 | — | AutocorrelationF64 |
 | Seismic grid (31×31×7) | 7210 | — | CPU-intensive, GPU candidate |
 
-### Precision Routing (V97)
+### Precision Routing (V98)
 
-11 GPU dispatch paths now check `PrecisionRoutingAdvice` via `get_device_f64_safe()`:
-- `F64Native` → proceed (workgroup f64 reductions safe)
+21 GPU dispatch paths check `PrecisionRoutingAdvice` via `get_device_f64_safe()` +
+runtime f64 reduction smoke test:
+- `F64Native` + smoke test PASS → proceed (workgroup f64 reductions verified)
 - `Df64Only` → proceed (barraCuda routes DF64 shaders internally)
 - `F64NativeNoSharedMem` → skip GPU, fall back to CPU (naga shared-mem f64 zeros bug)
 - `F32Only` → skip GPU, fall back to CPU
+- Smoke test FAIL → skip GPU regardless of driver profile (Ada Lovelace zeros bug)
 
-### Three-Tier Parity (V97)
+### Three-Tier Parity (V98, March 8 2026)
 
-| Tier | Tests | Status |
+| Tier | Count | Status |
 |---|---|---|
-| Physics (Anderson, band, transport, seismic, freeze-out) | 27 | PASS |
-| Stats (bootstrap, RMSE, regression, correlation) | 24 | PASS |
-| Bio (drift, jackknife, rare biosphere, quasispecies, rarefaction) | — | PASS |
-| GPU (workloads, CPU vs GPU dispatch) | — | PASS |
+| Default CPU (29 validation binaries) | 29/29 | **PASS** |
+| BarraCUDA CPU (29 validation binaries) | 29/29 | **PASS** |
+| BarraCUDA GPU (29 validation binaries) | 29/29 | **PASS** |
+| Python correctness (396 tests) | 396/396 | **PASS** |
+| Rust workspace (936 tests) | 936/936 | **PASS** |
+| metalForge (140 tests) | 140/140 | **PASS** |
 
-## GPU Delegation Status (V97 — 102 delegations)
+### Validation Binary Benchmark (29 binaries, release mode)
+
+| Mode | Wall time (s) | Speedup |
+|---|---|---|
+| Local (no features) | 12.5 | baseline |
+| BarraCUDA CPU | 18.4 | 0.68× (dispatch overhead on small workloads) |
+| **BarraCUDA GPU** | **9.9** | **1.27×** |
+
+## GPU Delegation Status (V98 — 102 delegations)
 
 | Delegation | Status | Shader Origin |
 |---|---|---|
 | 61 CPU delegations (stats, bio, hydrology, linalg, spectral) | **WIRED** | Cross-spring via barraCuda |
 | 41 GPU delegations (reductions, multinomial, ODE, optimization) | **WIRED** | Cross-spring via barraCuda GPU ops |
-| 21 GPU paths with precision routing | **WIRED** (V97) | `get_device_f64_safe()` + runtime f64 smoke test |
+| 21 GPU paths with precision routing + smoke test | **WIRED** (V98) | `get_device_f64_safe()` + `f64_reduction_smoke_test()` |
 | `BatchedOdeRK45F64` (adaptive RK45) | Available | wetSpring V95 → barraCuda |
 | `GpuView<T>` (persistent GPU buffer) | Available | barraCuda pipeline |
 | `LSCFRK` (lattice integrators) | Available | hotSpring lattice QCD |
+
+## Cross-Spring Shader Provenance (V98)
+
+### What Each Spring Contributed to barraCuda (784 WGSL shaders)
+
+| Spring | Domain | Key Shaders | Consumed By |
+|--------|--------|-------------|-------------|
+| **hotSpring** | Precision, MD, QCD | `df64_core.wgsl`, `df64_transcendentals.wgsl`, `stress_virial_f64.wgsl`, `cg_kernels_f64.wgsl`, `esn_readout_f64.wgsl` | ALL springs (DF64 core is universal) |
+| **wetSpring** | Bio, Diversity | `smith_waterman_banded_f64.wgsl`, `gillespie_ssa_f64.wgsl`, `fused_map_reduce_f64.wgsl`, `hmm_forward_f64.wgsl`, `bray_curtis_f64.wgsl` | neuralSpring, airSpring, hotSpring |
+| **neuralSpring** | ML, Stats | `fused_chi_squared_f64.wgsl`, `fused_kl_divergence_f64.wgsl`, `matrix_correlation_f64.wgsl`, `linear_regression_f64.wgsl`, `batch_ipr_f64.wgsl` | ALL springs |
+| **airSpring** | Hydrology | `hargreaves_et0_f64.wgsl`, `seasonal_pipeline.wgsl`, `moving_window_f64.wgsl`, `brent_f64.wgsl` | wetSpring, neuralSpring |
+| **groundSpring** | Spectral, Uncertainty | `anderson_lyapunov_f64.wgsl`, `chi_squared_f64.wgsl`, `welford_mean_variance_f64.wgsl`, `mc_et0_propagate_f64.wgsl` | ALL springs (chi-squared universal) |
+
+### Evolution Timeline
+
+| Date | Event | From | To | Impact |
+|------|-------|------|-----|--------|
+| Feb 2026 | f32→f64 evolution | hotSpring S49 | ALL springs | All shaders become f64-canonical |
+| Feb 2026 | 15 DF64 transcendentals | hotSpring S71 | barraCuda | sin/cos/exp/log/sqrt in double-float precision |
+| Feb 2026 | Sturm tridiag eigensolver | hotSpring S26 | groundSpring, wetSpring | **47.7× speedup** for quasiperiodic eigenvalues |
+| Mar 3 | Cross-spring absorption S83 | ALL springs | barraCuda/toadStool | stress_virial, ESN readout, CG kernels unified |
+| Mar 5 | barraCuda budded from toadStool | toadStool S93 | barraCuda v0.3.0 | Math primal (WHAT) separated from hardware primal (WHERE) |
+| Mar 5 | wgpu 28 migration | ALL springs | barraCuda v0.3.3 | Arc removal, workgroup constants, modern API |
+| Mar 6 | f64 shared-memory bug | groundSpring V84-V85 | ALL springs | `PrecisionRoutingAdvice` — RTX 4070 naga zeros detected |
+| Mar 7 | `shader.compile.*` IPC | toadStool S130 | coralReef proxy | Sovereign shader compilation via coralReef |
+| Mar 7 | coralReef Iteration 10 | coralReef | ALL springs | AMD E2E dispatch, f64 reduction shader fix for SM70/SM89 |
+| Mar 8 | **V98 upstream rewire** | barraCuda `a898dee` | groundSpring | Typed errors, named constants, three-tier parity proven |
+
+### Cross-Spring Flow Matrix
+
+```
+           Contributes To →
+           hot  wet  neural  air  ground
+hot        —    ✓    ✓       ✓    ✓       (DF64, MD, spectral)
+wet        ✓    —    ✓       ✓    ✓       (bio, diversity, alignment)
+neural     ✓    ✓    —       ✓    ✓       (chi², KL, correlation, ESN)
+air        ✓    ✓    —       —    ✓       (ET₀, hydrology, Brent)
+ground     ✓    ✓    ✓       ✓    —       (Anderson, chi², uncertainty, f64 bug)
+```

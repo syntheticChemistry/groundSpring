@@ -229,24 +229,56 @@ Run parity report: `python3 scripts/parity_report.py`
 
 ## BarraCUDA Delegation Performance
 
-| Mode | Total (ms) | Quasiperiodic (ms) | Delta |
-|------|-----------|-------------------|-------|
-| Local (no features) | 20,366 | 11,648 | baseline |
-| Barracuda CPU | 21,512 | 12,734 | ~0% overhead |
-| **Barracuda-GPU** | **9,236** | **244** | **−55% (2.2× faster)** |
+### Validation Binary Benchmark (29 binaries, release mode, March 8 2026)
 
-Barracuda CPU delegation is free. Barracuda-GPU adds Sturm tridiag
-eigenvalue solver (from hotSpring S26 spectral), GPU reduce ops
-(FusedMapReduceF64, SumReduceF64, VarianceReduceF64, CorrelationF64),
-and batch dispatch APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64),
-giving **47.7× speedup** for Exp 009. Cross-spring evolution validated
-by 102 active delegations (61 CPU + 41 GPU), including
-ESN regime classification, Lanczos sparse eigensolver, 2D/3D/4D Anderson eigenvalues,
-L-BFGS refinement, Wegner RG coarsening, and decomposed chi-squared analysis from
-hotSpring/wetSpring lineage. 30 metalForge workloads route across 5 substrates
-(24 GPU + 2 NPU + 2 CPU-only) with architecture-aware routing.
+| Mode | Wall time (s) | Δ vs local |
+|------|--------------|------------|
+| Local (no features) | 12.5 | baseline |
+| BarraCUDA CPU | 18.4 | +47% (dispatch overhead on small workloads) |
+| **BarraCUDA GPU** | **9.9** | **−21% (1.27× faster)** |
+
+### Workspace Test Benchmark (936 tests, release mode)
+
+| Mode | Wall time (s) | Δ vs local |
+|------|--------------|------------|
+| Local (no features) | 50.3 | baseline |
+| BarraCUDA CPU | 29.0 | **−42% (1.73× faster)** |
+
+102 active delegations (61 CPU + 41 GPU). Cross-spring evolution powers
+this: hotSpring precision shaders (DF64 core, Sturm tridiag — **47.7× for Exp 009**),
+wetSpring bio shaders (Gillespie SSA, diversity fusion, Bray-Curtis),
+neuralSpring stats (chi-squared, KL divergence, matrix correlation),
+airSpring hydrology (seasonal pipeline, Hargreaves ET₀), and groundSpring
+spectral shaders (Anderson Lyapunov, uncertainty propagation).
 `PrecisionRoutingAdvice` + runtime f64 smoke test (V97) guards all 21 GPU dispatch paths
 via `get_device_f64_safe()` — hardware-aware routing with empirical f64 reduction verification.
+
+### Cross-Spring Shader Evolution
+
+Every spring contributes shaders that benefit the entire ecosystem through barraCuda:
+
+```
+hotSpring (precision)  ─────┐
+  df64_core, Sturm tridiag, │    All absorbed into barraCuda v0.3.3
+  stress_virial, CG kernels ├──► 784 WGSL shaders, f64-canonical
+                             │    with f16/f32/f64/Df64 per hardware
+wetSpring (bio)  ────────────┤
+  smith_waterman, gillespie, │    toadStool S130+ routes hardware
+  fused_map_reduce, HMM      │    coralReef compiles to native GPU binary
+                             │
+neuralSpring (ML)  ──────────┤    groundSpring consumes 102 ops:
+  chi_squared, KL_divergence,│    61 CPU delegated, 41 GPU dispatched
+  matrix_correlation, ESN    │
+                             │
+airSpring (hydrology)  ──────┤
+  hargreaves, seasonal_pipe, │
+  moving_window, Brent root  │
+                             │
+groundSpring (spectral)  ────┘
+  anderson_lyapunov, welford,
+  chi_squared → ALL springs
+  f64 bug → PrecisionRoutingAdvice
+```
 
 ## Evolution Path
 
