@@ -336,17 +336,28 @@ pub fn deregister_capabilities(socket: &Path) -> Result<usize> {
 
 /// Health check: verify the Neural API is alive.
 ///
-/// Uses `topology.metrics` since the Neural API doesn't expose a bare
-/// `health` method.
+/// Tries the evolved `neural_api.get_metrics` method first (current
+/// live biomeOS binary), then falls back to the aliased
+/// `topology.metrics` for forward compatibility with newer versions.
 ///
 /// # Errors
 ///
-/// Returns `Err` if the socket is unavailable or the health check fails.
+/// Returns `Err` if the socket is unavailable or all health methods fail.
 pub fn health(socket: &Path) -> Result<()> {
     let params = serde_json::json!({});
-    let request = build_request("topology.metrics", &params);
-    let response = rpc_call(socket, &request)?;
-    response_has_error(&response)
+
+    for method in &["neural_api.get_metrics", "topology.metrics"] {
+        let request = build_request(method, &params);
+        match rpc_call(socket, &request) {
+            Ok(ref response) if response_has_error(response).is_ok() => return Ok(()),
+            Ok(_) => {}
+            Err(_) => return Err(BiomeOsError(format!("biomeOS connect {}", socket.display()))),
+        }
+    }
+
+    Err(BiomeOsError(
+        "Neural API did not respond to any known health method".to_string(),
+    ))
 }
 
 /// Send an arbitrary JSON-RPC request over the transport and read the response.
@@ -359,6 +370,160 @@ pub fn health(socket: &Path) -> Result<()> {
 /// Returns `Err` if the socket is unavailable or the RPC fails.
 pub fn raw_rpc_call(socket: &Path, request: &str) -> Result<String> {
     rpc_call(socket, request)
+}
+
+// ─── Direct Primal Interaction ──────────────────────────────────────────────
+
+/// A primal socket discovered in the biomeOS socket directory.
+#[derive(Debug, Clone)]
+pub struct DiscoveredPrimal {
+    /// Primal name derived from socket filename (e.g. `"beardog"`, `"toadstool"`).
+    pub name: String,
+    /// Path to the primal's Unix domain socket.
+    pub socket: std::path::PathBuf,
+}
+
+/// Discover live primal sockets in the biomeOS runtime directory.
+///
+/// Scans `$XDG_RUNTIME_DIR/biomeos/` for `.sock` files and returns
+/// the list of primals found, excluding symlinks and Neural API itself.
+#[must_use]
+pub fn discover_primals() -> Vec<DiscoveredPrimal> {
+    let Some(socket_dir) = biomeos_socket_dir() else {
+        return Vec::new();
+    };
+    let Ok(entries) = std::fs::read_dir(&socket_dir) else {
+        return Vec::new();
+    };
+    let mut primals = Vec::new();
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if path.symlink_metadata().is_ok_and(|m| m.file_type().is_symlink()) {
+            continue;
+        }
+        let Some(name) = path.file_stem().and_then(|s| s.to_str()) else {
+            continue;
+        };
+        if !name.contains("neural-api") && path.extension().is_some_and(|e| e == "sock") {
+            let clean_name = name.replace(".jsonrpc", "");
+            if primals.iter().any(|p: &DiscoveredPrimal| p.name == clean_name) {
+                continue;
+            }
+            primals.push(DiscoveredPrimal {
+                name: clean_name,
+                socket: path,
+            });
+        }
+    }
+    primals.sort_by(|a, b| a.name.cmp(&b.name));
+    primals
+}
+
+/// Resolve the biomeOS socket directory from environment.
+fn biomeos_socket_dir() -> Option<std::path::PathBuf> {
+    if let Ok(dir) = std::env::var("BIOMEOS_SOCKET_DIR") {
+        return Some(std::path::PathBuf::from(dir));
+    }
+    if let Ok(xdg) = std::env::var("XDG_RUNTIME_DIR") {
+        let dir = std::path::PathBuf::from(xdg).join("biomeos");
+        if dir.is_dir() {
+            return Some(dir);
+        }
+    }
+    #[cfg(target_os = "linux")]
+    {
+        use std::os::unix::fs::MetadataExt;
+        if let Ok(meta) = std::fs::metadata("/proc/self") {
+            let dir = std::path::PathBuf::from(format!("/run/user/{}/biomeos", meta.uid()));
+            if dir.is_dir() {
+                return Some(dir);
+            }
+        }
+    }
+    None
+}
+
+/// Health-check a specific primal by name via its discovered socket.
+///
+/// Uses the primal-specific health method: `{primal}.health` for most,
+/// `health` for `BearDog` (which responds to the bare method).
+///
+/// # Errors
+///
+/// Returns `Err` if the primal is not found or the health check fails.
+pub fn primal_health(primal_name: &str) -> Result<String> {
+    let primals = discover_primals();
+    let primal = primals
+        .iter()
+        .find(|p| p.name == primal_name)
+        .ok_or_else(|| BiomeOsError(format!("primal not found: {primal_name}")))?;
+
+    let qualified = format!("{primal_name}.health");
+    let methods: Vec<&str> = if primal_name == "beardog" {
+        vec!["health"]
+    } else {
+        vec![&qualified, "health"]
+    };
+
+    for method in &methods {
+        let request = build_request(method, &serde_json::json!({}));
+        if let Ok(ref response) = rpc_call(&primal.socket, &request)
+            && response_has_error(response).is_ok()
+        {
+            return parse_rpc_response(response);
+        }
+    }
+
+    Err(BiomeOsError(format!(
+        "{primal_name} did not respond to any known health method"
+    )))
+}
+
+/// Send a JSON-RPC call directly to a discovered primal's socket.
+///
+/// Bypasses Neural API routing. Use when the Neural API doesn't support
+/// `capability.call` routing or when targeting a specific primal for
+/// diagnosis.
+///
+/// # Errors
+///
+/// Returns `Err` if the primal is not found or the RPC fails.
+pub fn direct_primal_rpc(primal_name: &str, method: &str, params: &str) -> Result<String> {
+    let primals = discover_primals();
+    let primal = primals
+        .iter()
+        .find(|p| p.name == primal_name)
+        .ok_or_else(|| BiomeOsError(format!("primal not found: {primal_name}")))?;
+
+    let args: Value = serde_json::from_str(params)
+        .map_err(|e| BiomeOsError(format!("invalid params JSON: {e}")))?;
+    let request = build_request(method, &args);
+    let response = rpc_call(&primal.socket, &request)?;
+    parse_rpc_response(&response)
+}
+
+/// Query Neural API proprioception (self-awareness and deployment status).
+///
+/// # Errors
+///
+/// Returns `Err` if the Neural API is unavailable.
+pub fn proprioception(socket: &Path) -> Result<String> {
+    let params = serde_json::json!({});
+    let request = build_request("neural_api.get_proprioception", &params);
+    let response = rpc_call(socket, &request)?;
+    parse_rpc_response(&response)
+}
+
+/// Query Neural API topology (primal connections).
+///
+/// # Errors
+///
+/// Returns `Err` if the Neural API is unavailable.
+pub fn topology(socket: &Path) -> Result<String> {
+    let params = serde_json::json!({});
+    let request = build_request("neural_api.get_topology", &params);
+    let response = rpc_call(socket, &request)?;
+    parse_rpc_response(&response)
 }
 
 #[cfg(test)]

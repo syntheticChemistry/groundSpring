@@ -2,7 +2,7 @@
 
 > Semantic capabilities for the biomeOS capability registry.
 
-**Status**: V93 (March 6, 2026)
+**Status**: V99 (March 8, 2026)
 
 ## Capabilities Provided
 

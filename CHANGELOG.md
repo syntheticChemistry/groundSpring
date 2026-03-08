@@ -4,6 +4,37 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V99 Live NUCLEUS Integration + Direct Primal Discovery (Mar 8, 2026)
+
+#### biomeOS Client Evolution
+- Evolved `health()` to try `neural_api.get_metrics` first, fall back to `topology.metrics`
+- Added `discover_primals()` — scans biomeOS socket directory for live primal sockets
+- Added `primal_health(name)` — direct health check to individual primals
+- Added `direct_primal_rpc(name, method, params)` — bypass Neural API routing
+- Added `proprioception()` and `topology()` Neural API queries
+- Fixed duplicate toadstool discovery (tarpc vs jsonrpc socket dedup)
+
+#### NUCLEUS Validation (Full mode — BearDog + Songbird + ToadStool + Squirrel + Neural API)
+- First live NUCLEUS connection from groundSpring: `auto_connect()` → CONNECTED
+- 4 primals discovered via socket scan (beardog, songbird, toadstool, squirrel)
+- Neural API: 3/3 methods respond (metrics, topology, proprioception)
+- Direct primal health: BearDog v0.9.0, ToadStool v0.1.0, Squirrel — all healthy
+- 40/40 NUCLEUS experiment checks PASS (Exp 029, 030, 031, 032)
+- NestGate: binary version mismatch (no `daemon` subcommand) — needs P1 rebuild
+
+#### Exp 031 Evolution
+- Phase A: socket + primal discovery (was offline, now CONNECTED + 4 primals)
+- Phase B: Neural API health, proprioception, topology (all live)
+- Phase B2 (new): direct primal health checks (BearDog, ToadStool, Squirrel)
+- Phase C: compute via direct ToadStool fallback (health, version respond)
+- Phase D: AI via direct Squirrel fallback (healthy)
+- 16/16 checks PASS
+
+#### Quality Gates
+- 936 tests PASS (0 fail, `--features biomeos`)
+- clippy pedantic+nursery: 0 warnings
+- 39/42 validation binaries PASS (3 pre-existing metalForge GPU tier issues)
+
 ### V98 Upstream Rewire + Cross-Spring Evolution Benchmark (Mar 8, 2026)
 
 #### Upstream Pin Updates

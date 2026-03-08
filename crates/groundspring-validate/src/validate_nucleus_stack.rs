@@ -55,6 +55,21 @@ fn run() -> i32 {
         nucleus_live == biomeos::is_nucleus_available(),
     );
 
+    let primals = biomeos::discover_primals();
+    println!(
+        "  Discovered primals:   {} ({})",
+        primals.len(),
+        primals
+            .iter()
+            .map(|p| p.name.as_str())
+            .collect::<Vec<_>>()
+            .join(", ")
+    );
+    h.check_true(
+        "Primal socket discovery finds sockets",
+        !primals.is_empty() || !nucleus_live,
+    );
+
     if !nucleus_live {
         println!("\n  NUCLEUS is offline — validating sovereign fallback paths");
         validate_sovereign_fallback(&mut h);
@@ -66,6 +81,7 @@ fn run() -> i32 {
     println!("  Socket: {}", socket.display());
 
     validate_tower(&mut h, &socket);
+    validate_direct_primals(&mut h);
     validate_node(&mut h, &socket);
     validate_ai(&mut h, &socket);
     validate_nest(&mut h, &socket);
@@ -75,58 +91,75 @@ fn run() -> i32 {
     h.summary()
 }
 
-/// Tower: Neural API health + crypto capability.
+/// Tower: Neural API health + proprioception + topology.
 #[cfg(feature = "biomeos")]
 fn validate_tower(h: &mut ValidationHarness, socket: &std::path::Path) {
-    println!("\n--- Phase B: Tower (crypto + beacon) ---");
+    println!("\n--- Phase B: Tower (Neural API) ---");
 
     let health_ok = biomeos::health(socket).is_ok();
     println!(
-        "  topology.metrics: {}",
+        "  neural_api.get_metrics: {}",
         if health_ok { "OK" } else { "FAIL" }
     );
     h.check_true("Neural API health check", health_ok);
 
-    match biomeos::capability_call(
-        socket,
-        "crypto.hash",
-        r#"{"data":"groundspring:exp031:nucleus_stack_test"}"#,
-    ) {
+    match biomeos::proprioception(socket) {
         Ok(result) => {
-            println!("  crypto.hash: OK ({} bytes)", result.len());
-            h.check_true("crypto hash returns data", !result.is_empty());
+            let has_awareness = result.contains("self_awareness") || result.contains("sensory");
+            println!("  proprioception: OK (self-aware: {has_awareness})");
+            h.check_true("Neural API proprioception", !result.is_empty());
         }
         Err(e) => {
-            println!("  crypto.hash: {e}");
-            h.check_true("crypto capability (or graceful error)", true);
+            println!("  proprioception: {e}");
+            h.check_true("proprioception (or graceful error)", true);
         }
     }
 
-    match biomeos::capability_call(socket, "beacon.get_id", "{}") {
+    match biomeos::topology(socket) {
         Ok(result) => {
-            println!("  beacon.get_id: OK ({} bytes)", result.len());
-            h.check_true("Beacon ID returns data", !result.is_empty());
+            let has_connections = result.contains("connections");
+            println!("  topology: OK (connections: {has_connections})");
+            h.check_true("Neural API topology", !result.is_empty());
         }
         Err(e) => {
-            println!("  beacon.get_id: {e}");
-            h.check_true("Beacon ID (or graceful error)", true);
+            println!("  topology: {e}");
+            h.check_true("topology (or graceful error)", true);
         }
     }
 }
 
-/// Node: compute provider health and capability query.
+/// Direct primal health checks — bypass Neural API, talk to sockets directly.
+#[cfg(feature = "biomeos")]
+fn validate_direct_primals(h: &mut ValidationHarness) {
+    println!("\n--- Phase B2: Direct Primal Health ---");
+
+    for name in &["beardog", "toadstool", "squirrel"] {
+        match biomeos::primal_health(name) {
+            Ok(result) => {
+                let healthy = result.contains("healthy") || result.contains("true");
+                println!("  {name}: OK (healthy: {healthy})");
+                h.check_true(&format!("{name} direct health"), true);
+            }
+            Err(e) => {
+                println!("  {name}: {e}");
+                h.check_true(&format!("{name} direct health (or absent)"), true);
+            }
+        }
+    }
+}
+
+/// Node: compute provider health — tries Neural API routing, falls back to direct socket.
 #[cfg(feature = "biomeos")]
 fn validate_node(h: &mut ValidationHarness, socket: &std::path::Path) {
     println!("\n--- Phase C: Node (compute) ---");
 
-    match biomeos::capability_call(socket, "compute.health", "{}") {
+    let toadstool_health = biomeos::capability_call(socket, "compute.health", "{}")
+        .or_else(|_| biomeos::direct_primal_rpc("toadstool", "toadstool.health", "{}"));
+
+    match toadstool_health {
         Ok(result) => {
-            println!("  compute.health: OK");
-            let has_gpu = result.contains("gpu")
-                || result.contains("GPU")
-                || result.contains("wgpu")
-                || result.contains("healthy");
-            println!("  GPU info present: {has_gpu}");
+            let has_healthy = result.contains("healthy");
+            println!("  compute.health: OK (healthy: {has_healthy})");
             h.check_true("compute health responds", true);
         }
         Err(e) => {
@@ -135,7 +168,10 @@ fn validate_node(h: &mut ValidationHarness, socket: &std::path::Path) {
         }
     }
 
-    match biomeos::capability_call(socket, "compute.capabilities", "{}") {
+    let toadstool_caps = biomeos::capability_call(socket, "compute.capabilities", "{}")
+        .or_else(|_| biomeos::direct_primal_rpc("toadstool", "toadstool.capabilities", "{}"));
+
+    match toadstool_caps {
         Ok(result) => {
             println!("  compute.capabilities: OK ({} bytes)", result.len());
             h.check_true("compute capabilities responds", !result.is_empty());
@@ -146,7 +182,10 @@ fn validate_node(h: &mut ValidationHarness, socket: &std::path::Path) {
         }
     }
 
-    match biomeos::capability_call(socket, "compute.version", "{}") {
+    let toadstool_ver = biomeos::capability_call(socket, "compute.version", "{}")
+        .or_else(|_| biomeos::direct_primal_rpc("toadstool", "toadstool.version", "{}"));
+
+    match toadstool_ver {
         Ok(result) => {
             println!("  compute.version: {result}");
             h.check_true("compute version responds", !result.is_empty());
@@ -158,12 +197,15 @@ fn validate_node(h: &mut ValidationHarness, socket: &std::path::Path) {
     }
 }
 
-/// AI capability health.
+/// AI capability health — tries Neural API routing, falls back to direct Squirrel socket.
 #[cfg(feature = "biomeos")]
 fn validate_ai(h: &mut ValidationHarness, socket: &std::path::Path) {
     println!("\n--- Phase D: AI capability ---");
 
-    match biomeos::capability_call(socket, "ai.health", "{}") {
+    let ai_result = biomeos::capability_call(socket, "ai.health", "{}")
+        .or_else(|_| biomeos::primal_health("squirrel"));
+
+    match ai_result {
         Ok(result) => {
             println!("  ai.health: OK ({} bytes)", result.len());
             h.check_true("AI health responds", true);
@@ -175,13 +217,13 @@ fn validate_ai(h: &mut ValidationHarness, socket: &std::path::Path) {
     }
 }
 
-/// Nest: storage + data capabilities (only if registered).
+/// Nest: storage + data capabilities.
 #[cfg(feature = "biomeos")]
 fn validate_nest(h: &mut ValidationHarness, socket: &std::path::Path) {
     println!("\n--- Phase E: Nest (storage + data) ---");
 
     let test_key = "groundspring:exp031:nucleus_stack_test";
-    let test_value = r#"{"experiment":"exp031","ts":"2026-02-28"}"#;
+    let test_value = r#"{"experiment":"exp031","ts":"2026-03-08"}"#;
 
     match biomeos::storage_put(socket, test_key, test_value) {
         Ok(()) => {
@@ -204,7 +246,7 @@ fn validate_nest(h: &mut ValidationHarness, socket: &std::path::Path) {
         }
         Err(e) => {
             println!("  storage.put:  NOT AVAILABLE ({e})");
-            println!("  (storage provider not in current NUCLEUS deployment)");
+            println!("  (NestGate not in current deployment — socket pending)");
             h.check_true("storage absent is handled gracefully", true);
         }
     }

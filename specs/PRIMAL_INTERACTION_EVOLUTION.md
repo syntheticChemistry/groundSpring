@@ -1,6 +1,6 @@
 # Primal Interaction Evolution
 
-**Last updated**: February 28, 2026 (V0 — first live NUCLEUS interaction from groundSpring)
+**Last updated**: March 8, 2026 (V99 — live NUCLEUS with direct primal fallback)
 
 This document tracks the evolution of groundSpring's interaction with the
 ecoPrimals ecosystem through biomeOS and the NUCLEUS Neural API, mirroring
@@ -15,37 +15,47 @@ the shader evolution pattern in `CROSS_SPRING_EVOLUTION.md`.
 | V2 | Capability routing | **active** | `capability_call()` routes through biomeOS translations |
 | V3 | Data pipelines | **active** | NestGate `data.*` providers (NCBI, NOAA, IRIS) |
 | V4 | Multi-primal workflows | **active** | Exp 031 exercises Tower+Node+Nest+Squirrel |
+| V4.1 | Direct primal discovery | **active** | `discover_primals()` + `primal_health()` + `direct_primal_rpc()` |
+| V4.2 | Adaptive health | **active** | `health()` tries `neural_api.get_metrics` then `topology.metrics` |
 | V5 | Graph pipelines | planned | biomeOS graph executor for multi-step science workflows |
 | V6 | Pathway learning | planned | biomeOS learns optimal primal routing from usage patterns |
 
-## Live NUCLEUS Interaction Map (V4)
+## Live NUCLEUS Interaction Map (V4.2)
 
 ```
 groundSpring
  ├── biomeos::auto_connect()
- │   └── /run/user/1000/biomeos/neural-api.sock
+ │   └── /run/user/1000/biomeos/neural-api.sock ─── ✅ CONNECTED
  │
- ├── Tower (BearDog + Songbird)
- │   ├── topology.metrics ────── health check ................. ✅ LIVE
- │   ├── beacon.get_id ────────── beacon identity (48 bytes) .. ✅ LIVE
- │   └── crypto.hash ──────────── blake3 hash ................. ⚠  forward fails (params format)
+ ├── biomeos::discover_primals()
+ │   ├── beardog.sock ──────── ✅ 4 primals discovered
+ │   ├── songbird.sock
+ │   ├── toadstool.sock
+ │   └── squirrel.sock
  │
- ├── Node (ToadStool)
- │   ├── compute.health ───────── GPU status .................. ✅ LIVE
- │   ├── compute.capabilities ─── capability list (641 bytes) . ✅ LIVE
- │   ├── compute.version ──────── protocol version ............ ✅ LIVE
- │   └── compute.execute ──────── workload dispatch ........... ✗  not for physics (use barracuda)
+ ├── Neural API (biomeOS orchestrator)
+ │   ├── neural_api.get_metrics ──── health + system stats .... ✅ LIVE
+ │   ├── neural_api.get_topology ─── primal connections ....... ✅ LIVE
+ │   ├── neural_api.get_proprioception ── self-awareness ...... ✅ LIVE
+ │   └── capability.call ────────────── routing ............... ✗  not in this binary version
  │
- ├── Squirrel (AI)
- │   └── ai.health ────────────── AI status (150 bytes) ....... ✅ LIVE
+ ├── Direct Primal: BearDog (Security)
+ │   └── health ──────────────── crypto status ................ ✅ LIVE (v0.9.0)
  │
- ├── Nest (NestGate) — requires Nest/Full NUCLEUS mode
- │   ├── storage.put ──────────── store validation results .... ○  not registered
- │   ├── storage.get ──────────── retrieve cached data ........ ○  not registered
- │   ├── data.ncbi_search ─────── NCBI SRA queries ........... ○  not registered
- │   ├── data.noaa_ghcnd ──────── NOAA weather data .......... ○  not registered
- │   ├── data.iris_stations ───── IRIS seismic stations ....... ○  not registered
- │   └── data.iris_events ─────── IRIS earthquake events ...... ○  not registered
+ ├── Direct Primal: ToadStool (Compute)
+ │   ├── toadstool.health ───── GPU status ................... ✅ LIVE (v0.1.0)
+ │   ├── toadstool.version ──── protocol version ............. ✅ LIVE
+ │   └── compute.execute ────── workload dispatch ............ ✗  not for physics (use barracuda)
+ │
+ ├── Direct Primal: Squirrel (AI)
+ │   └── squirrel.health ────── AI bridge status ............. ✅ LIVE
+ │
+ ├── Direct Primal: Songbird (Network)
+ │   └── songbird.sock ──────── TCP :3492 + IPC .............. ✅ LIVE
+ │
+ ├── Nest (NestGate) — binary version mismatch (no `daemon` subcommand)
+ │   ├── storage.put/get ─────── not available in this deploy . ⚠  binary needs update
+ │   └── data.* providers ────── not available ................ ⚠  binary needs update
  │
  └── Sovereign Fallback
      ├── Local Anderson localization .......................... ✅ always works
@@ -109,10 +119,38 @@ Exp 031 doesn't hardcode which primals must be running — it queries
 what's available and validates each path, passing gracefully when
 a primal is absent.
 
+## V99 Key Changes (March 8, 2026)
+
+### Evolved Health Check (adaptive multi-method)
+- `health()` now tries `neural_api.get_metrics` first (current binary),
+  falls back to `topology.metrics` (future alias support).
+- Previously hard-coded to `topology.metrics` which failed against live stack.
+
+### Direct Primal Discovery
+- `discover_primals()` scans `$XDG_RUNTIME_DIR/biomeos/` for primal sockets.
+- `primal_health(name)` checks individual primals directly (not through Neural API).
+- `direct_primal_rpc(name, method, params)` bypasses Neural API routing.
+- Deduplicates tarpc/jsonrpc socket variants.
+
+### Validation Binary Evolution
+- Exp 031 now exercises both Neural API and direct primal paths.
+- Phase B2 (Direct Primal Health) validates BearDog, ToadStool, Squirrel directly.
+- Phase C/D fall back to direct primal calls when `capability.call` is unavailable.
+
+### Live NUCLEUS Results (Full mode, Family ID `8ff3b864a4bc589a`)
+- 4 primals discovered: beardog, songbird, toadstool, squirrel
+- Neural API: 3/3 methods respond (metrics, topology, proprioception)
+- Direct health: 3/3 primals healthy (beardog v0.9.0, toadstool v0.1.0, squirrel)
+- NestGate: binary version mismatch (no `daemon` subcommand) — needs P1 rebuild
+- 40/40 NUCLEUS experiment checks PASS (Exp 029, 030, 031, 032)
+- 936 unit/integration tests PASS (0 fail, `--features biomeos`)
+
 ## Next Steps
 
-- [ ] Start NUCLEUS in Nest or Full mode to exercise NestGate storage/data
-- [ ] Test BearDog crypto with correct params format for blake3_hash
-- [ ] Wire Exp 029/030 sovereign data to also cache results via NestGate when live
+- [ ] Update NestGate binary to version with `daemon` subcommand (P1)
+- [ ] Wire Exp 029/030 to cache results via NestGate when live
+- [ ] Test `capability.call` after Neural API binary update (P2)
+- [ ] Register groundSpring capabilities once Neural API supports it
 - [ ] Create biomeOS graph pipeline for science workflows (Phase V5)
 - [ ] Measure and record interaction latencies for pathway learning (Phase V6)
+- [ ] Cross-spring NUCLEUS experiments (wetSpring diversity × groundSpring noise)
