@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: March 7, 2026
-**Status**: V97 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 102 delegations (61 CPU + 41 GPU) — 936 workspace tests, 382 provenance tests, 187 metalForge checks, 35 experiments, 34 modules. Runtime f64 reduction smoke test + three-tier parity proven: 29/29 validation binaries PASS at default CPU, barracuda-CPU, and barracuda-GPU tiers
+**Status**: V98 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 102 delegations (61 CPU + 41 GPU) — 936 workspace tests, 382 provenance tests, 187 metalForge checks, 35 experiments, 34 modules. Runtime f64 reduction smoke test + three-tier parity proven: 29/29 validation binaries PASS at default CPU, barracuda-CPU, and barracuda-GPU tiers
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -49,7 +49,7 @@
 | Exp 030 | Real NCBI 16S — rare biosphere detection on real/synthetic NCBI metagenomes (NUCLEUS) |
 | Exp 031 | NUCLEUS Stack — full primal validation: Tower + Node + Squirrel + Nest |
 | Exp 032 | IRIS Seismic — IRIS FDSN station geometry + travel times via NestGate (NUCLEUS) |
-| Barracuda | 102 delegations (61 CPU + 41 GPU) — barraCuda `2a6c072`. GPU grid adapters + batch APIs. 187 metalForge checks. PrecisionRoutingAdvice wired |
+| Barracuda | 102 delegations (61 CPU + 41 GPU) — barraCuda `a898dee`. GPU grid adapters + batch APIs. 187 metalForge checks. PrecisionRoutingAdvice wired |
 | NUCLEUS | biomeOS Neural API live: Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) |
 | Performance | 11.5× faster than Python (excl. LAPACK-bound); 5.1× overall |
 | Faculty | Bazavov, Waters, Liu, Kachkovskiy, R. Anderson, Dolson, Gonzales |

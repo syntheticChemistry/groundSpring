@@ -4,6 +4,25 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V98 Upstream Rewire — barraCuda `a898dee` + toadStool S130+ + coralReef Iteration 10 (Mar 8, 2026)
+
+#### Upstream Pin Updates
+- barraCuda `2a6c072` → `a898dee` (deep debt: typed errors, named constants, test resilience, lint compliance)
+- toadStool S130 (`88a545df`) → S130+ (`bfe7977b`, clippy pedantic clean, unsafe audit, dependency audit, spring sync — all 5 springs confirm zero API breakage)
+- coralReef Iteration 7 (`72e6d13`) → Iteration 10 (`d29a734`, AMD E2E GPU dispatch verified, conditional branch fix in `translate_if` + multi-pred RA merge — unlocks f64 shared-memory reduction shaders via sovereign path)
+
+#### Validation
+- 936 tests, 0 failed (unchanged — no API breakage)
+- Clippy pedantic + nursery: 0 warnings
+- 29/29 validation binaries PASS (barracuda-GPU)
+- 140 metalForge tests PASS
+- Three-tier parity intact
+
+#### Significance
+- coralReef Iteration 10 fixes the conditional branch + register allocation bug that prevented f64 workgroup shared-memory reduction shaders from compiling to native SM70/SM89 binaries. Shaders like `sum_reduce_f64.wgsl`, `chi_squared_f64.wgsl`, `softmax_f64.wgsl` now compile via the coralReef sovereign path when coralReef is running
+- barraCuda's deep debt introduces typed errors and named constants — cleaner error handling downstream
+- toadStool's spring sync confirms zero API breakage for all 5 springs against S130+
+
 ### V97 GPU Smoke Test + Three-Tier Parity Proven (Mar 7, 2026)
 
 #### GPU Precision Routing — Runtime Verification

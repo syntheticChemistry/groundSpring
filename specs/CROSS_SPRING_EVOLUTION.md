@@ -1,6 +1,6 @@
 # Cross-Spring Shader Evolution
 
-**Last updated**: March 7, 2026 (V97 — 102 active delegations (61 CPU + 41 GPU), 936 Rust workspace tests, three-tier parity proven: 29/29 at all 3 tiers)
+**Last updated**: March 7, 2026 (V98 — 102 active delegations (61 CPU + 41 GPU), 936 Rust workspace tests, three-tier parity proven: 29/29 at all 3 tiers)
 
 The ecoPrimals shader ecosystem evolved organically as each spring
 absorbed domain-specific knowledge, then shared it through barraCuda

@@ -5,7 +5,7 @@ See [CONTROL_EXPERIMENT_STATUS.md](CONTROL_EXPERIMENT_STATUS.md) for the current
 
 > **Note**: V75+ runs are documented in CHANGELOG.md and per-version handoffs
 > in `wateringHole/handoffs/`. This log covers the structured run format used
-> through V74. Current status: V97, 936 tests, 395/395 checks, 102 delegations.
+> through V74. Current status: V98, 936 tests, 395/395 checks, 102 delegations.
 
 ## Run Log
 

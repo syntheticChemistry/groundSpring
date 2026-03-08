@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 7, 2026 (V97)
+**Last Updated**: March 8, 2026 (V98)
 
 ## What This Is
 
@@ -18,7 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V97 GPU Smoke Test | [GROUNDSPRING_V97_GPU_SMOKE_TEST_HANDOFF_MAR07_2026.md](handoffs/GROUNDSPRING_V97_GPU_SMOKE_TEST_HANDOFF_MAR07_2026.md) | Mar 7, 2026 | Runtime f64 reduction smoke test, three-tier parity proven (29/29 at all 3 tiers), 936 tests, 102 delegations, P0 GpuDriverProfile fix request |
+| V98 Upstream Rewire | [GROUNDSPRING_V98_UPSTREAM_REWIRE_HANDOFF_MAR08_2026.md](handoffs/GROUNDSPRING_V98_UPSTREAM_REWIRE_HANDOFF_MAR08_2026.md) | Mar 8, 2026 | barraCuda `a898dee`, toadStool S130+ (`bfe7977b`), coralReef Iteration 10 (`d29a734`), 936 tests, 102 delegations, three-tier parity intact |
 
 ## Cross-Spring Documentation
 
@@ -38,6 +38,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | Scope |
 |---------|-------|
+| V97 GPU Smoke Test | Runtime f64 reduction smoke test, three-tier parity 29/29, 936 tests, P0 GpuDriverProfile fix request (superseded by V98) |
 | V96 Upstream Rewire | PrecisionRoutingAdvice wired, barraCuda `2a6c072`, toadStool S130, coralReef Iter 7, 925 tests, 102 delegations (superseded by V97) |
 | V95 coralReef Breakthrough | 907 tests, 102 delegations, coralReef Phase 11, sovereign GPU dispatch on Titan V, push buffer encoding fixed (superseded by V96) |
 | V94 Evolution | 907 tests, 102 delegations, Shannon delegation, CorrelationFull API evolution, coralReef Phase 10 (superseded by V95) |
