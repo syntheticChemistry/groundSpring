@@ -28,6 +28,31 @@ pub struct BootstrapResult {
     pub std_error: f64,
 }
 
+/// Validate common bootstrap preconditions.
+///
+/// `min_len` is the minimum data length (1 for mean/median/RAWR, 2 for std).
+fn validate_bootstrap_inputs(data: &[f64], min_len: usize, confidence: f64) {
+    assert!(
+        data.len() >= min_len,
+        "data must have at least {min_len} element(s)"
+    );
+    assert!(
+        (0.0..1.0).contains(&(1.0 - confidence)),
+        "confidence must be in (0, 1)"
+    );
+}
+
+/// Map a barracuda `BootstrapCI` to our `BootstrapResult`.
+#[cfg(feature = "barracuda")]
+const fn from_barracuda_ci(ci: &barracuda::stats::bootstrap::BootstrapCI) -> BootstrapResult {
+    BootstrapResult {
+        estimate: ci.estimate,
+        ci_lower: ci.lower,
+        ci_upper: ci.upper,
+        std_error: ci.std_error,
+    }
+}
+
 /// Standard percentile bootstrap confidence interval for the mean.
 ///
 /// When `barracuda-gpu` is enabled, dispatches via `BootstrapMeanGpu`
@@ -54,11 +79,7 @@ pub fn bootstrap_mean(
     confidence: f64,
     seed: u64,
 ) -> BootstrapResult {
-    assert!(!data.is_empty(), "data must not be empty");
-    assert!(
-        (0.0..1.0).contains(&(1.0 - confidence)),
-        "confidence must be in (0, 1)"
-    );
+    validate_bootstrap_inputs(data, 1, confidence);
 
     #[cfg(feature = "barracuda-gpu")]
     {
@@ -70,12 +91,7 @@ pub fn bootstrap_mean(
     #[cfg(feature = "barracuda")]
     {
         if let Ok(ci) = barracuda::stats::bootstrap_mean(data, n_replicates, confidence, seed) {
-            return BootstrapResult {
-                estimate: ci.estimate,
-                ci_lower: ci.lower,
-                ci_upper: ci.upper,
-                std_error: ci.std_error,
-            };
+            return from_barracuda_ci(&ci);
         }
     }
 
@@ -138,21 +154,12 @@ fn bootstrap_mean_cpu(
 /// Panics if `data` is empty or `confidence` is outside (0, 1).
 #[must_use]
 pub fn rawr_mean(data: &[f64], n_replicates: usize, confidence: f64, seed: u64) -> BootstrapResult {
-    assert!(!data.is_empty(), "data must not be empty");
-    assert!(
-        (0.0..1.0).contains(&(1.0 - confidence)),
-        "confidence must be in (0, 1)"
-    );
+    validate_bootstrap_inputs(data, 1, confidence);
 
     #[cfg(feature = "barracuda")]
     {
         if let Ok(ci) = barracuda::stats::rawr_mean(data, n_replicates, confidence, seed) {
-            return BootstrapResult {
-                estimate: ci.estimate,
-                ci_lower: ci.lower,
-                ci_upper: ci.upper,
-                std_error: ci.std_error,
-            };
+            return from_barracuda_ci(&ci);
         }
     }
 
@@ -204,21 +211,12 @@ pub fn bootstrap_median(
     confidence: f64,
     seed: u64,
 ) -> BootstrapResult {
-    assert!(!data.is_empty(), "data must not be empty");
-    assert!(
-        (0.0..1.0).contains(&(1.0 - confidence)),
-        "confidence must be in (0, 1)"
-    );
+    validate_bootstrap_inputs(data, 1, confidence);
 
     #[cfg(feature = "barracuda")]
     {
         if let Ok(ci) = barracuda::stats::bootstrap_median(data, n_replicates, confidence, seed) {
-            return BootstrapResult {
-                estimate: ci.estimate,
-                ci_lower: ci.lower,
-                ci_upper: ci.upper,
-                std_error: ci.std_error,
-            };
+            return from_barracuda_ci(&ci);
         }
     }
 
@@ -276,21 +274,12 @@ pub fn bootstrap_std(
     confidence: f64,
     seed: u64,
 ) -> BootstrapResult {
-    assert!(data.len() >= 2, "need at least 2 data points for std");
-    assert!(
-        (0.0..1.0).contains(&(1.0 - confidence)),
-        "confidence must be in (0, 1)"
-    );
+    validate_bootstrap_inputs(data, 2, confidence);
 
     #[cfg(feature = "barracuda")]
     {
         if let Ok(ci) = barracuda::stats::bootstrap_std(data, n_replicates, confidence, seed) {
-            return BootstrapResult {
-                estimate: ci.estimate,
-                ci_lower: ci.lower,
-                ci_upper: ci.upper,
-                std_error: ci.std_error,
-            };
+            return from_barracuda_ci(&ci);
         }
     }
 

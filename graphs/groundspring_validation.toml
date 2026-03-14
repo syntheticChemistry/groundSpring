@@ -2,7 +2,7 @@
 # Used by biomeOS to orchestrate Anderson localization validation
 # through the primal ecosystem: groundSpring (science) → ToadStool (GPU) → NestGate (provenance)
 #
-# STATUS: V100 (March 14, 2026) — barraCuda v0.3.5
+# STATUS: V101 (March 14, 2026) — barraCuda v0.3.5
 # Requires: Tower (BearDog + Songbird) + ToadStool (GPU compute, f64-capable)
 # Optional: NestGate (provenance storage), metalForge (hardware dispatch)
 #
@@ -16,7 +16,7 @@ coordination = "Sequential"
 [graph.metadata]
 toadstool_pin = "S130+"
 toadstool_commit = "bfe7977b"
-groundspring_version = "V100"
+groundspring_version = "V101"
 target_node = "eastgate"
 
 # ═══════════════════════════════════════════════════════════════════════════════

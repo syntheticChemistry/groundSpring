@@ -3,9 +3,9 @@
 **Purpose**: Per-faculty research briefings for groundSpring noise characterization
 reproductions and extensions.
 
-**Last Updated**: March 7, 2026
+**Last Updated**: March 14, 2026
 
-**Validation Summary**: V100 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10**. 908 default-feature tests (936 across all feature gates) + 287 Python provenance tests. All 35 experiments PASS. **29/29 mathematical parity proven**. `PrecisionRoutingAdvice` wired into 21 GPU dispatch paths via `get_device_f64_safe()`. Zero clippy warnings (pedantic + nursery), zero unsafe, zero TODO, zero `.unwrap()` in production, all files < 1000 lines. 30 benchmark workloads. Cross-spring shader evolution documented. 10 domains, 34 modules. Live NUCLEUS integration (V99). Deep debt audit clean (V100).
+**Validation Summary**: V101 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10**. 908 default-feature tests (936 across all feature gates) + 287 Python provenance tests. All 35 experiments PASS. **29/29 mathematical parity proven**. `PrecisionRoutingAdvice` wired into 21 GPU dispatch paths via `get_device_f64_safe()`. Zero clippy warnings (pedantic + nursery), zero unsafe, zero TODO, zero `.unwrap()` in production, all files < 1000 lines. 30 benchmark workloads. Cross-spring shader evolution documented. 10 domains, 34 modules. Live NUCLEUS integration (V99). Deep debt audit clean (V100).
 
 ---
 

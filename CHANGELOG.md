@@ -4,6 +4,34 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V101 Deep Debt Evolution + DRY + Capability-Based Discovery (Mar 14, 2026)
+
+#### Code evolution
+- Fixed barracuda `ESNConfig` API drift — struct update syntax (`..Default::default()`) absorbs new SGD fields
+- Extracted `chi2_freeze_out()` shared helper in `freeze_out.rs` — 4 copies → 1 (−17 lines)
+- Extracted `r_squared_from_residuals()` in `stats/regression.rs` — 3 copies → 1 (−17 lines)
+- Extracted `validate_bootstrap_inputs()` and `const fn from_barracuda_ci()` in `bootstrap.rs` — 4 copies → 1 each (−12 lines)
+- Net −52 lines across 8 files; zero behavioral change
+
+#### Primal sovereignty
+- `validate_nucleus_stack.rs`: replaced hardcoded `["beardog", "toadstool", "squirrel"]` with `biomeos::discover_primals()` runtime discovery
+- `validate_node`: removed hardcoded `"toadstool"` direct RPC fallbacks — pure capability-based routing
+- `validate_ai`: removed hardcoded `"squirrel"` fallback — pure capability routing via `ai.health`
+- `biomeos/mod.rs`: removed primal names from API doc comments — agnostic "compute provider" language
+
+#### Documentation
+- Enhanced `validate_weather.rs` provenance table documenting mathematical identity behind each analytical check
+- Added tolerance margin note to `validate_et0_methods.rs` `TOL_ET0` constant
+- Updated all stale version references: V98/V97→V101 across specs/, whitePaper/, CONTROL_EXPERIMENT_STATUS
+- Aligned test counts to canonical 908 default-feature (936 across features) + 287 Python across all docs
+- Crafted V101 toadStool/barraCuda absorption handoff
+
+#### Verification
+- `cargo fmt --all -- --check`: PASS
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings`: PASS (0 warnings)
+- `cargo doc --workspace --all-features --no-deps`: PASS (0 warnings)
+- `cargo test --workspace`: 908/908 PASS
+
 ### V100 Deep Debt Audit + Documentation Sync (Mar 14, 2026)
 
 #### Build & CI

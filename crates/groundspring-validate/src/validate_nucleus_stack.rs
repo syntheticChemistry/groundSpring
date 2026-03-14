@@ -128,12 +128,20 @@ fn validate_tower(h: &mut ValidationHarness, socket: &std::path::Path) {
     }
 }
 
-/// Direct primal health checks — bypass Neural API, talk to sockets directly.
+/// Direct primal health checks — discovered at runtime, not hardcoded.
 #[cfg(feature = "biomeos")]
 fn validate_direct_primals(h: &mut ValidationHarness) {
     println!("\n--- Phase B2: Direct Primal Health ---");
 
-    for name in &["beardog", "toadstool", "squirrel"] {
+    let primals = biomeos::discover_primals();
+    if primals.is_empty() {
+        println!("  No primals discovered — skipping direct health");
+        h.check_true("No primals discovered (graceful)", true);
+        return;
+    }
+
+    for primal in &primals {
+        let name = &primal.name;
         match biomeos::primal_health(name) {
             Ok(result) => {
                 let healthy = result.contains("healthy") || result.contains("true");
@@ -148,64 +156,34 @@ fn validate_direct_primals(h: &mut ValidationHarness) {
     }
 }
 
-/// Node: compute provider health — tries Neural API routing, falls back to direct socket.
+/// Node: compute capability health — routed through Neural API capabilities.
+///
+/// Uses capability-based routing exclusively. No hardcoded primal names —
+/// whatever primal provides `compute.*` will answer.
 #[cfg(feature = "biomeos")]
 fn validate_node(h: &mut ValidationHarness, socket: &std::path::Path) {
     println!("\n--- Phase C: Node (compute) ---");
 
-    let toadstool_health = biomeos::capability_call(socket, "compute.health", "{}")
-        .or_else(|_| biomeos::direct_primal_rpc("toadstool", "toadstool.health", "{}"));
-
-    match toadstool_health {
-        Ok(result) => {
-            let has_healthy = result.contains("healthy");
-            println!("  compute.health: OK (healthy: {has_healthy})");
-            h.check_true("compute health responds", true);
-        }
-        Err(e) => {
-            println!("  compute.health: {e}");
-            h.check_true("compute health (or graceful error)", true);
-        }
-    }
-
-    let toadstool_caps = biomeos::capability_call(socket, "compute.capabilities", "{}")
-        .or_else(|_| biomeos::direct_primal_rpc("toadstool", "toadstool.capabilities", "{}"));
-
-    match toadstool_caps {
-        Ok(result) => {
-            println!("  compute.capabilities: OK ({} bytes)", result.len());
-            h.check_true("compute capabilities responds", !result.is_empty());
-        }
-        Err(e) => {
-            println!("  compute.capabilities: {e}");
-            h.check_true("compute capabilities (or graceful error)", true);
-        }
-    }
-
-    let toadstool_ver = biomeos::capability_call(socket, "compute.version", "{}")
-        .or_else(|_| biomeos::direct_primal_rpc("toadstool", "toadstool.version", "{}"));
-
-    match toadstool_ver {
-        Ok(result) => {
-            println!("  compute.version: {result}");
-            h.check_true("compute version responds", !result.is_empty());
-        }
-        Err(e) => {
-            println!("  compute.version: {e}");
-            h.check_true("compute version (or graceful error)", true);
+    for method in &["compute.health", "compute.capabilities", "compute.version"] {
+        match biomeos::capability_call(socket, method, "{}") {
+            Ok(result) => {
+                println!("  {method}: OK ({} bytes)", result.len());
+                h.check_true(&format!("{method} responds"), !result.is_empty());
+            }
+            Err(e) => {
+                println!("  {method}: {e}");
+                h.check_true(&format!("{method} (or graceful error)"), true);
+            }
         }
     }
 }
 
-/// AI capability health — tries Neural API routing, falls back to direct Squirrel socket.
+/// AI capability health — routed through Neural API capability system.
 #[cfg(feature = "biomeos")]
 fn validate_ai(h: &mut ValidationHarness, socket: &std::path::Path) {
     println!("\n--- Phase D: AI capability ---");
 
-    let ai_result = biomeos::capability_call(socket, "ai.health", "{}")
-        .or_else(|_| biomeos::primal_health("squirrel"));
-
-    match ai_result {
+    match biomeos::capability_call(socket, "ai.health", "{}") {
         Ok(result) => {
             println!("  ai.health: OK ({} bytes)", result.len());
             h.check_true("AI health responds", true);

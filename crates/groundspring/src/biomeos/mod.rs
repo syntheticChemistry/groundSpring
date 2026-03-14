@@ -204,16 +204,16 @@ pub fn storage_get(socket: &Path, key: &str) -> Result<String> {
 
 // ─── Compute Dispatch ────────────────────────────────────────────────────────
 
-/// Dispatch a computation through `ToadStool` via `compute.execute`.
+/// Dispatch a computation via `compute.execute` capability routing.
 ///
 /// The `op` field names the operation (e.g. `"lyapunov_averaged"`).
 /// Additional fields in `params_json` carry the operation-specific arguments.
-///
-/// Returns the raw result string from `ToadStool`.
+/// biomeOS routes to whichever primal provides the `compute` capability.
 ///
 /// # Errors
 ///
-/// Returns `Err` if biomeOS is unavailable or `ToadStool` rejects the request.
+/// Returns `Err` if biomeOS is unavailable or the compute provider rejects
+/// the request.
 pub fn compute_execute(socket: &Path, op: &str, params_json: &str) -> Result<String> {
     let mut args: Value = serde_json::from_str(params_json)
         .map_err(|e| BiomeOsError(format!("invalid compute params: {e}")))?;
@@ -223,7 +223,7 @@ pub fn compute_execute(socket: &Path, op: &str, params_json: &str) -> Result<Str
 
 /// Submit a compute job asynchronously via `compute.submit`.
 ///
-/// Returns a job ID or status from `ToadStool`.
+/// Returns a job ID or status from the compute provider.
 ///
 /// # Errors
 ///
@@ -382,7 +382,7 @@ pub fn raw_rpc_call(socket: &Path, request: &str) -> Result<String> {
 /// A primal socket discovered in the biomeOS socket directory.
 #[derive(Debug, Clone)]
 pub struct DiscoveredPrimal {
-    /// Primal name derived from socket filename (e.g. `"beardog"`, `"toadstool"`).
+    /// Primal name derived from socket filename at runtime.
     pub name: String,
     /// Path to the primal's Unix domain socket.
     pub socket: std::path::PathBuf,

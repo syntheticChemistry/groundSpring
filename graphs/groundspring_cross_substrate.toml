@@ -2,7 +2,7 @@
 # Validates mathematical parity across CPU, GPU, and NPU substrates
 # using metalForge dispatch and NUCLEUS atomic coordination.
 #
-# STATUS: V100 (March 14, 2026) — barraCuda v0.3.5
+# STATUS: V101 (March 14, 2026) — barraCuda v0.3.5
 # Atomic: Node (Tower + ToadStool) — requires GPU compute (f64-capable device)
 # Optional: Nest (Tower + NestGate) — provenance storage
 #
@@ -17,7 +17,7 @@ coordination = "Sequential"
 [graph.metadata]
 toadstool_pin = "S130+"
 toadstool_commit = "bfe7977b"
-groundspring_version = "V100"
+groundspring_version = "V101"
 target_node = "eastgate"
 
 # ═══════════════════════════════════════════════════════════════════════════════

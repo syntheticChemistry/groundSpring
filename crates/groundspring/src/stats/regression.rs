@@ -143,6 +143,26 @@ pub fn fit_quadratic(xs: &[f64], ys: &[f64]) -> Option<NonlinearFit> {
     fit_quadratic_cpu(xs, ys)
 }
 
+/// Coefficient of determination from actual and predicted values.
+///
+/// Shared by quadratic, exponential, and logarithmic fits to avoid
+/// repeating the `ss_tot` / `ss_res` computation in each model.
+fn r_squared_from_residuals(ys: &[f64], predictions: impl Iterator<Item = f64>) -> f64 {
+    let n_f = usize_f64(ys.len());
+    let y_mean = ys.iter().sum::<f64>() / n_f;
+    let ss_tot: f64 = ys.iter().map(|&y| (y - y_mean).powi(2)).sum();
+    let ss_res: f64 = ys
+        .iter()
+        .zip(predictions)
+        .map(|(&y, pred)| (y - pred).powi(2))
+        .sum();
+    if ss_tot > 0.0 {
+        1.0 - ss_res / ss_tot
+    } else {
+        1.0
+    }
+}
+
 /// Below this threshold, Cramer's rule treats the system as singular.
 const SINGULARITY_THRESHOLD: f64 = 1e-30;
 
@@ -193,21 +213,8 @@ fn fit_quadratic_cpu(xs: &[f64], ys: &[f64]) -> Option<NonlinearFit> {
     let rhs = [sx2y, sxy, sy];
     let [a, b, c] = cramer3(m, rhs)?;
 
-    let y_mean = sy / n;
-    let ss_tot: f64 = ys.iter().map(|&y| (y - y_mean).powi(2)).sum();
-    let ss_res: f64 = xs
-        .iter()
-        .zip(ys)
-        .map(|(&x, &y)| {
-            let pred = a.mul_add(x * x, b.mul_add(x, c));
-            (y - pred).powi(2)
-        })
-        .sum();
-    let r_squared = if ss_tot > 0.0 {
-        1.0 - ss_res / ss_tot
-    } else {
-        1.0
-    };
+    let r_squared =
+        r_squared_from_residuals(ys, xs.iter().map(|&x| a.mul_add(x * x, b.mul_add(x, c))));
 
     Some(NonlinearFit {
         model: "quadratic",
@@ -266,21 +273,7 @@ fn fit_exponential_cpu(xs: &[f64], ys: &[f64]) -> Option<NonlinearFit> {
     let a = lin.intercept.exp();
 
     let yv: Vec<f64> = valid.iter().map(|&(_, y)| y).collect();
-    let y_mean: f64 = yv.iter().sum::<f64>() / usize_f64(yv.len());
-    let ss_tot: f64 = yv.iter().map(|&y| (y - y_mean).powi(2)).sum();
-    let ss_res: f64 = xv
-        .iter()
-        .zip(&yv)
-        .map(|(&x, &y)| {
-            let pred = a * (b * x).exp();
-            (y - pred).powi(2)
-        })
-        .sum();
-    let r_squared = if ss_tot > 0.0 {
-        1.0 - ss_res / ss_tot
-    } else {
-        1.0
-    };
+    let r_squared = r_squared_from_residuals(&yv, xv.iter().map(|&x| a * (b * x).exp()));
 
     Some(NonlinearFit {
         model: "exponential",
@@ -338,17 +331,7 @@ fn fit_logarithmic_cpu(xs: &[f64], ys: &[f64]) -> Option<NonlinearFit> {
     let a = lin.slope;
     let b = lin.intercept;
 
-    let y_mean: f64 = yv.iter().sum::<f64>() / usize_f64(yv.len());
-    let ss_tot: f64 = yv.iter().map(|&y| (y - y_mean).powi(2)).sum();
-    let ss_res: f64 = valid
-        .iter()
-        .map(|&(x, y)| (y - a.mul_add(x.ln(), b)).powi(2))
-        .sum();
-    let r_squared = if ss_tot > 0.0 {
-        1.0 - ss_res / ss_tot
-    } else {
-        1.0
-    };
+    let r_squared = r_squared_from_residuals(&yv, valid.iter().map(|&(x, _)| a.mul_add(x.ln(), b)));
 
     Some(NonlinearFit {
         model: "logarithmic",

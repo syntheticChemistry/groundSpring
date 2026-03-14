@@ -141,6 +141,7 @@ impl EsnClassifier {
             leak_rate: 0.3,
             regularization: 1e-6,
             seed,
+            ..barracuda::esn_v2::ESNConfig::default()
         };
         let esn = barracuda::device::test_pool::tokio_block_on(barracuda::esn_v2::ESN::new(config))
             .map_err(|e| format!("ESN init failed: {e}"))?;

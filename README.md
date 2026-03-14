@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
-**Date**: March 8, 2026 | **License**: AGPL-3.0-only
-**Status**: V100 — 34 modules, 35 experiments, 908 default-feature Rust tests (936 across all feature gates) + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda v0.3.5, toadStool S130+ (`bfe7977b`), coralReef Iteration 10 (`d29a734`). **Three-tier parity proven**: 29/29 validation binaries PASS at all three tiers. **Live NUCLEUS** (V99): adaptive health, direct primal discovery. **Deep debt audit** (V100): build fix, silent fallback elimination, tolerance provenance, capability-based health
+**Date**: March 14, 2026 | **License**: AGPL-3.0-only
+**Status**: V101 — 34 modules, 35 experiments, 908 default-feature Rust tests (936 across all feature gates) + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda v0.3.5, toadStool S130+ (`bfe7977b`), coralReef Iteration 10 (`d29a734`). **Three-tier parity proven**: 29/29 validation binaries PASS at all three tiers. **Live NUCLEUS** (V99): adaptive health, direct primal discovery. **Deep debt + evolution** (V101): ESNConfig upstream sync, DRY extraction (chi², R², bootstrap), capability-based primal discovery, hardcoded primal names eliminated, provenance documentation
 
 **The gap between what models predict and what instruments measure.**
 
@@ -364,7 +364,7 @@ groundSpring/
 │   └── shaders/                    # Production WGSL shaders for ToadStool absorption
 ├── graphs/                         # biomeOS pipeline graphs (Tower bootstrap, Node, cross-substrate)
 ├── .github/workflows/ci.yml        # GitHub Actions CI
-├── wateringHole/                   # Handoff directory (V98 current)
+├── wateringHole/                   # Handoff directory (V101 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md      # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md   # GPU kernel gap analysis

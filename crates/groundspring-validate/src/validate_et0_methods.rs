@@ -36,6 +36,7 @@ const BENCHMARK: &str = include_str!("../../../control/et0_methods/benchmark_et0
 /// Provenance: `control/et0_methods/et0_methods.py` (commit `a29480fd`,
 /// 2026-03-05) — `python3 control/et0_methods/et0_methods.py`.
 /// Observed max delta: PM 0.002, HG 0.004, MK 0.001, TU 0.001, HA 0.001.
+/// 0.005 provides 1.25× margin over worst case (Hargreaves 0.004).
 const TOL_ET0: f64 = 0.005;
 
 /// Build the reference-site weather input from the benchmark JSON.

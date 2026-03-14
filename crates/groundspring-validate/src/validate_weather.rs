@@ -8,8 +8,21 @@
 //! intentional: the goal is to verify stat primitives (hit rate, RMSE,
 //! MBE, R², IA, decompose) against exact mathematical identities.
 //!
-//! Provenance: expected values are derivable from the input arrays by
-//! inspection (e.g. constant +2 °C bias ⟹ MBE = 2.0, RMSE = 2.0).
+//! # Provenance
+//!
+//! Expected values are derivable by inspection from the constructed
+//! input arrays — they are mathematical identities, not empirical:
+//!
+//! | Check | Identity | Source |
+//! |---|---|---|
+//! | Hit rate = 0.75 | 6/8 wet-day agreement | `[0,5,0,3,0,12,0,0]` vs `[0,4,0,0,0.2,10,0,0]` |
+//! | RMSE = 2.0, MBE = 2.0 | constant +2 °C bias | `mod = obs + 2.0` ⟹ RMSE = |bias| |
+//! | `bias_fraction` ≈ 1.0 | all error is systematic | `decompose(2.0, 2.0)` |
+//! | R² > 0.95 | shape preserved | constant offset ⟹ near-perfect R² |
+//!
+//! Benchmark JSON (`benchmark_observation_gap.json`) provides acceptance
+//! thresholds sourced from published ERA5 validation literature; the
+//! synthetic parity chain in Part 2 closes the JSON→Rust loop.
 
 use groundspring::decompose::decompose_error;
 use groundspring::stats;

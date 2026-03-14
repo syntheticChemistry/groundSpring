@@ -6,7 +6,7 @@
 # Tower provides secure inter-primal communication (BearDog encryption,
 # Songbird TLS). ToadStool provides barracuda GPU dispatch.
 #
-# STATUS: V100 (March 14, 2026) — barraCuda v0.3.5
+# STATUS: V101 (March 14, 2026) — barraCuda v0.3.5
 # Atomic: Node (Tower + ToadStool)
 # Experiments: 32 (347 validation checks)
 # Substrates: CPU (reference) + GPU (barracuda dispatch, f64-capable device)
@@ -20,7 +20,7 @@ coordination = "Parallel"
 [graph.metadata]
 toadstool_pin = "S130+"
 toadstool_commit = "bfe7977b"
-groundspring_version = "V100"
+groundspring_version = "V101"
 target_node = "eastgate"
 
 # ═══════════════════════════════════════════════════════════════════════════════

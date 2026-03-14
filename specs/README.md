@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
-**Last Updated**: March 7, 2026
-**Status**: V98 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 102 delegations (61 CPU + 41 GPU) — 936 workspace tests, 382 provenance tests, 187 metalForge checks, 35 experiments, 34 modules. Runtime f64 reduction smoke test + three-tier parity proven: 29/29 validation binaries PASS at default CPU, barracuda-CPU, and barracuda-GPU tiers
+**Last Updated**: March 14, 2026
+**Status**: V101 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 102 delegations (61 CPU + 41 GPU) — 908 default-feature tests (936 across all feature gates), 287 Python tests, 140 metalForge checks, 35 experiments, 34 modules. Runtime f64 reduction smoke test + three-tier parity proven: 29/29 validation binaries PASS at default CPU, barracuda-CPU, and barracuda-GPU tiers
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -15,7 +15,7 @@
 | Phase 4 (NUCLEUS) | 55/55 PASS — 4 NUCLEUS validation binaries (Exp 029–032) |
 | Total Validation | 395/395 PASS across 34 experiments |
 | Mathematical Parity | 28/28 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
-| Rust tests | 925 workspace + 261 Python = 1186+ total |
+| Rust tests | 908 default-feature (936 across all feature gates) + 287 Python = 1195+ total |
 | metalForge | 2 production WGSL shaders (anderson_lyapunov, anderson_lyapunov_f32) |
 | Exp 001 | Sensor noise decomposition — EC5 bias-dominated, CS616 mixed |
 | Exp 002 | Observation gap ERA5 vs station — methodology validated |
@@ -49,7 +49,7 @@
 | Exp 030 | Real NCBI 16S — rare biosphere detection on real/synthetic NCBI metagenomes (NUCLEUS) |
 | Exp 031 | NUCLEUS Stack — full primal validation: Tower + Node + Squirrel + Nest |
 | Exp 032 | IRIS Seismic — IRIS FDSN station geometry + travel times via NestGate (NUCLEUS) |
-| Barracuda | 102 delegations (61 CPU + 41 GPU) — barraCuda `a898dee`. GPU grid adapters + batch APIs. 187 metalForge checks. PrecisionRoutingAdvice wired |
+| Barracuda | 102 delegations (61 CPU + 41 GPU) — barraCuda v0.3.5. GPU grid adapters + batch APIs. 140 metalForge checks. PrecisionRoutingAdvice wired |
 | NUCLEUS | biomeOS Neural API live: Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) |
 | Performance | 11.5× faster than Python (excl. LAPACK-bound); 5.1× overall |
 | Faculty | Bazavov, Waters, Liu, Kachkovskiy, R. Anderson, Dolson, Gonzales |

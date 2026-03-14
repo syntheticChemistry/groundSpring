@@ -126,6 +126,19 @@ pub fn chi_squared_per_dof(chi2: f64, n_data: usize, n_params: usize) -> f64 {
     chi2 / usize_f64(n_data - n_params)
 }
 
+/// Chi-squared for the freeze-out model at a single (T₀, κ₂) point.
+///
+/// Shared by grid search (CPU and GPU), L-BFGS refinement, and
+/// Nelder-Mead multi-start — avoids four copies of the same loop.
+#[inline]
+fn chi2_freeze_out(observed: &[f64], mu_b: &[f64], t0: f64, k2: f64, inv_sigma2: f64) -> f64 {
+    observed
+        .iter()
+        .zip(mu_b.iter())
+        .map(|(&o, &mu)| (o - freeze_out_curve(t0, k2, mu)).powi(2) * inv_sigma2)
+        .sum()
+}
+
 /// 2D grid search over (T₀, κ₂) minimizing chi-squared.
 ///
 /// Evaluates the freeze-out model on a regular grid and returns the
@@ -191,15 +204,7 @@ fn lbfgs_refine_barracuda(
     let observed = config.observed;
     let mu_b = config.mu_b;
 
-    let objective = |x: &[f64]| -> f64 {
-        let t0 = x[0];
-        let k2 = x[1];
-        observed
-            .iter()
-            .zip(mu_b.iter())
-            .map(|(&o, &mu)| (o - freeze_out_curve(t0, k2, mu)).powi(2) * inv_sigma2)
-            .sum()
-    };
+    let objective = |x: &[f64]| -> f64 { chi2_freeze_out(observed, mu_b, x[0], x[1], inv_sigma2) };
 
     let lbfgs_config = LbfgsConfig {
         memory: LBFGS_MEMORY,
@@ -253,20 +258,16 @@ fn grid_fit_2d_gpu(config: &GridFitConfig<'_>) -> Option<GridFitResult> {
     let z_grid = vec![0.0_f64];
 
     let mut chi2_values = Vec::with_capacity(nt0 * nk2);
-    let mut pred = vec![0.0; n_data];
 
     for &t0_val in &t0_grid {
         for &k2_val in &k2_grid {
-            for (j, &mu) in config.mu_b.iter().enumerate() {
-                pred[j] = freeze_out_curve(t0_val, k2_val, mu);
-            }
-            let c2: f64 = config
-                .observed
-                .iter()
-                .zip(pred.iter())
-                .map(|(&o, &p)| (o - p).powi(2) * inv_sigma2)
-                .sum();
-            chi2_values.push(c2);
+            chi2_values.push(chi2_freeze_out(
+                config.observed,
+                config.mu_b,
+                t0_val,
+                k2_val,
+                inv_sigma2,
+            ));
         }
     }
 
@@ -299,21 +300,11 @@ fn grid_fit_2d_cpu(config: &GridFitConfig<'_>) -> GridFitResult {
     let n_t0 = ((config.t0_hi - config.t0_lo) / config.t0_step).ceil() as usize + 1;
     let n_k2 = ((config.k2_hi - config.k2_lo) / config.k2_step).ceil() as usize + 1;
 
-    let mut pred = vec![0.0; n_data];
-
     for it in 0..n_t0 {
         let t0 = usize_f64(it).mul_add(config.t0_step, config.t0_lo);
         for ik in 0..n_k2 {
             let k2 = usize_f64(ik).mul_add(config.k2_step, config.k2_lo);
-            for (j, &mu) in config.mu_b.iter().enumerate() {
-                pred[j] = freeze_out_curve(t0, k2, mu);
-            }
-            let c2: f64 = config
-                .observed
-                .iter()
-                .zip(pred.iter())
-                .map(|(&o, &p)| (o - p).powi(2) * inv_sigma2)
-                .sum();
+            let c2 = chi2_freeze_out(config.observed, config.mu_b, t0, k2, inv_sigma2);
             if c2 < best_chi2 {
                 best_chi2 = c2;
                 best_t0 = t0;
@@ -556,15 +547,7 @@ fn nelder_mead_multi_start_gpu(
     let f_values = |points: &[f64]| -> Vec<f64> {
         points
             .chunks(2)
-            .map(|p| {
-                let t0 = p[0];
-                let k2 = p[1];
-                observed
-                    .iter()
-                    .zip(mu_b.iter())
-                    .map(|(&o, &mu)| (o - freeze_out_curve(t0, k2, mu)).powi(2) * inv_sigma2)
-                    .sum()
-            })
+            .map(|p| chi2_freeze_out(&observed, &mu_b, p[0], p[1], inv_sigma2))
             .collect()
     };
 
