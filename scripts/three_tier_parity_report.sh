@@ -9,7 +9,7 @@
 #   Tier 2: barracuda-CPU (Rust + barracuda CPU delegations)
 #   Tier 3: barracuda-GPU (Rust + barracuda CPU + GPU delegations)
 #
-# Each tier runs the same 28 validation binaries and records pass/total.
+# Each tier runs the same 29 validation binaries and records pass/total.
 # Parity = all three tiers produce identical pass counts for every experiment.
 #
 # Usage:
@@ -54,6 +54,7 @@ BINS=(
     validate-size-convergence
     validate-vendor-parity
     validate-et0-methods
+    validate-tissue-anderson
 )
 
 EXP_NAMES=(
@@ -85,6 +86,7 @@ EXP_NAMES=(
     "Exp 026: Size Convergence"
     "Exp 027: Vendor Parity"
     "Exp 035: ET0 Methods"
+    "Exp 033: Tissue Anderson"
 )
 
 MODES=("default" "barracuda" "barracuda-gpu")

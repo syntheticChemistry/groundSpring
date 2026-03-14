@@ -125,7 +125,7 @@ to biodiversity assessment.
 
 Three-mode benchmark (`benchmark-cross-spring --release`):
 
-### Cross-Spring Provenance Benchmark (barraCuda `2a6c072`, toadStool S130)
+### Cross-Spring Provenance Benchmark (barraCuda v0.3.5, toadStool S130+)
 
 | Workload | Origin Spring | Time | Notes |
 |---|---|---|---|

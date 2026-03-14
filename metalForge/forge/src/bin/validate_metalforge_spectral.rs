@@ -21,8 +21,17 @@ use groundspring_forge::harness::Harness;
 use groundspring_forge::tolerance::ToleranceTier;
 use std::time::Instant;
 
+/// Noiseless round-trip RMSE: regularization-limited floor for Tikhonov
+/// with λ = `ToleranceTier::Exact` on an `n_tau`=20, `n_omega`=40 grid.
+/// Bazavov et al. (2025) `arXiv` 2501.12259, validated in `control/spectral_recon/`.
 const TOL_RMSE_NOISELESS: f64 = 1e-6;
+
+/// Peak location tolerance: Gaussian peak centre at ω=3.0 recovered within
+/// ±1 frequency bin on an `n_omega`=40 grid spanning \[0, 8\]. Bin width = 0.2.
 const TOL_PEAK_OFFSET: f64 = 1.0;
+
+/// CPU↔dispatched parity: different LU/Cholesky factorisations accumulate
+/// O(n²) ULP differences. `1e-8` provides ~1000× margin over observed ~`1e-11`.
 const TOL_PARITY_REL: f64 = 1e-8;
 
 fn run_spectral_checks(harness: &mut Harness) {

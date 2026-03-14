@@ -12,8 +12,10 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **395/395 checks passed** across 34 validation binaries (340 core + 55 NUCLEUS).
 - Mathematical parity: **29/29 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.6× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.4× from Sturm tridiag**.
-- V97: GPU smoke test + three-tier parity proven: 29/29 validation binaries PASS at default CPU, barracuda-CPU, and barracuda-GPU tiers. Runtime f64 reduction smoke test detects naga/SPIR-V zeros on F64NativeNoSharedMem hardware. 102 delegations (61 CPU + 41 GPU). 936 Rust tests, 382 Python provenance tests. 187 metalForge checks. All quality gates pass.
-- V96: Upstream rewire + PrecisionRoutingAdvice wired into 11 GPU dispatch paths. barraCuda `2a6c072`, toadStool S130, coralReef Iteration 7.
+- V100: Deep debt audit — build-breaking path fix, silent fallback elimination, tolerance provenance, capability-based health. 908 default tests (936 across features), 287 Python tests. barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10.
+- V99: First live NUCLEUS connection — adaptive health probing, direct primal discovery, biomeOS protocol version handling.
+- V98: Upstream rewire — barraCuda `a898dee`, toadStool S130+, coralReef Iteration 10. Three-tier parity intact.
+- V97: GPU smoke test + three-tier parity proven: 29/29 validation binaries PASS at default CPU, barracuda-CPU, and barracuda-GPU tiers. 102 delegations (61 CPU + 41 GPU). 936 Rust tests. All quality gates pass.
 - V95: coralReef push buffer breakthrough — sovereign GPU dispatch on Titan V.
 - V94: Ecosystem sync + Shannon delegation. 3 large modules refactored (rarefaction, drift, tissue_anderson). FFT wired via `Fft1DF64`.
 - V91: Complete ecosystem rewire. 100 delegations (59 CPU + 41 GPU). 807 Rust tests. 91.55% coverage. Zero TODO/FIXME/unsafe/unwrap in production. All files < 1000 lines. 21 benchmark workloads. Cross-spring shader evolution documented.

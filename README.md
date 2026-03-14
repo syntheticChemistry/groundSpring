@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: March 8, 2026 | **License**: AGPL-3.0-only
-**Status**: V98 — 34 modules, 35 experiments, 936 Rust workspace tests + 382 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda `a898dee` (deep debt: typed errors, named constants, lint compliance), toadStool S130+ (`bfe7977b`, clippy pedantic, spring sync, unsafe/dep audit), coralReef Iteration 10 (`d29a734`, AMD E2E GPU dispatch, conditional branch fix). **Three-tier parity proven**: 29/29 validation binaries PASS at all three tiers. **GPU precision routing**: runtime f64 reduction smoke test + `get_device_f64_safe()` guards all 21 GPU dispatch paths
+**Status**: V100 — 34 modules, 35 experiments, 908 default-feature Rust tests (936 across all feature gates) + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda v0.3.5, toadStool S130+ (`bfe7977b`), coralReef Iteration 10 (`d29a734`). **Three-tier parity proven**: 29/29 validation binaries PASS at all three tiers. **Live NUCLEUS** (V99): adaptive health, direct primal discovery. **Deep debt audit** (V100): build fix, silent fallback elimination, tolerance provenance, capability-based health
 
 **The gap between what models predict and what instruments measure.**
 
@@ -109,7 +109,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace                         # 936 tests, all PASS
+cargo test --workspace                         # 908 default-feature tests, all PASS (936 across all feature gates)
 cargo test --workspace --features biomeos      # NUCLEUS client active
 cargo test --workspace --features barracuda-gpu # GPU dispatch active
 cargo clippy --workspace --all-targets -- -D warnings -W clippy::pedantic -W clippy::nursery
@@ -170,7 +170,7 @@ cargo run --features biomeos --bin validate-iris-seismic
 
 ```bash
 pip install -e ".[dev]"
-python3 -m pytest tests/ -v       # 29 experiments (382 checks, 3 skipped)
+python3 -m pytest tests/ -v       # 29 experiments (287 tests)
 ruff check control/ tests/        # zero errors
 mypy control/ tests/              # zero errors
 ```
@@ -237,7 +237,7 @@ Run parity report: `python3 scripts/parity_report.py`
 | BarraCUDA CPU | 18.4 | +47% (dispatch overhead on small workloads) |
 | **BarraCUDA GPU** | **9.9** | **−21% (1.27× faster)** |
 
-### Workspace Test Benchmark (936 tests, release mode)
+### Workspace Test Benchmark (908 default-feature tests, release mode)
 
 | Mode | Wall time (s) | Δ vs local |
 |------|--------------|------------|
@@ -287,7 +287,7 @@ Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardwar
   NumPy/SciPy         Pure safe Rust     BarraCUDA/ToadStool   metalForge dispatch    biomeOS Neural API
   ✓ Complete          ✓ 395/395 PASS     ◐ 102 active          30 workloads           Tower+Node+Squirrel
   11.5× slower        35/35 experiments    (61+41)              24 GPU + 2 NPU + 2 CPU-only         NestGate data pipes
-                      925 workspace tests                       PCIe topology          NUCLEUS atomics
+                      908 workspace tests                       PCIe topology          NUCLEUS atomics
                                                                 Pipeline dispatch      Sovereign degradation
 
   Write locally    →  Hand off          →  Lean on upstream   →  Cross-substrate     →  Primal orchestration

@@ -678,8 +678,7 @@ mod tests {
     #[test]
     fn chi2_analysis_perfect_fit() {
         let obs = vec![1.0, 2.0, 3.0, 4.0, 5.0];
-        let pred = obs.clone();
-        let a = chi2_analysis(&obs, &pred, 1.0, 2).unwrap();
+        let a = chi2_analysis(&obs, &obs, 1.0, 2).unwrap();
         assert!(a.chi2_total.abs() < tol::STRICT, "perfect fit → χ²=0");
         assert_eq!(a.dof, 3);
         assert!(a.residuals.iter().all(|&r| r.abs() < tol::STRICT));

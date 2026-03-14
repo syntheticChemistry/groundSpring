@@ -171,10 +171,10 @@ fn validate_observation_gap_benchmark(h: &mut ValidationHarness) {
 
     let temp_r2_min = v["acceptance_criteria"]["temperature_r2_min"]
         .as_f64()
-        .unwrap_or(0.0);
+        .expect("benchmark must contain acceptance_criteria.temperature_r2_min");
     let precip_hr_min = v["acceptance_criteria"]["precip_hit_rate_min"]
         .as_f64()
-        .unwrap_or(0.0);
+        .expect("benchmark must contain acceptance_criteria.precip_hit_rate_min");
     h.check_min("Acceptance: temp R² threshold > 0", temp_r2_min, 0.5);
     h.check_min(
         "Acceptance: precip hit rate threshold > 0",
@@ -185,11 +185,11 @@ fn validate_observation_gap_benchmark(h: &mut ValidationHarness) {
     let tmax_rmse_lo = v["variables_compared"]["tmax_c"]["expected_characteristics"]["rmse_range"]
         [0]
     .as_f64()
-    .unwrap_or(0.0);
+    .expect("benchmark must contain tmax_c rmse_range[0]");
     let tmax_rmse_hi = v["variables_compared"]["tmax_c"]["expected_characteristics"]["rmse_range"]
         [1]
     .as_f64()
-    .unwrap_or(0.0);
+    .expect("benchmark must contain tmax_c rmse_range[1]");
     h.check_min("tmax RMSE range: lo > 0", tmax_rmse_lo, 0.1);
     h.check_min("tmax RMSE range: hi > lo", tmax_rmse_hi, tmax_rmse_lo + 0.1);
 

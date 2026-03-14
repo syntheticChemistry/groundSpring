@@ -123,6 +123,8 @@ fn bench_fused_mean_variance(h: &mut Harness) {
     println!("  Separate: mean={sep_mean:.8},  std={sep_std:.8}  ({sep_us} µs)");
     println!("  Provenance: hotSpring DF64 → Welford mean_variance_f64.wgsl (barraCuda v0.3.3)");
 
+    // ANALYTICAL (1e-10): fused Welford and separate passes differ by at most
+    // one transcendental (sqrt in std_dev), so 1 ULP of accumulated error.
     h.check(
         "Fused mean matches separate mean",
         (fused_mean - sep_mean).abs() < 1e-10,

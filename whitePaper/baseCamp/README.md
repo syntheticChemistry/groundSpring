@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: March 7, 2026
 
-**Validation Summary**: V96 — 395/395 validation checks (340 core + 55 NUCLEUS) + 187 metalForge checks, **102 active delegations (61 CPU + 41 GPU) — barraCuda `2a6c072`, toadStool S130, coralReef Iteration 7**. 925 workspace tests + 261 Python provenance tests. All 35 experiments PASS. **29/29 mathematical parity proven**. `PrecisionRoutingAdvice` wired into 11 GPU dispatch paths via `get_device_f64_safe()`. 3 large modules smart-refactored (rarefaction, drift, tissue_anderson). FFT wired into spectral_recon via `Fft1DF64`. Zero clippy warnings (pedantic + nursery), zero unsafe, zero TODO, zero `.unwrap()` in production, all files < 1000 lines. 21 benchmark workloads. Cross-spring shader evolution documented. 10 domains, 34 modules. **coralReef**: sovereign GPU method dispatch proven on Titan V — push buffer encoding fixed, NVIF constants aligned to Mesa.
+**Validation Summary**: V100 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10**. 908 default-feature tests (936 across all feature gates) + 287 Python provenance tests. All 35 experiments PASS. **29/29 mathematical parity proven**. `PrecisionRoutingAdvice` wired into 21 GPU dispatch paths via `get_device_f64_safe()`. Zero clippy warnings (pedantic + nursery), zero unsafe, zero TODO, zero `.unwrap()` in production, all files < 1000 lines. 30 benchmark workloads. Cross-spring shader evolution documented. 10 domains, 34 modules. Live NUCLEUS integration (V99). Deep debt audit clean (V100).
 
 ---
 

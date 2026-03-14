@@ -351,7 +351,12 @@ pub fn health(socket: &Path) -> Result<()> {
         match rpc_call(socket, &request) {
             Ok(ref response) if response_has_error(response).is_ok() => return Ok(()),
             Ok(_) => {}
-            Err(_) => return Err(BiomeOsError(format!("biomeOS connect {}", socket.display()))),
+            Err(_) => {
+                return Err(BiomeOsError(format!(
+                    "biomeOS connect {}",
+                    socket.display()
+                )));
+            }
         }
     }
 
@@ -398,7 +403,10 @@ pub fn discover_primals() -> Vec<DiscoveredPrimal> {
     let mut primals = Vec::new();
     for entry in entries.flatten() {
         let path = entry.path();
-        if path.symlink_metadata().is_ok_and(|m| m.file_type().is_symlink()) {
+        if path
+            .symlink_metadata()
+            .is_ok_and(|m| m.file_type().is_symlink())
+        {
             continue;
         }
         let Some(name) = path.file_stem().and_then(|s| s.to_str()) else {
@@ -406,7 +414,10 @@ pub fn discover_primals() -> Vec<DiscoveredPrimal> {
         };
         if !name.contains("neural-api") && path.extension().is_some_and(|e| e == "sock") {
             let clean_name = name.replace(".jsonrpc", "");
-            if primals.iter().any(|p: &DiscoveredPrimal| p.name == clean_name) {
+            if primals
+                .iter()
+                .any(|p: &DiscoveredPrimal| p.name == clean_name)
+            {
                 continue;
             }
             primals.push(DiscoveredPrimal {
@@ -459,11 +470,7 @@ pub fn primal_health(primal_name: &str) -> Result<String> {
         .ok_or_else(|| BiomeOsError(format!("primal not found: {primal_name}")))?;
 
     let qualified = format!("{primal_name}.health");
-    let methods: Vec<&str> = if primal_name == "beardog" {
-        vec!["health"]
-    } else {
-        vec![&qualified, "health"]
-    };
+    let methods: Vec<&str> = vec![&qualified, "health"];
 
     for method in &methods {
         let request = build_request(method, &serde_json::json!({}));

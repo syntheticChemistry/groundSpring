@@ -11,9 +11,9 @@ groundSpring Phase 0 (Python), Phase 1 (Rust), and Phase 2a (barracuda CPU) are 
 
 - 395/395 validation checks across 34 binaries (340 core + 55 NUCLEUS)
 - 30 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, almost_mathieu, bistable, multisignal, kinetics, transport, drift, rare_biosphere, quasispecies, band_structure, jackknife, freeze_out, spectral_recon, wdm, biomeos, nestgate (+cast, validate, npu, error, linalg)
-- 925 Rust workspace tests (default) + 261 Python tests = 1186+ total. 0 clippy warnings (pedantic + nursery). 102 delegations (61 CPU + 41 GPU) — barraCuda `2a6c072`. 187 metalForge checks (130 forge + 57 mixed-hardware). biomeOS Neural API live. `PrecisionRoutingAdvice` wired into 11 GPU dispatch paths.
+- 908 default-feature Rust tests (936 across all feature gates) + 287 Python tests. 0 clippy warnings (pedantic + nursery). 102 delegations (61 CPU + 41 GPU) — barraCuda v0.3.5. 140 metalForge checks. biomeOS Neural API live (V99). `PrecisionRoutingAdvice` wired into 21 GPU dispatch paths.
 - Two feature gates: `barracuda` (51 active CPU delegations) and `barracuda-gpu` (36 GPU delegations including Sturm tridiag, tikhonov solve, detect_bands, BatchedMultinomialGpu). Three-mode CI validates all configurations.
-- 102 delegations (61 CPU + 41 GPU; includes GPU grid adapters, GPU stats dispatch, batch APIs, regression suite, kimura, jackknife, fao56_et0, thornthwaite_et0, thornthwaite_heat_index, fit_all, chao1, error_threshold, detection_power, detection_threshold, bootstrap_mean, shannon — barraCuda `2a6c072`)
+- 102 delegations (61 CPU + 41 GPU; includes GPU grid adapters, GPU stats dispatch, batch APIs, regression suite, kimura, jackknife, fao56_et0, thornthwaite_et0, thornthwaite_heat_index, fit_all, chao1, error_threshold, detection_power, detection_threshold, bootstrap_mean, shannon — barraCuda v0.3.5)
 - 2 production WGSL shaders in `metalForge/shaders/` (261 combined lines)
 - All matrices use flat row-major `Vec<f64>` — GPU-promotable layout
 - Rust is **11.6× faster** than Python (excl. LAPACK-bound); 5.1× overall. Exp 009: **47.7× from Sturm tridiag**

@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 7, 2026 (V98 — 936 tests, 102 delegations, PrecisionRoutingAdvice wired, upstream rewire barraCuda `a898dee`, toadStool S130+, coralReef Iteration 10)
+**Last updated**: March 14, 2026 (V100 — 908 default-feature tests (936 across feature gates), 102 delegations, barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10, deep debt audit clean)
 
 ## Experiment Register
 
@@ -55,7 +55,7 @@
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
 **Paper 12**: `tissue_anderson` module — 18 unit tests + 29/29 validation checks + 4D Anderson + Wegner RG (V68)
-**Handoff**: V96 (upstream rewire + PrecisionRoutingAdvice — barraCuda `2a6c072`, toadStool S130, coralReef Iteration 7, 11 GPU paths precision-routed)
+**Handoff**: V100 (deep debt audit — barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10, 21 GPU paths precision-routed)
 
 **Python checks**: ~160 across 28 experiments. **Rust validation checks**: 395 (340 core + 55 NUCLEUS). **metalForge + pipeline checks**: 187.
 
@@ -874,7 +874,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_V96_UPSTREAM_REWIRE_HANDOFF_MAR07_2026.md`
+Active: `wateringHole/handoffs/GROUNDSPRING_V100_DEEP_DEBT_HANDOFF_MAR14_2026.md`
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

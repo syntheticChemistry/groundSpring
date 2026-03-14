@@ -169,9 +169,6 @@ fn run() -> i32 {
     let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
     let mut h = ValidationHarness::stdout("Rust Validation: Jackknife Error Estimation");
 
-    println!("{}", "=".repeat(72));
-    println!("groundSpring Rust Validation: Jackknife (Exp 019)");
-    println!("{}", "=".repeat(72));
     print_provenance_header(&bench, "Jackknife Error Estimation");
 
     let gauss_cfg = &bench["gaussian"];

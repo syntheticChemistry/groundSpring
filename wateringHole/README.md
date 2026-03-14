@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 8, 2026 (V98)
+**Last Updated**: March 14, 2026 (V100)
 
 ## What This Is
 
@@ -18,7 +18,8 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V98 Upstream Rewire | [GROUNDSPRING_V98_UPSTREAM_REWIRE_HANDOFF_MAR08_2026.md](handoffs/GROUNDSPRING_V98_UPSTREAM_REWIRE_HANDOFF_MAR08_2026.md) | Mar 8, 2026 | barraCuda `a898dee`, toadStool S130+ (`bfe7977b`), coralReef Iteration 10 (`d29a734`), 936 tests, 102 delegations, three-tier parity intact |
+| V100 Deep Debt + Handoff | [GROUNDSPRING_V100_DEEP_DEBT_HANDOFF_MAR14_2026.md](handoffs/GROUNDSPRING_V100_DEEP_DEBT_HANDOFF_MAR14_2026.md) | Mar 14, 2026 | Deep audit + debt resolution: build-breaking akida-driver path fix, 4 fmt fixes, silent fallback elimination, hardcoded primal name removal, tolerance provenance, test count alignment. 908 default tests (936 across features), 287 Python tests, 102 delegations. barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10. |
+| V99 NUCLEUS Live | [GROUNDSPRING_V99_NUCLEUS_LIVE_HANDOFF_MAR08_2026.md](handoffs/GROUNDSPRING_V99_NUCLEUS_LIVE_HANDOFF_MAR08_2026.md) | Mar 8, 2026 | First live NUCLEUS connection, adaptive health, direct primal discovery |
 
 ## Cross-Spring Documentation
 
@@ -38,6 +39,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | Scope |
 |---------|-------|
+| V98 Upstream Rewire | barraCuda `a898dee`, toadStool S130+, coralReef Iteration 10, 936 tests, 102 delegations, three-tier parity intact (superseded by V99) |
 | V97 GPU Smoke Test | Runtime f64 reduction smoke test, three-tier parity 29/29, 936 tests, P0 GpuDriverProfile fix request (superseded by V98) |
 | V96 Upstream Rewire | PrecisionRoutingAdvice wired, barraCuda `2a6c072`, toadStool S130, coralReef Iter 7, 925 tests, 102 delegations (superseded by V97) |
 | V95 coralReef Breakthrough | 907 tests, 102 delegations, coralReef Phase 11, sovereign GPU dispatch on Titan V, push buffer encoding fixed (superseded by V96) |

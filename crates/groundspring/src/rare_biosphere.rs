@@ -541,6 +541,6 @@ mod tests {
         let s_obs = 3.0;
         let f1 = 3.0;
         let expected = s_obs + f1 * (f1 - 1.0) / 2.0;
-        assert!((est - expected).abs() < 1e-10);
+        assert!((est - expected).abs() < tol::ANALYTICAL);
     }
 }

@@ -11,7 +11,7 @@ V93: smart refactoring (rarefaction, drift, tissue_anderson) + FFT wired into sp
 via Fft1DF64 for lattice correlator analysis. 3 module splits, 67 new tests.
 V91: complete ecosystem rewire — AutocorrelationF64, ESD, PeakDetectF64, CovarianceF64,
 Marchenko-Pastur. 21 benchmark workloads. Cross-spring shader evolution documented.
-V98: upstream rewire to barraCuda `a898dee`, toadStool S130+, coralReef Iteration 10. V96: PrecisionRoutingAdvice wired, shader.compile.* IPC aligned, barraCuda `2a6c072`, toadStool S130.
+V100: deep debt audit — build fix, tolerance provenance, capability-based health, test count alignment. V99: live NUCLEUS integration, adaptive primal discovery. V98: upstream rewire to barraCuda `a898dee`, toadStool S130+, coralReef Iteration 10.
 V90: deep debt — unsafe eliminated, 11 validation binaries migrated to barracuda::stats.
 V89: tarpc 0.37, domain-esn, Rust 2024. V88: deep audit. V85: coralReef.
 V80: fused correlation_full GPU. V73: 13-tier tolerance)

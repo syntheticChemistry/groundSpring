@@ -19,9 +19,20 @@ use groundspring_forge::harness::Harness;
 use groundspring_forge::tolerance::ToleranceTier;
 use std::time::Instant;
 
+/// Herman's formula accuracy: γ = ln(λ/2) is exact only at dim → ∞.
+/// At dim=100, finite-size corrections give ~10-15% deviation.
+/// Jitomirskaya & Kachkovskiy (2018) JEMS 21:777-795.
 const TOL_HERMAN_REL: f64 = 0.15;
+
+/// Extended regime Lyapunov: γ should vanish for λ < 2 (Aubry-André).
+/// Finite-size dim=100 gives residual γ ≈ O(1/L), bounded by 0.1.
 const TOL_EXTENDED_GAMMA: f64 = 0.1;
+
+/// Poisson level spacing ratio range for localized regime (λ > 2).
+/// `r_Poisson` ≈ 0.386 (Atas et al. 2013 PRL 110:084101); \[0.30, 0.45\]
+/// brackets finite-size fluctuations at dim=100.
 const POISSON_R_LO: f64 = 0.30;
+/// Upper bound — see `POISSON_R_LO` for provenance.
 const POISSON_R_HI: f64 = 0.45;
 
 fn run_mathieu_checks(harness: &mut Harness) {

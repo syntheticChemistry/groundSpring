@@ -101,8 +101,7 @@ fn f64_reduction_smoke_test() -> bool {
         return false;
     };
     let test_data = [1.0_f64; 4];
-    let Ok(result) = barracuda::ops::sum_reduce_f64::SumReduceF64::mean(device, &test_data)
-    else {
+    let Ok(result) = barracuda::ops::sum_reduce_f64::SumReduceF64::mean(device, &test_data) else {
         return false;
     };
     (result - 1.0).abs() < 0.01

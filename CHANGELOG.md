@@ -4,6 +4,32 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V100 Deep Debt Audit + Documentation Sync (Mar 14, 2026)
+
+#### Build & CI
+- Fixed build-breaking `akida-driver` path dependency (lowercase vs camelCase on case-sensitive FS)
+- Scoped `cargo fmt` to groundSpring packages only (prevents upstream formatting drift)
+- Added `validate-et0-methods` to CI validation step
+- Added `validate-tissue-anderson` to three-tier parity script (29 binaries)
+
+#### Code Quality
+- Eliminated 4 silent `unwrap_or(0.0)` fallbacks in `validate_weather.rs` → `expect()`
+- Removed hardcoded `"beardog"` primal name from `biomeos/mod.rs` — capability-based discovery
+- Replaced bare `1e-10` literal in `rare_biosphere.rs` test with `tol::ANALYTICAL`
+- Removed avoidable `clone()` in `freeze_out.rs` test
+- Added provenance doc comments to all metalForge tolerance constants
+- Fixed 4 `rustfmt` violations in `biomeos/mod.rs` and `gpu.rs`
+- Fixed `clippy::doc_markdown` lints in metalForge validation binaries
+
+#### Documentation
+- Updated all 5 graph TOMLs from V87/S96c to V100/S130+
+- Updated wateringHole README to V100 with V99+V100 as active handoffs
+- Fixed stale V96 handoff reference in CONTROL_EXPERIMENT_STATUS.md
+- Updated whitePaper README, baseCamp README, experiments README to V100
+- Updated ecoPrimals/whitePaper/gen3/baseCamp version line
+- Corrected test count: 908 default-feature (936 across all feature gates)
+- Created V100 deep debt handoff for toadStool/barraCuda team
+
 ### V99 Live NUCLEUS Integration + Direct Primal Discovery (Mar 8, 2026)
 
 #### biomeOS Client Evolution
