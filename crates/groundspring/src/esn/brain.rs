@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Brain architecture types for evolutionary uncertainty quantification.
@@ -316,16 +316,29 @@ pub fn detect_concept_edges(
     edges
 }
 
+/// Error-to-threshold ratio above which drift action escalates to selection pressure.
+///
+/// Nautilus Shell convention: errors above 2× the threshold indicate a sharp
+/// phase boundary requiring tighter selection, not broader exploration.
+const SHARP_BOUNDARY_RATIO: f64 = 2.0;
+
+/// Population growth factor when error exceeds the threshold but is below
+/// the sharp-boundary ratio. Expands the evolutionary population by 50%
+/// to explore the boundary neighbourhood.
+const BOUNDARY_EXPLORE_FACTOR: f64 = 1.5;
+
 /// Recommend a [`DriftAction`] based on edge error magnitude.
 ///
 /// The heuristic mirrors Nautilus Shell `constraints.rs`:
 /// - Error > 2× threshold → `IncreaseSelection` (sharp boundary)
 /// - Error > threshold → `IncreasePop` by 1.5× (explore boundary)
 fn drift_action_for_edge(error: f64, threshold: f64) -> DriftAction {
-    if error > threshold * 2.0 {
+    if error > threshold * SHARP_BOUNDARY_RATIO {
         DriftAction::IncreaseSelection
     } else {
-        DriftAction::IncreasePop { factor: 1.5 }
+        DriftAction::IncreasePop {
+            factor: BOUNDARY_EXPLORE_FACTOR,
+        }
     }
 }
 

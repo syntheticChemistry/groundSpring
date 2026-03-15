@@ -104,4 +104,4 @@ accession numbers:
 
 ## License
 
-**AGPL-3.0-only** — All benchmark JSONs and provenance metadata are open science.
+**AGPL-3.0-or-later** — All benchmark JSONs and provenance metadata are open science.

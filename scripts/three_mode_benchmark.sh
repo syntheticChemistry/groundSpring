@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2026 ecoPrimals / Squirrel Team
 #
 # groundSpring — Three-Mode Benchmark
 #
-# Builds and times 27 validation binaries (+ 1 NPU-gated) in three feature modes:
+# Builds and times 29 validation binaries (+ 1 NPU-gated) in three feature modes:
 #   1. default   (no barracuda)
 #   2. barracuda (CPU delegations only)
 #   3. barracuda-gpu (CPU + GPU delegations)

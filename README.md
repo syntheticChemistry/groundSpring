@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
-**Date**: March 15, 2026 | **License**: AGPL-3.0-only
-**Status**: V103 — 37 modules, 35 experiments, 936 Rust tests (all feature gates) + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda v0.3.5, toadStool S130+ (`bfe7977b`), coralReef Iteration 10 (`d29a734`). **Three-tier parity proven**: 29/29 validation binaries PASS at all three tiers. **Deep debt audit** (V103): zero `unsafe`, zero `#[allow()]`, zero TODO/FIXME, zero clippy warnings (default + all-features), all magic numbers evolved to named constants with provenance, `biomeos/interaction.rs` extracted, `eps::LOG_FLOOR` centralized, `TOL_ET0` centralized, tissue-anderson thresholds documented (Paper 12 provenance). **Niche deployment** (V102): UniBin binary, `measurement.*` domain, deploy graph, niche YAML, Provenance Trio wiring
+**Date**: March 15, 2026 | **License**: AGPL-3.0-or-later
+**Status**: V104 — 37 modules, 35 experiments, 936 Rust tests (all feature gates) + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda v0.3.5, toadStool S130+ (`bfe7977b`), coralReef Iteration 10 (`d29a734`). **Three-tier parity proven**: 29/29 validation binaries PASS at all three tiers. **V104**: comprehensive deep-debt resolution — 30+ named constants with physical provenance, capability-based discovery (zero hardcoded primal names), AGPL-3.0-or-later ecosystem-wide, stale version refs cleaned across 15+ docs, `measurement.*` capability surface rewritten, `PrecisionRoutingAdvice` count corrected, zero clippy/doc warnings. **V103**: all magic numbers evolved to named constants, `biomeos/interaction.rs` extracted, `eps::LOG_FLOOR` centralized, tissue-anderson thresholds documented (Paper 12 provenance). **V102**: UniBin binary, `measurement.*` domain, deploy graph, niche YAML, Provenance Trio wiring
 
 **The gap between what models predict and what instruments measure.**
 
@@ -367,7 +367,7 @@ groundSpring/
 ├── graphs/                         # biomeOS pipeline graphs (deploy, Tower, Node, cross-substrate, validation)
 ├── niches/                         # BYOB niche YAML definitions (groundspring-measurement)
 ├── .github/workflows/ci.yml        # GitHub Actions CI
-├── wateringHole/                   # Handoff directory (V102 current)
+├── wateringHole/                   # Handoff directory (V104 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md      # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md   # GPU kernel gap analysis
@@ -382,7 +382,7 @@ groundSpring/
 ├── Cargo.toml                      # Rust workspace (barracuda feature gate)
 ├── CONTRIBUTING.md
 ├── CHANGELOG.md
-└── LICENSE                         # AGPL-3.0-only
+└── LICENSE                         # AGPL-3.0-or-later
 ```
 
 ## Hardware Gate
@@ -401,7 +401,7 @@ Same as all ecoPrimals springs:
 
 ## License
 
-AGPL-3.0-only — See [LICENSE](LICENSE)
+AGPL-3.0-or-later — See [LICENSE](LICENSE)
 
 ---
 

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Anderson-augmented drug repurposing scoring (Exp 034).
@@ -8,6 +8,53 @@
 //! physically reach its target through tissue Anderson geometry.
 
 use super::{SkinLayer, W_C_3D};
+
+// ─── Penetration Model Constants ─────────────────────────────────────────────
+//
+// Molecular weight thresholds and penetration penalties from Lipinski's
+// Rule of Five and topical drug delivery literature.  Size penalties model
+// the probability of crossing the stratum corneum as an intact barrier.
+
+/// MW above which topical penetration is essentially blocked (e.g. mAbs).
+const MW_BLOCKED_DA: f64 = 100_000.0;
+/// Residual penetration probability for molecules above `MW_BLOCKED_DA`.
+const PENETRATION_BLOCKED: f64 = 0.05;
+
+/// MW above which topical penetration is heavily attenuated (large peptides).
+const MW_LARGE_DA: f64 = 10_000.0;
+/// Penetration probability for molecules in the `MW_LARGE_DA`..`MW_BLOCKED_DA` range.
+const PENETRATION_LARGE: f64 = 0.2;
+
+/// MW above which topical penetration is moderate (Lipinski boundary ~500 Da).
+const MW_MODERATE_DA: f64 = 500.0;
+/// Penetration probability for molecules in the `MW_MODERATE_DA`..`MW_LARGE_DA` range.
+const PENETRATION_MODERATE: f64 = 0.5;
+
+/// Penetration probability for small molecules (MW ≤ 500 Da).
+const PENETRATION_SMALL: f64 = 0.9;
+
+/// Baseline bioavailability at the stratum corneum (topical surface layer).
+const BIOAVAIL_STRATUM_CORNEUM: f64 = 0.95;
+
+/// Barrier integrity factor — fraction of intact barrier that blocks deeper
+/// dermis penetration. Represents the stratum corneum's effectiveness as a
+/// diffusion barrier for topically-applied drugs.
+const BARRIER_BLOCK_FACTOR: f64 = 0.8;
+
+/// Minimum penetration factor for a drug to be considered "reachable".
+///
+/// Below this threshold the drug cannot meaningfully interact with
+/// its target compartment regardless of pathway score.
+const MIN_REACHABLE_PENETRATION: f64 = 0.3;
+
+// ─── Systemic Penetration Constants ──────────────────────────────────────────
+
+/// Systemic bioavailability at the dermis (blood-borne delivery).
+const SYSTEMIC_DERMIS: f64 = 0.95;
+/// Systemic bioavailability at the epidermis.
+const SYSTEMIC_EPIDERMIS: f64 = 0.7;
+/// Systemic bioavailability at the stratum corneum.
+const SYSTEMIC_STRATUM: f64 = 0.3;
 
 /// Drug candidate for geometry-aware scoring.
 #[derive(Debug, Clone)]
@@ -73,7 +120,7 @@ pub fn geometry_drug_score(drug: &DrugCandidate, tissue: &TissueState) -> DrugSc
         penetration_factor: penetration,
         anderson_factor,
         composite_score: composite,
-        reaches_target: penetration > 0.3,
+        reaches_target: penetration > MIN_REACHABLE_PENETRATION,
     }
 }
 
@@ -85,25 +132,25 @@ pub fn geometry_drug_score(drug: &DrugCandidate, tissue: &TissueState) -> DrugSc
 fn compute_penetration_factor(drug: &DrugCandidate, tissue: &TissueState) -> f64 {
     match drug.delivery {
         DeliveryRoute::Systemic => match drug.target_compartment {
-            SkinLayer::Dermis => 0.95,
-            SkinLayer::Epidermis => 0.7,
-            SkinLayer::StratumCorneum => 0.3,
+            SkinLayer::Dermis => SYSTEMIC_DERMIS,
+            SkinLayer::Epidermis => SYSTEMIC_EPIDERMIS,
+            SkinLayer::StratumCorneum => SYSTEMIC_STRATUM,
         },
         DeliveryRoute::Topical => {
             let barrier_intact = 1.0 - tissue.barrier_disruption;
-            let size_penalty = if drug.molecular_weight_da > 100_000.0 {
-                0.05
-            } else if drug.molecular_weight_da > 10_000.0 {
-                0.2
-            } else if drug.molecular_weight_da > 500.0 {
-                0.5
+            let size_penalty = if drug.molecular_weight_da > MW_BLOCKED_DA {
+                PENETRATION_BLOCKED
+            } else if drug.molecular_weight_da > MW_LARGE_DA {
+                PENETRATION_LARGE
+            } else if drug.molecular_weight_da > MW_MODERATE_DA {
+                PENETRATION_MODERATE
             } else {
-                0.9
+                PENETRATION_SMALL
             };
             let base = match drug.target_compartment {
-                SkinLayer::StratumCorneum => 0.95,
+                SkinLayer::StratumCorneum => BIOAVAIL_STRATUM_CORNEUM,
                 SkinLayer::Epidermis => size_penalty,
-                SkinLayer::Dermis => size_penalty * (1.0 - barrier_intact * 0.8),
+                SkinLayer::Dermis => size_penalty * (1.0 - barrier_intact * BARRIER_BLOCK_FACTOR),
             };
             base.clamp(0.0, 1.0)
         }

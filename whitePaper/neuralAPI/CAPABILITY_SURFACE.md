@@ -2,45 +2,47 @@
 
 > Semantic capabilities for the biomeOS capability registry.
 
-**Status**: V99 (March 8, 2026)
+**Status**: V104 (March 15, 2026)
+**Domain**: `measurement`
 
 ## Capabilities Provided
 
 These are the capabilities groundSpring registers with the biomeOS Neural API.
 Other primals can invoke them via `capability.call`.
 
-### `science.noise_decomposition`
+### `measurement.noise_decomposition`
 
-Bias-variance decomposition of sensor measurements.
+Bias-variance decomposition of sensor measurements (RMSE² = MBE² + σ²).
 
 ```json
 {
-  "capability": "science.noise_decomposition",
-  "params": {
-    "observed": [1.2, 1.5, 1.3],
-    "predicted": [1.1, 1.4, 1.35],
-    "method": "triple_collocation"
+  "capability": "measurement",
+  "operation": "noise_decomposition",
+  "args": {
+    "observed": [1.2, 1.5, 1.3, 1.8],
+    "modeled": [1.1, 1.4, 1.35, 1.7]
   }
 }
 ```
 
-**Returns**: `{ "bias": 0.083, "variance": 0.0042, "rmse": 0.091 }`
+**Returns**: `{ "rmse": 0.091, "mbe": 0.0625, "bias_fraction": 0.472, "noise_fraction": 0.528 }`
 
 **Module**: `groundspring::decompose`
-**Tier**: CPU (local), Barracuda CPU, Barracuda GPU
+**Tier**: CPU (local), barraCuda CPU, barraCuda GPU
 
 ---
 
-### `science.anderson_validation`
+### `measurement.anderson_validation`
 
 Anderson localization with Lyapunov exponents for 1D tight-binding chains.
 
 ```json
 {
-  "capability": "science.anderson_validation",
-  "params": {
+  "capability": "measurement",
+  "operation": "anderson_validation",
+  "args": {
     "n_sites": 10000,
-    "disorder_strengths": [0.5, 1.0, 2.0, 4.0, 8.0],
+    "disorder": 4.0,
     "energy": 0.0,
     "n_realizations": 20,
     "seed": 42
@@ -48,148 +50,167 @@ Anderson localization with Lyapunov exponents for 1D tight-binding chains.
 }
 ```
 
-**Returns**: `{ "lyapunov_exponents": [...], "localization_lengths": [...], "thouless_coefficient": 96.2 }`
+**Returns**: `{ "gamma": 0.123, "localization_length": 8.13, "n_sites": 10000, "disorder": 4.0 }`
 
 **Module**: `groundspring::anderson`
-**Tier**: CPU → Barracuda GPU (embarrassingly parallel over realizations)
+**Tier**: CPU → barraCuda GPU (embarrassingly parallel over realizations)
 
 ---
 
-### `science.parity_check`
+### `measurement.parity_check`
 
-Validate Python/Rust mathematical parity for a benchmark JSON.
+Validate CPU/GPU mathematical parity for a set of values within a tolerance.
 
 ```json
 {
-  "capability": "science.parity_check",
-  "params": {
-    "experiment_id": "exp008_anderson_localization",
-    "benchmark_json_key": "groundspring:benchmarks:exp008"
+  "capability": "measurement",
+  "operation": "parity_check",
+  "args": {
+    "cpu_values": [1.0, 2.0, 3.0],
+    "gpu_values": [1.0, 2.0, 3.0],
+    "tolerance": 1e-12
   }
 }
 ```
 
-**Returns**: `{ "passed": 12, "failed": 0, "total": 12, "status": "PASS" }`
+**Returns**: `{ "parity": true, "max_difference": 0.0, "tolerance": 1e-12, "n_values": 3 }`
 
-**Module**: `groundspring::validate`
+**Module**: `groundspring::dispatch`
 **Tier**: CPU only (validation is inherently sequential)
 
 ---
 
-### `science.three_tier_validate`
+### `measurement.et0_propagation`
 
-Run a validation binary in default, barracuda-cpu, and barracuda-gpu modes,
-comparing results for mathematical equivalence.
+FAO-56 Penman-Monteith reference evapotranspiration.
 
 ```json
 {
-  "capability": "science.three_tier_validate",
-  "params": {
-    "experiment": "anderson",
-    "modes": ["default", "barracuda", "barracuda-gpu"]
+  "capability": "measurement",
+  "operation": "et0_propagation",
+  "args": {
+    "temperature_max": 30.0,
+    "temperature_min": 18.0,
+    "wind_speed": 2.0,
+    "sunshine_hours": 8.5,
+    "latitude": 43.0,
+    "day_of_year": 180
   }
 }
 ```
 
-**Returns**: `{ "default": "PASS", "barracuda": "PASS", "barracuda_gpu": "PASS", "parity": true }`
+**Returns**: `{ "et0_mm_day": 4.82, "method": "FAO-56 Penman-Monteith" }`
 
-**Module**: `groundspring::validate` + three-tier harness
-**Tier**: Multi-tier by definition
+**Module**: `groundspring::fao56`
+**Tier**: CPU → barraCuda CPU (`daily_et0` delegated), barraCuda GPU (batch ET₀)
 
 ---
 
-### `science.et0_propagation`
+### `measurement.regime_classification`
 
-FAO-56 Penman-Monteith reference evapotranspiration with Monte Carlo error propagation.
+Rule-based Anderson regime classification from eigenvalue spectra.
 
 ```json
 {
-  "capability": "science.et0_propagation",
-  "params": {
-    "temperature": 25.0,
-    "humidity": 0.6,
-    "wind_speed": 2.0,
-    "solar_radiation": 22.0,
-    "n_monte_carlo": 10000,
+  "capability": "measurement",
+  "operation": "regime_classification",
+  "args": {
+    "eigenvalues": [0.1, 0.3, 0.5, 0.7, 0.9],
+    "margin": 0.1
+  }
+}
+```
+
+**Returns**: `{ "label": "Extended", "mean_spacing_ratio": 0.53, "spectral_rigidity": 0.8, "ipr": 1.8 }`
+
+**Module**: `groundspring::esn`
+**Tier**: CPU, barraCuda GPU (ESN reservoir update)
+
+---
+
+### `measurement.uncertainty_budget`
+
+Combined bootstrap + jackknife uncertainty estimation.
+
+```json
+{
+  "capability": "measurement",
+  "operation": "uncertainty_budget",
+  "args": {
+    "data": [1.0, 2.0, 3.0, 4.0, 5.0],
+    "confidence": 0.95,
+    "n_bootstrap": 10000,
     "seed": 42
   }
 }
 ```
 
-**Returns**: `{ "et0_mm_day": 4.82, "uncertainty_mm_day": 0.34, "cv_percent": 7.1 }`
+**Returns**: `{ "bootstrap": { "estimate": 3.0, "ci_lower": 1.8, "ci_upper": 4.2, "std_error": 0.63 }, "jackknife": { "estimate": 3.0, "variance": 2.5, "std_error": 1.58 } }`
 
-**Module**: `groundspring::fao56`
-**Tier**: CPU → Barracuda CPU (`daily_et0` delegated), Barracuda GPU (batch ET₀)
+**Module**: `groundspring::bootstrap`, `groundspring::jackknife`
+**Tier**: CPU, barraCuda CPU, barraCuda GPU
+
+---
+
+### `measurement.spectral_features`
+
+Spectral function reconstruction via Tikhonov regularization.
+
+```json
+{
+  "capability": "measurement",
+  "operation": "spectral_features",
+  "args": {
+    "correlator": [1.0, 0.8, 0.5, 0.3, 0.1],
+    "n_omega": 50,
+    "regularization": 1e-4
+  }
+}
+```
+
+**Returns**: `{ "spectral_function": [...], "peak_index": 12, "residual_rmse": 0.001, "n_omega": 50 }`
+
+**Module**: `groundspring::spectral_recon`
+**Tier**: CPU, barraCuda CPU (Cholesky), barraCuda GPU (matrix solve)
+
+---
+
+### `measurement.freeze_out`
+
+Freeze-out curve chi-squared fitting (Bazavov et al. 2016).
+
+```json
+{
+  "capability": "measurement",
+  "operation": "freeze_out",
+  "args": {
+    "observed": [155.0, 153.0, 150.0],
+    "mu_b": [0.0, 100.0, 200.0],
+    "sigma": 1.0
+  }
+}
+```
+
+**Returns**: `{ "t0": 155.2, "kappa2": 0.013, "chi_squared": 0.42, "chi2_per_dof": 0.42 }`
+
+**Module**: `groundspring::freeze_out`
+**Tier**: CPU (grid search), barraCuda GPU (L-BFGS + Nelder-Mead multi-start)
 
 ---
 
 ## Capabilities Consumed
 
-These are capabilities groundSpring requests from other biomeOS primals.
+These are capabilities groundSpring requests from other biomeOS primals
+via capability-based discovery (no compile-time primal knowledge).
 
-### `compute.execute` (ToadStool)
+### `compute.execute` (discovered at runtime)
 
-GPU compute for Barracuda delegations. groundSpring sends pure-math workloads
-to ToadStool when the `barracuda` feature is active and biomeOS routing is enabled.
+GPU compute for barraCuda delegations. groundSpring sends pure-math workloads
+through the `compute` capability when biomeOS routing is enabled.
 
-```json
-{
-  "capability": "compute.execute",
-  "params": {
-    "op": "lyapunov_averaged",
-    "n_sites": 10000,
-    "disorder": 2.0,
-    "energy": 0.0,
-    "n_realizations": 20,
-    "seed": 42
-  }
-}
-```
+### `storage.put` / `storage.get` (discovered at runtime)
 
-**Provider**: ToadStool (barracuda from `barraCuda` primal at `ecoPrimals/barraCuda/`)
-**Dispatch**: Neural API → ToadStool → WGSL shader (Barracuda GPU) or CPU fallback
-
----
-
-### `storage.put` / `storage.get` (NestGate)
-
-Benchmark JSON storage and provenance tracking. groundSpring stores validation
-results and retrieves benchmark data through NestGate.
-
-```json
-{
-  "capability": "storage.put",
-  "params": {
-    "key": "groundspring:results:exp008",
-    "value": "{\"passed\":12,\"failed\":0}",
-    "family_id": "groundspring"
-  }
-}
-```
-
-**Provider**: NestGate
-**Dispatch**: Neural API → NestGate → content-addressed storage
-
----
-
-### `science.diversity` (wetSpring)
-
-Shannon diversity for cross-spring experiments (Exp 022–024). groundSpring
-consumes wetSpring's diversity metrics to validate noise decomposition
-across biological signal types.
-
-```json
-{
-  "capability": "science.diversity",
-  "params": {
-    "metrics": ["shannon", "simpson", "observed_features"],
-    "input_key": "wetspring:sequences:cached"
-  }
-}
-```
-
-**Provider**: wetSpring
-**Dispatch**: Neural API → wetSpring → diversity pipeline
+Benchmark JSON storage and provenance tracking via content-addressed storage.
 
 ---
 
@@ -199,31 +220,49 @@ For biomeOS `capability_registry.toml`:
 
 ```toml
 [[capabilities]]
-name = "science.noise_decomposition"
+name = "measurement.noise_decomposition"
 provider = "groundspring"
 version = "0.1.0"
 substrate = ["cpu", "gpu"]
 
 [[capabilities]]
-name = "science.anderson_validation"
+name = "measurement.anderson_validation"
 provider = "groundspring"
 version = "0.1.0"
 substrate = ["cpu", "gpu"]
 
 [[capabilities]]
-name = "science.parity_check"
+name = "measurement.parity_check"
 provider = "groundspring"
 version = "0.1.0"
 substrate = ["cpu"]
 
 [[capabilities]]
-name = "science.three_tier_validate"
+name = "measurement.et0_propagation"
 provider = "groundspring"
 version = "0.1.0"
-substrate = ["cpu", "gpu", "npu"]
+substrate = ["cpu", "gpu"]
 
 [[capabilities]]
-name = "science.et0_propagation"
+name = "measurement.regime_classification"
+provider = "groundspring"
+version = "0.1.0"
+substrate = ["cpu", "gpu"]
+
+[[capabilities]]
+name = "measurement.uncertainty_budget"
+provider = "groundspring"
+version = "0.1.0"
+substrate = ["cpu", "gpu"]
+
+[[capabilities]]
+name = "measurement.spectral_features"
+provider = "groundspring"
+version = "0.1.0"
+substrate = ["cpu", "gpu"]
+
+[[capabilities]]
+name = "measurement.freeze_out"
 provider = "groundspring"
 version = "0.1.0"
 substrate = ["cpu", "gpu"]

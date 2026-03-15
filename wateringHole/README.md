@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 15, 2026 (V103)
+**Last Updated**: March 15, 2026 (V104)
 
 ## What This Is
 
@@ -18,7 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V103 Absorption | [GROUNDSPRING_V103_BARRACUDA_TOADSTOOL_ABSORPTION_HANDOFF_MAR15_2026.md](handoffs/GROUNDSPRING_V103_BARRACUDA_TOADSTOOL_ABSORPTION_HANDOFF_MAR15_2026.md) | Mar 15, 2026 | Deep debt audit: named constants with provenance (dispatch, ESN, tissue-anderson, tolerance), `biomeos/interaction` extraction, `eps::LOG_FLOOR` centralized, batch primitive absorption opportunities (P1), constant provenance pattern for ecosystem adoption. |
+| V104 Deep Debt + Absorption | [GROUNDSPRING_V104_DEEP_DEBT_BARRACUDA_ABSORPTION_HANDOFF_MAR15_2026.md](handoffs/GROUNDSPRING_V104_DEEP_DEBT_BARRACUDA_ABSORPTION_HANDOFF_MAR15_2026.md) | Mar 15, 2026 | Comprehensive deep-debt resolution: 30+ named constants with physical provenance, capability-based discovery (zero hardcoded primal names), AGPL-3.0-or-later alignment, rustdoc zero-warning, `measurement.*` capability surface, P1 batch absorption opportunities, learnings for ecosystem evolution. |
 
 ## Cross-Spring Documentation
 
@@ -38,6 +38,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | Scope |
 |---------|-------|
+| V103 Deep Debt Audit | Named constants with provenance, `biomeos/interaction.rs` extraction, `eps::LOG_FLOOR` centralized, batch primitive absorption opportunities (superseded by V104) |
 | V102 Niche Deployment | Spring-as-Niche via biomeOS graph composition: UniBin, `measurement.*`, deploy graph, niche YAML, Provenance Trio, Neural API (superseded by V103) |
 | V102 BarraCUDA/ToadStool Niche | Dispatch-through-delegation chain, method→library→delegation map, GPU evolution opportunities (superseded by V103) |
 | V101 DRY Evolution | ESNConfig upstream sync, DRY extraction (chi², R², bootstrap), capability-based primal discovery, hardcoded primal names eliminated, doc sovereignty (superseded by V102) |

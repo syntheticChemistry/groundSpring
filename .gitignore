@@ -18,6 +18,7 @@ target/
 
 # Kokkos baseline build artifacts
 kokkos_baseline/build/
+rust_results.json
 proptest-regressions/
 rust_out
 

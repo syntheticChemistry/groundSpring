@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Semantic method dispatch for the groundSpring JSON-RPC server.
@@ -54,6 +54,24 @@ const DEFAULT_K2_HI: f64 = 0.05;
 /// Default κ₂ grid step size.
 const DEFAULT_K2_STEP: f64 = 0.001;
 
+/// Default centre energy for Anderson validation (mid-band).
+const DEFAULT_ENERGY: f64 = 0.0;
+
+/// Default bootstrap confidence level (95th percentile).
+const DEFAULT_CONFIDENCE: f64 = 0.95;
+
+/// Default station elevation (sea level, metres) for FAO-56 ET₀.
+const DEFAULT_ELEVATION_M: f64 = 0.0;
+
+/// Default maximum relative humidity (%) — typical humid climate.
+const DEFAULT_RHMAX_PCT: f64 = 80.0;
+
+/// Default minimum relative humidity (%) — typical daytime drop.
+const DEFAULT_RHMIN_PCT: f64 = 40.0;
+
+/// Default margin for rule-based regime classification (spacing-ratio window).
+const DEFAULT_REGIME_MARGIN: f64 = 0.1;
+
 /// Dispatch a JSON-RPC method call to the appropriate library function.
 ///
 /// Returns `Ok(result_json)` on success or `Err(message)` on failure.
@@ -100,7 +118,7 @@ fn uptime_secs() -> u64 {
 fn health_check() -> Value {
     serde_json::json!({
         "status": "healthy",
-        "primal": "groundspring",
+        "primal": crate::biomeos::FAMILY_ID,
         "version": env!("CARGO_PKG_VERSION"),
         "capabilities": crate::biomeos::MEASUREMENT_CAPABILITIES,
         "uptime_seconds": uptime_secs(),
@@ -116,7 +134,7 @@ fn capability_list() -> Value {
 
 fn lifecycle_status() -> Value {
     serde_json::json!({
-        "name": "groundspring",
+        "name": crate::biomeos::FAMILY_ID,
         "family_id": crate::biomeos::FAMILY_ID,
         "version": env!("CARGO_PKG_VERSION"),
         "capabilities": crate::biomeos::MEASUREMENT_CAPABILITIES,
@@ -149,7 +167,7 @@ fn noise_decomposition(params: &Value) -> Result<Value, String> {
 fn anderson_validation(params: &Value) -> Result<Value, String> {
     let n_sites = extract_usize(params, "n_sites", 10_000)?;
     let disorder = extract_f64(params, "disorder", 4.0);
-    let energy = extract_f64(params, "energy", 0.0);
+    let energy = extract_f64(params, "energy", DEFAULT_ENERGY);
     let n_realizations = extract_usize(params, "n_realizations", 20)?;
     let seed = extract_u64(params, "seed", 42);
 
@@ -166,7 +184,7 @@ fn anderson_validation(params: &Value) -> Result<Value, String> {
 
 fn uncertainty_budget(params: &Value) -> Result<Value, String> {
     let data = extract_f64_array(params, "data")?;
-    let confidence = extract_f64(params, "confidence", 0.95);
+    let confidence = extract_f64(params, "confidence", DEFAULT_CONFIDENCE);
     let n_bootstrap = extract_usize(params, "n_bootstrap", 10_000)?;
     let seed = extract_u64(params, "seed", 42);
 
@@ -200,9 +218,9 @@ fn et0_propagation(params: &Value) -> Result<Value, String> {
         .and_then(Value::as_u64)
         .ok_or("missing day_of_year")?;
     let doy = u16::try_from(doy_u64).map_err(|_| "day_of_year out of u16 range")?;
-    let elevation = extract_f64(params, "elevation", 0.0);
-    let rhmax = extract_f64(params, "rhmax", 80.0);
-    let rhmin = extract_f64(params, "rhmin", 40.0);
+    let elevation = extract_f64(params, "elevation", DEFAULT_ELEVATION_M);
+    let rhmax = extract_f64(params, "rhmax", DEFAULT_RHMAX_PCT);
+    let rhmin = extract_f64(params, "rhmin", DEFAULT_RHMIN_PCT);
 
     let inp = crate::fao56::DailyWeatherInputs {
         tmax_c: tmax,
@@ -226,7 +244,7 @@ fn et0_propagation(params: &Value) -> Result<Value, String> {
 
 fn regime_classification(params: &Value) -> Result<Value, String> {
     let mut eigenvalues = extract_f64_array(params, "eigenvalues")?;
-    let margin = extract_f64(params, "margin", 0.1);
+    let margin = extract_f64(params, "margin", DEFAULT_REGIME_MARGIN);
 
     let features = crate::esn::spectral_features(&mut eigenvalues);
     let label = crate::esn::classify_by_spacing_ratio(features[0], margin);
@@ -366,7 +384,7 @@ mod tests {
         assert!(result.is_ok());
         let v = result.unwrap();
         assert_eq!(v["status"], "healthy");
-        assert_eq!(v["primal"], "groundspring");
+        assert_eq!(v["primal"], crate::biomeos::FAMILY_ID);
     }
 
     #[test]
@@ -383,8 +401,8 @@ mod tests {
         let result = dispatch("lifecycle.status", &Value::Null);
         assert!(result.is_ok());
         let v = result.unwrap();
-        assert_eq!(v["name"], "groundspring");
-        assert_eq!(v["family_id"], "groundspring");
+        assert_eq!(v["name"], crate::biomeos::FAMILY_ID);
+        assert_eq!(v["family_id"], crate::biomeos::FAMILY_ID);
     }
 
     #[test]

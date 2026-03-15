@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Shared GPU device singleton for barracuda-gpu delegations.
@@ -95,6 +95,13 @@ pub fn f64_reductions_safe() -> bool {
     })
 }
 
+/// Acceptable deviation for the f64 reduction smoke test.
+///
+/// The test computes `mean([1.0; 4])` on the GPU — a result of exactly 1.0
+/// is expected. A 1% tolerance catches silent-zero bugs and gross precision
+/// failures without flagging rounding at the ULP level.
+const F64_REDUCTION_SMOKE_TOL: f64 = 0.01;
+
 /// Run a tiny GPU reduction and verify the result is non-zero.
 fn f64_reduction_smoke_test() -> bool {
     let Some(device) = get_device() else {
@@ -104,7 +111,7 @@ fn f64_reduction_smoke_test() -> bool {
     let Ok(result) = barracuda::ops::sum_reduce_f64::SumReduceF64::mean(device, &test_data) else {
         return false;
     };
-    (result - 1.0).abs() < 0.01
+    (result - 1.0).abs() < F64_REDUCTION_SMOKE_TOL
 }
 
 /// Get the device only when f64 reductions are safe. Convenience for GPU

@@ -4,6 +4,40 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V104 Deep Debt Resolution + Ecosystem Alignment (Mar 15, 2026)
+
+#### Named Constants with Physical Provenance
+- `gpu.rs`: `F64_REDUCTION_SMOKE_TOL` — GPU smoke-test sanity threshold (1%)
+- `esn/classifier.rs`: `LYAPUNOV_EXTENDED_THRESHOLD`, `ESN_RESERVOIR_SIZE`, `ESN_SPECTRAL_RADIUS`, `ESN_CONNECTIVITY`, `ESN_LEAK_RATE` — validated against hotSpring Exp 015/022
+- `esn/brain.rs`: `SHARP_BOUNDARY_RATIO`, `BOUNDARY_EXPLORE_FACTOR` — Nautilus Shell heuristic
+- `dispatch.rs`: `DEFAULT_ENERGY`, `DEFAULT_CONFIDENCE`, `DEFAULT_ELEVATION_M`, `DEFAULT_RHMAX_PCT`, `DEFAULT_RHMIN_PCT`, `DEFAULT_REGIME_MARGIN` — FAO-56/RMT/Bazavov provenance
+- `tissue_anderson/drug_scoring.rs`: 12 pharmacokinetic constants — Lipinski boundary, topical delivery literature
+- `freeze_out.rs`: `NM_SIMPLEX_SCALE` — Nelder-Mead simplex perturbation (2σ grid cell)
+
+#### Capability-Based Discovery
+- `dispatch.rs`: replaced `"groundspring"` string literals with `crate::biomeos::FAMILY_ID`
+- `biomeos/server.rs`: socket filename format string uses `FAMILY_ID` constant
+- All test assertions updated to reference `FAMILY_ID`
+
+#### License Alignment
+- 143+ files updated from `AGPL-3.0-only` to `AGPL-3.0-or-later` (scyBorg Provenance Trio Guidance)
+- Cargo.toml workspace `license` field, pyproject.toml, README, CONTRIBUTING, binary `version` output, all SPDX headers
+
+#### Documentation Debt
+- Broken rustdoc link `[serve]` → `[serve_one]` fixed (zero doc warnings)
+- 15+ docs updated from V99/V102 → V104 (specs, whitePaper, neuralAPI, CONTROL_EXPERIMENT_STATUS, graphs)
+- Capability surface rewritten: `science.*` → `measurement.*` with correct JSON-RPC examples
+- `scripts/three_mode_benchmark.sh` binary count corrected (27 → 29)
+- `.gitignore` updated with `rust_results.json`
+- `PrecisionRoutingAdvice` count corrected (21 → 11)
+- graphs/*.toml version references updated to V104
+
+#### Quality Gates
+- 936 tests, 0 failures
+- 0 clippy warnings (pedantic + nursery)
+- 0 doc warnings
+- 0 fmt diff
+
 ### V103 Deep Debt Audit + Idiomatic Evolution (Mar 15, 2026)
 
 #### Code Quality — Zero Debt

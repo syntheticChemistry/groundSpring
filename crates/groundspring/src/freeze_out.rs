@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Freeze-out curve fitting and chi-squared inverse problem.
@@ -66,6 +66,15 @@ const NM_TOL: f64 = 1e-12;
 /// reproducibility across runs.
 #[cfg(feature = "barracuda-gpu")]
 const NM_SEED: u64 = 42;
+
+/// Nelder-Mead simplex perturbation scale relative to the coarse grid step.
+///
+/// Each non-centroid vertex is offset from the coarse-grid optimum by
+/// `N(0, step × NM_SIMPLEX_SCALE)`. A factor of 2 ensures the simplex
+/// spans ±2σ of the grid cell, exploring enough of the local landscape
+/// to avoid the nearest-grid-point trap.
+#[cfg(feature = "barracuda-gpu")]
+const NM_SIMPLEX_SCALE: f64 = 2.0;
 
 /// Result of a 2D grid-search chi-squared fit.
 #[derive(Debug, Clone)]
@@ -528,13 +537,13 @@ fn nelder_mead_multi_start_gpu(
                 + if vertex == 0 {
                     0.0
                 } else {
-                    rng.normal(0.0, config.t0_step * 2.0)
+                    rng.normal(0.0, config.t0_step * NM_SIMPLEX_SCALE)
                 };
             let k2 = coarse.kappa2
                 + if vertex == 0 {
                     0.0
                 } else {
-                    rng.normal(0.0, config.k2_step * 2.0)
+                    rng.normal(0.0, config.k2_step * NM_SIMPLEX_SCALE)
                 };
             simplices.push(t0);
             simplices.push(k2);

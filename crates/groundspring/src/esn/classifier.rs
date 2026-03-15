@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Regime classification for Anderson localization transitions.
@@ -23,11 +23,50 @@ use super::RegimeLabel;
 #[cfg(feature = "barracuda-gpu")]
 const ESN_READOUT_REGULARIZATION: f32 = 1e-6;
 
+/// Default ESN reservoir size for Anderson regime classification.
+///
+/// 500 neurons provides sufficient capacity for 3-class separation
+/// (extended / critical / localized) without overfitting. Validated
+/// against hotSpring Exp 015/022 disorder sweeps.
+#[cfg(feature = "barracuda-gpu")]
+const ESN_RESERVOIR_SIZE: usize = 500;
+
+/// Default ESN spectral radius (echo state property margin).
+///
+/// 0.9 < 1.0 ensures the echo state property holds: reservoir dynamics
+/// decay, preventing chaotic amplification of input noise.
+#[cfg(feature = "barracuda-gpu")]
+const ESN_SPECTRAL_RADIUS: f32 = 0.9;
+
+/// Default ESN connectivity (fraction of non-zero reservoir weights).
+///
+/// 10% connectivity yields a sparse reservoir that is computationally
+/// efficient while preserving sufficient coupling for regime separation.
+#[cfg(feature = "barracuda-gpu")]
+const ESN_CONNECTIVITY: f32 = 0.1;
+
+/// Default ESN leak rate (exponential smoothing of reservoir state).
+///
+/// 0.3 provides moderate memory: new inputs blend with 70% prior state,
+/// suitable for disorder-sweep time series where adjacent points are
+/// correlated but not redundant.
+#[cfg(feature = "barracuda-gpu")]
+const ESN_LEAK_RATE: f32 = 0.3;
+
 /// GOE level spacing ratio (extended phase, Random Matrix Theory).
 pub const GOE_R: f64 = 0.5307;
 
 /// Poisson level spacing ratio (localized phase).
 pub const POISSON_R: f64 = 0.3863;
+
+/// Lyapunov exponent below which a state is classified as extended.
+///
+/// In higher-dimensional Anderson models (2D/3D) the Lyapunov exponent
+/// γ → 0 as L → ∞ in the extended phase. This threshold captures the
+/// practical residual from finite-size systems: γ < 0.005 indicates
+/// essentially ballistic transport. Validated against Almost-Mathieu
+/// λ = 0.5 (deeply extended) benchmark in Exp 009.
+const LYAPUNOV_EXTENDED_THRESHOLD: f64 = 0.005;
 
 /// Rule-based regime classification from mean level spacing ratio.
 ///
@@ -60,7 +99,7 @@ pub fn classify_by_spacing_ratio(mean_r: f64, margin: f64) -> RegimeLabel {
 /// true extended (γ → 0 as L → ∞) from localized (γ > 0) phases.
 #[must_use]
 pub fn classify_by_lyapunov(gamma: f64, critical_threshold: f64) -> RegimeLabel {
-    if gamma < 0.005 {
+    if gamma < LYAPUNOV_EXTENDED_THRESHOLD {
         RegimeLabel::Extended
     } else if gamma < critical_threshold {
         RegimeLabel::Critical
@@ -142,11 +181,11 @@ impl EsnClassifier {
     pub fn new(seed: u64) -> Result<Self, String> {
         let config = barracuda::esn_v2::ESNConfig {
             input_size: 3,
-            reservoir_size: 500,
+            reservoir_size: ESN_RESERVOIR_SIZE,
             output_size: 3,
-            spectral_radius: 0.9,
-            connectivity: 0.1,
-            leak_rate: 0.3,
+            spectral_radius: ESN_SPECTRAL_RADIUS,
+            connectivity: ESN_CONNECTIVITY,
+            leak_rate: ESN_LEAK_RATE,
             regularization: ESN_READOUT_REGULARIZATION,
             seed,
             ..barracuda::esn_v2::ESNConfig::default()

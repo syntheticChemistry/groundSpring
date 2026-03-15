@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! JSON-RPC 2.0 server for the groundSpring `UniBin` `server` subcommand.
@@ -8,7 +8,7 @@
 //! provided handler function.
 //!
 //! biomeOS germinates groundSpring by invoking `groundspring server`, which
-//! calls [`bind_socket`] → [`serve`]. The deploy graph handles ordering,
+//! calls [`bind_socket`] → [`serve_one`]. The deploy graph handles ordering,
 //! Songbird handles IPC mesh, and the Neural API handles capability routing.
 
 use std::io::{BufRead, BufReader, Write};
@@ -20,14 +20,14 @@ use super::{BiomeOsError, FAMILY_ID, Result};
 
 /// Resolve the socket path for this primal.
 ///
-/// Convention: `$XDG_RUNTIME_DIR/biomeos/groundspring-{FAMILY_ID}.sock`
+/// Convention: `$XDG_RUNTIME_DIR/biomeos/{FAMILY_ID}-{family}.sock`
 ///
 /// Fallback chain (matches `SPRING_AS_NICHE_DEPLOYMENT_STANDARD`):
 /// 1. `GROUNDSPRING_SOCKET` env var (explicit override)
-/// 2. `$BIOMEOS_SOCKET_DIR/groundspring-{family}.sock`
-/// 3. `$XDG_RUNTIME_DIR/biomeos/groundspring-{family}.sock`
-/// 4. `/run/user/{uid}/biomeos/groundspring-{family}.sock`
-/// 5. `/tmp/groundspring-{family}.sock`
+/// 2. `$BIOMEOS_SOCKET_DIR/{FAMILY_ID}-{family}.sock`
+/// 3. `$XDG_RUNTIME_DIR/biomeos/{FAMILY_ID}-{family}.sock`
+/// 4. `/run/user/{uid}/biomeos/{FAMILY_ID}-{family}.sock`
+/// 5. `/tmp/{FAMILY_ID}-{family}.sock`
 #[must_use]
 pub fn socket_path() -> PathBuf {
     if let Ok(explicit) = std::env::var("GROUNDSPRING_SOCKET") {
@@ -35,7 +35,7 @@ pub fn socket_path() -> PathBuf {
     }
 
     let family = std::env::var("FAMILY_ID").unwrap_or_else(|_| FAMILY_ID.to_string());
-    let filename = format!("groundspring-{family}.sock");
+    let filename = format!("{FAMILY_ID}-{family}.sock");
 
     if let Ok(dir) = std::env::var("BIOMEOS_SOCKET_DIR") {
         return PathBuf::from(dir).join(filename);

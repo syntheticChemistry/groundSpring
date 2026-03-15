@@ -8,7 +8,7 @@
 # Composable: other graphs can reference this as a sub-graph via depends_on.
 # biomeOS orchestrates germination order; Songbird provides IPC mesh.
 #
-# STATUS: V102 (March 14, 2026)
+# STATUS: V104 (March 14, 2026)
 # Run: biomeos deploy graphs/groundspring_deploy.toml
 #      biomeos niche deploy groundspring-measurement
 
@@ -18,7 +18,7 @@ description = "groundSpring measurement provider atop Tower Atomic"
 coordination = "Sequential"
 
 [graph.metadata]
-groundspring_version = "V102"
+groundspring_version = "V104"
 domain = "measurement"
 target_node = "eastgate"
 
@@ -193,7 +193,7 @@ name = "capability_call"
 
 [nodes.operation.params]
 capability = "provenance.session_create"
-params = { agent = "groundspring", experiment_id = "niche_deploy", version = "V102", family_id = "groundspring" }
+params = { agent = "groundspring", experiment_id = "niche_deploy", version = "V104", family_id = "groundspring" }
 
 [nodes.constraints]
 timeout_ms = 10000

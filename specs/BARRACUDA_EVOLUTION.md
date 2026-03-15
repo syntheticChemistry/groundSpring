@@ -2,11 +2,12 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 15, 2026 (V103 — 102 delegations (61 CPU + 41 GPU), 936 tests (all feature gates),
+**Last updated**: March 15, 2026 (V104 — 102 delegations (61 CPU + 41 GPU), 936 tests (all feature gates),
 barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10.
-V103: deep debt audit — named constants with physical provenance (dispatch, ESN, tissue-anderson,
-tolerance), `biomeos/interaction` extraction, `eps::LOG_FLOOR` centralized, batch primitive
-absorption opportunities documented with constant provenance pattern.
+V104: deep debt resolution — 30+ named constants with physical provenance, capability-based discovery,
+AGPL-3.0-or-later alignment, measurement.* capability surface, zero clippy/doc warnings.
+V103: deep debt audit — named constants with provenance, `biomeos/interaction` extraction,
+`eps::LOG_FLOOR` centralized, batch primitive absorption opportunities documented.
 V102: niche deployment — UniBin, dispatch, measurement.* domain, deploy graph.
 V100: build fix, tolerance provenance, capability-based health.
 V98: upstream rewire to barraCuda `a898dee`, toadStool S130+, coralReef Iteration 10.
