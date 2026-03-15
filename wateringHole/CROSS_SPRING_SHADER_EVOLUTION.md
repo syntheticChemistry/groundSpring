@@ -3,7 +3,7 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 15, 2026 (V103: 102 active delegations (61 CPU + 41 GPU), barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10. V103: deep debt audit — named constants with provenance, batch absorption opportunities. V102: niche deployment. V98: upstream rewire. V95: coralReef push buffer breakthrough. V87: Tier B resolution. V73: 13-tier tolerance architecture)
+**Last Updated**: March 15, 2026 (V105: 102 active delegations (61 CPU + 41 GPU), barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10. V105: deep debt audit — named constants with provenance, batch absorption opportunities. V102: niche deployment. V98: upstream rewire. V95: coralReef push buffer breakthrough. V87: Tier B resolution. V73: 13-tier tolerance architecture)
 
 ---
 

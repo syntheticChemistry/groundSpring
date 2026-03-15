@@ -284,6 +284,7 @@ fn find_cpu_fallback(substrates: &[Substrate]) -> Option<&Substrate> {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
     use crate::substrate::{Capability, Identity, Properties};

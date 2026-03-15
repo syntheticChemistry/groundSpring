@@ -85,6 +85,7 @@ pub fn disrupted_epidermis(breach_fraction: f64) -> TissueCompartment {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
 

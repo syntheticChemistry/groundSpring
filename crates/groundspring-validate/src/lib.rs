@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 #![forbid(unsafe_code)]
+#![deny(clippy::expect_used, clippy::unwrap_used)]
 
 //! Shared helpers for groundSpring validation binaries.
 //!
@@ -272,6 +273,10 @@ pub fn try_f64_field(v: &Value, key: &str) -> Option<f64> {
 ///
 /// Panics if `v[key]` is absent or not representable as `f64`.
 #[must_use]
+#[expect(
+    clippy::expect_used,
+    reason = "compile-time JSON; missing field is a programmer error"
+)]
 pub fn f64_field(v: &Value, key: &str) -> f64 {
     get_f64(v, key).expect("benchmark f64 field")
 }
@@ -289,6 +294,10 @@ pub fn try_usize_field(v: &Value, key: &str) -> Option<usize> {
 ///
 /// Panics if `v[key]` is absent or not representable as `u64`.
 #[must_use]
+#[expect(
+    clippy::expect_used,
+    reason = "compile-time JSON; missing field is a programmer error"
+)]
 pub fn usize_field(v: &Value, key: &str) -> usize {
     get_usize(v, key).expect("benchmark usize field")
 }
@@ -299,6 +308,10 @@ pub fn usize_field(v: &Value, key: &str) -> usize {
 ///
 /// Panics if `v[key]` is absent or not representable as `u64`.
 #[must_use]
+#[expect(
+    clippy::expect_used,
+    reason = "compile-time JSON; missing field is a programmer error"
+)]
 pub fn u64_field(v: &Value, key: &str) -> u64 {
     get_u64(v, key).expect("benchmark u64 field")
 }
@@ -309,6 +322,10 @@ pub fn u64_field(v: &Value, key: &str) -> u64 {
 ///
 /// Panics if the value is not a JSON array with at least two numeric elements.
 #[must_use]
+#[expect(
+    clippy::expect_used,
+    reason = "compile-time JSON; missing field is a programmer error"
+)]
 pub fn f64_range(arr: &Value) -> (f64, f64) {
     get_f64_range(arr).expect("benchmark f64 range")
 }
@@ -326,6 +343,10 @@ pub fn try_str_field<'a>(v: &'a Value, key: &str) -> Option<&'a str> {
 ///
 /// Panics if `v[key]` is absent or not a string.
 #[must_use]
+#[expect(
+    clippy::expect_used,
+    reason = "compile-time JSON; missing field is a programmer error"
+)]
 pub fn str_field<'a>(v: &'a Value, key: &str) -> &'a str {
     get_str(v, key).expect("benchmark str field")
 }
@@ -336,6 +357,10 @@ pub fn str_field<'a>(v: &'a Value, key: &str) -> &'a str {
 ///
 /// Panics if `v[key]` is absent or not an array.
 #[must_use]
+#[expect(
+    clippy::expect_used,
+    reason = "compile-time JSON; missing field is a programmer error"
+)]
 pub fn array_field<'a>(v: &'a Value, key: &str) -> &'a Vec<Value> {
     get_array(v, key).expect("benchmark array field")
 }
@@ -346,6 +371,10 @@ pub fn array_field<'a>(v: &'a Value, key: &str) -> &'a Vec<Value> {
 ///
 /// Panics if `v[key]` is absent, not an array, or contains non-numeric elements.
 #[must_use]
+#[expect(
+    clippy::expect_used,
+    reason = "compile-time JSON; missing field is a programmer error"
+)]
 pub fn f64_vec(v: &Value, key: &str) -> Vec<f64> {
     get_f64_vec(v, key).expect("benchmark f64 vec")
 }
@@ -356,60 +385,79 @@ pub fn f64_vec(v: &Value, key: &str) -> Vec<f64> {
 ///
 /// Panics if `v[key]` is absent or not a boolean.
 #[must_use]
+#[expect(
+    clippy::expect_used,
+    reason = "compile-time JSON; missing field is a programmer error"
+)]
 pub fn bool_field(v: &Value, key: &str) -> bool {
     get_bool(v, key).expect("benchmark bool field")
 }
 
 /// Print the standard provenance header shared by all validation binaries.
 ///
-/// Displays source, baseline commit/date, and (when present) the script,
-/// command, and author that generated the baseline — full chain of custody.
+/// Convenience wrapper that calls [`try_print_provenance_header`] and panics
+/// on malformed benchmark JSON. Suitable for validation binaries where the
+/// JSON is `include_str!`-ed at compile time.
 ///
 /// # Panics
 ///
-/// Panics if the benchmark JSON is missing `_source` or if `_provenance`
-/// is missing `baseline_commit` or `baseline_date`.
+/// Panics if required provenance fields are missing.
+#[expect(
+    clippy::expect_used,
+    reason = "compile-time JSON; missing provenance is a programmer error"
+)]
 pub fn print_provenance_header(bench: &Value, title: &str) {
+    try_print_provenance_header(bench, title).expect("benchmark provenance header");
+}
+
+/// Print the standard provenance header, returning errors on missing fields.
+///
+/// Displays source, baseline commit/date, and (when present) the script,
+/// command, and author that generated the baseline — full chain of custody.
+///
+/// # Errors
+///
+/// Returns [`BenchFieldError`] if `_source`, `_provenance.baseline_commit`,
+/// or `_provenance.baseline_date` is missing or not a string.
+pub fn try_print_provenance_header(bench: &Value, title: &str) -> BenchResult<()> {
     println!("{}", "=".repeat(72));
     println!("groundSpring Rust Validation: {title}");
-    println!(
-        "  Source: {}",
-        bench["_source"]
-            .as_str()
-            .expect("benchmark JSON missing _source")
-    );
-    let prov = &bench["_provenance"];
-    println!(
-        "  Provenance: commit {}, {}",
-        prov["baseline_commit"]
-            .as_str()
-            .expect("provenance missing baseline_commit"),
-        prov["baseline_date"]
-            .as_str()
-            .expect("provenance missing baseline_date"),
-    );
-    if let Some(script) = prov["validation_script"]
-        .as_str()
-        .or_else(|| bench["validation_script"].as_str())
+    let source = get_str(bench, "_source")?;
+    println!("  Source: {source}");
+    let prov = bench.get("_provenance").ok_or_else(|| BenchFieldError {
+        field: "_provenance".into(),
+        expected: "object",
+    })?;
+    let commit = get_str(prov, "baseline_commit")?;
+    let date = get_str(prov, "baseline_date")?;
+    println!("  Provenance: commit {commit}, {date}");
+    if let Some(script) = prov
+        .get("validation_script")
+        .and_then(Value::as_str)
+        .or_else(|| bench.get("validation_script").and_then(Value::as_str))
     {
         println!("  Script: {script}");
     }
-    if let Some(cmd) = prov["command"]
-        .as_str()
-        .or_else(|| bench["command"].as_str())
+    if let Some(cmd) = prov
+        .get("command")
+        .and_then(Value::as_str)
+        .or_else(|| bench.get("command").and_then(Value::as_str))
     {
         println!("  Command: {cmd}");
     }
-    if let Some(author) = prov["generated_by"]
-        .as_str()
-        .or_else(|| bench["generated_by"].as_str())
+    if let Some(author) = prov
+        .get("generated_by")
+        .and_then(Value::as_str)
+        .or_else(|| bench.get("generated_by").and_then(Value::as_str))
     {
         println!("  Author: {author}");
     }
     println!("{}", "=".repeat(72));
+    Ok(())
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
     use serde_json::json;
@@ -475,7 +523,7 @@ mod tests {
     }
 
     #[test]
-    fn print_provenance_header_does_not_panic() {
+    fn print_provenance_header_succeeds() {
         let bench = json!({
             "_source": "Test experiment",
             "_provenance": {
@@ -483,14 +531,13 @@ mod tests {
                 "baseline_date": "2026-02-27"
             }
         });
-        print_provenance_header(&bench, "Test Title");
+        try_print_provenance_header(&bench, "Test Title").unwrap();
     }
 
     #[test]
-    #[should_panic(expected = "benchmark JSON missing _source")]
-    fn print_provenance_header_panics_on_missing_source() {
+    fn try_print_provenance_header_err_on_missing_source() {
         let bench = json!({"_source": null, "_provenance": {}});
-        print_provenance_header(&bench, "Fallback");
+        assert!(try_print_provenance_header(&bench, "Fallback").is_err());
     }
 
     #[test]

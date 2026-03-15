@@ -185,6 +185,7 @@ pub fn thornthwaite_heat_index(monthly_temps: &[f64; 12]) -> f64 {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
 

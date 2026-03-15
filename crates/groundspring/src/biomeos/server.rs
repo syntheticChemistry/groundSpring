@@ -27,7 +27,7 @@ use super::{BiomeOsError, FAMILY_ID, Result};
 /// 2. `$BIOMEOS_SOCKET_DIR/{FAMILY_ID}-{family}.sock`
 /// 3. `$XDG_RUNTIME_DIR/biomeos/{FAMILY_ID}-{family}.sock`
 /// 4. `/run/user/{uid}/biomeos/{FAMILY_ID}-{family}.sock`
-/// 5. `/tmp/{FAMILY_ID}-{family}.sock`
+/// 5. `<temp_dir>/{FAMILY_ID}-{family}.sock` (platform-agnostic via `std::env::temp_dir`)
 #[must_use]
 pub fn socket_path() -> PathBuf {
     if let Ok(explicit) = std::env::var("GROUNDSPRING_SOCKET") {
@@ -59,7 +59,7 @@ pub fn socket_path() -> PathBuf {
         }
     }
 
-    PathBuf::from("/tmp").join(filename)
+    std::env::temp_dir().join(filename)
 }
 
 /// Bind a Unix domain socket at the resolved path.

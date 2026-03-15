@@ -389,6 +389,7 @@ pub fn fit_all(xs: &[f64], ys: &[f64]) -> Vec<NonlinearFit> {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
     use crate::tol;

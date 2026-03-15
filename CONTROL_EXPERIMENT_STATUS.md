@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 15, 2026 (V103 — 936 tests (all feature gates), 102 delegations, barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10, deep debt audit: named constants with provenance, biomeos/interaction extraction, centralized tolerances, zero clippy)
+**Last updated**: March 15, 2026 (V105 — 936 tests (all feature gates), 102 delegations, barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10, deep debt audit: named constants with provenance, biomeos/interaction extraction, centralized tolerances, zero clippy)
 
 ## Experiment Register
 
@@ -49,13 +49,13 @@
 **Rust tests**: 908/908 PASS (default workspace)
 **pytest**: 390/390 PASS + 2 skipped
 **Three-tier parity**: 102+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
-**BarraCUDA dispatch**: 102 active (61 CPU + 41 GPU) — V104: barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10. `PrecisionRoutingAdvice` wired into 11 GPU dispatch paths via `get_device_f64_safe()`. tarpc 0.37, ops GPU-gated rewire, domain-esn feature, Rust 2024 unsafe model. coralReef sovereign dispatch path proven on Titan V
+**BarraCUDA dispatch**: 102 active (61 CPU + 41 GPU) — V105: barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10. `PrecisionRoutingAdvice` wired into 11 GPU dispatch paths via `get_device_f64_safe()`. tarpc 0.37, ops GPU-gated rewire, domain-esn feature, Rust 2024 unsafe model. coralReef sovereign dispatch path proven on Titan V
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); compute.execute + compute.submit validated
 **metalForge workloads**: 30 (24 GPU + 2 NPU + 2 CPU-only), 140 checks
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
 **Paper 12**: `tissue_anderson` module — 18 unit tests + 29/29 validation checks + 4D Anderson + Wegner RG (V68)
-**Handoff**: V104 (deep debt audit — barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10, 21 GPU paths precision-routed)
+**Handoff**: V105 (deep debt audit — barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10, 21 GPU paths precision-routed)
 
 **Python checks**: ~160 across 28 experiments. **Rust validation checks**: 395 (340 core + 55 NUCLEUS). **metalForge + pipeline checks**: 140.
 
@@ -565,7 +565,7 @@ Each experiment is validated at three hardware tiers:
 | **GPU** | `barracuda` feature + GPU adapter | GPU matches CPU within tolerance |
 | **metalForge** | Mixed hardware dispatch | Cross-substrate agreement |
 
-### Current Status (V104)
+### Current Status (V105)
 
 | # | Experiment | CPU | GPU | metalForge | GPU Status |
 |---|-----------|:---:|:---:|:----------:|------------|
@@ -602,10 +602,10 @@ Each experiment is validated at three hardware tiers:
 
 **CPU tier**: 395/395 PASS (34 binaries, complete)
 **GPU tier**: 27 of 34 papers have GPU wiring (79%). 102 delegations (61 CPU + 41 GPU). 30/30 metalForge parity.
-**V104**: Exp 023/024 GPU wired (V95). PrecisionRoutingAdvice wired into 11 f64 reduction GPU paths (V96). barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10.
+**V105**: Exp 023/024 GPU wired (V95). PrecisionRoutingAdvice wired into 11 f64 reduction GPU paths (V96). barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10.
 **metalForge tier**: 30 workloads, 140 checks. Exp 028 NPU 9/9 PASS (AKD1000 DMA). GPU→NPU→CPU pipeline dispatch validated.
 
-### BarraCUDA Integration Status (V104 — toadStool S130+, coralReef Iteration 10)
+### BarraCUDA Integration Status (V105 — toadStool S130+, coralReef Iteration 10)
 
 **102 active delegations** (61 CPU + 41 GPU). V82: `BootstrapMeanGpu` GPU dispatch, `freeze_out` gate fix. V81: fused `correlation_full` GPU. V68: `lbfgs_numerical`, `anderson_4d`, `wegner_block_4d`. All active delegations use `if let Ok` / `#[cfg]` with always-compiled CPU fallback.
 
@@ -876,7 +876,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_V104_DEEP_DEBT_BARRACUDA_ABSORPTION_HANDOFF_MAR15_2026.md`
+Active: `wateringHole/handoffs/GROUNDSPRING_V105_CODE_EVOLUTION_BARRACUDA_TOADSTOOL_HANDOFF_MAR15_2026.md`
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

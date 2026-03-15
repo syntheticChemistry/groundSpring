@@ -58,7 +58,7 @@ crates/
     src/quasispecies.rs    Eigen error threshold, master frequency, Wright-Fisher mutation
     src/band_structure.rs  Transfer matrix, band edge detection, periodic Hamiltonian
     src/jackknife.rs       Jackknife variance, bias correction, leave-one-out resampling
-    src/freeze_out.rs     Freeze-out temperature inversion, hadron yield fitting
+    src/freeze_out/       Freeze-out temperature inversion, hadron yield fitting
     src/spectral_recon.rs  Spectral reconstruction from Euclidean correlators
     src/wdm.rs             WDM transport: precision drift, size convergence, vendor parity
     src/npu.rs             NPU integration for AKD1000 neuromorphic inference (behind npu feature)

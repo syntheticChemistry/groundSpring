@@ -211,6 +211,7 @@ fn percentile_cpu(values: &[f64], p: f64) -> f64 {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
     use crate::tol;

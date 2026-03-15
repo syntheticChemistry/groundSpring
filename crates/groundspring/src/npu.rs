@@ -321,6 +321,7 @@ pub fn load_classifier_weights(handle: &mut NpuHandle, weights: &[i8; 9]) -> Res
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
     use crate::tol;

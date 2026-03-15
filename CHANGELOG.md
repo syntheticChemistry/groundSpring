@@ -4,6 +4,34 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V105 Deep Code Evolution (Mar 15, 2026)
+
+#### Panic-Free Production Code
+- `#![deny(clippy::expect_used, clippy::unwrap_used)]` enforced across all 3 crate roots
+- 9 validation helpers annotated with `#[expect(clippy::expect_used, reason = "...")]`
+- `print_provenance_header` evolved: new `try_print_provenance_header()` returns `BenchResult<()>`
+- 88 test modules annotated with `#[allow(clippy::unwrap_used, clippy::expect_used)]`
+
+#### Smart Module Refactoring
+- `freeze_out.rs` (715 LOC) → 4 domain-aligned submodules: `curve.rs`, `grid.rs`, `chi2.rs`, `nelder_mead.rs`
+- Largest file reduced from 715 to 642 LOC (`fao56/mod.rs`)
+
+#### Typed IPC Client
+- `ipc.rs`: `GroundSpringClient` with `connect_unix()`, `connect_discovered()`, typed methods
+- Runtime socket discovery: `GROUNDSPRING_IPC_SOCKET` → `$XDG_RUNTIME_DIR` → `temp_dir()`
+- `IpcError` type with `Display` and `Error` impls
+
+#### Platform Agnosticism
+- `biomeos/server.rs`: `/tmp` → `std::env::temp_dir()`
+- metalForge validation binaries: hardcoded node names → `GROUNDSPRING_TEST_TOWER`/`GROUNDSPRING_TEST_NODE` env vars
+- `et0_methods.py`: `"baseline_commit": "pending"` → `git_commit_hash()`
+
+#### Tolerance Evolution
+- `validate_quasispecies.rs`: bare `0.05` → `TOL_RAREFACTION_PROP`
+- `validate_notill_sampling.rs`: bare `1e-12` → `groundspring::tol::EXACT`
+- `control/common.py`: 15 named tolerance constants mirroring `groundspring::tol`
+- `control/common.py`: `git_commit_hash()` shared utility for provenance
+
 ### V104 Deep Debt Resolution + Ecosystem Alignment (Mar 15, 2026)
 
 #### Named Constants with Physical Provenance

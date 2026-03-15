@@ -241,6 +241,7 @@ fn extract_capabilities(json: &str) -> Vec<Capability> {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
 

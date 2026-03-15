@@ -264,6 +264,7 @@ fn detect_transition_gpu(deriv: &[f64], sweep: &[SweepPoint]) -> Option<f64> {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
     use crate::tol;

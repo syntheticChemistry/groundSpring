@@ -324,6 +324,7 @@ fn covariance_cpu(x: &[f64], y: &[f64]) -> f64 {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
     use crate::tol;

@@ -369,6 +369,7 @@ pub fn find_barrier_transition_w_c(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
 

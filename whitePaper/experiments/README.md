@@ -12,7 +12,7 @@
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **Coverage**: Zero clippy warnings (pedantic + nursery, -D warnings). Zero unsafe. Zero TODO/FIXME. All files < 1000 lines. CI targets 90% line coverage via `cargo-llvm-cov`.
 **barraCuda**: 102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10. `PrecisionRoutingAdvice` wired into 21 GPU dispatch paths.
-**NUCLEUS**: biomeOS Neural API live (V104) — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) with sovereign fallback. Adaptive health probing, direct primal discovery.
+**NUCLEUS**: biomeOS Neural API live (V105) — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) with sovereign fallback. Adaptive health probing, direct primal discovery. Typed tarpc IPC client with runtime socket discovery.
 **Modules**: 34 (including `esn`, `lanczos`, `linalg`, `error`, `jackknife`, `freeze_out`, `spectral_recon`, `wdm`, `npu`, `biomeos`, `nestgate`, `drift`, `tissue_anderson`).
 **metalForge**: 30 workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed), 140 metalForge checks, 5+ substrates, architecture-aware routing, `PCIe` topology, GPU→NPU PCIe bypass, pipeline dispatch, NUCLEUS atomics.
 **Baseline integrity**: All 28 benchmark JSONs verified — provenance fields, hex commit hashes, UTF-8. Python CI coverage enforced at 80%.

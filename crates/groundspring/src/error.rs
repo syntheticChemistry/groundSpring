@@ -72,6 +72,7 @@ impl fmt::Display for InputError {
 impl std::error::Error for InputError {}
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
 

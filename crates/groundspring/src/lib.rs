@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 #![forbid(unsafe_code)]
+#![deny(clippy::expect_used, clippy::unwrap_used)]
 
 //! # groundSpring
 //!
@@ -262,6 +263,7 @@ pub(crate) mod eps {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
 

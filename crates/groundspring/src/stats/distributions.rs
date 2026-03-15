@@ -160,6 +160,7 @@ fn chi2_statistic_cpu(observed: &[f64], expected: &[f64]) -> f64 {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
     use crate::tol;

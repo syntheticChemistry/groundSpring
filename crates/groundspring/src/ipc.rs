@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
-//! Type-safe IPC service traits for ecosystem communication.
+//! Type-safe IPC service traits and client for ecosystem communication.
 //!
 //! Implements the ecoPrimals `UNIVERSAL_IPC_STANDARD_V3`:
 //! - **JSON-RPC 2.0**: Human-readable, debuggable (see [`crate::biomeos`])
@@ -15,12 +15,23 @@
 //!
 //! All methods follow `domain.operation` format per
 //! `SEMANTIC_METHOD_NAMING_STANDARD`:
-//! - `science.*` — groundSpring experiment capabilities
+//! - `measurement.*` — groundSpring experiment capabilities
 //! - `compute.*` — GPU/NPU dispatch
 //! - `storage.*` — Provenance and data
 //! - `data.*` — Live data pipelines (NCBI, NOAA, IRIS)
+//!
+//! # Client usage
+//!
+//! ```rust,ignore
+//! use groundspring::ipc::GroundSpringClient;
+//!
+//! let client = GroundSpringClient::connect_unix("/run/user/1000/biomeos/groundspring.sock").await?;
+//! let result = client.anderson_validation(3.5, 1000, "f64".into()).await?;
+//! ```
 
-/// groundSpring science capabilities exposed to the ecosystem.
+use std::path::Path;
+
+/// groundSpring measurement capabilities exposed to the ecosystem.
 ///
 /// These are the capabilities groundSpring registers with `biomeOS` for
 /// other primals to discover and invoke at runtime.
@@ -84,4 +95,157 @@ pub trait DataPipeline {
 
     /// Fetch IRIS seismic station metadata.
     async fn iris_stations(params_json: String) -> Result<String, String>;
+}
+
+// ─── Client ──────────────────────────────────────────────────────────────
+
+/// Error type for typed IPC client operations.
+#[derive(Debug)]
+pub struct IpcError(pub String);
+
+impl std::fmt::Display for IpcError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "ipc: {}", self.0)
+    }
+}
+
+impl std::error::Error for IpcError {}
+
+/// Result alias for IPC operations.
+pub type IpcResult<T> = Result<T, IpcError>;
+
+/// Typed IPC client for groundSpring measurement capabilities.
+///
+/// Wraps a tarpc channel connected over Unix domain socket transport.
+/// The client discovers the endpoint at runtime via socket path, never
+/// hardcoding primal addresses.
+pub struct GroundSpringClient {
+    inner: GroundSpriScienceClient,
+}
+
+impl GroundSpringClient {
+    /// Connect to a groundSpring IPC endpoint over Unix domain socket.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`IpcError`] if the socket cannot be connected.
+    pub async fn connect_unix(path: &Path) -> IpcResult<Self> {
+        let transport =
+            tarpc::serde_transport::unix::connect(path, tarpc::tokio_serde::formats::Json::default)
+                .await
+                .map_err(|e| IpcError(format!("connect {}: {e}", path.display())))?;
+
+        let client =
+            GroundSpriScienceClient::new(tarpc::client::Config::default(), transport).spawn();
+
+        Ok(Self { inner: client })
+    }
+
+    /// Connect via runtime-discovered socket (env-based discovery).
+    ///
+    /// Fallback chain:
+    /// 1. `GROUNDSPRING_IPC_SOCKET` env var
+    /// 2. `$XDG_RUNTIME_DIR/biomeos/groundspring-ipc.sock`
+    /// 3. `<temp_dir>/groundspring-ipc.sock`
+    ///
+    /// # Errors
+    ///
+    /// Returns [`IpcError`] if no socket is found or connection fails.
+    pub async fn connect_discovered() -> IpcResult<Self> {
+        let path = discover_ipc_socket()
+            .ok_or_else(|| IpcError("no groundspring IPC socket discovered".into()))?;
+        Self::connect_unix(&path).await
+    }
+
+    /// Validate an Anderson localization experiment.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`IpcError`] on transport or remote error.
+    pub async fn anderson_validation(
+        &self,
+        disorder_strength: f64,
+        lattice_size: u32,
+        precision: String,
+    ) -> IpcResult<String> {
+        self.inner
+            .anderson_validation(
+                tarpc::context::current(),
+                disorder_strength,
+                lattice_size,
+                precision,
+            )
+            .await
+            .map_err(|e| IpcError(format!("rpc: {e}")))?
+            .map_err(|e| IpcError(e))
+    }
+
+    /// Run noise decomposition (bias-variance).
+    ///
+    /// # Errors
+    ///
+    /// Returns [`IpcError`] on transport or remote error.
+    pub async fn noise_decomposition(
+        &self,
+        observed: Vec<f64>,
+        predicted: Vec<f64>,
+    ) -> IpcResult<String> {
+        self.inner
+            .noise_decomposition(tarpc::context::current(), observed, predicted)
+            .await
+            .map_err(|e| IpcError(format!("rpc: {e}")))?
+            .map_err(|e| IpcError(e))
+    }
+
+    /// Check cross-substrate parity.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`IpcError`] on transport or remote error.
+    pub async fn parity_check(&self, exp_id: u32, substrate: String) -> IpcResult<String> {
+        self.inner
+            .parity_check(tarpc::context::current(), exp_id, substrate)
+            .await
+            .map_err(|e| IpcError(format!("rpc: {e}")))?
+            .map_err(|e| IpcError(e))
+    }
+
+    /// Propagate ET₀ uncertainty through FAO-56.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`IpcError`] on transport or remote error.
+    pub async fn et0_propagation(&self, params: String) -> IpcResult<String> {
+        self.inner
+            .et0_propagation(tarpc::context::current(), params)
+            .await
+            .map_err(|e| IpcError(format!("rpc: {e}")))?
+            .map_err(|e| IpcError(e))
+    }
+}
+
+/// Discover the groundSpring IPC socket path via environment.
+fn discover_ipc_socket() -> Option<std::path::PathBuf> {
+    if let Ok(explicit) = std::env::var("GROUNDSPRING_IPC_SOCKET") {
+        let path = std::path::PathBuf::from(explicit);
+        if path.exists() {
+            return Some(path);
+        }
+    }
+
+    if let Ok(xdg) = std::env::var("XDG_RUNTIME_DIR") {
+        let path = std::path::PathBuf::from(xdg)
+            .join("biomeos")
+            .join("groundspring-ipc.sock");
+        if path.exists() {
+            return Some(path);
+        }
+    }
+
+    let path = std::env::temp_dir().join("groundspring-ipc.sock");
+    if path.exists() {
+        return Some(path);
+    }
+
+    None
 }

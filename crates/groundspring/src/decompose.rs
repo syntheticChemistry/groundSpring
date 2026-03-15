@@ -114,6 +114,7 @@ pub fn noise_floor_reduction(factory_rmse: f64, corrected_rmse: f64) -> NoiseFlo
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
     use crate::tol;

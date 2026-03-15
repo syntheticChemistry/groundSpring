@@ -414,7 +414,8 @@ fn validate_node_atomic_pipeline(h: &mut Harness) {
     let inventory = Inventory {
         substrates: vec![test_gpu(), test_npu(), test_cpu()],
     };
-    let node = NodeAtomic::with_inventory("eastgate", inventory);
+    let node_name = std::env::var("GROUNDSPRING_TEST_NODE").unwrap_or_else(|_| "eastgate".into());
+    let node = NodeAtomic::with_inventory(&node_name, inventory);
 
     let pipeline = Pipeline::new("Anderson via NodeAtomic")
         .stage(Stage::new("classify", anderson_classify_workload(), 256))

@@ -277,14 +277,15 @@ fn validate_pipeline_planning(h: &mut Harness) {
 fn validate_atomics(h: &mut Harness) {
     println!("\n--- Section D: NUCLEUS Atomics ---\n");
 
-    let tower = TowerAtomic::new("eastgate");
+    let tower_name = std::env::var("GROUNDSPRING_TEST_TOWER").unwrap_or_else(|_| "eastgate".into());
+    let tower = TowerAtomic::new(&tower_name);
     h.check("tower unhealthy by default", !tower.is_healthy());
     h.check(
         "tower has no capabilities when unhealthy",
         tower.capabilities().is_empty(),
     );
 
-    let mut healthy_tower = TowerAtomic::new("eastgate");
+    let mut healthy_tower = TowerAtomic::new(&tower_name);
     healthy_tower.set_provider_health("crypto", PrimalHealth::Healthy);
     healthy_tower.set_provider_health("discovery", PrimalHealth::Healthy);
     h.check(
@@ -341,8 +342,9 @@ fn validate_degradation(h: &mut Harness) {
     let inv = Inventory {
         substrates: biomegate_inventory(),
     };
+    let node_name = std::env::var("GROUNDSPRING_TEST_NODE").unwrap_or_else(|_| "strandgate".into());
     let mut nucleus = FullNucleus {
-        node: NodeAtomic::with_inventory("strandgate", inv),
+        node: NodeAtomic::with_inventory(&node_name, inv),
         storage: PrimalHealth::Unavailable,
         inference: PrimalHealth::Unavailable,
     };

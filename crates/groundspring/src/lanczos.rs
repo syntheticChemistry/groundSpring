@@ -76,6 +76,7 @@ pub(crate) fn eigenvalues_from_csr(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     #[cfg(feature = "barracuda-gpu")]
     use super::*;

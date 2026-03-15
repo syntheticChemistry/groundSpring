@@ -178,6 +178,7 @@ pub(super) fn select_cell_type(composition: &[(CellType, f64)], u: f64) -> CellT
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
     use crate::tol;

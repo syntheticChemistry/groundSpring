@@ -47,6 +47,7 @@ from common import (
     check_min,
     check_range,
     check_true,
+    git_commit_hash,
     print_summary,
     reset_counters,
 )
@@ -434,7 +435,7 @@ def main():
             "data_origin": "FAO-56 Example 18 (Uccle, Belgium, 6 July). "
                            "Makkink (1957), Turc (1961), Hamon (1963), Hargreaves & Samani (1985).",
             "baseline_date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-            "baseline_commit": "pending",
+            "baseline_commit": git_commit_hash(),
             "validation_script": "control/et0_methods/et0_methods.py",
             "command": "python3 control/et0_methods/et0_methods.py",
             "python_version": sys.version.split()[0],

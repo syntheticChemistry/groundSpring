@@ -12,6 +12,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **395/395 checks passed** across 34 validation binaries (340 core + 55 NUCLEUS).
 - Mathematical parity: **29/29 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.6× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.4× from Sturm tridiag**.
+- V105: Code evolution — BarraCuda/ToadStool handoff. Panic-free production (`#![deny(expect_used, unwrap_used)]`), freeze_out submodule refactor, typed IPC client, env-configurable paths. 936 tests.
 - V103: Deep debt audit — named constants with provenance, `biomeos/interaction` extraction, `eps::LOG_FLOOR` and `TOL_ET0` centralized, tissue-anderson thresholds documented (Paper 12), zero clippy (pedantic + nursery). 936 tests (all feature gates).
 - V102: Niche deployment via biomeOS graph composition.
 - V101: DRY evolution + capability-based discovery.

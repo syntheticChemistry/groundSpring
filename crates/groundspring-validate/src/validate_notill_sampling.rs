@@ -24,7 +24,7 @@ fn generate_community(n_genera: usize, mu: f64, sigma: f64, seed: u64) -> Vec<f6
     let mut raw: Vec<f64> = (0..n_genera)
         .map(|_| {
             let z = rng.next_normal();
-            sigma.mul_add(z, mu).exp().max(1e-12) // floor prevents zero-abundance genera in Shannon ln(p)
+            sigma.mul_add(z, mu).exp().max(groundspring::tol::EXACT)
         })
         .collect();
     let total: f64 = raw.iter().sum();
@@ -195,11 +195,14 @@ fn run() -> i32 {
 
     let base_seed = rarefaction["seed"].as_u64().unwrap_or(42);
     let n_reps = usize_field(rarefaction, "n_replicates");
-    let depths: Vec<u64> = rarefaction["depths"]
-        .as_array()
-        .expect("depths array")
+    let depths: Vec<u64> = groundspring_validate::get_array(rarefaction, "depths")
+        .expect("benchmark depths array")
         .iter()
-        .map(|v| v.as_u64().expect("depth u64"))
+        .enumerate()
+        .map(|(i, v)| {
+            v.as_u64()
+                .unwrap_or_else(|| panic!("benchmark depths[{i}]: expected u64"))
+        })
         .collect();
 
     println!("\n--- Part 1: Synthetic Communities ---");
@@ -216,11 +219,7 @@ fn run() -> i32 {
                     fallback_seed,
                 )
             },
-            |arr| {
-                arr.iter()
-                    .map(|v| v.as_f64().expect("abundance f64"))
-                    .collect()
-            },
+            |arr| arr.iter().map(|v| v.as_f64().unwrap_or(0.0)).collect(),
         )
     };
     let notill_comm = load_community(notill_cfg, base_seed);
@@ -258,6 +257,7 @@ fn main() {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     #[test]
     fn validation_passes() {

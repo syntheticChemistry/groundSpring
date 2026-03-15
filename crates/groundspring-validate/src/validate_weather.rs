@@ -244,6 +244,7 @@ fn validate_observation_gap_benchmark(h: &mut ValidationHarness) {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     #[test]
     fn validation_passes() {

@@ -370,6 +370,7 @@ pub fn seed_around_edges(edges: &[ConceptEdge], n_seeds: usize, radius: f64) -> 
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
     use crate::tol;

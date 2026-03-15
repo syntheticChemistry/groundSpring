@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 15, 2026 (V104)
+**Last Updated**: March 15, 2026 (V105)
 
 ## What This Is
 
@@ -18,7 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V104 Deep Debt + Absorption | [GROUNDSPRING_V104_DEEP_DEBT_BARRACUDA_ABSORPTION_HANDOFF_MAR15_2026.md](handoffs/GROUNDSPRING_V104_DEEP_DEBT_BARRACUDA_ABSORPTION_HANDOFF_MAR15_2026.md) | Mar 15, 2026 | Comprehensive deep-debt resolution: 30+ named constants with physical provenance, capability-based discovery (zero hardcoded primal names), AGPL-3.0-or-later alignment, rustdoc zero-warning, `measurement.*` capability surface, P1 batch absorption opportunities, learnings for ecosystem evolution. |
+| V105 Code Evolution | [GROUNDSPRING_V105_CODE_EVOLUTION_BARRACUDA_TOADSTOOL_HANDOFF_MAR15_2026.md](handoffs/GROUNDSPRING_V105_CODE_EVOLUTION_BARRACUDA_TOADSTOOL_HANDOFF_MAR15_2026.md) | Mar 15, 2026 | Code evolution: deny unwrap/expect, freeze_out module refactor (4 submodules), typed tarpc IPC, platform-agnostic paths, env-configurable node names, shared Python tolerances. |
 
 ## Cross-Spring Documentation
 

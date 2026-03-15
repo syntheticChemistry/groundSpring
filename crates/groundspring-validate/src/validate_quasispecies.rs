@@ -13,7 +13,9 @@ use groundspring::quasispecies::{
     error_threshold, master_frequency_analytical, mean_fitness, quasispecies_simulation,
 };
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, f64_range, print_provenance_header, usize_field};
+use groundspring_validate::{
+    TOL_RAREFACTION_PROP, f64_field, f64_range, print_provenance_header, usize_field,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str =
@@ -35,14 +37,11 @@ fn run() -> i32 {
     let genome_length = usize_field(model, "genome_length");
     let sigma = f64_field(model, "master_fitness");
     let n_gen = usize_field(model, "n_generations");
-    let base_seed = model["base_seed"].as_u64().expect("base_seed");
+    let base_seed =
+        groundspring_validate::get_u64(model, "base_seed").expect("benchmark base_seed");
 
-    let mutation_rates: Vec<f64> = model["mutation_rates"]
-        .as_array()
-        .expect("mutation_rates")
-        .iter()
-        .map(|v| v.as_f64().expect("f64"))
-        .collect();
+    let mutation_rates = groundspring_validate::get_f64_vec(model, "mutation_rates")
+        .expect("benchmark mutation_rates");
 
     let mu_c = error_threshold(sigma, genome_length);
 
@@ -121,7 +120,9 @@ fn run() -> i32 {
 
     // Part 5: Monotonicity
     println!("\n--- Part 5: Monotonicity ---");
-    let decreasing = steady_states.windows(2).all(|w| w[0] >= w[1] - 0.05);
+    let decreasing = steady_states
+        .windows(2)
+        .all(|w| w[0] >= w[1] - TOL_RAREFACTION_PROP);
     h.check_true("Master frequency decreases with μ", decreasing);
 
     // Part 6: Determinism
@@ -146,6 +147,7 @@ fn main() {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     #[test]
     fn validation_passes() {

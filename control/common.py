@@ -12,12 +12,55 @@ of truth rather than carrying its own copy.
 from __future__ import annotations
 
 import math
+import subprocess
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
 
 if TYPE_CHECKING:
     pass
+
+
+# ---------------------------------------------------------------------------
+# Git provenance
+# ---------------------------------------------------------------------------
+
+def git_commit_hash() -> str:
+    """Return the current HEAD commit hash, or 'unknown' if git is unavailable."""
+    try:
+        return subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=Path(__file__).resolve().parent.parent,
+        ).stdout.strip()
+    except Exception:  # noqa: BLE001
+        return "unknown"
+
+
+# ---------------------------------------------------------------------------
+# Tolerance constants — mirrors groundspring::tol for Rust↔Python parity
+# ---------------------------------------------------------------------------
+
+TOL_DETERMINISM = 1e-15
+TOL_STRICT = 1e-14
+TOL_EXACT = 1e-12
+TOL_ANALYTICAL = 1e-10
+TOL_INTEGRATION = 1e-8
+TOL_CDF_APPROX = 1e-6
+TOL_ROUNDTRIP = 1e-5
+TOL_RECONSTRUCTION = 1e-4
+TOL_LITERATURE = 0.001
+TOL_DECOMPOSITION = 0.005
+TOL_STOCHASTIC = 0.01
+TOL_NORM_2PCT = 0.02
+TOL_EQUILIBRIUM = 0.1
+
+EPS_SAFE_DIV = 1e-10
+EPS_LOG_FLOOR = 1e-15
+EPS_UNDERFLOW = 1e-300
 
 
 # ---------------------------------------------------------------------------

@@ -77,6 +77,7 @@ pub fn record_attribution(socket: &Path, session_id: &str, contribution: &str) -
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
 
