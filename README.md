@@ -358,7 +358,7 @@ groundSpring/
 │   ├── vendor_parity/              # Exp 027: GPU vendor parity
 │   └── npu_anderson/               # Exp 028: NPU Anderson regime classification
 ├── crates/
-│   ├── groundspring/               # Phase 1 Rust library (34 modules incl. esn, lanczos, tissue_anderson, biomeos, nestgate, npu)
+│   ├── groundspring/               # Phase 1 Rust library (38 modules incl. esn, lanczos, tissue_anderson, biomeos, nestgate, npu)
 │   └── groundspring-validate/      # 34 validation binaries (hotSpring pattern)
 ├── metalForge/                     # Write → Absorb → Lean artifacts
 │   ├── forge/                      # groundspring-forge crate: hardware discovery, dispatch, topology, pipeline, atomics, remote

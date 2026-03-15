@@ -1,7 +1,7 @@
 # groundSpring V105 — Code Evolution + barraCuda/toadStool Absorption Handoff
 
 **Date**: March 15, 2026
-**From**: groundSpring V105 (37 modules, 936 tests, 102 delegations)
+**From**: groundSpring V105 (38 modules, 936 tests, 102 delegations)
 **To**: barraCuda / toadStool teams
 **Authority**: wateringHole (ecoPrimals Core Standards)
 **Supersedes**: GROUNDSPRING_V104_DEEP_DEBT_BARRACUDA_ABSORPTION_HANDOFF_MAR15_2026.md
@@ -157,6 +157,30 @@ and values are now canonical: use `TOL_{TIER}` in Python, `tol::{TIER}` in Rust.
 3. **Spectral reconstruction defaults** → `barracuda::spectral::tikhonov_solve` config
 4. **Freeze-out grid scan defaults** → `barracuda::inverse::freeze_out_scan` config
 
+## Part 6: Self-Knowledge Module (`niche.rs`)
+
+New `niche.rs` module (airSpring pattern) — single source of truth for:
+
+- `NICHE_ID` — identity constant (replaces scattered `"groundspring"` literals)
+- `CAPABILITIES` (8) — all measurement capabilities
+- `SEMANTIC_MAPPINGS` (8) — operation → JSON-RPC method
+- `DEPENDENCIES` (4) — required/optional primals with descriptions
+- `COST_ESTIMATES` (8) — per-capability timing + GPU hints for Pathway Learner
+- `CONSUMED_CAPABILITIES` (13) — what groundSpring calls on other primals
+- `DELEGATION_COUNT` — (61 CPU, 41 GPU)
+- `FEATURE_GATES` (4) — barracuda, barracuda-gpu, biomeos, npu
+
+`biomeos/mod.rs` constants (`FAMILY_ID`, `MEASUREMENT_DOMAIN`,
+`MEASUREMENT_CAPABILITIES`, `MEASUREMENT_MAPPINGS`) now delegate to
+`crate::niche::*`. Zero duplication.
+
+### Action for toadStool / barraCuda
+
+The `niche.rs` pattern should become standard for all springs. It makes a
+niche self-describing at compile time — biomeOS can introspect capabilities,
+dependencies, and scheduling hints without runtime discovery. Consider
+promoting the pattern to a shared trait or macro in barraCuda.
+
 ## P2: TensorSession Adoption (planned)
 
 Streaming primitive for continuous biomeOS mode. Entry point: fused multi-op
@@ -193,6 +217,11 @@ pipelines in `fao56/pipeline.rs` and `bootstrap/`.
 6. **`std::env::temp_dir()` over `/tmp`.** Simple but critical for cross-platform
    sovereign compute. macOS uses `/private/tmp`, Windows uses `%TEMP%`.
 
+7. **Self-knowledge modules make niches introspectable.** `niche.rs` holds
+   capabilities, dependencies, costs, and feature gates in one file. biomeOS
+   can read this at compile time for scheduling and dependency resolution.
+   airSpring pioneered the pattern; groundSpring adopted it. All springs should.
+
 ## Verification
 
 ```bash
@@ -206,7 +235,8 @@ cargo test --workspace           # 936 passed, 0 failed
 
 ~120 files across all 3 crates + Python:
 
-- `crates/groundspring/src/lib.rs` — `#![deny(clippy::expect_used, clippy::unwrap_used)]`
+- `crates/groundspring/src/niche.rs` — self-knowledge module (capabilities, deps, costs)
+- `crates/groundspring/src/lib.rs` — `#![deny(clippy::expect_used, clippy::unwrap_used)]` + `pub mod niche`
 - `crates/groundspring-validate/src/lib.rs` — same deny + Result-based provenance
 - `metalForge/forge/src/lib.rs` — same deny
 - `crates/groundspring/src/freeze_out/` — 4 new submodules (was single 715-LOC file)

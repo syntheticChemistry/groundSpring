@@ -818,7 +818,8 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V79: Exp 035 + seismic delegation | 85 delegations (51 CPU + 34 GPU), 807 tests, barraCuda v0.3.3, toadStool S94b | Archived |
 | V80: Fused Ops + BarraCuda Catch-Up | 87 delegations (51 CPU + 36 GPU), 812 tests, barraCuda v0.3.3+, toadStool S94b | Archived |
 | V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `0bd401f`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
-| V104: Deep Debt Resolution + Ecosystem Alignment | 102 delegations (61 CPU + 41 GPU), 936 tests, 30+ named constants with physical provenance, capability-based discovery, AGPL-3.0-or-later, measurement.* capability surface, zero clippy/doc warnings | **Current** |
+| V105: Code Evolution + barraCuda/toadStool Absorption | 102 delegations (61 CPU + 41 GPU), 936 tests, 38 modules, deep code evolution, Result-based provenance API, freeze_out submodules, typed tarpc IPC | **Current** |
+| V104: Deep Debt Resolution + Ecosystem Alignment | 102 delegations (61 CPU + 41 GPU), 936 tests, 30+ named constants with physical provenance, capability-based discovery, AGPL-3.0-or-later, measurement.* capability surface, zero clippy/doc warnings | Archived |
 | V103: Deep Debt Audit + Idiomatic Evolution | 102 delegations (61 CPU + 41 GPU), 936 tests, named constants with provenance, biomeos/interaction extraction, centralized tolerances, zero clippy (pedantic + nursery, all features) | Archived |
 | V102: Upstream Rewire (barraCuda v0.3.5, toadStool S130+, coralReef Iter 10) | 102 delegations (61 CPU + 41 GPU), 936 tests, zero API breakage, three-tier parity intact, coralReef f64 sovereign path unlocked | Archived |
 | V97: GPU Smoke Test + Three-Tier Parity | 102 delegations (61 CPU + 41 GPU), 936 tests, runtime f64 reduction smoke test, three-tier parity 29/29 at all tiers, 382 Python provenance tests | Archived |

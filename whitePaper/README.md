@@ -85,7 +85,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 ## Phase 1 Rust Library
 
-The `groundspring` crate provides 34 modules of pure safe Rust:
+The `groundspring` crate provides 38 modules of pure safe Rust:
 
 | Module | Experiment | GPU Tier | Notes |
 |--------|-----------|----------|-------|
