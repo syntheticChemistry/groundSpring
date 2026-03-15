@@ -24,20 +24,10 @@
 
 use groundspring::fao56::{self, DailyWeatherInputs};
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{TOL_EQUILIBRIUM, f64_field, print_provenance_header};
+use groundspring_validate::{TOL_EQUILIBRIUM, TOL_ET0, f64_field, print_provenance_header};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/et0_methods/benchmark_et0_methods.json");
-
-/// Rust vs Python ET₀ tolerance: same equations, small rounding diffs from
-/// trig intermediates (Ra), Kelvin convention (273.0 vs 273.16), `mul_add`
-/// vs multiply-then-add. Hargreaves amplifies Ra differences.
-///
-/// Provenance: `control/et0_methods/et0_methods.py` (commit `a29480fd`,
-/// 2026-03-05) — `python3 control/et0_methods/et0_methods.py`.
-/// Observed max delta: PM 0.002, HG 0.004, MK 0.001, TU 0.001, HA 0.001.
-/// 0.005 provides 1.25× margin over worst case (Hargreaves 0.004).
-const TOL_ET0: f64 = 0.005;
 
 /// Build the reference-site weather input from the benchmark JSON.
 fn build_site_input(site: &Value) -> DailyWeatherInputs {

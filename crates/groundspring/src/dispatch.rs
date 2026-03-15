@@ -13,6 +13,47 @@
 
 use serde_json::Value;
 
+// ─── Dispatch Defaults ───────────────────────────────────────────────────────
+//
+// RPC callers may omit optional parameters; these defaults mirror the
+// Bazavov et al. (2016) benchmark configuration and standard spectral
+// analysis conventions so that a bare `capability.call` returns sensible
+// results without requiring the caller to know domain physics.
+
+/// Default Tikhonov regularization for spectral feature extraction.
+///
+/// 1e-4 balances noise suppression against spectral peak resolution
+/// in the correlator → spectral-function inversion (Exp 028).
+const DEFAULT_REGULARIZATION: f64 = 1e-4;
+
+/// Default time-step spacing for correlator τ grid (spectral features).
+///
+/// 0.1 matches the Euclidean-time lattice spacing convention in
+/// hotSpring Exp 015/022 and barraCuda benchmark correlator data.
+const DEFAULT_TAU_STEP: f64 = 0.1;
+
+/// Default angular frequency spacing for spectral ω grid.
+///
+/// 0.2 provides sufficient resolution for Matsubara peak detection
+/// while keeping the kernel matrix well-conditioned.
+const DEFAULT_OMEGA_STEP: f64 = 0.2;
+
+/// Default measurement uncertainty σ for freeze-out fits.
+const DEFAULT_SIGMA: f64 = 1.0;
+
+/// Default T₀ grid lower bound (in `MeV`) — Bazavov et al. (2016).
+const DEFAULT_T0_LO: f64 = 100.0;
+/// Default T₀ grid upper bound (in `MeV`).
+const DEFAULT_T0_HI: f64 = 200.0;
+/// Default T₀ grid step size (in `MeV`).
+const DEFAULT_T0_STEP: f64 = 1.0;
+/// Default κ₂ grid lower bound — Bazavov et al. (2016).
+const DEFAULT_K2_LO: f64 = 0.001;
+/// Default κ₂ grid upper bound.
+const DEFAULT_K2_HI: f64 = 0.05;
+/// Default κ₂ grid step size.
+const DEFAULT_K2_STEP: f64 = 0.001;
+
 /// Dispatch a JSON-RPC method call to the appropriate library function.
 ///
 /// Returns `Ok(result_json)` on success or `Err(message)` on failure.
@@ -201,14 +242,14 @@ fn regime_classification(params: &Value) -> Result<Value, String> {
 fn spectral_features(params: &Value) -> Result<Value, String> {
     let correlator = extract_f64_array(params, "correlator")?;
     let n_omega = extract_usize(params, "n_omega", 50)?;
-    let alpha = extract_f64(params, "regularization", 1e-4);
+    let alpha = extract_f64(params, "regularization", DEFAULT_REGULARIZATION);
 
     let n_tau = correlator.len();
     let tau: Vec<f64> = (0..n_tau)
-        .map(|i| crate::cast::usize_f64(i) * 0.1)
+        .map(|i| crate::cast::usize_f64(i) * DEFAULT_TAU_STEP)
         .collect();
     let omega: Vec<f64> = (0..n_omega)
-        .map(|i| crate::cast::usize_f64(i) * 0.2)
+        .map(|i| crate::cast::usize_f64(i) * DEFAULT_OMEGA_STEP)
         .collect();
     let kernel = crate::spectral_recon::build_kernel(&tau, &omega);
     let rho = crate::spectral_recon::tikhonov_solve(&kernel, &correlator, alpha, n_tau, n_omega);
@@ -256,13 +297,13 @@ fn freeze_out(params: &Value) -> Result<Value, String> {
     let config = crate::freeze_out::GridFitConfig {
         observed: &observed,
         mu_b: &mu_b,
-        sigma: extract_f64(params, "sigma", 1.0),
-        t0_lo: extract_f64(params, "t0_lo", 100.0),
-        t0_hi: extract_f64(params, "t0_hi", 200.0),
-        t0_step: extract_f64(params, "t0_step", 1.0),
-        k2_lo: extract_f64(params, "k2_lo", 0.001),
-        k2_hi: extract_f64(params, "k2_hi", 0.05),
-        k2_step: extract_f64(params, "k2_step", 0.001),
+        sigma: extract_f64(params, "sigma", DEFAULT_SIGMA),
+        t0_lo: extract_f64(params, "t0_lo", DEFAULT_T0_LO),
+        t0_hi: extract_f64(params, "t0_hi", DEFAULT_T0_HI),
+        t0_step: extract_f64(params, "t0_step", DEFAULT_T0_STEP),
+        k2_lo: extract_f64(params, "k2_lo", DEFAULT_K2_LO),
+        k2_hi: extract_f64(params, "k2_hi", DEFAULT_K2_HI),
+        k2_step: extract_f64(params, "k2_step", DEFAULT_K2_STEP),
     };
 
     let fit =

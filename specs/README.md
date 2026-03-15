@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
-**Last Updated**: March 14, 2026
-**Status**: V102 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 102 delegations (61 CPU + 41 GPU) — 908 default-feature tests (936 across all feature gates), 287 Python tests, 140 metalForge checks, 35 experiments, 37 modules. Runtime f64 reduction smoke test + three-tier parity proven: 29/29 validation binaries PASS at default CPU, barracuda-CPU, and barracuda-GPU tiers
+**Last Updated**: March 15, 2026
+**Status**: V103 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 102 delegations (61 CPU + 41 GPU) — 936 tests (all feature gates), 287 Python tests, 140 metalForge checks, 35 experiments, 37 modules. Three-tier parity proven: 29/29. Deep debt audit (V103): named constants with provenance, biomeos/interaction extraction, centralized tolerances, zero clippy (pedantic + nursery)
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---

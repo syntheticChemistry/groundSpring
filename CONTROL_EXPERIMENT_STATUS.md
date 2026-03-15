@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 14, 2026 (V102 — 908 default-feature tests (936 across feature gates), 102 delegations, barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10, deep debt audit clean)
+**Last updated**: March 15, 2026 (V103 — 936 tests (all feature gates), 102 delegations, barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10, deep debt audit: named constants with provenance, biomeos/interaction extraction, centralized tolerances, zero clippy)
 
 ## Experiment Register
 
@@ -818,7 +818,8 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V79: Exp 035 + seismic delegation | 85 delegations (51 CPU + 34 GPU), 807 tests, barraCuda v0.3.3, toadStool S94b | Archived |
 | V80: Fused Ops + BarraCuda Catch-Up | 87 delegations (51 CPU + 36 GPU), 812 tests, barraCuda v0.3.3+, toadStool S94b | Archived |
 | V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `0bd401f`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
-| V102: Upstream Rewire (barraCuda v0.3.5, toadStool S130+, coralReef Iter 10) | 102 delegations (61 CPU + 41 GPU), 936 tests, zero API breakage, three-tier parity intact, coralReef f64 sovereign path unlocked | **Current** |
+| V103: Deep Debt Audit + Idiomatic Evolution | 102 delegations (61 CPU + 41 GPU), 936 tests, named constants with provenance, biomeos/interaction extraction, centralized tolerances, zero clippy (pedantic + nursery, all features) | **Current** |
+| V102: Upstream Rewire (barraCuda v0.3.5, toadStool S130+, coralReef Iter 10) | 102 delegations (61 CPU + 41 GPU), 936 tests, zero API breakage, three-tier parity intact, coralReef f64 sovereign path unlocked | Archived |
 | V97: GPU Smoke Test + Three-Tier Parity | 102 delegations (61 CPU + 41 GPU), 936 tests, runtime f64 reduction smoke test, three-tier parity 29/29 at all tiers, 382 Python provenance tests | Archived |
 | V96: Upstream Rewire + Precision Routing | 102 delegations (61 CPU + 41 GPU), 925 tests, barraCuda `2a6c072`, toadStool S130, coralReef Iteration 7, PrecisionRoutingAdvice wired, shader.compile.* IPC alignment, doc sync | Archived |
 | V95: coralReef Breakthrough | coralReef Phase 11, sovereign GPU dispatch on Titan V, push buffer encoding fixed, V95 handoff, doc sync | Superseded |

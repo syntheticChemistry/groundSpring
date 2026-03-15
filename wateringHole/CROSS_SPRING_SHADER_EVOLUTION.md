@@ -3,7 +3,7 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 7, 2026 (V98: 102 active delegations (61 CPU + 41 GPU), barraCuda `a898dee`, toadStool S130+, coralReef Iteration 10. V96: PrecisionRoutingAdvice wired into 11 GPU dispatch paths, upstream rewire. V95: coralReef push buffer breakthrough — sovereign GPU dispatch on Titan V, mthd_incr field swap fixed. V87: Tier B resolution. V85: coralReef sovereign compilation. V84: dual-GPU probe. V82: BootstrapMeanGpu. V73: 13-tier tolerance architecture)
+**Last Updated**: March 15, 2026 (V103: 102 active delegations (61 CPU + 41 GPU), barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10. V103: deep debt audit — named constants with provenance, batch absorption opportunities. V102: niche deployment. V98: upstream rewire. V95: coralReef push buffer breakthrough. V87: Tier B resolution. V73: 13-tier tolerance architecture)
 
 ---
 

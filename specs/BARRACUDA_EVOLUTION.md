@@ -2,18 +2,16 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 14, 2026 (V102 — 102 delegations (61 CPU + 41 GPU), 908 default-feature tests (936 across all feature gates),
-barraCuda `a898dee`, toadStool S130+, coralReef Iteration 10.
-V95: coralReef push buffer encoding breakthrough — Kepler+ mthd_incr field swap fixed,
-NVIF constants aligned to Mesa nvif/ioctl.h, sovereign GPU method dispatch proven on Titan V.
-V94: ecosystem sync — Shannon delegation, CorrelationFull API evolution.
-V93: smart refactoring (rarefaction, drift, tissue_anderson) + FFT wired into spectral_recon
-via Fft1DF64 for lattice correlator analysis. 3 module splits, 67 new tests.
-V91: complete ecosystem rewire — AutocorrelationF64, ESD, PeakDetectF64, CovarianceF64,
-Marchenko-Pastur. 21 benchmark workloads. Cross-spring shader evolution documented.
-V100: deep debt audit — build fix, tolerance provenance, capability-based health, test count alignment. V99: live NUCLEUS integration, adaptive primal discovery. V98: upstream rewire to barraCuda `a898dee`, toadStool S130+, coralReef Iteration 10.
-V90: deep debt — unsafe eliminated, 11 validation binaries migrated to barracuda::stats.
-V89: tarpc 0.37, domain-esn, Rust 2024. V88: deep audit. V85: coralReef.
+**Last updated**: March 15, 2026 (V103 — 102 delegations (61 CPU + 41 GPU), 936 tests (all feature gates),
+barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10.
+V103: deep debt audit — named constants with physical provenance (dispatch, ESN, tissue-anderson,
+tolerance), `biomeos/interaction` extraction, `eps::LOG_FLOOR` centralized, batch primitive
+absorption opportunities documented with constant provenance pattern.
+V102: niche deployment — UniBin, dispatch, measurement.* domain, deploy graph.
+V100: build fix, tolerance provenance, capability-based health.
+V98: upstream rewire to barraCuda `a898dee`, toadStool S130+, coralReef Iteration 10.
+V95: coralReef push buffer encoding breakthrough.
+V91: complete ecosystem rewire — 21 benchmark workloads.
 V80: fused correlation_full GPU. V73: 13-tier tolerance)
 
 ## Philosophy

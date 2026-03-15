@@ -95,7 +95,7 @@ where
     F: Fn(&str, &Value) -> std::result::Result<Value, String>,
 {
     if let Err(e) = handle_connection(stream, &handler) {
-        eprintln!("[groundspring] connection error: {e}");
+        log::error!("connection error: {e}");
     }
 }
 
@@ -167,7 +167,7 @@ mod tests {
 
     #[test]
     fn socket_path_respects_explicit_override() {
-        let _guard = temp_env::with_var("GROUNDSPRING_SOCKET", Some("/tmp/test.sock"), || {
+        temp_env::with_var("GROUNDSPRING_SOCKET", Some("/tmp/test.sock"), || {
             assert_eq!(socket_path(), PathBuf::from("/tmp/test.sock"));
         });
     }

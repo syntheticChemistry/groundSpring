@@ -159,7 +159,13 @@ pub fn multi_head_uncertainty(predictions: &[Vec<f64>]) -> MultiHeadUncertainty 
     let max_disagreement = means
         .iter()
         .zip(std_devs.iter())
-        .map(|(&m, &s)| if m.abs() > 1e-15 { s / m.abs() } else { s })
+        .map(|(&m, &s)| {
+            if m.abs() > crate::eps::LOG_FLOOR {
+                s / m.abs()
+            } else {
+                s
+            }
+        })
         .fold(0.0_f64, f64::max);
 
     MultiHeadUncertainty {
@@ -206,7 +212,7 @@ pub fn classification_uncertainty(outputs: &[f64]) -> ClassificationUncertainty 
 
     let entropy = -probs
         .iter()
-        .filter(|&&p| p > 1e-15)
+        .filter(|&&p| p > crate::eps::LOG_FLOOR)
         .map(|&p| p * p.log2())
         .sum::<f64>();
 

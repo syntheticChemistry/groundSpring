@@ -4,6 +4,29 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V103 Deep Debt Audit + Idiomatic Evolution (Mar 15, 2026)
+
+#### Code Quality — Zero Debt
+- Replaced `eprintln!` with `log::error!` in `biomeos/server.rs` (structured logging)
+- Fixed `clippy::let_unit_value` in `biomeos/server.rs` test
+- Zero clippy warnings with `--all-features` (pedantic + nursery verified)
+
+#### Named Constants with Provenance
+- `dispatch.rs`: 10 new `const` values (`DEFAULT_REGULARIZATION`, `DEFAULT_TAU_STEP`, `DEFAULT_OMEGA_STEP`, `DEFAULT_SIGMA`, `DEFAULT_T0_LO/HI/STEP`, `DEFAULT_K2_LO/HI/STEP`) replacing magic numbers, each with physical provenance
+- `esn/classifier.rs`: `ESN_READOUT_REGULARIZATION` extracted with `hotSpring` validation link
+- `esn/brain.rs`: bare `1e-15` replaced with `crate::eps::LOG_FLOOR`
+- `lib.rs`: new `eps::LOG_FLOOR` centralized for near-zero guards in log/entropy paths
+- `validate_tissue_anderson.rs`: 7 named thresholds with Paper 12 provenance (Gonzales)
+- `validate_et0_methods.rs`: `TOL_ET0` centralized to `groundspring-validate::lib.rs`
+
+#### Smart Refactoring
+- Extracted `biomeos/interaction.rs` from `biomeos/mod.rs` (683 → 531 LOC): primal discovery, `DiscoveredPrimal`, `direct_primal_rpc`, `proprioception`, `topology`
+- Assessed `freeze_out.rs` (706), `bootstrap.rs` (625), `fao56/mod.rs` (641) — cohesive units, no fragmentation warranted
+
+#### Doc Fixes
+- `clippy::doc_markdown`: backtick-wrapped `MeV`, `d_eff`, `W_c` in doc comments
+- `clippy::too_long_first_doc_paragraph`: rewrote `TOL_ET0` doc header
+
 ### V102 Niche Deployment via biomeOS Graph Composition (Mar 14, 2026)
 
 #### Architecture — Spring as Niche

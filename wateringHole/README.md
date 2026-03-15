@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 14, 2026 (V102)
+**Last Updated**: March 15, 2026 (V103)
 
 ## What This Is
 
@@ -18,7 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V102 Niche Deployment | [GROUNDSPRING_V102_NICHE_DEPLOYMENT_HANDOFF_MAR14_2026.md](handoffs/GROUNDSPRING_V102_NICHE_DEPLOYMENT_HANDOFF_MAR14_2026.md) | Mar 14, 2026 | Spring-as-Niche via biomeOS graph composition: UniBin binary, `measurement.*` domain, deploy graph, niche YAML, Provenance Trio graph wiring, Neural API `execute_graph` automation. 3 new modules (server, dispatch, provenance), 6 graphs evolved. |
+| V103 Absorption | [GROUNDSPRING_V103_BARRACUDA_TOADSTOOL_ABSORPTION_HANDOFF_MAR15_2026.md](handoffs/GROUNDSPRING_V103_BARRACUDA_TOADSTOOL_ABSORPTION_HANDOFF_MAR15_2026.md) | Mar 15, 2026 | Deep debt audit: named constants with provenance (dispatch, ESN, tissue-anderson, tolerance), `biomeos/interaction` extraction, `eps::LOG_FLOOR` centralized, batch primitive absorption opportunities (P1), constant provenance pattern for ecosystem adoption. |
 
 ## Cross-Spring Documentation
 
@@ -38,6 +38,8 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | Scope |
 |---------|-------|
+| V102 Niche Deployment | Spring-as-Niche via biomeOS graph composition: UniBin, `measurement.*`, deploy graph, niche YAML, Provenance Trio, Neural API (superseded by V103) |
+| V102 BarraCUDA/ToadStool Niche | Dispatch-through-delegation chain, method→library→delegation map, GPU evolution opportunities (superseded by V103) |
 | V101 DRY Evolution | ESNConfig upstream sync, DRY extraction (chi², R², bootstrap), capability-based primal discovery, hardcoded primal names eliminated, doc sovereignty (superseded by V102) |
 | V100 Deep Debt | Deep audit: build fix, silent fallback elimination, tolerance provenance, capability-based health. 908 tests, 102 delegations (superseded by V101) |
 | V99 NUCLEUS Live | First live NUCLEUS connection, adaptive health, direct primal discovery, 40/40 NUCLEUS checks (superseded by V100) |

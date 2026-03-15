@@ -15,6 +15,14 @@
 
 use super::RegimeLabel;
 
+/// Tikhonov regularization for ESN readout weight computation.
+///
+/// Mild regularization (1e-6) prevents ill-conditioned readout matrices
+/// without biasing the classification. Validated against hotSpring
+/// Exp 015/022 Anderson transition detection.
+#[cfg(feature = "barracuda-gpu")]
+const ESN_READOUT_REGULARIZATION: f32 = 1e-6;
+
 /// GOE level spacing ratio (extended phase, Random Matrix Theory).
 pub const GOE_R: f64 = 0.5307;
 
@@ -139,7 +147,7 @@ impl EsnClassifier {
             spectral_radius: 0.9,
             connectivity: 0.1,
             leak_rate: 0.3,
-            regularization: 1e-6,
+            regularization: ESN_READOUT_REGULARIZATION,
             seed,
             ..barracuda::esn_v2::ESNConfig::default()
         };

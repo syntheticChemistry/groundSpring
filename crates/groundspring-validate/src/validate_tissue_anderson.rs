@@ -19,6 +19,57 @@ use groundspring::tissue_anderson::{
 };
 use groundspring::validate::ValidationHarness;
 
+// ─── Tissue Anderson Thresholds ──────────────────────────────────────────────
+//
+// Provenance: Paper 12 — "Anderson Localization in Immunological Signaling"
+// (Strandgate 2026). Analytical invariants from Anderson theory extended to
+// multi-compartment tissue geometry with known dimensionality (d=2 epidermis,
+// d=3 dermis).
+//
+// These are structural invariants, not empirical fits — they follow from:
+// - d=2: all states localize for any disorder (Abrahams et al. 1979)
+// - d=3: Anderson transition at W_c ≈ 16.5 (Slevin & Ohtsuki 1999)
+// - Barrier disruption: continuous breach_fraction sweep [0,1]
+
+/// Pielou evenness lower bound for inflamed dermis.
+///
+/// High cell-type diversity (many immune infiltrates) produces J' > 0.8.
+/// Healthy epidermis (dominated by keratinocytes) has lower evenness.
+const MIN_INFLAMED_EVENNESS: f64 = 0.8;
+
+/// System effective dimensionality upper bound when barrier is intact.
+///
+/// Epidermis (d=2) coupled to dermis (d=3) with intact barrier should
+/// yield `d_eff` < 2.5 (barrier limits signal propagation to quasi-2D).
+const MAX_HEALTHY_D_EFF: f64 = 2.5;
+
+/// 3D Anderson transition critical disorder (Slevin & Ohtsuki 1999).
+///
+/// Below `W_c`, states in 3D are extended; above, localized. Inflamed
+/// dermis should remain below this threshold (signals still propagate).
+const ANDERSON_3D_W_C: f64 = 16.5;
+
+/// Barrier disruption sweep: minimum breach fraction for transition.
+///
+/// The barrier → breached transition should occur between these bounds,
+/// reflecting the gradual loss of tight-junction integrity in the
+/// stratum corneum (Paper 12 §3.2).
+const MIN_BARRIER_TRANSITION: f64 = 0.4;
+/// Barrier disruption sweep: maximum breach fraction for transition.
+const MAX_BARRIER_TRANSITION: f64 = 0.8;
+
+/// Minimum topical penetration factor for large biologics (intact barrier).
+///
+/// Monoclonal antibodies (~150 kDa) cannot cross intact stratum corneum;
+/// penetration factor should be < 0.15 (Paper 12 Table 3).
+const MAX_TOPICAL_MAB_PENETRATION: f64 = 0.15;
+
+/// Minimum systemic penetration for small molecules reaching dermis.
+const MIN_SYSTEMIC_PENETRATION: f64 = 0.8;
+
+/// Minimum composite drug score for a "good candidate" (systemic delivery).
+const MIN_GOOD_COMPOSITE_SCORE: f64 = 0.5;
+
 fn main() {
     std::process::exit(run());
 }
@@ -91,7 +142,11 @@ fn validate_pielou_evenness(h: &mut ValidationHarness) {
         "Epidermis J' < inflamed dermis J' (less even)",
         j_epi < j_inflamed,
     );
-    h.check_min("Inflamed dermis J' > 0.8 (high evenness)", j_inflamed, 0.8);
+    h.check_min(
+        "Inflamed dermis J' > 0.8 (high evenness)",
+        j_inflamed,
+        MIN_INFLAMED_EVENNESS,
+    );
 }
 
 fn validate_healthy_skin(h: &mut ValidationHarness) {
@@ -122,7 +177,7 @@ fn validate_healthy_skin(h: &mut ValidationHarness) {
     h.check_max(
         "System d_eff < 2.5 (barrier limits)",
         result.d_eff_system,
-        2.5,
+        MAX_HEALTHY_D_EFF,
     );
 }
 
@@ -142,7 +197,7 @@ fn validate_inflamed_dermis(h: &mut ValidationHarness) {
     h.check_max(
         "Inflamed dermis W < W_c=16.5 (signals still propagate in 3D)",
         result.w_per_compartment[0],
-        16.5,
+        ANDERSON_3D_W_C,
     );
     h.check_true(
         "Inflamed dermis has finite ξ",
@@ -182,8 +237,8 @@ fn validate_barrier_disruption(h: &mut ValidationHarness) {
         h.check_range(
             "Transition between 0.4 and 0.8",
             sweep[idx].breach_fraction,
-            0.4,
-            0.8,
+            MIN_BARRIER_TRANSITION,
+            MAX_BARRIER_TRANSITION,
         );
     } else {
         h.check_true("Barrier transition found", false);
@@ -249,12 +304,12 @@ fn validate_drug_scoring_systemic(h: &mut ValidationHarness) {
     h.check_min(
         "High penetration for systemic delivery",
         score.penetration_factor,
-        0.8,
+        MIN_SYSTEMIC_PENETRATION,
     );
     h.check_min(
         "Composite score > 0.5 (good candidate)",
         score.composite_score,
-        0.5,
+        MIN_GOOD_COMPOSITE_SCORE,
     );
 }
 
@@ -300,7 +355,7 @@ fn validate_drug_scoring_topical(h: &mut ValidationHarness) {
     h.check_max(
         "Topical mAb has low penetration (intact barrier)",
         score_mab.penetration_factor,
-        0.15,
+        MAX_TOPICAL_MAB_PENETRATION,
     );
     h.check_true(
         "Topical small molecule has better penetration",

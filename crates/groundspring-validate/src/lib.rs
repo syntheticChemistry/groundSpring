@@ -83,6 +83,18 @@ pub const EPS_SAFE_DIV: f64 = 1e-10;
 /// (e.g. diffusion coefficients in m²/s). Below any physically meaningful value.
 pub const EPS_SAFE_DIV_STRICT: f64 = 1e-20;
 
+/// Rust vs Python ET₀ method-comparison tolerance.
+///
+/// Same equations, small rounding diffs from trig intermediates (Ra),
+/// Kelvin convention (273.0 vs 273.16), `mul_add` vs multiply-then-add.
+/// Hargreaves amplifies Ra differences.
+///
+/// Provenance: `control/et0_methods/et0_methods.py` (commit `a29480fd`,
+/// 2026-03-05) — `python3 control/et0_methods/et0_methods.py`.
+/// Observed max delta: PM 0.002, HG 0.004, MK 0.001, TU 0.001, HA 0.001.
+/// 0.005 provides 1.25× margin over worst case (Hargreaves 0.004).
+pub const TOL_ET0: f64 = 0.005;
+
 /// Error returned when a benchmark JSON field is missing or has the wrong type.
 #[derive(Debug, Clone)]
 pub struct BenchFieldError {
