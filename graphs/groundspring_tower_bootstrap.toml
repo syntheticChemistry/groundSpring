@@ -3,7 +3,7 @@
 # between all groundSpring primals. This is the foundation that
 # Node (Tower + ToadStool) and Nest (Tower + NestGate) build on.
 #
-# STATUS: V101 (March 14, 2026) — barraCuda v0.3.5
+# STATUS: V102 (March 14, 2026) — barraCuda v0.3.5, measurement domain niche
 # Atomic: Tower (BearDog + Songbird)
 # Target: Eastgate (local, single machine)
 # Precision: f64-capable device selection with DF64 fallback
@@ -22,8 +22,9 @@ coordination = "Sequential"
 [graph.metadata]
 toadstool_pin = "S130+"
 toadstool_commit = "bfe7977b"
-groundspring_version = "V101"
+groundspring_version = "V102"
 target_node = "eastgate"
+domain = "measurement"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # PHASE 1: BEARDOG BOOTSTRAP (security + identity)
@@ -58,7 +59,7 @@ name = "capability_call"
 
 [nodes.operation.params]
 capability = "ipc.nucleate"
-params = { node_id = "eastgate", primals = ["groundspring", "toadstool", "nestgate"] }
+params = { node_id = "eastgate", discover_by_capability = true }
 
 [nodes.constraints]
 timeout_ms = 15000
@@ -78,15 +79,15 @@ name = "capability_call"
 [nodes.operation.params]
 capability = "registry.register"
 params = { primal = "groundspring", capabilities = [
-    "science.anderson_validation",
-    "science.tolerance_compare",
-    "science.uncertainty_budget",
-    "science.spectral_recon",
-    "science.freeze_out",
-    "science.jackknife",
-    "science.rare_biosphere",
-    "science.wdm_analysis",
-], family_id = "groundspring" }
+    "measurement.noise_decomposition",
+    "measurement.anderson_validation",
+    "measurement.parity_check",
+    "measurement.et0_propagation",
+    "measurement.regime_classification",
+    "measurement.uncertainty_budget",
+    "measurement.spectral_features",
+    "measurement.freeze_out",
+], family_id = "groundspring", version = "V102" }
 
 [nodes.constraints]
 timeout_ms = 10000
@@ -111,21 +112,52 @@ params = { node_id = "eastgate", expected_primals = ["beardog", "songbird", "gro
 timeout_ms = 10000
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# PHASE 5: PROVENANCE (record Tower bootstrap for audit)
+# PHASE 5: PROVENANCE TRIO — record Tower bootstrap for audit
 # ═══════════════════════════════════════════════════════════════════════════════
 
 [[nodes]]
-id = "store_bootstrap_record"
+id = "provenance_session_start"
 depends_on = ["health_check"]
+output = "provenance_session_id"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "provenance.session_create"
+params = { agent = "groundspring", experiment_id = "tower_bootstrap", version = "V102", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"
+
+[[nodes]]
+id = "store_bootstrap_record"
+depends_on = ["provenance_session_start"]
 output = "bootstrap_stored"
 
 [nodes.operation]
-name = "rpc_call"
-target = "nestgate"
+name = "capability_call"
 
 [nodes.operation.params]
-method = "storage.store"
+capability = "storage.put"
 params = { key = "groundspring:tower:bootstrap:${TIMESTAMP}", value = "${BOOTSTRAP_SUMMARY_JSON}", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"
+
+[[nodes]]
+id = "provenance_commit"
+depends_on = ["store_bootstrap_record"]
+output = "provenance_committed"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "provenance.session_dehydrate"
+params = { session_id = "${PROVENANCE_SESSION_ID}", summary = "${BOOTSTRAP_SUMMARY_JSON}", agent = "groundspring", family_id = "groundspring" }
 
 [nodes.constraints]
 timeout_ms = 10000

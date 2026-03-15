@@ -47,6 +47,7 @@ BINS=(
     validate-size-convergence
     validate-vendor-parity
     validate-et0-methods
+    validate-tissue-anderson
 )
 
 # NPU binary: requires --features npu and physical NPU hardware (/dev/akida0)

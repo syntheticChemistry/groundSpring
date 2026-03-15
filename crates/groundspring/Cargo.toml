@@ -33,6 +33,11 @@ serde = { version = "1", optional = true, features = ["derive"] }
 tarpc = { version = "0.37", optional = true, features = ["serde-transport", "tokio1"] }
 tokio = { version = "1", optional = true, features = ["rt", "net"] }
 
+[[bin]]
+name = "groundspring"
+path = "src/bin/groundspring_primal.rs"
+required-features = ["biomeos"]
+
 [dev-dependencies]
 proptest = "1"
 temp-env = "0.3.6"

@@ -6,7 +6,7 @@
 # Tower provides secure inter-primal communication (BearDog encryption,
 # Songbird TLS). ToadStool provides barracuda GPU dispatch.
 #
-# STATUS: V101 (March 14, 2026) — barraCuda v0.3.5
+# STATUS: V102 (March 14, 2026) — barraCuda v0.3.5, measurement domain niche
 # Atomic: Node (Tower + ToadStool)
 # Experiments: 32 (347 validation checks)
 # Substrates: CPU (reference) + GPU (barracuda dispatch, f64-capable device)
@@ -20,8 +20,9 @@ coordination = "Parallel"
 [graph.metadata]
 toadstool_pin = "S130+"
 toadstool_commit = "bfe7977b"
-groundspring_version = "V101"
+groundspring_version = "V102"
 target_node = "eastgate"
+domain = "measurement"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # PHASE 1: TOWER BOOTSTRAP (secure communication layer)
@@ -75,7 +76,7 @@ output = "validation_results"
 name = "capability_call"
 
 [nodes.operation.params]
-capability = "science.validate_suite"
+capability = "measurement.validate_suite"
 params = { experiments = "all", mode = "barracuda-gpu", expected_checks = 292 }
 
 [nodes.constraints]
@@ -95,7 +96,7 @@ output = "parity_report"
 name = "capability_call"
 
 [nodes.operation.params]
-capability = "science.parity_report"
+capability = "measurement.parity_report"
 params = { format = "json", include_timing = true, include_tolerances = true }
 
 [nodes.constraints]

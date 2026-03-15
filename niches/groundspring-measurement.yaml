@@ -1,0 +1,153 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# groundSpring Measurement Validation Niche
+#
+# BYOB niche definition for biomeOS deployment.
+# Deploy: biomeos niche deploy groundspring-measurement
+# Graph:  graphs/groundspring_deploy.toml
+
+niche:
+  id: "groundspring-measurement"
+  name: "Measurement Validation"
+  version: "1.0.0"
+  description: |
+    Measurement noise characterization and validation environment.
+    Decomposes error into correctable bias and irreducible noise across
+    scientific domains. GPU-accelerated compute via ToadStool, live data
+    from NCBI/NOAA/IRIS via NestGate, provenance tracking via the Trio.
+  category: "science"
+  difficulty: "intermediate"
+  author: "ecoPrimals / Squirrel Team"
+  deploy_graph: "graphs/groundspring_deploy.toml"
+
+  features:
+    - "Bias-variance error decomposition"
+    - "Anderson localization / Lyapunov exponents"
+    - "FAO-56 Penman-Monteith ET0 propagation"
+    - "Bootstrap and jackknife uncertainty budgets"
+    - "Spectral function reconstruction (Tikhonov)"
+    - "Freeze-out curve chi-squared fitting"
+    - "ESN regime classification"
+    - "Cross-substrate CPU/GPU parity validation"
+    - "GPU-accelerated compute via ToadStool"
+    - "Live data from NCBI/NOAA/IRIS via NestGate"
+    - "Provenance Trio lineage tracking"
+
+organisms:
+
+  primals:
+    groundspring:
+      type: "groundspring"
+      required: true
+      role: "science"
+      capabilities:
+        - "measurement.noise_decomposition"
+        - "measurement.anderson_validation"
+        - "measurement.parity_check"
+        - "measurement.et0_propagation"
+        - "measurement.regime_classification"
+        - "measurement.uncertainty_budget"
+        - "measurement.spectral_features"
+        - "measurement.freeze_out"
+      config:
+        mode: "server"
+
+    beardog:
+      type: "beardog"
+      required: true
+      role: "security"
+      capabilities:
+        - "crypto.encrypt"
+        - "crypto.sign"
+        - "identity.verify"
+
+    songbird:
+      type: "songbird"
+      required: true
+      role: "discovery"
+      capabilities:
+        - "discovery.query"
+        - "mesh.join"
+
+    toadstool:
+      type: "toadstool"
+      required: false
+      role: "compute"
+      capabilities:
+        - "compute.execute"
+        - "compute.submit"
+      config:
+        features: ["gpu", "f64"]
+        precision_strategy: "f64_capable_with_fallback"
+
+    nestgate:
+      type: "nestgate"
+      required: false
+      role: "data"
+      capabilities:
+        - "storage.put"
+        - "storage.get"
+        - "data.ncbi_search"
+        - "data.noaa_ghcnd"
+        - "data.iris_stations"
+        - "data.iris_events"
+      config:
+        providers: ["ncbi", "noaa_ghcnd", "iris_fdsn"]
+        storage_backend: "local_fs"
+
+  chimeras: {}
+
+interactions:
+  - from: "groundspring"
+    to: "songbird"
+    type: "capability_call"
+    config:
+      capabilities: ["discovery.query"]
+
+  - from: "groundspring"
+    to: "toadstool"
+    type: "capability_call"
+    config:
+      capabilities: ["compute.execute", "compute.submit"]
+
+  - from: "groundspring"
+    to: "nestgate"
+    type: "capability_call"
+    config:
+      capabilities: ["storage.put", "storage.get", "data.ncbi_search", "data.noaa_ghcnd", "data.iris_stations", "data.iris_events"]
+
+customization:
+
+  - id: "gpu_enabled"
+    name: "GPU Compute"
+    description: "Enable ToadStool GPU acceleration for Lyapunov, ET0, spectral reconstruction"
+    type: "boolean"
+    default: true
+
+  - id: "live_data_providers"
+    name: "Live Data Providers"
+    description: "Which NestGate data providers to enable"
+    type: "multi_select"
+    options: ["ncbi", "noaa_ghcnd", "iris_fdsn"]
+    default: ["ncbi", "noaa_ghcnd", "iris_fdsn"]
+
+  - id: "provenance_trio"
+    name: "Provenance Tracking"
+    description: "Enable Provenance Trio (rhizoCrypt + LoamSpine + sweetGrass) for lineage"
+    type: "boolean"
+    default: false
+
+  - id: "storage_backend"
+    name: "Storage Backend"
+    description: "NestGate storage backend"
+    type: "select"
+    options: ["local_fs", "sqlite"]
+    default: "local_fs"
+
+resources:
+  base:
+    cpu_cores: 4
+    memory_gb: 8
+    storage_gb: 10
+  gpu:
+    required: false
+    recommended_vram_gb: 4

@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 14, 2026 (V101 — 102 delegations (61 CPU + 41 GPU), 908 default-feature tests (936 across all feature gates),
+**Last updated**: March 14, 2026 (V102 — 102 delegations (61 CPU + 41 GPU), 908 default-feature tests (936 across all feature gates),
 barraCuda `a898dee`, toadStool S130+, coralReef Iteration 10.
 V95: coralReef push buffer encoding breakthrough — Kepler+ mthd_incr field swap fixed,
 NVIF constants aligned to Mesa nvif/ioctl.h, sovereign GPU method dispatch proven on Titan V.

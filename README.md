@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: March 14, 2026 | **License**: AGPL-3.0-only
-**Status**: V101 — 34 modules, 35 experiments, 908 default-feature Rust tests (936 across all feature gates) + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda v0.3.5, toadStool S130+ (`bfe7977b`), coralReef Iteration 10 (`d29a734`). **Three-tier parity proven**: 29/29 validation binaries PASS at all three tiers. **Live NUCLEUS** (V99): adaptive health, direct primal discovery. **Deep debt + evolution** (V101): ESNConfig upstream sync, DRY extraction (chi², R², bootstrap), capability-based primal discovery, hardcoded primal names eliminated, provenance documentation
+**Status**: V102 — 37 modules, 35 experiments, 908 default-feature Rust tests (936 across all feature gates) + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda v0.3.5, toadStool S130+ (`bfe7977b`), coralReef Iteration 10 (`d29a734`). **Three-tier parity proven**: 29/29 validation binaries PASS at all three tiers. **Niche deployment** (V102): UniBin binary (`groundspring server/status/version`), `measurement.*` capability domain, canonical deploy graph, BYOB niche YAML, Provenance Trio graph wiring, Neural API automation via `execute_graph`. **Deep debt + evolution** (V101): ESNConfig upstream sync, DRY extraction (chi², R², bootstrap), capability-based primal discovery, hardcoded primal names eliminated, provenance documentation
 
 **The gap between what models predict and what instruments measure.**
 
@@ -97,7 +97,9 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | `jackknife` | Jackknife variance, bias correction, leave-one-out resampling | **CPU delegated** (jackknife_mean_variance S70+) |
 | `freeze_out` | Freeze-out temperature inversion, hadron yield fitting | **GPU-ready** (V31 dispatch) |
 | `spectral_recon` | Spectral function reconstruction from Euclidean correlators | GPU delegated (tikhonov_solve) |
-| `biomeos` | biomeOS Neural API client: JSON-RPC 2.0, capability routing, NestGate storage (behind `biomeos` feature) | N/A |
+| `biomeos` | biomeOS Neural API client: JSON-RPC 2.0, capability routing, UDS server, NestGate storage (behind `biomeos` feature) | N/A |
+| `dispatch` | JSON-RPC method dispatch: `measurement.*` semantic routing to library functions (behind `biomeos` feature) | N/A |
+| `provenance` | Provenance Trio lifecycle: session create, dehydrate, attribute via capability calls (behind `biomeos` feature) | N/A |
 | `nestgate` | NestGate data pipeline: NCBI/NOAA providers, provenance key schemas, cache-through (behind `biomeos` feature) | N/A |
 | `esn` | Echo State Network regime classification: `EsnClassifier` (barracuda-gpu), rule-based `classify_by_spacing_ratio`, `spectral_features` | **GPU dispatched** (barracuda-gpu ESN) + CPU rule-based |
 | `lanczos` | Sparse eigensolver for 2D/3D Anderson: `sparse_eigenvalues`, `eigenvalues_from_csr` (barracuda-gpu only) | **GPU dispatched** (barracuda spectral Lanczos) |
@@ -362,9 +364,10 @@ groundSpring/
 │   ├── npu/akida/                  # AKD1000 NPU integration, HARDWARE.md
 │   ├── ABSORPTION_MANIFEST.md      # Module-by-module absorption inventory
 │   └── shaders/                    # Production WGSL shaders for ToadStool absorption
-├── graphs/                         # biomeOS pipeline graphs (Tower bootstrap, Node, cross-substrate)
+├── graphs/                         # biomeOS pipeline graphs (deploy, Tower, Node, cross-substrate, validation)
+├── niches/                         # BYOB niche YAML definitions (groundspring-measurement)
 ├── .github/workflows/ci.yml        # GitHub Actions CI
-├── wateringHole/                   # Handoff directory (V101 current)
+├── wateringHole/                   # Handoff directory (V102 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md      # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md   # GPU kernel gap analysis

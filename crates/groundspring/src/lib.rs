@@ -124,7 +124,13 @@ pub fn gpu_precision_routing() -> Option<gpu::PrecisionRoutingAdvice> {
 pub mod biomeos;
 
 #[cfg(feature = "biomeos")]
+pub mod dispatch;
+
+#[cfg(feature = "biomeos")]
 pub mod nestgate;
+
+#[cfg(feature = "biomeos")]
+pub mod provenance;
 
 #[cfg(feature = "npu")]
 pub mod npu;

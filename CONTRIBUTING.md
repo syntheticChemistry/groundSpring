@@ -33,7 +33,7 @@ control/             Python Phase 0 experiments (29 experiments across 9 domains
   freeze_out_inverse/ Exp 020: Freeze-out inverse (Bazavov 2016)
   spectral_recon/     Exp 021: Spectral reconstruction (Bazavov 2025)
 crates/
-  groundspring/            Rust library (34 modules)
+  groundspring/            Rust library (37 modules)
     src/stats/             RMSE, MBE, R², IA, hit rate, Pearson/Spearman, covariance,
                            norm_cdf/ppf, chi2_statistic, mean, std, percentile (3 submodules)
     src/decompose.rs       Bias-variance decomposition, noise floor
@@ -141,7 +141,7 @@ cargo run --bin validate-size-convergence
 cargo run --bin validate-vendor-parity
 cargo run --bin validate-npu-anderson
 
-# metalForge live hardware validation (49 checks, 5 substrates)
+# metalForge live hardware validation (140 checks, 5 substrates)
 cargo run --bin validate-metalforge-inventory
 cargo run --bin validate-metalforge-gpu
 cargo run --bin validate-metalforge-cross-substrate

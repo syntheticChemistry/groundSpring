@@ -12,6 +12,8 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **395/395 checks passed** across 34 validation binaries (340 core + 55 NUCLEUS).
 - Mathematical parity: **29/29 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.6× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.4× from Sturm tridiag**.
+- V102: Niche deployment via biomeOS graph composition.
+- V101: DRY evolution + capability-based discovery.
 - V100: Deep debt audit — build-breaking path fix, silent fallback elimination, tolerance provenance, capability-based health. 908 default tests (936 across features), 287 Python tests. barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10.
 - V99: First live NUCLEUS connection — adaptive health probing, direct primal discovery, biomeOS protocol version handling.
 - V98: Upstream rewire — barraCuda `a898dee`, toadStool S130+, coralReef Iteration 10. Three-tier parity intact.

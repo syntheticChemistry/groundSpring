@@ -20,7 +20,7 @@
 #   Exp 005 (seismic)        — nestgate.iris_stations/iris_events → NMSZ data
 #   Exp 023 (no-till 16S)    — nestgate.ncbi_search → no-till vs tilled 16S
 #
-# STATUS: V101 (March 14, 2026) — barraCuda v0.3.5, DF64 precision strategy
+# STATUS: V102 (March 14, 2026) — barraCuda v0.3.5, measurement domain niche
 # Target: Eastgate (local, single machine)
 #
 # Run: biomeos deploy graphs/groundspring_nucleus_local.toml
@@ -33,9 +33,10 @@ coordination = "Sequential"
 [graph.metadata]
 toadstool_pin = "S130+"
 toadstool_commit = "bfe7977b"
-groundspring_version = "V101"
+groundspring_version = "V102"
 target_node = "eastgate"
 precision_strategy = "f64-capable with DF64 fallback"
+domain = "measurement"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # PHASE 1: TOWER ATOMIC — BearDog + Songbird
@@ -162,17 +163,15 @@ name = "capability_call"
 [nodes.operation.params]
 capability = "registry.register"
 params = { primal = "groundspring", capabilities = [
-    "science.anderson_validation",
-    "science.tolerance_compare",
-    "science.uncertainty_budget",
-    "science.spectral_recon",
-    "science.freeze_out",
-    "science.jackknife",
-    "science.rare_biosphere",
-    "science.wdm_analysis",
-    "science.cross_spring_benchmark",
-    "science.gpu_tier_validation",
-], family_id = "groundspring", version = "V87" }
+    "measurement.noise_decomposition",
+    "measurement.anderson_validation",
+    "measurement.parity_check",
+    "measurement.et0_propagation",
+    "measurement.regime_classification",
+    "measurement.uncertainty_budget",
+    "measurement.spectral_features",
+    "measurement.freeze_out",
+], family_id = "groundspring", version = "V102" }
 
 [nodes.constraints]
 timeout_ms = 10000
@@ -251,22 +250,68 @@ params = { node_id = "eastgate", expected_primals = ["beardog", "songbird", "gro
 timeout_ms = 10000
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# PHASE 7: PROVENANCE RECORD
-# Store the NUCLEUS bootstrap event for audit trail
+# PHASE 7: PROVENANCE TRIO — session lifecycle for NUCLEUS bootstrap
 # ═══════════════════════════════════════════════════════════════════════════════
 
 [[nodes]]
-id = "store_bootstrap_provenance"
+id = "provenance_session_start"
 depends_on = ["nucleus_health"]
+output = "provenance_session_id"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "provenance.session_create"
+params = { agent = "groundspring", experiment_id = "nucleus_local_bootstrap", version = "V102", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"
+
+[[nodes]]
+id = "store_bootstrap_provenance"
+depends_on = ["provenance_session_start"]
 output = "provenance_stored"
 
 [nodes.operation]
-name = "rpc_call"
-target = "nestgate"
+name = "capability_call"
 
 [nodes.operation.params]
-method = "storage.store"
+capability = "storage.put"
 params = { key = "groundspring:nucleus:local:bootstrap:${TIMESTAMP}", value = "${NUCLEUS_HEALTH_JSON}", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"
+
+[[nodes]]
+id = "provenance_commit"
+depends_on = ["store_bootstrap_provenance"]
+output = "provenance_committed"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "provenance.session_dehydrate"
+params = { session_id = "${PROVENANCE_SESSION_ID}", summary = "${NUCLEUS_HEALTH_JSON}", agent = "groundspring", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"
+
+[[nodes]]
+id = "provenance_attribute"
+depends_on = ["provenance_commit"]
+output = "attribution_recorded"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "contribution.recordDehydration"
+params = { session_id = "${PROVENANCE_SESSION_ID}", contribution = "NUCLEUS local bootstrap", agent = "groundspring", family_id = "groundspring" }
 
 [nodes.constraints]
 timeout_ms = 10000

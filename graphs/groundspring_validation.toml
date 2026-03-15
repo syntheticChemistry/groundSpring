@@ -2,7 +2,7 @@
 # Used by biomeOS to orchestrate Anderson localization validation
 # through the primal ecosystem: groundSpring (science) → ToadStool (GPU) → NestGate (provenance)
 #
-# STATUS: V101 (March 14, 2026) — barraCuda v0.3.5
+# STATUS: V102 (March 14, 2026) — barraCuda v0.3.5, measurement domain
 # Requires: Tower (BearDog + Songbird) + ToadStool (GPU compute, f64-capable)
 # Optional: NestGate (provenance storage), metalForge (hardware dispatch)
 #
@@ -16,7 +16,7 @@ coordination = "Sequential"
 [graph.metadata]
 toadstool_pin = "S130+"
 toadstool_commit = "bfe7977b"
-groundspring_version = "V101"
+groundspring_version = "V102"
 target_node = "eastgate"
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -108,7 +108,7 @@ output = "parity_results"
 name = "capability_call"
 
 [nodes.operation.params]
-capability = "science.parity_check"
+capability = "measurement.parity_check"
 params = { experiment_id = "exp008_anderson_localization", benchmark_json_key = "groundspring:benchmarks:exp008" }
 
 [nodes.constraints]
@@ -151,3 +151,55 @@ check_toadstool = true
 check_nestgate = true
 check_results_integrity = true
 timeout_seconds = 30
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 7: PROVENANCE TRIO — session lifecycle (optional)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "provenance_session_start"
+depends_on = ["validate_pipeline"]
+output = "provenance_session_id"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "provenance.session_create"
+params = { agent = "groundspring", experiment_id = "${EXPERIMENT_ID}", version = "V102", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"
+
+[[nodes]]
+id = "provenance_commit"
+depends_on = ["provenance_session_start"]
+output = "provenance_committed"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "provenance.session_dehydrate"
+params = { session_id = "${PROVENANCE_SESSION_ID}", summary = "${PARITY_RESULTS_JSON}", agent = "groundspring", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"
+
+[[nodes]]
+id = "provenance_attribute"
+depends_on = ["provenance_commit"]
+output = "attribution_recorded"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "contribution.recordDehydration"
+params = { session_id = "${PROVENANCE_SESSION_ID}", contribution = "Anderson localization validation", agent = "groundspring", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"

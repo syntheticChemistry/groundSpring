@@ -39,6 +39,7 @@
 
 mod discovery;
 mod protocol;
+pub mod server;
 mod transport;
 
 pub use discovery::{auto_connect, discover_socket, is_nucleus_available};
@@ -258,41 +259,99 @@ pub fn compute_capabilities(socket: &Path) -> Result<String> {
     capability_call_value(socket, "resource.health.check", &args)
 }
 
-// ─── Capability Registration ─────────────────────────────────────────────────
+// ─── Measurement Domain ──────────────────────────────────────────────────────
 
-/// Science capabilities that groundSpring registers with the NUCLEUS.
+/// Capability domain name for groundSpring's measurement validation.
+///
+/// Registered with biomeOS Neural API so `capability.call` requests in the
+/// `measurement` domain are routed to this primal.
+pub const MEASUREMENT_DOMAIN: &str = "measurement";
+
+/// Measurement capabilities that groundSpring registers with the NUCLEUS.
 ///
 /// Each capability represents a validated scientific computation that other
 /// primals can invoke via `capability.call`. The primal providing the
 /// capability is discovered at runtime — groundSpring only knows its own
 /// capabilities, not which primals might call them.
-pub const SCIENCE_CAPABILITIES: &[&str] = &[
-    "science.anderson_validation",
-    "science.noise_decomposition",
-    "science.parity_check",
-    "science.et0_propagation",
-    "science.regime_classification",
-    "science.uncertainty_budget",
-    "science.spectral_features",
+pub const MEASUREMENT_CAPABILITIES: &[&str] = &[
+    "measurement.noise_decomposition",
+    "measurement.anderson_validation",
+    "measurement.parity_check",
+    "measurement.et0_propagation",
+    "measurement.regime_classification",
+    "measurement.uncertainty_budget",
+    "measurement.spectral_features",
+    "measurement.freeze_out",
 ];
 
-/// Register groundSpring's science capabilities with the NUCLEUS.
+/// Legacy alias — callers that referenced `SCIENCE_CAPABILITIES` will
+/// continue to compile. New code should use [`MEASUREMENT_CAPABILITIES`].
+#[deprecated(note = "use MEASUREMENT_CAPABILITIES (measurement.* domain)")]
+pub const SCIENCE_CAPABILITIES: &[&str] = MEASUREMENT_CAPABILITIES;
+
+/// Semantic mappings from measurement domain operations to JSON-RPC methods.
 ///
-/// Sends a `capability.register` call for each capability in
-/// [`SCIENCE_CAPABILITIES`]. Returns the number of capabilities
-/// successfully registered.
+/// Used during domain registration so biomeOS can translate
+/// `capability.call { capability: "measurement", operation: "noise_decomposition" }`
+/// into the correct JSON-RPC method on this primal's socket.
+pub const MEASUREMENT_MAPPINGS: &[(&str, &str)] = &[
+    ("noise_decomposition", "measurement.noise_decomposition"),
+    ("anderson_validation", "measurement.anderson_validation"),
+    ("parity_check", "measurement.parity_check"),
+    ("et0_propagation", "measurement.et0_propagation"),
+    ("regime_classification", "measurement.regime_classification"),
+    ("uncertainty_budget", "measurement.uncertainty_budget"),
+    ("spectral_features", "measurement.spectral_features"),
+    ("freeze_out", "measurement.freeze_out"),
+];
+
+// ─── Capability Registration ─────────────────────────────────────────────────
+
+/// Register groundSpring as a measurement provider with the NUCLEUS.
+///
+/// Two-phase registration following the Spring-as-Provider pattern:
+/// 1. Domain registration: `capability.register` with `measurement` domain
+///    and semantic mappings
+/// 2. Individual capabilities: per-capability registration for direct routing
+///
+/// Returns the number of capabilities successfully registered.
 ///
 /// # Errors
 ///
 /// Returns `Err` if the socket is unavailable. Individual registration
 /// failures are counted but do not abort the batch.
 pub fn register_capabilities(socket: &Path) -> Result<usize> {
+    let socket_path = server::socket_path();
+    let socket_str = socket_path.to_string_lossy().to_string();
+
+    // Phase 1: Domain registration with semantic mappings
+    let mappings: serde_json::Map<String, Value> = MEASUREMENT_MAPPINGS
+        .iter()
+        .map(|(op, method)| ((*op).to_string(), Value::String((*method).to_string())))
+        .collect();
+
+    let domain_args = serde_json::json!({
+        "capability": MEASUREMENT_DOMAIN,
+        "primal": FAMILY_ID,
+        "socket": socket_str,
+        "source": "startup",
+        "semantic_mappings": mappings,
+        "family_id": FAMILY_ID,
+        "version": env!("CARGO_PKG_VERSION"),
+    });
+    match capability_call_value(socket, "capability.register", &domain_args) {
+        Ok(_) => log::info!("registered measurement domain"),
+        Err(e) => log::warn!("domain registration failed (non-fatal): {e}"),
+    }
+
+    // Phase 2: Individual capability registration
     let mut registered = 0;
-    for &cap in SCIENCE_CAPABILITIES {
+    for &cap in MEASUREMENT_CAPABILITIES {
         let args = serde_json::json!({
             "capability": cap,
+            "primal": FAMILY_ID,
+            "socket": socket_str,
             "family_id": FAMILY_ID,
-            "provider": FAMILY_ID,
             "version": env!("CARGO_PKG_VERSION"),
         });
         match capability_call_value(socket, "capability.register", &args) {
@@ -320,7 +379,7 @@ pub fn register_capabilities(socket: &Path) -> Result<usize> {
 /// Returns `Err` if the socket is unavailable.
 pub fn deregister_capabilities(socket: &Path) -> Result<usize> {
     let mut deregistered = 0;
-    for &cap in SCIENCE_CAPABILITIES {
+    for &cap in MEASUREMENT_CAPABILITIES {
         let args = serde_json::json!({
             "capability": cap,
             "family_id": FAMILY_ID,
@@ -549,7 +608,7 @@ mod tests {
 
     #[test]
     fn capability_call_request_format() {
-        let cap = "science.anderson_validation";
+        let cap = "measurement.anderson_validation";
         let (cap_part, op_part) = cap.split_once('.').unwrap();
         let request = build_request(
             "capability.call",
@@ -562,20 +621,29 @@ mod tests {
         );
         let v: Value = serde_json::from_str(&request).unwrap();
         assert_eq!(v["method"], "capability.call");
-        assert_eq!(v["params"]["capability"], "science");
+        assert_eq!(v["params"]["capability"], "measurement");
         assert_eq!(v["params"]["operation"], "anderson_validation");
         assert_eq!(v["params"]["family_id"], "groundspring");
     }
 
     #[test]
-    fn science_capabilities_non_empty() {
-        assert!(!SCIENCE_CAPABILITIES.is_empty());
-        for cap in SCIENCE_CAPABILITIES {
+    fn measurement_capabilities_non_empty() {
+        assert!(!MEASUREMENT_CAPABILITIES.is_empty());
+        for cap in MEASUREMENT_CAPABILITIES {
             assert!(
-                cap.starts_with("science."),
-                "all caps should be in science namespace: {cap}"
+                cap.starts_with("measurement."),
+                "all caps should be in measurement namespace: {cap}"
             );
         }
+    }
+
+    #[test]
+    fn measurement_mappings_complete() {
+        assert_eq!(
+            MEASUREMENT_MAPPINGS.len(),
+            MEASUREMENT_CAPABILITIES.len(),
+            "every capability needs a semantic mapping"
+        );
     }
 
     #[test]

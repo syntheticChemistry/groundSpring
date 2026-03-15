@@ -1,0 +1,216 @@
+# groundSpring Niche Deploy Graph
+# Canonical deploy graph following SPRING_AS_NICHE_DEPLOYMENT_STANDARD.md
+#
+# Deploys groundSpring as a measurement validation provider atop a biomeOS
+# Tower Atomic (BearDog + Songbird). Optional Node (ToadStool) and Nest
+# (NestGate) dependencies are declared but gracefully skipped when absent.
+#
+# Composable: other graphs can reference this as a sub-graph via depends_on.
+# biomeOS orchestrates germination order; Songbird provides IPC mesh.
+#
+# STATUS: V102 (March 14, 2026)
+# Run: biomeos deploy graphs/groundspring_deploy.toml
+#      biomeos niche deploy groundspring-measurement
+
+[graph]
+id = "groundspring_deploy"
+description = "groundSpring measurement provider atop Tower Atomic"
+coordination = "Sequential"
+
+[graph.metadata]
+groundspring_version = "V102"
+domain = "measurement"
+target_node = "eastgate"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 1: TOWER ATOMIC — BearDog (security) + Songbird (discovery)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "germinate_beardog"
+output = "beardog_genesis"
+capabilities = ["crypto", "identity"]
+
+[nodes.primal]
+by_capability = "crypto"
+
+[nodes.operation]
+name = "start"
+
+[nodes.operation.params]
+mode = "server"
+family_id = "${FAMILY_ID}"
+
+[nodes.operation.environment]
+BIOMEOS_SOCKET_DIR = "${XDG_RUNTIME_DIR}/biomeos"
+FAMILY_ID = "${FAMILY_ID}"
+
+[nodes.constraints]
+timeout_ms = 10000
+
+[[nodes]]
+id = "germinate_songbird"
+depends_on = ["germinate_beardog"]
+output = "songbird_genesis"
+capabilities = ["discovery", "mesh"]
+
+[nodes.primal]
+by_capability = "discovery"
+
+[nodes.operation]
+name = "start"
+
+[nodes.operation.params]
+mode = "server"
+family_id = "${FAMILY_ID}"
+
+[nodes.operation.environment]
+BIOMEOS_SOCKET_DIR = "${XDG_RUNTIME_DIR}/biomeos"
+FAMILY_ID = "${FAMILY_ID}"
+
+[nodes.constraints]
+timeout_ms = 15000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 2: OPTIONAL DEPENDENCIES — ToadStool (GPU) + NestGate (data/storage)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "germinate_toadstool"
+depends_on = ["germinate_songbird"]
+output = "toadstool_genesis"
+capabilities = ["compute"]
+
+[nodes.primal]
+by_capability = "compute"
+
+[nodes.operation]
+name = "start"
+
+[nodes.operation.params]
+mode = "server"
+features = ["gpu", "f64"]
+family_id = "${FAMILY_ID}"
+
+[nodes.operation.environment]
+BIOMEOS_SOCKET_DIR = "${XDG_RUNTIME_DIR}/biomeos"
+FAMILY_ID = "${FAMILY_ID}"
+
+[nodes.constraints]
+timeout_ms = 30000
+fallback = "skip"
+
+[[nodes]]
+id = "germinate_nestgate"
+depends_on = ["germinate_songbird"]
+output = "nestgate_genesis"
+capabilities = ["storage", "data"]
+
+[nodes.primal]
+by_capability = "storage"
+
+[nodes.operation]
+name = "start"
+
+[nodes.operation.params]
+mode = "server"
+providers = ["ncbi", "noaa_ghcnd", "iris_fdsn"]
+storage_backend = "local_fs"
+family_id = "${FAMILY_ID}"
+
+[nodes.operation.environment]
+BIOMEOS_SOCKET_DIR = "${XDG_RUNTIME_DIR}/biomeos"
+FAMILY_ID = "${FAMILY_ID}"
+
+[nodes.constraints]
+timeout_ms = 20000
+fallback = "skip"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 3: GROUNDSPRING — measurement validation provider
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "germinate_groundspring"
+depends_on = ["germinate_beardog", "germinate_songbird"]
+output = "groundspring_genesis"
+capabilities = ["measurement"]
+
+[nodes.primal]
+by_capability = "measurement"
+
+[nodes.operation]
+name = "start"
+
+[nodes.operation.params]
+mode = "server"
+family_id = "${FAMILY_ID}"
+
+[nodes.operation.environment]
+BIOMEOS_SOCKET_DIR = "${XDG_RUNTIME_DIR}/biomeos"
+FAMILY_ID = "${FAMILY_ID}"
+
+[nodes.constraints]
+timeout_ms = 15000
+
+[nodes.capabilities_provided]
+"measurement.noise_decomposition" = "measurement.noise_decomposition"
+"measurement.anderson_validation" = "measurement.anderson_validation"
+"measurement.parity_check" = "measurement.parity_check"
+"measurement.et0_propagation" = "measurement.et0_propagation"
+"measurement.regime_classification" = "measurement.regime_classification"
+"measurement.uncertainty_budget" = "measurement.uncertainty_budget"
+"measurement.spectral_features" = "measurement.spectral_features"
+"measurement.freeze_out" = "measurement.freeze_out"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 4: VALIDATION — health check the deployed niche
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "validate_groundspring_atomic"
+depends_on = ["germinate_beardog", "germinate_songbird", "germinate_groundspring"]
+output = "groundspring_validated"
+
+[nodes.operation]
+name = "health_check"
+
+[nodes.operation.params]
+check_groundspring = true
+timeout_seconds = 15
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 5: PROVENANCE — record niche genesis (optional)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "provenance_session_start"
+depends_on = ["validate_groundspring_atomic"]
+output = "provenance_session_id"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "provenance.session_create"
+params = { agent = "groundspring", experiment_id = "niche_deploy", version = "V102", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"
+
+[[nodes]]
+id = "provenance_store_genesis"
+depends_on = ["provenance_session_start"]
+output = "genesis_stored"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "storage.put"
+params = { key = "groundspring:niche:deploy:${TIMESTAMP}", value = "${GROUNDSPRING_GENESIS_JSON}", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"

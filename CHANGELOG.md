@@ -4,6 +4,46 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V102 Niche Deployment via biomeOS Graph Composition (Mar 14, 2026)
+
+#### Architecture — Spring as Niche
+- groundSpring is now a deployable niche that biomeOS composes from a graph
+- UniBin binary: `groundspring server/status/version` — the minimum contract for niche deployment
+- Measurement domain: `measurement.*` capability namespace with 8 capabilities and semantic mappings
+- Deploy graph: `graphs/groundspring_deploy.toml` — canonical 5-phase niche deployment (Tower → dependencies → groundSpring → validate → provenance)
+- Niche YAML: `niches/groundspring-measurement.yaml` — BYOB definition with organisms, interactions, customization
+- Neural API automation: graphs execute via `neural_api.execute_graph` with topological sort, parallel phases, and rollback
+
+#### New Modules (behind `biomeos` feature gate)
+- `biomeos::server` — UDS socket binding, JSON-RPC accept loop, non-blocking serve
+- `dispatch` — Semantic method routing: `measurement.*` → library functions, `health.check`, `capability.list`, `lifecycle.status`
+- `provenance` — Provenance Trio lifecycle wrappers: `start_session`, `commit_session`, `record_attribution`
+
+#### Measurement Domain Evolution
+- Renamed `SCIENCE_CAPABILITIES` → `MEASUREMENT_CAPABILITIES` (legacy alias preserved with deprecation)
+- Added `MEASUREMENT_DOMAIN`, `MEASUREMENT_MAPPINGS` constants
+- Two-phase registration: domain-level `capability.register` with semantic mappings, then per-capability registration
+- 8 measurement methods: `noise_decomposition`, `anderson_validation`, `parity_check`, `et0_propagation`, `regime_classification`, `uncertainty_budget`, `spectral_features`, `freeze_out`
+
+#### Graph Evolution (all 6 graphs)
+- Created `groundspring_deploy.toml`: canonical niche deploy graph following `SPRING_AS_NICHE_DEPLOYMENT_STANDARD`
+- Updated all 5 existing graphs: `science.*` → `measurement.*` capability names, V87 → V102 version pins
+- Provenance Trio wired at graph level (session_create → session_dehydrate → recordDehydration) with `fallback = "skip"`
+- Hardcoded primal lists replaced with capability-based discovery (`discover_by_capability = true`)
+- Direct `rpc_call target = "nestgate"` evolved to capability-based `storage.put` routing
+
+#### Binary
+- `[[bin]] name = "groundspring"` in Cargo.toml (feature-gated `biomeos`)
+- Server: bind UDS socket → register capabilities → JSON-RPC accept loop → graceful shutdown
+- Status: connect to own socket, call `health.check`, print result
+- Version: print version, domain, capabilities, license, family_id
+
+#### Verification
+- `cargo fmt --all -- --check`: PASS
+- `cargo clippy --features biomeos -- -D warnings`: PASS (0 warnings)
+- `cargo test --features biomeos --lib`: PASS
+- All default-feature tests: PASS (908)
+
 ### V101 Deep Debt Evolution + DRY + Capability-Based Discovery (Mar 14, 2026)
 
 #### Code evolution

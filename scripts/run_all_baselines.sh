@@ -292,6 +292,10 @@ if command -v cargo &> /dev/null; then
         "Rust: ET0 Methods" \
         "cargo run --release --bin validate-et0-methods"
 
+    run_experiment \
+        "Rust: Tissue Anderson" \
+        "cargo run --release --bin validate-tissue-anderson"
+
     if [[ -e /dev/akida0 ]]; then
         cargo build --release --workspace --features npu 2>&1 | tail -1
         run_experiment \

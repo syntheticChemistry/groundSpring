@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 14, 2026 (V101)
+**Last Updated**: March 14, 2026 (V102)
 
 ## What This Is
 
@@ -18,7 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V101 DRY Evolution | [GROUNDSPRING_V101_DRY_EVOLUTION_BARRACUDA_TOADSTOOL_HANDOFF_MAR14_2026.md](handoffs/GROUNDSPRING_V101_DRY_EVOLUTION_BARRACUDA_TOADSTOOL_HANDOFF_MAR14_2026.md) | Mar 14, 2026 | ESNConfig upstream sync, DRY extraction (chi², R², bootstrap), capability-based primal discovery, hardcoded primal names eliminated, doc sovereignty. 908 default tests (936 across features), 287 Python, 102 delegations. Absorption: ESNConfig defaults re-export, BootstrapCI type mapping, generic chi2_parametric. |
+| V102 Niche Deployment | [GROUNDSPRING_V102_NICHE_DEPLOYMENT_HANDOFF_MAR14_2026.md](handoffs/GROUNDSPRING_V102_NICHE_DEPLOYMENT_HANDOFF_MAR14_2026.md) | Mar 14, 2026 | Spring-as-Niche via biomeOS graph composition: UniBin binary, `measurement.*` domain, deploy graph, niche YAML, Provenance Trio graph wiring, Neural API `execute_graph` automation. 3 new modules (server, dispatch, provenance), 6 graphs evolved. |
 
 ## Cross-Spring Documentation
 
@@ -38,6 +38,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | Scope |
 |---------|-------|
+| V101 DRY Evolution | ESNConfig upstream sync, DRY extraction (chi², R², bootstrap), capability-based primal discovery, hardcoded primal names eliminated, doc sovereignty (superseded by V102) |
 | V100 Deep Debt | Deep audit: build fix, silent fallback elimination, tolerance provenance, capability-based health. 908 tests, 102 delegations (superseded by V101) |
 | V99 NUCLEUS Live | First live NUCLEUS connection, adaptive health, direct primal discovery, 40/40 NUCLEUS checks (superseded by V100) |
 | V98 Upstream Rewire | barraCuda `a898dee`, toadStool S130+, coralReef Iteration 10, 936 tests, 102 delegations, three-tier parity intact (superseded by V99) |

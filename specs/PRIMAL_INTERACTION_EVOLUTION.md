@@ -1,6 +1,6 @@
 # Primal Interaction Evolution
 
-**Last updated**: March 8, 2026 (V99 — live NUCLEUS with direct primal fallback)
+**Last updated**: March 8, 2026 (V102 — live NUCLEUS with direct primal fallback)
 
 This document tracks the evolution of groundSpring's interaction with the
 ecoPrimals ecosystem through biomeOS and the NUCLEUS Neural API, mirroring

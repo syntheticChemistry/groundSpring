@@ -2,7 +2,7 @@
 # Validates mathematical parity across CPU, GPU, and NPU substrates
 # using metalForge dispatch and NUCLEUS atomic coordination.
 #
-# STATUS: V101 (March 14, 2026) — barraCuda v0.3.5
+# STATUS: V102 (March 14, 2026) — barraCuda v0.3.5, measurement domain niche
 # Atomic: Node (Tower + ToadStool) — requires GPU compute (f64-capable device)
 # Optional: Nest (Tower + NestGate) — provenance storage
 #
@@ -17,8 +17,9 @@ coordination = "Sequential"
 [graph.metadata]
 toadstool_pin = "S130+"
 toadstool_commit = "bfe7977b"
-groundspring_version = "V101"
+groundspring_version = "V102"
 target_node = "eastgate"
+domain = "measurement"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # PHASE 1: SUBSTRATE DISCOVERY (metalForge)
@@ -111,29 +112,76 @@ output = "comparison_summary"
 name = "capability_call"
 
 [nodes.operation.params]
-capability = "science.tolerance_compare"
+capability = "measurement.parity_check"
 params = { cpu_key = "cpu_results", gpu_key = "gpu_results", npu_key = "npu_results", tier_gpu = "exact", tier_npu = "quantized" }
 
 [nodes.constraints]
 timeout_ms = 10000
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# PHASE 6: PROVENANCE STORAGE (NestGate)
+# PHASE 6: PROVENANCE TRIO — record cross-substrate results
 # ═══════════════════════════════════════════════════════════════════════════════
 
 [[nodes]]
-id = "store_provenance"
+id = "provenance_session_start"
 depends_on = ["tolerance_compare"]
+output = "provenance_session_id"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "provenance.session_create"
+params = { agent = "groundspring", experiment_id = "cross_substrate_${RUN_ID}", version = "V102", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"
+
+[[nodes]]
+id = "store_provenance"
+depends_on = ["provenance_session_start"]
 output = "provenance_stored"
 
 [nodes.operation]
-name = "rpc_call"
-target = "nestgate"
+name = "capability_call"
 
 [nodes.operation.params]
-method = "storage.store"
+capability = "storage.put"
 params = { key = "groundspring:cross_substrate:${RUN_ID}", value = "${COMPARISON_SUMMARY_JSON}", family_id = "groundspring" }
 
 [nodes.constraints]
 timeout_ms = 30000
 fallback = "local"
+
+[[nodes]]
+id = "provenance_commit"
+depends_on = ["store_provenance"]
+output = "provenance_committed"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "provenance.session_dehydrate"
+params = { session_id = "${PROVENANCE_SESSION_ID}", summary = "${COMPARISON_SUMMARY_JSON}", agent = "groundspring", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"
+
+[[nodes]]
+id = "provenance_attribute"
+depends_on = ["provenance_commit"]
+output = "attribution_recorded"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "contribution.recordDehydration"
+params = { session_id = "${PROVENANCE_SESSION_ID}", contribution = "Cross-substrate parity validation", agent = "groundspring", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"

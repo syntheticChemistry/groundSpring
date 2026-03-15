@@ -170,7 +170,7 @@ done
 
 echo ""
 if $all_parity; then
-    echo "  ALL 28 EXPERIMENTS: THREE-TIER PARITY PROVEN"
+    echo "  ALL 29 EXPERIMENTS: THREE-TIER PARITY PROVEN"
     echo ""
     echo "  Pure Rust math (default) = barracuda CPU = barracuda GPU"
     echo "  barraCuda + toadStool S129 universal precision architecture verified."
