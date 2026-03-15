@@ -49,6 +49,7 @@ crates/
     src/bistable.rs        Bistable ODE (RK4, Euler-Maruyama, BistableOde delegation)
     src/multisignal.rs     Multi-signal QS ODE (dual-signal integration, ODE delegation)
     src/linalg.rs          Tridiag eigensolver (shared by transport + band_structure)
+    src/niche.rs           Self-knowledge: capabilities, dependencies, costs, feature gates
     src/error.rs           Typed input validation errors (InputError)
     src/transport.rs       Wavepacket MSD, transport exponent (re-exports linalg)
     src/drift.rs           Wright-Fisher fixation, Kimura fixation probability

@@ -66,6 +66,7 @@ pub mod jackknife;
 pub mod kinetics;
 pub mod linalg;
 pub mod multisignal;
+pub mod niche;
 pub mod ode;
 pub mod prng;
 pub mod quasispecies;

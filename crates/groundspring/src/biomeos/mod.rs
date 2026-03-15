@@ -86,10 +86,9 @@ fn read_timeout() -> Duration {
 
 /// Family identifier for all biomeOS interactions.
 ///
-/// Used in JSON-RPC requests and provenance key namespacing to identify
-/// this spring within the ecosystem. Other modules (e.g. `nestgate`)
-/// should reference this constant rather than duplicating the literal.
-pub const FAMILY_ID: &str = "groundspring";
+/// Delegates to [`crate::niche::NICHE_ID`] — the single source of truth
+/// for this spring's identity within the ecosystem.
+pub const FAMILY_ID: &str = crate::niche::NICHE_ID;
 
 // ─── Error Type ──────────────────────────────────────────────────────────────
 
@@ -267,26 +266,13 @@ pub fn compute_capabilities(socket: &Path) -> Result<String> {
 
 /// Capability domain name for groundSpring's measurement validation.
 ///
-/// Registered with biomeOS Neural API so `capability.call` requests in the
-/// `measurement` domain are routed to this primal.
-pub const MEASUREMENT_DOMAIN: &str = "measurement";
+/// Delegates to [`crate::niche::DOMAIN`] — the single source of truth.
+pub const MEASUREMENT_DOMAIN: &str = crate::niche::DOMAIN;
 
 /// Measurement capabilities that groundSpring registers with the NUCLEUS.
 ///
-/// Each capability represents a validated scientific computation that other
-/// primals can invoke via `capability.call`. The primal providing the
-/// capability is discovered at runtime — groundSpring only knows its own
-/// capabilities, not which primals might call them.
-pub const MEASUREMENT_CAPABILITIES: &[&str] = &[
-    "measurement.noise_decomposition",
-    "measurement.anderson_validation",
-    "measurement.parity_check",
-    "measurement.et0_propagation",
-    "measurement.regime_classification",
-    "measurement.uncertainty_budget",
-    "measurement.spectral_features",
-    "measurement.freeze_out",
-];
+/// Delegates to [`crate::niche::CAPABILITIES`] — the single source of truth.
+pub const MEASUREMENT_CAPABILITIES: &[&str] = crate::niche::CAPABILITIES;
 
 /// Legacy alias — callers that referenced `SCIENCE_CAPABILITIES` will
 /// continue to compile. New code should use [`MEASUREMENT_CAPABILITIES`].
@@ -295,19 +281,8 @@ pub const SCIENCE_CAPABILITIES: &[&str] = MEASUREMENT_CAPABILITIES;
 
 /// Semantic mappings from measurement domain operations to JSON-RPC methods.
 ///
-/// Used during domain registration so biomeOS can translate
-/// `capability.call { capability: "measurement", operation: "noise_decomposition" }`
-/// into the correct JSON-RPC method on this primal's socket.
-pub const MEASUREMENT_MAPPINGS: &[(&str, &str)] = &[
-    ("noise_decomposition", "measurement.noise_decomposition"),
-    ("anderson_validation", "measurement.anderson_validation"),
-    ("parity_check", "measurement.parity_check"),
-    ("et0_propagation", "measurement.et0_propagation"),
-    ("regime_classification", "measurement.regime_classification"),
-    ("uncertainty_budget", "measurement.uncertainty_budget"),
-    ("spectral_features", "measurement.spectral_features"),
-    ("freeze_out", "measurement.freeze_out"),
-];
+/// Delegates to [`crate::niche::SEMANTIC_MAPPINGS`] — the single source of truth.
+pub const MEASUREMENT_MAPPINGS: &[(&str, &str)] = crate::niche::SEMANTIC_MAPPINGS;
 
 // ─── Capability Registration ─────────────────────────────────────────────────
 
