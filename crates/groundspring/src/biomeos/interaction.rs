@@ -74,7 +74,7 @@ fn biomeos_socket_dir() -> Option<std::path::PathBuf> {
         return Some(std::path::PathBuf::from(dir));
     }
     if let Ok(xdg) = std::env::var("XDG_RUNTIME_DIR") {
-        let dir = std::path::PathBuf::from(xdg).join("biomeos");
+        let dir = std::path::PathBuf::from(xdg).join(crate::primal_names::BIOMEOS_SOCKET_DIR);
         if dir.is_dir() {
             return Some(dir);
         }
@@ -83,7 +83,11 @@ fn biomeos_socket_dir() -> Option<std::path::PathBuf> {
     {
         use std::os::unix::fs::MetadataExt;
         if let Ok(meta) = std::fs::metadata("/proc/self") {
-            let dir = std::path::PathBuf::from(format!("/run/user/{}/biomeos", meta.uid()));
+            let dir = std::path::PathBuf::from(format!(
+                "/run/user/{}/{}",
+                meta.uid(),
+                crate::primal_names::BIOMEOS_SOCKET_DIR
+            ));
             if dir.is_dir() {
                 return Some(dir);
             }
@@ -105,7 +109,7 @@ pub fn primal_health(primal_name: &str) -> Result<String> {
     let primal = primals
         .iter()
         .find(|p| p.name == primal_name)
-        .ok_or_else(|| BiomeOsError(format!("primal not found: {primal_name}")))?;
+        .ok_or_else(|| BiomeOsError::Discovery(format!("primal not found: {primal_name}")))?;
 
     let qualified = format!("{primal_name}.health");
     let methods: Vec<&str> = vec![&qualified, "health"];
@@ -119,7 +123,7 @@ pub fn primal_health(primal_name: &str) -> Result<String> {
         }
     }
 
-    Err(BiomeOsError(format!(
+    Err(BiomeOsError::Discovery(format!(
         "{primal_name} did not respond to any known health method"
     )))
 }
@@ -138,10 +142,10 @@ pub fn direct_primal_rpc(primal_name: &str, method: &str, params: &str) -> Resul
     let primal = primals
         .iter()
         .find(|p| p.name == primal_name)
-        .ok_or_else(|| BiomeOsError(format!("primal not found: {primal_name}")))?;
+        .ok_or_else(|| BiomeOsError::Discovery(format!("primal not found: {primal_name}")))?;
 
     let args: Value = serde_json::from_str(params)
-        .map_err(|e| BiomeOsError(format!("invalid params JSON: {e}")))?;
+        .map_err(|e| BiomeOsError::Serialization(format!("invalid params JSON: {e}")))?;
     let request = build_request(method, &args);
     let response = rpc_call(&primal.socket, &request)?;
     parse_rpc_response(&response)

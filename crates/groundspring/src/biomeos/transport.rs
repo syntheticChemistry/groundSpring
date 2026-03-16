@@ -32,16 +32,16 @@ fn unix_rpc_call(socket: &Path, request: &str) -> Result<String> {
 
     let stream = UnixStream::connect_addr(
         &std::os::unix::net::SocketAddr::from_pathname(socket)
-            .map_err(|e| BiomeOsError(format!("invalid socket path: {e}")))?,
+            .map_err(|e| BiomeOsError::Transport(format!("invalid socket path: {e}")))?,
     )
-    .map_err(|e| BiomeOsError(format!("biomeOS connect {}: {e}", socket.display())))?;
+    .map_err(|e| BiomeOsError::Transport(format!("biomeOS connect {}: {e}", socket.display())))?;
 
     stream
         .set_read_timeout(Some(super::read_timeout()))
-        .map_err(|e| BiomeOsError(format!("set read timeout: {e}")))?;
+        .map_err(|e| BiomeOsError::Transport(format!("set read timeout: {e}")))?;
     stream
         .set_write_timeout(Some(super::connect_timeout()))
-        .map_err(|e| BiomeOsError(format!("set write timeout: {e}")))?;
+        .map_err(|e| BiomeOsError::Transport(format!("set write timeout: {e}")))?;
 
     send_receive_stream(&stream, request)
 }
@@ -54,7 +54,7 @@ fn tcp_rpc_call(request: &str) -> Result<String> {
     use std::net::TcpStream;
 
     let addr = std::env::var("GROUNDSPRING_BIOMEOS_TCP").map_err(|_| {
-        BiomeOsError(
+        BiomeOsError::Transport(
             "biomeOS requires GROUNDSPRING_BIOMEOS_TCP (host:port) on non-Unix platforms"
                 .to_string(),
         )
@@ -63,17 +63,17 @@ fn tcp_rpc_call(request: &str) -> Result<String> {
     let stream = TcpStream::connect_timeout(
         &addr
             .parse()
-            .map_err(|e| BiomeOsError(format!("invalid TCP address {addr}: {e}")))?,
+            .map_err(|e| BiomeOsError::Transport(format!("invalid TCP address {addr}: {e}")))?,
         super::connect_timeout(),
     )
-    .map_err(|e| BiomeOsError(format!("biomeOS TCP connect {addr}: {e}")))?;
+    .map_err(|e| BiomeOsError::Transport(format!("biomeOS TCP connect {addr}: {e}")))?;
 
     stream
         .set_read_timeout(Some(super::read_timeout()))
-        .map_err(|e| BiomeOsError(format!("set read timeout: {e}")))?;
+        .map_err(|e| BiomeOsError::Transport(format!("set read timeout: {e}")))?;
     stream
         .set_write_timeout(Some(super::connect_timeout()))
-        .map_err(|e| BiomeOsError(format!("set write timeout: {e}")))?;
+        .map_err(|e| BiomeOsError::Transport(format!("set write timeout: {e}")))?;
 
     send_receive_stream(&stream, request)
 }
@@ -89,23 +89,25 @@ where
     let mut writer = std::io::BufWriter::new(stream);
     writer
         .write_all(request.as_bytes())
-        .map_err(|e| BiomeOsError(format!("write to biomeOS: {e}")))?;
+        .map_err(|e| BiomeOsError::Transport(format!("write to biomeOS: {e}")))?;
     writer
         .write_all(b"\n")
-        .map_err(|e| BiomeOsError(format!("write newline: {e}")))?;
+        .map_err(|e| BiomeOsError::Transport(format!("write newline: {e}")))?;
     writer
         .flush()
-        .map_err(|e| BiomeOsError(format!("flush: {e}")))?;
+        .map_err(|e| BiomeOsError::Transport(format!("flush: {e}")))?;
     drop(writer);
 
     let mut reader = BufReader::new(stream);
     let mut line = String::new();
     reader
         .read_line(&mut line)
-        .map_err(|e| BiomeOsError(format!("read from biomeOS: {e}")))?;
+        .map_err(|e| BiomeOsError::Transport(format!("read from biomeOS: {e}")))?;
 
     if line.is_empty() {
-        return Err(BiomeOsError("biomeOS returned empty response".to_string()));
+        return Err(BiomeOsError::Data(
+            "biomeOS returned empty response".to_string(),
+        ));
     }
 
     Ok(line)

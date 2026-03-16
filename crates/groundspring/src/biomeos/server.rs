@@ -42,7 +42,7 @@ pub fn socket_path() -> PathBuf {
     }
 
     if let Ok(xdg) = std::env::var("XDG_RUNTIME_DIR") {
-        let dir = PathBuf::from(xdg).join("biomeos");
+        let dir = PathBuf::from(xdg).join(crate::primal_names::BIOMEOS_SOCKET_DIR);
         if dir.is_dir() || std::fs::create_dir_all(&dir).is_ok() {
             return dir.join(filename);
         }
@@ -52,7 +52,11 @@ pub fn socket_path() -> PathBuf {
     {
         use std::os::unix::fs::MetadataExt;
         if let Ok(meta) = std::fs::metadata("/proc/self") {
-            let dir = PathBuf::from(format!("/run/user/{}/biomeos", meta.uid()));
+            let dir = PathBuf::from(format!(
+                "/run/user/{}/{}",
+                meta.uid(),
+                crate::primal_names::BIOMEOS_SOCKET_DIR
+            ));
             if dir.is_dir() || std::fs::create_dir_all(&dir).is_ok() {
                 return dir.join(filename);
             }
@@ -76,11 +80,11 @@ pub fn bind_socket() -> Result<(std::os::unix::net::UnixListener, PathBuf)> {
 
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)
-            .map_err(|e| BiomeOsError(format!("create socket dir: {e}")))?;
+            .map_err(|e| BiomeOsError::Transport(format!("create socket dir: {e}")))?;
     }
 
     let listener = std::os::unix::net::UnixListener::bind(&path)
-        .map_err(|e| BiomeOsError(format!("bind {}: {e}", path.display())))?;
+        .map_err(|e| BiomeOsError::Transport(format!("bind {}: {e}", path.display())))?;
 
     Ok((listener, path))
 }
@@ -112,14 +116,14 @@ where
     let mut line = String::new();
     reader
         .read_line(&mut line)
-        .map_err(|e| BiomeOsError(format!("read: {e}")))?;
+        .map_err(|e| BiomeOsError::Transport(format!("read: {e}")))?;
 
     if line.trim().is_empty() {
         return Ok(());
     }
 
     let request: Value = serde_json::from_str(line.trim())
-        .map_err(|e| BiomeOsError(format!("invalid JSON-RPC: {e}")))?;
+        .map_err(|e| BiomeOsError::Protocol(format!("invalid JSON-RPC: {e}")))?;
 
     let id = request.get("id").cloned().unwrap_or(Value::Null);
     let method = request.get("method").and_then(Value::as_str).unwrap_or("");
@@ -147,10 +151,10 @@ where
     let writer = reader.get_mut();
     writer
         .write_all(&response_bytes)
-        .map_err(|e| BiomeOsError(format!("write: {e}")))?;
+        .map_err(|e| BiomeOsError::Transport(format!("write: {e}")))?;
     writer
         .flush()
-        .map_err(|e| BiomeOsError(format!("flush: {e}")))?;
+        .map_err(|e| BiomeOsError::Transport(format!("flush: {e}")))?;
 
     Ok(())
 }

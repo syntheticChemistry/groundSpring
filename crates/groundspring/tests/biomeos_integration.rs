@@ -112,7 +112,7 @@ fn is_enabled_returns_false_by_default() {
 
 #[test]
 fn biomeos_error_display() {
-    let err = biomeos::BiomeOsError("test error".to_string());
+    let err = biomeos::BiomeOsError::Other("test error".to_string());
     assert_eq!(err.to_string(), "biomeOS: test error");
 }
 

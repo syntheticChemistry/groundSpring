@@ -235,7 +235,7 @@ fn discover_ipc_socket() -> Option<std::path::PathBuf> {
 
     if let Ok(xdg) = std::env::var("XDG_RUNTIME_DIR") {
         let path = std::path::PathBuf::from(xdg)
-            .join("biomeos")
+            .join(crate::primal_names::BIOMEOS_SOCKET_DIR)
             .join("groundspring-ipc.sock");
         if path.exists() {
             return Some(path);

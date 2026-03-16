@@ -21,34 +21,36 @@ pub(super) fn build_request(method: &str, params: &Value) -> String {
 /// Parse a JSON-RPC 2.0 response, extracting the result or error.
 pub(super) fn parse_rpc_response(response: &str) -> Result<String> {
     let v: Value = serde_json::from_str(response)
-        .map_err(|e| BiomeOsError(format!("invalid JSON-RPC response: {e}")))?;
+        .map_err(|e| BiomeOsError::Protocol(format!("invalid JSON-RPC response: {e}")))?;
 
     if let Some(error) = v.get("error") {
         let msg = error
             .get("message")
             .and_then(Value::as_str)
             .unwrap_or("unknown RPC error");
-        return Err(BiomeOsError(msg.to_string()));
+        return Err(BiomeOsError::Protocol(msg.to_string()));
     }
 
     match v.get("result") {
         Some(Value::String(s)) => Ok(s.to_owned()),
         Some(other) => Ok(other.to_string()),
-        None => Err(BiomeOsError("missing result field in response".to_string())),
+        None => Err(BiomeOsError::Protocol(
+            "missing result field in response".to_string(),
+        )),
     }
 }
 
 /// Check whether a JSON-RPC response contains an error field.
 pub(super) fn response_has_error(response: &str) -> Result<()> {
     let v: Value = serde_json::from_str(response)
-        .map_err(|e| BiomeOsError(format!("invalid JSON-RPC response: {e}")))?;
+        .map_err(|e| BiomeOsError::Protocol(format!("invalid JSON-RPC response: {e}")))?;
 
     if let Some(error) = v.get("error") {
         let msg = error
             .get("message")
             .and_then(Value::as_str)
             .unwrap_or("unknown RPC error");
-        return Err(BiomeOsError(msg.to_string()));
+        return Err(BiomeOsError::Protocol(msg.to_string()));
     }
 
     Ok(())

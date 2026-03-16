@@ -33,7 +33,7 @@ control/             Python Phase 0 experiments (29 experiments across 9 domains
   freeze_out_inverse/ Exp 020: Freeze-out inverse (Bazavov 2016)
   spectral_recon/     Exp 021: Spectral reconstruction (Bazavov 2025)
 crates/
-  groundspring/            Rust library (38 modules)
+  groundspring/            Rust library (39 modules)
     src/stats/             RMSE, MBE, R², IA, hit rate, Pearson/Spearman, covariance,
                            norm_cdf/ppf, chi2_statistic, mean, std, percentile (3 submodules)
     src/decompose.rs       Bias-variance decomposition, noise floor
@@ -50,6 +50,7 @@ crates/
     src/multisignal.rs     Multi-signal QS ODE (dual-signal integration, ODE delegation)
     src/linalg.rs          Tridiag eigensolver (shared by transport + band_structure)
     src/niche.rs           Self-knowledge: capabilities, dependencies, costs, feature gates
+    src/primal_names.rs    Centralized primal name constants (wetSpring V119 pattern)
     src/error.rs           Typed input validation errors (InputError)
     src/transport.rs       Wavepacket MSD, transport exponent (re-exports linalg)
     src/drift.rs           Wright-Fisher fixation, Kimura fixation probability

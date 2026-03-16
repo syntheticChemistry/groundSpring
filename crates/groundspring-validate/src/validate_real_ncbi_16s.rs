@@ -169,7 +169,7 @@ fn fetch_ncbi_community_structure(
         }
     }
 
-    Err(groundspring::biomeos::BiomeOsError(
+    Err(groundspring::biomeos::BiomeOsError::Data(
         "No NCBI results to seed community".to_string(),
     ))
 }

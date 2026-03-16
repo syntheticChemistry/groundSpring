@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 15, 2026 (V105 — 936 tests (all feature gates), 102 delegations, barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10, deep debt audit: named constants with provenance, biomeos/interaction extraction, centralized tolerances, zero clippy)
+**Last updated**: March 16, 2026 (V106 — 936 tests (all feature gates), 102 delegations, barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10, primal_names module, typed BiomeOsError, zero hardcoded primal strings)
 
 ## Experiment Register
 
@@ -55,7 +55,7 @@
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
 **Paper 12**: `tissue_anderson` module — 18 unit tests + 29/29 validation checks + 4D Anderson + Wegner RG (V68)
-**Handoff**: V105 (deep debt audit — barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10, 21 GPU paths precision-routed)
+**Handoff**: V106 (primal_names module, typed BiomeOsError, zero hardcoded primal strings)
 
 **Python checks**: ~160 across 28 experiments. **Rust validation checks**: 395 (340 core + 55 NUCLEUS). **metalForge + pipeline checks**: 140.
 
@@ -565,7 +565,7 @@ Each experiment is validated at three hardware tiers:
 | **GPU** | `barracuda` feature + GPU adapter | GPU matches CPU within tolerance |
 | **metalForge** | Mixed hardware dispatch | Cross-substrate agreement |
 
-### Current Status (V105)
+### Current Status (V106)
 
 | # | Experiment | CPU | GPU | metalForge | GPU Status |
 |---|-----------|:---:|:---:|:----------:|------------|
@@ -602,7 +602,7 @@ Each experiment is validated at three hardware tiers:
 
 **CPU tier**: 395/395 PASS (34 binaries, complete)
 **GPU tier**: 27 of 34 papers have GPU wiring (79%). 102 delegations (61 CPU + 41 GPU). 30/30 metalForge parity.
-**V105**: Exp 023/024 GPU wired (V95). PrecisionRoutingAdvice wired into 11 f64 reduction GPU paths (V96). barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10.
+**V106**: primal_names module, typed BiomeOsError. **V105**: Exp 023/024 GPU wired (V95). PrecisionRoutingAdvice wired into 11 f64 reduction GPU paths (V96). barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10.
 **metalForge tier**: 30 workloads, 140 checks. Exp 028 NPU 9/9 PASS (AKD1000 DMA). GPU→NPU→CPU pipeline dispatch validated.
 
 ### BarraCUDA Integration Status (V105 — toadStool S130+, coralReef Iteration 10)
@@ -818,7 +818,8 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V79: Exp 035 + seismic delegation | 85 delegations (51 CPU + 34 GPU), 807 tests, barraCuda v0.3.3, toadStool S94b | Archived |
 | V80: Fused Ops + BarraCuda Catch-Up | 87 delegations (51 CPU + 36 GPU), 812 tests, barraCuda v0.3.3+, toadStool S94b | Archived |
 | V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `0bd401f`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
-| V105: Code Evolution + barraCuda/toadStool Absorption | 102 delegations (61 CPU + 41 GPU), 936 tests, 38 modules, deep code evolution, Result-based provenance API, freeze_out submodules, typed tarpc IPC | **Current** |
+| V106: primal_names + Typed BiomeOsError | 102 delegations (61 CPU + 41 GPU), 936 tests, 39 modules, primal_names.rs, typed BiomeOsError enum, zero hardcoded primal strings | **Current** |
+| V105: Code Evolution + barraCuda/toadStool Absorption | 102 delegations (61 CPU + 41 GPU), 936 tests, 38 modules, deep code evolution, Result-based provenance API, freeze_out submodules, typed tarpc IPC | Archived |
 | V104: Deep Debt Resolution + Ecosystem Alignment | 102 delegations (61 CPU + 41 GPU), 936 tests, 30+ named constants with physical provenance, capability-based discovery, AGPL-3.0-or-later, measurement.* capability surface, zero clippy/doc warnings | Archived |
 | V103: Deep Debt Audit + Idiomatic Evolution | 102 delegations (61 CPU + 41 GPU), 936 tests, named constants with provenance, biomeos/interaction extraction, centralized tolerances, zero clippy (pedantic + nursery, all features) | Archived |
 | V102: Upstream Rewire (barraCuda v0.3.5, toadStool S130+, coralReef Iter 10) | 102 delegations (61 CPU + 41 GPU), 936 tests, zero API breakage, three-tier parity intact, coralReef f64 sovereign path unlocked | Archived |
@@ -877,7 +878,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_V105_CODE_EVOLUTION_BARRACUDA_TOADSTOOL_HANDOFF_MAR15_2026.md`
+Active: `wateringHole/handoffs/GROUNDSPRING_V106_PRIMAL_NAMES_TYPED_ERROR_HANDOFF_MAR16_2026.md`
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

@@ -4,6 +4,25 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V106 primal_names + Typed BiomeOsError (Mar 16, 2026)
+
+#### primal_names Module
+- Created `primal_names.rs` — centralized primal name constants (wetSpring V119 pattern)
+- Rewired all biomeOS socket paths, discovery, and env checks to use `primal_names::*` constants
+- Zero hardcoded primal name strings in production code
+
+#### Typed BiomeOsError
+- Evolved `BiomeOsError(String)` → typed enum with `Transport`, `Protocol`, `Serialization`, `Registration`, `Discovery`, `Data`, `Other` variants
+
+#### Documentation
+- 38 → 39 modules across README, CONTRIBUTING, specs, whitePaper, baseCamp
+- V105 → V106 version bumps in all status lines and deploy graph
+- Added `primal_names` to Library Modules table and module listings
+
+#### Quality
+- Already had proptest (14 property tests from V105)
+- 936 tests, 395/395 validation checks
+
 ### V105 Deep Code Evolution (Mar 15, 2026)
 
 #### Panic-Free Production Code

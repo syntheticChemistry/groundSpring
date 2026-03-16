@@ -68,6 +68,7 @@ pub mod linalg;
 pub mod multisignal;
 pub mod niche;
 pub mod ode;
+pub mod primal_names;
 pub mod prng;
 pub mod quasispecies;
 pub mod rare_biosphere;

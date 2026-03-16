@@ -93,12 +93,48 @@ pub const FAMILY_ID: &str = crate::niche::NICHE_ID;
 // ─── Error Type ──────────────────────────────────────────────────────────────
 
 /// Error type for `biomeOS` client operations.
+///
+/// Typed variants replace the former `BiomeOsError(String)` for better
+/// error handling and pattern matching. The `Other` variant handles
+/// messages that don't fit a specific category.
 #[derive(Debug)]
-pub struct BiomeOsError(pub String);
+#[non_exhaustive]
+pub enum BiomeOsError {
+    /// Transport-level failure (connect, read, write, flush, timeout).
+    Transport(String),
+    /// JSON-RPC protocol error (invalid response, missing fields, RPC error).
+    Protocol(String),
+    /// Serialization error (invalid params JSON).
+    Serialization(String),
+    /// Capability registration failure.
+    Registration(String),
+    /// Primal discovery or health check failure.
+    Discovery(String),
+    /// Data pipeline error (no results, empty response).
+    Data(String),
+    /// Uncategorized error (migration path from `BiomeOsError(String)`).
+    Other(String),
+}
+
+impl BiomeOsError {
+    /// Construct from a plain string (backwards-compatible migration path).
+    #[must_use]
+    pub fn other(msg: impl Into<String>) -> Self {
+        Self::Other(msg.into())
+    }
+}
 
 impl std::fmt::Display for BiomeOsError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "biomeOS: {}", self.0)
+        match self {
+            Self::Transport(msg) => write!(f, "biomeOS transport: {msg}"),
+            Self::Protocol(msg) => write!(f, "biomeOS protocol: {msg}"),
+            Self::Serialization(msg) => write!(f, "biomeOS serialization: {msg}"),
+            Self::Registration(msg) => write!(f, "biomeOS registration: {msg}"),
+            Self::Discovery(msg) => write!(f, "biomeOS discovery: {msg}"),
+            Self::Data(msg) => write!(f, "biomeOS data: {msg}"),
+            Self::Other(msg) => write!(f, "biomeOS: {msg}"),
+        }
     }
 }
 
@@ -113,7 +149,7 @@ pub type Result<T> = std::result::Result<T, BiomeOsError>;
 #[must_use]
 pub fn is_enabled() -> bool {
     std::env::var("GROUNDSPRING_COMPUTE_PROVIDER")
-        .is_ok_and(|v| v.trim().eq_ignore_ascii_case("biomeos"))
+        .is_ok_and(|v| v.trim().eq_ignore_ascii_case(crate::primal_names::BIOMEOS))
 }
 
 // ─── Capability Routing ──────────────────────────────────────────────────────
@@ -130,7 +166,7 @@ pub fn is_enabled() -> bool {
 /// Returns `Err` if the socket is unavailable or the RPC fails.
 pub fn capability_call(socket: &Path, capability: &str, params_json: &str) -> Result<String> {
     let args: Value = serde_json::from_str(params_json)
-        .map_err(|e| BiomeOsError(format!("invalid params JSON: {e}")))?;
+        .map_err(|e| BiomeOsError::Serialization(format!("invalid params JSON: {e}")))?;
     capability_call_value(socket, capability, &args)
 }
 
@@ -220,7 +256,7 @@ pub fn storage_get(socket: &Path, key: &str) -> Result<String> {
 /// the request.
 pub fn compute_execute(socket: &Path, op: &str, params_json: &str) -> Result<String> {
     let mut args: Value = serde_json::from_str(params_json)
-        .map_err(|e| BiomeOsError(format!("invalid compute params: {e}")))?;
+        .map_err(|e| BiomeOsError::Serialization(format!("invalid compute params: {e}")))?;
     merge_compute_fields(&mut args, op);
     capability_call_value(socket, "compute.execute", &args)
 }
@@ -234,7 +270,7 @@ pub fn compute_execute(socket: &Path, op: &str, params_json: &str) -> Result<Str
 /// Returns `Err` if biomeOS is unavailable or the submission fails.
 pub fn compute_submit(socket: &Path, op: &str, params_json: &str) -> Result<String> {
     let mut args: Value = serde_json::from_str(params_json)
-        .map_err(|e| BiomeOsError(format!("invalid compute params: {e}")))?;
+        .map_err(|e| BiomeOsError::Serialization(format!("invalid compute params: {e}")))?;
     merge_compute_fields(&mut args, op);
     capability_call_value(socket, "compute.submit", &args)
 }
@@ -341,7 +377,7 @@ pub fn register_capabilities(socket: &Path) -> Result<usize> {
         }
     }
     if registered == 0 {
-        return Err(BiomeOsError(
+        return Err(BiomeOsError::Registration(
             "no capabilities registered — NUCLEUS may not support registration".to_string(),
         ));
     }
@@ -390,7 +426,7 @@ pub fn health(socket: &Path) -> Result<()> {
             Ok(ref response) if response_has_error(response).is_ok() => return Ok(()),
             Ok(_) => {}
             Err(_) => {
-                return Err(BiomeOsError(format!(
+                return Err(BiomeOsError::Transport(format!(
                     "biomeOS connect {}",
                     socket.display()
                 )));
@@ -398,7 +434,7 @@ pub fn health(socket: &Path) -> Result<()> {
         }
     }
 
-    Err(BiomeOsError(
+    Err(BiomeOsError::Discovery(
         "Neural API did not respond to any known health method".to_string(),
     ))
 }

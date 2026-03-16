@@ -233,7 +233,7 @@ fn fetch_iris_stations(socket: &std::path::Path) -> groundspring::biomeos::Resul
     }
 
     if stations.is_empty() {
-        return Err(groundspring::biomeos::BiomeOsError(
+        return Err(groundspring::biomeos::BiomeOsError::Data(
             "No IRIS stations parsed".to_string(),
         ));
     }

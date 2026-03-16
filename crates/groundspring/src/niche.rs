@@ -21,7 +21,9 @@
 //! it discovers other primals at runtime via capability-based discovery.
 
 /// Niche identity — used in all JSON-RPC, provenance, and IPC interactions.
-pub const NICHE_ID: &str = "groundspring";
+///
+/// Delegates to [`crate::primal_names::SELF_ID`].
+pub const NICHE_ID: &str = crate::primal_names::SELF_ID;
 
 /// Human-readable niche description for biomeOS registration.
 pub const NICHE_DESCRIPTION: &str = "Measurement noise characterization and validation";
@@ -69,15 +71,23 @@ pub const SEMANTIC_MAPPINGS: &[(&str, &str)] = &[
 /// `required = true` means the niche cannot function without it.
 /// `required = false` means graceful degradation is supported.
 pub const DEPENDENCIES: &[(&str, bool, &str)] = &[
-    ("beardog", true, "cryptographic identity and trust"),
-    ("songbird", true, "service discovery and IPC mesh"),
     (
-        "toadstool",
+        crate::primal_names::BEARDOG,
+        true,
+        "cryptographic identity and trust",
+    ),
+    (
+        crate::primal_names::SONGBIRD,
+        true,
+        "service discovery and IPC mesh",
+    ),
+    (
+        crate::primal_names::TOADSTOOL,
         false,
         "GPU compute dispatch (sovereign fallback to CPU)",
     ),
     (
-        "nestgate",
+        crate::primal_names::NESTGATE,
         false,
         "data storage and NCBI/NOAA/IRIS providers (sovereign fallback to synthetic)",
     ),
@@ -180,8 +190,8 @@ mod tests {
             .filter(|(_, req, _)| *req)
             .map(|(id, _, _)| *id)
             .collect();
-        assert!(required.contains(&"beardog"));
-        assert!(required.contains(&"songbird"));
+        assert!(required.contains(&crate::primal_names::BEARDOG));
+        assert!(required.contains(&crate::primal_names::SONGBIRD));
     }
 
     #[test]

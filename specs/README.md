@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
-**Last Updated**: March 15, 2026
-**Status**: V105 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 102 delegations (61 CPU + 41 GPU) — 936 tests (all feature gates), 287 Python tests, 140 metalForge checks, 35 experiments, 38 modules. Three-tier parity proven: 29/29. Deep debt audit (V103): named constants with provenance, biomeos/interaction extraction, centralized tolerances, zero clippy (pedantic + nursery)
+**Last Updated**: March 16, 2026
+**Status**: V106 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 102 delegations (61 CPU + 41 GPU) — 936 tests (all feature gates), 287 Python tests, 140 metalForge checks, 35 experiments, 39 modules. Three-tier parity proven: 29/29. primal_names module, typed BiomeOsError, zero hardcoded primal strings
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---

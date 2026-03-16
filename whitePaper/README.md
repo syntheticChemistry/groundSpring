@@ -12,6 +12,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **395/395 checks passed** across 34 validation binaries (340 core + 55 NUCLEUS).
 - Mathematical parity: **29/29 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.6× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.4× from Sturm tridiag**.
+- V106: primal_names module (wetSpring V119 pattern), typed BiomeOsError enum, biomeOS socket paths/discovery/env rewired to primal_names::*, zero hardcoded primal strings. 14 proptest property tests.
 - V105: Code evolution — BarraCuda/ToadStool handoff. Panic-free production (`#![deny(expect_used, unwrap_used)]`), freeze_out submodule refactor, typed IPC client, env-configurable paths. 936 tests.
 - V103: Deep debt audit — named constants with provenance, `biomeos/interaction` extraction, `eps::LOG_FLOOR` and `TOL_ET0` centralized, tissue-anderson thresholds documented (Paper 12), zero clippy (pedantic + nursery). 936 tests (all feature gates).
 - V102: Niche deployment via biomeOS graph composition.
@@ -85,7 +86,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 ## Phase 1 Rust Library
 
-The `groundspring` crate provides 38 modules of pure safe Rust:
+The `groundspring` crate provides 39 modules of pure safe Rust:
 
 | Module | Experiment | GPU Tier | Notes |
 |--------|-----------|----------|-------|
@@ -112,6 +113,7 @@ The `groundspring` crate provides 38 modules of pure safe Rust:
 | `jackknife` | Exp 019 | CPU delegated | Delete-one jackknife, block jackknife, bias correction |
 | `freeze_out` | Exp 020 | **GPU-ready** (V31) | Freeze-out curve, chi-squared, 2D grid-search inverse |
 | `spectral_recon` | Exp 021 | GPU delegated | Tikhonov regularization (tikhonov_solve → barracuda linalg) |
+| `primal_names` | Infrastructure | N/A | Centralized primal name constants (wetSpring V119 pattern); zero hardcoded strings |
 
 ### GPU Evolution (metalForge)
 

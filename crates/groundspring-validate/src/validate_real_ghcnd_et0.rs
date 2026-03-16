@@ -222,7 +222,7 @@ fn fetch_live_weather(
     }
 
     if days.is_empty() {
-        return Err(groundspring::biomeos::BiomeOsError(
+        return Err(groundspring::biomeos::BiomeOsError::Data(
             "No valid weather records parsed".to_string(),
         ));
     }

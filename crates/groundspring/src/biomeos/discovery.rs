@@ -41,7 +41,7 @@ fn resolve_socket(explicit: Option<&str>, xdg_runtime: Option<&str>) -> Option<P
     }
 
     if let Some(xdg) = xdg_runtime {
-        let biomeos_dir = PathBuf::from(xdg).join("biomeos");
+        let biomeos_dir = PathBuf::from(xdg).join(crate::primal_names::BIOMEOS_SOCKET_DIR);
         if let Some(p) = find_capability_socket(&biomeos_dir) {
             return Some(p);
         }
@@ -51,13 +51,16 @@ fn resolve_socket(explicit: Option<&str>, xdg_runtime: Option<&str>) -> Option<P
     if xdg_runtime.is_none()
         && let Some(uid) = proc_self_uid()
     {
-        let run_dir = PathBuf::from(format!("/run/user/{uid}/biomeos"));
+        let run_dir = PathBuf::from(format!(
+            "/run/user/{uid}/{}",
+            crate::primal_names::BIOMEOS_SOCKET_DIR
+        ));
         if let Some(p) = find_capability_socket(&run_dir) {
             return Some(p);
         }
     }
 
-    let temp_biomeos = std::env::temp_dir().join("biomeos");
+    let temp_biomeos = std::env::temp_dir().join(crate::primal_names::BIOMEOS_SOCKET_DIR);
     if let Some(p) = find_capability_socket(&temp_biomeos) {
         return Some(p);
     }
