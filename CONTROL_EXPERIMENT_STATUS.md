@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 16, 2026 (V108 — 906 tests, 0 clippy, 0 fmt diff, license AGPL-3.0-or-later (SCYBORG trio), barracuda WelfordState CPU delegation, tolerance centralization, typed capability-based discovery, Python provenance enrichment, Result-based validation binaries)
+**Last updated**: March 16, 2026 (V109 — 878 tests (no-default-features), 0 clippy, 0 fmt diff, license AGPL-3.0-or-later (SCYBORG trio). V109: zero-panic validation binaries (28 converted), smart module refactoring (regression/fao56/pipeline/validate-lib), ET0 plausible bounds named, legacy socket centralized, Python deps pinned. V108: WelfordState CPU delegation, tolerance centralization, typed capability-based discovery, Python provenance enrichment)
 
 ## Experiment Register
 
@@ -55,7 +55,7 @@
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
 **Paper 12**: `tissue_anderson` module — 18 unit tests + 29/29 validation checks + 4D Anderson + Wegner RG (V68)
-**Handoff**: V108 (AGPL-3.0-or-later, barracuda CPU delegation, tolerance centralization, typed capability discovery, provenance enrichment) | V107 archived (release profile, niche.rs, tolerance provenance)
+**Handoff**: V109 (zero-panic validation binaries, smart module refactoring, named physical constants, Python dep pinning) | V108 archived (AGPL-3.0-or-later, WelfordState, tolerance centralization, typed capability discovery)
 
 **Python checks**: ~160 across 28 experiments. **Rust validation checks**: 395 (340 core + 55 NUCLEUS). **metalForge + pipeline checks**: 140.
 
@@ -565,7 +565,7 @@ Each experiment is validated at three hardware tiers:
 | **GPU** | `barracuda` feature + GPU adapter | GPU matches CPU within tolerance |
 | **metalForge** | Mixed hardware dispatch | Cross-substrate agreement |
 
-### Current Status (V108)
+### Current Status (V109)
 
 | # | Experiment | CPU | GPU | metalForge | GPU Status |
 |---|-----------|:---:|:---:|:----------:|------------|
@@ -602,7 +602,7 @@ Each experiment is validated at three hardware tiers:
 
 **CPU tier**: 395/395 PASS (34 binaries, complete)
 **GPU tier**: 27 of 34 papers have GPU wiring (79%). 102 delegations (61 CPU + 41 GPU). 30/30 metalForge parity.
-**V107**: License AGPL-3.0-or-later, release profile (lto/codegen-units/strip), niche.rs OperationDeps/CostEstimate, tolerance provenance, bare literal elimination, feature-gated spectral constants. **V106**: primal_names module, typed BiomeOsError. **V105**: Exp 023/024 GPU wired (V95). PrecisionRoutingAdvice wired into 11 f64 reduction GPU paths (V96). barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10.
+**V109**: Zero-panic validation binaries (28 converted), smart module refactoring (regression/fao56/pipeline/validate-lib split into coherent submodules), ET0_PLAUSIBLE_MIN/MAX_MM named constants, legacy socket centralized, Python deps pinned with upper bounds. **V108**: AGPL-3.0-or-later, WelfordState CPU delegation, tolerance centralization, typed capability-based discovery, Python provenance enrichment. **V107**: Release profile, niche.rs, tolerance provenance. **V106**: primal_names, typed BiomeOsError. barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10.
 **metalForge tier**: 30 workloads, 140 checks. Exp 028 NPU 9/9 PASS (AKD1000 DMA). GPU→NPU→CPU pipeline dispatch validated.
 
 ### BarraCUDA Integration Status (V105 — toadStool S130+, coralReef Iteration 10)
@@ -818,7 +818,9 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V79: Exp 035 + seismic delegation | 85 delegations (51 CPU + 34 GPU), 807 tests, barraCuda v0.3.3, toadStool S94b | Archived |
 | V80: Fused Ops + BarraCuda Catch-Up | 87 delegations (51 CPU + 36 GPU), 812 tests, barraCuda v0.3.3+, toadStool S94b | Archived |
 | V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `0bd401f`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
-| V107: License + Release Profile + Niche + Tolerance | 102 delegations (61 CPU + 41 GPU), 906 tests, 39 modules, AGPL-3.0-or-later (302 files), lto/codegen-units/strip, niche.rs OperationDeps/CostEstimate, tolerance provenance, bare literal elimination, feature-gated spectral constants | **Current** |
+| V109: Deep Debt Resolution + Smart Refactoring | 102 delegations (61 CPU + 41 GPU), 878 tests (no-default-features), 39 modules, zero-panic validation binaries, smart module refactoring (regression/fao56/pipeline/validate-lib), named physical constants, Python dep pinning | **Current** |
+| V108: Deep Debt + Absorption Evolution | 102 delegations (61 CPU + 41 GPU), 906 tests, AGPL-3.0-or-later, WelfordState CPU delegation, tolerance centralization, typed capability discovery, provenance enrichment | Archived |
+| V107: License + Release Profile + Niche + Tolerance | 102 delegations (61 CPU + 41 GPU), 906 tests, 39 modules, AGPL-3.0-or-later (302 files), lto/codegen-units/strip, niche.rs OperationDeps/CostEstimate, tolerance provenance, bare literal elimination, feature-gated spectral constants | Archived |
 | V106: primal_names + Typed BiomeOsError | 102 delegations (61 CPU + 41 GPU), 936 tests, 39 modules, primal_names.rs, typed BiomeOsError enum, zero hardcoded primal strings | Archived |
 | V105: Code Evolution + barraCuda/toadStool Absorption | 102 delegations (61 CPU + 41 GPU), 936 tests, 38 modules, deep code evolution, Result-based provenance API, freeze_out submodules, typed tarpc IPC | Archived |
 | V104: Deep Debt Resolution + Ecosystem Alignment | 102 delegations (61 CPU + 41 GPU), 936 tests, 30+ named constants with physical provenance, capability-based discovery, AGPL-3.0-or-later, measurement.* capability surface, zero clippy/doc warnings | Archived |
@@ -879,7 +881,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_V107_LICENSE_NICHE_TOLERANCE_HANDOFF_MAR16_2026.md` (V106 archived)
+Active: `wateringHole/handoffs/GROUNDSPRING_V109_DEEP_DEBT_SMART_REFACTOR_HANDOFF_MAR16_2026.md` (V108 archived)
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

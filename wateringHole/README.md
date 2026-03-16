@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 16, 2026 (V108)
+**Last Updated**: March 16, 2026 (V109)
 
 ## What This Is
 
@@ -18,7 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V108 Deep Debt + Absorption | [GROUNDSPRING_V108_DEEP_DEBT_ABSORPTION_HANDOFF_MAR16_2026.md](handoffs/GROUNDSPRING_V108_DEEP_DEBT_ABSORPTION_HANDOFF_MAR16_2026.md) | Mar 16, 2026 | License AGPL-3.0-or-later, barracuda WelfordState CPU delegation, tolerance centralization, typed capability discovery, provenance enrichment, Result-based validate pattern. |
+| V109 Deep Debt + Smart Refactor | [GROUNDSPRING_V109_DEEP_DEBT_SMART_REFACTOR_HANDOFF_MAR16_2026.md](handoffs/GROUNDSPRING_V109_DEEP_DEBT_SMART_REFACTOR_HANDOFF_MAR16_2026.md) | Mar 16, 2026 | Zero-panic validation binaries, smart module refactoring (regression, fao56, pipeline, validate-lib), named physical constants, Python dep pinning. |
 | V107 Absorption | [GROUNDSPRING_V107_BARRACUDA_TOADSTOOL_ABSORPTION_HANDOFF_MAR16_2026.md](handoffs/GROUNDSPRING_V107_BARRACUDA_TOADSTOOL_ABSORPTION_HANDOFF_MAR16_2026.md) | Mar 16, 2026 | 102 delegations (61 CPU + 41 GPU), 80+ barraCuda ops, 22 GPU-wired modules. |
 
 ## Cross-Spring Documentation
@@ -39,6 +39,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | Scope |
 |---------|-------|
+| V108 Deep Debt + Absorption | License AGPL-3.0-or-later, barracuda WelfordState CPU delegation, tolerance centralization, typed capability discovery, provenance enrichment, Result-based validate pattern (superseded by V109) |
 | V107 License/Niche/Tolerance | AGPL-3.0-or-later (302 files), release profile, enriched niche.rs, tolerance provenance, bare literal removal (superseded by V108) |
 | V105 Code Evolution | deny unwrap/expect, freeze_out 4-module refactor, typed tarpc IPC, platform-agnostic paths (superseded by V107) |
 | V104 Deep Debt | Named constants with provenance, capability-based discovery, measurement.* surface (superseded by V105) |

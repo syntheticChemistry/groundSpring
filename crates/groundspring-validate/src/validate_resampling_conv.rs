@@ -38,7 +38,10 @@ fn ci_width(data: &[f64], n_boot: usize, confidence: f64, seed: u64, use_rawr: b
     reason = "validation harness with multiple convergence check sections"
 )]
 fn run() -> i32 {
-    let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
+    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
+        eprintln!("FATAL: invalid benchmark JSON");
+        return 1;
+    };
     let mut h = ValidationHarness::stdout("Rust Validation: Resampling Convergence");
 
     println!("{}", "=".repeat(72));

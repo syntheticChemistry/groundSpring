@@ -213,7 +213,10 @@ fn validate_replicates_and_determinism(
     reason = "t0/k2 and lo/hi are domain-standard names"
 )]
 fn run() -> i32 {
-    let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
+    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
+        eprintln!("FATAL: invalid benchmark JSON");
+        return 1;
+    };
     let mut h = ValidationHarness::stdout("Rust Validation: Freeze-Out Inverse Problem");
 
     println!("{}", "=".repeat(72));

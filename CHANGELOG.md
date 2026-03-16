@@ -4,6 +4,46 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V109 Deep Debt Resolution + Smart Refactoring (Mar 16, 2026)
+
+#### Zero-Panic Validation Binaries
+- All 28 `serde_json::from_str(BENCHMARK).expect(...)` converted to
+  `let Ok(bench) = ... else { eprintln!("FATAL: ..."); return 1; }`
+- `validate_notill_sampling.rs` `panic!()` eliminated — fully Result-based
+- `validate_nucleus_stack.rs` `expect()` → `let Some(...)` pattern
+- `validate_et0_methods.rs` seasonal array `expect()` → `let Some(...)` pattern
+- Zero `panic!()` calls remain in any validation binary
+
+#### Named Constants — Physical Bounds
+- `ET0_PLAUSIBLE_MIN_MM` (0.01) and `ET0_PLAUSIBLE_MAX_MM` (15.0) with
+  FAO-56 provenance, replacing bare literals in `validate_et0_methods.rs`
+
+#### Smart Module Refactoring (4 modules, not just line-splitting)
+- `groundspring-validate/lib.rs` (647→506 LOC): extracted `tolerances.rs`
+  (106 LOC) and `provenance.rs` (71 LOC) as coherent submodules
+- `stats/regression.rs` (624→4 files): `linear.rs`, `quadratic.rs`,
+  `nonlinear.rs`, `mod.rs` — split by algorithm family
+- `fao56/mod.rs` (642→47 LOC): `daily.rs`, `hargreaves.rs`, `crop_soil.rs`
+  — split by ET₀ method domain
+- `fao56/pipeline.rs` (623→3 files): `monte_carlo.rs`, `seasonal.rs`,
+  `mod.rs` — split by pipeline concern
+
+#### Hardcoding Evolution
+- `"biomeos-neural-api.sock"` → `primal_names::LEGACY_NEURAL_API_SOCK`
+- Documented `mat_transpose_mul`/`mat_transpose_vec` non-delegation
+  rationale in `spectral_recon.rs` (small matrices, Cholesky delegated)
+
+#### Python Dependency Pinning
+- Upper bounds added: `numpy>=1.24,<2.0`, `scipy>=1.10,<2.0` etc.
+  Prevents PRNG drift from silent major-version upgrades
+
+#### Quality Gates
+- 878 tests pass (no-default-features), 0 clippy warnings, 0 fmt diff
+- `cargo doc -D warnings`: 0 warnings
+- Zero files > 1000 LOC (largest: 705 LOC)
+- Zero `panic!()` in validation binaries
+- License: AGPL-3.0-or-later (SCYBORG trio)
+
 ### V108 Deep Debt + Absorption Evolution (Mar 16, 2026)
 
 #### License Correction

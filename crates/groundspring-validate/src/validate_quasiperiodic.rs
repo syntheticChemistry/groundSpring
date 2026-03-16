@@ -182,7 +182,10 @@ fn level_spacing_checks(harness: &mut ValidationHarness, n_eig: usize, alpha: f6
 }
 
 fn run() -> i32 {
-    let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
+    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
+        eprintln!("FATAL: invalid benchmark JSON");
+        return 1;
+    };
     let mut harness = ValidationHarness::stdout("Rust Validation: Quasiperiodic Localization");
 
     print_provenance_header(&bench, "Quasiperiodic Localization (Almost-Mathieu)");

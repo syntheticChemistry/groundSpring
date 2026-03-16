@@ -259,7 +259,10 @@ fn validate_sensitivity(
 }
 
 fn run() -> i32 {
-    let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
+    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
+        eprintln!("FATAL: invalid benchmark JSON");
+        return 1;
+    };
     let mut h = ValidationHarness::stdout("Rust Validation: FAO-56 Error Propagation");
 
     print_provenance_header(&bench, "FAO-56 Error Propagation");

@@ -248,7 +248,10 @@ fn sensitivity_variance_fractions(fao: &Value, seed: u64) -> [f64; 4] {
 }
 
 fn run() -> i32 {
-    let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
+    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
+        eprintln!("FATAL: invalid benchmark JSON");
+        return 1;
+    };
     let mut h = ValidationHarness::stdout("Rust Validation: ET₀ → Anderson Propagation");
     print_provenance_header(&bench, "ET₀ → Anderson Propagation (Exp 022)");
 

@@ -65,7 +65,7 @@ fn resolve_socket(explicit: Option<&str>, xdg_runtime: Option<&str>) -> Option<P
         return Some(p);
     }
 
-    let legacy = std::env::temp_dir().join("biomeos-neural-api.sock");
+    let legacy = std::env::temp_dir().join(crate::primal_names::LEGACY_NEURAL_API_SOCK);
     if legacy.exists() {
         return Some(legacy);
     }

@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: March 16, 2026
-**Status**: V108 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 102 delegations (61 CPU + 41 GPU) — 906 tests, 287 Python tests, 140 metalForge checks, 35 experiments, 39 modules. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio), barracuda WelfordState CPU delegation, typed capability-based discovery, Python provenance enrichment
+**Status**: V109 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 102 delegations (61 CPU + 41 GPU) — 906 tests, 287 Python tests, 140 metalForge checks, 35 experiments, 39 modules. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio), barracuda WelfordState CPU delegation, typed capability-based discovery, Python provenance enrichment
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---

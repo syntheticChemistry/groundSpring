@@ -13,7 +13,9 @@ use groundspring::prng::Xorshift64;
 use groundspring::rare_biosphere::chao1;
 use groundspring::rarefaction::{multinomial_sample_batch, shannon_diversity};
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{f64_field, f64_range, print_provenance_header, usize_field};
+use groundspring_validate::{
+    f64_field, f64_range, get_array, print_provenance_header, usize_field,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str =
@@ -94,8 +96,8 @@ fn build_curve(
     n_reps: usize,
     base_seed: u64,
     label: &str,
-) -> CurveData {
-    let max_depth = *depths.last().expect("non-empty depths");
+) -> Option<CurveData> {
+    let max_depth = *depths.last()?;
     let mut curve = Vec::with_capacity(depths.len());
     let mut high = RarefactionResult {
         shannon_mean: 0.0,
@@ -117,11 +119,11 @@ fn build_curve(
             high = r;
         }
     }
-    CurveData {
+    Some(CurveData {
         curve,
         high,
         shannon_1k,
-    }
+    })
 }
 
 fn validate_diversity(
@@ -185,7 +187,10 @@ fn validate_diversity(
 }
 
 fn run() -> i32 {
-    let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
+    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
+        eprintln!("FATAL: invalid benchmark JSON");
+        return 1;
+    };
     let mut h = ValidationHarness::stdout("Rust Validation: No-Till vs Tilled Sampling");
     print_provenance_header(&bench, "No-Till vs Tilled Sampling (Exp 023)");
 
@@ -195,15 +200,21 @@ fn run() -> i32 {
 
     let base_seed = rarefaction["seed"].as_u64().unwrap_or(42);
     let n_reps = usize_field(rarefaction, "n_replicates");
-    let depths: Vec<u64> = groundspring_validate::get_array(rarefaction, "depths")
-        .expect("benchmark depths array")
-        .iter()
-        .enumerate()
-        .map(|(i, v)| {
-            v.as_u64()
-                .unwrap_or_else(|| panic!("benchmark depths[{i}]: expected u64"))
-        })
-        .collect();
+    let Ok(depth_arr) = get_array(rarefaction, "depths") else {
+        eprintln!("FATAL: missing benchmark field: depths");
+        return 1;
+    };
+    let mut depths = Vec::with_capacity(depth_arr.len());
+    for (i, v) in depth_arr.iter().enumerate() {
+        let Ok(d) = v
+            .as_u64()
+            .ok_or_else(|| format!("depths[{i}]: expected u64"))
+        else {
+            eprintln!("FATAL: benchmark depths[{i}]: expected u64");
+            return 1;
+        };
+        depths.push(d);
+    }
 
     println!("\n--- Part 1: Synthetic Communities ---");
     let notill_cfg = &communities["notill"];
@@ -236,8 +247,14 @@ fn run() -> i32 {
     );
 
     println!("\n--- Part 2: Rarefaction ---");
-    let notill_data = build_curve(&notill_comm, &depths, n_reps, base_seed, "no-till");
-    let tilled_data = build_curve(&tilled_comm, &depths, n_reps, base_seed, "tilled");
+    let Some(notill_data) = build_curve(&notill_comm, &depths, n_reps, base_seed, "no-till") else {
+        eprintln!("FATAL: empty depths array for no-till curve");
+        return 1;
+    };
+    let Some(tilled_data) = build_curve(&tilled_comm, &depths, n_reps, base_seed, "tilled") else {
+        eprintln!("FATAL: empty depths array for tilled curve");
+        return 1;
+    };
 
     println!("\n--- Part 3: Validate ---");
     validate_diversity(

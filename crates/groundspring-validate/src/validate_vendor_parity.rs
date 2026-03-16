@@ -48,7 +48,10 @@ fn synthetic_vacf_noisy(
     reason = "validation harness with multiple WDM vendor parity checks"
 )]
 fn run() -> i32 {
-    let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
+    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
+        eprintln!("FATAL: invalid benchmark JSON");
+        return 1;
+    };
     let mut harness = ValidationHarness::stdout("Rust Validation: GPU Vendor Parity");
 
     println!("{}", "=".repeat(72));

@@ -193,14 +193,109 @@ pub fn penman_monteith(
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
+    use crate::tol;
 
     #[test]
-    fn saturation_vp_at_20c() {
-        // FAO-56 Table 2.3: e°(20) ≈ 2.338 kPa
+    fn svp_at_20c() {
         let es = saturation_vapour_pressure(20.0);
         assert!(
-            (es - 2.338).abs() < 0.01,
-            "e°(20°C) = {es}, expected ~2.338"
+            (es - 2.338).abs() < tol::DECOMPOSITION,
+            "FAO-56 Table 2.3: e°(20) ≈ 2.338 kPa"
+        );
+    }
+
+    #[test]
+    fn slope_at_20c() {
+        let d = slope_vapour_pressure_curve(20.0);
+        assert!(
+            (d - 0.1447).abs() < tol::DECOMPOSITION,
+            "FAO-56 Table 2.4: Δ(20) ≈ 0.1447"
+        );
+    }
+
+    #[test]
+    fn pressure_at_sea_level() {
+        assert!((atmospheric_pressure(0.0) - 101.3).abs() < tol::EQUILIBRIUM);
+    }
+
+    #[test]
+    fn pressure_at_100m() {
+        let p = atmospheric_pressure(100.0);
+        assert!((p - 100.1).abs() < 0.3);
+    }
+
+    #[test]
+    fn wind_conversion_10m_to_2m() {
+        let u2 = wind_speed_at_2m(2.778, 10.0);
+        assert!(
+            (u2 - 2.078).abs() < tol::STOCHASTIC,
+            "FAO-56 Example 18: u2 ≈ 2.078 m/s"
+        );
+    }
+
+    #[test]
+    fn psychrometric_constant_at_sea_level() {
+        let gamma = psychrometric_constant(101.3);
+        assert!(
+            (gamma - 0.0674).abs() < tol::DECOMPOSITION,
+            "FAO-56 Eq. 8: γ ≈ 0.0674, got {gamma:.4}"
+        );
+    }
+
+    #[test]
+    fn solar_declination_summer_solstice() {
+        let delta = solar_declination(172);
+        let delta_deg = delta.to_degrees();
+        assert!(
+            (delta_deg - 23.45).abs() < 1.0,
+            "summer solstice δ ≈ 23.45°, got {delta_deg:.2}"
+        );
+    }
+
+    #[test]
+    fn inverse_relative_distance_range() {
+        for doy in [1, 105, 187, 365] {
+            let dr = inverse_relative_distance(doy);
+            assert!(
+                (0.96..=1.04).contains(&dr),
+                "d_r should be ~1.0 ± 0.033, got {dr} at doy {doy}"
+            );
+        }
+    }
+
+    #[test]
+    fn sunset_hour_angle_equator_equinox() {
+        let phi = 0.0_f64.to_radians();
+        let delta = solar_declination(80);
+        let ws = sunset_hour_angle(phi, delta);
+        assert!(
+            (ws - std::f64::consts::PI / 2.0).abs() < 0.2,
+            "equatorial equinox ωs ≈ π/2, got {ws:.3}"
+        );
+    }
+
+    #[test]
+    fn extraterrestrial_radiation_summer() {
+        let ra = extraterrestrial_radiation(50.8, 187);
+        assert!(
+            (35.0..50.0).contains(&ra),
+            "Uccle July Ra ≈ 40 MJ/m²/day, got {ra:.1}"
+        );
+    }
+
+    #[test]
+    fn clear_sky_radiation_at_sea_level() {
+        let ra = 40.0;
+        let rso = clear_sky_radiation(0.0, ra);
+        assert!((rso - 30.0).abs() < 1.0, "Rso = 0.75·Ra = 30, got {rso:.1}");
+    }
+
+    #[test]
+    fn net_shortwave_radiation_albedo() {
+        let rns = net_shortwave_radiation(20.0);
+        assert!(
+            (rns - 15.4).abs() < 0.1,
+            "Rns = (1-0.23)·20 = 15.4, got {rns:.1}"
         );
     }
 
@@ -228,16 +323,6 @@ mod tests {
         let p_0 = atmospheric_pressure(0.0);
         let p_1000 = atmospheric_pressure(1000.0);
         assert!(p_1000 < p_0, "pressure should decrease with altitude");
-    }
-
-    #[test]
-    fn psychrometric_constant_sea_level() {
-        // FAO-56: γ ≈ 0.0674 at sea level
-        let gamma = psychrometric_constant(101.3);
-        assert!(
-            (gamma - 0.0674).abs() < 0.001,
-            "γ = {gamma}, expected ~0.0674"
-        );
     }
 
     #[test]

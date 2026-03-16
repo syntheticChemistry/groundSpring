@@ -77,7 +77,10 @@ fn run() -> i32 {
         return h.summary();
     }
 
-    let socket = socket.expect("NUCLEUS socket should be available after is_some() check");
+    let Some(socket) = socket else {
+        eprintln!("FATAL: NUCLEUS socket unavailable despite live check");
+        return 1;
+    };
     println!("  Socket: {}", socket.display());
 
     validate_tower(&mut h, &socket);

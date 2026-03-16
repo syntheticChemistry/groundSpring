@@ -165,6 +165,11 @@ pub fn rmse(a: &[f64], b: &[f64]) -> f64 {
 }
 
 /// Aᵀ · B where A is `m × k` and B is `m × n`, result is `k × n` (row-major).
+///
+/// Stays local: `barracuda::ops::linalg::GemmF64` lacks a transpose flag,
+/// and these matrices are small (`n_omega` ≤ 200). The expensive O(n³)
+/// Cholesky solve is already delegated to barraCuda GPU; this O(n²k)
+/// setup wouldn't benefit from dispatch overhead.
 #[expect(
     clippy::many_single_char_names,
     reason = "standard linear algebra notation (m × k × n)"
@@ -184,6 +189,9 @@ fn mat_transpose_mul(a: &[f64], b: &[f64], m: usize, k: usize, n: usize) -> Vec<
 }
 
 /// Aᵀ · v where A is `m × n`, v is length `m`, result is length `n`.
+///
+/// Same rationale as [`mat_transpose_mul`] — stays local as cheap setup
+/// for the delegated Cholesky solve.
 #[expect(
     clippy::many_single_char_names,
     reason = "standard linear algebra notation (m × n)"

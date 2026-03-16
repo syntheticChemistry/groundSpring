@@ -170,7 +170,10 @@ fn validate_occupancy_and_singletons(h: &mut ValidationHarness, ctx: &OccupancyC
 }
 
 fn run() -> i32 {
-    let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
+    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
+        eprintln!("FATAL: invalid benchmark JSON");
+        return 1;
+    };
     let mut h = ValidationHarness::stdout("Rust Validation: Rare Biosphere");
 
     println!("{}", "=".repeat(72));

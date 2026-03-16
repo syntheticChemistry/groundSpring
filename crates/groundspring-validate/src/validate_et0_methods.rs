@@ -24,7 +24,10 @@
 
 use groundspring::fao56::{self, DailyWeatherInputs};
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{TOL_EQUILIBRIUM, TOL_ET0, f64_field, print_provenance_header};
+use groundspring_validate::{
+    ET0_PLAUSIBLE_MAX_MM, ET0_PLAUSIBLE_MIN_MM, TOL_EQUILIBRIUM, TOL_ET0, f64_field,
+    print_provenance_header,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/et0_methods/benchmark_et0_methods.json");
@@ -108,8 +111,10 @@ fn validate_agreement_and_determinism(
 
     harness.check_true("All methods positive", results.iter().all(|&v| v > 0.0));
     harness.check_true(
-        "All methods in plausible range (0.01–15 mm/day)",
-        results.iter().all(|&v| v > 0.01 && v < 15.0),
+        "All methods in plausible range",
+        results
+            .iter()
+            .all(|&v| v > ET0_PLAUSIBLE_MIN_MM && v < ET0_PLAUSIBLE_MAX_MM),
     );
 
     let spread = results.iter().copied().fold(f64::NEG_INFINITY, f64::max)
@@ -150,7 +155,11 @@ fn validate_seasonal_and_intermediates(
 ) {
     println!("\n--- Part 4: Seasonal Variation ---");
 
-    let seasonal = bench["seasonal"].as_array().expect("seasonal array");
+    let Some(seasonal) = bench["seasonal"].as_array() else {
+        eprintln!("FATAL: missing benchmark field: seasonal");
+        harness.check_true("seasonal array present", false);
+        return;
+    };
     let seasonal_pm: Vec<f64> = seasonal
         .iter()
         .map(|s| f64_field(s, "penman_monteith"))
@@ -184,7 +193,10 @@ fn validate_seasonal_and_intermediates(
 }
 
 fn run() -> i32 {
-    let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
+    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
+        eprintln!("FATAL: invalid benchmark JSON");
+        return 1;
+    };
     let mut harness =
         ValidationHarness::stdout("Rust Validation: Multi-Method ET₀ Cross-Validation");
 

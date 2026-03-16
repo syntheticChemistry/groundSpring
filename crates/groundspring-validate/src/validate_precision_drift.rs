@@ -44,7 +44,10 @@ fn synthetic_vacf_noisy(
     reason = "validation harness with f32/f64 precision drift checks"
 )]
 fn run() -> i32 {
-    let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
+    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
+        eprintln!("FATAL: invalid benchmark JSON");
+        return 1;
+    };
     let mut h = ValidationHarness::stdout("Rust Validation: Precision Drift");
     print_provenance_header(&bench, "f32 vs f64 Precision Drift (Exp 025)");
 

@@ -38,3 +38,10 @@ pub const SQUIRREL: &str = "squirrel";
 
 /// Socket directory name for biomeOS IPC mesh.
 pub const BIOMEOS_SOCKET_DIR: &str = "biomeos";
+
+/// Legacy flat-file socket name (pre-directory convention).
+///
+/// Earlier NUCLEUS versions placed this directly in `$TMPDIR`
+/// rather than the `biomeos/` subdirectory. Retained for backward
+/// compatibility during migration.
+pub const LEGACY_NEURAL_API_SOCK: &str = "biomeos-neural-api.sock";
