@@ -1,5 +1,5 @@
 {
-  "_source": "groundSpring Experiment 013 — Resampling Convergence",
+  "_source": "groundSpring Experiment 013 \u2014 Resampling Convergence",
   "_doi": "10.1093/bioinformatics/btab271",
   "_references": [
     "Lee & Liu (2024) A Statistical Optimization Technique to Inform Statistical Resampling. IEEE BIBM 2024",
@@ -14,18 +14,41 @@
     "baseline_date": "2026-02-26",
     "baseline_commit": "459e5d0c648905b521307c4022edf877c794a503",
     "validation_script": "control/resampling_convergence/resampling_convergence.py",
-    "command": "python3 control/resampling_convergence/resampling_convergence.py"
+    "command": "python3 control/resampling_convergence/resampling_convergence.py",
+    "python_version": "3.11",
+    "numpy_version": "1.24"
   },
   "_description": "How quickly do bootstrap and RAWR confidence intervals converge as the number of replicates increases? Determines the optimal replicate count for a given accuracy target.",
   "_groundspring_question": "How many resampling replicates are enough? Wasting compute on excess replicates wastes energy; too few give unreliable intervals. The convergence rate quantifies resampling efficiency.",
-  "_cross_spring": "All springs — MC methodology optimization from Exp 007",
+  "_cross_spring": "All springs \u2014 MC methodology optimization from Exp 007",
   "model": {
     "_description": "Run bootstrap and RAWR at geometrically increasing replicate counts (100, 200, 500, 1000, 2000, 5000, 10000) on Gaussian, log-normal, and heavy-tailed (t-distribution) data. Track CI width convergence.",
     "data_n": 200,
-    "gaussian": {"mu": 5.0, "sigma": 2.0, "seed": 42},
-    "lognormal": {"mu_ln": 1.0, "sigma_ln": 0.8, "seed": 123},
-    "heavy_tail": {"df": 3, "loc": 10.0, "scale": 2.0, "seed": 456},
-    "replicate_counts": [100, 200, 500, 1000, 2000, 5000, 10000],
+    "gaussian": {
+      "mu": 5.0,
+      "sigma": 2.0,
+      "seed": 42
+    },
+    "lognormal": {
+      "mu_ln": 1.0,
+      "sigma_ln": 0.8,
+      "seed": 123
+    },
+    "heavy_tail": {
+      "df": 3,
+      "loc": 10.0,
+      "scale": 2.0,
+      "seed": 456
+    },
+    "replicate_counts": [
+      100,
+      200,
+      500,
+      1000,
+      2000,
+      5000,
+      10000
+    ],
     "confidence": 0.95,
     "n_trials_coverage": 100
   },

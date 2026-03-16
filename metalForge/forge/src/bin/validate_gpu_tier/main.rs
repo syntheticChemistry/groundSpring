@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! GPU Tier Validation: prove barracuda math is portable from CPU → GPU.

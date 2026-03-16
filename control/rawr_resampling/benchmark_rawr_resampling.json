@@ -1,5 +1,5 @@
 {
-  "_source": "groundSpring Experiment 007 — RAWR Resampling",
+  "_source": "groundSpring Experiment 007 \u2014 RAWR Resampling",
   "_doi": "10.1093/bioinformatics/btab271",
   "_references": [
     "Wang et al. (2021) Build a better bootstrap and the RAWR shall beat a random path to your door. Bioinformatics (ISMB) 37:i111-i119",
@@ -13,12 +13,13 @@
     "baseline_date": "2026-02-25",
     "baseline_commit": "f634ef0b32d2bcfbad8d77d4cbfa2c8dd96a93b2",
     "validation_script": "control/rawr_resampling/rawr_resampling.py",
-    "command": "python3 control/rawr_resampling/rawr_resampling.py"
+    "command": "python3 control/rawr_resampling/rawr_resampling.py",
+    "python_version": "3.11",
+    "numpy_version": "1.24"
   },
   "_description": "Comparison of naive bootstrap vs RAWR (Resampled And Weighted Replicates) for confidence estimation",
   "_groundspring_question": "Does weighted resampling outperform naive bootstrap for confidence estimation on structured data?",
-  "_cross_spring": "All springs — upgrades Monte Carlo methodology from Exp 003",
-
+  "_cross_spring": "All springs \u2014 upgrades Monte Carlo methodology from Exp 003",
   "test_cases": {
     "gaussian": {
       "n": 100,
@@ -47,7 +48,6 @@
       "seed": 456
     }
   },
-
   "test_config": {
     "n_coverage_trials": 200,
     "coverage_seed_offset": 5000,
@@ -57,11 +57,19 @@
     "determinism_n_bootstrap": 500,
     "determinism_confidence": 0.95
   },
-
   "expected_results": {
-    "gaussian_coverage_range": [0.90, 1.0],
-    "gaussian_bootstrap_ci_width_range": [0.5, 1.2],
-    "skewed_coverage_range": [0.80, 1.0],
+    "gaussian_coverage_range": [
+      0.9,
+      1.0
+    ],
+    "gaussian_bootstrap_ci_width_range": [
+      0.5,
+      1.2
+    ],
+    "skewed_coverage_range": [
+      0.8,
+      1.0
+    ],
     "correlated_rawr_mse_ratio_max": 1.5,
     "bootstrap_deterministic": true,
     "rawr_deterministic": true

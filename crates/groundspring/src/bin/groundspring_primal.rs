@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 #![forbid(unsafe_code)]
 #![deny(missing_docs)]
@@ -193,7 +193,7 @@ fn cmd_version() -> ExitCode {
     for cap in biomeos::MEASUREMENT_CAPABILITIES {
         println!("  - {cap}");
     }
-    println!("license: AGPL-3.0-only");
+    println!("license: AGPL-3.0-or-later");
     println!("family_id: {}", biomeos::FAMILY_ID);
     ExitCode::SUCCESS
 }

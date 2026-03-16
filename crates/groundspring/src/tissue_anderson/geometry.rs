@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Tissue geometry types and disorder functions for the Anderson lattice.
@@ -10,9 +10,44 @@
 use crate::cast::usize_f64;
 
 /// On-site energy for keratinocytes (epidermis, low immune activity).
+///
+/// Provenance: low baseline cytokine production (Nestle et al., Nature Reviews
+/// Immunology 2009, Table 1). Scaled relative to Th2 peak = 1.2.
 const KERATINOCYTE_ON_SITE_ENERGY: f64 = 0.1;
 /// On-site energy for Langerhans cells (epidermis, antigen presentation).
+///
+/// Provenance: moderate antigen-presentation signaling (Merad et al., Annual
+/// Review of Immunology 2013). Intermediate between keratinocyte (structural)
+/// and Th2 (effector).
 const LANGERHANS_ON_SITE_ENERGY: f64 = 0.5;
+/// On-site energy for Th2 lymphocytes (dermis, primary cytokine producer in AD).
+///
+/// Provenance: highest cytokine production capacity per cell (IL-4, IL-13,
+/// IL-31) in AD flare (Weidinger & Novak, The Lancet 2016). Peak of the
+/// disorder scale.
+const TH2_ON_SITE_ENERGY: f64 = 1.2;
+/// On-site energy for mast cells (dermis, histamine + cytokines).
+///
+/// Provenance: high degranulation-driven cytokine release (Galli et al.,
+/// Nature Immunology 2005). Second-highest after Th2.
+const MAST_CELL_ON_SITE_ENERGY: f64 = 1.0;
+/// On-site energy for sensory neuron endings (dermis, itch receptor).
+///
+/// Provenance: moderate neuropeptide release (substance P, CGRP) that
+/// amplifies local inflammation (Kabashima et al., Nature Reviews Disease
+/// Primers 2020). Below mast cell, above fibroblast.
+const NEURON_ON_SITE_ENERGY: f64 = 0.4;
+/// On-site energy for eosinophils (dermis, inflammation amplifier).
+///
+/// Provenance: high granule protein release (MBP, ECP) with inflammatory
+/// amplification (Simon et al., Allergy 2004). Close to mast cell level.
+const EOSINOPHIL_ON_SITE_ENERGY: f64 = 0.9;
+/// On-site energy for fibroblasts (dermis, structural).
+///
+/// Provenance: low immune signaling capacity; primarily structural
+/// (collagen/ECM production). Slightly above keratinocyte.
+const FIBROBLAST_ON_SITE_ENERGY: f64 = 0.15;
+
 use crate::prng::Xorshift64;
 
 /// Skin compartment in the tissue Anderson lattice.
@@ -60,11 +95,11 @@ impl CellType {
         match self {
             Self::Keratinocyte => KERATINOCYTE_ON_SITE_ENERGY,
             Self::LangerhansCell => LANGERHANS_ON_SITE_ENERGY,
-            Self::Th2Cell => 1.2,
-            Self::MastCell => 1.0,
-            Self::Neuron => 0.4,
-            Self::Eosinophil => 0.9,
-            Self::Fibroblast => 0.15,
+            Self::Th2Cell => TH2_ON_SITE_ENERGY,
+            Self::MastCell => MAST_CELL_ON_SITE_ENERGY,
+            Self::Neuron => NEURON_ON_SITE_ENERGY,
+            Self::Eosinophil => EOSINOPHIL_ON_SITE_ENERGY,
+            Self::Fibroblast => FIBROBLAST_ON_SITE_ENERGY,
         }
     }
 }

@@ -1,38 +1,45 @@
 {
-  "_source": "groundSpring Experiment 009 — Quasiperiodic Localization (Almost-Mathieu)",
+  "_source": "groundSpring Experiment 009 \u2014 Quasiperiodic Localization (Almost-Mathieu)",
   "_doi": "10.4171/JEMS/831",
   "_references": [
     "Jitomirskaya & Kachkovskiy (2018) All couplings localization for quasiperiodic operators with Lipschitz monotone potentials. JEMS 21:777-795",
-    "Aubry & André (1980) Analyticity breaking and Anderson localization in incommensurate lattices. Ann Israel Phys Soc 3:133",
-    "Herman (1983) Une méthode pour minorer les exposants de Lyapounov. Commentarii Math Helv 58:453-502",
+    "Aubry & Andr\u00e9 (1980) Analyticity breaking and Anderson localization in incommensurate lattices. Ann Israel Phys Soc 3:133",
+    "Herman (1983) Une m\u00e9thode pour minorer les exposants de Lyapounov. Commentarii Math Helv 58:453-502",
     "Bourgain & Kachkovskiy (2018) Anderson localization for two interacting quasiperiodic particles. GAFA 29:3-43"
   ],
   "_provenance": {
     "generated_by": "Transfer matrix Lyapunov exponent computation for 1D Almost-Mathieu operator",
-    "data_origin": "Analytical: Almost-Mathieu Hamiltonian with golden-ratio frequency. All results derivable from Aubry-André duality and Herman's formula.",
+    "data_origin": "Analytical: Almost-Mathieu Hamiltonian with golden-ratio frequency. All results derivable from Aubry-Andr\u00e9 duality and Herman's formula.",
     "real_data_accession": "N/A (analytical)",
     "prng_algorithm": "deterministic quasiperiodic potential (no randomness)",
     "baseline_date": "2026-02-25",
     "baseline_commit": "520ca65978039deb65cd8a479a088aef8f47c5b1",
     "validation_script": "control/quasiperiodic/quasiperiodic_localization.py",
-    "command": "python3 control/quasiperiodic/quasiperiodic_localization.py"
+    "command": "python3 control/quasiperiodic/quasiperiodic_localization.py",
+    "python_version": "3.11",
+    "numpy_version": "1.24"
   },
-  "_description": "Aubry-André metal-insulator transition in the Almost-Mathieu operator: extended states for λ<2, localized for λ>2, with Herman's formula γ=ln(λ/2)",
-  "_groundspring_question": "When structured (quasiperiodic) noise replaces random disorder, does the same localization phenomenology hold — and can we predict the exact transition point?",
-  "_cross_spring": "hotSpring — spectral theory (Almost-Mathieu, Hofstadter butterfly)",
-
+  "_description": "Aubry-Andr\u00e9 metal-insulator transition in the Almost-Mathieu operator: extended states for \u03bb<2, localized for \u03bb>2, with Herman's formula \u03b3=ln(\u03bb/2)",
+  "_groundspring_question": "When structured (quasiperiodic) noise replaces random disorder, does the same localization phenomenology hold \u2014 and can we predict the exact transition point?",
+  "_cross_spring": "hotSpring \u2014 spectral theory (Almost-Mathieu, Hofstadter butterfly)",
   "model": {
-    "_description": "1D Almost-Mathieu: H ψ(n) = ψ(n+1) + ψ(n-1) + 2λ cos(2παn + θ) ψ(n). α = golden ratio ≈ 0.618, θ = 0.",
+    "_description": "1D Almost-Mathieu: H \u03c8(n) = \u03c8(n+1) + \u03c8(n-1) + 2\u03bb cos(2\u03c0\u03b1n + \u03b8) \u03c8(n). \u03b1 = golden ratio \u2248 0.618, \u03b8 = 0.",
     "n_sites": 100000,
     "energy": 0.0,
     "alpha": 0.6180339887498949,
     "theta": 0.0,
-    "coupling_strengths": [0.0, 0.5, 1.0, 2.0, 3.0, 4.0],
+    "coupling_strengths": [
+      0.0,
+      0.5,
+      1.0,
+      2.0,
+      3.0,
+      4.0
+    ],
     "n_eigenvalues": 100
   },
-
   "analytical_predictions": {
-    "_description": "Aubry-André duality: transition at λ=2. Herman's formula: γ = max(0, ln(λ/2)) for E=0. Level statistics: quasi-integrable (strong repulsion, <r> ~ 0.9) for extended (λ<2), Poisson for localized (λ>2).",
+    "_description": "Aubry-Andr\u00e9 duality: transition at \u03bb=2. Herman's formula: \u03b3 = max(0, ln(\u03bb/2)) for E=0. Level statistics: quasi-integrable (strong repulsion, <r> ~ 0.9) for extended (\u03bb<2), Poisson for localized (\u03bb>2).",
     "transition_coupling": 2.0,
     "herman_formula": "gamma = ln(lambda / 2) for lambda > 2",
     "herman_lambda_3": 0.4054651081081644,
@@ -41,7 +48,6 @@
     "poisson_r": 0.3863,
     "goe_r": 0.5307
   },
-
   "expected_results": {
     "clean_lyapunov_tol": 0.001,
     "extended_regime_lyapunov_max": 0.01,
@@ -49,7 +55,13 @@
     "herman_tol_lambda_4": 0.02,
     "critical_lyapunov_tol": 0.05,
     "lyapunov_monotonic_above_critical": true,
-    "level_spacing_extended_range": [0.65, 0.98],
-    "level_spacing_localized_range": [0.33, 0.44]
+    "level_spacing_extended_range": [
+      0.65,
+      0.98
+    ],
+    "level_spacing_localized_range": [
+      0.33,
+      0.44
+    ]
   }
 }

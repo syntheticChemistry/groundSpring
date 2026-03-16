@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 15, 2026 (V105)
+**Last Updated**: March 16, 2026 (V108)
 
 ## What This Is
 
@@ -18,7 +18,8 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V105 Code Evolution | [GROUNDSPRING_V105_CODE_EVOLUTION_BARRACUDA_TOADSTOOL_HANDOFF_MAR15_2026.md](handoffs/GROUNDSPRING_V105_CODE_EVOLUTION_BARRACUDA_TOADSTOOL_HANDOFF_MAR15_2026.md) | Mar 15, 2026 | Code evolution: deny unwrap/expect, freeze_out module refactor (4 submodules), typed tarpc IPC, platform-agnostic paths, env-configurable node names, shared Python tolerances. |
+| V108 Deep Debt + Absorption | [GROUNDSPRING_V108_DEEP_DEBT_ABSORPTION_HANDOFF_MAR16_2026.md](handoffs/GROUNDSPRING_V108_DEEP_DEBT_ABSORPTION_HANDOFF_MAR16_2026.md) | Mar 16, 2026 | License AGPL-3.0-or-later, barracuda WelfordState CPU delegation, tolerance centralization, typed capability discovery, provenance enrichment, Result-based validate pattern. |
+| V107 Absorption | [GROUNDSPRING_V107_BARRACUDA_TOADSTOOL_ABSORPTION_HANDOFF_MAR16_2026.md](handoffs/GROUNDSPRING_V107_BARRACUDA_TOADSTOOL_ABSORPTION_HANDOFF_MAR16_2026.md) | Mar 16, 2026 | 102 delegations (61 CPU + 41 GPU), 80+ barraCuda ops, 22 GPU-wired modules. |
 
 ## Cross-Spring Documentation
 
@@ -38,6 +39,9 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | Scope |
 |---------|-------|
+| V107 License/Niche/Tolerance | AGPL-3.0-or-later (302 files), release profile, enriched niche.rs, tolerance provenance, bare literal removal (superseded by V108) |
+| V105 Code Evolution | deny unwrap/expect, freeze_out 4-module refactor, typed tarpc IPC, platform-agnostic paths (superseded by V107) |
+| V104 Deep Debt | Named constants with provenance, capability-based discovery, measurement.* surface (superseded by V105) |
 | V103 Deep Debt Audit | Named constants with provenance, `biomeos/interaction.rs` extraction, `eps::LOG_FLOOR` centralized, batch primitive absorption opportunities (superseded by V104) |
 | V102 Niche Deployment | Spring-as-Niche via biomeOS graph composition: UniBin, `measurement.*`, deploy graph, niche YAML, Provenance Trio, Neural API (superseded by V103) |
 | V102 BarraCUDA/ToadStool Niche | Dispatch-through-delegation chain, method→library→delegation map, GPU evolution opportunities (superseded by V103) |

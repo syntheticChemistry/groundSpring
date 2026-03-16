@@ -1,47 +1,86 @@
 {
-    "_source": "Exp 028 — NPU Anderson Regime Classification",
-    "_doi": "10.1103/PhysRev.109.1492",
-    "_provenance": {
-        "method": "Analytical ξ(W, E=0) = C/W² classification with int8 quantization",
-        "reference": "Anderson 1958; Derrida-Gardner 1984; BrainChip AKD1000 datasheet",
-        "generated_by": "control/npu_anderson/npu_anderson.py",
-        "baseline_date": "2026-02-27",
-        "baseline_commit": "d166af6cc281255dd107e81c4462a7fe65c097b2",
-        "seed": 42,
-        "prng_algorithm": "numpy.random.default_rng (PCG64), seed=42",
-        "validation_script": "control/npu_anderson/npu_anderson.py",
-        "command": "python3 control/npu_anderson/npu_anderson.py",
-        "data_origin": "Analytical: 1D Anderson tight-binding model with Derrida-Gardner ξ=C/W². All results derivable from first principles.",
-        "real_data_accession": "N/A (analytical/simulation)"
+  "_source": "Exp 028 \u2014 NPU Anderson Regime Classification",
+  "_doi": "10.1103/PhysRev.109.1492",
+  "_provenance": {
+    "method": "Analytical \u03be(W, E=0) = C/W\u00b2 classification with int8 quantization",
+    "reference": "Anderson 1958; Derrida-Gardner 1984; BrainChip AKD1000 datasheet",
+    "generated_by": "control/npu_anderson/npu_anderson.py",
+    "baseline_date": "2026-02-27",
+    "baseline_commit": "d166af6cc281255dd107e81c4462a7fe65c097b2",
+    "seed": 42,
+    "prng_algorithm": "numpy.random.default_rng (PCG64), seed=42",
+    "validation_script": "control/npu_anderson/npu_anderson.py",
+    "command": "python3 control/npu_anderson/npu_anderson.py",
+    "data_origin": "Analytical: 1D Anderson tight-binding model with Derrida-Gardner \u03be=C/W\u00b2. All results derivable from first principles.",
+    "real_data_accession": "N/A (analytical/simulation)",
+    "python_version": "3.11",
+    "numpy_version": "1.24"
+  },
+  "model": {
+    "n_sites": 200,
+    "energy": 0.0,
+    "derrida_gardner_C": 96.0,
+    "disorders": [
+      0.1,
+      0.5,
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      5.0,
+      6.0,
+      8.0,
+      10.0
+    ],
+    "regime_thresholds": {
+      "localized_xi_over_L": 0.5,
+      "extended_xi_over_L": 2.0
     },
-    "model": {
-        "n_sites": 200,
-        "energy": 0.0,
-        "derrida_gardner_C": 96.0,
-        "disorders": [0.1, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0],
-        "regime_thresholds": {
-            "localized_xi_over_L": 0.5,
-            "extended_xi_over_L": 2.0
-        },
-        "quantization": {
-            "W_range": [0.0, 10.0],
-            "E_range": [-3.0, 3.0],
-            "L_range": [10.0, 10000.0],
-            "int8_range": [0, 127]
-        },
-        "n_training_disorders": 100,
-        "training_W_min": 0.05,
-        "training_W_max": 10.0
+    "quantization": {
+      "W_range": [
+        0.0,
+        10.0
+      ],
+      "E_range": [
+        -3.0,
+        3.0
+      ],
+      "L_range": [
+        10.0,
+        10000.0
+      ],
+      "int8_range": [
+        0,
+        127
+      ]
     },
-    "expected_results": {
-        "cpu_regimes": ["Extended", "Critical", "Localized", "Localized", "Localized", "Localized", "Localized", "Localized", "Localized", "Localized"],
-        "n_classes": 3,
-        "classifier_weight_shape": [3, 3],
-        "quantization_roundtrip_max_error": 0.25,
-        "cpu_accuracy_min": 0.9,
-        "npu_accuracy_min": 0.0,
-        "_npu_accuracy_note": "DMA round-trip validation only; trained SNN model needed for real classification accuracy",
-        "npu_latency_max_us": 500.0,
-        "regime_coverage_min": 3
-    }
+    "n_training_disorders": 100,
+    "training_W_min": 0.05,
+    "training_W_max": 10.0
+  },
+  "expected_results": {
+    "cpu_regimes": [
+      "Extended",
+      "Critical",
+      "Localized",
+      "Localized",
+      "Localized",
+      "Localized",
+      "Localized",
+      "Localized",
+      "Localized",
+      "Localized"
+    ],
+    "n_classes": 3,
+    "classifier_weight_shape": [
+      3,
+      3
+    ],
+    "quantization_roundtrip_max_error": 0.25,
+    "cpu_accuracy_min": 0.9,
+    "npu_accuracy_min": 0.0,
+    "_npu_accuracy_note": "DMA round-trip validation only; trained SNN model needed for real classification accuracy",
+    "npu_latency_max_us": 500.0,
+    "regime_coverage_min": 3
+  }
 }

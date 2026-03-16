@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
-**Date**: March 16, 2026 | **License**: AGPL-3.0-only
-**Status**: V107 — 39 modules, 35 experiments, 906 Rust tests + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda v0.3.5, toadStool S130+ (`bfe7977b`), coralReef Iteration 10 (`d29a734`). **Three-tier parity proven**: 29/29 validation binaries PASS at all three tiers. **V107**: License AGPL-3.0-only (302 files), release profile optimization (lto/codegen-units/strip), enriched niche.rs (OperationDeps/CostEstimate), tolerance provenance citations, bare literal elimination, feature-gated spectral constants, 906 tests / 0 clippy / 0 fmt diff. **V106**: `primal_names.rs` centralized primal name constants (wetSpring V119 pattern), `BiomeOsError(String)` → typed enum, biomeOS rewired to `primal_names::*`, zero hardcoded primal strings. **V105**: deep code evolution — `#![deny(clippy::expect_used, clippy::unwrap_used)]` enforced across all 3 crates, `print_provenance_header` evolved to `Result`-returning API with panicking convenience wrapper, `/tmp` hardcoding replaced with `std::env::temp_dir()`, bare tolerance literals extracted to named constants, `freeze_out.rs` (715 LOC) smart-refactored into 4 domain-aligned submodules (curve/grid/chi2/nelder\_mead), typed tarpc IPC client implemented with runtime socket discovery, metalForge node names env-configurable, shared Python tolerance module in `control/common.py`, `et0_methods.py` provenance `"pending"` → `git_commit_hash()`. **V104**: deep-debt resolution — 30+ named constants, capability-based discovery, AGPL-3.0-only, `measurement.*` capability surface. **V103**: named constants, `biomeos/interaction` extraction, `eps::LOG_FLOOR` centralized
+**Date**: March 16, 2026 | **License**: AGPL-3.0-or-later
+**Status**: V108 — 39 modules, 35 experiments, 906 Rust tests + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda v0.3.5, toadStool S130+ (`bfe7977b`), coralReef Iteration 10 (`d29a734`). **Three-tier parity proven**: 29/29 validation binaries PASS at all three tiers. **V108**: License corrected to AGPL-3.0-or-later (SCYBORG trio), barracuda WelfordState CPU delegation, tolerance centralization, typed capability-based discovery (`discover_by_capability`, `compute_execute`, `storage_put/get`), Python provenance enrichment (29 benchmarks), Result-based validation binaries. **V107**: Release profile (lto/codegen-units/strip), enriched niche.rs (OperationDeps/CostEstimate), tolerance provenance citations, bare literal elimination, feature-gated spectral constants. **V106**: `primal_names.rs` centralized constants, typed `BiomeOsError` enum, zero hardcoded primal strings. **V105**: `#![deny(clippy::expect_used, clippy::unwrap_used)]`, freeze\_out 4-module refactor, typed tarpc IPC, platform-agnostic paths
 
 **The gap between what models predict and what instruments measure.**
 
@@ -369,7 +369,7 @@ groundSpring/
 ├── graphs/                         # biomeOS pipeline graphs (deploy, Tower, Node, cross-substrate, validation)
 ├── niches/                         # BYOB niche YAML definitions (groundspring-measurement)
 ├── .github/workflows/ci.yml        # GitHub Actions CI
-├── wateringHole/                   # Handoff directory (V105 current)
+├── wateringHole/                   # Handoff directory (V108 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md      # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md   # GPU kernel gap analysis
@@ -384,7 +384,7 @@ groundSpring/
 ├── Cargo.toml                      # Rust workspace (barracuda feature gate)
 ├── CONTRIBUTING.md
 ├── CHANGELOG.md
-└── LICENSE                         # AGPL-3.0-only
+└── LICENSE                         # AGPL-3.0-or-later
 ```
 
 ## Hardware Gate
@@ -403,7 +403,7 @@ Same as all ecoPrimals springs:
 
 ## License
 
-AGPL-3.0-only — See [LICENSE](LICENSE)
+AGPL-3.0-or-later — See [LICENSE](LICENSE)
 
 ---
 

@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 16, 2026 (V107 — 906 tests, 0 clippy, 0 fmt diff, license AGPL-3.0-only, release profile optimization, niche.rs OperationDeps/CostEstimate, tolerance provenance, bare literal elimination, feature-gated spectral constants)
+**Last updated**: March 16, 2026 (V108 — 906 tests, 0 clippy, 0 fmt diff, license AGPL-3.0-or-later (SCYBORG trio), barracuda WelfordState CPU delegation, tolerance centralization, typed capability-based discovery, Python provenance enrichment, Result-based validation binaries)
 
 ## Experiment Register
 
@@ -55,7 +55,7 @@
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
 **Paper 12**: `tissue_anderson` module — 18 unit tests + 29/29 validation checks + 4D Anderson + Wegner RG (V68)
-**Handoff**: V107 (license alignment, release profile, niche.rs enrichment, tolerance provenance, bare literal elimination, feature-gated spectral constants) | V106 archived (primal_names, typed BiomeOsError)
+**Handoff**: V108 (AGPL-3.0-or-later, barracuda CPU delegation, tolerance centralization, typed capability discovery, provenance enrichment) | V107 archived (release profile, niche.rs, tolerance provenance)
 
 **Python checks**: ~160 across 28 experiments. **Rust validation checks**: 395 (340 core + 55 NUCLEUS). **metalForge + pipeline checks**: 140.
 
@@ -565,7 +565,7 @@ Each experiment is validated at three hardware tiers:
 | **GPU** | `barracuda` feature + GPU adapter | GPU matches CPU within tolerance |
 | **metalForge** | Mixed hardware dispatch | Cross-substrate agreement |
 
-### Current Status (V107)
+### Current Status (V108)
 
 | # | Experiment | CPU | GPU | metalForge | GPU Status |
 |---|-----------|:---:|:---:|:----------:|------------|
@@ -602,7 +602,7 @@ Each experiment is validated at three hardware tiers:
 
 **CPU tier**: 395/395 PASS (34 binaries, complete)
 **GPU tier**: 27 of 34 papers have GPU wiring (79%). 102 delegations (61 CPU + 41 GPU). 30/30 metalForge parity.
-**V107**: License AGPL-3.0-only, release profile (lto/codegen-units/strip), niche.rs OperationDeps/CostEstimate, tolerance provenance, bare literal elimination, feature-gated spectral constants. **V106**: primal_names module, typed BiomeOsError. **V105**: Exp 023/024 GPU wired (V95). PrecisionRoutingAdvice wired into 11 f64 reduction GPU paths (V96). barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10.
+**V107**: License AGPL-3.0-or-later, release profile (lto/codegen-units/strip), niche.rs OperationDeps/CostEstimate, tolerance provenance, bare literal elimination, feature-gated spectral constants. **V106**: primal_names module, typed BiomeOsError. **V105**: Exp 023/024 GPU wired (V95). PrecisionRoutingAdvice wired into 11 f64 reduction GPU paths (V96). barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10.
 **metalForge tier**: 30 workloads, 140 checks. Exp 028 NPU 9/9 PASS (AKD1000 DMA). GPU→NPU→CPU pipeline dispatch validated.
 
 ### BarraCUDA Integration Status (V105 — toadStool S130+, coralReef Iteration 10)
@@ -695,7 +695,7 @@ Each experiment is validated at three hardware tiers:
 | Magic numbers | Extracted to named constants (npu.rs, probe.rs, regression.rs `SINGULARITY_THRESHOLD`) |
 | Validation thresholds | All hardcoded thresholds evolved to benchmark JSON with rationale strings |
 | SPDX headers | All `.rs` and `.py` files (consistent shebang order in Python) |
-| License | AGPL-3.0-only |
+| License | AGPL-3.0-or-later |
 
 ## Barracuda CPU Delegation (Phase 2a)
 
@@ -818,10 +818,10 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V79: Exp 035 + seismic delegation | 85 delegations (51 CPU + 34 GPU), 807 tests, barraCuda v0.3.3, toadStool S94b | Archived |
 | V80: Fused Ops + BarraCuda Catch-Up | 87 delegations (51 CPU + 36 GPU), 812 tests, barraCuda v0.3.3+, toadStool S94b | Archived |
 | V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `0bd401f`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
-| V107: License + Release Profile + Niche + Tolerance | 102 delegations (61 CPU + 41 GPU), 906 tests, 39 modules, AGPL-3.0-only (302 files), lto/codegen-units/strip, niche.rs OperationDeps/CostEstimate, tolerance provenance, bare literal elimination, feature-gated spectral constants | **Current** |
+| V107: License + Release Profile + Niche + Tolerance | 102 delegations (61 CPU + 41 GPU), 906 tests, 39 modules, AGPL-3.0-or-later (302 files), lto/codegen-units/strip, niche.rs OperationDeps/CostEstimate, tolerance provenance, bare literal elimination, feature-gated spectral constants | **Current** |
 | V106: primal_names + Typed BiomeOsError | 102 delegations (61 CPU + 41 GPU), 936 tests, 39 modules, primal_names.rs, typed BiomeOsError enum, zero hardcoded primal strings | Archived |
 | V105: Code Evolution + barraCuda/toadStool Absorption | 102 delegations (61 CPU + 41 GPU), 936 tests, 38 modules, deep code evolution, Result-based provenance API, freeze_out submodules, typed tarpc IPC | Archived |
-| V104: Deep Debt Resolution + Ecosystem Alignment | 102 delegations (61 CPU + 41 GPU), 936 tests, 30+ named constants with physical provenance, capability-based discovery, AGPL-3.0-only, measurement.* capability surface, zero clippy/doc warnings | Archived |
+| V104: Deep Debt Resolution + Ecosystem Alignment | 102 delegations (61 CPU + 41 GPU), 936 tests, 30+ named constants with physical provenance, capability-based discovery, AGPL-3.0-or-later, measurement.* capability surface, zero clippy/doc warnings | Archived |
 | V103: Deep Debt Audit + Idiomatic Evolution | 102 delegations (61 CPU + 41 GPU), 936 tests, named constants with provenance, biomeos/interaction extraction, centralized tolerances, zero clippy (pedantic + nursery, all features) | Archived |
 | V102: Upstream Rewire (barraCuda v0.3.5, toadStool S130+, coralReef Iter 10) | 102 delegations (61 CPU + 41 GPU), 936 tests, zero API breakage, three-tier parity intact, coralReef f64 sovereign path unlocked | Archived |
 | V97: GPU Smoke Test + Three-Tier Parity | 102 delegations (61 CPU + 41 GPU), 936 tests, runtime f64 reduction smoke test, three-tier parity 29/29 at all tiers, 382 Python provenance tests | Archived |

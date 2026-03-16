@@ -1,5 +1,5 @@
 {
-  "_source": "groundSpring Experiment 016 — Rare Biosphere Signal Detection",
+  "_source": "groundSpring Experiment 016 \u2014 Rare Biosphere Signal Detection",
   "_doi": "10.1111/1574-6941.12016",
   "_references": [
     "Anderson, Sogin, Baross (2015) Biogeography and ecology of the rare and abundant microbial lineages in deep-sea hydrothermal vent fluids. FEMS Microbiol Ecol 91:fiv016",
@@ -14,34 +14,98 @@
     "baseline_date": "2026-02-26",
     "baseline_commit": "6e73709291d5dacfd527dd414a62aa8ade7e8f57",
     "validation_script": "control/rare_biosphere/rare_biosphere.py",
-    "command": "python3 control/rare_biosphere/rare_biosphere.py"
+    "command": "python3 control/rare_biosphere/rare_biosphere.py",
+    "python_version": "3.11",
+    "numpy_version": "1.24"
   },
   "_description": "Tests when a detected rare microbial lineage represents real biological signal vs sequencing artifact. Extends Exp 004 (genus saturation at 5000 reads) to the rare end of the abundance distribution using Chao1 richness estimation and detection power analysis.",
-  "_groundspring_question": "When does noise (finite sequencing depth) prevent detection of signal (rare biological lineages)? The answer depends on abundance x depth — the ecological analog of signal-to-noise ratio.",
-  "_cross_spring": "wetSpring — microbial diversity and rare biosphere; Exp 004 (sequencing depth and genus saturation)",
+  "_groundspring_question": "When does noise (finite sequencing depth) prevent detection of signal (rare biological lineages)? The answer depends on abundance x depth \u2014 the ecological analog of signal-to-noise ratio.",
+  "_cross_spring": "wetSpring \u2014 microbial diversity and rare biosphere; Exp 004 (sequencing depth and genus saturation)",
   "model": {
     "_description": "Synthetic community: 50 species across 5 abundance tiers (dominant, common, moderate, rare, very rare). Multinomial sampling simulates sequencing. Detection = count > 0 at a given depth.",
     "n_species": 50,
     "community": [
-      0.150, 0.120, 0.100, 0.080, 0.060,
-      0.030, 0.030, 0.030, 0.030, 0.030,
-      0.030, 0.030, 0.030, 0.030, 0.030,
-      0.008, 0.008, 0.008, 0.008, 0.008,
-      0.008, 0.008, 0.008, 0.008, 0.008,
-      0.008, 0.008, 0.008, 0.008, 0.008,
-      0.004, 0.004, 0.004, 0.004, 0.004,
-      0.004, 0.004, 0.004, 0.004, 0.004,
-      0.003, 0.003, 0.003, 0.003, 0.003,
-      0.003, 0.003, 0.003, 0.003, 0.003
+      0.15,
+      0.12,
+      0.1,
+      0.08,
+      0.06,
+      0.03,
+      0.03,
+      0.03,
+      0.03,
+      0.03,
+      0.03,
+      0.03,
+      0.03,
+      0.03,
+      0.03,
+      0.008,
+      0.008,
+      0.008,
+      0.008,
+      0.008,
+      0.008,
+      0.008,
+      0.008,
+      0.008,
+      0.008,
+      0.008,
+      0.008,
+      0.008,
+      0.008,
+      0.008,
+      0.004,
+      0.004,
+      0.004,
+      0.004,
+      0.004,
+      0.004,
+      0.004,
+      0.004,
+      0.004,
+      0.004,
+      0.003,
+      0.003,
+      0.003,
+      0.003,
+      0.003,
+      0.003,
+      0.003,
+      0.003,
+      0.003,
+      0.003
     ],
     "tier_boundaries": {
-      "dominant": [0, 5],
-      "common": [5, 15],
-      "moderate": [15, 30],
-      "rare": [30, 40],
-      "very_rare": [40, 50]
+      "dominant": [
+        0,
+        5
+      ],
+      "common": [
+        5,
+        15
+      ],
+      "moderate": [
+        15,
+        30
+      ],
+      "rare": [
+        30,
+        40
+      ],
+      "very_rare": [
+        40,
+        50
+      ]
     },
-    "depths": [100, 500, 1000, 5000, 10000, 50000],
+    "depths": [
+      100,
+      500,
+      1000,
+      5000,
+      10000,
+      50000
+    ],
     "n_replicates": 100,
     "n_samples_occupancy": 50,
     "occupancy_depth": 300,
@@ -58,11 +122,14 @@
     "detection_threshold_common_p030": 99
   },
   "expected_results": {
-    "chao1_at_depth_50000_range": [48.0, 55.0],
+    "chao1_at_depth_50000_range": [
+      48.0,
+      55.0
+    ],
     "chao1_exceeds_sobs_at_low_depth": true,
     "sobs_at_depth_50000": 50,
     "detection_rate_dominant_at_100_min": 0.95,
-    "detection_rate_very_rare_at_100_max": 0.50,
+    "detection_rate_very_rare_at_100_max": 0.5,
     "detection_rate_very_rare_at_5000_min": 0.99,
     "all_detected_at_50000": true,
     "occupancy_correlated_with_abundance": true,

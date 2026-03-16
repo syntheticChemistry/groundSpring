@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Validation binary for Experiments 033-034: Tissue Anderson Localization.

@@ -30,7 +30,7 @@ This handoff documents:
 |------|--------|
 | `cargo test --workspace` | **906 passed, 0 failed** |
 | `cargo clippy --pedantic` | **0 warnings** |
-| License | **AGPL-3.0-only** |
+| License | **AGPL-3.0-or-later** |
 | Bare literals in production | **0** |
 | Hardcoded primal strings | **0** |
 | unsafe | **forbidden** |

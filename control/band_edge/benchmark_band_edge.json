@@ -1,5 +1,5 @@
 {
-  "_source": "groundSpring Experiment 018 — Band Edge Structure",
+  "_source": "groundSpring Experiment 018 \u2014 Band Edge Structure",
   "_doi": "10.1007/s11511-018-0153-z",
   "_references": [
     "Filonov & Kachkovskiy (2018) On the structure of band edges of 2-d periodic elliptic operators. Acta Math 221:59-80",
@@ -14,25 +14,46 @@
     "baseline_date": "2026-02-26",
     "baseline_commit": "6e73709291d5dacfd527dd414a62aa8ade7e8f57",
     "validation_script": "control/band_edge/band_edge.py",
-    "command": "python3 control/band_edge/band_edge.py"
+    "command": "python3 control/band_edge/band_edge.py",
+    "python_version": "3.11",
+    "numpy_version": "1.24"
   },
   "_description": "Studies where propagating waves transition to evanescent in periodic structures. Band edges are the mathematical boundary between 'signal gets through' and 'noise kills it.' Extends Exp 008 (Anderson localization) and Exp 012 (spin chain transport) to the periodic regime.",
-  "_groundspring_question": "Where do propagating waves transition to evanescent? Band edges define the spectral boundary between signal propagation and signal trapping — the periodic-potential generalization of Anderson localization.",
+  "_groundspring_question": "Where do propagating waves transition to evanescent? Band edges define the spectral boundary between signal propagation and signal trapping \u2014 the periodic-potential generalization of Anderson localization.",
   "_cross_spring": "hotSpring (spectral methods), Exp 008 (Anderson), Exp 012 (transport). Filonov-Kachkovskiy (2018) provides rigorous band-edge structure for 2D; we validate the 1D case.",
   "model": {
     "_description": "1D tight-binding chain with periodic potential. Transfer matrix T(E) = prod of [[((E-V_n)/t, -1], [1, 0]]. Bands where |Tr(T)/2| <= 1. Band edges at |Tr(T)/2| = 1.",
     "hopping": 1.0,
-    "period_2_potential": [1.0, -1.0],
-    "period_3_potential": [1.5, 0.0, -0.5],
+    "period_2_potential": [
+      1.0,
+      -1.0
+    ],
+    "period_3_potential": [
+      1.5,
+      0.0,
+      -0.5
+    ],
     "n_k_points": 500,
     "n_energy_scan": 2000,
-    "energy_range": [-4.0, 4.0],
+    "energy_range": [
+      -4.0,
+      4.0
+    ],
     "n_periods_finite": 100,
-    "period_2_gap_widths_to_test": [0.0, 0.5, 1.0, 2.0, 3.0]
+    "period_2_gap_widths_to_test": [
+      0.0,
+      0.5,
+      1.0,
+      2.0,
+      3.0
+    ]
   },
   "analytical_predictions": {
     "_description": "Free lattice (V=0): band [-2t, 2t]. Period-2 [V1, V2]: gap opens at E = (V1+V2)/2, width = |V1-V2| at zone boundary. Number of bands = period length.",
-    "free_band_edges": [-2.0, 2.0],
+    "free_band_edges": [
+      -2.0,
+      2.0
+    ],
     "period_2_gap_center": 0.0,
     "period_2_gap_width": 2.0,
     "n_bands_period_3": 3

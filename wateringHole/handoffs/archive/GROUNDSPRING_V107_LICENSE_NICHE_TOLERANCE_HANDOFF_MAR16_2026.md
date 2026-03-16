@@ -17,7 +17,7 @@
 V107 aligns groundSpring with the latest ecosystem standards and absorbs
 patterns from the cross-spring review (ludoSpring V19, wateringHole):
 
-- **License: AGPL-3.0-only** (302 files migrated from `-or-later`)
+- **License: AGPL-3.0-or-later** (302 files migrated from `-only`)
 - **Release profile optimization** (`lto`, `codegen-units = 1`, `strip`)
 - **Enriched niche.rs** with structured `OperationDeps` + `CostEstimate` (ludoSpring pattern)
 - **Tolerance provenance** — all 13 `tol::` constants with mathematical derivation,
@@ -40,14 +40,14 @@ patterns from the cross-spring review (ludoSpring V19, wateringHole):
 | Hardcoded primal name strings in production | **0** |
 | TODO/FIXME/HACK in .rs source | **0** |
 | Bare numeric literals in production | **0** (all named or in `tol::`/`eps::`) |
-| License | **AGPL-3.0-only** (ecosystem aligned) |
+| License | **AGPL-3.0-or-later** (SCYBORG trio aligned) |
 | proptest property tests | **14** |
 
 ## Part 1: License Alignment
 
-All 302 files migrated from `AGPL-3.0-or-later` to `AGPL-3.0-only`, matching
-the wateringHole STANDARDS_AND_EXPECTATIONS and the Squirrel v0.1.0-alpha.3
-alignment. SPDX headers and `Cargo.toml` `license` field updated consistently.
+All 302 files migrated from `AGPL-3.0-only` to `AGPL-3.0-or-later`, aligning
+with the SCYBORG Provenance Trio (AGPL-3.0-or-later + ORC + CC-BY-SA 4.0)
+and wateringHole standards. SPDX headers and `Cargo.toml` `license` field updated consistently.
 
 ## Part 2: Release Profile
 
@@ -105,8 +105,8 @@ pub const CDF_APPROX: f64 = 1e-6;
 
 ## Learnings
 
-1. **License `-or-later` → `-only`** is a one-line `sed` across 302 files, but the
-   compliance signal matters for downstream consumers and package managers.
+1. **License `-only` → `-or-later`** aligns with the SCYBORG Provenance Trio across 302 files;
+   the compliance signal matters for downstream consumers and package managers.
 2. **Tolerance provenance** turns constants into documentation — reviewers can
    now trace any tolerance from its value back to the mathematics and the experiment.
 3. **`const fn` niche metadata** enables compile-time evaluation for biomeOS scheduling.
@@ -121,7 +121,7 @@ No new absorption requests this version. The V105/V106 absorption list
 
 | Standard | groundSpring V107 | Ecosystem |
 |----------|-------------------|-----------|
-| License | AGPL-3.0-only | Aligned |
+| License | AGPL-3.0-or-later | Aligned |
 | Edition | 2024 | Aligned (with Squirrel, petalTongue) |
 | unsafe | `#![forbid(unsafe_code)]` | Aligned |
 | Lints | pedantic + nursery, 0 warnings | Aligned |

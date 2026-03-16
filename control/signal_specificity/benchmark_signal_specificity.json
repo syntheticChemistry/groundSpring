@@ -1,5 +1,5 @@
 {
-  "_source": "groundSpring Experiment 006 — Enzymatic Signal Specificity",
+  "_source": "groundSpring Experiment 006 \u2014 Enzymatic Signal Specificity",
   "_doi": "10.1073/pnas.1115663109",
   "_references": [
     "Massie et al. (2012) Quantification of High Specificity Cyclic di-GMP Signaling. PNAS 109:12746-51",
@@ -13,21 +13,26 @@
     "baseline_date": "2026-02-25",
     "baseline_commit": "f634ef0b32d2bcfbad8d77d4cbfa2c8dd96a93b2",
     "validation_script": "control/signal_specificity/signal_specificity.py",
-    "command": "python3 control/signal_specificity/signal_specificity.py"
+    "command": "python3 control/signal_specificity/signal_specificity.py",
+    "python_version": "3.11",
+    "numpy_version": "1.24"
   },
   "_description": "Stochastic simulation of enzymatic signal specificity in c-di-GMP signaling",
   "_groundspring_question": "How does a cell resolve signal from noise when 40+ enzymes compete for a single diffusible molecule?",
-  "_cross_spring": "wetSpring — biological signal-noise decomposition",
-
+  "_cross_spring": "wetSpring \u2014 biological signal-noise decomposition",
   "enzyme_network": {
     "_description": "Simplified V. cholerae c-di-GMP enzyme network",
     "n_dgc": 40,
     "n_pde": 22,
     "k_syn_per_dgc": 1.0,
     "k_deg_per_pde": 0.1,
-    "activation_ratios": [2, 5, 10, 20]
+    "activation_ratios": [
+      2,
+      5,
+      10,
+      20
+    ]
   },
-
   "simulation": {
     "t_max": 500.0,
     "t_burnin": 100.0,
@@ -35,7 +40,6 @@
     "seed": 42,
     "n_sites_lattice": 10000
   },
-
   "analytical_predictions": {
     "_description": "Birth-death steady state: S* = total_syn / total_deg",
     "total_synthesis_basal": 40.0,
@@ -43,28 +47,54 @@
     "steady_state_mean": 18.182,
     "steady_state_variance": 18.182,
     "steady_state_std": 4.264,
-
     "activated": {
-      "alpha_2":  { "total_syn": 41.0, "mean": 18.636, "response_ratio": 1.025 },
-      "alpha_5":  { "total_syn": 44.0, "mean": 20.0,   "response_ratio": 1.100 },
-      "alpha_10": { "total_syn": 49.0, "mean": 22.273, "response_ratio": 1.225 },
-      "alpha_20": { "total_syn": 59.0, "mean": 26.818, "response_ratio": 1.475 }
+      "alpha_2": {
+        "total_syn": 41.0,
+        "mean": 18.636,
+        "response_ratio": 1.025
+      },
+      "alpha_5": {
+        "total_syn": 44.0,
+        "mean": 20.0,
+        "response_ratio": 1.1
+      },
+      "alpha_10": {
+        "total_syn": 49.0,
+        "mean": 22.273,
+        "response_ratio": 1.225
+      },
+      "alpha_20": {
+        "total_syn": 59.0,
+        "mean": 26.818,
+        "response_ratio": 1.475
+      }
     }
   },
-
   "expected_results": {
     "steady_state_mean_tol": 1.0,
-    "steady_state_mean_tol_rationale": "Birth-death S*=40/2.2≈18.18; Gillespie SSA with 200 replicates gives SE ≈ sqrt(18.18)/sqrt(200) ≈ 0.30; 1.0 provides 3.3x margin.",
+    "steady_state_mean_tol_rationale": "Birth-death S*=40/2.2\u224818.18; Gillespie SSA with 200 replicates gives SE \u2248 sqrt(18.18)/sqrt(200) \u2248 0.30; 1.0 provides 3.3x margin.",
     "steady_state_std_tol": 1.5,
-    "steady_state_std_tol_rationale": "Poisson std = sqrt(18.18) ≈ 4.26; sample std estimation error at 200 reps is ~4.26/sqrt(400) ≈ 0.21; 1.5 provides 7x margin for SSA discretization effects.",
-    "snr_alpha_10_range": [0.5, 2.0],
-    "snr_alpha_10_range_rationale": "SNR = (mean_activated - mean_basal) / std_basal ≈ (22.27 - 18.18) / 4.26 ≈ 0.96; [0.5, 2.0] covers variance in both numerator and denominator estimates.",
-    "snr_alpha_20_range": [1.0, 4.0],
-    "snr_alpha_20_range_rationale": "SNR ≈ (26.82 - 18.18) / 4.26 ≈ 2.03; [1.0, 4.0] provides 2x margin for stochastic estimation with 200 SSA replicates.",
+    "steady_state_std_tol_rationale": "Poisson std = sqrt(18.18) \u2248 4.26; sample std estimation error at 200 reps is ~4.26/sqrt(400) \u2248 0.21; 1.5 provides 7x margin for SSA discretization effects.",
+    "snr_alpha_10_range": [
+      0.5,
+      2.0
+    ],
+    "snr_alpha_10_range_rationale": "SNR = (mean_activated - mean_basal) / std_basal \u2248 (22.27 - 18.18) / 4.26 \u2248 0.96; [0.5, 2.0] covers variance in both numerator and denominator estimates.",
+    "snr_alpha_20_range": [
+      1.0,
+      4.0
+    ],
+    "snr_alpha_20_range_rationale": "SNR \u2248 (26.82 - 18.18) / 4.26 \u2248 2.03; [1.0, 4.0] provides 2x margin for stochastic estimation with 200 SSA replicates.",
     "snr_monotonic": true,
-    "response_ratio_alpha_10_range": [1.1, 1.4],
-    "response_ratio_alpha_10_range_rationale": "Analytical ratio = 49/40 = 1.225; [1.1, 1.4] covers ±10% from Gillespie sampling noise at 200 replicates.",
-    "response_ratio_alpha_20_range": [1.3, 1.7],
-    "response_ratio_alpha_20_range_rationale": "Analytical ratio = 59/40 = 1.475; [1.3, 1.7] covers ±12% from SSA stochastic noise."
+    "response_ratio_alpha_10_range": [
+      1.1,
+      1.4
+    ],
+    "response_ratio_alpha_10_range_rationale": "Analytical ratio = 49/40 = 1.225; [1.1, 1.4] covers \u00b110% from Gillespie sampling noise at 200 replicates.",
+    "response_ratio_alpha_20_range": [
+      1.3,
+      1.7
+    ],
+    "response_ratio_alpha_20_range_rationale": "Analytical ratio = 59/40 = 1.475; [1.3, 1.7] covers \u00b112% from SSA stochastic noise."
   }
 }

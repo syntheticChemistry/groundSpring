@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! JSON-RPC 2.0 server for the groundSpring `UniBin` `server` subcommand.

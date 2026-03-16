@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Descriptive statistics: mean, standard deviation, percentile.
@@ -85,6 +85,7 @@ fn mean_cpu(values: &[f64]) -> f64 {
 /// groundSpring uses population variance for total-population metrics like
 /// RMSE decomposition.  For sample-based estimates, use [`sample_std_dev`].
 /// When `barracuda-gpu` is enabled, dispatches to `VarianceReduceF64`.
+/// When `barracuda` CPU is enabled, delegates to `WelfordState` from barraCuda.
 #[must_use]
 pub fn std_dev(values: &[f64]) -> f64 {
     #[cfg(feature = "barracuda-gpu")]
@@ -93,11 +94,15 @@ pub fn std_dev(values: &[f64]) -> f64 {
             return s;
         }
     }
-    std_dev_cpu(values)
-}
-
-fn std_dev_cpu(values: &[f64]) -> f64 {
-    welford_population(values).1.sqrt()
+    #[cfg(feature = "barracuda")]
+    {
+        let state = barracuda::stats::welford::WelfordState::from_slice(values);
+        state.population_variance().sqrt()
+    }
+    #[cfg(not(feature = "barracuda"))]
+    {
+        welford_population(values).1.sqrt()
+    }
 }
 
 #[cfg(feature = "barracuda-gpu")]
@@ -115,8 +120,8 @@ fn std_dev_gpu(values: &[f64]) -> Option<f64> {
 /// When `barracuda-gpu` is enabled, uses `VarianceF64::mean_variance` which
 /// computes both in one shader pass (cross-spring: hotSpring DF64 precision
 /// tier evolution gives this ~10× throughput on consumer GPUs).
-/// CPU fallback uses Welford's online algorithm (single pass, numerically
-/// stable).
+/// When `barracuda` CPU is enabled, delegates to `WelfordState` from barraCuda.
+/// CPU fallback uses local Welford's online algorithm.
 #[must_use]
 pub fn mean_and_std_dev(values: &[f64]) -> (f64, f64) {
     #[cfg(feature = "barracuda-gpu")]
@@ -125,8 +130,16 @@ pub fn mean_and_std_dev(values: &[f64]) -> (f64, f64) {
             return pair;
         }
     }
-    let (m, v) = welford_population(values);
-    (m, v.sqrt())
+    #[cfg(feature = "barracuda")]
+    {
+        let state = barracuda::stats::welford::WelfordState::from_slice(values);
+        (state.mean(), state.population_variance().sqrt())
+    }
+    #[cfg(not(feature = "barracuda"))]
+    {
+        let (m, v) = welford_population(values);
+        (m, v.sqrt())
+    }
 }
 
 #[cfg(feature = "barracuda-gpu")]
@@ -163,7 +176,6 @@ fn sample_std_dev_cpu(values: &[f64]) -> f64 {
         return 0.0;
     }
     let (_, pop_var) = welford_population(values);
-    // Bessel correction: sample_var = pop_var * N / (N-1)
     (pop_var * usize_f64(n) / usize_f64(n - 1)).sqrt()
 }
 

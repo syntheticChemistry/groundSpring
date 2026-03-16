@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Optional `biomeOS` Neural API client for ecosystem integration.
@@ -45,7 +45,8 @@ mod transport;
 
 pub use discovery::{auto_connect, discover_socket, is_nucleus_available};
 pub use interaction::{
-    DiscoveredPrimal, direct_primal_rpc, discover_primals, primal_health, proprioception, topology,
+    DiscoveredPrimal, compute_execute, direct_primal_rpc, discover_by_capability, discover_primals,
+    primal_health, proprioception, storage_get, storage_put, topology,
 };
 
 use std::path::Path;

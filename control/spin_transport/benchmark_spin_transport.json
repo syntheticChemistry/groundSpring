@@ -1,10 +1,10 @@
 {
-  "_source": "groundSpring Experiment 012 — Spin Chain Transport",
+  "_source": "groundSpring Experiment 012 \u2014 Spin Chain Transport",
   "_doi": "10.1007/s00220-016-2612-7",
   "_references": [
     "Kachkovskiy (2016) On transport properties of isotropic quasiperiodic XY spin chains. Comm Math Phys 345:659-673",
     "Jitomirskaya & Kachkovskiy (2018) All couplings localization for quasiperiodic operators with Lipschitz monotone potentials. JEMS 21:777-795",
-    "Aubry & André (1980) Analyticity breaking and Anderson localization in incommensurate lattices. Ann Israel Phys Soc 3:133"
+    "Aubry & Andr\u00e9 (1980) Analyticity breaking and Anderson localization in incommensurate lattices. Ann Israel Phys Soc 3:133"
   ],
   "_provenance": {
     "generated_by": "Wavepacket dynamics in 1D Almost-Mathieu tight-binding model via eigendecomposition",
@@ -14,35 +14,56 @@
     "baseline_date": "2026-02-26",
     "baseline_commit": "459e5d0c648905b521307c4022edf877c794a503",
     "validation_script": "control/spin_transport/spin_chain_transport.py",
-    "command": "python3 control/spin_transport/spin_chain_transport.py"
+    "command": "python3 control/spin_transport/spin_chain_transport.py",
+    "python_version": "3.11",
+    "numpy_version": "1.24"
   },
-  "_description": "Wavepacket transport in 1D quasiperiodic (Almost-Mathieu) chain: ballistic for λ<2, localized for λ>2, anomalous at λ=2",
-  "_groundspring_question": "When energy is injected at a single point in a noisy medium, does it propagate or stay trapped? The transport exponent β quantifies whether signal reaches the detector.",
-  "_cross_spring": "hotSpring — spectral theory; wetSpring — nutrient transport in porous media (Anderson localization analog)",
+  "_description": "Wavepacket transport in 1D quasiperiodic (Almost-Mathieu) chain: ballistic for \u03bb<2, localized for \u03bb>2, anomalous at \u03bb=2",
+  "_groundspring_question": "When energy is injected at a single point in a noisy medium, does it propagate or stay trapped? The transport exponent \u03b2 quantifies whether signal reaches the detector.",
+  "_cross_spring": "hotSpring \u2014 spectral theory; wetSpring \u2014 nutrient transport in porous media (Anderson localization analog)",
   "model": {
-    "_description": "1D tight-binding with quasiperiodic potential: H_{ij} = δ_{i,j±1} + λ cos(2παi + θ) δ_{ij}. Wavepacket ψ(0)=δ_{N/2} evolved under Schrödinger dynamics. MSD σ²(t) ~ t^{2β} extracts transport exponent β.",
+    "_description": "1D tight-binding with quasiperiodic potential: H_{ij} = \u03b4_{i,j\u00b11} + \u03bb cos(2\u03c0\u03b1i + \u03b8) \u03b4_{ij}. Wavepacket \u03c8(0)=\u03b4_{N/2} evolved under Schr\u00f6dinger dynamics. MSD \u03c3\u00b2(t) ~ t^{2\u03b2} extracts transport exponent \u03b2.",
     "n_sites": 201,
     "alpha": 0.6180339887498949,
     "theta": 0.0,
     "init_site": 100,
-    "coupling_strengths": [0.5, 1.0, 2.0, 3.0, 4.0],
-    "times": [1.0, 2.0, 5.0, 10.0, 20.0, 40.0],
+    "coupling_strengths": [
+      0.5,
+      1.0,
+      2.0,
+      3.0,
+      4.0
+    ],
+    "times": [
+      1.0,
+      2.0,
+      5.0,
+      10.0,
+      20.0,
+      40.0
+    ],
     "lyapunov_n_sites": 100000,
     "lyapunov_energy": 0.0
   },
   "analytical_predictions": {
-    "_description": "From spectral theory: purely AC spectrum for λ<2 → ballistic (β=1); purely PP spectrum for λ>2 → localized (β=0). At critical λ=2: singular continuous spectrum → anomalous transport (0<β<1).",
+    "_description": "From spectral theory: purely AC spectrum for \u03bb<2 \u2192 ballistic (\u03b2=1); purely PP spectrum for \u03bb>2 \u2192 localized (\u03b2=0). At critical \u03bb=2: singular continuous spectrum \u2192 anomalous transport (0<\u03b2<1).",
     "ballistic_beta": 1.0,
     "localized_beta": 0.0,
     "critical_coupling": 2.0,
-    "herman_formula": "γ = ln(λ/2) for λ > 2"
+    "herman_formula": "\u03b3 = ln(\u03bb/2) for \u03bb > 2"
   },
   "expected_results": {
-    "ballistic_beta_range": [0.75, 1.0],
+    "ballistic_beta_range": [
+      0.75,
+      1.0
+    ],
     "ballistic_beta_range_rationale": "For lambda<2, purely AC spectrum gives beta=1 (ballistic); finite chain (N=201) and finite time (t=40) cause underestimation; 0.75 floor from power-law fit uncertainty.",
     "localized_beta_max": 0.15,
     "localized_beta_max_rationale": "For lambda>2, purely PP spectrum gives beta=0 (localized); finite-time MSD residual growth gives apparent beta ~ 0.05-0.10; 0.15 provides 1.5x margin.",
-    "critical_beta_range": [0.05, 0.85],
+    "critical_beta_range": [
+      0.05,
+      0.85
+    ],
     "critical_beta_range_rationale": "At lambda=2, singular continuous spectrum gives anomalous transport 0<beta<1; exact beta depends on theta, chain length, and time range; wide range reflects genuine theoretical uncertainty.",
     "msd_localized_bounded_max": 25.0,
     "msd_localized_bounded_max_rationale": "Localization length xi ~ 1/ln(lambda/2); for lambda=3, xi~0.85, so MSD saturates at ~xi^2 ~ 0.7; 25.0 provides margin for finite-time transient spreading.",

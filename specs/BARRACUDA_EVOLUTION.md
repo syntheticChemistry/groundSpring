@@ -2,16 +2,15 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 16, 2026 (V107 — 102 delegations (61 CPU + 41 GPU), 906 tests (all feature gates),
+**Last updated**: March 16, 2026 (V108 — 102 delegations (61 CPU + 41 GPU), 906 tests (all feature gates),
 barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10.
-V105: deep code evolution — `deny(expect_used/unwrap_used)` enforced, `freeze_out` 4-module refactor,
-tarpc IPC client, Result-based provenance API, shared Python tolerances, platform-agnostic paths.
-V104: deep debt resolution — 30+ named constants with physical provenance, capability-based discovery,
-AGPL-3.0-only alignment, measurement.* capability surface, zero clippy/doc warnings.
-V103: deep debt audit — named constants with provenance, `biomeos/interaction` extraction,
-`eps::LOG_FLOOR` centralized, batch primitive absorption opportunities documented.
-V102: niche deployment — UniBin, dispatch, measurement.* domain, deploy graph.
-V100: build fix, tolerance provenance, capability-based health.
+V108: AGPL-3.0-or-later (SCYBORG trio), barracuda WelfordState CPU delegation for std_dev/mean_and_std_dev,
+tolerance centralization (tol::ANALYTICAL in tests), typed capability-based discovery, provenance enrichment.
+V107: release profile, enriched niche.rs, tolerance provenance citations, bare literal elimination.
+V105: `deny(expect_used/unwrap_used)`, freeze_out 4-module refactor, typed tarpc IPC, Result-based provenance.
+V104: 30+ named constants, capability-based discovery, measurement.* surface.
+V103: `biomeos/interaction` extraction, `eps::LOG_FLOOR` centralized.
+V102: niche deployment — UniBin, dispatch, deploy graph.
 V98: upstream rewire to barraCuda `a898dee`, toadStool S130+, coralReef Iteration 10)
 
 ## Philosophy
@@ -44,7 +43,7 @@ dispatch blocks: `freeze_out::grid_fit_2d` (2D parallel grid),
 `quasispecies::quasispecies_simulation` (batched Wright-Fisher via
 `barracuda::ops::bio::wright_fisher_simulate`), `rare_biosphere::abundance_occupancy`
 and `tier_detection_rate` (batched multinomial via `barracuda::ops::bio`).
-85 metalForge tests, 5 discovered substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). 76 active barracuda delegations (44 CPU + 32 GPU), 1 evolution candidate — ToadStool S87. V59: jackknife GPU promoted (S71 `jackknife_mean_f64.wgsl`), HargreavesBatchGpu (S71 `hargreaves_batch_f64.wgsl`).
+140 metalForge checks, 5+ discovered substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). 102 active barracuda delegations (61 CPU + 41 GPU), barraCuda v0.3.5, toadStool S155b. V59: jackknife GPU promoted (S71 `jackknife_mean_f64.wgsl`), HargreavesBatchGpu (S71 `hargreaves_batch_f64.wgsl`).
 These dispatch blocks compile only with `--features barracuda-gpu` and call
 expected barracuda functions — ToadStool absorbs them to activate GPU paths.
 

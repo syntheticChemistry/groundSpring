@@ -4,10 +4,43 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
-### V107 License Alignment + Release Profile + Niche + Tolerance Provenance (Mar 16, 2026)
+### V108 Deep Debt + Absorption Evolution (Mar 16, 2026)
+
+#### License Correction
+- AGPL-3.0-only → AGPL-3.0-or-later across all 302 source files, LICENSE, Cargo.toml
+  (SCYBORG Provenance Trio: AGPL-3.0-or-later + ORC + CC-BY-SA 4.0)
+
+#### barraCuda CPU Delegation
+- `std_dev` and `mean_and_std_dev` now delegate to `barracuda::stats::welford::WelfordState`
+  when the `barracuda` feature is enabled (CPU path), with local `welford_population` fallback
+
+#### Tolerance Centralization
+- Test assertions in `tissue_anderson/compartments.rs` use `crate::tol::ANALYTICAL`
+  instead of bare `1e-10` literals
+- `tissue_anderson/geometry.rs` on-site energy magic numbers extracted to named constants
+  with provenance comments
+
+#### Typed Capability-Based Discovery
+- New public functions in `biomeos/interaction.rs`: `discover_by_capability`,
+  `compute_execute`, `storage_put`, `storage_get`
+- Runtime-only capability discovery — no compile-time primal knowledge
+
+#### Python Provenance Enrichment
+- All 29 benchmark JSONs enriched with `python_version` and `numpy_version` in `_provenance`
+
+#### Validation Binary Evolution
+- `validate_band_edge.rs` refactored to Result-based error handling with `BenchResult`
+- Determinism check uses `groundspring::tol::DETERMINISM` instead of `f64::EPSILON`
+
+#### Quality Gates
+- 906 tests pass, 0 clippy warnings (pedantic+nursery), 0 fmt diff
+- License: AGPL-3.0-or-later (SCYBORG trio aligned)
+- `cargo doc -D warnings`: 0 warnings
+
+### V107 Release Profile + Niche + Tolerance Provenance (Mar 16, 2026)
 
 #### License Alignment
-- AGPL-3.0-or-later → AGPL-3.0-only (ecosystem standard, 302 files updated)
+- AGPL-3.0-only → AGPL-3.0-or-later (SCYBORG Provenance Trio, 302 files)
 
 #### Release Profile Optimization
 - `lto = true`, `codegen-units = 1`, `strip = true` in workspace Cargo.toml
@@ -90,7 +123,7 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 - All test assertions updated to reference `FAMILY_ID`
 
 #### License Alignment
-- 143+ files updated from `AGPL-3.0-only` to `AGPL-3.0-only` (scyBorg Provenance Trio Guidance)
+- 143+ files updated from `AGPL-3.0-or-later` to `AGPL-3.0-or-later` (scyBorg Provenance Trio Guidance)
 - Cargo.toml workspace `license` field, pyproject.toml, README, CONTRIBUTING, binary `version` output, all SPDX headers
 
 #### Documentation Debt

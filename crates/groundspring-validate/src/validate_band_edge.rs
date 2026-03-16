@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Validation binary for Experiment 018: Band Edge Structure.
@@ -14,7 +14,9 @@ use groundspring::band_structure::{
 };
 use groundspring::transport::tridiag_eigh;
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{array_field, f64_field, print_provenance_header, usize_field};
+use groundspring_validate::{
+    BenchResult, f64_field, get_f64_range, get_f64_vec, print_provenance_header, usize_field,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/band_edge/benchmark_band_edge.json");
@@ -33,12 +35,11 @@ fn validate_free_and_periodic(
     ctx: &BandCtx<'_>,
     pred: &Value,
     exp: &Value,
-) {
+) -> BenchResult<()> {
     println!("\n--- Part 1: Free Lattice ---");
     let free_edges = find_band_edges(&[0.0], ctx.t_hop, ctx.e_lo, ctx.e_hi, ctx.n_scan);
     h.check_true("Free lattice: 2 band edges", free_edges.len() == 2);
-    let lo = pred["free_band_edges"][0].as_f64().expect("lo");
-    let hi = pred["free_band_edges"][1].as_f64().expect("hi");
+    let (lo, hi) = get_f64_range(&pred["free_band_edges"])?;
     let edge_tol = f64_field(exp, "edge_tolerance");
     if free_edges.len() == 2 {
         h.check_range(
@@ -78,6 +79,7 @@ fn validate_free_and_periodic(
     let expected_n = usize_field(pred, "n_bands_period_3");
     println!("  Bands: {p3_bands} (expected {expected_n})");
     h.check_true("Period-3: correct band count", p3_bands == expected_n);
+    Ok(())
 }
 
 fn validate_proportionality_and_finite(
@@ -106,23 +108,29 @@ fn validate_proportionality_and_finite(
 
     println!("\n--- Part 5: Finite System ---");
     let (diag, offdiag) = periodic_hamiltonian(ctx.pot_2, ctx.t_hop, n_periods);
-    let (eigenvalues, _) = tridiag_eigh(&diag, &offdiag).expect("eigendecomposition");
-    let band_margin = f64_field(exp, "eigenvalue_band_margin");
-    let frac = eigenvalue_band_fraction(&eigenvalues, ctx.pot_2, ctx.t_hop, band_margin);
-    let frac_min = f64_field(exp, "eigenvalue_band_fraction_min");
-    println!(
-        "  {} eigenvalues, {:.1}% in bands",
-        eigenvalues.len(),
-        frac * 100.0
-    );
-    h.check_true(
-        &format!("≥{:.0}% eigenvalues within bands", frac_min * 100.0),
-        frac >= frac_min,
-    );
+    if let Ok((eigenvalues, _)) = tridiag_eigh(&diag, &offdiag) {
+        let band_margin = f64_field(exp, "eigenvalue_band_margin");
+        let frac = eigenvalue_band_fraction(&eigenvalues, ctx.pot_2, ctx.t_hop, band_margin);
+        let frac_min = f64_field(exp, "eigenvalue_band_fraction_min");
+        println!(
+            "  {} eigenvalues, {:.1}% in bands",
+            eigenvalues.len(),
+            frac * 100.0
+        );
+        h.check_true(
+            &format!("≥{:.0}% eigenvalues within bands", frac_min * 100.0),
+            frac >= frac_min,
+        );
+    } else {
+        h.check_true("Eigendecomposition succeeded", false);
+    }
 }
 
 fn run() -> i32 {
-    let bench: Value = serde_json::from_str(BENCHMARK).expect("valid benchmark JSON");
+    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
+        eprintln!("FATAL: invalid benchmark JSON");
+        return 1;
+    };
     let mut h = ValidationHarness::stdout("Rust Validation: Band Edge Structure");
 
     println!("{}", "=".repeat(72));
@@ -135,24 +143,25 @@ fn run() -> i32 {
     let exp = &bench["expected_results"];
 
     let t_hop = f64_field(model, "hopping");
-    let pot_2: Vec<f64> = array_field(model, "period_2_potential")
-        .iter()
-        .map(|v| v.as_f64().expect("f64"))
-        .collect();
-    let pot_3: Vec<f64> = array_field(model, "period_3_potential")
-        .iter()
-        .map(|v| v.as_f64().expect("f64"))
-        .collect();
+    let Ok(pot_2) = get_f64_vec(model, "period_2_potential") else {
+        eprintln!("FATAL: missing period_2_potential");
+        return 1;
+    };
+    let Ok(pot_3) = get_f64_vec(model, "period_3_potential") else {
+        eprintln!("FATAL: missing period_3_potential");
+        return 1;
+    };
     let n_scan = usize_field(model, "n_energy_scan");
-    let e_range = array_field(model, "energy_range");
-    let e_lo = e_range[0].as_f64().expect("e_lo");
-    let e_hi = e_range[1].as_f64().expect("e_hi");
+    let Ok((e_lo, e_hi)) = get_f64_range(&model["energy_range"]) else {
+        eprintln!("FATAL: missing energy_range");
+        return 1;
+    };
     let n_periods = usize_field(model, "n_periods_finite");
 
-    let dvs: Vec<f64> = array_field(model, "period_2_gap_widths_to_test")
-        .iter()
-        .map(|v| v.as_f64().expect("f64"))
-        .collect();
+    let Ok(dvs) = get_f64_vec(model, "period_2_gap_widths_to_test") else {
+        eprintln!("FATAL: missing period_2_gap_widths_to_test");
+        return 1;
+    };
 
     let ctx = BandCtx {
         t_hop,
@@ -163,7 +172,10 @@ fn run() -> i32 {
         n_scan,
     };
 
-    validate_free_and_periodic(&mut h, &ctx, pred, exp);
+    if let Err(e) = validate_free_and_periodic(&mut h, &ctx, pred, exp) {
+        eprintln!("FATAL: benchmark field error: {e}");
+        return 1;
+    }
     validate_proportionality_and_finite(&mut h, &ctx, exp, n_periods, &dvs);
 
     println!("\n--- Part 6: Determinism ---");
@@ -171,7 +183,7 @@ fn run() -> i32 {
     let t2 = transfer_matrix_half_trace(0.5, &pot_2, t_hop);
     h.check_true(
         "Transfer matrix deterministic",
-        (t1 - t2).abs() < f64::EPSILON,
+        (t1 - t2).abs() < groundspring::tol::DETERMINISM,
     );
 
     h.summary()

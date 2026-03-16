@@ -1,5 +1,5 @@
 {
-  "_source": "groundSpring Experiment 011 — Multi-Signal QS Integration",
+  "_source": "groundSpring Experiment 011 \u2014 Multi-Signal QS Integration",
   "_doi": "10.1128/JB.05910-11",
   "_references": [
     "Srivastava, Waters et al. (2011) Dual-channel quorum-sensing regulation in V. cholerae. J Bacteriology 194:122-136",
@@ -9,44 +9,67 @@
   "_provenance": {
     "generated_by": "RK4 ODE integration of 7-variable dual-signal QS model",
     "data_origin": "Analytical: ODE model from barracuda::numerical::ode_bio::MultiSignalOde (Srivastava 2011 parameters). SNR analysis of signal integration.",
-    "real_data_accession": "Srivastava et al. 2011, J Bacteriology — V. cholerae CAI-1/AI-2 pathway parameters",
+    "real_data_accession": "Srivastava et al. 2011, J Bacteriology \u2014 V. cholerae CAI-1/AI-2 pathway parameters",
     "prng_algorithm": "xorshift64 (Marsaglia 2003), seed=42",
     "baseline_date": "2026-02-25",
     "baseline_commit": "520ca65978039deb65cd8a479a088aef8f47c5b1",
     "validation_script": "control/multisignal_qs/multisignal_qs.py",
-    "command": "python3 control/multisignal_qs/multisignal_qs.py"
+    "command": "python3 control/multisignal_qs/multisignal_qs.py",
+    "python_version": "3.11",
+    "numpy_version": "1.24"
   },
   "_description": "Dual-signal QS integration in V. cholerae: CAI-1 + AI-2 converge on LuxO/HapR to control c-di-GMP and biofilm",
   "_groundspring_question": "When two noisy input signals are integrated through a shared pathway, does the combined SNR improve or degrade?",
-  "_cross_spring": "wetSpring — biological ODE, dual-signal processing",
-
+  "_cross_spring": "wetSpring \u2014 biological ODE, dual-signal processing",
   "model": {
     "_description": "7-variable ODE: [cell, CAI-1, AI-2, LuxO~P, HapR, c-di-GMP, biofilm]. Default barracuda MultiSignalParams.",
     "n_vars": 7,
     "n_params": 24,
     "dt": 0.01,
     "t_final": 200.0,
-    "initial_state": [0.1, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+    "initial_state": [
+      0.1,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
     "parameters": {
-      "mu_max": 0.8, "k_cap": 1.0, "death_rate": 0.02,
-      "k_cai1_prod": 3.0, "d_cai1": 1.0, "k_cqs": 0.5,
-      "k_ai2_prod": 3.0, "d_ai2": 1.0, "k_luxpq": 0.5,
-      "k_luxo_phos": 2.0, "d_luxo_p": 0.5,
-      "k_hapr_max": 1.0, "n_repress": 2.0, "k_repress": 0.5, "d_hapr": 0.5,
-      "k_dgc_basal": 2.0, "k_dgc_rep": 0.8,
-      "k_pde_basal": 0.5, "k_pde_act": 2.0, "d_cdg": 0.3,
-      "k_bio_max": 1.0, "k_bio_cdg": 1.5, "n_bio": 2.0, "d_bio": 0.2
+      "mu_max": 0.8,
+      "k_cap": 1.0,
+      "death_rate": 0.02,
+      "k_cai1_prod": 3.0,
+      "d_cai1": 1.0,
+      "k_cqs": 0.5,
+      "k_ai2_prod": 3.0,
+      "d_ai2": 1.0,
+      "k_luxpq": 0.5,
+      "k_luxo_phos": 2.0,
+      "d_luxo_p": 0.5,
+      "k_hapr_max": 1.0,
+      "n_repress": 2.0,
+      "k_repress": 0.5,
+      "d_hapr": 0.5,
+      "k_dgc_basal": 2.0,
+      "k_dgc_rep": 0.8,
+      "k_pde_basal": 0.5,
+      "k_pde_act": 2.0,
+      "d_cdg": 0.3,
+      "k_bio_max": 1.0,
+      "k_bio_cdg": 1.5,
+      "n_bio": 2.0,
+      "d_bio": 0.2
     }
   },
-
   "analytical_predictions": {
-    "_description": "At steady state: cell → capacity, both AIs produced, HapR activated (represses LuxO~P), biofilm forms. Signal integration: dual-signal should produce higher HapR and more biofilm than single-signal alone.",
+    "_description": "At steady state: cell \u2192 capacity, both AIs produced, HapR activated (represses LuxO~P), biofilm forms. Signal integration: dual-signal should produce higher HapR and more biofilm than single-signal alone.",
     "cell_steady_state": 0.975,
     "cell_tol": 0.1,
     "hapr_positive_at_steady_state": true,
     "biofilm_positive_at_steady_state": true
   },
-
   "expected_results": {
     "cell_reaches_capacity_tol": 0.1,
     "hapr_min_at_steady_state": 0.1,

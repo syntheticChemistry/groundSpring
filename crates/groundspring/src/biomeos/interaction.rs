@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Runtime primal discovery and direct interaction.
@@ -172,5 +172,83 @@ pub fn topology(socket: &std::path::Path) -> Result<String> {
     let params = serde_json::json!({});
     let request = build_request("neural_api.get_topology", &params);
     let response = rpc_call(socket, &request)?;
+    parse_rpc_response(&response)
+}
+
+// ─── Capability-Based Discovery ──────────────────────────────────────────────
+
+/// Discover a primal by capability rather than by name.
+///
+/// Queries each discovered primal's `capability.list` method and returns
+/// the first one advertising the requested capability. This is the
+/// sovereign discovery pattern: groundSpring never assumes which primal
+/// provides a capability.
+///
+/// # Errors
+///
+/// Returns `Err` if no primal advertising `capability` is found.
+pub fn discover_by_capability(capability: &str) -> Result<DiscoveredPrimal> {
+    let primals = discover_primals();
+    for primal in &primals {
+        let request = build_request("capability.list", &serde_json::json!({}));
+        if let Ok(ref response) = rpc_call(&primal.socket, &request) {
+            if let Ok(body) = parse_rpc_response(response) {
+                if body.contains(capability) {
+                    return Ok(primal.clone());
+                }
+            }
+        }
+    }
+    Err(BiomeOsError::Discovery(format!(
+        "no primal found advertising capability: {capability}"
+    )))
+}
+
+/// Typed compute dispatch via capability-based discovery.
+///
+/// Discovers the `compute.execute` provider at runtime (typically
+/// toadStool) and submits a compute request. Falls back to `Err`
+/// if no compute provider is available — callers should fall back
+/// to local computation.
+///
+/// # Errors
+///
+/// Returns `Err` if no compute provider is found or the RPC fails.
+pub fn compute_execute(params: &serde_json::Value) -> Result<String> {
+    let provider = discover_by_capability("compute.execute")?;
+    let request = build_request("compute.execute", params);
+    let response = rpc_call(&provider.socket, &request)?;
+    parse_rpc_response(&response)
+}
+
+/// Typed storage put via capability-based discovery.
+///
+/// Discovers the `storage.put` provider at runtime (typically NestGate)
+/// and stores data. Falls back to `Err` if no storage provider is available.
+///
+/// # Errors
+///
+/// Returns `Err` if no storage provider is found or the RPC fails.
+pub fn storage_put(key: &str, value: &serde_json::Value) -> Result<String> {
+    let provider = discover_by_capability("storage.put")?;
+    let params = serde_json::json!({ "key": key, "value": value });
+    let request = build_request("storage.put", &params);
+    let response = rpc_call(&provider.socket, &request)?;
+    parse_rpc_response(&response)
+}
+
+/// Typed storage get via capability-based discovery.
+///
+/// Discovers the `storage.get` provider at runtime (typically NestGate)
+/// and retrieves data.
+///
+/// # Errors
+///
+/// Returns `Err` if no storage provider is found or the RPC fails.
+pub fn storage_get(key: &str) -> Result<String> {
+    let provider = discover_by_capability("storage.get")?;
+    let params = serde_json::json!({ "key": key });
+    let request = build_request("storage.get", &params);
+    let response = rpc_call(&provider.socket, &request)?;
     parse_rpc_response(&response)
 }

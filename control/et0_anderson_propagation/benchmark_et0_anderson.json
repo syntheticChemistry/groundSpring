@@ -1,5 +1,5 @@
 {
-  "_source": "groundSpring Exp 022: FAO-56 ET₀ uncertainty propagation through Anderson localization",
+  "_source": "groundSpring Exp 022: FAO-56 ET\u2080 uncertainty propagation through Anderson localization",
   "_doi": "10.1007/s00039-019-00478-4",
   "_references": [
     "Allen et al. (1998) FAO Irrigation and Drainage Paper 56",
@@ -7,14 +7,16 @@
     "Dong et al. (2020) Agriculture 10:598"
   ],
   "_provenance": {
-    "generated_by": "groundSpring Exp 022 cross-spring ET₀→Anderson propagation",
+    "generated_by": "groundSpring Exp 022 cross-spring ET\u2080\u2192Anderson propagation",
     "baseline_date": "2026-02-26",
     "baseline_commit": "6e73709291d5dacfd527dd414a62aa8ade7e8f57",
     "validation_script": "control/et0_anderson_propagation/et0_anderson_propagation.py",
     "command": "python3 control/et0_anderson_propagation/et0_anderson_propagation.py",
     "prng_algorithm": "numpy.random.default_rng (PCG64)",
     "data_origin": "FAO-56 Example 18 (Uccle, Belgium) + Anderson analytical model",
-    "real_data_accession": "N/A (analytical FAO-56 worked example + Anderson model)"
+    "real_data_accession": "N/A (analytical FAO-56 worked example + Anderson model)",
+    "python_version": "3.11",
+    "numpy_version": "1.24"
   },
   "fao56_inputs": {
     "description": "FAO-56 Example 18 baseline with documented uncertainties",
@@ -36,7 +38,7 @@
     }
   },
   "water_balance": {
-    "description": "Simple daily water balance: θ(t+1) = θ(t) + P/D - ET₀·Kc/D",
+    "description": "Simple daily water balance: \u03b8(t+1) = \u03b8(t) + P/D - ET\u2080\u00b7Kc/D",
     "soil_depth_mm": 300,
     "crop_coefficient": 0.85,
     "daily_precip_mm": 2.0,
@@ -57,16 +59,31 @@
     "n_days": 30
   },
   "expected": {
-    "et0_mean_range": [3.5, 4.3],
-    "et0_mean_range_rationale": "FAO-56 Example 18 (Uccle, 6 July) yields ET0 ≈ 3.88 mm/day; [3.5, 4.3] covers ±10% from MC perturbation of T, RH, wind, Rs inputs.",
-    "et0_cv_range": [0.02, 0.10],
-    "et0_cv_range_rationale": "Input uncertainties (T±0.5°C, RH±5%, wind±0.3, Rs±1.0) propagated through PM equation; CV ~ 0.04 analytically, [0.02, 0.10] covers nonlinear coupling.",
-    "theta_final_range": [0.10, 0.45],
+    "et0_mean_range": [
+      3.5,
+      4.3
+    ],
+    "et0_mean_range_rationale": "FAO-56 Example 18 (Uccle, 6 July) yields ET0 \u2248 3.88 mm/day; [3.5, 4.3] covers \u00b110% from MC perturbation of T, RH, wind, Rs inputs.",
+    "et0_cv_range": [
+      0.02,
+      0.1
+    ],
+    "et0_cv_range_rationale": "Input uncertainties (T\u00b10.5\u00b0C, RH\u00b15%, wind\u00b10.3, Rs\u00b11.0) propagated through PM equation; CV ~ 0.04 analytically, [0.02, 0.10] covers nonlinear coupling.",
+    "theta_final_range": [
+      0.1,
+      0.45
+    ],
     "theta_final_range_rationale": "30-day water balance from theta_initial=0.35 with ET0~3.9 and P=2.0 mm/day; bounded by [theta_min=0.08, theta_max=0.45] with margin.",
-    "theta_cv_range": [0.01, 0.30],
+    "theta_cv_range": [
+      0.01,
+      0.3
+    ],
     "theta_cv_range_rationale": "Soil moisture CV depends on cumulative ET0 uncertainty over 30 days; range covers both low-variance (wet) and high-variance (dry) trajectories.",
-    "xi_cv_range": [0.01, 0.50],
-    "xi_cv_range_rationale": "Localization length xi ∝ 1/gamma depends nonlinearly on disorder W = slope*theta + intercept; CV amplification from theta to xi can be large near Anderson transition.",
+    "xi_cv_range": [
+      0.01,
+      0.5
+    ],
+    "xi_cv_range_rationale": "Localization length xi \u221d 1/gamma depends nonlinearly on disorder W = slope*theta + intercept; CV amplification from theta to xi can be large near Anderson transition.",
     "humidity_dominates_et0": true,
     "et0_uncertainty_propagates_through_anderson": true,
     "xi_cv_to_et0_cv_ratio_min": 0.5,

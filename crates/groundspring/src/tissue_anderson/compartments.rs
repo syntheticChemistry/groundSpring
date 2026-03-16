@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Preset tissue compartment constructors for Anderson lattice modeling.
@@ -144,7 +144,7 @@ mod tests {
         let epi = healthy_epidermis();
         let total: f64 = epi.cell_composition.iter().map(|(_, f)| f).sum();
         assert!(
-            (total - 1.0).abs() < 1e-10,
+            (total - 1.0).abs() < crate::tol::ANALYTICAL,
             "composition should sum to 1.0, got {total}"
         );
     }
@@ -174,7 +174,7 @@ mod tests {
         let derm = inflamed_dermis();
         let total: f64 = derm.cell_composition.iter().map(|(_, f)| f).sum();
         assert!(
-            (total - 1.0).abs() < 1e-10,
+            (total - 1.0).abs() < crate::tol::ANALYTICAL,
             "composition should sum to 1.0, got {total}"
         );
     }
@@ -183,15 +183,15 @@ mod tests {
     fn disrupted_at_zero_matches_healthy() {
         let healthy = healthy_epidermis();
         let disrupted = disrupted_epidermis(0.0);
-        assert!((disrupted.d_eff - healthy.d_eff).abs() < 1e-10);
-        assert!((disrupted.base_disorder - healthy.base_disorder).abs() < 1e-10);
+        assert!((disrupted.d_eff - healthy.d_eff).abs() < crate::tol::ANALYTICAL);
+        assert!((disrupted.base_disorder - healthy.base_disorder).abs() < crate::tol::ANALYTICAL);
     }
 
     #[test]
     fn disrupted_at_one_is_3d() {
         let disrupted = disrupted_epidermis(1.0);
         assert!(
-            (disrupted.d_eff - 3.0).abs() < 1e-10,
+            (disrupted.d_eff - 3.0).abs() < crate::tol::ANALYTICAL,
             "fully disrupted should be 3D"
         );
     }
@@ -200,7 +200,10 @@ mod tests {
     fn disrupted_clamped_above_one() {
         let d1 = disrupted_epidermis(1.0);
         let d2 = disrupted_epidermis(1.5);
-        assert!((d1.d_eff - d2.d_eff).abs() < 1e-10, "should clamp at 1.0");
+        assert!(
+            (d1.d_eff - d2.d_eff).abs() < crate::tol::ANALYTICAL,
+            "should clamp at 1.0"
+        );
     }
 
     #[test]

@@ -14,7 +14,7 @@
 
 [graph]
 id = "groundspring_node_atomic"
-description = "Node atomic: 32-experiment validation through ToadStool S96c GPU dispatch"
+description = "Node atomic: 35-experiment validation through ToadStool S155b GPU dispatch"
 coordination = "Parallel"
 
 [graph.metadata]

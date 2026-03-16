@@ -13,7 +13,9 @@
     "baseline_commit": "ab6e3d463f4a6c7f512d74aec2bcb08491b5e05b",
     "validation_script": "control/seismic/seismic_inversion.py",
     "command": "python3 control/seismic/seismic_inversion.py",
-    "notes": "Station coordinates from real IRIS FDSN metadata. Vp=5.8 km/s from IASP91 upper crust layer. Acceptance criteria based on typical regional network performance."
+    "notes": "Station coordinates from real IRIS FDSN metadata. Vp=5.8 km/s from IASP91 upper crust layer. Acceptance criteria based on typical regional network performance.",
+    "python_version": "3.11",
+    "numpy_version": "1.24"
   },
   "_description": "P-wave travel time inversion for earthquake source localization from public seismic data",
   "_groundspring_question": "Can we locate an earthquake source from noisy arrival-time observations?",
@@ -120,7 +122,10 @@
   },
   "haversine_reference": {
     "_description": "Great-circle NY-London (WGS-84): 5570 km. Range absorbs spherical vs ellipsoidal model difference.",
-    "ny_london_range": [5520.0, 5620.0],
+    "ny_london_range": [
+      5520.0,
+      5620.0
+    ],
     "ny_lat": 40.7128,
     "ny_lon": -74.006,
     "london_lat": 51.5074,

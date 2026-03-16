@@ -14,7 +14,9 @@
     "command": "python3 control/aggregate_stability/aggregate_stability.py",
     "prng_algorithm": "numpy.random.default_rng (PCG64)",
     "data_origin": "Synthetic WSA values based on published ranges (Nimmo & Perkins 2002)",
-    "real_data_accession": "N/A (synthetic based on published WSA ranges)"
+    "real_data_accession": "N/A (synthetic based on published WSA ranges)",
+    "python_version": "3.11",
+    "numpy_version": "1.24"
   },
   "soil_states": {
     "tilled": {
@@ -35,20 +37,32 @@
     "seed": 2026
   },
   "calibration": {
-    "description": "Linear mapping WSA → d_eff: d_eff = slope * WSA + intercept",
+    "description": "Linear mapping WSA \u2192 d_eff: d_eff = slope * WSA + intercept",
     "slope": 2.5,
     "intercept": 1.125
   },
   "expected": {
-    "tilled_d_eff_range": [1.5, 2.5],
-    "tilled_d_eff_range_rationale": "Linear map d_eff = 2.5*WSA + 1.125 with WSA_true=0.35 gives d_eff=2.0; ±0.5 covers MBE=0.02 bias + sigma=0.05 noise propagated through the linear map (slope=2.5).",
-    "notill_d_eff_range": [2.5, 3.5],
-    "notill_d_eff_range_rationale": "WSA_true=0.75 maps to d_eff=3.0; ±0.5 covers same noise propagation as tilled (2.5 * 0.05 * 3 ≈ 0.375 at 3-sigma).",
+    "tilled_d_eff_range": [
+      1.5,
+      2.5
+    ],
+    "tilled_d_eff_range_rationale": "Linear map d_eff = 2.5*WSA + 1.125 with WSA_true=0.35 gives d_eff=2.0; \u00b10.5 covers MBE=0.02 bias + sigma=0.05 noise propagated through the linear map (slope=2.5).",
+    "notill_d_eff_range": [
+      2.5,
+      3.5
+    ],
+    "notill_d_eff_range_rationale": "WSA_true=0.75 maps to d_eff=3.0; \u00b10.5 covers same noise propagation as tilled (2.5 * 0.05 * 3 \u2248 0.375 at 3-sigma).",
     "regimes_distinguishable": true,
-    "bias_fraction_range": [0.01, 0.50],
+    "bias_fraction_range": [
+      0.01,
+      0.5
+    ],
     "bias_fraction_range_rationale": "MBE/(MBE+sigma) with MBE=0.02, sigma=0.05 gives ~0.29; [0.01, 0.50] covers range from negligible to moderate bias dominance.",
     "noise_floor_below_regime_gap": true,
-    "d_eff_cv_range": [0.01, 0.20],
+    "d_eff_cv_range": [
+      0.01,
+      0.2
+    ],
     "d_eff_cv_range_rationale": "CV = (2.5*0.05)/d_eff; for d_eff in [2.0, 3.0] gives CV in [0.042, 0.063]; [0.01, 0.20] provides 3x margin for non-Gaussian tails."
   }
 }

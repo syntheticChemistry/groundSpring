@@ -1,5 +1,5 @@
 {
-  "_source": "groundSpring Experiment 014 — Drift vs Selection",
+  "_source": "groundSpring Experiment 014 \u2014 Drift vs Selection",
   "_doi": "10.1128/mbio.00354-22",
   "_references": [
     "Anderson (2022) Microbial population dynamics are dominated by stochastic forces in a low biomass subseafloor habitat. mBio 13:e00354-22",
@@ -15,14 +15,22 @@
     "baseline_date": "2026-02-26",
     "baseline_commit": "459e5d0c648905b521307c4022edf877c794a503",
     "validation_script": "control/drift_selection/drift_selection.py",
-    "command": "python3 control/drift_selection/drift_selection.py"
+    "command": "python3 control/drift_selection/drift_selection.py",
+    "python_version": "3.11",
+    "numpy_version": "1.24"
   },
   "_description": "Wright-Fisher simulation testing when stochastic drift dominates over deterministic selection in finite populations. Connects to R. Anderson's finding that drift dominates in low-biomass subseafloor habitats.",
-  "_groundspring_question": "When does noise (drift) overwhelm signal (selection) in an evolving system? The answer depends on N_e × s — the product of effective population size and selection coefficient. This is the biological analog of signal-to-noise ratio.",
-  "_cross_spring": "wetSpring — microbial diversity; Exp 004 sequencing depth (rare biosphere detection limit)",
+  "_groundspring_question": "When does noise (drift) overwhelm signal (selection) in an evolving system? The answer depends on N_e \u00d7 s \u2014 the product of effective population size and selection coefficient. This is the biological analog of signal-to-noise ratio.",
+  "_cross_spring": "wetSpring \u2014 microbial diversity; Exp 004 sequencing depth (rare biosphere detection limit)",
   "model": {
-    "_description": "Wright-Fisher model: N diploid individuals, allele A has fitness 1+s relative to allele a (fitness 1). Initial frequency p₀=0.5. Simulate until fixation or loss. Track fixation probability and diversity trajectory.",
-    "population_sizes": [20, 50, 100, 500, 1000],
+    "_description": "Wright-Fisher model: N diploid individuals, allele A has fitness 1+s relative to allele a (fitness 1). Initial frequency p\u2080=0.5. Simulate until fixation or loss. Track fixation probability and diversity trajectory.",
+    "population_sizes": [
+      20,
+      50,
+      100,
+      500,
+      1000
+    ],
     "selection_coefficient": 0.01,
     "initial_frequency": 0.5,
     "n_trials": 500,
@@ -31,14 +39,17 @@
     "n_generations_diversity": 200
   },
   "analytical_predictions": {
-    "_description": "Kimura (1968): fixation probability under selection is P_fix = (1 - exp(-2s)) / (1 - exp(-2Ns)). For neutral (s=0): P_fix = 1/2N (with p₀=1/2N) or p₀ (with initial freq p₀). When N*s >> 1: selection dominates. When N*s << 1: drift dominates.",
+    "_description": "Kimura (1968): fixation probability under selection is P_fix = (1 - exp(-2s)) / (1 - exp(-2Ns)). For neutral (s=0): P_fix = 1/2N (with p\u2080=1/2N) or p\u2080 (with initial freq p\u2080). When N*s >> 1: selection dominates. When N*s << 1: drift dominates.",
     "fixation_prob_neutral_p0_half": 0.5,
     "drift_dominance_threshold_Ns": 1.0,
-    "kimura_formula": "P_fix = (1 - exp(-2*s*p₀*2N)) / (1 - exp(-2*s*2N))"
+    "kimura_formula": "P_fix = (1 - exp(-2*s*p\u2080*2N)) / (1 - exp(-2*s*2N))"
   },
   "expected_results": {
-    "neutral_fixation_range": [0.40, 0.60],
-    "strong_selection_fixation_min": 0.60,
+    "neutral_fixation_range": [
+      0.4,
+      0.6
+    ],
+    "strong_selection_fixation_min": 0.6,
     "drift_regime_fixation_near_neutral_tol": 0.15,
     "diversity_declines_under_drift": true,
     "selection_increases_fixation": true,

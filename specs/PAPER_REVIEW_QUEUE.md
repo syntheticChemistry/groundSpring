@@ -370,9 +370,9 @@ Papers 1-11, 14, 15, 16, 18, 20, 21, 22, 23, 24, 33 — **fully wired** with act
 ### Tier 1: BarraCUDA CPU (current — 376/376 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
-102 active delegations (61 CPU + 41 GPU) — barraCuda `0bd401f`, toadStool S96c (d77fc546). 11.5× faster than Python (excl. LAPACK-bound).
-824 Rust workspace tests + 390 Python = 1214. 29/29 mathematical parity proven. 100+ three-tier parity tests (100% delegation coverage).
-395/395 validation checks across 34 experiments (V83, zero-debt audit certified).
+102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S155b. 11.5× faster than Python (excl. LAPACK-bound).
+906 Rust workspace tests + 287 Python provenance tests. 29/29 mathematical parity proven. 100+ three-tier parity tests (100% delegation coverage).
+395/395 validation checks across 34 experiments (V108, zero-debt audit certified).
 All 34 experiments validated. GPU stats dispatch (mean, std_dev, rmse, mbe, mae, nse, r², pearson_r). L-BFGS post-grid refinement (V68). 14 CPU vs GPU parity tests. CPU vs GPU benchmark binary.
 
 ### Tier 2: BarraCUDA GPU (36 GPU dispatch targets — V83)

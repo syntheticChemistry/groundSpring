@@ -1,10 +1,10 @@
 {
-  "_source": "groundSpring Experiment 017 — Quasispecies Error Threshold",
+  "_source": "groundSpring Experiment 017 \u2014 Quasispecies Error Threshold",
   "_doi": "10.1098/rsif.2023.0346",
   "_references": [
     "Dolson et al. (2023) The ecology-evolution continuum and the origin of life. J R Soc Interface 20(208)",
     "Eigen (1971) Self-organization of matter and the evolution of biological macromolecules. Naturwiss 58:465-523",
-    "Eigen & Schuster (1977) The hypercycle — a principle of natural self-organization. Part A: Emergence of the hypercycle. Naturwiss 64:541-565",
+    "Eigen & Schuster (1977) The hypercycle \u2014 a principle of natural self-organization. Part A: Emergence of the hypercycle. Naturwiss 64:541-565",
     "Schuster & Swetina (1988) Stationary mutant distributions and evolutionary optimization. Bull Math Biol 50:635-660"
   ],
   "_provenance": {
@@ -15,22 +15,33 @@
     "baseline_date": "2026-02-26",
     "baseline_commit": "6e73709291d5dacfd527dd414a62aa8ade7e8f57",
     "validation_script": "control/quasispecies_threshold/quasispecies_threshold.py",
-    "command": "python3 control/quasispecies_threshold/quasispecies_threshold.py"
+    "command": "python3 control/quasispecies_threshold/quasispecies_threshold.py",
+    "python_version": "3.11",
+    "numpy_version": "1.24"
   },
-  "_description": "Tests Eigen's error threshold: the mutation rate above which self-replicating information is destroyed by noise. This is the most fundamental formulation of groundSpring's central question — when does signal survive in a noisy system?",
+  "_description": "Tests Eigen's error threshold: the mutation rate above which self-replicating information is destroyed by noise. This is the most fundamental formulation of groundSpring's central question \u2014 when does signal survive in a noisy system?",
   "_groundspring_question": "At what mutation rate does noise (copying errors) destroy signal (heritable information)? The error threshold mu_c = ln(sigma)/L defines the boundary between information preservation and information death.",
-  "_cross_spring": "wetSpring — microbial evolution; Exp 014 (drift vs selection). Dolson (2023) extends to origin-of-life context.",
+  "_cross_spring": "wetSpring \u2014 microbial evolution; Exp 014 (drift vs selection). Dolson (2023) extends to origin-of-life context.",
   "model": {
     "_description": "Single-peak fitness landscape: master sequence has fitness sigma, all mutants have fitness 1. Population of N individuals, genome length L, per-base mutation rate mu. Discrete-generation Wright-Fisher selection + independent per-base mutation.",
     "population_size": 2000,
     "genome_length": 100,
     "master_fitness": 10.0,
-    "mutation_rates": [0.005, 0.010, 0.015, 0.020, 0.025, 0.030, 0.040, 0.060],
+    "mutation_rates": [
+      0.005,
+      0.01,
+      0.015,
+      0.02,
+      0.025,
+      0.03,
+      0.04,
+      0.06
+    ],
     "n_generations": 500,
     "base_seed": 42
   },
   "analytical_predictions": {
-    "_description": "Eigen (1971): error threshold at mu_c = 1 - sigma^(-1/L). Steady-state master frequency x_m = (sigma*Q - 1)/(sigma - 1) where Q = (1-mu)^L. For mu_c with sigma=10, L=100: mu_c ≈ 0.02276.",
+    "_description": "Eigen (1971): error threshold at mu_c = 1 - sigma^(-1/L). Steady-state master frequency x_m = (sigma*Q - 1)/(sigma - 1) where Q = (1-mu)^L. For mu_c with sigma=10, L=100: mu_c \u2248 0.02276.",
     "error_threshold_formula": "mu_c = 1 - sigma^(-1/L)",
     "master_frequency_formula": "x_m = max(0, (sigma*(1-mu)^L - 1)/(sigma - 1))",
     "error_threshold": 0.02276,
@@ -41,7 +52,10 @@
     "master_lost_above_threshold": true,
     "master_freq_below_threshold_min": 0.05,
     "master_freq_above_threshold_max": 0.02,
-    "error_threshold_observed_range": [0.018, 0.028],
+    "error_threshold_observed_range": [
+      0.018,
+      0.028
+    ],
     "mean_fitness_drops_at_threshold": true,
     "deterministic_reproducible": true
   }

@@ -15,7 +15,9 @@
     "baseline_commit": "ab6e3d463f4a6c7f512d74aec2bcb08491b5e05b",
     "validation_script": "control/sequencing_noise/sequencing_noise.py",
     "command": "python3 control/sequencing_noise/sequencing_noise.py",
-    "notes": "Community structure modeled after typical agricultural soil 16S profiles. Log-normal genus abundances within phyla. Expected ranges from multinomial sampling theory with seed=42."
+    "notes": "Community structure modeled after typical agricultural soil 16S profiles. Log-normal genus abundances within phyla. Expected ranges from multinomial sampling theory with seed=42.",
+    "python_version": "3.11",
+    "numpy_version": "1.24"
   },
   "_description": "Simulated rarefaction analysis to characterize the noise floor of 16S rRNA taxonomic assignment",
   "_groundspring_question": "At what sequencing depth does taxonomy become stable? When does more sequencing stop helping?",

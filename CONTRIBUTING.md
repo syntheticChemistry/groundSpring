@@ -1,6 +1,6 @@
 # Contributing to groundSpring
 
-SPDX-License-Identifier: AGPL-3.0-only
+SPDX-License-Identifier: AGPL-3.0-or-later
 
 ## Architecture
 
@@ -77,7 +77,7 @@ scripts/             Automation (baselines, benchmarks)
 
 ## Constraints
 
-1. **AGPL-3.0-only.** Every source file needs the SPDX header.
+1. **AGPL-3.0-or-later.** Every source file needs the SPDX header.
 2. **1000 lines max per file.** If a file exceeds this, refactor by responsibility.
 3. **No unsafe Rust.** The workspace forbids it at the lint level.
 4. **Clippy pedantic + nursery** with zero warnings. `missing_docs` is `deny`.
@@ -97,7 +97,7 @@ scripts/             Automation (baselines, benchmarks)
 ### Rust
 
 ```bash
-cargo test --workspace                         # 906 tests, all PASS (V107)
+cargo test --workspace                         # 906 tests, all PASS (V108)
 cargo test --workspace --features biomeos      # biomeos tests (NUCLEUS client active)
 cargo test --workspace --features barracuda-gpu # GPU dispatch active
 cargo clippy --workspace --all-targets -D warnings # zero warnings (pedantic + nursery)
@@ -189,7 +189,7 @@ groundSpring follows the **Write → Absorb → Lean** cycle from hotSpring:
 ### WGSL Shader Conventions (matching hotSpring)
 
 - Dedicated `.wgsl` files in `metalForge/shaders/` (never inline WGSL in Rust).
-- `// SPDX-License-Identifier: AGPL-3.0-only` at top.
+- `// SPDX-License-Identifier: AGPL-3.0-or-later` at top.
 - `struct Params` for uniforms (u32-aligned with padding).
 - `@group(0) @binding(N)` sequential bindings, documented in header.
 - `@compute @workgroup_size(64, 1, 1)` standard workgroup size.

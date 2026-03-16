@@ -242,4 +242,4 @@ from 14.89s → 3.93s.
 
 *This document is generated from groundSpring's validation infrastructure
 and ToadStool's absorption history. It reflects the state of the ecosystem
-at ToadStool S96c (d77fc546) / groundSpring V105.
+at ToadStool S155b / groundSpring V108.

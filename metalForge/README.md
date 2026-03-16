@@ -71,7 +71,7 @@ After absorption, groundSpring rewires:
 Following hotSpring's pattern:
 
 - **Naming**: `{operation}_{domain}.wgsl` (e.g. `anderson_lyapunov.wgsl`)
-- **License**: `// SPDX-License-Identifier: AGPL-3.0-only`
+- **License**: `// SPDX-License-Identifier: AGPL-3.0-or-later`
 - **Bindings**: group 0 only, sequential, documented in header
 - **PRNG**: xoshiro128** with `vec4<u32>` state per invocation
 - **Precision**: f64 canonical; f32 fallback for NAK/NVVM; ToadStool DF64 for universal precision

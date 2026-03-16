@@ -14,7 +14,8 @@
     "command": "python3 control/vendor_parity/vendor_parity.py",
     "generated_by": "Python Monte Carlo simulation (reference VACF integration, 50 seeds, f64 baseline)",
     "data_origin": "Synthetic Monte Carlo WDM transport coefficients (50-seed f64 reference baseline for GPU vendor parity)",
-    "real_data_accession": "N/A (synthetic Monte Carlo simulation)"
+    "real_data_accession": "N/A (synthetic Monte Carlo simulation)",
+    "numpy_version": "1.24"
   },
   "_description": "GPU vendor parity validation for WDM transport coefficient computation",
   "model": {

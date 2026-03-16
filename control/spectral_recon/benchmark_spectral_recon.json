@@ -14,12 +14,16 @@
     "baseline_commit": "6e73709291d5dacfd527dd414a62aa8ade7e8f57",
     "validation_script": "control/spectral_recon/spectral_recon.py",
     "command": "python3 control/spectral_recon/spectral_recon.py",
-    "real_data_accession": "N/A (analytical Gaussian spectral peak with synthetic noise)"
+    "real_data_accession": "N/A (analytical Gaussian spectral peak with synthetic noise)",
+    "python_version": "3.11",
+    "numpy_version": "1.24"
   },
   "_description": "Spectral function reconstruction from noisy Euclidean correlator via Tikhonov regularization. Validates kernel construction, forward model, Cholesky solver, peak recovery, and regularization parameter scan.",
   "_groundspring_question": "Can Tikhonov regularization recover the location and shape of a spectral peak from a noisy integral transform?",
-  "_cross_spring": ["Exp 005 seismic inversion", "Exp 020 freeze-out chi-squared"],
-
+  "_cross_spring": [
+    "Exp 005 seismic inversion",
+    "Exp 020 freeze-out chi-squared"
+  ],
   "spectral_function": {
     "type": "gaussian_peak",
     "omega_center": 3.0,
@@ -37,8 +41,14 @@
     "seed": 2025
   },
   "regularization": {
-    "lambda_values": [1e-8, 1e-6, 1e-4, 1e-2, 1.0],
-    "optimal_lambda": 1e-4
+    "lambda_values": [
+      1e-08,
+      1e-06,
+      0.0001,
+      0.01,
+      1.0
+    ],
+    "optimal_lambda": 0.0001
   },
   "analytical_predictions": {
     "kernel_formula": "K(tau, omega) = exp(-tau * omega)",
@@ -47,8 +57,8 @@
     "peak_at_omega_center": 3.0
   },
   "expected_results": {
-    "forward_rmse_noiseless_max": 1e-6,
-    "cholesky_residual_max": 1e-6,
+    "forward_rmse_noiseless_max": 1e-06,
+    "cholesky_residual_max": 1e-06,
     "peak_location_tol": 1.0,
     "peak_positive": true,
     "small_lambda_amplifies_noise": true,
@@ -56,7 +66,10 @@
     "regularization_tradeoff_ratio_min": 0.5,
     "regularization_tradeoff_ratio_min_rationale": "Both under- and over-regularized RMSE must be at least 0.5x optimal RMSE, confirming a genuine trade-off.",
     "optimal_lambda_index": 2,
-    "optimal_lambda_rmse_range": [0.0, 0.5],
+    "optimal_lambda_rmse_range": [
+      0.0,
+      0.5
+    ],
     "determinism": true
   }
 }
