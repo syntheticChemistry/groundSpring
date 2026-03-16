@@ -3,7 +3,7 @@
 **Date**: February 27, 2026
 **From**: groundSpring V35 (V37 docs)
 **To**: ToadStool S68+ / BarraCUDA team
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only
 **Previous**: V35 (Titan V / NAK adaptive GPU dispatch)
 
 ---

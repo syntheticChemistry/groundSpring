@@ -4,7 +4,7 @@
 **From**: groundSpring (V59)
 **To**: ToadStool / BarraCUDA team
 **ToadStool pin**: S71+++ (`8dc01a37`)
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only
 **Supersedes**: V58 (Cross-Spring Evolution + Deep-Debt Completion)
 
 ---

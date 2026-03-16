@@ -4,7 +4,7 @@
 **From**: groundSpring (V56)
 **To**: ToadStool / BarraCUDA team
 **ToadStool pin**: S70+++ (`1dd7e338`)
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only
 **Supersedes**: V55 (barracuda Evolution Complete)
 
 ---
@@ -174,4 +174,4 @@ Five springs contribute to barracuda's 700+ WGSL shaders.
 
 ---
 
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only

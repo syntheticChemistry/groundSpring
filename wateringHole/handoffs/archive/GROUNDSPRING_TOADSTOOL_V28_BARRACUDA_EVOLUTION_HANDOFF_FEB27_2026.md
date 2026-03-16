@@ -5,7 +5,7 @@
 **To:** toadStool / barracuda core team
 **Covers:** V28 coverage hardening + xoshiro128** API parity + CI drift detection + three-tier paper controls + absorption roadmap
 **Supersedes:** V27 (GROUNDSPRING_TOADSTOOL_V27_BARRACUDA_EVOLUTION_HANDOFF_FEB27_2026.md)
-**License:** AGPL-3.0-or-later
+**License:** AGPL-3.0-only
 
 ---
 

@@ -4,7 +4,7 @@
 **ToadStool pin**: S68+ (`e96576ee`)
 **groundSpring**: V51 (GPU stats dispatch, batch GPU APIs, CPU/GPU parity proof)
 **Previous**: V47 (library buildout + 7 new barracuda CPU delegations)
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only
 
 ---
 

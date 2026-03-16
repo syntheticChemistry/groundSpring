@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: AGPL-3.0-only
 # Copyright (C) 2026 ecoPrimals / Squirrel Team
 """Exp 019: Jackknife Error Estimation (Bazavov 2025 Phys Rev D 111, 094508).
 

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Anderson localization in tissue geometry (Paper 12, Exp 033–034).

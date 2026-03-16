@@ -161,4 +161,4 @@ compute-bound kernels. This baseline lets us measure it.
 
 ## License
 
-AGPL-3.0-or-later. See top-level LICENSE.
+AGPL-3.0-only. See top-level LICENSE.

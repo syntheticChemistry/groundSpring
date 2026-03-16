@@ -6,7 +6,7 @@
 **Previous**: V16 (S66 catch-up + rewiring)
 **ToadStool HEAD**: `045103a7` (S66 Wave 5)
 **groundSpring HEAD**: `de0822a` (deep debt evolution)
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only
 
 ---
 

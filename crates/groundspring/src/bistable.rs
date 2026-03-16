@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Bistable phenotypic switching in V. cholerae c-di-GMP circuit.
@@ -20,6 +20,9 @@
 
 #[cfg(feature = "barracuda")]
 use barracuda::numerical::OdeSystem as _;
+
+/// Default value for half-saturation and rate parameters in [`BistableParams`].
+const DEFAULT_BISTABLE_HALF_SATURATION_AND_RATE: f64 = 0.5;
 
 /// Parameter set matching `barracuda::BistableParams::default()`.
 ///
@@ -79,13 +82,13 @@ impl Default for BistableParams {
             k_ai_prod: 5.0,
             d_ai: 1.0,
             k_hapr_max: 1.0,
-            k_hapr_ai: 0.5,
+            k_hapr_ai: DEFAULT_BISTABLE_HALF_SATURATION_AND_RATE,
             n_hapr: 2.0,
-            d_hapr: 0.5,
+            d_hapr: DEFAULT_BISTABLE_HALF_SATURATION_AND_RATE,
             k_dgc_basal: 2.0,
             k_dgc_rep: 0.3,
-            k_pde_basal: 0.5,
-            k_pde_act: 0.5,
+            k_pde_basal: DEFAULT_BISTABLE_HALF_SATURATION_AND_RATE,
+            k_pde_act: DEFAULT_BISTABLE_HALF_SATURATION_AND_RATE,
             d_cdg: 0.3,
             k_bio_max: 1.0,
             k_bio_cdg: 1.5,

@@ -48,7 +48,7 @@ modes. Quasiperiodic speedup: 130.97s (local) â†’ 0.18s (barracuda-gpu) = **727Ã
    HEAD, and optionally stamps provenance with `--stamp`.
 
 4. **SPDX audit**: All 30 Rust source files and 21 Python source files confirmed
-   to have AGPL-3.0-or-later headers.
+   to have AGPL-3.0-only headers.
 
 ---
 

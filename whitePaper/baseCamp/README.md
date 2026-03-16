@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: March 16, 2026
 
-**Validation Summary**: V106 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10**. 936 tests (all feature gates) + 287 Python provenance tests. All 35 experiments PASS. **29/29 mathematical parity proven**. V106: primal_names module (wetSpring V119 pattern), typed BiomeOsError enum, biomeOS rewired to primal_names::*, zero hardcoded primal strings. Zero clippy (pedantic + nursery), zero unsafe, zero TODO, all files < 1000 lines. 10 domains, 39 modules.
+**Validation Summary**: V107 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10**. 906 tests + 287 Python provenance tests. All 35 experiments PASS. **29/29 mathematical parity proven**. V107: License AGPL-3.0-only (302 files), release profile optimization, niche.rs OperationDeps/CostEstimate, tolerance provenance, bare literal elimination, feature-gated spectral constants. Zero clippy (pedantic + nursery), zero unsafe, zero TODO, all files < 1000 lines. 10 domains, 39 modules.
 
 ---
 

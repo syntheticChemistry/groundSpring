@@ -17,7 +17,7 @@
 V104 is a comprehensive deep-debt resolution pass. All production magic numbers
 now have named constants with physical provenance. Hardcoded primal identifiers
 are replaced with `FAMILY_ID` constant references and capability-based discovery.
-License aligned ecosystem-wide to `AGPL-3.0-or-later` per scyBorg guidance.
+License aligned ecosystem-wide to `AGPL-3.0-only` per scyBorg guidance.
 Stale version references (V99–V102) updated across 15+ docs. Capability surface
 evolved from legacy `science.*` to `measurement.*` domain. Zero warnings across
 fmt, clippy (pedantic+nursery), and rustdoc.
@@ -82,7 +82,7 @@ handles `FAMILY_ID` correctly at the protocol level.
 ## Part 3: License Alignment
 
 All code (143 `.rs`/`.toml`/`.wgsl` files) updated from `AGPL-3.0-only` to
-`AGPL-3.0-or-later` per scyBorg Provenance Trio Guidance. Cargo.toml workspace
+`AGPL-3.0-only` per scyBorg Provenance Trio Guidance. Cargo.toml workspace
 `license` field updated. README, CONTRIBUTING, binary `version` output updated.
 
 ### Action for barraCuda / toadStool
@@ -163,7 +163,7 @@ of all stochastic experiments needed.
    crate if multiple primals need it.
 
 6. **License alignment needs ecosystem coordination.** The scyBorg guidance says
-   `AGPL-3.0-or-later` but some primals use `-only`. A single wateringHole
+   `AGPL-3.0-only` but some primals use `-only`. A single wateringHole
    decision should resolve this for all primals.
 
 ## Verification
@@ -186,6 +186,6 @@ cargo test --workspace           # 936 passed, 0 failed
 - `crates/groundspring/src/tissue_anderson/drug_scoring.rs` — 12 named constants
 - `crates/groundspring/src/freeze_out.rs` — `NM_SIMPLEX_SCALE`
 - `crates/groundspring/src/biomeos/server.rs` — doc link fix + FAMILY_ID
-- 143 files — SPDX `AGPL-3.0-only` → `AGPL-3.0-or-later`
+- 143 files — SPDX `AGPL-3.0-only` → `AGPL-3.0-only`
 - 15+ docs — version refs V99/V102 → V104
 - `whitePaper/neuralAPI/CAPABILITY_SURFACE.md` — full rewrite `science.*` → `measurement.*`

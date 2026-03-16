@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Spectral diagnostics for Anderson localization eigenvalue analysis.
@@ -15,6 +15,16 @@
 use crate::eps;
 
 use super::SweepPoint;
+
+/// Outlier fraction threshold below which spectrum is classified as Bulk (< 5%).
+#[cfg(not(feature = "barracuda"))]
+const BULK_PHASE_OUTLIER_THRESHOLD: f64 = 0.05;
+/// Outlier fraction threshold for EdgeOfChaos (5–20%).
+#[cfg(not(feature = "barracuda"))]
+const EDGE_OF_CHAOS_OUTLIER_THRESHOLD: f64 = 0.20;
+/// Minimum prominence for peak detection in disorder sweep transition.
+#[cfg(feature = "barracuda-gpu")]
+const PEAK_DETECT_MIN_PROMINENCE: f64 = 0.001;
 
 /// Spectral diagnostics for eigenvalue analysis.
 ///
@@ -108,9 +118,9 @@ fn spectral_diagnostics_cpu(eigenvalues: &[f64], marchenko_upper: f64) -> Spectr
         let outliers = eigenvalues.iter().filter(|&&x| x > marchenko_upper).count();
         crate::cast::usize_f64(outliers) / crate::cast::usize_f64(eigenvalues.len())
     };
-    let phase = if outlier_frac < 0.05 {
+    let phase = if outlier_frac < BULK_PHASE_OUTLIER_THRESHOLD {
         SpectralPhaseLabel::Bulk
-    } else if outlier_frac <= 0.20 {
+    } else if outlier_frac <= EDGE_OF_CHAOS_OUTLIER_THRESHOLD {
         SpectralPhaseLabel::EdgeOfChaos
     } else {
         SpectralPhaseLabel::Chaotic
@@ -251,7 +261,7 @@ pub fn detect_transition(sweep: &[SweepPoint]) -> Option<f64> {
 fn detect_transition_gpu(deriv: &[f64], sweep: &[SweepPoint]) -> Option<f64> {
     let device = crate::gpu::get_device()?;
     let peaks = barracuda::ops::peak_detect_f64::PeakDetectF64::new(deriv, 1)
-        .prominence(0.001)
+        .prominence(PEAK_DETECT_MIN_PROMINENCE)
         .execute(&device)
         .ok()?;
     let best = peaks

@@ -6,7 +6,7 @@
 **Previous**: V17 (deep debt + delegation patterns)
 **ToadStool HEAD**: `045103a7` (S66 Wave 5)
 **groundSpring HEAD**: `459e5d0c` (V18 idiomatic Rust evolution)
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only
 
 ---
 

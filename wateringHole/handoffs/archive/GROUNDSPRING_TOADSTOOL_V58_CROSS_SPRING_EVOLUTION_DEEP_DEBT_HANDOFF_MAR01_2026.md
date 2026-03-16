@@ -4,7 +4,7 @@
 **From**: groundSpring (V58)
 **To**: ToadStool / BarraCUDA team
 **ToadStool pin**: S70+++ (`1dd7e338`)
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only
 **Supersedes**: V56 (NUCLEUS Integration)
 
 ---

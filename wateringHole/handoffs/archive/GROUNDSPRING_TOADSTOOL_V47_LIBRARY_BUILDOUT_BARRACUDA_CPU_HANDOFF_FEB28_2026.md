@@ -4,7 +4,7 @@
 **ToadStool pin**: S68+ (`e96576ee`)
 **groundSpring**: V47 (library buildout + 7 new barracuda CPU delegations)
 **Previous**: V46 (idiomatic Rust evolution), V45 (validation gap closure: 292/292)
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only
 
 ---
 

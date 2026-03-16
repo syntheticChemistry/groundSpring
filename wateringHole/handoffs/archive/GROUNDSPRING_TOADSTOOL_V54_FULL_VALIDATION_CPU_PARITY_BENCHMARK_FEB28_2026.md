@@ -3,7 +3,7 @@
 **Date**: February 28, 2026
 **ToadStool pin**: S70+++ (`1dd7e338`)
 **groundSpring version**: V54
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only
 
 ---
 

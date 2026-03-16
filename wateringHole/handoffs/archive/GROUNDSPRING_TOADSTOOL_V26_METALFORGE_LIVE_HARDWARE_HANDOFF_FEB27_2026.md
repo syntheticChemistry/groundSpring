@@ -3,7 +3,7 @@
 **Date**: February 27, 2026
 **Scope**: MetalForge live hardware validation — GPU + NPU + cross-substrate parity
 **Supersedes**: V25 (Exp 025-027 WDM buildout), V23 (Exp 019-021 Bazavov)
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only
 
 ---
 
@@ -181,4 +181,4 @@ groundSpring found GPU > NPU > CPU as the right default priority for compute-bou
 
 ---
 
-*groundSpring V26 — February 27, 2026 — AGPL-3.0-or-later*
+*groundSpring V26 — February 27, 2026 — AGPL-3.0-only*

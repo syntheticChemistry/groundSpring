@@ -4,7 +4,7 @@
 **From:** groundSpring
 **To:** toadStool / barracuda core team
 **Covers:** V27 barracuda usage review + evolution learnings + paper controls (open data) + three-tier validation + absorption requests
-**License:** AGPL-3.0-or-later
+**License:** AGPL-3.0-only
 
 ---
 

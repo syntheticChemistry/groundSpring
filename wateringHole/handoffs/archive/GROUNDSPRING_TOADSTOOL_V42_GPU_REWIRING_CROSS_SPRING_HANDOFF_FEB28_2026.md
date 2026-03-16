@@ -3,7 +3,7 @@
 **Date**: February 28, 2026
 **From**: groundSpring V42 (GPU rewiring + cross-spring evolution)
 **To**: ToadStool S68+ / BarraCUDA team
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only
 **Previous**: V40 (S68+ inventory audit)
 
 ---

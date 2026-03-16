@@ -5,7 +5,7 @@
 **To**: ToadStool/BarraCUDA team
 **Previous**: V20 (S68 catch-up + hill delegation)
 **ToadStool HEAD**: `f0feb226` (S68 — universal precision, zero f32-only)
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only
 
 ---
 

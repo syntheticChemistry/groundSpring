@@ -4,6 +4,29 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V107 License Alignment + Release Profile + Niche + Tolerance Provenance (Mar 16, 2026)
+
+#### License Alignment
+- AGPL-3.0-or-later → AGPL-3.0-only (ecosystem standard, 302 files updated)
+
+#### Release Profile Optimization
+- `lto = true`, `codegen-units = 1`, `strip = true` in workspace Cargo.toml
+
+#### Enriched niche.rs
+- `operation_dependencies()` and `cost_estimates()` const functions with structured `OperationDeps` and `CostEstimate` types (ludoSpring V19 pattern)
+
+#### Tolerance Provenance Citations
+- All 13 `tol::` constants now have mathematical provenance, source citations, and validation binary references
+
+#### Bare Literal Elimination
+- Extracted ~15 named constants from `tissue_anderson/compartments.rs`, `tissue_anderson/geometry.rs`, `anderson/spectral.rs`, `multisignal.rs`, `bistable.rs`
+
+#### Feature-Gated Dead Code
+- Spectral constants properly gated behind their respective features
+
+#### Quality Gates
+- 906 tests pass, 0 clippy warnings (pedantic+nursery), 0 fmt diff
+
 ### V106 primal_names + Typed BiomeOsError (Mar 16, 2026)
 
 #### primal_names Module
@@ -67,7 +90,7 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 - All test assertions updated to reference `FAMILY_ID`
 
 #### License Alignment
-- 143+ files updated from `AGPL-3.0-only` to `AGPL-3.0-or-later` (scyBorg Provenance Trio Guidance)
+- 143+ files updated from `AGPL-3.0-only` to `AGPL-3.0-only` (scyBorg Provenance Trio Guidance)
 - Cargo.toml workspace `license` field, pyproject.toml, README, CONTRIBUTING, binary `version` output, all SPDX headers
 
 #### Documentation Debt

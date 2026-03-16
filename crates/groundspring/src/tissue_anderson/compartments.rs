@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Preset tissue compartment constructors for Anderson lattice modeling.
@@ -8,6 +8,25 @@
 
 use super::{CellType, SkinLayer, TissueCompartment};
 
+/// Base disorder for healthy epidermis (low disorder, quasi-2D).
+const HEALTHY_EPIDERMIS_BASE_DISORDER: f64 = 0.5;
+/// Neuron fraction in healthy epidermis.
+const NEURON_FRACTION_HEALTHY_EPIDERMIS: f64 = 0.05;
+/// Eosinophil fraction in healthy dermis.
+const EOSINOPHIL_FRACTION_HEALTHY_DERMIS: f64 = 0.05;
+/// Th2 cell fraction in inflamed dermis (AD flare).
+const TH2_FRACTION_INFLAMED_DERMIS: f64 = 0.25;
+/// Langerhans cell fraction in inflamed dermis.
+const LANGERHANS_FRACTION_INFLAMED_DERMIS: f64 = 0.05;
+/// Keratinocyte fraction reduction per unit breach (barrier disruption).
+const KERATINOCYTE_BREACH_REDUCTION_SLOPE: f64 = 0.25;
+/// Langerhans infiltration slope per unit breach.
+const LANGERHANS_BREACH_INFILTRATION_SLOPE: f64 = 0.10;
+/// Neuron infiltration slope per unit breach.
+const NEURON_BREACH_INFILTRATION_SLOPE: f64 = 0.05;
+/// Th2 infiltration slope per unit breach.
+const TH2_BREACH_INFILTRATION_SLOPE: f64 = 0.10;
+
 /// Healthy epidermis composition (low disorder, quasi-2D).
 #[must_use]
 pub fn healthy_epidermis() -> TissueCompartment {
@@ -15,11 +34,11 @@ pub fn healthy_epidermis() -> TissueCompartment {
         layer: SkinLayer::Epidermis,
         sites_per_dim: 50,
         d_eff: 2.0,
-        base_disorder: 0.5,
+        base_disorder: HEALTHY_EPIDERMIS_BASE_DISORDER,
         cell_composition: vec![
             (CellType::Keratinocyte, 0.85),
             (CellType::LangerhansCell, 0.10),
-            (CellType::Neuron, 0.05),
+            (CellType::Neuron, NEURON_FRACTION_HEALTHY_EPIDERMIS),
         ],
     }
 }
@@ -37,7 +56,7 @@ pub fn healthy_dermis() -> TissueCompartment {
             (CellType::Neuron, 0.15),
             (CellType::MastCell, 0.10),
             (CellType::Th2Cell, 0.10),
-            (CellType::Eosinophil, 0.05),
+            (CellType::Eosinophil, EOSINOPHIL_FRACTION_HEALTHY_DERMIS),
         ],
     }
 }
@@ -53,11 +72,14 @@ pub fn inflamed_dermis() -> TissueCompartment {
         base_disorder: 3.0,
         cell_composition: vec![
             (CellType::Fibroblast, 0.30),
-            (CellType::Th2Cell, 0.25),
+            (CellType::Th2Cell, TH2_FRACTION_INFLAMED_DERMIS),
             (CellType::Eosinophil, 0.15),
             (CellType::MastCell, 0.15),
             (CellType::Neuron, 0.10),
-            (CellType::LangerhansCell, 0.05),
+            (
+                CellType::LangerhansCell,
+                LANGERHANS_FRACTION_INFLAMED_DERMIS,
+            ),
         ],
     }
 }
@@ -74,12 +96,21 @@ pub fn disrupted_epidermis(breach_fraction: f64) -> TissueCompartment {
         layer: SkinLayer::Epidermis,
         sites_per_dim: 50,
         d_eff: 2.0_f64.mul_add(1.0 - clamped, 3.0 * clamped),
-        base_disorder: 0.5 + clamped * 2.0,
+        base_disorder: HEALTHY_EPIDERMIS_BASE_DISORDER + clamped * 2.0,
         cell_composition: vec![
-            (CellType::Keratinocyte, 0.85 - clamped * 0.25),
-            (CellType::LangerhansCell, 0.10 + clamped * 0.10),
-            (CellType::Neuron, 0.05 + clamped * 0.05),
-            (CellType::Th2Cell, clamped * 0.10),
+            (
+                CellType::Keratinocyte,
+                0.85 - clamped * KERATINOCYTE_BREACH_REDUCTION_SLOPE,
+            ),
+            (
+                CellType::LangerhansCell,
+                0.10 + clamped * LANGERHANS_BREACH_INFILTRATION_SLOPE,
+            ),
+            (
+                CellType::Neuron,
+                NEURON_FRACTION_HEALTHY_EPIDERMIS + clamped * NEURON_BREACH_INFILTRATION_SLOPE,
+            ),
+            (CellType::Th2Cell, clamped * TH2_BREACH_INFILTRATION_SLOPE),
         ],
     }
 }

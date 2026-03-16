@@ -5,7 +5,7 @@
 **To**: ToadStool / BarraCUDA team
 **Supersedes**: V11 (full-suite parity + benchmarks, Feb 26)
 **ToadStool baseline**: Sessions 50–65 (Feb 23–25, 2026) — S64 stats absorption
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only
 
 ---
 

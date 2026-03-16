@@ -7,7 +7,7 @@ barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10.
 V105: deep code evolution — `deny(expect_used/unwrap_used)` enforced, `freeze_out` 4-module refactor,
 tarpc IPC client, Result-based provenance API, shared Python tolerances, platform-agnostic paths.
 V104: deep debt resolution — 30+ named constants with physical provenance, capability-based discovery,
-AGPL-3.0-or-later alignment, measurement.* capability surface, zero clippy/doc warnings.
+AGPL-3.0-only alignment, measurement.* capability surface, zero clippy/doc warnings.
 V103: deep debt audit — named constants with provenance, `biomeos/interaction` extraction,
 `eps::LOG_FLOOR` centralized, batch primitive absorption opportunities documented.
 V102: niche deployment — UniBin, dispatch, measurement.* domain, deploy graph.

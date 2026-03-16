@@ -4,7 +4,7 @@
 **From**: groundSpring (Eastgate)
 **To**: ToadStool / BarraCUDA core team
 **Covers**: NUCLEUS integration, NestGate data pipeline, metalForge remote discovery, baseCamp synchronization
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only
 **Previous**: V37 (BarraCUDA Evolution) — remains active (companion)
 
 ---

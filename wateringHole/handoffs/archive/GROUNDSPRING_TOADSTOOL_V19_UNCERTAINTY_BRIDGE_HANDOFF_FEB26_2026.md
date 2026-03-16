@@ -5,7 +5,7 @@
 **To**: ToadStool/BarraCUDA team
 **Previous**: V18 (idiomatic Rust + full provenance)
 **groundSpring HEAD**: `459e5d0` (V19 uncertainty bridge)
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only
 
 ---
 

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Niche deployment self-knowledge for groundSpring.
@@ -140,6 +140,158 @@ pub const FEATURE_GATES: &[(&str, &str)] = &[
     ("npu", "BrainChip AKD1000 NPU inference"),
 ];
 
+// ─── Structured capability metadata (ludoSpring V19 pattern) ────────────────
+
+/// Input requirements for a single capability.
+pub struct OperationDeps {
+    /// Fully qualified capability name.
+    pub capability: &'static str,
+    /// Required input fields (JSON-RPC params).
+    pub required_inputs: &'static [&'static str],
+    /// Optional input fields with defaults.
+    pub optional_inputs: &'static [&'static str],
+    /// Consumed capabilities called during execution.
+    pub calls: &'static [&'static str],
+}
+
+/// Scheduling metadata for a single capability.
+pub struct CostEstimate {
+    /// Fully qualified capability name.
+    pub capability: &'static str,
+    /// Estimated wall-clock ms on i9-12900K / RTX 4070.
+    pub estimated_ms: u32,
+    /// Whether GPU dispatch reduces latency.
+    pub gpu_beneficial: bool,
+    /// Approximate peak memory (bytes, 0 = negligible).
+    pub peak_memory_bytes: u64,
+    /// Whether the operation is deterministic across runs.
+    pub deterministic: bool,
+}
+
+/// Input requirements per capability for biomeOS orchestration.
+///
+/// biomeOS Pathway Learner uses these to validate inputs before routing
+/// and to construct dependency graphs for multi-step pipelines.
+#[must_use]
+pub const fn operation_dependencies() -> &'static [OperationDeps] {
+    &[
+        OperationDeps {
+            capability: "measurement.noise_decomposition",
+            required_inputs: &["signal"],
+            optional_inputs: &["n_bootstrap", "confidence_level"],
+            calls: &[],
+        },
+        OperationDeps {
+            capability: "measurement.anderson_validation",
+            required_inputs: &["dimension", "disorder_w"],
+            optional_inputs: &["lattice_size", "num_eigenvalues"],
+            calls: &["compute.execute"],
+        },
+        OperationDeps {
+            capability: "measurement.parity_check",
+            required_inputs: &["rust_values", "python_values"],
+            optional_inputs: &["tolerance"],
+            calls: &[],
+        },
+        OperationDeps {
+            capability: "measurement.et0_propagation",
+            required_inputs: &["weather_data"],
+            optional_inputs: &["methods", "uncertainty_method"],
+            calls: &["data.noaa_ghcnd"],
+        },
+        OperationDeps {
+            capability: "measurement.regime_classification",
+            required_inputs: &["eigenvalues"],
+            optional_inputs: &["threshold", "model_type"],
+            calls: &["compute.execute"],
+        },
+        OperationDeps {
+            capability: "measurement.uncertainty_budget",
+            required_inputs: &["sources"],
+            optional_inputs: &["propagation_method"],
+            calls: &[],
+        },
+        OperationDeps {
+            capability: "measurement.spectral_features",
+            required_inputs: &["spectrum"],
+            optional_inputs: &["n_peaks", "prominence"],
+            calls: &[],
+        },
+        OperationDeps {
+            capability: "measurement.freeze_out",
+            required_inputs: &["temperatures", "observable"],
+            optional_inputs: &["model", "grid_resolution"],
+            calls: &["compute.execute"],
+        },
+    ]
+}
+
+/// Structured cost estimates per capability for biomeOS scheduling.
+///
+/// Times measured on i9-12900K / RTX 4070 with typical validation workloads.
+/// biomeOS uses these for Pathway Learner scheduling and resource allocation.
+#[must_use]
+pub const fn cost_estimates() -> &'static [CostEstimate] {
+    &[
+        CostEstimate {
+            capability: "measurement.noise_decomposition",
+            estimated_ms: 5,
+            gpu_beneficial: false,
+            peak_memory_bytes: 1024 * 1024,
+            deterministic: true,
+        },
+        CostEstimate {
+            capability: "measurement.anderson_validation",
+            estimated_ms: 50,
+            gpu_beneficial: true,
+            peak_memory_bytes: 64 * 1024 * 1024,
+            deterministic: true,
+        },
+        CostEstimate {
+            capability: "measurement.parity_check",
+            estimated_ms: 10,
+            gpu_beneficial: false,
+            peak_memory_bytes: 512 * 1024,
+            deterministic: true,
+        },
+        CostEstimate {
+            capability: "measurement.et0_propagation",
+            estimated_ms: 15,
+            gpu_beneficial: true,
+            peak_memory_bytes: 8 * 1024 * 1024,
+            deterministic: true,
+        },
+        CostEstimate {
+            capability: "measurement.regime_classification",
+            estimated_ms: 30,
+            gpu_beneficial: true,
+            peak_memory_bytes: 16 * 1024 * 1024,
+            deterministic: false,
+        },
+        CostEstimate {
+            capability: "measurement.uncertainty_budget",
+            estimated_ms: 20,
+            gpu_beneficial: true,
+            peak_memory_bytes: 4 * 1024 * 1024,
+            deterministic: true,
+        },
+        CostEstimate {
+            capability: "measurement.spectral_features",
+            estimated_ms: 25,
+            gpu_beneficial: true,
+            peak_memory_bytes: 8 * 1024 * 1024,
+            deterministic: true,
+        },
+        CostEstimate {
+            capability: "measurement.freeze_out",
+            estimated_ms: 100,
+            gpu_beneficial: true,
+            peak_memory_bytes: 128 * 1024 * 1024,
+            deterministic: true,
+        },
+    ]
+}
+
 #[cfg(test)]
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
@@ -198,5 +350,32 @@ mod tests {
     fn delegation_count_matches_known_total() {
         let (cpu, gpu) = DELEGATION_COUNT;
         assert_eq!(cpu + gpu, 102);
+    }
+
+    #[test]
+    fn operation_deps_cover_all_capabilities() {
+        let deps = operation_dependencies();
+        assert_eq!(deps.len(), CAPABILITIES.len());
+        for dep in deps {
+            assert!(
+                CAPABILITIES.contains(&dep.capability),
+                "op dep for {} not in CAPABILITIES",
+                dep.capability
+            );
+        }
+    }
+
+    #[test]
+    fn structured_cost_estimates_cover_all_capabilities() {
+        let costs = cost_estimates();
+        assert_eq!(costs.len(), CAPABILITIES.len());
+        for cost in costs {
+            assert!(
+                CAPABILITIES.contains(&cost.capability),
+                "cost for {} not in CAPABILITIES",
+                cost.capability
+            );
+            assert!(cost.estimated_ms > 0, "zero cost for {}", cost.capability);
+        }
     }
 }

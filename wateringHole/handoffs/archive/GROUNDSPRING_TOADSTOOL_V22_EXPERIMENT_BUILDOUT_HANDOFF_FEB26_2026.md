@@ -3,7 +3,7 @@
 **Date**: February 26, 2026
 **From**: groundSpring
 **To**: ToadStool / BarraCUDA team
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only
 **Covers**: V22 (Exp 016-018 buildout, linting cleanup, barracuda evolution review)
 
 ---

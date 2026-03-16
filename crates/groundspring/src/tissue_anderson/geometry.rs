@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Tissue geometry types and disorder functions for the Anderson lattice.
@@ -8,6 +8,11 @@
 //! the building blocks consumed by the simulation functions in `mod.rs`.
 
 use crate::cast::usize_f64;
+
+/// On-site energy for keratinocytes (epidermis, low immune activity).
+const KERATINOCYTE_ON_SITE_ENERGY: f64 = 0.1;
+/// On-site energy for Langerhans cells (epidermis, antigen presentation).
+const LANGERHANS_ON_SITE_ENERGY: f64 = 0.5;
 use crate::prng::Xorshift64;
 
 /// Skin compartment in the tissue Anderson lattice.
@@ -53,8 +58,8 @@ impl CellType {
     #[must_use]
     pub const fn on_site_energy(self) -> f64 {
         match self {
-            Self::Keratinocyte => 0.1,
-            Self::LangerhansCell => 0.5,
+            Self::Keratinocyte => KERATINOCYTE_ON_SITE_ENERGY,
+            Self::LangerhansCell => LANGERHANS_ON_SITE_ENERGY,
             Self::Th2Cell => 1.2,
             Self::MastCell => 1.0,
             Self::Neuron => 0.4,

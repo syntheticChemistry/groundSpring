@@ -4,7 +4,7 @@
 **From**: groundSpring V31
 **To**: ToadStool / BarraCUDA evolution team
 **Supersedes**: V28 (coverage evolution), V27 (docs audit), V26 (metalForge live hardware)
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only
 
 ---
 

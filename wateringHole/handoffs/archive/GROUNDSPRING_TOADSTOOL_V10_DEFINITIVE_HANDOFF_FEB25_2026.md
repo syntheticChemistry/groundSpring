@@ -5,7 +5,7 @@
 **To**: ToadStool / BarraCUDA team
 **Supersedes**: V9 (complete rewiring, benchmarks, cross-spring lineage)
 **ToadStool baseline**: Sessions 50–62 + DF64 expansion (Feb 23–24, 2026)
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only
 
 ---
 

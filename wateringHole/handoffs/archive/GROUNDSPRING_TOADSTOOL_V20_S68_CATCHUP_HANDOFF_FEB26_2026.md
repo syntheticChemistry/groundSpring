@@ -6,7 +6,7 @@
 **Previous**: V19 (uncertainty bridge + zero #[allow])
 **ToadStool HEAD**: `f0feb226` (S68 — universal precision, zero f32-only shaders)
 **groundSpring HEAD**: `67c1ab1` (V19)
-**License**: AGPL-3.0-or-later
+**License**: AGPL-3.0-only
 
 ---
 

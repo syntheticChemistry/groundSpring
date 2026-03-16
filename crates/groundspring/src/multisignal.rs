@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 //! Multi-signal QS integration in V. cholerae.
@@ -24,6 +24,9 @@
 
 #[cfg(feature = "barracuda")]
 use barracuda::numerical::OdeSystem as _;
+
+/// Default value for half-saturation and rate parameters in [`MultiSignalParams`].
+const DEFAULT_MULTISIGNAL_HALF_SATURATION_AND_RATE: f64 = 0.5;
 
 /// Parameter set matching `barracuda::MultiSignalParams::default()`.
 #[derive(Debug, Clone, Copy)]
@@ -86,19 +89,19 @@ impl Default for MultiSignalParams {
             death_rate: 0.02,
             k_cai1_prod: 3.0,
             d_cai1: 1.0,
-            k_cqs: 0.5,
+            k_cqs: DEFAULT_MULTISIGNAL_HALF_SATURATION_AND_RATE,
             k_ai2_prod: 3.0,
             d_ai2: 1.0,
-            k_luxpq: 0.5,
+            k_luxpq: DEFAULT_MULTISIGNAL_HALF_SATURATION_AND_RATE,
             k_luxo_phos: 2.0,
-            d_luxo_p: 0.5,
+            d_luxo_p: DEFAULT_MULTISIGNAL_HALF_SATURATION_AND_RATE,
             k_hapr_max: 1.0,
             n_repress: 2.0,
-            k_repress: 0.5,
-            d_hapr: 0.5,
+            k_repress: DEFAULT_MULTISIGNAL_HALF_SATURATION_AND_RATE,
+            d_hapr: DEFAULT_MULTISIGNAL_HALF_SATURATION_AND_RATE,
             k_dgc_basal: 2.0,
             k_dgc_rep: 0.8,
-            k_pde_basal: 0.5,
+            k_pde_basal: DEFAULT_MULTISIGNAL_HALF_SATURATION_AND_RATE,
             k_pde_act: 2.0,
             d_cdg: 0.3,
             k_bio_max: 1.0,

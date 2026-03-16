@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: AGPL-3.0-only
 # Copyright (C) 2026 ecoPrimals / Squirrel Team
 """Exp 021: Spectral Function Reconstruction (Bazavov 2025 arXiv 2501.12259).
 

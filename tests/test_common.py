@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: AGPL-3.0-only
 # Copyright (C) 2026 ecoPrimals / Squirrel Team
 """Unit tests for control/common.py — analytical known-value tests."""
 
