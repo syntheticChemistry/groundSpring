@@ -291,7 +291,7 @@ Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardwar
   NumPy/SciPy         Pure safe Rust     BarraCUDA/ToadStool   metalForge dispatch    biomeOS Neural API
   ✓ Complete          ✓ 395/395 PASS     ◐ 102 active          30 workloads           Tower+Node+Squirrel
   11.5× slower        35/35 experiments    (61+41)              24 GPU + 2 NPU + 2 CPU-only         NestGate data pipes
-                      908 workspace tests                       PCIe topology          NUCLEUS atomics
+                      906 workspace tests                       PCIe topology          NUCLEUS atomics
                                                                 Pipeline dispatch      Sovereign degradation
 
   Write locally    →  Hand off          →  Lean on upstream   →  Cross-substrate     →  Primal orchestration

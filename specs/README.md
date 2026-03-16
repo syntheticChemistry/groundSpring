@@ -136,6 +136,6 @@
 
 ## License
 
-**AGPL-3.0** — GNU Affero General Public License v3.0
+**AGPL-3.0-only** — GNU Affero General Public License v3.0
 
 All groundSpring code, data, and documentation are aggressively open science. See `../LICENSE` for full text. Any derivative work, including network-accessible services using groundSpring code, must publish source under the same license.
