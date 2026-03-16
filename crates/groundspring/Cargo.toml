@@ -17,7 +17,7 @@ default = ["barracuda"]
 barracuda = ["dep:barracuda"]
 barracuda-gpu = ["barracuda", "barracuda/gpu", "barracuda/domain-esn", "dep:wgpu", "dep:bytemuck"]
 nautilus = ["dep:bingocube-nautilus"]
-biomeos = ["dep:serde_json"]
+biomeos = ["dep:serde_json", "dep:tracing", "dep:tracing-subscriber"]
 npu = ["dep:akida-driver"]
 tarpc-ipc = ["dep:tarpc", "dep:tokio", "dep:serde"]
 
@@ -29,6 +29,8 @@ akida-driver = { path = "../../../phase1/toadStool/crates/neuromorphic/akida-dri
 wgpu = { version = "28", optional = true, default-features = false, features = ["wgsl", "vulkan-portability"] }
 bytemuck = { version = "1", optional = true, features = ["derive"] }
 serde_json = { version = "1", optional = true }
+tracing = { version = "0.1", optional = true }
+tracing-subscriber = { version = "0.3", optional = true, features = ["fmt", "env-filter"] }
 serde = { version = "1", optional = true, features = ["derive"] }
 tarpc = { version = "0.37", optional = true, features = ["serde-transport", "tokio1"] }
 tokio = { version = "1", optional = true, features = ["rt", "net"] }

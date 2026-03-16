@@ -15,10 +15,19 @@ use std::sync::atomic::{AtomicBool, Ordering};
 
 use groundspring::biomeos;
 use groundspring::dispatch;
+use tracing::{error, info, warn};
 
 static SHUTDOWN: AtomicBool = AtomicBool::new(false);
 
 fn main() -> ExitCode {
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
+        )
+        .with_writer(std::io::stderr)
+        .init();
+
     let args: Vec<String> = std::env::args().collect();
     let subcommand = args.get(1).map(String::as_str);
 
@@ -27,7 +36,7 @@ fn main() -> ExitCode {
         Some("status") => cmd_status(),
         Some("version") => cmd_version(),
         Some(other) => {
-            eprintln!("unknown subcommand: {other}");
+            error!(subcommand = other, "unknown subcommand");
             eprintln!("usage: groundspring <server|status|version>");
             ExitCode::FAILURE
         }
@@ -42,47 +51,38 @@ fn main() -> ExitCode {
 
 fn cmd_server() -> ExitCode {
     dispatch::init_start_time();
-    eprintln!(
-        "[groundspring] v{} starting server",
-        env!("CARGO_PKG_VERSION")
-    );
+    info!(version = env!("CARGO_PKG_VERSION"), "starting server");
 
-    // Bind socket
     let (listener, socket_path) = match biomeos::server::bind_socket() {
         Ok(pair) => pair,
         Err(e) => {
-            eprintln!("[groundspring] failed to bind socket: {e}");
+            error!(error = %e, "failed to bind socket");
             return ExitCode::FAILURE;
         }
     };
-    eprintln!("[groundspring] listening on {}", socket_path.display());
+    info!(path = %socket_path.display(), "listening");
 
-    // Register with Neural API if available
     if let Some(neural_socket) = biomeos::auto_connect() {
-        eprintln!("[groundspring] Neural API found, registering capabilities");
+        info!("Neural API found, registering capabilities");
         match biomeos::register_capabilities(&neural_socket) {
-            Ok(n) => eprintln!("[groundspring] registered {n} capabilities"),
-            Err(e) => eprintln!("[groundspring] registration failed (non-fatal): {e}"),
+            Ok(n) => info!(count = n, "registered capabilities"),
+            Err(e) => warn!(error = %e, "registration failed (non-fatal)"),
         }
 
-        // Start provenance session (non-fatal)
         match groundspring::provenance::start_session(&neural_socket, "server_lifecycle") {
-            Ok(sid) => eprintln!("[groundspring] provenance session: {sid}"),
-            Err(e) => eprintln!("[groundspring] provenance session skipped: {e}"),
+            Ok(sid) => info!(session_id = %sid, "provenance session started"),
+            Err(e) => warn!(error = %e, "provenance session skipped"),
         }
     } else {
-        eprintln!("[groundspring] no Neural API — sovereign mode");
+        info!("no Neural API — sovereign mode");
     }
 
-    // Install signal handler for graceful shutdown
     install_signal_handler();
 
-    // Set a non-blocking timeout so we can check the shutdown flag
     let _ = listener.set_nonblocking(true);
 
-    eprintln!("[groundspring] ready — accepting JSON-RPC connections");
+    info!("ready — accepting JSON-RPC connections");
 
-    // Accept loop with shutdown check
     loop {
         if SHUTDOWN.load(Ordering::Relaxed) {
             break;
@@ -97,19 +97,18 @@ fn cmd_server() -> ExitCode {
                 std::thread::sleep(std::time::Duration::from_millis(50));
             }
             Err(e) => {
-                eprintln!("[groundspring] accept error: {e}");
+                error!(error = %e, "accept error");
             }
         }
     }
 
-    // Graceful shutdown
-    eprintln!("[groundspring] shutting down");
+    info!("shutting down");
     if let Some(neural_socket) = biomeos::auto_connect() {
         let _ = biomeos::deregister_capabilities(&neural_socket);
-        eprintln!("[groundspring] deregistered capabilities");
+        info!("deregistered capabilities");
     }
     biomeos::server::cleanup_socket(&socket_path);
-    eprintln!("[groundspring] socket cleaned up");
+    info!("socket cleaned up");
 
     ExitCode::SUCCESS
 }
@@ -126,10 +125,7 @@ const fn install_signal_handler() {
 fn cmd_status() -> ExitCode {
     let socket = biomeos::server::socket_path();
     if !socket.exists() {
-        eprintln!(
-            "groundspring server not running (no socket at {})",
-            socket.display()
-        );
+        error!(path = %socket.display(), "server not running (no socket)");
         return ExitCode::FAILURE;
     }
 
@@ -167,11 +163,11 @@ fn cmd_status() -> ExitCode {
                     );
                     return ExitCode::SUCCESS;
                 }
-                eprintln!("invalid response from server");
+                error!("invalid response from server");
                 ExitCode::FAILURE
             }
             Err(e) => {
-                eprintln!("cannot connect to {}: {e}", socket.display());
+                error!(path = %socket.display(), error = %e, "cannot connect");
                 ExitCode::FAILURE
             }
         }
@@ -179,7 +175,7 @@ fn cmd_status() -> ExitCode {
 
     #[cfg(not(unix))]
     {
-        eprintln!("status subcommand requires Unix");
+        error!("status subcommand requires Unix");
         ExitCode::FAILURE
     }
 }

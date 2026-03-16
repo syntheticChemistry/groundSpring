@@ -4,6 +4,57 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V110 Cross-Ecosystem Absorption (Mar 16, 2026)
+
+#### `#[expect(reason)]` Migration (wetSpring V122 Pattern)
+- All 95 `#[allow(clippy::unwrap_used, clippy::expect_used)]` replaced with
+  `#[expect(clippy::unwrap_used, clippy::expect_used, reason = "test assertions use unwrap/expect for clarity")]`
+- Covers 83 crate files + 12 metalForge files
+- Zero `#[allow()]` remaining in entire codebase — stale suppressions now
+  produce compile warnings
+
+#### Python Tolerance Mirror (healthSpring V29 Pattern)
+- Created `control/tolerances.py` with all 28 constants from `tol::*` (13 tiers),
+  `tolerances.rs` (validation-specific), and `eps::*` (epsilon guards)
+- `control/common.py` now re-exports from `tolerances.py` for backward compatibility
+- Includes validation-specific constants: `TOL_RAREFACTION_PROP`, `TOL_REGIME`,
+  `TOL_GRID_MATCH`, `TOL_MONOTONIC_SLACK`, `TOL_ET0`, `THRESHOLD_GOOD_R2`,
+  `THRESHOLD_GOOD_IA`, `THRESHOLD_LARGE_GAMMA`, `ET0_PLAUSIBLE_MIN_MM`,
+  `ET0_PLAUSIBLE_MAX_MM`, `EPS_SAFE_DIV_STRICT`
+
+#### Structured Tracing (airSpring v0.8.4 Pattern)
+- Added `tracing` + `tracing-subscriber` as optional deps behind `biomeos` feature
+- Primal binary (`groundspring_primal.rs`) converted from `eprintln!` to
+  structured `tracing::info!`/`tracing::warn!`/`tracing::error!` with key-value fields
+- `RUST_LOG` env var controls log level (default: `info`)
+
+#### toadStool `compute.dispatch.*` Direct Dispatch (ludoSpring V22 Pattern)
+- `dispatch_submit()` — submit GPU workload directly to toadStool
+- `dispatch_result()` — poll for dispatched job result
+- `dispatch_capabilities()` — query GPU dispatch capabilities
+- All use capability-based discovery (no hardcoded primal names)
+
+#### Dual-Format Capability Parsing (neuralSpring S156 Pattern)
+- `discover_by_capability()` now handles both flat array and nested object
+  capability response formats via `extract_capabilities()`
+- 6 new unit tests covering flat array, nested objects (name/capability keys),
+  wrapped object, empty, and invalid JSON
+
+#### Infrastructure
+- `deny.toml` created: `wildcards=deny`, vulnerability/yanked deny, full
+  license allowlist (aligned with airSpring v0.8.4)
+- CI: `cross-compile` job for `aarch64-unknown-linux-gnu` (ecoBin compliance)
+- CI: `deny` job via `EmbarkStudios/cargo-deny-action@v2`
+- Fixed Rust 2024 pattern matching in `stats/agreement.rs`
+- Workspace `Cargo.toml` comment clarified re: `temp-env` / `unsafe_code`
+
+#### Quality Gates
+- 912+ tests pass (default workspace), 0 clippy warnings, 0 fmt diff
+- `cargo doc -D warnings`: 0 warnings
+- Zero `#[allow()]` in entire codebase
+- Zero `std::env::set_var`/`remove_var` usage (Rust 2024 safe)
+- License: AGPL-3.0-or-later (SCYBORG trio)
+
 ### V109 Deep Debt Resolution + Smart Refactoring (Mar 16, 2026)
 
 #### Zero-Panic Validation Binaries

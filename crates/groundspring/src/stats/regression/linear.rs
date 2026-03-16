@@ -98,7 +98,11 @@ pub(super) fn r_squared_from_residuals(ys: &[f64], predictions: impl Iterator<It
 }
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[expect(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    reason = "test assertions use unwrap/expect for clarity"
+)]
 mod tests {
     use super::*;
     use crate::tol;

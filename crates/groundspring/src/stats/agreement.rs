@@ -376,13 +376,17 @@ fn hit_rate_cpu(observed: &[f64], modeled: &[f64], threshold: f64) -> f64 {
     let agree = observed
         .iter()
         .zip(modeled)
-        .filter(|(&o, &m)| (o > threshold) == (m > threshold))
+        .filter(|&(&o, &m)| (o > threshold) == (m > threshold))
         .count();
     usize_f64(agree) / usize_f64(n)
 }
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[expect(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    reason = "test assertions use unwrap/expect for clarity"
+)]
 mod tests {
     use super::*;
     use crate::tol;

@@ -184,6 +184,10 @@ pub fn topology(socket: &std::path::Path) -> Result<String> {
 /// sovereign discovery pattern: groundSpring never assumes which primal
 /// provides a capability.
 ///
+/// Handles both capability response formats:
+/// - **Flat array** (pre-S156): `["compute.execute", "compute.submit"]`
+/// - **Nested objects** (S156+): `[{"name": "compute.execute", ...}, ...]`
+///
 /// # Errors
 ///
 /// Returns `Err` if no primal advertising `capability` is found.
@@ -193,7 +197,8 @@ pub fn discover_by_capability(capability: &str) -> Result<DiscoveredPrimal> {
         let request = build_request("capability.list", &serde_json::json!({}));
         if let Ok(ref response) = rpc_call(&primal.socket, &request) {
             if let Ok(body) = parse_rpc_response(response) {
-                if body.contains(capability) {
+                let caps = extract_capabilities(&body);
+                if caps.iter().any(|c| c == capability) {
                     return Ok(primal.clone());
                 }
             }
@@ -202,6 +207,50 @@ pub fn discover_by_capability(capability: &str) -> Result<DiscoveredPrimal> {
     Err(BiomeOsError::Discovery(format!(
         "no primal found advertising capability: {capability}"
     )))
+}
+
+/// Extract capability names from either flat-array or nested-object formats.
+///
+/// Pre-S156 format: `["compute.execute", "storage.put"]`
+/// S156+ format:    `[{"name": "compute.execute", "version": "1.0"}, ...]`
+///
+/// Falls back to substring search if JSON parsing fails (raw text response).
+fn extract_capabilities(body: &str) -> Vec<String> {
+    if let Ok(parsed) = serde_json::from_str::<Value>(body) {
+        return extract_capabilities_from_value(&parsed);
+    }
+    if let Ok(parsed) = serde_json::from_str::<Value>(&format!("[{body}]")) {
+        return extract_capabilities_from_value(&parsed);
+    }
+    Vec::new()
+}
+
+fn extract_capabilities_from_value(value: &Value) -> Vec<String> {
+    let mut caps = Vec::new();
+    match value {
+        Value::Array(arr) => {
+            for item in arr {
+                match item {
+                    Value::String(s) => caps.push(s.clone()),
+                    Value::Object(obj) => {
+                        if let Some(Value::String(name)) = obj.get("name") {
+                            caps.push(name.clone());
+                        } else if let Some(Value::String(cap)) = obj.get("capability") {
+                            caps.push(cap.clone());
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+        Value::Object(obj) => {
+            if let Some(Value::Array(arr)) = obj.get("capabilities") {
+                caps.extend(extract_capabilities_from_value(&Value::Array(arr.clone())));
+            }
+        }
+        _ => {}
+    }
+    caps
 }
 
 /// Typed compute dispatch via capability-based discovery.
@@ -220,6 +269,61 @@ pub fn compute_execute(params: &serde_json::Value) -> Result<String> {
     let response = rpc_call(&provider.socket, &request)?;
     parse_rpc_response(&response)
 }
+
+// ─── toadStool compute.dispatch.* Direct Dispatch ────────────────────────────
+
+/// Submit a GPU compute job directly to toadStool via `compute.dispatch.submit`.
+///
+/// Discovers the `compute.dispatch.submit` provider at runtime (toadStool)
+/// and submits a workload for GPU execution. Returns a job handle (ID or
+/// inline result depending on toadStool configuration).
+///
+/// This bypasses Neural API capability routing for sub-frame latency
+/// on GPU dispatch paths (ludoSpring V22 pattern).
+///
+/// # Errors
+///
+/// Returns `Err` if no `compute.dispatch.submit` provider is found or the RPC fails.
+/// Callers should fall back to CPU-local computation.
+pub fn dispatch_submit(op: &str, params: &serde_json::Value) -> Result<String> {
+    let provider = discover_by_capability("compute.dispatch.submit")?;
+    let mut args = params.clone();
+    if let Some(obj) = args.as_object_mut() {
+        obj.insert("op".to_string(), Value::String(op.to_string()));
+    }
+    let request = build_request("compute.dispatch.submit", &args);
+    let response = rpc_call(&provider.socket, &request)?;
+    parse_rpc_response(&response)
+}
+
+/// Poll for a dispatched compute job's result via `compute.dispatch.result`.
+///
+/// # Errors
+///
+/// Returns `Err` if the provider is unavailable or the job ID is unknown.
+pub fn dispatch_result(job_id: &str) -> Result<String> {
+    let provider = discover_by_capability("compute.dispatch.result")?;
+    let args = serde_json::json!({ "job_id": job_id });
+    let request = build_request("compute.dispatch.result", &args);
+    let response = rpc_call(&provider.socket, &request)?;
+    parse_rpc_response(&response)
+}
+
+/// Query available GPU dispatch capabilities via `compute.dispatch.capabilities`.
+///
+/// Returns JSON describing supported operations, GPU info, and limits.
+///
+/// # Errors
+///
+/// Returns `Err` if no compute dispatch provider is available.
+pub fn dispatch_capabilities() -> Result<String> {
+    let provider = discover_by_capability("compute.dispatch.capabilities")?;
+    let request = build_request("compute.dispatch.capabilities", &serde_json::json!({}));
+    let response = rpc_call(&provider.socket, &request)?;
+    parse_rpc_response(&response)
+}
+
+// ─── Storage (capability-based discovery) ────────────────────────────────────
 
 /// Typed storage put via capability-based discovery.
 ///
@@ -251,4 +355,57 @@ pub fn storage_get(key: &str) -> Result<String> {
     let request = build_request("storage.get", &params);
     let response = rpc_call(&provider.socket, &request)?;
     parse_rpc_response(&response)
+}
+
+#[cfg(test)]
+#[expect(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    reason = "test assertions use unwrap/expect for clarity"
+)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn extract_capabilities_flat_array() {
+        let body = r#"["compute.execute", "storage.put", "storage.get"]"#;
+        let caps = extract_capabilities(body);
+        assert_eq!(caps, vec!["compute.execute", "storage.put", "storage.get"]);
+    }
+
+    #[test]
+    fn extract_capabilities_nested_objects_name() {
+        let body = r#"[{"name": "compute.dispatch.submit", "version": "1.0"}, {"name": "compute.dispatch.result"}]"#;
+        let caps = extract_capabilities(body);
+        assert_eq!(
+            caps,
+            vec!["compute.dispatch.submit", "compute.dispatch.result"]
+        );
+    }
+
+    #[test]
+    fn extract_capabilities_nested_objects_capability_key() {
+        let body = r#"[{"capability": "compute.execute", "provider": "toadstool"}]"#;
+        let caps = extract_capabilities(body);
+        assert_eq!(caps, vec!["compute.execute"]);
+    }
+
+    #[test]
+    fn extract_capabilities_wrapped_object() {
+        let body = r#"{"capabilities": ["compute.execute", "storage.put"]}"#;
+        let caps = extract_capabilities(body);
+        assert_eq!(caps, vec!["compute.execute", "storage.put"]);
+    }
+
+    #[test]
+    fn extract_capabilities_empty() {
+        let caps = extract_capabilities("[]");
+        assert!(caps.is_empty());
+    }
+
+    #[test]
+    fn extract_capabilities_invalid_json() {
+        let caps = extract_capabilities("not json at all");
+        assert!(caps.is_empty());
+    }
 }

@@ -110,3 +110,21 @@ jobs:
         with:
           name: coverage
           path: lcov.info
+
+  deny:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: EmbarkStudios/cargo-deny-action@v2
+
+  cross-compile:
+    name: Cross-Compile Check (ecoBin aarch64)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-unknown-linux-gnu
+      - name: cargo check (aarch64)
+        run: cargo check --target aarch64-unknown-linux-gnu --workspace --no-default-features

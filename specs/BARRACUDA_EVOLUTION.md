@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 16, 2026 (V109 — 102 delegations (61 CPU + 41 GPU), 906 tests (all feature gates),
+**Last updated**: March 16, 2026 (V110 — 102 delegations (61 CPU + 41 GPU), 906 tests (all feature gates),
 barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10.
 V108: AGPL-3.0-or-later (SCYBORG trio), barracuda WelfordState CPU delegation for std_dev/mean_and_std_dev,
 tolerance centralization (tol::ANALYTICAL in tests), typed capability-based discovery, provenance enrichment.

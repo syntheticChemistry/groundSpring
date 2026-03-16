@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: March 16, 2026
 
-**Validation Summary**: V109 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10**. 906 tests + 287 Python provenance tests. All 35 experiments PASS. **29/29 mathematical parity proven**. V109: License AGPL-3.0-or-later (SCYBORG trio), barracuda WelfordState CPU delegation, typed capability-based discovery, Python provenance enrichment, Result-based validation binaries. Zero clippy (pedantic + nursery), zero unsafe, zero TODO, all files < 1000 lines. 10 domains, 39 modules.
+**Validation Summary**: V110 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S155b+, coralReef Iteration 49+**. 912+ tests + 287 Python provenance tests. All 35 experiments PASS. **29/29 mathematical parity proven**. V110: cross-ecosystem absorption — `#[expect(reason)]` (95 files, zero `#[allow()]`), Python tolerance mirror (28 constants), structured tracing, toadStool `compute.dispatch.*`, dual-format capability parsing, `deny.toml`, aarch64 CI. Zero clippy (pedantic + nursery), zero unsafe, zero TODO, all files < 1000 lines. 10 domains, 39 modules.
 
 ---
 

@@ -162,7 +162,11 @@ pub fn fallback_chain<'a>(workload: &Workload, substrates: &'a [Substrate]) -> V
 }
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[expect(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    reason = "test assertions use unwrap/expect for clarity"
+)]
 mod tests {
     use super::*;
     use crate::substrate::{Identity, Properties};

@@ -45,8 +45,9 @@ mod transport;
 
 pub use discovery::{auto_connect, discover_socket, is_nucleus_available};
 pub use interaction::{
-    DiscoveredPrimal, compute_execute, direct_primal_rpc, discover_by_capability, discover_primals,
-    primal_health, proprioception, storage_get, storage_put, topology,
+    DiscoveredPrimal, direct_primal_rpc, discover_by_capability, discover_primals,
+    dispatch_capabilities, dispatch_result, dispatch_submit, primal_health, proprioception,
+    topology,
 };
 
 use std::path::Path;

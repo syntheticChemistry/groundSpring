@@ -15,9 +15,9 @@ license = "AGPL-3.0-or-later"
 repository = "https://github.com/ecoPrimals/groundSpring"
 
 [workspace.lints.rust]
-# "deny" (not "forbid") so test code can #[allow(unsafe_code)] for env-var
-# manipulation (set_var/remove_var are unsafe in Rust 2024). Each lib.rs
-# re-asserts #![forbid(unsafe_code)] for production code.
+# "deny" (not "forbid") so test code using temp-env can compile (temp-env
+# internally uses set_var/remove_var which are unsafe in Rust 2024). Each
+# lib.rs re-asserts #![forbid(unsafe_code)] for production code.
 unsafe_code = "deny"
 missing_docs = "deny"
 

@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 16, 2026 (V109 — 878 tests (no-default-features), 0 clippy, 0 fmt diff, license AGPL-3.0-or-later (SCYBORG trio). V109: zero-panic validation binaries (28 converted), smart module refactoring (regression/fao56/pipeline/validate-lib), ET0 plausible bounds named, legacy socket centralized, Python deps pinned. V108: WelfordState CPU delegation, tolerance centralization, typed capability-based discovery, Python provenance enrichment)
+**Last updated**: March 16, 2026 (V110 — 912+ tests, 0 clippy, 0 fmt diff, license AGPL-3.0-or-later (SCYBORG trio). V110: cross-ecosystem absorption — `#[expect(reason)]` migration (95 files, zero `#[allow()]`), Python tolerance mirror (28 constants), structured tracing, toadStool `compute.dispatch.*` direct dispatch, dual-format capability parsing, `deny.toml`, aarch64 CI. V109: zero-panic validation binaries, smart module refactoring. V108: WelfordState CPU delegation, tolerance centralization, typed capability-based discovery)
 
 ## Experiment Register
 
@@ -46,7 +46,7 @@
 **Rust Phase 1 (core)**: 340/340 PASS across 30 validation binaries (340 core)
 **Rust Phase 1 (NUCLEUS)**: 55/55 PASS across 4 validation binaries (Exp 029–032, `--features biomeos`)
 **Total validation**: 395/395 PASS across 34 validation binaries
-**Rust tests**: 906/906 PASS (default workspace)
+**Rust tests**: 912+/912+ PASS (default workspace)
 **pytest**: 390/390 PASS + 2 skipped
 **Three-tier parity**: 102+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
 **BarraCUDA dispatch**: 102 active (61 CPU + 41 GPU) — V105: barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10. `PrecisionRoutingAdvice` wired into 11 GPU dispatch paths via `get_device_f64_safe()`. tarpc 0.37, ops GPU-gated rewire, domain-esn feature, Rust 2024 unsafe model. coralReef sovereign dispatch path proven on Titan V
@@ -55,7 +55,7 @@
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
 **Paper 12**: `tissue_anderson` module — 18 unit tests + 29/29 validation checks + 4D Anderson + Wegner RG (V68)
-**Handoff**: V109 (zero-panic validation binaries, smart module refactoring, named physical constants, Python dep pinning) | V108 archived (AGPL-3.0-or-later, WelfordState, tolerance centralization, typed capability discovery)
+**Handoff**: V110 (cross-ecosystem absorption: `#[expect(reason)]`, Python tolerance mirror, tracing, toadStool dispatch, dual-format capability parsing, deny.toml, aarch64 CI) | V109 archived (zero-panic validation, smart module refactoring, named physical constants)
 
 **Python checks**: ~160 across 28 experiments. **Rust validation checks**: 395 (340 core + 55 NUCLEUS). **metalForge + pipeline checks**: 140.
 

@@ -41,26 +41,28 @@ def git_commit_hash() -> str:
 
 
 # ---------------------------------------------------------------------------
-# Tolerance constants — mirrors groundspring::tol for Rust↔Python parity
+# Tolerance constants — canonical source is control.tolerances;
+# re-exported here for backward compatibility.
 # ---------------------------------------------------------------------------
 
-TOL_DETERMINISM = 1e-15
-TOL_STRICT = 1e-14
-TOL_EXACT = 1e-12
-TOL_ANALYTICAL = 1e-10
-TOL_INTEGRATION = 1e-8
-TOL_CDF_APPROX = 1e-6
-TOL_ROUNDTRIP = 1e-5
-TOL_RECONSTRUCTION = 1e-4
-TOL_LITERATURE = 0.001
-TOL_DECOMPOSITION = 0.005
-TOL_STOCHASTIC = 0.01
-TOL_NORM_2PCT = 0.02
-TOL_EQUILIBRIUM = 0.1
-
-EPS_SAFE_DIV = 1e-10
-EPS_LOG_FLOOR = 1e-15
-EPS_UNDERFLOW = 1e-300
+from control.tolerances import (  # noqa: E402
+    EPS_LOG_FLOOR,
+    EPS_SAFE_DIV,
+    EPS_UNDERFLOW,
+    TOL_ANALYTICAL,
+    TOL_CDF_APPROX,
+    TOL_DECOMPOSITION,
+    TOL_DETERMINISM,
+    TOL_EQUILIBRIUM,
+    TOL_EXACT,
+    TOL_INTEGRATION,
+    TOL_LITERATURE,
+    TOL_NORM_2PCT,
+    TOL_RECONSTRUCTION,
+    TOL_ROUNDTRIP,
+    TOL_STRICT,
+    TOL_STOCHASTIC,
+)
 
 
 # ---------------------------------------------------------------------------
