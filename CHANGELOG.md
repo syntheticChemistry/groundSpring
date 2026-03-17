@@ -4,6 +4,38 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V113 Ecosystem Absorption + Resilience (Mar 16, 2026)
+
+#### GemmF64 Transpose Delegation (barraCuda v0.3.5)
+- `spectral_recon::tikhonov_solve` now delegates `KᵀK` and `KᵀG` matrix setup
+  to `barracuda::ops::linalg::GemmF64::execute_gemm_ex` with `trans_a=true`
+  when GPU is available
+- CPU fallback via local `mat_transpose_mul` / `mat_transpose_vec` retained
+- Eliminates P1 GemmF64 transpose gap identified in V112 handoff
+
+#### Exit Code Constants (sweetGrass v0.7.19 Pattern)
+- `exit_code` module: `SUCCESS` (0), `GENERAL_ERROR` (1), `CONFIG_ERROR` (78),
+  `NETWORK_ERROR` (76) per UNIBIN_ARCHITECTURE_STANDARD
+- `OrExit<T>` now uses `exit_code::GENERAL_ERROR` instead of hardcoded `1`
+
+#### IPC Resilience (petalTongue v1.6.6 / rhizoCrypt v0.13 Pattern)
+- `RetryPolicy` — exponential backoff with configurable max retries, delay cap
+- `CircuitBreaker` — Closed/Open/HalfOpen states with failure threshold and cooldown
+- 8 unit tests for retry and circuit breaker
+
+#### 4-Format Capability Parsing (airSpring V0.8.7 Pattern)
+- `extract_capabilities` now handles `{"result": [...]}` wrapper (JSON-RPC result)
+- Recursive unwrapping for `{"capabilities": {"capabilities": [...]}}` double-nesting
+- 3 new tests (result wrapper, double-nested, result with objects)
+
+#### Deep Debt
+- `#[allow(dead_code)]` → `#[expect(reason)]` in `protocol.rs` (DispatchOutcome)
+- Hardcoded `"biomeos"` in `niche.rs` → `crate::primal_names::BIOMEOS`
+- `BenchFieldError` to `thiserror::Error` (V112 continuation)
+
+#### Quality Gates
+- 618 unit tests + 24 integration tests pass, 0 clippy warnings, 0 fmt diff
+
 ### V112 Ecosystem Absorption + OrExit (Mar 16, 2026)
 
 #### `OrExit<T>` Trait (wetSpring V123 / healthSpring V31 Pattern)

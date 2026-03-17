@@ -230,31 +230,30 @@ fn extract_capabilities(body: &str) -> Vec<String> {
 }
 
 fn extract_capabilities_from_value(value: &Value) -> Vec<String> {
-    let mut caps = Vec::new();
-    match value {
-        Value::Array(arr) => {
-            for item in arr {
-                match item {
-                    Value::String(s) => caps.push(s.clone()),
-                    Value::Object(obj) => {
-                        if let Some(Value::String(name)) = obj.get("name") {
-                            caps.push(name.clone());
-                        } else if let Some(Value::String(cap)) = obj.get("capability") {
-                            caps.push(cap.clone());
-                        }
-                    }
-                    _ => {}
-                }
-            }
+    if let Value::Object(obj) = value {
+        if let Some(inner) = obj.get("capabilities") {
+            return extract_capabilities_from_value(inner);
         }
-        Value::Object(obj) => {
-            if let Some(Value::Array(arr)) = obj.get("capabilities") {
-                caps.extend(extract_capabilities_from_value(&Value::Array(arr.clone())));
-            }
+        if let Some(inner) = obj.get("result") {
+            return extract_capabilities_from_value(inner);
         }
-        _ => {}
     }
-    caps
+
+    match value {
+        Value::Array(arr) => arr
+            .iter()
+            .filter_map(|v| match v {
+                Value::String(s) => Some(s.clone()),
+                Value::Object(obj) => obj
+                    .get("name")
+                    .or_else(|| obj.get("capability"))
+                    .and_then(|n| n.as_str())
+                    .map(str::to_owned),
+                _ => None,
+            })
+            .collect(),
+        _ => Vec::new(),
+    }
 }
 
 // ─── toadStool compute.dispatch.* Direct Dispatch ────────────────────────────
@@ -360,5 +359,26 @@ mod tests {
     fn extract_capabilities_invalid_json() {
         let caps = extract_capabilities("not json at all");
         assert!(caps.is_empty());
+    }
+
+    #[test]
+    fn extract_capabilities_result_wrapper() {
+        let body = r#"{"result": ["health", "data.weather"]}"#;
+        let caps = extract_capabilities(body);
+        assert_eq!(caps, vec!["health", "data.weather"]);
+    }
+
+    #[test]
+    fn extract_capabilities_double_nested() {
+        let body = r#"{"capabilities": {"capabilities": ["health", "compute.dispatch"]}}"#;
+        let caps = extract_capabilities(body);
+        assert_eq!(caps, vec!["health", "compute.dispatch"]);
+    }
+
+    #[test]
+    fn extract_capabilities_result_with_objects() {
+        let body = r#"{"result": [{"name": "compute.execute"}, {"capability": "storage.put"}]}"#;
+        let caps = extract_capabilities(body);
+        assert_eq!(caps, vec!["compute.execute", "storage.put"]);
     }
 }

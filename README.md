@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: March 16, 2026 | **License**: AGPL-3.0-or-later
-**Status**: V112 — 39 modules, 35 experiments, 912+ Rust tests + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda v0.3.5, toadStool S155b+, coralReef Iteration 49+. **Three-tier parity proven**: 29/29 validation binaries PASS at all three tiers. **V112**: `OrExit<T>` trait + `parse_benchmark()` (28 binaries migrated), generic `socket_env_var()` discovery, provenance trio (`RHIZOCRYPT`, `LOAMSPINE`, `SWEETGRASS`), `thiserror` for `BenchFieldError`, tempdir test hygiene. **V111**: Deep debt evolution — `thiserror` for errors, `DispatchOutcome` enum, safe casts, DI config injection, dead code removal. **V110**: Cross-ecosystem absorption — `#[expect(reason)]` migration, structured tracing, toadStool direct dispatch, dual-format capability parsing. **V109**: Zero-panic validation binaries. **V108**: AGPL-3.0-or-later.
+**Status**: V113 — 39 modules, 35 experiments, 618 unit + 24 integration Rust tests + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda v0.3.5, toadStool S155b+, coralReef Iteration 52+. **Three-tier parity proven**: 29/29 validation binaries PASS at all three tiers. **V113**: GemmF64 transpose delegation (`execute_gemm_ex` trans_a=true), exit_code constants (UNIBIN_ARCHITECTURE_STANDARD), RetryPolicy + CircuitBreaker (IPC resilience), 4-format capability parsing. **V112**: `OrExit<T>` trait + `parse_benchmark()` (28 binaries migrated), generic `socket_env_var()` discovery, provenance trio, `thiserror` for `BenchFieldError`. **V111**: Deep debt evolution — `thiserror` for errors, `DispatchOutcome` enum, safe casts, DI config injection. **V110**: Cross-ecosystem absorption — `#[expect(reason)]` migration, structured tracing, toadStool direct dispatch, dual-format capability parsing. **V109**: Zero-panic validation binaries. **V108**: AGPL-3.0-or-later.
 
 **The gap between what models predict and what instruments measure.**
 
@@ -113,7 +113,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace                         # 912+ tests, all PASS
+cargo test --workspace                         # 618 unit + 24 integration tests, all PASS
 cargo test --workspace --features biomeos      # NUCLEUS client active
 cargo test --workspace --features barracuda-gpu # GPU dispatch active
 cargo clippy --workspace --all-targets -- -D warnings -W clippy::pedantic -W clippy::nursery
@@ -369,7 +369,7 @@ groundSpring/
 ├── graphs/                         # biomeOS pipeline graphs (deploy, Tower, Node, cross-substrate, validation)
 ├── niches/                         # BYOB niche YAML definitions (groundspring-measurement)
 ├── .github/workflows/ci.yml        # GitHub Actions CI
-├── wateringHole/                   # Handoff directory (V110 current)
+├── wateringHole/                   # Handoff directory (V113 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md      # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md   # GPU kernel gap analysis

@@ -31,14 +31,13 @@ pub(super) enum DispatchOutcome {
     /// The RPC succeeded and returned a result.
     Ok(String),
     /// Protocol-level error (JSON-RPC spec codes -32700 to -32600).
-    ProtocolError {
-        #[allow(dead_code)]
-        code: i64,
-        message: String,
-    },
+    ProtocolError { code: i64, message: String },
     /// Application-level error (code >= -32000 or non-standard).
     ApplicationError {
-        #[allow(dead_code)]
+        #[expect(
+            dead_code,
+            reason = "code field reserved for future error classification and retry logic"
+        )]
         code: i64,
         message: String,
     },

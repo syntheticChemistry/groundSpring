@@ -18,10 +18,10 @@
 //! with partial pivoting). Falls back to the local Cholesky solver on error.
 //!
 //! GPU path: the Cholesky solve maps to `barracuda::linalg::cholesky_f64`.
-//! The matrix products (`KᵀK`, `KᵀG`) remain local: typical spectral
-//! reconstruction problems have small dimensions (`n_tau`, `n_omega` ~ 10–100)
-//! where GPU dispatch overhead exceeds compute savings.  If problem sizes
-//! grow, `barracuda::linalg::GemmF64::execute` provides a batched GPU path.
+//! V113: matrix products (`KᵀK`, `KᵀG`) are delegated to
+//! `barracuda::ops::linalg::GemmF64::execute_gemm_ex` when GPU is available,
+//! using `trans_a=true` for the `Kᵀ` operation. Falls back to local CPU
+//! implementations for small problems or when no GPU is present.
 
 /// Build the Laplace-transform kernel matrix (row-major, `n_tau × n_omega`).
 ///
@@ -113,10 +113,20 @@ pub fn tikhonov_solve(
     n_tau: usize,
     n_omega: usize,
 ) -> Vec<f64> {
-    let ktk = mat_transpose_mul(kernel, kernel, n_tau, n_omega, n_omega);
-    let ktg = mat_transpose_vec(kernel, data, n_tau, n_omega);
+    #[cfg(feature = "barracuda-gpu")]
+    let (mut a, ktg) = gemm_setup_gpu(kernel, data, n_tau, n_omega).unwrap_or_else(|| {
+        let ktk = mat_transpose_mul(kernel, kernel, n_tau, n_omega, n_omega);
+        let ktg = mat_transpose_vec(kernel, data, n_tau, n_omega);
+        (ktk, ktg)
+    });
 
-    let mut a = ktk;
+    #[cfg(not(feature = "barracuda-gpu"))]
+    let (mut a, ktg) = {
+        let ktk = mat_transpose_mul(kernel, kernel, n_tau, n_omega, n_omega);
+        let ktg = mat_transpose_vec(kernel, data, n_tau, n_omega);
+        (ktk, ktg)
+    };
+
     for i in 0..n_omega {
         a[i * n_omega + i] += lambda;
     }
@@ -140,6 +150,48 @@ fn tikhonov_solve_gpu(a: &[f64], b: &[f64], n: usize) -> Option<Vec<f64>> {
     let device = crate::gpu::get_device()?;
     let decomp = barracuda::linalg::cholesky_f64(device, a, n).ok()?;
     decomp.solve(b).ok()
+}
+
+/// GPU matrix setup: compute `KᵀK` and `KᵀG` via `GemmF64::execute_gemm_ex`.
+///
+/// Returns `None` if the device is unavailable or the GEMM dispatch fails.
+/// barraCuda v0.3.5: `execute_gemm_ex` supports `trans_a`/`trans_b` flags.
+#[cfg(feature = "barracuda-gpu")]
+fn gemm_setup_gpu(
+    kernel: &[f64],
+    data: &[f64],
+    n_tau: usize,
+    n_omega: usize,
+) -> Option<(Vec<f64>, Vec<f64>)> {
+    let device = crate::gpu::get_device()?;
+    // KᵀK: A=[n_tau × n_omega], B=[n_tau × n_omega], result=[n_omega × n_omega]
+    let ktk = barracuda::ops::linalg::GemmF64::execute_gemm_ex(
+        device.clone(),
+        kernel,
+        kernel,
+        n_omega, // m (rows of result)
+        n_tau,   // k (contraction dim)
+        n_omega, // n (cols of result)
+        1,       // batch_size
+        1.0,     // alpha
+        0.0,     // beta
+        true,    // trans_a → Kᵀ
+        false,   // trans_b → K
+    )
+    .ok()?;
+    // KᵀG: A=[n_tau × n_omega], B=[n_tau × 1], result=[n_omega × 1]
+    let ktg = barracuda::ops::linalg::GemmF64::execute_gemm_ex(
+        device, kernel, data, n_omega, // m
+        n_tau,   // k
+        1,       // n
+        1,       // batch_size
+        1.0,     // alpha
+        0.0,     // beta
+        true,    // trans_a → Kᵀ
+        false,   // trans_b
+    )
+    .ok()?;
+    Some((ktk, ktg))
 }
 
 /// Find the omega index with maximum reconstructed value.
@@ -166,10 +218,8 @@ pub fn rmse(a: &[f64], b: &[f64]) -> f64 {
 
 /// Aᵀ · B where A is `m × k` and B is `m × n`, result is `k × n` (row-major).
 ///
-/// Stays local: `barracuda::ops::linalg::GemmF64` lacks a transpose flag,
-/// and these matrices are small (`n_omega` ≤ 200). The expensive O(n³)
-/// Cholesky solve is already delegated to barraCuda GPU; this O(n²k)
-/// setup wouldn't benefit from dispatch overhead.
+/// CPU fallback for when GPU GEMM is unavailable. Used by
+/// [`tikhonov_solve_cpu`] and as fallback in [`tikhonov_solve`].
 #[expect(
     clippy::many_single_char_names,
     reason = "standard linear algebra notation (m × k × n)"
@@ -190,8 +240,7 @@ fn mat_transpose_mul(a: &[f64], b: &[f64], m: usize, k: usize, n: usize) -> Vec<
 
 /// Aᵀ · v where A is `m × n`, v is length `m`, result is length `n`.
 ///
-/// Same rationale as [`mat_transpose_mul`] — stays local as cheap setup
-/// for the delegated Cholesky solve.
+/// CPU fallback — see [`mat_transpose_mul`].
 #[expect(
     clippy::many_single_char_names,
     reason = "standard linear algebra notation (m × n)"

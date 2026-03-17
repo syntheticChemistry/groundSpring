@@ -40,6 +40,7 @@
 mod discovery;
 mod interaction;
 mod protocol;
+pub mod resilience;
 pub mod server;
 mod transport;
 

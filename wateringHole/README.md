@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 16, 2026 (V112)
+**Last Updated**: March 16, 2026 (V113)
 
 ## What This Is
 
@@ -18,7 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V112 Deep Debt + OrExit | [GROUNDSPRING_V112_DEEP_DEBT_OREXIT_HANDOFF_MAR16_2026.md](handoffs/GROUNDSPRING_V112_DEEP_DEBT_OREXIT_HANDOFF_MAR16_2026.md) | Mar 16, 2026 | thiserror error types, DispatchOutcome RPC, OrExit&lt;T&gt; validation pattern, generic primal discovery, safe cast/DI patterns, validate crate decoupled. |
+| V113 Ecosystem Resilience | [GROUNDSPRING_V113_ECOSYSTEM_RESILIENCE_HANDOFF_MAR16_2026.md](handoffs/GROUNDSPRING_V113_ECOSYSTEM_RESILIENCE_HANDOFF_MAR16_2026.md) | Mar 16, 2026 | GemmF64 transpose delegation (execute_gemm_ex trans_a=true), exit_code constants, RetryPolicy + CircuitBreaker (IPC resilience), 4-format capability parsing. |
 
 ## Cross-Spring Documentation
 
@@ -38,6 +38,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | Scope |
 |---------|-------|
+| V112 Deep Debt + OrExit | `OrExit<T>` + parse_benchmark() (28 binaries), generic socket_env_var(), provenance trio, thiserror BenchFieldError, tempdir test hygiene (superseded by V113) |
 | V110 Cross-Ecosystem Absorption | `#[expect(reason)]` migration (95 files), Python tolerance mirror, tracing, toadStool direct dispatch, dual-format capability parsing, deny.toml, aarch64 CI (superseded by V112) |
 | V109 Deep Debt + Smart Refactor | Zero-panic validation binaries (28 converted), smart module refactoring (regression/fao56/pipeline/validate-lib), named physical constants, Python dep pinning (superseded by V110) |
 | V108 Deep Debt + Absorption | License AGPL-3.0-or-later, barracuda WelfordState CPU delegation, tolerance centralization, typed capability discovery, provenance enrichment, Result-based validate pattern (superseded by V109) |

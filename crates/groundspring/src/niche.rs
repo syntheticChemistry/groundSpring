@@ -136,7 +136,10 @@ pub const DELEGATION_COUNT: (u32, u32) = (61, 41);
 pub const FEATURE_GATES: &[(&str, &str)] = &[
     ("barracuda", "CPU delegation to barraCuda primitives"),
     ("barracuda-gpu", "GPU dispatch via barraCuda + toadStool"),
-    ("biomeos", "biomeOS Neural API integration"),
+    (
+        crate::primal_names::BIOMEOS,
+        "biomeOS Neural API integration",
+    ),
     ("npu", "BrainChip AKD1000 NPU inference"),
 ];
 

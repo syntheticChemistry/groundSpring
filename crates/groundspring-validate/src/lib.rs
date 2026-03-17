@@ -35,7 +35,7 @@ impl<T, E: fmt::Display> OrExit<T> for Result<T, E> {
             Ok(v) => v,
             Err(e) => {
                 eprintln!("FATAL: {msg}: {e}");
-                std::process::exit(1);
+                std::process::exit(exit_code::GENERAL_ERROR);
             }
         }
     }
@@ -45,9 +45,23 @@ impl<T> OrExit<T> for Option<T> {
     fn or_exit(self, msg: &str) -> T {
         self.unwrap_or_else(|| {
             eprintln!("FATAL: {msg}");
-            std::process::exit(1);
+            std::process::exit(exit_code::GENERAL_ERROR);
         })
     }
+}
+
+/// Standardized exit codes per `UNIBIN_ARCHITECTURE_STANDARD`.
+///
+/// Pattern source: sweetGrass v0.7.19 `exit_code` module.
+pub mod exit_code {
+    /// Successful execution.
+    pub const SUCCESS: i32 = 0;
+    /// General runtime failure.
+    pub const GENERAL_ERROR: i32 = 1;
+    /// Configuration or benchmark parsing error.
+    pub const CONFIG_ERROR: i32 = 78;
+    /// Network or IPC error.
+    pub const NETWORK_ERROR: i32 = 76;
 }
 
 /// Parse a benchmark JSON string, exiting on failure.

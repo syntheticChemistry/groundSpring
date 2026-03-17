@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 16, 2026 (V112 — 912+ tests, 0 clippy, 0 fmt diff, license AGPL-3.0-or-later (SCYBORG trio). V112: `OrExit<T>` trait + `parse_benchmark()` (28 binaries), generic `socket_env_var()`, provenance trio, `thiserror` for `BenchFieldError`, tempdir test hygiene. V111: deep debt — `thiserror` errors, `DispatchOutcome`, safe casts, DI config, dead code removal. V110: cross-ecosystem absorption — `#[expect(reason)]` migration, structured tracing, toadStool dispatch, dual-format capability parsing, `deny.toml`, aarch64 CI)
+**Last updated**: March 16, 2026 (V113 — 618 unit + 24 integration tests, 0 clippy, 0 fmt diff, license AGPL-3.0-or-later (SCYBORG trio). V113: GemmF64 transpose delegation (execute_gemm_ex trans_a=true), exit_code constants (UNIBIN_ARCHITECTURE_STANDARD), RetryPolicy + CircuitBreaker (IPC resilience), 4-format capability parsing. V112: `OrExit<T>` trait + `parse_benchmark()` (28 binaries), generic `socket_env_var()`, provenance trio, `thiserror` for `BenchFieldError`, tempdir test hygiene. V111: deep debt — `thiserror` errors, `DispatchOutcome`, safe casts, DI config, dead code removal. V110: cross-ecosystem absorption — `#[expect(reason)]` migration, structured tracing, toadStool dispatch, dual-format capability parsing, `deny.toml`, aarch64 CI)
 
 ## Experiment Register
 
@@ -55,7 +55,7 @@
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
 **Paper 12**: `tissue_anderson` module — 18 unit tests + 29/29 validation checks + 4D Anderson + Wegner RG (V68)
-**Handoff**: V112 (`OrExit<T>` + parse_benchmark, generic socket_env_var, provenance trio, thiserror BenchFieldError) | V110 archived (cross-ecosystem absorption) | V109 archived (zero-panic validation, smart module refactoring, named physical constants)
+**Handoff**: V113 (GemmF64 transpose delegation, exit_code constants, RetryPolicy + CircuitBreaker, 4-format capability parsing) | V112 archived (OrExit, parse_benchmark, provenance trio) | V110 archived (cross-ecosystem absorption) | V109 archived (zero-panic validation, smart module refactoring, named physical constants)
 
 **Python checks**: ~160 across 28 experiments. **Rust validation checks**: 395 (340 core + 55 NUCLEUS). **metalForge + pipeline checks**: 140.
 
@@ -565,7 +565,7 @@ Each experiment is validated at three hardware tiers:
 | **GPU** | `barracuda` feature + GPU adapter | GPU matches CPU within tolerance |
 | **metalForge** | Mixed hardware dispatch | Cross-substrate agreement |
 
-### Current Status (V112)
+### Current Status (V113)
 
 | # | Experiment | CPU | GPU | metalForge | GPU Status |
 |---|-----------|:---:|:---:|:----------:|------------|
@@ -818,7 +818,8 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V79: Exp 035 + seismic delegation | 85 delegations (51 CPU + 34 GPU), 807 tests, barraCuda v0.3.3, toadStool S94b | Archived |
 | V80: Fused Ops + BarraCuda Catch-Up | 87 delegations (51 CPU + 36 GPU), 812 tests, barraCuda v0.3.3+, toadStool S94b | Archived |
 | V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `0bd401f`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
-| V112: Deep Debt + OrExit | 102 delegations (61 CPU + 41 GPU), 912+ tests, `OrExit<T>` + parse_benchmark() (28 binaries), generic socket_env_var(), provenance trio, thiserror BenchFieldError, tempdir test hygiene | **Current** |
+| V113: Ecosystem Resilience | 102 delegations (61 CPU + 41 GPU), 618 unit + 24 integration tests, GemmF64 transpose delegation, exit_code constants, RetryPolicy + CircuitBreaker, 4-format capability parsing | **Current** |
+| V112: Deep Debt + OrExit | 102 delegations (61 CPU + 41 GPU), 912+ tests, `OrExit<T>` + parse_benchmark() (28 binaries), generic socket_env_var(), provenance trio, thiserror BenchFieldError, tempdir test hygiene | Archived |
 | V109: Deep Debt Resolution + Smart Refactoring | 102 delegations (61 CPU + 41 GPU), 878 tests (no-default-features), 39 modules, zero-panic validation binaries, smart module refactoring (regression/fao56/pipeline/validate-lib), named physical constants, Python dep pinning | Archived |
 | V108: Deep Debt + Absorption Evolution | 102 delegations (61 CPU + 41 GPU), 906 tests, AGPL-3.0-or-later, WelfordState CPU delegation, tolerance centralization, typed capability discovery, provenance enrichment | Archived |
 | V107: License + Release Profile + Niche + Tolerance | 102 delegations (61 CPU + 41 GPU), 906 tests, 39 modules, AGPL-3.0-or-later (302 files), lto/codegen-units/strip, niche.rs OperationDeps/CostEstimate, tolerance provenance, bare literal elimination, feature-gated spectral constants | Archived |
@@ -882,7 +883,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_V112_DEEP_DEBT_OREXIT_HANDOFF_MAR16_2026.md` (V110 archived)
+Active: `wateringHole/handoffs/GROUNDSPRING_V113_ECOSYSTEM_RESILIENCE_HANDOFF_MAR16_2026.md` (V112 archived)
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.
