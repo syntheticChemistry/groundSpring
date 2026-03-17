@@ -286,7 +286,6 @@ fn find_cpu_fallback(substrates: &[Substrate]) -> Option<&Substrate> {
 #[cfg(test)]
 #[expect(
     clippy::unwrap_used,
-    clippy::expect_used,
     reason = "test assertions use unwrap/expect for clarity"
 )]
 mod tests {

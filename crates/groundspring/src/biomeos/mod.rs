@@ -138,6 +138,38 @@ impl BiomeOsError {
     pub fn other(msg: impl Into<String>) -> Self {
         Self::Other(msg.into())
     }
+
+    /// Whether this error is transient and the operation may succeed on retry.
+    ///
+    /// Transport errors and some discovery failures are recoverable.
+    /// Protocol, serialization, and data errors are permanent.
+    ///
+    /// Absorbed from airSpring V0.8.8 / wetSpring V121 `is_recoverable()` pattern.
+    #[must_use]
+    pub const fn is_recoverable(&self) -> bool {
+        matches!(self, Self::Transport(_) | Self::Discovery(_))
+    }
+
+    /// Whether a retry with backoff is appropriate.
+    ///
+    /// Same as [`is_recoverable`](Self::is_recoverable) — transient errors
+    /// should be retried; permanent errors should be surfaced immediately.
+    #[must_use]
+    pub const fn is_retriable(&self) -> bool {
+        self.is_recoverable()
+    }
+
+    /// Whether this is a JSON-RPC "method not found" error.
+    ///
+    /// Useful for fallback chains where the first method may not be
+    /// supported by the target primal version.
+    #[must_use]
+    pub fn is_method_not_found(&self) -> bool {
+        match self {
+            Self::Protocol(msg) => msg.contains("-32601") || msg.contains("method not found"),
+            _ => false,
+        }
+    }
 }
 
 /// Result alias for `biomeOS` operations.
@@ -148,8 +180,10 @@ pub type Result<T> = std::result::Result<T, BiomeOsError>;
 /// Whether `biomeOS` routing is enabled via environment.
 #[must_use]
 pub fn is_enabled() -> bool {
-    std::env::var("GROUNDSPRING_COMPUTE_PROVIDER")
-        .is_ok_and(|v| v.trim().eq_ignore_ascii_case(crate::primal_names::BIOMEOS))
+    std::env::var("GROUNDSPRING_COMPUTE_PROVIDER").is_ok_and(|v| {
+        v.trim()
+            .eq_ignore_ascii_case(crate::primal_names::roles::ORCHESTRATOR)
+    })
 }
 
 // ─── Capability Routing ──────────────────────────────────────────────────────

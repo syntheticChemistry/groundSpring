@@ -50,7 +50,7 @@ pub fn discover_primals() -> Vec<DiscoveredPrimal> {
         let Some(name) = path.file_stem().and_then(|s| s.to_str()) else {
             continue;
         };
-        if !name.contains("neural-api") && path.extension().is_some_and(|e| e == "sock") {
+        if !is_neural_api_socket(name) && path.extension().is_some_and(|e| e == "sock") {
             let clean_name = name.replace(".jsonrpc", "");
             if primals
                 .iter()
@@ -66,6 +66,17 @@ pub fn discover_primals() -> Vec<DiscoveredPrimal> {
     }
     primals.sort_by(|a, b| a.name.cmp(&b.name));
     primals
+}
+
+/// Whether a socket filename matches the Neural API orchestrator.
+///
+/// The Neural API socket should be excluded when scanning for individual
+/// primal sockets. Uses [`crate::primal_names::NEURAL_API_SOCKET_NAMES`]
+/// as the single source of truth.
+fn is_neural_api_socket(name: &str) -> bool {
+    crate::primal_names::NEURAL_API_SOCKET_NAMES
+        .iter()
+        .any(|n| name.contains(n.trim_end_matches(".sock")))
 }
 
 /// Resolve the biomeOS socket directory from environment.

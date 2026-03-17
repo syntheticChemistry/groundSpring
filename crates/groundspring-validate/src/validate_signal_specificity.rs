@@ -14,8 +14,8 @@ use groundspring::gillespie::{
 };
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    TOL_STOCHASTIC_MEAN, f64_field, f64_range, parse_benchmark, print_provenance_header,
-    usize_field,
+    OrExit, TOL_STOCHASTIC_MEAN, f64_field, f64_range, get_array, get_u64, parse_benchmark,
+    print_provenance_header, usize_field,
 };
 use serde_json::Value;
 
@@ -135,10 +135,6 @@ fn validate_gillespie_basal(
     clippy::too_many_arguments,
     reason = "validation orchestration groups related checks with shared state"
 )]
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn validate_activated_states(
     h: &mut ValidationHarness,
     net: &EnzymeNetwork,
@@ -180,7 +176,7 @@ fn validate_activated_states(
         activated_means
             .iter()
             .find(|(al, _)| *al == a)
-            .expect("activation ratio must be present in results")
+            .or_exit("activation ratio must be present in results")
             .1
     };
 
@@ -211,7 +207,7 @@ fn validate_activated_states(
         snr_values
             .iter()
             .find(|(al, _)| *al == a)
-            .expect("SNR ratio must be present in results")
+            .or_exit("SNR ratio must be present in results")
             .1
     };
 
@@ -228,10 +224,6 @@ fn validate_activated_states(
     h.check_true("SNR(α=2) > 0", get_snr(2) > 0.0);
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Signal Specificity");
@@ -260,7 +252,7 @@ fn run() -> i32 {
         t_max: f64_field(sim_json, "t_max"),
         t_burnin: f64_field(sim_json, "t_burnin"),
         n_reps: usize_field(sim_json, "n_replicates"),
-        seed: sim_json["seed"].as_u64().expect("seed"),
+        seed: get_u64(sim_json, "seed").or_exit("seed"),
     };
 
     println!("  Enzyme network: {n_dgc} DGCs, {n_pde} PDEs");
@@ -268,11 +260,10 @@ fn run() -> i32 {
     let (ss_mean, _ss_std) = validate_analytical(&mut h, &net, pred);
     let (ensemble_mean, basal_std) = validate_gillespie_basal(&mut h, &net, &sim, ss_mean, exp);
 
-    let alphas: Vec<u64> = net_json["activation_ratios"]
-        .as_array()
-        .expect("activation_ratios array")
+    let alphas: Vec<u64> = get_array(net_json, "activation_ratios")
+        .or_exit("activation_ratios array")
         .iter()
-        .map(|v| v.as_u64().expect("alpha"))
+        .map(|v| v.as_u64().or_exit("alpha"))
         .collect();
 
     validate_activated_states(
@@ -304,11 +295,6 @@ fn main() {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

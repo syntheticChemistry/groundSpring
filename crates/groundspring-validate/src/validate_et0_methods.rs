@@ -156,7 +156,6 @@ fn validate_seasonal_and_intermediates(
     println!("\n--- Part 4: Seasonal Variation ---");
 
     let Some(seasonal) = bench["seasonal"].as_array() else {
-        eprintln!("FATAL: missing benchmark field: seasonal");
         harness.check_true("seasonal array present", false);
         return;
     };
@@ -243,11 +242,6 @@ fn main() {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

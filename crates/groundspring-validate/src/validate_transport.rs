@@ -13,8 +13,8 @@ use groundspring::anderson::lyapunov_exponent;
 use groundspring::transport::{transport_exponent, tridiag_eigh, wavepacket_msd};
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    TOL_GRID_MATCH, TOL_MONOTONIC_SLACK, f64_field, f64_range, parse_benchmark,
-    print_provenance_header, usize_field,
+    OrExit, TOL_GRID_MATCH, TOL_MONOTONIC_SLACK, f64_field, f64_range, get_f64_vec,
+    parse_benchmark, print_provenance_header, usize_field,
 };
 use serde_json::Value;
 
@@ -32,10 +32,6 @@ fn find_coupling(couplings: &[f64], target: f64) -> Option<usize> {
 #[expect(
     clippy::too_many_arguments,
     reason = "validation context requires all params"
-)]
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
 )]
 fn validate_regimes(
     h: &mut ValidationHarness,
@@ -68,7 +64,7 @@ fn validate_regimes(
         let potential = almost_mathieu::potential(n_sites, 4.0, alpha, theta);
         let offdiag = vec![1.0; n_sites - 1];
         let (evals, evecs) =
-            tridiag_eigh(&potential, &offdiag).expect("eigendecomposition converged");
+            tridiag_eigh(&potential, &offdiag).or_exit("eigendecomposition converged");
         let t_final = *times.last().unwrap_or(&1.0);
         let (msd_final, _) = wavepacket_msd(&evals, &evecs, init_site, t_final);
         h.check_max("Localized MSD bounded (λ=4.0)", msd_final, msd_bound);
@@ -104,10 +100,6 @@ fn validate_lyapunov(
     h.check_true("Lyapunov localized γ > threshold", gamma_loc > lyap_loc_min);
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Spin Chain Transport");
@@ -128,19 +120,10 @@ fn run() -> i32 {
     let lyap_e = f64_field(model, "lyapunov_energy");
     let norm_tol = f64_field(exp, "normalization_tolerance");
 
-    let couplings: Vec<f64> = bench["model"]["coupling_strengths"]
-        .as_array()
-        .expect("coupling_strengths array")
-        .iter()
-        .map(|v| v.as_f64().expect("f64 coupling"))
-        .collect();
+    let couplings: Vec<f64> =
+        get_f64_vec(&bench["model"], "coupling_strengths").or_exit("coupling_strengths array");
 
-    let times: Vec<f64> = bench["model"]["times"]
-        .as_array()
-        .expect("times array")
-        .iter()
-        .map(|v| v.as_f64().expect("f64 time"))
-        .collect();
+    let times: Vec<f64> = get_f64_vec(&bench["model"], "times").or_exit("times array");
 
     let mut betas = Vec::new();
 
@@ -150,7 +133,7 @@ fn run() -> i32 {
         let potential = almost_mathieu::potential(n_sites, lam, alpha, theta);
         let offdiag = vec![1.0; n_sites - 1];
         let (eigenvalues, eigenvectors) =
-            tridiag_eigh(&potential, &offdiag).expect("eigendecomposition converged");
+            tridiag_eigh(&potential, &offdiag).or_exit("eigendecomposition converged");
 
         let mut msds_at_t = Vec::with_capacity(times.len());
         for (ti, &t) in times.iter().enumerate() {
@@ -165,11 +148,11 @@ fn run() -> i32 {
         let beta = transport_exponent(&times, &msds_at_t);
         betas.push(beta);
 
-        let sigma_final = msds_at_t.last().expect("non-empty MSD series").sqrt();
+        let sigma_final = msds_at_t.last().or_exit("non-empty MSD series").sqrt();
         println!(
             "  MSD(t={:.0}) = {:.4}, σ = {sigma_final:.4}",
-            times.last().expect("non-empty time series"),
-            msds_at_t.last().expect("non-empty MSD series")
+            times.last().or_exit("non-empty time series"),
+            msds_at_t.last().or_exit("non-empty MSD series")
         );
         println!("  Transport exponent β = {beta:.4}");
     }
@@ -192,11 +175,6 @@ fn main() {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

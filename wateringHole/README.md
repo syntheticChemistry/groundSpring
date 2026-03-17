@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 16, 2026 (V113)
+**Last Updated**: March 17, 2026 (V114)
 
 ## What This Is
 
@@ -18,7 +18,8 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V113 Ecosystem Resilience | [GROUNDSPRING_V113_ECOSYSTEM_RESILIENCE_HANDOFF_MAR16_2026.md](handoffs/GROUNDSPRING_V113_ECOSYSTEM_RESILIENCE_HANDOFF_MAR16_2026.md) | Mar 16, 2026 | GemmF64 transpose delegation (execute_gemm_ex trans_a=true), exit_code constants, RetryPolicy + CircuitBreaker (IPC resilience), 4-format capability parsing. |
+| V114 Evolution | [GROUNDSPRING_V114_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR17_2026.md](handoffs/GROUNDSPRING_V114_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR17_2026.md) | Mar 17, 2026 | Cross-ecosystem deep absorption: safe_cast, health probes, resilient_call, OrExit evolution, FAMILY_ID discovery, primal composition guidance. |
+| V114 Primal Composition | [GROUNDSPRING_V114_PRIMAL_COMPOSITION_GUIDANCE_MAR17_2026.md](handoffs/GROUNDSPRING_V114_PRIMAL_COMPOSITION_GUIDANCE_MAR17_2026.md) | Mar 17, 2026 | How groundSpring fits in NUCLEUS atomic types (Tower, Node, Nest, Full), trio compositions, cross-spring combos. |
 
 ## Cross-Spring Documentation
 
@@ -38,6 +39,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | Scope |
 |---------|-------|
+| V113 Ecosystem Resilience | GemmF64 transpose, exit_code constants, RetryPolicy + CircuitBreaker, 4-format capability parsing (superseded by V114) |
 | V112 Deep Debt + OrExit | `OrExit<T>` + parse_benchmark() (28 binaries), generic socket_env_var(), provenance trio, thiserror BenchFieldError, tempdir test hygiene (superseded by V113) |
 | V110 Cross-Ecosystem Absorption | `#[expect(reason)]` migration (95 files), Python tolerance mirror, tracing, toadStool direct dispatch, dual-format capability parsing, deny.toml, aarch64 CI (superseded by V112) |
 | V109 Deep Debt + Smart Refactor | Zero-panic validation binaries (28 converted), smart module refactoring (regression/fao56/pipeline/validate-lib), named physical constants, Python dep pinning (superseded by V110) |

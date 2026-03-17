@@ -36,7 +36,7 @@ mod monitor;
 
 pub use monitor::{DriftAction, DriftMonitor};
 
-use crate::cast::usize_f64;
+use crate::cast::{usize_f64, usize_u64};
 use crate::prng::Xorshift64;
 
 /// Shannon diversity from integer abundances.
@@ -105,7 +105,7 @@ pub fn wright_fisher_fixation(
     // 10× gives headroom for slow selection near neutrality.
     let max_gens = 10 * n_alleles;
     let mut rng = Xorshift64::new(seed);
-    let n_alleles_u64 = n_alleles as u64;
+    let n_alleles_u64 = usize_u64(n_alleles);
 
     for _ in 0..max_gens {
         if n_a == 0 {
@@ -208,7 +208,7 @@ fn wf_batch_cpu(
                 pop_size,
                 selection,
                 initial_freq,
-                base_seed.wrapping_add(i as u64),
+                base_seed.wrapping_add(usize_u64(i)),
             )
         })
         .count()
@@ -244,7 +244,7 @@ fn wf_readback_fixations(
     source_buf: &wgpu::Buffer,
     n_trials: usize,
 ) -> Option<usize> {
-    let byte_len = (n_trials * 8) as u64;
+    let byte_len = usize_u64(n_trials * 8);
 
     let staging = device.create_buffer(&wgpu::BufferDescriptor {
         label: Some("wf_staging"),
@@ -386,9 +386,9 @@ pub fn neutral_diversity_trajectory(
 
     let mut rng = Xorshift64::new(seed);
     let base_count = pop_size / n_species;
-    let mut abundances: Vec<u64> = vec![base_count as u64; n_species];
+    let mut abundances: Vec<u64> = vec![usize_u64(base_count); n_species];
     let remainder = pop_size - base_count * n_species;
-    abundances[0] += remainder as u64;
+    abundances[0] += usize_u64(remainder);
 
     let mut diversities = Vec::with_capacity(n_generations);
 
@@ -396,7 +396,7 @@ pub fn neutral_diversity_trajectory(
         let shannon = shannon_from_abundances(&abundances);
         diversities.push(shannon);
 
-        let mut remaining = pop_size as u64;
+        let mut remaining = usize_u64(pop_size);
         let total: u64 = abundances.iter().sum();
         let mut remaining_prob_mass = crate::cast::u64_f64(total);
         let mut new_abundances = vec![0u64; n_species];
@@ -424,7 +424,6 @@ pub fn neutral_diversity_trajectory(
 
 #[cfg(test)]
 #[expect(
-    clippy::unwrap_used,
     clippy::expect_used,
     reason = "test assertions use unwrap/expect for clarity"
 )]

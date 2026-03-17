@@ -123,13 +123,16 @@ pub enum IpcError {
 /// Result alias for IPC operations.
 pub type IpcResult<T> = Result<T, IpcError>;
 
+/// tarpc socket filename suffix, derived from primal self-identity.
+const TARPC_SOCK_SUFFIX: &str = "ipc.sock";
+
 /// Typed IPC client for groundSpring measurement capabilities.
 ///
 /// Wraps a tarpc channel connected over Unix domain socket transport.
 /// The client discovers the endpoint at runtime via socket path, never
 /// hardcoding primal addresses.
 pub struct GroundSpringClient {
-    inner: GroundSpriScienceClient,
+    inner: GroundSpringScienceClient,
 }
 
 impl GroundSpringClient {
@@ -145,7 +148,7 @@ impl GroundSpringClient {
                 .map_err(|e| IpcError::Connect(format!("{}: {e}", path.display())))?;
 
         let client =
-            GroundSpriScienceClient::new(tarpc::client::Config::default(), transport).spawn();
+            GroundSpringScienceClient::new(tarpc::client::Config::default(), transport).spawn();
 
         Ok(Self { inner: client })
     }
@@ -233,25 +236,37 @@ impl GroundSpringClient {
     }
 }
 
+/// Build the tarpc socket filename from primal self-identity.
+fn tarpc_sock_name() -> String {
+    format!("{}-{TARPC_SOCK_SUFFIX}", crate::primal_names::SELF_ID)
+}
+
 /// Discover the groundSpring IPC socket path via environment.
+///
+/// Uses the primal's own `socket_env_var` for the override key,
+/// then standard XDG and temp fallback — no hardcoded primal names
+/// beyond self-identity.
 fn discover_ipc_socket() -> Option<std::path::PathBuf> {
-    if let Ok(explicit) = std::env::var("GROUNDSPRING_IPC_SOCKET") {
+    let env_key = crate::primal_names::socket_env_var(crate::primal_names::SELF_ID);
+    if let Ok(explicit) = std::env::var(&env_key) {
         let path = std::path::PathBuf::from(explicit);
         if path.exists() {
             return Some(path);
         }
     }
 
+    let sock_name = tarpc_sock_name();
+
     if let Ok(xdg) = std::env::var("XDG_RUNTIME_DIR") {
         let path = std::path::PathBuf::from(xdg)
             .join(crate::primal_names::BIOMEOS_SOCKET_DIR)
-            .join("groundspring-ipc.sock");
+            .join(&sock_name);
         if path.exists() {
             return Some(path);
         }
     }
 
-    let path = std::env::temp_dir().join("groundspring-ipc.sock");
+    let path = std::env::temp_dir().join(&sock_name);
     if path.exists() {
         return Some(path);
     }

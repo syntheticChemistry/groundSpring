@@ -23,6 +23,23 @@
 //! using `trans_a=true` for the `Kᵀ` operation. Falls back to local CPU
 //! implementations for small problems or when no GPU is present.
 
+/// Tikhonov regularization strength for noisy correlators (λ = 1e-6).
+///
+/// Balances noise suppression against reconstruction bias. Suitable for
+/// synthetic benchmarks with O(1%) noise. Used by validation binaries
+/// and GPU parity checks.
+///
+/// Provenance: grid-search over λ ∈ [1e-8, 1e-2] on Exp 019 synthetic
+/// correlator; 1e-6 minimizes RMSE on the noiseless→noisy degradation
+/// curve. See `control/spectral_recon/spectral_reconstruction.py`.
+pub const LAMBDA_NOISY: f64 = 1e-6;
+
+/// Tikhonov regularization strength for CPU↔GPU parity checks (λ = 1e-8).
+///
+/// Weaker regularization than [`LAMBDA_NOISY`] to stress-test numerical
+/// agreement between Cholesky solvers on different substrates.
+pub const LAMBDA_PARITY: f64 = 1e-8;
+
 /// Build the Laplace-transform kernel matrix (row-major, `n_tau × n_omega`).
 ///
 /// `K[i,j] = exp(−τ_i ω_j) Δω`
@@ -414,7 +431,6 @@ fn fft_correlator_gpu(correlator: &[f64], n: usize) -> Option<(Vec<f64>, Vec<f64
 #[cfg(test)]
 #[expect(
     clippy::unwrap_used,
-    clippy::expect_used,
     reason = "test assertions use unwrap/expect for clarity"
 )]
 mod tests {
@@ -422,11 +438,8 @@ mod tests {
     use crate::cast::usize_f64;
     use crate::tol;
 
-    /// Tikhonov regularization strengths (λ) for tests.
-    /// Stronger regularisation → smoother but biased; weaker → faithful but noisy.
+    /// Noiseless (near-zero) regularization for analytical roundtrip tests.
     const LAMBDA_NOISELESS: f64 = 1e-12;
-    const LAMBDA_NOISY: f64 = 1e-6;
-    const LAMBDA_PARITY: f64 = 1e-8;
 
     #[test]
     fn kernel_shape() {

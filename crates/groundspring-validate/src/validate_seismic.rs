@@ -13,7 +13,8 @@ use groundspring::seismic::{
 };
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    TOL_ANALYTICAL, array_field, f64_field, parse_benchmark, print_provenance_header,
+    OrExit, TOL_ANALYTICAL, array_field, f64_field, get_f64_range, get_str, parse_benchmark,
+    print_provenance_header,
 };
 use serde_json::Value;
 
@@ -71,10 +72,6 @@ fn validate_forward_model<'a>(
 }
 
 /// Grid-search inversion and error checks.
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn validate_inversion(
     h: &mut ValidationHarness,
     observed: &[(&str, f64)],
@@ -86,23 +83,14 @@ fn validate_inversion(
 ) {
     println!("\n--- Grid-Search Inversion (no noise) ---");
 
-    let lat_range = array_field(grid, "lat_range");
-    let lon_range = array_field(grid, "lon_range");
-    let depth_range = array_field(grid, "depth_range_km");
+    let lat_range = get_f64_range(&grid["lat_range"]).or_exit("lat_range");
+    let lon_range = get_f64_range(&grid["lon_range"]).or_exit("lon_range");
+    let depth_range = get_f64_range(&grid["depth_range_km"]).or_exit("depth_range_km");
 
     let config = GridSearchConfig {
-        lat_range: (
-            lat_range[0].as_f64().expect("lat_min"),
-            lat_range[1].as_f64().expect("lat_max"),
-        ),
-        lon_range: (
-            lon_range[0].as_f64().expect("lon_min"),
-            lon_range[1].as_f64().expect("lon_max"),
-        ),
-        depth_range: (
-            depth_range[0].as_f64().expect("depth_min"),
-            depth_range[1].as_f64().expect("depth_max"),
-        ),
+        lat_range,
+        lon_range,
+        depth_range,
         grid_spacing_deg: f64_field(grid, "grid_spacing_deg"),
         depth_spacing_km: f64_field(grid, "depth_spacing_km"),
         vp,
@@ -129,10 +117,6 @@ fn validate_inversion(
     );
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Seismic Inversion");
@@ -151,7 +135,7 @@ fn run() -> i32 {
     let stations: Vec<Station> = array_field(&bench["test_scenario"], "stations")
         .iter()
         .map(|s| Station {
-            code: s["code"].as_str().expect("station code").into(),
+            code: get_str(s, "code").or_exit("station code").into(),
             lat: f64_field(s, "lat"),
             lon: f64_field(s, "lon"),
         })
@@ -212,11 +196,6 @@ fn main() {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

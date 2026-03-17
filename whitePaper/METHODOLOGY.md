@@ -155,7 +155,7 @@ Phase 1 ports each experiment's core algorithm to idiomatic Rust in the
 
 | Gate | Requirement |
 |------|-------------|
-| `cargo test` | 930+ total Rust tests (includes 23 three-tier parity integration tests), all pass |
+| `cargo test` | 715+ Rust tests (includes three-tier parity integration tests), all pass |
 | `cargo clippy` | Zero warnings (pedantic + nursery) × 3 feature modes |
 | `cargo fmt` | Clean |
 | `cargo doc` | Clean, `missing_docs = "deny"` |

@@ -12,7 +12,8 @@ use groundspring::fao56::{self, DailyWeatherInputs};
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    TOL_EQUILIBRIUM, array_field, f64_field, parse_benchmark, print_provenance_header, u64_field,
+    OrExit, TOL_EQUILIBRIUM, array_field, f64_field, get_f64_range, parse_benchmark,
+    print_provenance_header, u64_field,
 };
 use serde_json::Value;
 
@@ -51,10 +52,6 @@ impl Uncertainties {
 }
 
 /// Run Monte Carlo error propagation through FAO-56.
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn monte_carlo_et0(
     base: &DailyWeatherInputs,
     unc: &Uncertainties,
@@ -90,8 +87,8 @@ fn monte_carlo_et0(
 
     samples.sort_by(f64::total_cmp);
 
-    let pct_05 = groundspring::stats::percentile(&samples, 5.0).expect("valid percentile");
-    let pct_95 = groundspring::stats::percentile(&samples, 95.0).expect("valid percentile");
+    let pct_05 = groundspring::stats::percentile(&samples, 5.0).or_exit("valid percentile");
+    let pct_95 = groundspring::stats::percentile(&samples, 95.0).or_exit("valid percentile");
 
     McResult {
         mean,
@@ -183,10 +180,6 @@ fn sensitivity_analysis(
 /// Tol: `et0_mean_range` and `et0_std_range` from benchmark JSON represent
 /// the physical range of MC outcomes across seeds; CV 1–15% is the
 /// documented coefficient of variation for FAO-56 with WMO sensor uncertainty.
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn validate_monte_carlo(
     h: &mut ValidationHarness,
     base: &DailyWeatherInputs,
@@ -196,8 +189,10 @@ fn validate_monte_carlo(
     expected_et0: f64,
     mc_expected: &Value,
 ) {
-    let et0_mean_range = array_field(mc_expected, "et0_mean_range");
-    let et0_std_range = array_field(mc_expected, "et0_std_range");
+    let (et0_mean_lo, et0_mean_hi) =
+        get_f64_range(&mc_expected["et0_mean_range"]).or_exit("et0_mean_range");
+    let (et0_std_lo, et0_std_hi) =
+        get_f64_range(&mc_expected["et0_std_range"]).or_exit("et0_std_range");
     println!("\n--- Part 4: Monte Carlo (N={n_mc}) ---");
 
     let mc = monte_carlo_et0(base, unc, n_mc, mc_seed);
@@ -206,18 +201,8 @@ fn validate_monte_carlo(
     println!("  ET₀ std:  {:.4} mm/day", mc.std);
     println!("  90% CI:   [{:.4}, {:.4}]", mc.pct_05, mc.pct_95);
 
-    h.check_range(
-        "MC ET₀ mean",
-        mc.mean,
-        et0_mean_range[0].as_f64().expect("et0_mean_range[0]"),
-        et0_mean_range[1].as_f64().expect("et0_mean_range[1]"),
-    );
-    h.check_range(
-        "MC ET₀ std",
-        mc.std,
-        et0_std_range[0].as_f64().expect("et0_std_range[0]"),
-        et0_std_range[1].as_f64().expect("et0_std_range[1]"),
-    );
+    h.check_range("MC ET₀ mean", mc.mean, et0_mean_lo, et0_mean_hi);
+    h.check_range("MC ET₀ std", mc.std, et0_std_lo, et0_std_hi);
 
     let cv = mc.std / mc.mean * 100.0;
     h.check_range("MC CV (%)", cv, 1.0, 15.0);
@@ -266,10 +251,6 @@ fn validate_sensitivity(
     );
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: FAO-56 Error Propagation");
@@ -307,7 +288,7 @@ fn run() -> i32 {
 
     let ranking: Vec<&str> = array_field(&bench["sensitivity_analysis"], "expected_ranking")
         .iter()
-        .map(|v| v.as_str().expect("ranking item"))
+        .map(|v| v.as_str().or_exit("ranking item"))
         .collect();
 
     // ── Baseline ET₀ ────────────────────────────────────────────────
@@ -377,11 +358,6 @@ fn main() {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

@@ -3,9 +3,9 @@
 **Purpose**: Per-faculty research briefings for groundSpring noise characterization
 reproductions and extensions.
 
-**Last Updated**: March 16, 2026
+**Last Updated**: March 17, 2026
 
-**Validation Summary**: V113 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+**. 930+ tests + 287 Python provenance tests. All 35 experiments PASS. **29/29 mathematical parity proven**. V113: GemmF64 transpose delegation, RetryPolicy + CircuitBreaker, 4-format capability parsing, exit_code constants. V112: `OrExit<T>` trait + parse_benchmark() (28 binaries), generic socket_env_var() discovery, provenance trio (RHIZOCRYPT, LOAMSPINE, SWEETGRASS), thiserror for BenchFieldError, tempdir test hygiene. V111: thiserror for errors, DispatchOutcome, safe casts, DI config, dead code removal. V110: cross-ecosystem absorption — `#[expect(reason)]`, Python tolerance mirror, tracing, toadStool dispatch, dual-format capability parsing. Zero clippy (pedantic + nursery), zero unsafe, zero TODO, all files < 1000 lines. 10 domains, 39 modules.
+**Validation Summary**: V114 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+**. 715+ Rust tests + 287 Python provenance tests. All 35 experiments PASS. **29/29 mathematical parity proven**. V114: `safe_cast` expansion (neuralSpring `usize_u32`/`f64_f32`), `BiomeOsError::is_recoverable()/is_retriable()`, health probes (liveness/readiness), `resilient_call()`, `extract_rpc_result()`, `FAMILY_ID`-aware discovery, zero `eprintln!` in prod, `NEURAL_API_SOCKET_NAMES` centralization, bare `as` → `cast::` helpers, `.expect()` → `OrExit` in validation binaries, primal composition guidance. Zero clippy (pedantic + nursery), zero unsafe, zero TODO, all files < 1000 lines. 10 domains, 39 modules.
 
 ---
 

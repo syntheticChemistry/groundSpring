@@ -12,7 +12,8 @@ use groundspring::bootstrap::{bootstrap_mean, rawr_mean};
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    EPS_SAFE_DIV, TOL_DETERMINISM, f64_field, parse_benchmark, print_provenance_header, usize_field,
+    EPS_SAFE_DIV, OrExit, TOL_DETERMINISM, f64_field, get_array, get_u64, parse_benchmark,
+    print_provenance_header, usize_field,
 };
 
 const BENCHMARK: &str =
@@ -36,10 +37,6 @@ fn ci_width(data: &[f64], n_boot: usize, confidence: f64, seed: u64, use_rawr: b
     clippy::too_many_lines,
     reason = "validation harness with multiple convergence check sections"
 )]
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Resampling Convergence");
@@ -56,16 +53,15 @@ fn run() -> i32 {
     let confidence = f64_field(model, "confidence");
     let max_rel_change = f64_field(exp, "relative_width_change_5k_to_10k_max");
 
-    let replicate_counts: Vec<usize> = bench["model"]["replicate_counts"]
-        .as_array()
-        .expect("replicate_counts array")
+    let replicate_counts: Vec<usize> = get_array(&bench["model"], "replicate_counts")
+        .or_exit("replicate_counts array")
         .iter()
         .map(|v| {
             #[expect(
                 clippy::cast_possible_truncation,
                 reason = "JSON replicate counts ≤ 10000, fits usize"
             )]
-            let n = v.as_u64().expect("u64 count") as usize;
+            let n = v.as_u64().or_exit("u64 count") as usize;
             n
         })
         .collect();
@@ -74,7 +70,7 @@ fn run() -> i32 {
     println!("\n--- Part 1: Gaussian (μ=5.0, σ=2.0) ---");
     let gauss_mu = f64_field(&model["gaussian"], "mu");
     let gauss_sigma = f64_field(&model["gaussian"], "sigma");
-    let gauss_seed = model["gaussian"]["seed"].as_u64().expect("seed");
+    let gauss_seed = get_u64(&model["gaussian"], "seed").or_exit("seed");
 
     let data_gauss = generate_normal(data_n, gauss_mu, gauss_sigma, gauss_seed);
 
@@ -127,7 +123,7 @@ fn run() -> i32 {
 
     // Part 2: Log-normal convergence
     println!("\n--- Part 2: Log-Normal ---");
-    let ln_seed = model["lognormal"]["seed"].as_u64().expect("seed");
+    let ln_seed = get_u64(&model["lognormal"], "seed").or_exit("seed");
     let ln_mu = f64_field(&model["lognormal"], "mu_ln");
     let ln_sigma = f64_field(&model["lognormal"], "sigma_ln");
 
@@ -155,7 +151,7 @@ fn run() -> i32 {
 
     // Part 3: Heavy-tailed convergence (approximate t-distribution using normal)
     println!("\n--- Part 3: Heavy-Tailed ---");
-    let ht_seed = model["heavy_tail"]["seed"].as_u64().expect("seed");
+    let ht_seed = get_u64(&model["heavy_tail"], "seed").or_exit("seed");
     let ht_loc = f64_field(&model["heavy_tail"], "loc");
     let ht_scale = f64_field(&model["heavy_tail"], "scale");
     let ht_df = f64_field(&model["heavy_tail"], "df");
@@ -210,11 +206,6 @@ fn main() {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

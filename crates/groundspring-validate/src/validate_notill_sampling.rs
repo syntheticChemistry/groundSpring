@@ -14,7 +14,7 @@ use groundspring::rare_biosphere::chao1;
 use groundspring::rarefaction::{multinomial_sample_batch, shannon_diversity};
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    f64_field, f64_range, get_array, parse_benchmark, print_provenance_header, usize_field,
+    OrExit, f64_field, f64_range, get_array, parse_benchmark, print_provenance_header, usize_field,
 };
 use serde_json::Value;
 
@@ -197,19 +197,13 @@ fn run() -> i32 {
 
     let base_seed = rarefaction["seed"].as_u64().unwrap_or(42);
     let n_reps = usize_field(rarefaction, "n_replicates");
-    let Ok(depth_arr) = get_array(rarefaction, "depths") else {
-        eprintln!("FATAL: missing benchmark field: depths");
-        return 1;
-    };
+    let depth_arr = get_array(rarefaction, "depths").or_exit("missing benchmark field: depths");
     let mut depths = Vec::with_capacity(depth_arr.len());
     for (i, v) in depth_arr.iter().enumerate() {
-        let Ok(d) = v
+        let d = v
             .as_u64()
             .ok_or_else(|| format!("depths[{i}]: expected u64"))
-        else {
-            eprintln!("FATAL: benchmark depths[{i}]: expected u64");
-            return 1;
-        };
+            .or_exit("benchmark depths: expected u64");
         depths.push(d);
     }
 
@@ -244,14 +238,10 @@ fn run() -> i32 {
     );
 
     println!("\n--- Part 2: Rarefaction ---");
-    let Some(notill_data) = build_curve(&notill_comm, &depths, n_reps, base_seed, "no-till") else {
-        eprintln!("FATAL: empty depths array for no-till curve");
-        return 1;
-    };
-    let Some(tilled_data) = build_curve(&tilled_comm, &depths, n_reps, base_seed, "tilled") else {
-        eprintln!("FATAL: empty depths array for tilled curve");
-        return 1;
-    };
+    let notill_data = build_curve(&notill_comm, &depths, n_reps, base_seed, "no-till")
+        .or_exit("empty depths array for no-till curve");
+    let tilled_data = build_curve(&tilled_comm, &depths, n_reps, base_seed, "tilled")
+        .or_exit("empty depths array for tilled curve");
 
     println!("\n--- Part 3: Validate ---");
     validate_diversity(
@@ -271,11 +261,6 @@ fn main() {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

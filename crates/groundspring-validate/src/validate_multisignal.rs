@@ -11,7 +11,9 @@
 
 use groundspring::multisignal::{MultiSignalParams, integrate, stochastic_integrate};
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{array_field, f64_field, parse_benchmark, print_provenance_header};
+use groundspring_validate::{
+    OrExit, array_field, f64_field, parse_benchmark, print_provenance_header,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/multisignal_qs/benchmark_multisignal.json");
@@ -46,15 +48,11 @@ fn params_from_json(model: &Value) -> MultiSignalParams {
     }
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn ic_from_json(model: &Value) -> [f64; 7] {
     let arr = array_field(model, "initial_state");
     let mut ic = [0.0; 7];
     for (i, val) in ic.iter_mut().enumerate() {
-        *val = arr[i].as_f64().expect("IC element must be a valid f64");
+        *val = arr[i].as_f64().or_exit("IC element must be a valid f64");
     }
     ic
 }
@@ -192,11 +190,6 @@ fn main() {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

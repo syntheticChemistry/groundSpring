@@ -18,8 +18,13 @@ use super::RegimeLabel;
 /// Tikhonov regularization for ESN readout weight computation.
 ///
 /// Mild regularization (1e-6) prevents ill-conditioned readout matrices
-/// without biasing the classification. Validated against hotSpring
-/// Exp 015/022 Anderson transition detection.
+/// without biasing the classification.
+///
+/// Provenance: grid search over λ ∈ [1e-8, 1e-2] on hotSpring Exp 015
+/// disorder sweep (W ∈ [0.5, 8.0], L = 200, 3-class). λ = 1e-6 minimizes
+/// LOO misclassification while keeping readout condition number < 1e8.
+/// Validated: hotSpring Exp 015/022, groundSpring Exp 031 (ESN regime).
+/// Script: `control/esn_regime/esn_regime_classification.py`, commit `a29480fd`.
 #[cfg(feature = "barracuda-gpu")]
 const ESN_READOUT_REGULARIZATION: f32 = 1e-6;
 
@@ -238,11 +243,6 @@ impl EsnClassifier {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     use super::*;
 

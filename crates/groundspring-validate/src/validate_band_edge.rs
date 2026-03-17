@@ -15,8 +15,8 @@ use groundspring::band_structure::{
 use groundspring::transport::tridiag_eigh;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    BenchResult, f64_field, get_f64_range, get_f64_vec, parse_benchmark, print_provenance_header,
-    usize_field,
+    BenchResult, OrExit, f64_field, get_f64_range, get_f64_vec, parse_benchmark,
+    print_provenance_header, usize_field,
 };
 use serde_json::Value;
 
@@ -141,25 +141,14 @@ fn run() -> i32 {
     let exp = &bench["expected_results"];
 
     let t_hop = f64_field(model, "hopping");
-    let Ok(pot_2) = get_f64_vec(model, "period_2_potential") else {
-        eprintln!("FATAL: missing period_2_potential");
-        return 1;
-    };
-    let Ok(pot_3) = get_f64_vec(model, "period_3_potential") else {
-        eprintln!("FATAL: missing period_3_potential");
-        return 1;
-    };
+    let pot_2 = get_f64_vec(model, "period_2_potential").or_exit("missing period_2_potential");
+    let pot_3 = get_f64_vec(model, "period_3_potential").or_exit("missing period_3_potential");
     let n_scan = usize_field(model, "n_energy_scan");
-    let Ok((e_lo, e_hi)) = get_f64_range(&model["energy_range"]) else {
-        eprintln!("FATAL: missing energy_range");
-        return 1;
-    };
+    let (e_lo, e_hi) = get_f64_range(&model["energy_range"]).or_exit("missing energy_range");
     let n_periods = usize_field(model, "n_periods_finite");
 
-    let Ok(dvs) = get_f64_vec(model, "period_2_gap_widths_to_test") else {
-        eprintln!("FATAL: missing period_2_gap_widths_to_test");
-        return 1;
-    };
+    let dvs = get_f64_vec(model, "period_2_gap_widths_to_test")
+        .or_exit("missing period_2_gap_widths_to_test");
 
     let ctx = BandCtx {
         t_hop,
@@ -170,10 +159,8 @@ fn run() -> i32 {
         n_scan,
     };
 
-    if let Err(e) = validate_free_and_periodic(&mut h, &ctx, pred, exp) {
-        eprintln!("FATAL: benchmark field error: {e}");
-        return 1;
-    }
+    validate_free_and_periodic(&mut h, &ctx, pred, exp)
+        .or_exit("benchmark field error in free/periodic validation");
     validate_proportionality_and_finite(&mut h, &ctx, exp, n_periods, &dvs);
 
     println!("\n--- Part 6: Determinism ---");
@@ -192,11 +179,6 @@ fn main() {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

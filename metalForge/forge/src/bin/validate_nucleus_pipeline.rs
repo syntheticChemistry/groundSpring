@@ -24,8 +24,11 @@ use std::path::{Path, PathBuf};
 fn discover_socket() -> Option<PathBuf> {
     biomeos::discover_socket().or_else(|| {
         let xdg = std::env::var("XDG_RUNTIME_DIR").ok()?;
-        let p = PathBuf::from(xdg).join("biomeos/neural-api.sock");
-        p.exists().then_some(p)
+        let dir = PathBuf::from(xdg).join(groundspring::primal_names::BIOMEOS_SOCKET_DIR);
+        groundspring::primal_names::NEURAL_API_SOCKET_NAMES
+            .iter()
+            .map(|name| dir.join(name))
+            .find(|p| p.exists())
     })
 }
 
@@ -452,8 +455,11 @@ fn validate_crypto_direct(harness: &mut Harness) {
         let name = entry.file_name();
         let path = entry.path();
         let path_str = path.to_string_lossy();
-        if name.to_string_lossy().ends_with(".sock")
-            && !path_str.contains("neural-api")
+        let name_str = name.to_string_lossy();
+        if name_str.ends_with(".sock")
+            && !groundspring::primal_names::NEURAL_API_SOCKET_NAMES
+                .iter()
+                .any(|n| name_str.contains(n.trim_end_matches(".sock")))
             && let Ok(resp) = rpc_to_socket(&path_str, "crypto.sha256", r#"{"data":"dGVzdA=="}"#)
             && resp.contains("hash")
         {

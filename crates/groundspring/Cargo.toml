@@ -33,7 +33,7 @@ serde_json = { version = "1", optional = true }
 tracing = { version = "0.1", optional = true }
 tracing-subscriber = { version = "0.3", optional = true, features = ["fmt", "env-filter"] }
 serde = { version = "1", optional = true, features = ["derive"] }
-tarpc = { version = "0.37", optional = true, features = ["serde-transport", "tokio1"] }
+tarpc = { version = "0.37", optional = true, features = ["serde-transport", "tokio1", "unix"] }
 tokio = { version = "1", optional = true, features = ["rt", "net"] }
 
 [[bin]]

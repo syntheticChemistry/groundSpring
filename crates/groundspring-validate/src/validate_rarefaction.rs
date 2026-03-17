@@ -17,16 +17,13 @@ use groundspring::rarefaction::{
 };
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    TOL_ANALYTICAL, TOL_RAREFACTION_PROP, TOL_REGIME, parse_benchmark, print_provenance_header,
+    OrExit, TOL_ANALYTICAL, TOL_RAREFACTION_PROP, TOL_REGIME, get_f64, get_u64, parse_benchmark,
+    print_provenance_header,
 };
 
 const BENCHMARK: &str =
     include_str!("../../../control/sequencing_noise/benchmark_sequencing_noise.json");
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Rarefaction");
@@ -35,12 +32,9 @@ fn run() -> i32 {
         clippy::cast_possible_truncation,
         reason = "JSON u64 genus count ≤ 1000, fits usize"
     )]
-    let n_genera = bench["reference_community"]["n_genera"]
-        .as_u64()
-        .expect("n_genera") as usize;
-    let expected_shannon = bench["reference_community"]["shannon_diversity"]
-        .as_f64()
-        .expect("shannon_diversity");
+    let n_genera = get_u64(&bench["reference_community"], "n_genera").or_exit("n_genera") as usize;
+    let expected_shannon =
+        get_f64(&bench["reference_community"], "shannon_diversity").or_exit("shannon_diversity");
 
     print_provenance_header(&bench, "Rarefaction & Sequencing Noise");
     println!("  Reference community: {n_genera} genera, H'={expected_shannon:.2}");
@@ -141,11 +135,6 @@ fn main() {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

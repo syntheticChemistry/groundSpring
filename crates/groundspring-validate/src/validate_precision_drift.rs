@@ -14,7 +14,8 @@ use groundspring::stats;
 use groundspring::validate::ValidationHarness;
 use groundspring::wdm::{green_kubo_integrate, green_kubo_integrate_f32, synthetic_vacf};
 use groundspring_validate::{
-    f64_field, f64_range, parse_benchmark, print_provenance_header, usize_field,
+    OrExit, f64_field, f64_range, get_f64_vec, parse_benchmark, print_provenance_header,
+    usize_field,
 };
 
 const BENCHMARK: &str =
@@ -44,10 +45,6 @@ fn synthetic_vacf_noisy(
     clippy::too_many_lines,
     reason = "validation harness with f32/f64 precision drift checks"
 )]
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Precision Drift");
@@ -64,12 +61,7 @@ fn run() -> i32 {
     let n_realizations = usize_field(model, "n_realizations");
     let seed = model["seed"].as_u64().unwrap_or(42);
 
-    let tau_values: Vec<f64> = model["tau_values"]
-        .as_array()
-        .expect("tau_values array")
-        .iter()
-        .map(|v| v.as_f64().expect("f64 tau"))
-        .collect();
+    let tau_values: Vec<f64> = get_f64_vec(model, "tau_values").or_exit("tau_values array");
 
     let mut rng = Xorshift64::new(seed);
 
@@ -258,11 +250,6 @@ fn main() {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

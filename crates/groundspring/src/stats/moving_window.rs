@@ -88,7 +88,6 @@ fn moving_window_stats_cpu(data: &[f64], window_size: usize) -> MovingWindowResu
 #[cfg(test)]
 #[expect(
     clippy::unwrap_used,
-    clippy::expect_used,
     reason = "test assertions use unwrap/expect for clarity"
 )]
 mod tests {

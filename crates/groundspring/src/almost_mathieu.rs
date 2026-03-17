@@ -248,11 +248,6 @@ fn init_identity(buf: &mut [f64], n: usize) {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     use super::*;
     use crate::anderson::lyapunov_exponent;

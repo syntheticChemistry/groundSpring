@@ -72,22 +72,22 @@ pub const SEMANTIC_MAPPINGS: &[(&str, &str)] = &[
 /// `required = false` means graceful degradation is supported.
 pub const DEPENDENCIES: &[(&str, bool, &str)] = &[
     (
-        crate::primal_names::BEARDOG,
+        crate::primal_names::roles::SECURITY,
         true,
         "cryptographic identity and trust",
     ),
     (
-        crate::primal_names::SONGBIRD,
+        crate::primal_names::roles::DISCOVERY,
         true,
         "service discovery and IPC mesh",
     ),
     (
-        crate::primal_names::TOADSTOOL,
+        crate::primal_names::roles::COMPUTE,
         false,
         "GPU compute dispatch (sovereign fallback to CPU)",
     ),
     (
-        crate::primal_names::NESTGATE,
+        crate::primal_names::roles::STORAGE,
         false,
         "data storage and NCBI/NOAA/IRIS providers (sovereign fallback to synthetic)",
     ),
@@ -137,7 +137,7 @@ pub const FEATURE_GATES: &[(&str, &str)] = &[
     ("barracuda", "CPU delegation to barraCuda primitives"),
     ("barracuda-gpu", "GPU dispatch via barraCuda + toadStool"),
     (
-        crate::primal_names::BIOMEOS,
+        crate::primal_names::roles::ORCHESTRATOR,
         "biomeOS Neural API integration",
     ),
     ("npu", "BrainChip AKD1000 NPU inference"),
@@ -296,11 +296,6 @@ pub const fn cost_estimates() -> &'static [CostEstimate] {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     use super::*;
 
@@ -349,8 +344,8 @@ mod tests {
             .filter(|(_, req, _)| *req)
             .map(|(id, _, _)| *id)
             .collect();
-        assert!(required.contains(&crate::primal_names::BEARDOG));
-        assert!(required.contains(&crate::primal_names::SONGBIRD));
+        assert!(required.contains(&crate::primal_names::roles::SECURITY));
+        assert!(required.contains(&crate::primal_names::roles::DISCOVERY));
     }
 
     #[test]

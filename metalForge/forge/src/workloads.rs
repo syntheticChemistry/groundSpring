@@ -344,7 +344,6 @@ pub fn all() -> Vec<Workload> {
 
 #[cfg(test)]
 #[expect(
-    clippy::unwrap_used,
     clippy::expect_used,
     reason = "test assertions use unwrap/expect for clarity"
 )]

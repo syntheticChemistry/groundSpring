@@ -132,7 +132,7 @@ fn bootstrap_mean_cpu(
                 clippy::cast_possible_truncation,
                 reason = "n fits in u64 on all targets"
             )]
-            let idx = (rng.next_u64() % (n as u64)) as usize;
+            let idx = (rng.next_u64() % crate::cast::usize_u64(n)) as usize;
             sum += data[idx];
         }
         means.push(sum / crate::cast::usize_f64(n));
@@ -241,7 +241,7 @@ fn bootstrap_median_cpu(
                 clippy::cast_possible_truncation,
                 reason = "n fits in u64 on all targets"
             )]
-            let idx = (rng.next_u64() % (n as u64)) as usize;
+            let idx = (rng.next_u64() % crate::cast::usize_u64(n)) as usize;
             resample.push(data[idx]);
         }
         resample.sort_unstable_by(f64::total_cmp);
@@ -305,7 +305,7 @@ fn bootstrap_std_cpu(
                 clippy::cast_possible_truncation,
                 reason = "n fits in u64 on all targets"
             )]
-            let idx = (rng.next_u64() % (n as u64)) as usize;
+            let idx = (rng.next_u64() % crate::cast::usize_u64(n)) as usize;
             resample_buf.push(data[idx]);
         }
         let sample_mean = resample_buf.iter().sum::<f64>() / n_f;

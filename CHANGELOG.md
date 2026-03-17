@@ -4,6 +4,46 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V114 Cross-Ecosystem Deep Absorption (Mar 17, 2026)
+
+#### safe_cast Expansion (neuralSpring S147)
+- `cast::usize_u32`, `cast::f64_f32` absorbed from neuralSpring safe_cast
+- 30+ bare `as` casts replaced with checked `cast::` helpers across
+  `drift`, `gillespie`, `anderson`, `bootstrap`, `tissue_anderson`,
+  `sweeps`, `quasispecies`, `rarefaction/sampling`
+
+#### BiomeOsError Query Helpers (airSpring/wetSpring/healthSpring)
+- `is_recoverable()`, `is_retriable()` for IPC retry classification
+- `is_method_not_found()` for graceful capability degradation
+
+#### Health Probes (wetSpring/airSpring/healthSpring)
+- `health.liveness` and `health.readiness` added to dispatch table
+- Standard biomeOS health surface
+
+#### IPC Evolution
+- `resilient_call()` wraps CircuitBreaker + RetryPolicy (reusable)
+- `extract_rpc_result()` centralizes JSON-RPC result/error extraction
+- `FAMILY_ID`-aware socket discovery via `primal_names`
+
+#### Validation Binary Evolution
+- 80+ `.expect()` calls → `OrExit` across 17 validation binaries
+- 8 `eprintln!("FATAL: ...")` → `OrExit` or removed
+- 82 unfulfilled `#[expect(clippy::unwrap_used)]` removed
+- 29 unfulfilled `#[expect(clippy::expect_used)]` removed
+- Zero `.expect()`, zero `eprintln!`, zero `#[allow()]` in production
+
+#### Socket Name Centralization
+- `NEURAL_API_SOCKET_NAMES` constant in `primal_names`
+- 4 consumer files updated (discovery, interaction, validate_nestgate,
+  validate_nucleus_pipeline)
+
+#### Documentation
+- Primal composition guidance published to wateringHole
+- V114 toadStool/barraCuda evolution handoff
+
+**Quality**: 715 tests, 0 clippy (pedantic+nursery), 0 doc warnings,
+0 unsafe, 0 `#[allow()]`, 0 `.expect()` in binaries.
+
 ### V113 Ecosystem Absorption + Resilience (Mar 16, 2026)
 
 #### GemmF64 Transpose Delegation (barraCuda v0.3.5)

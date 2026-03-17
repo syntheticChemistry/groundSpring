@@ -15,8 +15,8 @@ use groundspring::freeze_out::{
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    TOL_ANALYTICAL, TOL_EXACT, f64_field, f64_range, parse_benchmark, print_provenance_header,
-    u64_field, usize_field,
+    OrExit, TOL_ANALYTICAL, TOL_EXACT, f64_field, f64_range, get_f64_vec, parse_benchmark,
+    print_provenance_header, u64_field, usize_field,
 };
 use serde_json::Value;
 
@@ -49,10 +49,6 @@ fn validate_forward(h: &mut ValidationHarness, ctx: &ModelCtx) {
     );
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn validate_chi2_and_grid(h: &mut ValidationHarness, ctx: &ModelCtx, grid: &Value, exp: &Value) {
     println!("\n--- Part 2: Chi-squared at truth ---");
     let mut rng = Xorshift64::new(ctx.seed);
@@ -61,7 +57,7 @@ fn validate_chi2_and_grid(h: &mut ValidationHarness, ctx: &ModelCtx, grid: &Valu
         .iter()
         .map(|&t| t + rng.normal(0.0, ctx.noise_std))
         .collect();
-    let c2 = chi_squared(&obs, &ctx.true_curve, ctx.noise_std).expect("equal lengths");
+    let c2 = chi_squared(&obs, &ctx.true_curve, ctx.noise_std).or_exit("equal lengths");
     let n_dof = ctx.mu_b.len() - 2;
     let c2_dof = chi_squared_per_dof(c2, ctx.mu_b.len(), 2);
     println!("  chi2 = {c2:.3}, chi2/dof = {c2_dof:.3} (dof = {n_dof})");
@@ -85,7 +81,7 @@ fn validate_chi2_and_grid(h: &mut ValidationHarness, ctx: &ModelCtx, grid: &Valu
         k2_hi,
         k2_step: f64_field(grid, "kappa2_step"),
     };
-    let r = grid_fit_2d(&cfg).expect("observed and mu_b have equal length");
+    let r = grid_fit_2d(&cfg).or_exit("observed and mu_b have equal length");
     println!(
         "  Best T0 = {:.2} (true {:.2}), kappa2 = {:.4} (true {:.4})",
         r.t0, ctx.true_t0, r.kappa2, ctx.true_k2
@@ -102,10 +98,6 @@ fn validate_chi2_and_grid(h: &mut ValidationHarness, ctx: &ModelCtx, grid: &Valu
     );
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn validate_replicates_and_determinism(
     h: &mut ValidationHarness,
     ctx: &ModelCtx,
@@ -139,7 +131,7 @@ fn validate_replicates_and_determinism(
             k2_hi,
             k2_step,
         };
-        let r = grid_fit_2d(&cfg).expect("observed and mu_b have equal length");
+        let r = grid_fit_2d(&cfg).or_exit("observed and mu_b have equal length");
         if (r.t0 - ctx.true_t0).abs() <= t0_tol && (r.kappa2 - ctx.true_k2).abs() <= k2_tol {
             hits += 1;
         }
@@ -189,8 +181,8 @@ fn validate_replicates_and_determinism(
         k2_hi,
         k2_step,
     };
-    let r_low = grid_fit_2d(&cfg_low).expect("observed and mu_b have equal length");
-    let r_hi = grid_fit_2d(&cfg_hi).expect("observed and mu_b have equal length");
+    let r_low = grid_fit_2d(&cfg_low).or_exit("observed and mu_b have equal length");
+    let r_hi = grid_fit_2d(&cfg_hi).or_exit("observed and mu_b have equal length");
     let err_low = (r_low.t0 - ctx.true_t0).abs() + (r_low.kappa2 - ctx.true_k2).abs();
     let err_hi = (r_hi.t0 - ctx.true_t0).abs() + (r_hi.kappa2 - ctx.true_k2).abs();
     let noise_slack = f64_field(exp, "noise_degradation_slack");
@@ -220,10 +212,6 @@ fn validate_replicates_and_determinism(
     clippy::similar_names,
     reason = "t0/k2 and lo/hi are domain-standard names"
 )]
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Freeze-Out Inverse Problem");
@@ -239,12 +227,7 @@ fn run() -> i32 {
 
     let true_t0 = f64_field(model, "true_t0");
     let true_k2 = f64_field(model, "true_kappa2");
-    let mu_b: Vec<f64> = model["mu_b_values"]
-        .as_array()
-        .expect("mu_b")
-        .iter()
-        .map(|v| v.as_f64().expect("f64"))
-        .collect();
+    let mu_b: Vec<f64> = get_f64_vec(model, "mu_b_values").or_exit("mu_b");
     let noise_std = f64_field(model, "noise_std");
     let seed = u64_field(model, "seed");
     let n_rep = usize_field(model, "n_replicates");
@@ -276,11 +259,6 @@ fn main() {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

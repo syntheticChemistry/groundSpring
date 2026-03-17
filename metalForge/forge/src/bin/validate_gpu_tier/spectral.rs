@@ -5,13 +5,10 @@
 //! Almost-Mathieu, Tikhonov reconstruction, eigendecomposition, band structure,
 //! and PRNG stream determinism.
 
+use groundspring::spectral_recon::{LAMBDA_NOISY, LAMBDA_PARITY};
 use groundspring::tol;
 use groundspring_forge::harness::Harness;
 use std::time::Instant;
-
-/// Tikhonov regularization strengths (λ): algorithm parameters, not tolerances.
-const LAMBDA_NOISY: f64 = 1e-6;
-const LAMBDA_PARITY: f64 = 1e-8;
 
 /// Run all spectral-domain parity checks.
 pub fn validate_all(h: &mut Harness) {

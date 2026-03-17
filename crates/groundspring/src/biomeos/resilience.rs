@@ -35,18 +35,20 @@ impl Default for RetryPolicy {
 
 impl RetryPolicy {
     /// Compute the delay for a given attempt (0-indexed).
+    ///
+    /// Uses saturating integer arithmetic to avoid floating-point casts.
     #[must_use]
-    #[allow(
-        clippy::cast_precision_loss,
-        clippy::cast_possible_truncation,
-        clippy::cast_sign_loss,
-        clippy::cast_possible_wrap
-    )]
     pub fn delay_for_attempt(&self, attempt: u32) -> Duration {
-        let base_ms = self.initial_delay.as_millis() as f64;
-        let delay_ms = base_ms * self.multiplier.powi(attempt as i32);
-        let capped = Duration::from_millis(delay_ms.min(self.max_delay.as_millis() as f64) as u64);
-        capped.min(self.max_delay)
+        let base = self.initial_delay;
+        let factor = self.multiplier_ratio();
+        let mut delay = base;
+        for _ in 0..attempt {
+            delay = delay
+                .saturating_mul(factor.0)
+                .checked_div(factor.1)
+                .unwrap_or(self.max_delay);
+        }
+        delay.min(self.max_delay)
     }
 
     /// Execute `f` with retries. Returns `Ok` on first success or the last error.
@@ -54,24 +56,32 @@ impl RetryPolicy {
     /// # Errors
     ///
     /// Returns the last error from `f` if all attempts fail.
-    ///
-    /// # Panics
-    ///
-    /// Panics if `max_retries` is set such that no attempts are made (internal invariant).
     pub fn execute<T, E>(&self, mut f: impl FnMut() -> Result<T, E>) -> Result<T, E> {
-        let mut last_err = None;
-        for attempt in 0..=self.max_retries {
-            match f() {
-                Ok(val) => return Ok(val),
-                Err(e) => {
-                    last_err = Some(e);
-                    if attempt < self.max_retries {
-                        std::thread::sleep(self.delay_for_attempt(attempt));
-                    }
-                }
+        let mut last_err = f();
+        if last_err.is_ok() || self.max_retries == 0 {
+            return last_err;
+        }
+        for attempt in 0..self.max_retries {
+            std::thread::sleep(self.delay_for_attempt(attempt));
+            last_err = f();
+            if last_err.is_ok() {
+                return last_err;
             }
         }
-        Err(last_err.unwrap_or_else(|| unreachable!("at least one attempt")))
+        last_err
+    }
+
+    /// Approximate the multiplier as an integer ratio (numerator, denominator)
+    /// so delay computation is pure integer arithmetic — no float casts.
+    fn multiplier_ratio(&self) -> (u32, u32) {
+        #[expect(
+            clippy::cast_sign_loss,
+            clippy::cast_possible_truncation,
+            reason = "multiplier is a positive backoff factor, typically 2.0; \
+                      truncation to integer ratio is intentional approximation"
+        )]
+        let numer = (self.multiplier * 1000.0) as u32;
+        (numer, 1000)
     }
 }
 
@@ -148,6 +158,54 @@ impl CircuitBreaker {
             self.state = CircuitState::Open;
         }
     }
+}
+
+/// Execute an IPC call with combined circuit-breaker + retry protection.
+///
+/// If the circuit is open, returns `Err` immediately (fail-fast).
+/// Otherwise, retries transient failures according to the retry policy,
+/// recording successes/failures on the circuit breaker.
+///
+/// Absorbed from neuralSpring V113 `resilient_call()` / airSpring V0.8.8
+/// `resilient_send()` pattern. Synchronous — suitable for the blocking
+/// Unix socket transport used in groundSpring's JSON-RPC client.
+///
+/// # Errors
+///
+/// Returns the last error from `f` if all retry attempts fail,
+/// or a circuit-open error if the breaker is open.
+pub fn resilient_call<T, E: std::fmt::Display>(
+    breaker: &mut CircuitBreaker,
+    policy: &RetryPolicy,
+    mut f: impl FnMut() -> Result<T, E>,
+) -> Result<T, String> {
+    if !breaker.is_allowed() {
+        return Err("circuit open — IPC endpoint unavailable".to_string());
+    }
+
+    let mut last_err = String::new();
+    let mut attempt = 0u32;
+    let total_attempts = policy.max_retries + 1;
+
+    for _ in 0..total_attempts {
+        if attempt > 0 {
+            std::thread::sleep(policy.delay_for_attempt(attempt - 1));
+        }
+        match f() {
+            Ok(val) => {
+                breaker.record_success();
+                return Ok(val);
+            }
+            Err(e) => {
+                last_err = e.to_string();
+                log::debug!("resilient_call attempt {attempt} failed: {last_err}");
+            }
+        }
+        attempt += 1;
+    }
+
+    breaker.record_failure();
+    Err(last_err)
 }
 
 #[cfg(test)]

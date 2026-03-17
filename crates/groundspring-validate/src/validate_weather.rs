@@ -28,8 +28,8 @@ use groundspring::decompose::decompose_error;
 use groundspring::stats;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    THRESHOLD_GOOD_IA, THRESHOLD_GOOD_R2, TOL_ANALYTICAL, TOL_EXACT, TOL_REGIME,
-    TOL_STOCHASTIC_MEAN, parse_benchmark,
+    OrExit, THRESHOLD_GOOD_IA, THRESHOLD_GOOD_R2, TOL_ANALYTICAL, TOL_EXACT, TOL_REGIME,
+    TOL_STOCHASTIC_MEAN, get_f64, get_f64_range, parse_benchmark,
 };
 
 const BENCHMARK_OBS_GAP: &str =
@@ -168,10 +168,6 @@ fn main() {
 /// Validate the observation-gap benchmark JSON: parse it, extract acceptance
 /// criteria, and confirm that a synthetic dataset matching those criteria
 /// passes our stat functions. This closes the Python→JSON→Rust parity chain.
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn validate_observation_gap_benchmark(h: &mut ValidationHarness) {
     println!("\n--- Observation Gap Benchmark JSON Parity ---");
 
@@ -179,12 +175,10 @@ fn validate_observation_gap_benchmark(h: &mut ValidationHarness) {
 
     h.check_approx("Benchmark JSON parseable", 1.0, 1.0, TOL_EXACT);
 
-    let temp_r2_min = v["acceptance_criteria"]["temperature_r2_min"]
-        .as_f64()
-        .expect("benchmark must contain acceptance_criteria.temperature_r2_min");
-    let precip_hr_min = v["acceptance_criteria"]["precip_hit_rate_min"]
-        .as_f64()
-        .expect("benchmark must contain acceptance_criteria.precip_hit_rate_min");
+    let temp_r2_min = get_f64(&v["acceptance_criteria"], "temperature_r2_min")
+        .or_exit("benchmark must contain acceptance_criteria.temperature_r2_min");
+    let precip_hr_min = get_f64(&v["acceptance_criteria"], "precip_hit_rate_min")
+        .or_exit("benchmark must contain acceptance_criteria.precip_hit_rate_min");
     h.check_min("Acceptance: temp R² threshold > 0", temp_r2_min, 0.5);
     h.check_min(
         "Acceptance: precip hit rate threshold > 0",
@@ -192,14 +186,9 @@ fn validate_observation_gap_benchmark(h: &mut ValidationHarness) {
         0.3,
     );
 
-    let tmax_rmse_lo = v["variables_compared"]["tmax_c"]["expected_characteristics"]["rmse_range"]
-        [0]
-    .as_f64()
-    .expect("benchmark must contain tmax_c rmse_range[0]");
-    let tmax_rmse_hi = v["variables_compared"]["tmax_c"]["expected_characteristics"]["rmse_range"]
-        [1]
-    .as_f64()
-    .expect("benchmark must contain tmax_c rmse_range[1]");
+    let (tmax_rmse_lo, tmax_rmse_hi) =
+        get_f64_range(&v["variables_compared"]["tmax_c"]["expected_characteristics"]["rmse_range"])
+            .or_exit("benchmark must contain tmax_c rmse_range");
     h.check_min("tmax RMSE range: lo > 0", tmax_rmse_lo, 0.1);
     h.check_min("tmax RMSE range: hi > lo", tmax_rmse_hi, tmax_rmse_lo + 0.1);
 
@@ -241,11 +230,6 @@ fn validate_observation_gap_benchmark(h: &mut ValidationHarness) {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

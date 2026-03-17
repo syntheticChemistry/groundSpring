@@ -76,11 +76,6 @@ pub fn hill_repress(x: f64, k: f64, n: f64) -> f64 {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     use super::*;
     use crate::tol;

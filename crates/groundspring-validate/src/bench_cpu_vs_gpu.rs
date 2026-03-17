@@ -415,7 +415,13 @@ fn bench_tikhonov(iters: u32) -> BenchEntry {
 
     let cpu_ms = bench(
         || {
-            let r = groundspring::spectral_recon::tikhonov_solve(&kernel, &g, 1e-6, nt, nw);
+            let r = groundspring::spectral_recon::tikhonov_solve(
+                &kernel,
+                &g,
+                groundspring::spectral_recon::LAMBDA_NOISY,
+                nt,
+                nw,
+            );
             std::hint::black_box(r);
         },
         iters * 10,

@@ -19,7 +19,8 @@ use groundspring::jackknife::{
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    f64_field, f64_range, parse_benchmark, print_provenance_header, u64_field,
+    OrExit, f64_field, f64_range, get_array, get_u64, parse_benchmark, print_provenance_header,
+    u64_field,
 };
 use serde_json::Value;
 
@@ -31,13 +32,9 @@ struct GaussCtx {
     true_mean: f64,
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn validate_gaussian(h: &mut ValidationHarness, ctx: &GaussCtx, exp: &Value) {
     println!("\n--- Part 1: Jackknife on Gaussian data ---");
-    let r = jackknife_mean_variance(&ctx.data).expect("gaussian data >= 2 elements");
+    let r = jackknife_mean_variance(&ctx.data).or_exit("gaussian data >= 2 elements");
     println!("  JK mean = {:.4}, JK var = {:.6}", r.estimate, r.variance);
     h.check_max(
         "Jackknife mean near true mean",
@@ -48,21 +45,17 @@ fn validate_gaussian(h: &mut ValidationHarness, ctx: &GaussCtx, exp: &Value) {
     h.check_range("Jackknife variance of mean", r.variance, lo, hi);
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn validate_exponential(h: &mut ValidationHarness, exp_cfg: &Value, exp: &Value) {
     println!("\n--- Part 2: Jackknife on Exponential data ---");
     let rate = f64_field(exp_cfg, "rate");
-    let n = exp_cfg["n_samples"].as_u64().expect("n_samples") as usize;
+    let n = get_u64(exp_cfg, "n_samples").or_exit("n_samples") as usize;
     let seed = u64_field(exp_cfg, "seed");
 
     let mut rng = Xorshift64::new(seed);
     let data: Vec<f64> = (0..n)
         .map(|_| -rng.next_f64().max(f64::MIN_POSITIVE).ln() / rate)
         .collect();
-    let r = jackknife_mean_variance(&data).expect("exponential data >= 2 elements");
+    let r = jackknife_mean_variance(&data).or_exit("exponential data >= 2 elements");
     let true_mean = 1.0 / rate;
     println!(
         "  JK mean = {:.4} (true = {true_mean:.4}), JK var = {:.6}",
@@ -82,10 +75,6 @@ struct CorrCtx {
     block_sizes: Vec<usize>,
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn validate_block_and_bias(
     h: &mut ValidationHarness,
     gauss: &GaussCtx,
@@ -114,7 +103,7 @@ fn validate_block_and_bias(
     let monotone_slack = f64_field(exp, "block_jk_monotone_slack");
     let mut block_vars = Vec::new();
     for &bs in &corr.block_sizes {
-        let r = block_jackknife_variance(&corr.data, bs).expect("block_size valid");
+        let r = block_jackknife_variance(&corr.data, bs).or_exit("block_size valid");
         println!("  block_size={bs:3}: var = {:.6}", r.variance);
         block_vars.push(r.variance);
     }
@@ -132,10 +121,6 @@ fn validate_block_and_bias(
     );
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn validate_comparison_and_determinism(
     h: &mut ValidationHarness,
     gauss: &GaussCtx,
@@ -143,10 +128,10 @@ fn validate_comparison_and_determinism(
     exp: &Value,
 ) {
     println!("\n--- Part 5: Jackknife vs bootstrap comparison ---");
-    let jk = jackknife_mean_variance(&gauss.data).expect("gaussian data >= 2 elements");
+    let jk = jackknife_mean_variance(&gauss.data).or_exit("gaussian data >= 2 elements");
     let boot_cfg = &bench["bootstrap_comparison"];
     let boot_seed = u64_field(boot_cfg, "seed");
-    let n_boot = boot_cfg["n_bootstrap"].as_u64().expect("n_bootstrap") as usize;
+    let n_boot = get_u64(boot_cfg, "n_bootstrap").or_exit("n_bootstrap") as usize;
     let mut rng = Xorshift64::new(boot_seed);
     let n = gauss.data.len();
     let mut boot_means = Vec::with_capacity(n_boot);
@@ -174,8 +159,8 @@ fn validate_comparison_and_determinism(
     h.check_range("Jackknife/bootstrap variance ratio", ratio, lo, hi);
 
     println!("\n--- Part 6: Determinism ---");
-    let r1 = jackknife_mean_variance(&gauss.data).expect("gaussian data >= 2");
-    let r2 = jackknife_mean_variance(&gauss.data).expect("gaussian data >= 2");
+    let r1 = jackknife_mean_variance(&gauss.data).or_exit("gaussian data >= 2");
+    let r2 = jackknife_mean_variance(&gauss.data).or_exit("gaussian data >= 2");
     h.check_true(
         "Jackknife deterministic",
         r1.estimate.to_bits() == r2.estimate.to_bits()
@@ -183,10 +168,6 @@ fn validate_comparison_and_determinism(
     );
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Jackknife Error Estimation");
@@ -198,7 +179,7 @@ fn run() -> i32 {
     let corr_cfg = &bench["correlated"];
     let exp = &bench["expected_results"];
 
-    let n_gauss = gauss_cfg["n_samples"].as_u64().expect("n") as usize;
+    let n_gauss = get_u64(gauss_cfg, "n_samples").or_exit("n") as usize;
     let true_mean = f64_field(gauss_cfg, "true_mean");
     let true_std = f64_field(gauss_cfg, "true_std");
     let seed_g = u64_field(gauss_cfg, "seed");
@@ -213,7 +194,7 @@ fn run() -> i32 {
         true_mean,
     };
 
-    let n_corr = corr_cfg["n_samples"].as_u64().expect("n") as usize;
+    let n_corr = get_u64(corr_cfg, "n_samples").or_exit("n") as usize;
     let phi = f64_field(corr_cfg, "ar1_phi");
     let corr_mean = f64_field(corr_cfg, "true_mean");
     let corr_std = f64_field(corr_cfg, "true_std");
@@ -228,11 +209,10 @@ fn run() -> i32 {
             + rng_c.normal(0.0, innovation_std);
     }
 
-    let block_sizes: Vec<usize> = corr_cfg["block_sizes"]
-        .as_array()
-        .expect("block_sizes")
+    let block_sizes: Vec<usize> = get_array(corr_cfg, "block_sizes")
+        .or_exit("block_sizes")
         .iter()
-        .map(|v| v.as_u64().expect("u64") as usize)
+        .map(|v| v.as_u64().or_exit("u64") as usize)
         .collect();
 
     let corr = CorrCtx {
@@ -253,11 +233,6 @@ fn main() {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

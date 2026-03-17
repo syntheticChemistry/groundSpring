@@ -282,7 +282,6 @@ fn sort_eigenpairs(d: &mut [f64], z: &mut [f64], n: usize) {
 
 #[cfg(test)]
 #[expect(
-    clippy::unwrap_used,
     clippy::expect_used,
     reason = "test assertions use unwrap/expect for clarity"
 )]

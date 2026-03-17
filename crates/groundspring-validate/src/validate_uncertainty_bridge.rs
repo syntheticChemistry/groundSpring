@@ -13,8 +13,8 @@ use groundspring::anderson::{localization_length, lyapunov_averaged};
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    EPS_SAFE_DIV, THRESHOLD_LARGE_GAMMA, TOL_EQUILIBRIUM, f64_field, parse_benchmark,
-    print_provenance_header, usize_field,
+    EPS_SAFE_DIV, OrExit, THRESHOLD_LARGE_GAMMA, TOL_EQUILIBRIUM, f64_field, get_f64_vec,
+    parse_benchmark, print_provenance_header, usize_field,
 };
 use serde_json::Value;
 
@@ -65,10 +65,6 @@ fn propagate_sensor_noise(
 }
 
 /// Validate Anderson model sanity: monotonic γ, small at low W, large at high W.
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn validate_anderson_baseline(
     h: &mut ValidationHarness,
     disorders: &[f64],
@@ -141,10 +137,6 @@ fn validate_sensor(
     (raw_cv, corr_cv)
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Uncertainty Bridge");
@@ -167,12 +159,8 @@ fn run() -> i32 {
         n_realizations,
     };
 
-    let disorders: Vec<f64> = anderson["disorder_range"]
-        .as_array()
-        .expect("disorder_range array")
-        .iter()
-        .map(|v| v.as_f64().expect("disorder f64"))
-        .collect();
+    let disorders: Vec<f64> =
+        get_f64_vec(anderson, "disorder_range").or_exit("disorder_range array");
 
     validate_anderson_baseline(&mut h, &disorders, chain_length, n_realizations);
 
@@ -224,11 +212,6 @@ fn main() {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

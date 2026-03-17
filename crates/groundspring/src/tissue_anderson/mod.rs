@@ -49,7 +49,7 @@ pub use geometry::{
 pub use sweeps::*;
 
 use crate::anderson::lyapunov_exponent;
-use crate::cast::usize_f64;
+use crate::cast::{usize_f64, usize_u64};
 
 /// Critical disorder for 3D Anderson metal-insulator transition.
 const W_C_3D: f64 = 16.5;
@@ -107,7 +107,7 @@ pub fn simulate_tissue(
 
         let mut gamma_sum = 0.0;
         for r in 0..n_realizations {
-            let seed = base_seed + (ci as u64) * 10_000 + (r as u64);
+            let seed = base_seed + usize_u64(ci) * 10_000 + usize_u64(r);
             let potential = tissue_potential(n_sites, comp, seed);
             gamma_sum += lyapunov_exponent(&potential, 0.0);
         }
@@ -172,7 +172,7 @@ pub fn correlated_tissue_simulation(
     for (ci, comp) in compartments.iter().enumerate() {
         let l = comp.sites_per_dim;
         let w_eff = effective_disorder(&comp.cell_composition) + comp.base_disorder;
-        let seed = base_seed + (ci as u64) * 10_000;
+        let seed = base_seed + usize_u64(ci) * 10_000;
 
         let csr = barracuda::spectral::anderson_3d_correlated(l, w_eff, xi_corr, seed);
         let mut eigenvalues =
@@ -369,11 +369,6 @@ pub fn find_barrier_transition_w_c(
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     use super::*;
 

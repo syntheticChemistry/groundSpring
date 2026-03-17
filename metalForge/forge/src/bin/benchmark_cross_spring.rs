@@ -38,6 +38,7 @@
 //!
 //! Exit 0 if all benchmarks complete, exit 1 on any failure.
 
+use groundspring::tol;
 use groundspring_forge::harness::Harness;
 use std::time::Instant;
 
@@ -123,15 +124,13 @@ fn bench_fused_mean_variance(h: &mut Harness) {
     println!("  Separate: mean={sep_mean:.8},  std={sep_std:.8}  ({sep_us} µs)");
     println!("  Provenance: hotSpring DF64 → Welford mean_variance_f64.wgsl (barraCuda v0.3.3)");
 
-    // ANALYTICAL (1e-10): fused Welford and separate passes differ by at most
-    // one transcendental (sqrt in std_dev), so 1 ULP of accumulated error.
     h.check(
         "Fused mean matches separate mean",
-        (fused_mean - sep_mean).abs() < 1e-10,
+        (fused_mean - sep_mean).abs() < tol::ANALYTICAL,
     );
     h.check(
         "Fused std matches separate std",
-        (fused_std - sep_std).abs() < 1e-10,
+        (fused_std - sep_std).abs() < tol::ANALYTICAL,
     );
 }
 
@@ -352,11 +351,11 @@ fn bench_anderson_sweep(h: &mut Harness) {
         "Sweep returns correct number of points",
         sweep.len() == n_points,
     );
-    h.check(
-        "Lyapunov increases with disorder",
-        sweep.last().expect("non-empty sweep").mean_ratio
-            > sweep.first().expect("non-empty sweep").mean_ratio,
-    );
+    let monotonic = match (sweep.first(), sweep.last()) {
+        (Some(first), Some(last)) => last.mean_ratio > first.mean_ratio,
+        _ => false,
+    };
+    h.check("Lyapunov increases with disorder", monotonic);
 }
 
 fn bench_chi2_analysis(h: &mut Harness) {

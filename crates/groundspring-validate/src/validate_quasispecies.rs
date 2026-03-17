@@ -14,17 +14,13 @@ use groundspring::quasispecies::{
 };
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    TOL_RAREFACTION_PROP, f64_field, f64_range, parse_benchmark, print_provenance_header,
-    usize_field,
+    OrExit, TOL_RAREFACTION_PROP, f64_field, f64_range, get_f64_vec, get_u64, parse_benchmark,
+    print_provenance_header, usize_field,
 };
 
 const BENCHMARK: &str =
     include_str!("../../../control/quasispecies_threshold/benchmark_quasispecies.json");
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Quasispecies Error Threshold");
@@ -41,11 +37,9 @@ fn run() -> i32 {
     let genome_length = usize_field(model, "genome_length");
     let sigma = f64_field(model, "master_fitness");
     let n_gen = usize_field(model, "n_generations");
-    let base_seed =
-        groundspring_validate::get_u64(model, "base_seed").expect("benchmark base_seed");
+    let base_seed = get_u64(model, "base_seed").or_exit("benchmark base_seed");
 
-    let mutation_rates = groundspring_validate::get_f64_vec(model, "mutation_rates")
-        .expect("benchmark mutation_rates");
+    let mutation_rates = get_f64_vec(model, "mutation_rates").or_exit("benchmark mutation_rates");
 
     let mu_c = error_threshold(sigma, genome_length);
 
@@ -151,11 +145,6 @@ fn main() {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

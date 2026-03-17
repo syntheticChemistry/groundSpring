@@ -173,11 +173,6 @@ pub const fn example_18_inputs() -> DailyWeatherInputs {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     use super::super::equations::{
         daylight_hours, extraterrestrial_radiation, mean_saturation_vapour_pressure,

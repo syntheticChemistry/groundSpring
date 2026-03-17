@@ -121,6 +121,30 @@ pub(super) fn response_has_error(response: &str) -> Result<()> {
     }
 }
 
+/// Extract the result value from a JSON-RPC 2.0 response, or the error.
+///
+/// Convenience wrapper that parses the raw JSON and returns the `"result"`
+/// field as a [`Value`], or converts the `"error"` field into a typed
+/// [`BiomeOsError`].
+///
+/// Absorbed from ludoSpring V23 / healthSpring V30 `extract_rpc_result()`.
+pub(super) fn extract_rpc_result(response: &str) -> Result<Value> {
+    let v: Value = serde_json::from_str(response)
+        .map_err(|e| BiomeOsError::Protocol(format!("invalid JSON-RPC response: {e}")))?;
+
+    if let Some((code, message)) = extract_rpc_error(&v) {
+        return if (JSONRPC_PROTOCOL_ERROR_MIN..=JSONRPC_PROTOCOL_ERROR_MAX).contains(&code) {
+            Err(BiomeOsError::Protocol(message))
+        } else {
+            Err(BiomeOsError::Other(message))
+        };
+    }
+
+    v.get("result")
+        .cloned()
+        .ok_or_else(|| BiomeOsError::Protocol("missing result field in response".to_string()))
+}
+
 #[cfg(test)]
 #[expect(clippy::unwrap_used, reason = "test assertions use unwrap for clarity")]
 mod tests {

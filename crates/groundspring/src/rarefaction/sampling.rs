@@ -116,7 +116,13 @@ pub(super) fn multinomial_sample_batch_cpu(
     base_seed: u64,
 ) -> Vec<Vec<u64>> {
     (0..n_replicates)
-        .map(|i| multinomial_sample(abundances, depth, base_seed.wrapping_add(i as u64)))
+        .map(|i| {
+            multinomial_sample(
+                abundances,
+                depth,
+                base_seed.wrapping_add(crate::cast::usize_u64(i)),
+            )
+        })
         .collect()
 }
 
@@ -172,7 +178,6 @@ fn multinomial_sample_batch_gpu(
 #[cfg(test)]
 #[expect(
     clippy::unwrap_used,
-    clippy::expect_used,
     reason = "test assertions use unwrap/expect for clarity"
 )]
 mod tests {

@@ -195,11 +195,6 @@ fn summarize_mc_samples(samples: &mut [f64]) -> McEt0Result {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     use super::*;
     use crate::fao56::DailyWeatherInputs;

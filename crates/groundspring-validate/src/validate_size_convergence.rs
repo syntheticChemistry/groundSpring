@@ -13,7 +13,7 @@ use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
 use groundspring::wdm::finite_size_extrapolate;
 use groundspring_validate::{
-    f64_field, f64_range, parse_benchmark, print_provenance_header, usize_field,
+    OrExit, f64_field, f64_range, get_array, parse_benchmark, print_provenance_header, usize_field,
 };
 use serde_json::Value;
 
@@ -24,24 +24,16 @@ const BENCHMARK: &str =
     clippy::cast_precision_loss,
     reason = "system sizes from JSON are < 2^53, conversion exact"
 )]
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn json_number_to_f64(v: &Value) -> f64 {
     v.as_f64()
         .or_else(|| v.as_u64().map(|u| u as f64))
         .or_else(|| v.as_i64().map(|i| i as f64))
-        .expect("JSON value must be numeric")
+        .or_exit("JSON value must be numeric")
 }
 
 #[expect(
     clippy::too_many_lines,
     reason = "validation harness with multiple extrapolation checks"
-)]
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
 )]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
@@ -63,9 +55,8 @@ fn run() -> i32 {
     let threshold_pct = f64_field(model, "convergence_threshold_pct");
     let threshold = threshold_pct / 100.0;
 
-    let system_sizes: Vec<f64> = model["system_sizes"]
-        .as_array()
-        .expect("system_sizes array")
+    let system_sizes: Vec<f64> = get_array(model, "system_sizes")
+        .or_exit("system_sizes array")
         .iter()
         .map(json_number_to_f64)
         .collect();
@@ -97,7 +88,7 @@ fn run() -> i32 {
 
     // Fit finite-size extrapolation
     let (d_inf_fit, alpha_fit, r_squared) =
-        finite_size_extrapolate(&system_sizes, &d_mean, d_dim).expect("sizes >= 2");
+        finite_size_extrapolate(&system_sizes, &d_mean, d_dim).or_exit("sizes >= 2");
 
     // Extrapolation relative error
     let extrapolation_rel_err = if d_inf_true == 0.0 {
@@ -208,11 +199,6 @@ fn main() {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

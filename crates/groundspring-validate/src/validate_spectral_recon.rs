@@ -10,7 +10,7 @@
 //! - Bazavov et al. (2025) arXiv 2501.12259
 //! - Tikhonov & Arsenin (1977)
 
-#![expect(clippy::cast_precision_loss, clippy::cast_possible_truncation)]
+#![expect(clippy::cast_precision_loss)]
 
 use groundspring::prng::Xorshift64;
 use groundspring::spectral_recon::{
@@ -18,8 +18,8 @@ use groundspring::spectral_recon::{
 };
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    TOL_EXACT, f64_field, f64_range, parse_benchmark, print_provenance_header, u64_field,
-    usize_field,
+    OrExit, TOL_EXACT, f64_field, f64_range, get_f64_vec, get_usize, parse_benchmark,
+    print_provenance_header, u64_field, usize_field,
 };
 use serde_json::Value;
 
@@ -35,15 +35,11 @@ struct GridCtx {
     g_exact: Vec<f64>,
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn setup_grid(bench: &Value) -> GridCtx {
     let grid = &bench["grid"];
     let sf = &bench["spectral_function"];
-    let n_tau = grid["n_tau"].as_u64().expect("n_tau") as usize;
-    let n_omega = grid["n_omega"].as_u64().expect("n_omega") as usize;
+    let n_tau = get_usize(grid, "n_tau").or_exit("n_tau");
+    let n_omega = get_usize(grid, "n_omega").or_exit("n_omega");
     let tau_max = f64_field(grid, "tau_max");
     let omega_max = f64_field(grid, "omega_max");
 
@@ -102,10 +98,6 @@ fn validate_cholesky(h: &mut ValidationHarness, ctx: &GridCtx, exp: &Value) {
     );
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn validate_noisy_recon(h: &mut ValidationHarness, ctx: &GridCtx, bench: &Value, exp: &Value) {
     println!("\n--- Part 3: Noisy reconstruction ---");
     let noise_cfg = &bench["noise"];
@@ -134,12 +126,7 @@ fn validate_noisy_recon(h: &mut ValidationHarness, ctx: &GridCtx, bench: &Value,
     h.check_true("Peak value positive", rho_recon[pi] > 0.0);
 
     println!("\n--- Part 4: Regularization trade-off ---");
-    let lambdas: Vec<f64> = reg["lambda_values"]
-        .as_array()
-        .expect("lambda_values")
-        .iter()
-        .map(|v| v.as_f64().expect("f64"))
-        .collect();
+    let lambdas: Vec<f64> = get_f64_vec(reg, "lambda_values").or_exit("lambda_values");
     let mut rmses = Vec::new();
     for &lam in &lambdas {
         let rho_l = tikhonov_solve(&ctx.kernel, &g_noisy, lam, ctx.n_tau, ctx.n_omega);
@@ -193,11 +180,6 @@ fn main() {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

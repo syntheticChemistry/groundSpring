@@ -123,7 +123,10 @@ fn discover_primal_sockets(socket_dir: &str) -> Vec<(String, String)> {
         if !name_str.ends_with(".sock") {
             continue;
         }
-        if name_str.contains("neural-api") {
+        if groundspring::primal_names::NEURAL_API_SOCKET_NAMES
+            .iter()
+            .any(|n| name_str.contains(n.trim_end_matches(".sock")))
+        {
             continue;
         }
         let label = if let Some(base) = name_str.strip_suffix(".jsonrpc.sock") {

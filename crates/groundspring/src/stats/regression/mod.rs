@@ -99,7 +99,6 @@ pub fn fit_all(xs: &[f64], ys: &[f64]) -> Vec<NonlinearFit> {
 #[cfg(test)]
 #[expect(
     clippy::unwrap_used,
-    clippy::expect_used,
     reason = "test assertions use unwrap/expect for clarity"
 )]
 mod tests {

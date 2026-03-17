@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
-**Date**: March 16, 2026 | **License**: AGPL-3.0-or-later
-**Status**: V113 — 39 modules, 35 experiments, 618 unit + 24 integration Rust tests + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+. **Three-tier parity proven**: 29/29 validation binaries PASS at all three tiers. **V113**: GemmF64 transpose delegation (`execute_gemm_ex` trans_a=true), exit_code constants (UNIBIN_ARCHITECTURE_STANDARD), RetryPolicy + CircuitBreaker (IPC resilience), 4-format capability parsing. **V112**: `OrExit<T>` trait + `parse_benchmark()` (28 binaries migrated), generic `socket_env_var()` discovery, provenance trio, `thiserror` for `BenchFieldError`. **V111**: Deep debt evolution — `thiserror` for errors, `DispatchOutcome` enum, safe casts, DI config injection. **V110**: Cross-ecosystem absorption — `#[expect(reason)]` migration, structured tracing, toadStool direct dispatch, dual-format capability parsing. **V109**: Zero-panic validation binaries. **V108**: AGPL-3.0-or-later.
+**Date**: March 17, 2026 | **License**: AGPL-3.0-or-later
+**Status**: V114 — 39 modules, 35 experiments, 715 Rust tests + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+. Three-tier parity proven: 29/29 validation binaries PASS at all three tiers. **V114**: Cross-ecosystem deep absorption — `safe_cast` expansion (neuralSpring `usize_u32`/`f64_f32`), `BiomeOsError::is_recoverable()/is_retriable()` (airSpring/wetSpring), `health.liveness`/`health.readiness` probes (wetSpring/airSpring/healthSpring), `resilient_call()` (CircuitBreaker + RetryPolicy), `extract_rpc_result()` (ludoSpring/healthSpring), `FAMILY_ID`-aware discovery (toadStool/songBird), zero `eprintln!` in prod, `NEURAL_API_SOCKET_NAMES` centralization, bare `as` cast → `cast::` helpers, `.expect()` → `OrExit` in all validation binaries, primal composition guidance. **V113**: GemmF64 transpose delegation, RetryPolicy + CircuitBreaker, 4-format capability parsing. **V112**: `OrExit<T>`, provenance trio. **V111**: Deep debt — `thiserror`, `DispatchOutcome`, safe casts. **V110**: Cross-ecosystem absorption.
 
 **The gap between what models predict and what instruments measure.**
 
@@ -113,7 +113,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace                         # 618 unit + 24 integration tests, all PASS
+cargo test --workspace                         # 715 tests, all PASS
 cargo test --workspace --features biomeos      # NUCLEUS client active
 cargo test --workspace --features barracuda-gpu # GPU dispatch active
 cargo clippy --workspace --all-targets -- -D warnings -W clippy::pedantic -W clippy::nursery
@@ -162,6 +162,7 @@ cargo run --bin validate-precision-drift
 cargo run --bin validate-size-convergence
 cargo run --bin validate-vendor-parity
 cargo run --bin validate-tissue-anderson
+cargo run --bin validate-et0-methods
 
 # NUCLEUS / biomeOS validation (requires biomeos feature, NUCLEUS optional)
 cargo run --features biomeos --bin validate-real-ghcnd-et0
@@ -357,7 +358,8 @@ groundSpring/
 │   ├── precision_drift/            # Exp 025: f32 vs f64 precision drift
 │   ├── size_convergence/           # Exp 026: System-size convergence
 │   ├── vendor_parity/              # Exp 027: GPU vendor parity
-│   └── npu_anderson/               # Exp 028: NPU Anderson regime classification
+│   ├── npu_anderson/               # Exp 028: NPU Anderson regime classification
+│   └── et0_methods/                # Exp 034: Multi-method ET₀ cross-validation
 ├── crates/
 │   ├── groundspring/               # Phase 1 Rust library (39 modules incl. esn, lanczos, tissue_anderson, biomeos, nestgate, npu, primal_names)
 │   └── groundspring-validate/      # 34 validation binaries (hotSpring pattern)

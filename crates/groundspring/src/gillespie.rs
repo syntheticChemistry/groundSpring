@@ -154,7 +154,7 @@ fn birth_death_ssa_batch_cpu(
 ) -> BatchResult {
     let mut means = Vec::with_capacity(n_trajectories);
     for i in 0..n_trajectories {
-        let seed = base_seed.wrapping_add(i as u64);
+        let seed = base_seed.wrapping_add(crate::cast::usize_u64(i));
         let traj = birth_death_ssa(synthesis_rates, total_deg_rate, initial, t_max, seed);
         means.push(time_averaged_mean(&traj, t_burnin));
     }
@@ -324,11 +324,6 @@ pub fn time_averaged_variance(traj: &Trajectory, t_start: f64, mean: f64) -> f64
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     use super::*;
     use crate::tol;

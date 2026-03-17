@@ -22,7 +22,7 @@ use groundspring::biomeos;
 #[cfg(feature = "biomeos")]
 use groundspring::validate::ValidationHarness;
 #[cfg(feature = "biomeos")]
-use groundspring_validate::TOL_STOCHASTIC_MEAN;
+use groundspring_validate::{OrExit, TOL_STOCHASTIC_MEAN};
 
 #[cfg(feature = "biomeos")]
 fn main() {
@@ -77,10 +77,7 @@ fn run() -> i32 {
         return h.summary();
     }
 
-    let Some(socket) = socket else {
-        eprintln!("FATAL: NUCLEUS socket unavailable despite live check");
-        return 1;
-    };
+    let socket = socket.or_exit("NUCLEUS socket unavailable despite live check");
     println!("  Socket: {}", socket.display());
 
     validate_tower(&mut h, &socket);

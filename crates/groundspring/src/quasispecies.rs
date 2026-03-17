@@ -31,7 +31,7 @@
 //! selection + per-locus mutation is embarrassingly parallel across
 //! replicates via `WrightFisherGpu` (barraCuda S66).
 
-use crate::cast::usize_f64;
+use crate::cast::{usize_f64, usize_u64};
 use crate::prng::Xorshift64;
 
 /// Analytical error threshold for the single-peak landscape.
@@ -122,7 +122,7 @@ pub fn quasispecies_simulation_batch(
 ) -> Vec<Vec<f64>> {
     (0..n_replicates)
         .map(|i| {
-            let seed = base_seed.wrapping_add(i as u64);
+            let seed = base_seed.wrapping_add(usize_u64(i));
             quasispecies_simulation_cpu(pop_size, genome_length, sigma, mu, n_generations, seed)
         })
         .collect()
@@ -175,11 +175,6 @@ pub fn mean_fitness(sigma: f64, master_freq: f64) -> f64 {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     use super::*;
     use crate::tol;

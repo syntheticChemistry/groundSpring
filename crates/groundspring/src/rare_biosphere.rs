@@ -412,11 +412,6 @@ fn generate_xoshiro_seeds(n_reps: usize, base_seed: u64) -> Vec<u32> {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     use super::*;
     use crate::tol;

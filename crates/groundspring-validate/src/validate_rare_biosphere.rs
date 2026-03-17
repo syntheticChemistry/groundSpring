@@ -14,17 +14,14 @@ use groundspring::rare_biosphere::{
 };
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    array_field, f64_field, parse_benchmark, print_provenance_header, usize_field,
+    OrExit, array_field, f64_field, get_array, get_f64_range, get_u64, parse_benchmark,
+    print_provenance_header, usize_field,
 };
 use serde_json::Value;
 
 const BENCHMARK: &str =
     include_str!("../../../control/rare_biosphere/benchmark_rare_biosphere.json");
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn validate_chao1(
     h: &mut ValidationHarness,
     community: &[f64],
@@ -44,9 +41,8 @@ fn validate_chao1(
     let (chao1_shallow, sobs_shallow) =
         mean_chao1_at_depth(community, 100, n_reps, base_seed + 100);
 
-    let range = array_field(exp, "chao1_at_depth_50000_range");
-    let c_lo = range[0].as_f64().expect("lo");
-    let c_hi = range[1].as_f64().expect("hi");
+    let (c_lo, c_hi) =
+        get_f64_range(&exp["chao1_at_depth_50000_range"]).or_exit("chao1_at_depth_50000_range");
 
     h.check_range("Chao1 at D=50000 ≈ true richness", chao1_deep, c_lo, c_hi);
     h.check_true("Chao1 > S_obs at D=100", chao1_shallow > sobs_shallow);
@@ -122,16 +118,10 @@ struct OccupancyCtx<'a> {
     base_seed: u64,
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn validate_occupancy_and_singletons(h: &mut ValidationHarness, ctx: &OccupancyCtx<'_>) {
     println!("\n--- Part 4: Abundance-Occupancy ---");
     let n_samples = usize_field(ctx.model, "n_samples_occupancy");
-    let occ_depth = ctx.model["occupancy_depth"]
-        .as_u64()
-        .expect("occupancy_depth");
+    let occ_depth = get_u64(ctx.model, "occupancy_depth").or_exit("occupancy_depth");
     let occupancy =
         abundance_occupancy(ctx.community, occ_depth, n_samples, ctx.base_seed + 50_000);
 
@@ -179,10 +169,6 @@ fn validate_occupancy_and_singletons(h: &mut ValidationHarness, ctx: &OccupancyC
     h.check_true("Singleton fraction decreases with depth", sf_low > sf_high);
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Rare Biosphere");
@@ -195,16 +181,18 @@ fn run() -> i32 {
     let model = &bench["model"];
     let exp = &bench["expected_results"];
 
-    let community: Vec<f64> = array_field(model, "community")
+    let community: Vec<f64> = get_array(model, "community")
+        .or_exit("community")
         .iter()
-        .map(|v| v.as_f64().expect("f64"))
+        .map(|v| v.as_f64().or_exit("f64"))
         .collect();
-    let depths: Vec<u64> = array_field(model, "depths")
+    let depths: Vec<u64> = get_array(model, "depths")
+        .or_exit("depths")
         .iter()
-        .map(|v| v.as_u64().expect("u64"))
+        .map(|v| v.as_u64().or_exit("u64"))
         .collect();
     let n_reps = usize_field(model, "n_replicates");
-    let base_seed = model["base_seed"].as_u64().expect("base_seed");
+    let base_seed = get_u64(model, "base_seed").or_exit("base_seed");
 
     let tiers = &model["tier_boundaries"];
     let tier = |name: &str| -> (usize, usize) {
@@ -213,12 +201,12 @@ fn run() -> i32 {
             clippy::cast_possible_truncation,
             reason = "JSON tier indices ≤ community size, fits usize"
         )]
-        let lo = arr[0].as_u64().expect("lo") as usize;
+        let lo = arr[0].as_u64().or_exit("lo") as usize;
         #[expect(
             clippy::cast_possible_truncation,
             reason = "JSON tier indices ≤ community size, fits usize"
         )]
-        let hi = arr[1].as_u64().expect("hi") as usize;
+        let hi = arr[1].as_u64().or_exit("hi") as usize;
         (lo, hi)
     };
     let dom = tier("dominant");
@@ -260,11 +248,6 @@ fn main() {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

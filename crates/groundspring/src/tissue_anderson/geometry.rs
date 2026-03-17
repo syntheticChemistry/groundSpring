@@ -218,11 +218,6 @@ pub(super) fn select_cell_type(composition: &[(CellType, f64)], u: f64) -> CellT
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     use super::*;
     use crate::tol;

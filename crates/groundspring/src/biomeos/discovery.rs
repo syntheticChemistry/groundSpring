@@ -11,10 +11,9 @@ use std::path::PathBuf;
 
 /// Capability-based socket name pattern.
 ///
-/// biomeOS sockets are named by capability, not by primal. Discovery
-/// prefers the canonical `neural-api.sock` and falls back to scanning
-/// the directory for any socket that advertises a JSON-RPC health check.
-const CAPABILITY_SOCKET_NAMES: &[&str] = &["neural-api.sock", "neural-api-default.sock"];
+/// Delegates to [`crate::primal_names::NEURAL_API_SOCKET_NAMES`] — the
+/// single source of truth for well-known Neural API socket names.
+const CAPABILITY_SOCKET_NAMES: &[&str] = crate::primal_names::NEURAL_API_SOCKET_NAMES;
 
 /// Discover the `biomeOS` Neural API Unix socket path.
 ///

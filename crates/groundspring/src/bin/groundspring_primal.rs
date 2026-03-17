@@ -157,10 +157,10 @@ fn cmd_status() -> ExitCode {
                 let _ = reader.read_line(&mut response);
 
                 if let Ok(v) = serde_json::from_str::<serde_json::Value>(&response) {
-                    println!(
-                        "{}",
-                        serde_json::to_string_pretty(&v["result"]).unwrap_or_default()
-                    );
+                    match serde_json::to_string_pretty(&v["result"]) {
+                        Ok(pretty) => println!("{pretty}"),
+                        Err(e) => error!("failed to format result: {e}"),
+                    }
                     return ExitCode::SUCCESS;
                 }
                 error!("invalid response from server");

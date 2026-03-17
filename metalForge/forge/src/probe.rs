@@ -113,8 +113,14 @@ pub fn probe_gpus() -> Vec<Substrate> {
 pub fn probe_cpu() -> Substrate {
     #[cfg(target_os = "linux")]
     let (cpuinfo_content, meminfo_content) = (
-        fs::read_to_string(PROCFS_CPUINFO).unwrap_or_default(),
-        fs::read_to_string(PROCFS_MEMINFO).unwrap_or_default(),
+        fs::read_to_string(PROCFS_CPUINFO).unwrap_or_else(|e| {
+            log::warn!("failed to read {PROCFS_CPUINFO}: {e}");
+            String::new()
+        }),
+        fs::read_to_string(PROCFS_MEMINFO).unwrap_or_else(|e| {
+            log::warn!("failed to read {PROCFS_MEMINFO}: {e}");
+            String::new()
+        }),
     );
     #[cfg(not(target_os = "linux"))]
     let (cpuinfo_content, meminfo_content) = (String::new(), String::new());
@@ -219,7 +225,6 @@ fn parse_meminfo(content: &str) -> Option<u64> {
 #[cfg(test)]
 #[expect(
     clippy::unwrap_used,
-    clippy::expect_used,
     reason = "test assertions use unwrap/expect for clarity"
 )]
 mod tests {

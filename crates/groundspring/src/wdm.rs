@@ -60,19 +60,18 @@ fn green_kubo_integrate_cpu(acf: &[f64], dt: f64) -> f64 {
 /// before accumulating. The running sum is maintained in f32 precision
 /// throughout, then cast to f64 at the end.
 #[must_use]
-#[expect(
-    clippy::cast_possible_truncation,
-    reason = "WDM uses f32 for GPU dispatch"
-)]
 pub fn green_kubo_integrate_f32(acf: &[f64], dt: f64) -> f64 {
     if acf.len() < 2 {
         return 0.0;
     }
     let n = acf.len();
-    let dt_f32 = dt as f32;
+    let dt_f32 = crate::cast::f64_f32(dt);
     let sum: f32 = 0.5_f32.mul_add(
-        acf[0] as f32 + acf[n - 1] as f32,
-        acf[1..n - 1].iter().map(|&v| v as f32).sum::<f32>(),
+        crate::cast::f64_f32(acf[0]) + crate::cast::f64_f32(acf[n - 1]),
+        acf[1..n - 1]
+            .iter()
+            .map(|&v| crate::cast::f64_f32(v))
+            .sum::<f32>(),
     );
     f64::from(sum) * f64::from(dt_f32)
 }
@@ -226,7 +225,6 @@ pub fn optimal_block_size(data: &[f64], max_lag: usize) -> usize {
 #[cfg(test)]
 #[expect(
     clippy::unwrap_used,
-    clippy::expect_used,
     reason = "test assertions use unwrap/expect for clarity"
 )]
 mod tests {

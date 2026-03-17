@@ -21,7 +21,8 @@ use groundspring::almost_mathieu::{
 use groundspring::anderson::lyapunov_exponent;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    TOL_GRID_MATCH, f64_field, f64_range, parse_benchmark, print_provenance_header, usize_field,
+    OrExit, TOL_GRID_MATCH, f64_field, f64_range, get_f64_vec, parse_benchmark,
+    print_provenance_header, usize_field,
 };
 use serde_json::Value;
 
@@ -36,10 +37,6 @@ struct SweepParams {
 }
 
 /// Coupling sweep: compute Lyapunov exponents across coupling strengths.
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn coupling_sweep(
     harness: &mut ValidationHarness,
     couplings: &[f64],
@@ -60,7 +57,7 @@ fn coupling_sweep(
     let g1 = gammas
         .iter()
         .find(|(l, _)| (*l - 1.0).abs() < TOL_GRID_MATCH)
-        .expect("λ=1")
+        .or_exit("λ=1")
         .1;
     harness.check_max(
         "Extended regime (λ=1) γ < threshold",
@@ -71,7 +68,7 @@ fn coupling_sweep(
     let g3 = gammas
         .iter()
         .find(|(l, _)| (*l - 3.0).abs() < TOL_GRID_MATCH)
-        .expect("λ=3")
+        .or_exit("λ=3")
         .1;
     harness.check_approx(
         "Herman's formula at λ=3: γ ≈ ln(3/2)",
@@ -83,7 +80,7 @@ fn coupling_sweep(
     let g4 = gammas
         .iter()
         .find(|(l, _)| (*l - 4.0).abs() < TOL_GRID_MATCH)
-        .expect("λ=4")
+        .or_exit("λ=4")
         .1;
     harness.check_approx(
         "Herman's formula at λ=4: γ ≈ ln(2)",
@@ -96,17 +93,13 @@ fn coupling_sweep(
 }
 
 /// Critical point and monotonicity checks.
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn critical_and_monotonicity(harness: &mut ValidationHarness, gammas: &[(f64, f64)], exp: &Value) {
     println!("\n--- Part 3: Critical Point (λ=2) ---");
 
     let g2 = gammas
         .iter()
         .find(|(l, _)| (*l - 2.0).abs() < TOL_GRID_MATCH)
-        .expect("λ=2")
+        .or_exit("λ=2")
         .1;
     println!("  Lyapunov at critical coupling (λ=2): {g2:.6}");
     harness.check_approx(
@@ -189,10 +182,6 @@ fn level_spacing_checks(harness: &mut ValidationHarness, n_eig: usize, alpha: f6
     harness.check_range("Level spacing λ=4 ~ Poisson", r_loc, loc_lo, loc_hi);
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut harness = ValidationHarness::stdout("Rust Validation: Quasiperiodic Localization");
@@ -209,12 +198,7 @@ fn run() -> i32 {
     let theta = f64_field(model, "theta");
     let n_eig = usize_field(model, "n_eigenvalues");
 
-    let couplings: Vec<f64> = model["coupling_strengths"]
-        .as_array()
-        .expect("coupling array")
-        .iter()
-        .map(|v| v.as_f64().expect("coupling f64"))
-        .collect();
+    let couplings: Vec<f64> = get_f64_vec(model, "coupling_strengths").or_exit("coupling array");
 
     println!("  Model: 1D Almost-Mathieu, {n_sites} sites, α = golden ratio");
 
@@ -251,11 +235,6 @@ fn main() {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     #[test]
     fn validation_passes() {

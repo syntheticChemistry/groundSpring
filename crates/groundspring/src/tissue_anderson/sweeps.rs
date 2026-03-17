@@ -7,7 +7,7 @@
 //! quantifying the promotion–collapse duality between tillage and scratching.
 
 use crate::anderson::{anderson_potential, lyapunov_exponent};
-use crate::cast::usize_f64;
+use crate::cast::{usize_f64, usize_u64};
 use crate::prng::Xorshift64;
 
 use super::compartments::{disrupted_epidermis, inflamed_dermis};
@@ -55,7 +55,7 @@ pub fn barrier_disruption_sweep(
             let epi = disrupted_epidermis(frac);
             let derm = inflamed_dermis();
             let result =
-                simulate_tissue(&[epi, derm], n_realizations, base_seed + (i as u64) * 100);
+                simulate_tissue(&[epi, derm], n_realizations, base_seed + usize_u64(i) * 100);
             BarrierSweepPoint {
                 breach_fraction: frac,
                 d_eff_epidermis: result.d_eff_system.min(3.0),
@@ -108,7 +108,7 @@ pub fn dimensional_duality_sweep(
             let d_eff = (2.5 + param * 0.5).clamp(2.0, 3.0);
             let n_sites = 500;
             let w = 2.0;
-            let mut rng = Xorshift64::new(base_seed + i as u64);
+            let mut rng = Xorshift64::new(base_seed + usize_u64(i));
 
             let mut gamma_sum = 0.0;
             for _ in 0..n_realizations {
@@ -138,7 +138,6 @@ pub fn dimensional_duality_sweep(
 #[cfg(test)]
 #[expect(
     clippy::unwrap_used,
-    clippy::expect_used,
     reason = "test assertions use unwrap/expect for clarity"
 )]
 mod tests {

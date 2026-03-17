@@ -202,7 +202,7 @@ fn lyapunov_averaged_cpu(
 ) -> f64 {
     let mut total = 0.0;
     for i in 0..n_realizations {
-        let pot = anderson_potential(n_sites, disorder, base_seed + i as u64);
+        let pot = anderson_potential(n_sites, disorder, base_seed + crate::cast::usize_u64(i));
         total += lyapunov_exponent(&pot, energy);
     }
     total / crate::cast::usize_f64(n_realizations)
@@ -289,7 +289,7 @@ fn disorder_sweep_cpu(
                 w,
                 0.0,
                 n_realizations,
-                base_seed + (i as u64) * 10_000,
+                base_seed + crate::cast::usize_u64(i) * 10_000,
             );
             SweepPoint {
                 disorder: w,
@@ -371,11 +371,6 @@ pub use spectral::{
 };
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     use super::*;
     use crate::tol;

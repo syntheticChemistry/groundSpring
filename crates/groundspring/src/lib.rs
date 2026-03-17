@@ -160,10 +160,11 @@ pub use bingocube_nautilus as nautilus;
 
 /// Centralized numeric cast helpers.
 ///
-/// `usize` and `u64` → `f64` conversions are unavoidable in numerical code
-/// (Rust has no `From<usize>` for `f64` because usize may be 64-bit).
-/// These helpers document the safety argument once and keep cast lints
-/// targeted rather than blanket-allowed.
+/// Replaces bare `as` casts with named functions that document the safety
+/// argument once and keep cast lints targeted rather than blanket-allowed.
+///
+/// Absorbed from neuralSpring V113 `safe_cast` pattern; extended with
+/// groundSpring-specific helpers for rarefaction counts and GPU dispatch.
 pub(crate) mod cast {
     /// Convert a collection length (`usize`) to `f64`.
     ///
@@ -195,6 +196,50 @@ pub(crate) mod cast {
     )]
     pub const fn f64_usize(x: f64) -> usize {
         x as usize
+    }
+
+    /// `usize` → `u32`, returning an error on overflow.
+    ///
+    /// GPU dispatch parameters (workgroup counts, dimension sizes) must fit
+    /// in `u32`. This makes the check explicit rather than silently truncating.
+    ///
+    /// Absorbed from neuralSpring V113 `safe_cast::usize_u32`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error string if the value exceeds `u32::MAX`.
+    #[expect(
+        dead_code,
+        reason = "absorbed API surface for GPU dispatch; callers arrive via metalForge and barracuda-gpu feature"
+    )]
+    pub fn usize_u32(value: usize, label: &str) -> Result<u32, String> {
+        u32::try_from(value).map_err(|_| format!("{label}: {value} exceeds u32::MAX"))
+    }
+
+    /// `usize` → `u64`, infallible on 64-bit platforms.
+    ///
+    /// On 32-bit platforms `usize` ≤ `u64` so this is always safe, but using
+    /// a named function documents intent and avoids bare `as` casts.
+    #[inline]
+    #[must_use]
+    pub const fn usize_u64(value: usize) -> u64 {
+        value as u64
+    }
+
+    /// `f64` → `f32`, intentionally lossy for GPU shader inputs.
+    ///
+    /// Most WGSL shaders operate on f32. This wrapper documents the
+    /// intentional precision loss and avoids lint noise from bare casts.
+    ///
+    /// Absorbed from neuralSpring V113 `safe_cast::f64_f32`.
+    #[inline]
+    #[must_use]
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "intentional: GPU shaders require f32"
+    )]
+    pub const fn f64_f32(value: f64) -> f32 {
+        value as f32
     }
 }
 
@@ -337,11 +382,6 @@ pub(crate) mod eps {
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     use super::*;
 

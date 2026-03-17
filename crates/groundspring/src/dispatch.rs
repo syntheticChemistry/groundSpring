@@ -84,6 +84,8 @@ const DEFAULT_REGIME_MARGIN: f64 = 0.1;
 pub fn dispatch(method: &str, params: &Value) -> Result<Value, String> {
     match method {
         "health.check" | "health" => Ok(health_check()),
+        "health.liveness" => Ok(health_liveness()),
+        "health.readiness" => Ok(health_readiness()),
         "capability.list" => Ok(capability_list()),
         "lifecycle.status" => Ok(lifecycle_status()),
 
@@ -138,6 +140,32 @@ fn lifecycle_status() -> Value {
         "family_id": crate::biomeos::FAMILY_ID,
         "version": env!("CARGO_PKG_VERSION"),
         "capabilities": crate::biomeos::MEASUREMENT_CAPABILITIES,
+        "uptime_seconds": uptime_secs(),
+    })
+}
+
+/// Liveness probe — answers immediately if the process is alive.
+///
+/// Absorbed from wetSpring V121 / airSpring V0.8.8 / healthSpring V30
+/// health probe pattern. biomeOS uses this to distinguish "process is
+/// alive" from "process is ready to serve requests".
+fn health_liveness() -> Value {
+    serde_json::json!({
+        "status": "alive",
+        "primal": crate::biomeos::FAMILY_ID,
+    })
+}
+
+/// Readiness probe — confirms the server can accept and process requests.
+///
+/// Returns capability count and uptime. A positive capability count
+/// indicates all dispatch routes are wired and ready.
+fn health_readiness() -> Value {
+    serde_json::json!({
+        "status": "ready",
+        "primal": crate::biomeos::FAMILY_ID,
+        "version": env!("CARGO_PKG_VERSION"),
+        "capabilities_ready": crate::biomeos::MEASUREMENT_CAPABILITIES.len(),
         "uptime_seconds": uptime_secs(),
     })
 }
