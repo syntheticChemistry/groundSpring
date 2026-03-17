@@ -11,7 +11,7 @@
 
 use groundspring::multisignal::{MultiSignalParams, integrate, stochastic_integrate};
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{array_field, f64_field, print_provenance_header};
+use groundspring_validate::{array_field, f64_field, parse_benchmark, print_provenance_header};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/multisignal_qs/benchmark_multisignal.json");
@@ -60,10 +60,7 @@ fn ic_from_json(model: &Value) -> [f64; 7] {
 }
 
 fn run() -> i32 {
-    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
-        eprintln!("FATAL: invalid benchmark JSON");
-        return 1;
-    };
+    let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Multi-Signal QS Integration");
 
     print_provenance_header(&bench, "Multi-Signal QS Integration");

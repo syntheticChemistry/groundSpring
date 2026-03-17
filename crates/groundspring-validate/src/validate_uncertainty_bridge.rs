@@ -13,8 +13,8 @@ use groundspring::anderson::{localization_length, lyapunov_averaged};
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    EPS_SAFE_DIV, THRESHOLD_LARGE_GAMMA, TOL_EQUILIBRIUM, f64_field, print_provenance_header,
-    usize_field,
+    EPS_SAFE_DIV, THRESHOLD_LARGE_GAMMA, TOL_EQUILIBRIUM, f64_field, parse_benchmark,
+    print_provenance_header, usize_field,
 };
 use serde_json::Value;
 
@@ -146,10 +146,7 @@ fn validate_sensor(
     reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
 )]
 fn run() -> i32 {
-    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
-        eprintln!("FATAL: invalid benchmark JSON");
-        return 1;
-    };
+    let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Uncertainty Bridge");
     print_provenance_header(&bench, "Uncertainty Bridge");
 

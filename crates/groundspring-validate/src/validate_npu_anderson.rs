@@ -11,7 +11,9 @@
 
 use groundspring::npu;
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{EPS_SAFE_DIV, f64_field, print_provenance_header, usize_field};
+use groundspring_validate::{
+    EPS_SAFE_DIV, f64_field, parse_benchmark, print_provenance_header, usize_field,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/npu_anderson/benchmark_npu_anderson.json");
@@ -228,10 +230,7 @@ fn run_npu_checks(bench: &Value, h: &mut ValidationHarness) {
     reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
 )]
 fn main() {
-    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
-        eprintln!("FATAL: invalid benchmark JSON");
-        return 1;
-    };
+    let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Exp 028 — NPU Anderson Regime Classification");
 
     print_provenance_header(&bench, "NPU Anderson Regime Classification");

@@ -19,7 +19,7 @@ use groundspring::fao56::{
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    EPS_SAFE_DIV, f64_field, f64_range, print_provenance_header, usize_field,
+    EPS_SAFE_DIV, f64_field, f64_range, parse_benchmark, print_provenance_header, usize_field,
 };
 use serde_json::Value;
 
@@ -248,10 +248,7 @@ fn sensitivity_variance_fractions(fao: &Value, seed: u64) -> [f64; 4] {
 }
 
 fn run() -> i32 {
-    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
-        eprintln!("FATAL: invalid benchmark JSON");
-        return 1;
-    };
+    let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: ET₀ → Anderson Propagation");
     print_provenance_header(&bench, "ET₀ → Anderson Propagation (Exp 022)");
 

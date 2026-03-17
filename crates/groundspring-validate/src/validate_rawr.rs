@@ -12,7 +12,7 @@ use groundspring::bootstrap::{bootstrap_mean, rawr_mean};
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    f64_field, f64_range, print_provenance_header, u64_field, usize_field,
+    f64_field, f64_range, parse_benchmark, print_provenance_header, u64_field, usize_field,
 };
 use serde_json::Value;
 
@@ -297,10 +297,7 @@ fn validate_determinism(h: &mut ValidationHarness, bench: &Value) {
 }
 
 fn run() -> i32 {
-    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
-        eprintln!("FATAL: invalid benchmark JSON");
-        return 1;
-    };
+    let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: RAWR Resampling");
 
     print_provenance_header(&bench, "RAWR Resampling");

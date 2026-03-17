@@ -18,7 +18,8 @@ use groundspring::spectral_recon::{
 };
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    TOL_EXACT, f64_field, f64_range, print_provenance_header, u64_field, usize_field,
+    TOL_EXACT, f64_field, f64_range, parse_benchmark, print_provenance_header, u64_field,
+    usize_field,
 };
 use serde_json::Value;
 
@@ -103,7 +104,6 @@ fn validate_cholesky(h: &mut ValidationHarness, ctx: &GridCtx, exp: &Value) {
 
 #[expect(
     clippy::expect_used,
-    clippy::unwrap_used,
     reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
 )]
 fn validate_noisy_recon(h: &mut ValidationHarness, ctx: &GridCtx, bench: &Value, exp: &Value) {
@@ -172,15 +172,8 @@ fn validate_noisy_recon(h: &mut ValidationHarness, ctx: &GridCtx, bench: &Value,
     h.check_true("Reconstruction deterministic", rho_recon == rho2);
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn run() -> i32 {
-    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
-        eprintln!("FATAL: invalid benchmark JSON");
-        return 1;
-    };
+    let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Spectral Function Reconstruction");
 
     print_provenance_header(&bench, "Spectral Function Reconstruction");

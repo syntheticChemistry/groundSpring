@@ -14,7 +14,8 @@ use groundspring::gillespie::{
 };
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    TOL_STOCHASTIC_MEAN, f64_field, f64_range, print_provenance_header, usize_field,
+    TOL_STOCHASTIC_MEAN, f64_field, f64_range, parse_benchmark, print_provenance_header,
+    usize_field,
 };
 use serde_json::Value;
 
@@ -232,10 +233,7 @@ fn validate_activated_states(
     reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
 )]
 fn run() -> i32 {
-    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
-        eprintln!("FATAL: invalid benchmark JSON");
-        return 1;
-    };
+    let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Signal Specificity");
 
     print_provenance_header(&bench, "Signal Specificity (c-di-GMP)");

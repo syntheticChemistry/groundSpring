@@ -12,10 +12,9 @@
 use groundspring::decompose::{decompose_error, noise_floor_reduction};
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    TOL_ANALYTICAL, TOL_DECOMPOSITION, TOL_LITERATURE, array_field, f64_field,
+    TOL_ANALYTICAL, TOL_DECOMPOSITION, TOL_LITERATURE, array_field, f64_field, parse_benchmark,
     print_provenance_header,
 };
-use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/sensor_noise/benchmark_sensor_noise.json");
 
@@ -24,10 +23,7 @@ const BENCHMARK: &str = include_str!("../../../control/sensor_noise/benchmark_se
     reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
 )]
 fn run() -> i32 {
-    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
-        eprintln!("FATAL: invalid benchmark JSON");
-        return 1;
-    };
+    let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Bias-Variance Decomposition");
 
     print_provenance_header(&bench, "Bias-Variance Decomposition");

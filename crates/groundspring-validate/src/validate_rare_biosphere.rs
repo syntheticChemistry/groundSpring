@@ -13,7 +13,9 @@ use groundspring::rare_biosphere::{
     singleton_fraction, tier_detection_rate,
 };
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{array_field, f64_field, print_provenance_header, usize_field};
+use groundspring_validate::{
+    array_field, f64_field, parse_benchmark, print_provenance_header, usize_field,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str =
@@ -122,7 +124,6 @@ struct OccupancyCtx<'a> {
 
 #[expect(
     clippy::expect_used,
-    clippy::unwrap_used,
     reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
 )]
 fn validate_occupancy_and_singletons(h: &mut ValidationHarness, ctx: &OccupancyCtx<'_>) {
@@ -183,10 +184,7 @@ fn validate_occupancy_and_singletons(h: &mut ValidationHarness, ctx: &OccupancyC
     reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
 )]
 fn run() -> i32 {
-    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
-        eprintln!("FATAL: invalid benchmark JSON");
-        return 1;
-    };
+    let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Rare Biosphere");
 
     println!("{}", "=".repeat(72));

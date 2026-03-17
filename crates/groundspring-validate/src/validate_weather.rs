@@ -29,7 +29,7 @@ use groundspring::stats;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
     THRESHOLD_GOOD_IA, THRESHOLD_GOOD_R2, TOL_ANALYTICAL, TOL_EXACT, TOL_REGIME,
-    TOL_STOCHASTIC_MEAN,
+    TOL_STOCHASTIC_MEAN, parse_benchmark,
 };
 
 const BENCHMARK_OBS_GAP: &str =
@@ -175,14 +175,7 @@ fn main() {
 fn validate_observation_gap_benchmark(h: &mut ValidationHarness) {
     println!("\n--- Observation Gap Benchmark JSON Parity ---");
 
-    let v: serde_json::Value = match serde_json::from_str(BENCHMARK_OBS_GAP) {
-        Ok(v) => v,
-        Err(e) => {
-            println!("  Parse error: {e}");
-            h.check_approx("Benchmark JSON parseable", 0.0, 1.0, 0.0);
-            return;
-        }
-    };
+    let v = parse_benchmark(BENCHMARK_OBS_GAP);
 
     h.check_approx("Benchmark JSON parseable", 1.0, 1.0, TOL_EXACT);
 

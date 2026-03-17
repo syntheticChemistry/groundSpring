@@ -171,8 +171,11 @@ mod tests {
 
     #[test]
     fn socket_path_respects_explicit_override() {
-        temp_env::with_var("GROUNDSPRING_SOCKET", Some("/tmp/test.sock"), || {
-            assert_eq!(socket_path(), PathBuf::from("/tmp/test.sock"));
+        let dir = tempfile::tempdir().expect("tempdir");
+        let sock = dir.path().join("test.sock");
+        let sock_str = sock.to_str().expect("valid utf-8");
+        temp_env::with_var("GROUNDSPRING_SOCKET", Some(sock_str), || {
+            assert_eq!(socket_path(), sock);
         });
     }
 

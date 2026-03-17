@@ -4,6 +4,32 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V112 Ecosystem Absorption + OrExit (Mar 16, 2026)
+
+#### `OrExit<T>` Trait (wetSpring V123 / healthSpring V31 Pattern)
+- New `OrExit<T>` trait in `groundspring-validate` — `.or_exit(msg)` on `Result` and `Option`
+- `parse_benchmark()` helper replaces repeated `let Ok(bench) = serde_json::from_str else { eprintln!; return 1 }` boilerplate
+- 28 validation binaries migrated to `parse_benchmark()`; dead `serde_json::Value` imports and stale `#[expect]` attributes cleaned
+- `BenchFieldError` evolved from manual `Display`+`Error` impls to `thiserror::Error` derive
+
+#### Generic Primal Discovery (sweetGrass v0.7.18 Pattern)
+- `socket_env_var(primal_name)` → `"{UPPER_NAME}_SOCKET"` — generic env var construction
+- `address_env_var(primal_name)` → `"{UPPER_NAME}_ADDRESS"` — generic address env var
+- Tests for both helpers
+
+#### Provenance Trio
+- Added `RHIZOCRYPT`, `LOAMSPINE`, `SWEETGRASS` constants to `primal_names.rs`
+
+#### Infrastructure
+- `groundspring-validate` now uses `default-features = false` for groundspring dependency — decouples from barracuda compilation for clippy
+- `thiserror = "2"` added to validate crate
+- Hardcoded `/tmp/test.sock` in `server.rs` tests replaced with `tempfile::tempdir()`
+- metalForge cast evolution: stale `#[expect]` cleaned for casts that don't trigger on 64-bit
+
+#### Quality Gates
+- 605 unit tests + 24 integration tests pass, 0 clippy warnings, 0 fmt diff
+- Validate crate: 0 clippy warnings with `-D warnings`
+
 ### V110 Cross-Ecosystem Absorption (Mar 16, 2026)
 
 #### `#[expect(reason)]` Migration (wetSpring V122 Pattern)

@@ -12,7 +12,7 @@ use groundspring::fao56::{self, DailyWeatherInputs};
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    TOL_EQUILIBRIUM, array_field, f64_field, print_provenance_header, u64_field,
+    TOL_EQUILIBRIUM, array_field, f64_field, parse_benchmark, print_provenance_header, u64_field,
 };
 use serde_json::Value;
 
@@ -271,10 +271,7 @@ fn validate_sensitivity(
     reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
 )]
 fn run() -> i32 {
-    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
-        eprintln!("FATAL: invalid benchmark JSON");
-        return 1;
-    };
+    let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: FAO-56 Error Propagation");
 
     print_provenance_header(&bench, "FAO-56 Error Propagation");

@@ -26,7 +26,7 @@ use groundspring::fao56::{self, DailyWeatherInputs};
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
     ET0_PLAUSIBLE_MAX_MM, ET0_PLAUSIBLE_MIN_MM, TOL_EQUILIBRIUM, TOL_ET0, f64_field,
-    print_provenance_header,
+    parse_benchmark, print_provenance_header,
 };
 use serde_json::Value;
 
@@ -193,10 +193,7 @@ fn validate_seasonal_and_intermediates(
 }
 
 fn run() -> i32 {
-    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
-        eprintln!("FATAL: invalid benchmark JSON");
-        return 1;
-    };
+    let bench = parse_benchmark(BENCHMARK);
     let mut harness =
         ValidationHarness::stdout("Rust Validation: Multi-Method ET₀ Cross-Validation");
 

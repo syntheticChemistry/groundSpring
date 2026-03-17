@@ -12,7 +12,9 @@ use groundspring::seismic::{
     GridSearchConfig, Station, grid_search_inversion, haversine_km, travel_time_1d,
 };
 use groundspring::validate::ValidationHarness;
-use groundspring_validate::{TOL_ANALYTICAL, array_field, f64_field, print_provenance_header};
+use groundspring_validate::{
+    TOL_ANALYTICAL, array_field, f64_field, parse_benchmark, print_provenance_header,
+};
 use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/seismic/benchmark_seismic.json");
@@ -132,10 +134,7 @@ fn validate_inversion(
     reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
 )]
 fn run() -> i32 {
-    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
-        eprintln!("FATAL: invalid benchmark JSON");
-        return 1;
-    };
+    let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Seismic Inversion");
 
     print_provenance_header(&bench, "Seismic Wave Propagation");

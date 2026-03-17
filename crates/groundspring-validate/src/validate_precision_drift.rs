@@ -13,8 +13,9 @@ use groundspring::prng::Xorshift64;
 use groundspring::stats;
 use groundspring::validate::ValidationHarness;
 use groundspring::wdm::{green_kubo_integrate, green_kubo_integrate_f32, synthetic_vacf};
-use groundspring_validate::{f64_field, f64_range, print_provenance_header, usize_field};
-use serde_json::Value;
+use groundspring_validate::{
+    f64_field, f64_range, parse_benchmark, print_provenance_header, usize_field,
+};
 
 const BENCHMARK: &str =
     include_str!("../../../control/precision_drift/benchmark_precision_drift.json");
@@ -45,14 +46,10 @@ fn synthetic_vacf_noisy(
 )]
 #[expect(
     clippy::expect_used,
-    clippy::unwrap_used,
     reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
 )]
 fn run() -> i32 {
-    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
-        eprintln!("FATAL: invalid benchmark JSON");
-        return 1;
-    };
+    let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Precision Drift");
     print_provenance_header(&bench, "f32 vs f64 Precision Drift (Exp 025)");
 

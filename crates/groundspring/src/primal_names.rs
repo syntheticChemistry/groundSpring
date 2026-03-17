@@ -36,6 +36,17 @@ pub const PETALTONGUE: &str = "petaltongue";
 /// Squirrel AI assistant.
 pub const SQUIRREL: &str = "squirrel";
 
+// ─── Provenance Trio ─────
+
+/// rhizoCrypt — ephemeral DAG and working memory.
+pub const RHIZOCRYPT: &str = "rhizocrypt";
+
+/// loamSpine — provenance and attestation.
+pub const LOAMSPINE: &str = "loamspine";
+
+/// sweetGrass — semantic provenance and attribution.
+pub const SWEETGRASS: &str = "sweetgrass";
+
 /// Socket directory name for biomeOS IPC mesh.
 pub const BIOMEOS_SOCKET_DIR: &str = "biomeos";
 
@@ -45,3 +56,40 @@ pub const BIOMEOS_SOCKET_DIR: &str = "biomeos";
 /// rather than the `biomeos/` subdirectory. Retained for backward
 /// compatibility during migration.
 pub const LEGACY_NEURAL_API_SOCK: &str = "biomeos-neural-api.sock";
+
+// ─── Generic Discovery Helpers ─────
+
+/// Generate the environment variable name for a primal's socket path.
+///
+/// Follows the ecosystem convention: `{UPPER_NAME}_SOCKET`.
+/// E.g., `socket_env_var("groundspring")` → `"GROUNDSPRING_SOCKET"`.
+///
+/// Pattern source: sweetGrass v0.7.18 generic primal discovery.
+#[must_use]
+pub fn socket_env_var(primal_name: &str) -> String {
+    format!("{}_SOCKET", primal_name.to_uppercase())
+}
+
+/// Generate the environment variable name for a primal's address (host:port).
+///
+/// Follows the ecosystem convention: `{UPPER_NAME}_ADDRESS`.
+#[must_use]
+pub fn address_env_var(primal_name: &str) -> String {
+    format!("{}_ADDRESS", primal_name.to_uppercase())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn socket_env_var_uppercases() {
+        assert_eq!(socket_env_var("groundspring"), "GROUNDSPRING_SOCKET");
+        assert_eq!(socket_env_var("biomeos"), "BIOMEOS_SOCKET");
+    }
+
+    #[test]
+    fn address_env_var_uppercases() {
+        assert_eq!(address_env_var("nestgate"), "NESTGATE_ADDRESS");
+    }
+}

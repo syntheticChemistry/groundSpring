@@ -12,9 +12,8 @@ use groundspring::bootstrap::{bootstrap_mean, rawr_mean};
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    EPS_SAFE_DIV, TOL_DETERMINISM, f64_field, print_provenance_header, usize_field,
+    EPS_SAFE_DIV, TOL_DETERMINISM, f64_field, parse_benchmark, print_provenance_header, usize_field,
 };
-use serde_json::Value;
 
 const BENCHMARK: &str =
     include_str!("../../../control/resampling_convergence/benchmark_resampling_convergence.json");
@@ -42,10 +41,7 @@ fn ci_width(data: &[f64], n_boot: usize, confidence: f64, seed: u64, use_rawr: b
     reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
 )]
 fn run() -> i32 {
-    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
-        eprintln!("FATAL: invalid benchmark JSON");
-        return 1;
-    };
+    let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Resampling Convergence");
 
     println!("{}", "=".repeat(72));

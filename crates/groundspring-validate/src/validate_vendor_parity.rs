@@ -17,9 +17,9 @@ use groundspring::stats::pearson_r;
 use groundspring::validate::ValidationHarness;
 use groundspring::wdm::{green_kubo_integrate, synthetic_vacf};
 use groundspring_validate::{
-    EPS_SAFE_DIV_STRICT, f64_field, print_provenance_header, u64_field, usize_field,
+    EPS_SAFE_DIV_STRICT, f64_field, parse_benchmark, print_provenance_header, u64_field,
+    usize_field,
 };
-use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/vendor_parity/benchmark_vendor_parity.json");
 
@@ -48,10 +48,7 @@ fn synthetic_vacf_noisy(
     reason = "validation harness with multiple WDM vendor parity checks"
 )]
 fn run() -> i32 {
-    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
-        eprintln!("FATAL: invalid benchmark JSON");
-        return 1;
-    };
+    let bench = parse_benchmark(BENCHMARK);
     let mut harness = ValidationHarness::stdout("Rust Validation: GPU Vendor Parity");
 
     println!("{}", "=".repeat(72));

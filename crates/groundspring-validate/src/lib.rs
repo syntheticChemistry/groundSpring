@@ -18,24 +18,54 @@ pub use tolerances::*;
 use serde_json::Value;
 use std::fmt;
 
+/// Zero-panic exit trait for validation binaries.
+///
+/// Replaces the `let Ok(v) = expr else { eprintln!("FATAL: ..."); return 1; }`
+/// boilerplate in every validation binary with a clean `.or_exit(msg)` call.
+///
+/// Pattern source: wetSpring V123 / healthSpring V31 `OrExit<T>`.
+pub trait OrExit<T> {
+    /// Unwrap the value or print `msg` to stderr and exit with code 1.
+    fn or_exit(self, msg: &str) -> T;
+}
+
+impl<T, E: fmt::Display> OrExit<T> for Result<T, E> {
+    fn or_exit(self, msg: &str) -> T {
+        match self {
+            Ok(v) => v,
+            Err(e) => {
+                eprintln!("FATAL: {msg}: {e}");
+                std::process::exit(1);
+            }
+        }
+    }
+}
+
+impl<T> OrExit<T> for Option<T> {
+    fn or_exit(self, msg: &str) -> T {
+        self.unwrap_or_else(|| {
+            eprintln!("FATAL: {msg}");
+            std::process::exit(1);
+        })
+    }
+}
+
+/// Parse a benchmark JSON string, exiting on failure.
+///
+/// Replaces the repeated `let Ok(bench) = serde_json::from_str::<Value>(s)
+/// else { eprintln!("FATAL: ..."); return 1; }` pattern in every validation binary.
+#[must_use]
+pub fn parse_benchmark(json_str: &str) -> Value {
+    serde_json::from_str::<Value>(json_str).or_exit("invalid benchmark JSON")
+}
+
 /// Error returned when a benchmark JSON field is missing or has the wrong type.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, thiserror::Error)]
+#[error("benchmark field '{field}': expected {expected}")]
 pub struct BenchFieldError {
     field: String,
     expected: &'static str,
 }
-
-impl fmt::Display for BenchFieldError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "benchmark field '{}': expected {}",
-            self.field, self.expected
-        )
-    }
-}
-
-impl std::error::Error for BenchFieldError {}
 
 /// Alias for benchmark-field extraction results.
 pub type BenchResult<T> = Result<T, BenchFieldError>;

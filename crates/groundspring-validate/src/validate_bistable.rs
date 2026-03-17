@@ -13,7 +13,7 @@
 use groundspring::bistable::{BistableParams, integrate, stochastic_integrate};
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    TOL_ANALYTICAL, array_field, f64_field, f64_range, print_provenance_header,
+    TOL_ANALYTICAL, array_field, f64_field, f64_range, parse_benchmark, print_provenance_header,
 };
 use serde_json::Value;
 
@@ -108,10 +108,7 @@ fn validate_stochastic(h: &mut ValidationHarness, ctx: &SimCtx<'_>, exp: &Value)
 }
 
 fn run() -> i32 {
-    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
-        eprintln!("FATAL: invalid benchmark JSON");
-        return 1;
-    };
+    let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Bistable Switching");
 
     print_provenance_header(&bench, "Bistable Phenotypic Switching");

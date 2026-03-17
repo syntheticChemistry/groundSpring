@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 16, 2026 (V110 — 912+ tests, 0 clippy, 0 fmt diff, license AGPL-3.0-or-later (SCYBORG trio). V110: cross-ecosystem absorption — `#[expect(reason)]` migration (95 files, zero `#[allow()]`), Python tolerance mirror (28 constants), structured tracing, toadStool `compute.dispatch.*` direct dispatch, dual-format capability parsing, `deny.toml`, aarch64 CI. V109: zero-panic validation binaries, smart module refactoring. V108: WelfordState CPU delegation, tolerance centralization, typed capability-based discovery)
+**Last updated**: March 16, 2026 (V112 — 912+ tests, 0 clippy, 0 fmt diff, license AGPL-3.0-or-later (SCYBORG trio). V112: `OrExit<T>` trait + `parse_benchmark()` (28 binaries), generic `socket_env_var()`, provenance trio, `thiserror` for `BenchFieldError`, tempdir test hygiene. V111: deep debt — `thiserror` errors, `DispatchOutcome`, safe casts, DI config, dead code removal. V110: cross-ecosystem absorption — `#[expect(reason)]` migration, structured tracing, toadStool dispatch, dual-format capability parsing, `deny.toml`, aarch64 CI)
 
 ## Experiment Register
 

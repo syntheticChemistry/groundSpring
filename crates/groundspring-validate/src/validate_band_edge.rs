@@ -15,7 +15,8 @@ use groundspring::band_structure::{
 use groundspring::transport::tridiag_eigh;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    BenchResult, f64_field, get_f64_range, get_f64_vec, print_provenance_header, usize_field,
+    BenchResult, f64_field, get_f64_range, get_f64_vec, parse_benchmark, print_provenance_header,
+    usize_field,
 };
 use serde_json::Value;
 
@@ -127,10 +128,7 @@ fn validate_proportionality_and_finite(
 }
 
 fn run() -> i32 {
-    let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
-        eprintln!("FATAL: invalid benchmark JSON");
-        return 1;
-    };
+    let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Rust Validation: Band Edge Structure");
 
     println!("{}", "=".repeat(72));
