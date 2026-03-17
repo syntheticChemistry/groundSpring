@@ -165,7 +165,10 @@ fn abundance_occupancy_gpu(
         seed: None,
     };
     let gpu = BatchedMultinomialGpu::new(device).ok()?;
-    #[expect(clippy::cast_possible_truncation, reason = "GPU u32 counts fit in u64")]
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "BatchedMultinomialGpu API expects u32 for depth and n_samples"
+    )]
     let counts = gpu
         .sample(
             &cumulative,
@@ -318,7 +321,10 @@ fn tier_detection_rate_gpu(
         seed: None,
     };
     let gpu = BatchedMultinomialGpu::new(device).ok()?;
-    #[expect(clippy::cast_possible_truncation, reason = "GPU u32 counts fit in u64")]
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "BatchedMultinomialGpu API expects u32 for depth and n_replicates"
+    )]
     let counts = gpu
         .sample(
             &cumulative,

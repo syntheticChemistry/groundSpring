@@ -32,6 +32,11 @@ fn find_coupling(couplings: &[f64], target: f64) -> Option<usize> {
     clippy::too_many_arguments,
     reason = "validation context requires all params"
 )]
+#[expect(
+    clippy::expect_used,
+    clippy::unwrap_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn validate_regimes(
     h: &mut ValidationHarness,
     couplings: &[f64],
@@ -99,6 +104,11 @@ fn validate_lyapunov(
     h.check_true("Lyapunov localized γ > threshold", gamma_loc > lyap_loc_min);
 }
 
+#[expect(
+    clippy::expect_used,
+    clippy::unwrap_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn run() -> i32 {
     let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
         eprintln!("FATAL: invalid benchmark JSON");

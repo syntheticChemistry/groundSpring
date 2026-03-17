@@ -77,6 +77,10 @@ const BENCHMARK: &str =
 /// Tolerances: `strong_disorder_lyapunov_min` from JSON ensures γ > 0.3
 /// at W=8, which is the deep-localization regime where the transfer-matrix
 /// product converges within 10⁴ sites.
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn disorder_sweep(
     h: &mut ValidationHarness,
     disorders: &[f64],
@@ -133,6 +137,10 @@ fn disorder_sweep(
 ///
 /// Thouless coefficient C = ξ·W² ≈ 96 (Derrida-Gardner); the range
 /// [60, 140] from JSON absorbs finite-size effects at 10⁴ sites.
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn thouless_and_localization(h: &mut ValidationHarness, gammas: &[(f64, f64)], exp: &Value) {
     println!("\n--- Part 3: Thouless Scaling ---");
 
@@ -172,6 +180,10 @@ fn thouless_and_localization(h: &mut ValidationHarness, gammas: &[(f64, f64)], e
 #[expect(
     clippy::float_cmp,
     reason = "determinism test: same seed must produce identical Lyapunov"
+)]
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
 )]
 fn run() -> i32 {
     let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {

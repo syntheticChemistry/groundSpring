@@ -35,8 +35,6 @@
 //!   phase classification via `barracuda::spectral::stats` (barraCuda S79).
 
 #[cfg(not(feature = "barracuda"))]
-use crate::eps;
-#[cfg(not(feature = "barracuda"))]
 use crate::prng::Xorshift64;
 
 /// Derrida-Gardner constant for ξ ≈ C / W² at band center.

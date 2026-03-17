@@ -29,6 +29,10 @@ struct GaussCtx {
     true_mean: f64,
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn validate_gaussian(h: &mut ValidationHarness, ctx: &GaussCtx, exp: &Value) {
     println!("\n--- Part 1: Jackknife on Gaussian data ---");
     let r = jackknife_mean_variance(&ctx.data).expect("gaussian data >= 2 elements");
@@ -42,6 +46,10 @@ fn validate_gaussian(h: &mut ValidationHarness, ctx: &GaussCtx, exp: &Value) {
     h.check_range("Jackknife variance of mean", r.variance, lo, hi);
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn validate_exponential(h: &mut ValidationHarness, exp_cfg: &Value, exp: &Value) {
     println!("\n--- Part 2: Jackknife on Exponential data ---");
     let rate = f64_field(exp_cfg, "rate");
@@ -72,6 +80,10 @@ struct CorrCtx {
     block_sizes: Vec<usize>,
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn validate_block_and_bias(
     h: &mut ValidationHarness,
     gauss: &GaussCtx,
@@ -118,6 +130,10 @@ fn validate_block_and_bias(
     );
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn validate_comparison_and_determinism(
     h: &mut ValidationHarness,
     gauss: &GaussCtx,
@@ -165,6 +181,10 @@ fn validate_comparison_and_determinism(
     );
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn run() -> i32 {
     let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
         eprintln!("FATAL: invalid benchmark JSON");

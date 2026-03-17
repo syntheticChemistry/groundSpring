@@ -134,6 +134,10 @@ fn validate_gillespie_basal(
     clippy::too_many_arguments,
     reason = "validation orchestration groups related checks with shared state"
 )]
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn validate_activated_states(
     h: &mut ValidationHarness,
     net: &EnzymeNetwork,
@@ -223,6 +227,10 @@ fn validate_activated_states(
     h.check_true("SNR(α=2) > 0", get_snr(2) > 0.0);
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn run() -> i32 {
     let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
         eprintln!("FATAL: invalid benchmark JSON");

@@ -9,12 +9,13 @@
 //! controlled inputs (paired slices of known equal length) continue to
 //! use `assert!` per Rust convention.
 
-use std::fmt;
+use thiserror::Error;
 
 /// Error returned when a function receives invalid input.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Error)]
 pub enum InputError {
     /// Two parallel slices had different lengths.
+    #[error("{first} (len {first_len}) and {second} (len {second_len}) must have equal length")]
     LengthMismatch {
         /// Name of the first parameter.
         first: &'static str,
@@ -26,6 +27,7 @@ pub enum InputError {
         second_len: usize,
     },
     /// A slice did not have enough elements.
+    #[error("{name} requires at least {min} elements, got {got}")]
     InsufficientData {
         /// Name of the parameter.
         name: &'static str,
@@ -35,6 +37,7 @@ pub enum InputError {
         got: usize,
     },
     /// A scalar parameter was outside its valid range.
+    #[error("{name} must be in [{lo}, {hi}], got {got}")]
     OutOfRange {
         /// Name of the parameter.
         name: &'static str,
@@ -46,30 +49,6 @@ pub enum InputError {
         got: f64,
     },
 }
-
-impl fmt::Display for InputError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::LengthMismatch {
-                first,
-                first_len,
-                second,
-                second_len,
-            } => write!(
-                f,
-                "{first} (len {first_len}) and {second} (len {second_len}) must have equal length"
-            ),
-            Self::InsufficientData { name, min, got } => {
-                write!(f, "{name} requires at least {min} elements, got {got}")
-            }
-            Self::OutOfRange { name, lo, hi, got } => {
-                write!(f, "{name} must be in [{lo}, {hi}], got {got}")
-            }
-        }
-    }
-}
-
-impl std::error::Error for InputError {}
 
 #[cfg(test)]
 #[expect(

@@ -69,6 +69,10 @@ fn validate_forward_model<'a>(
 }
 
 /// Grid-search inversion and error checks.
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn validate_inversion(
     h: &mut ValidationHarness,
     observed: &[(&str, f64)],
@@ -123,6 +127,10 @@ fn validate_inversion(
     );
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn run() -> i32 {
     let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
         eprintln!("FATAL: invalid benchmark JSON");

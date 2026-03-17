@@ -19,6 +19,10 @@ use serde_json::Value;
 const BENCHMARK: &str =
     include_str!("../../../control/rare_biosphere/benchmark_rare_biosphere.json");
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn validate_chao1(
     h: &mut ValidationHarness,
     community: &[f64],
@@ -116,6 +120,11 @@ struct OccupancyCtx<'a> {
     base_seed: u64,
 }
 
+#[expect(
+    clippy::expect_used,
+    clippy::unwrap_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn validate_occupancy_and_singletons(h: &mut ValidationHarness, ctx: &OccupancyCtx<'_>) {
     println!("\n--- Part 4: Abundance-Occupancy ---");
     let n_samples = usize_field(ctx.model, "n_samples_occupancy");
@@ -169,6 +178,10 @@ fn validate_occupancy_and_singletons(h: &mut ValidationHarness, ctx: &OccupancyC
     h.check_true("Singleton fraction decreases with depth", sf_low > sf_high);
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn run() -> i32 {
     let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
         eprintln!("FATAL: invalid benchmark JSON");

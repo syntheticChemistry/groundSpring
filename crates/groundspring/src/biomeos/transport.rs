@@ -51,9 +51,14 @@ fn unix_rpc_call(socket: &Path, request: &str) -> Result<String> {
 /// Reads the target address from `GROUNDSPRING_BIOMEOS_TCP` (e.g. `"127.0.0.1:9100"`).
 #[cfg(not(unix))]
 fn tcp_rpc_call(request: &str) -> Result<String> {
+    tcp_rpc_call_with_env(request, |k| std::env::var(k).ok())
+}
+
+#[cfg(not(unix))]
+fn tcp_rpc_call_with_env(request: &str, env: impl Fn(&str) -> Option<String>) -> Result<String> {
     use std::net::TcpStream;
 
-    let addr = std::env::var("GROUNDSPRING_BIOMEOS_TCP").map_err(|_| {
+    let addr = env("GROUNDSPRING_BIOMEOS_TCP").ok_or_else(|| {
         BiomeOsError::Transport(
             "biomeOS requires GROUNDSPRING_BIOMEOS_TCP (host:port) on non-Unix platforms"
                 .to_string(),

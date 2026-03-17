@@ -16,6 +16,10 @@ use serde_json::Value;
 
 const BENCHMARK: &str = include_str!("../../../control/npu_anderson/benchmark_npu_anderson.json");
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn json_f64_vec(v: &Value) -> Vec<f64> {
     v.as_array()
         .expect("expected JSON array")
@@ -24,6 +28,10 @@ fn json_f64_vec(v: &Value) -> Vec<f64> {
         .collect()
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn json_str_vec(v: &Value) -> Vec<String> {
     v.as_array()
         .expect("expected JSON array")
@@ -215,6 +223,10 @@ fn run_npu_checks(bench: &Value, h: &mut ValidationHarness) {
     );
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn main() {
     let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
         eprintln!("FATAL: invalid benchmark JSON");

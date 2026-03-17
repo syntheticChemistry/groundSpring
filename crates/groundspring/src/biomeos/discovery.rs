@@ -26,8 +26,12 @@ const CAPABILITY_SOCKET_NAMES: &[&str] = &["neural-api.sock", "neural-api-defaul
 /// 5. `<temp_dir>/biomeos-neural-api.sock` (platform-agnostic fallback)
 #[must_use]
 pub fn discover_socket() -> Option<PathBuf> {
-    let explicit = std::env::var("GROUNDSPRING_BIOMEOS_SOCKET").ok();
-    let xdg = std::env::var("XDG_RUNTIME_DIR").ok();
+    discover_socket_with_env(|k| std::env::var(k).ok())
+}
+
+fn discover_socket_with_env(env: impl Fn(&str) -> Option<String>) -> Option<PathBuf> {
+    let explicit = env("GROUNDSPRING_BIOMEOS_SOCKET");
+    let xdg = env("XDG_RUNTIME_DIR");
     resolve_socket(explicit.as_deref(), xdg.as_deref())
 }
 

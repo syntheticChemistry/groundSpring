@@ -46,6 +46,10 @@ fn params_from_json(model: &Value) -> BistableParams {
     }
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn ic_from_json(model: &Value, key: &str) -> [f64; 5] {
     let arr = array_field(model, key);
     let mut ic = [0.0; 5];

@@ -269,11 +269,19 @@ pub fn npu_classify_regime(
 
     let t = std::time::Instant::now();
     handle.write_raw(&input)?;
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "DMA latency in nanoseconds fits u64 for reasonable durations"
+    )]
     let write_ns = t.elapsed().as_nanos() as u64;
 
     let mut output = [0u8; 3];
     let t = std::time::Instant::now();
     handle.read_raw(&mut output)?;
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "DMA latency in nanoseconds fits u64 for reasonable durations"
+    )]
     let read_ns = t.elapsed().as_nanos() as u64;
 
     let signed: Vec<i8> = output.iter().map(|&b| b as i8).collect();

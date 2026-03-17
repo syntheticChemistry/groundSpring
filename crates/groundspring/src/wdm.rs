@@ -62,7 +62,7 @@ fn green_kubo_integrate_cpu(acf: &[f64], dt: f64) -> f64 {
 #[must_use]
 #[expect(
     clippy::cast_possible_truncation,
-    reason = "deliberate f64→f32 precision reduction"
+    reason = "WDM uses f32 for GPU dispatch"
 )]
 pub fn green_kubo_integrate_f32(acf: &[f64], dt: f64) -> f64 {
     if acf.len() < 2 {
@@ -220,14 +220,7 @@ pub fn optimal_block_size(data: &[f64], max_lag: usize) -> usize {
         }
         tau_int += c;
     }
-    #[expect(
-        clippy::cast_possible_truncation,
-        clippy::cast_sign_loss,
-        reason = "tau_int is always positive and bounded by max_lag"
-    )]
-    {
-        (2.0 * tau_int).ceil().max(1.0) as usize
-    }
+    crate::cast::f64_usize((2.0 * tau_int).ceil().max(1.0))
 }
 
 #[cfg(test)]

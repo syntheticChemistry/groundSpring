@@ -38,16 +38,18 @@ static DEVICE: OnceLock<Option<Arc<WgpuDevice>>> = OnceLock::new();
 /// Returns `None` if no GPU is available, disabled, or init fails.
 pub fn get_device() -> Option<Arc<WgpuDevice>> {
     DEVICE
-        .get_or_init(|| {
-            if std::env::var("GROUNDSPRING_GPU").as_deref() == Ok("0") {
-                return None;
-            }
-            let future = async { WgpuDevice::new().await };
-            barracuda::device::test_pool::tokio_block_on(future)
-                .ok()
-                .map(Arc::new)
-        })
+        .get_or_init(|| get_device_with_env(|k| std::env::var(k).ok()))
         .clone()
+}
+
+fn get_device_with_env(env: impl Fn(&str) -> Option<String>) -> Option<Arc<WgpuDevice>> {
+    if env("GROUNDSPRING_GPU").as_deref() == Some("0") {
+        return None;
+    }
+    let future = async { WgpuDevice::new().await };
+    barracuda::device::test_pool::tokio_block_on(future)
+        .ok()
+        .map(Arc::new)
 }
 
 /// Query precision routing advice for the cached GPU device.

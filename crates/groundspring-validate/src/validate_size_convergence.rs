@@ -22,6 +22,10 @@ const BENCHMARK: &str =
     clippy::cast_precision_loss,
     reason = "system sizes from JSON are < 2^53, conversion exact"
 )]
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn json_number_to_f64(v: &Value) -> f64 {
     v.as_f64()
         .or_else(|| v.as_u64().map(|u| u as f64))
@@ -32,6 +36,11 @@ fn json_number_to_f64(v: &Value) -> f64 {
 #[expect(
     clippy::too_many_lines,
     reason = "validation harness with multiple extrapolation checks"
+)]
+#[expect(
+    clippy::expect_used,
+    clippy::unwrap_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
 )]
 fn run() -> i32 {
     let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {

@@ -36,6 +36,10 @@ struct SweepParams {
 }
 
 /// Coupling sweep: compute Lyapunov exponents across coupling strengths.
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn coupling_sweep(
     harness: &mut ValidationHarness,
     couplings: &[f64],
@@ -92,6 +96,10 @@ fn coupling_sweep(
 }
 
 /// Critical point and monotonicity checks.
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn critical_and_monotonicity(harness: &mut ValidationHarness, gammas: &[(f64, f64)], exp: &Value) {
     println!("\n--- Part 3: Critical Point (λ=2) ---");
 
@@ -181,6 +189,10 @@ fn level_spacing_checks(harness: &mut ValidationHarness, n_eig: usize, alpha: f6
     harness.check_range("Level spacing λ=4 ~ Poisson", r_loc, loc_lo, loc_hi);
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn run() -> i32 {
     let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
         eprintln!("FATAL: invalid benchmark JSON");

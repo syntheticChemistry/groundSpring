@@ -70,10 +70,14 @@ pub fn discover_primals() -> Vec<DiscoveredPrimal> {
 
 /// Resolve the biomeOS socket directory from environment.
 fn biomeos_socket_dir() -> Option<std::path::PathBuf> {
-    if let Ok(dir) = std::env::var("BIOMEOS_SOCKET_DIR") {
+    biomeos_socket_dir_with_env(|k| std::env::var(k).ok())
+}
+
+fn biomeos_socket_dir_with_env(env: impl Fn(&str) -> Option<String>) -> Option<std::path::PathBuf> {
+    if let Some(dir) = env("BIOMEOS_SOCKET_DIR") {
         return Some(std::path::PathBuf::from(dir));
     }
-    if let Ok(xdg) = std::env::var("XDG_RUNTIME_DIR") {
+    if let Some(xdg) = env("XDG_RUNTIME_DIR") {
         let dir = std::path::PathBuf::from(xdg).join(crate::primal_names::BIOMEOS_SOCKET_DIR);
         if dir.is_dir() {
             return Some(dir);
@@ -195,12 +199,12 @@ pub fn discover_by_capability(capability: &str) -> Result<DiscoveredPrimal> {
     let primals = discover_primals();
     for primal in &primals {
         let request = build_request("capability.list", &serde_json::json!({}));
-        if let Ok(ref response) = rpc_call(&primal.socket, &request) {
-            if let Ok(body) = parse_rpc_response(response) {
-                let caps = extract_capabilities(&body);
-                if caps.iter().any(|c| c == capability) {
-                    return Ok(primal.clone());
-                }
+        if let Ok(ref response) = rpc_call(&primal.socket, &request)
+            && let Ok(body) = parse_rpc_response(response)
+        {
+            let caps = extract_capabilities(&body);
+            if caps.iter().any(|c| c == capability) {
+                return Ok(primal.clone());
             }
         }
     }
@@ -253,23 +257,6 @@ fn extract_capabilities_from_value(value: &Value) -> Vec<String> {
     caps
 }
 
-/// Typed compute dispatch via capability-based discovery.
-///
-/// Discovers the `compute.execute` provider at runtime (typically
-/// toadStool) and submits a compute request. Falls back to `Err`
-/// if no compute provider is available — callers should fall back
-/// to local computation.
-///
-/// # Errors
-///
-/// Returns `Err` if no compute provider is found or the RPC fails.
-pub fn compute_execute(params: &serde_json::Value) -> Result<String> {
-    let provider = discover_by_capability("compute.execute")?;
-    let request = build_request("compute.execute", params);
-    let response = rpc_call(&provider.socket, &request)?;
-    parse_rpc_response(&response)
-}
-
 // ─── toadStool compute.dispatch.* Direct Dispatch ────────────────────────────
 
 /// Submit a GPU compute job directly to toadStool via `compute.dispatch.submit`.
@@ -319,40 +306,6 @@ pub fn dispatch_result(job_id: &str) -> Result<String> {
 pub fn dispatch_capabilities() -> Result<String> {
     let provider = discover_by_capability("compute.dispatch.capabilities")?;
     let request = build_request("compute.dispatch.capabilities", &serde_json::json!({}));
-    let response = rpc_call(&provider.socket, &request)?;
-    parse_rpc_response(&response)
-}
-
-// ─── Storage (capability-based discovery) ────────────────────────────────────
-
-/// Typed storage put via capability-based discovery.
-///
-/// Discovers the `storage.put` provider at runtime (typically NestGate)
-/// and stores data. Falls back to `Err` if no storage provider is available.
-///
-/// # Errors
-///
-/// Returns `Err` if no storage provider is found or the RPC fails.
-pub fn storage_put(key: &str, value: &serde_json::Value) -> Result<String> {
-    let provider = discover_by_capability("storage.put")?;
-    let params = serde_json::json!({ "key": key, "value": value });
-    let request = build_request("storage.put", &params);
-    let response = rpc_call(&provider.socket, &request)?;
-    parse_rpc_response(&response)
-}
-
-/// Typed storage get via capability-based discovery.
-///
-/// Discovers the `storage.get` provider at runtime (typically NestGate)
-/// and retrieves data.
-///
-/// # Errors
-///
-/// Returns `Err` if no storage provider is found or the RPC fails.
-pub fn storage_get(key: &str) -> Result<String> {
-    let provider = discover_by_capability("storage.get")?;
-    let params = serde_json::json!({ "key": key });
-    let request = build_request("storage.get", &params);
     let response = rpc_call(&provider.socket, &request)?;
     parse_rpc_response(&response)
 }

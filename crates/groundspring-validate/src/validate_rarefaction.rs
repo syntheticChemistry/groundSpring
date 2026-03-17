@@ -24,6 +24,10 @@ use serde_json::Value;
 const BENCHMARK: &str =
     include_str!("../../../control/sequencing_noise/benchmark_sequencing_noise.json");
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn run() -> i32 {
     let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
         eprintln!("FATAL: invalid benchmark JSON");

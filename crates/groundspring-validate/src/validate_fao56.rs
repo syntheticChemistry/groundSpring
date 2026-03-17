@@ -51,6 +51,10 @@ impl Uncertainties {
 }
 
 /// Run Monte Carlo error propagation through FAO-56.
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn monte_carlo_et0(
     base: &DailyWeatherInputs,
     unc: &Uncertainties,
@@ -179,6 +183,10 @@ fn sensitivity_analysis(
 /// Tol: `et0_mean_range` and `et0_std_range` from benchmark JSON represent
 /// the physical range of MC outcomes across seeds; CV 1–15% is the
 /// documented coefficient of variation for FAO-56 with WMO sensor uncertainty.
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn validate_monte_carlo(
     h: &mut ValidationHarness,
     base: &DailyWeatherInputs,
@@ -258,6 +266,10 @@ fn validate_sensitivity(
     );
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn run() -> i32 {
     let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
         eprintln!("FATAL: invalid benchmark JSON");

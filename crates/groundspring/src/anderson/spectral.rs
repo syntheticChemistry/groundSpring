@@ -19,7 +19,7 @@ use super::SweepPoint;
 /// Outlier fraction threshold below which spectrum is classified as Bulk (< 5%).
 #[cfg(not(feature = "barracuda"))]
 const BULK_PHASE_OUTLIER_THRESHOLD: f64 = 0.05;
-/// Outlier fraction threshold for EdgeOfChaos (5–20%).
+/// Outlier fraction threshold for `EdgeOfChaos` (5–20%).
 #[cfg(not(feature = "barracuda"))]
 const EDGE_OF_CHAOS_OUTLIER_THRESHOLD: f64 = 0.20;
 /// Minimum prominence for peak detection in disorder sweep transition.
@@ -203,12 +203,12 @@ fn empirical_spectral_density_cpu(eigenvalues: &[f64], n_bins: usize) -> (Vec<f6
     let bin_width = range / crate::cast::usize_f64(n_bins);
     let mut counts = vec![0_usize; n_bins];
     for &e in eigenvalues {
-        let idx = ((e - min) / bin_width).floor() as usize;
+        let idx = crate::cast::f64_usize(((e - min) / bin_width).floor());
         counts[idx.min(n_bins - 1)] += 1;
     }
     let n_f = crate::cast::usize_f64(eigenvalues.len());
     let centers: Vec<f64> = (0..n_bins)
-        .map(|i| min + (crate::cast::usize_f64(i) + 0.5) * bin_width)
+        .map(|i| (crate::cast::usize_f64(i) + 0.5).mul_add(bin_width, min))
         .collect();
     let densities: Vec<f64> = counts
         .iter()

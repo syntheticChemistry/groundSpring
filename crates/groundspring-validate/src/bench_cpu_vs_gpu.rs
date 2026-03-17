@@ -204,6 +204,10 @@ fn bench_kimura(iters: u32) -> BenchEntry {
     }
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn bench_jackknife(iters: u32) -> BenchEntry {
     let data: Vec<f64> = (0..500).map(|i| (f64::from(i) * 0.3).sin()).collect();
 
@@ -321,6 +325,10 @@ fn bench_seismic(iters: u32) -> BenchEntry {
     }
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn bench_freeze_out(iters: u32) -> BenchEntry {
     let mu_b: Vec<f64> = (0..20).map(|i| f64::from(i) * 25.0).collect();
     let observed: Vec<f64> = mu_b
@@ -421,6 +429,10 @@ fn bench_tikhonov(iters: u32) -> BenchEntry {
     }
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn bench_tridiag_eigh(iters: u32) -> BenchEntry {
     let n = 200_usize;
     let diag: Vec<f64> = (0..200_u32).map(|i| f64::from(i) * 0.1).collect();
@@ -443,6 +455,10 @@ fn bench_tridiag_eigh(iters: u32) -> BenchEntry {
     }
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn bench_transport_msd(iters: u32) -> BenchEntry {
     let n = 101_usize;
     let diag: Vec<f64> = (0..101_u32)

@@ -55,7 +55,7 @@ use std::time::Duration;
 
 use serde_json::Value;
 
-use protocol::{build_request, parse_rpc_response, response_has_error};
+use protocol::{DispatchOutcome, build_request, parse_rpc_dispatch, parse_rpc_response};
 use transport::rpc_call;
 
 // ─── Configuration ───────────────────────────────────────────────────────────
@@ -68,9 +68,12 @@ const DEFAULT_READ_TIMEOUT_SECS: u64 = 30;
 
 /// Connect timeout, overridable via `GROUNDSPRING_BIOMEOS_CONNECT_TIMEOUT_SECS`.
 fn connect_timeout() -> Duration {
+    connect_timeout_with_env(|k| std::env::var(k).ok())
+}
+
+fn connect_timeout_with_env(env: impl Fn(&str) -> Option<String>) -> Duration {
     Duration::from_secs(
-        std::env::var("GROUNDSPRING_BIOMEOS_CONNECT_TIMEOUT_SECS")
-            .ok()
+        env("GROUNDSPRING_BIOMEOS_CONNECT_TIMEOUT_SECS")
             .and_then(|v| v.parse().ok())
             .unwrap_or(DEFAULT_CONNECT_TIMEOUT_SECS),
     )
@@ -78,9 +81,12 @@ fn connect_timeout() -> Duration {
 
 /// Read timeout, overridable via `GROUNDSPRING_BIOMEOS_READ_TIMEOUT_SECS`.
 fn read_timeout() -> Duration {
+    read_timeout_with_env(|k| std::env::var(k).ok())
+}
+
+fn read_timeout_with_env(env: impl Fn(&str) -> Option<String>) -> Duration {
     Duration::from_secs(
-        std::env::var("GROUNDSPRING_BIOMEOS_READ_TIMEOUT_SECS")
-            .ok()
+        env("GROUNDSPRING_BIOMEOS_READ_TIMEOUT_SECS")
             .and_then(|v| v.parse().ok())
             .unwrap_or(DEFAULT_READ_TIMEOUT_SECS),
     )
@@ -99,22 +105,29 @@ pub const FAMILY_ID: &str = crate::niche::NICHE_ID;
 /// Typed variants replace the former `BiomeOsError(String)` for better
 /// error handling and pattern matching. The `Other` variant handles
 /// messages that don't fit a specific category.
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 #[non_exhaustive]
 pub enum BiomeOsError {
     /// Transport-level failure (connect, read, write, flush, timeout).
+    #[error("biomeOS transport: {0}")]
     Transport(String),
     /// JSON-RPC protocol error (invalid response, missing fields, RPC error).
+    #[error("biomeOS protocol: {0}")]
     Protocol(String),
     /// Serialization error (invalid params JSON).
+    #[error("biomeOS serialization: {0}")]
     Serialization(String),
     /// Capability registration failure.
+    #[error("biomeOS registration: {0}")]
     Registration(String),
     /// Primal discovery or health check failure.
+    #[error("biomeOS discovery: {0}")]
     Discovery(String),
     /// Data pipeline error (no results, empty response).
+    #[error("biomeOS data: {0}")]
     Data(String),
     /// Uncategorized error (migration path from `BiomeOsError(String)`).
+    #[error("biomeOS: {0}")]
     Other(String),
 }
 
@@ -125,22 +138,6 @@ impl BiomeOsError {
         Self::Other(msg.into())
     }
 }
-
-impl std::fmt::Display for BiomeOsError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Transport(msg) => write!(f, "biomeOS transport: {msg}"),
-            Self::Protocol(msg) => write!(f, "biomeOS protocol: {msg}"),
-            Self::Serialization(msg) => write!(f, "biomeOS serialization: {msg}"),
-            Self::Registration(msg) => write!(f, "biomeOS registration: {msg}"),
-            Self::Discovery(msg) => write!(f, "biomeOS discovery: {msg}"),
-            Self::Data(msg) => write!(f, "biomeOS data: {msg}"),
-            Self::Other(msg) => write!(f, "biomeOS: {msg}"),
-        }
-    }
-}
-
-impl std::error::Error for BiomeOsError {}
 
 /// Result alias for `biomeOS` operations.
 pub type Result<T> = std::result::Result<T, BiomeOsError>;
@@ -425,8 +422,19 @@ pub fn health(socket: &Path) -> Result<()> {
     for method in &["neural_api.get_metrics", "topology.metrics"] {
         let request = build_request(method, &params);
         match rpc_call(socket, &request) {
-            Ok(ref response) if response_has_error(response).is_ok() => return Ok(()),
-            Ok(_) => {}
+            Ok(ref response) => match parse_rpc_dispatch(response) {
+                Ok(DispatchOutcome::Ok(_)) => return Ok(()),
+                Ok(ref outcome) if outcome.is_method_not_found() => {
+                    log::debug!("health {method}: method not found, trying next");
+                }
+                Ok(DispatchOutcome::ApplicationError { message, .. }) => {
+                    log::debug!("health {method}: application error: {message}");
+                }
+                Ok(DispatchOutcome::ProtocolError { message, .. }) => {
+                    log::debug!("health {method}: protocol error: {message}");
+                }
+                Err(_) => {}
+            },
             Err(_) => {
                 return Err(BiomeOsError::Transport(format!(
                     "biomeOS connect {}",

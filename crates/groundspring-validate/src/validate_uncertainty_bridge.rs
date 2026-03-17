@@ -65,6 +65,10 @@ fn propagate_sensor_noise(
 }
 
 /// Validate Anderson model sanity: monotonic γ, small at low W, large at high W.
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn validate_anderson_baseline(
     h: &mut ValidationHarness,
     disorders: &[f64],
@@ -137,6 +141,10 @@ fn validate_sensor(
     (raw_cv, corr_cv)
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn run() -> i32 {
     let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
         eprintln!("FATAL: invalid benchmark JSON");

@@ -43,6 +43,11 @@ fn synthetic_vacf_noisy(
     clippy::too_many_lines,
     reason = "validation harness with f32/f64 precision drift checks"
 )]
+#[expect(
+    clippy::expect_used,
+    clippy::unwrap_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn run() -> i32 {
     let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
         eprintln!("FATAL: invalid benchmark JSON");

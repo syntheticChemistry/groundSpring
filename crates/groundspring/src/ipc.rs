@@ -100,16 +100,25 @@ pub trait DataPipeline {
 // ─── Client ──────────────────────────────────────────────────────────────
 
 /// Error type for typed IPC client operations.
-#[derive(Debug)]
-pub struct IpcError(pub String);
-
-impl std::fmt::Display for IpcError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ipc: {}", self.0)
-    }
+///
+/// Structured variants for the IPC lifecycle: connect, transport, and
+/// remote (application-level) errors. Pattern source: rhizoCrypt v0.13.0
+/// `IpcErrorPhase` / healthSpring V30.
+#[derive(Debug, thiserror::Error)]
+pub enum IpcError {
+    /// Failed to connect to the IPC socket.
+    #[error("ipc connect: {0}")]
+    Connect(String),
+    /// Transport-level error during an RPC call.
+    #[error("ipc transport: {0}")]
+    Transport(String),
+    /// Remote endpoint returned an application error.
+    #[error("ipc remote: {0}")]
+    Remote(String),
+    /// No IPC socket discovered via environment.
+    #[error("ipc discovery: {0}")]
+    Discovery(String),
 }
-
-impl std::error::Error for IpcError {}
 
 /// Result alias for IPC operations.
 pub type IpcResult<T> = Result<T, IpcError>;
@@ -133,7 +142,7 @@ impl GroundSpringClient {
         let transport =
             tarpc::serde_transport::unix::connect(path, tarpc::tokio_serde::formats::Json::default)
                 .await
-                .map_err(|e| IpcError(format!("connect {}: {e}", path.display())))?;
+                .map_err(|e| IpcError::Connect(format!("{}: {e}", path.display())))?;
 
         let client =
             GroundSpriScienceClient::new(tarpc::client::Config::default(), transport).spawn();
@@ -153,7 +162,7 @@ impl GroundSpringClient {
     /// Returns [`IpcError`] if no socket is found or connection fails.
     pub async fn connect_discovered() -> IpcResult<Self> {
         let path = discover_ipc_socket()
-            .ok_or_else(|| IpcError("no groundspring IPC socket discovered".into()))?;
+            .ok_or_else(|| IpcError::Discovery("no groundspring IPC socket found".into()))?;
         Self::connect_unix(&path).await
     }
 
@@ -176,8 +185,8 @@ impl GroundSpringClient {
                 precision,
             )
             .await
-            .map_err(|e| IpcError(format!("rpc: {e}")))?
-            .map_err(|e| IpcError(e))
+            .map_err(|e| IpcError::Transport(format!("{e}")))?
+            .map_err(IpcError::Remote)
     }
 
     /// Run noise decomposition (bias-variance).
@@ -193,8 +202,8 @@ impl GroundSpringClient {
         self.inner
             .noise_decomposition(tarpc::context::current(), observed, predicted)
             .await
-            .map_err(|e| IpcError(format!("rpc: {e}")))?
-            .map_err(|e| IpcError(e))
+            .map_err(|e| IpcError::Transport(format!("{e}")))?
+            .map_err(IpcError::Remote)
     }
 
     /// Check cross-substrate parity.
@@ -206,8 +215,8 @@ impl GroundSpringClient {
         self.inner
             .parity_check(tarpc::context::current(), exp_id, substrate)
             .await
-            .map_err(|e| IpcError(format!("rpc: {e}")))?
-            .map_err(|e| IpcError(e))
+            .map_err(|e| IpcError::Transport(format!("{e}")))?
+            .map_err(IpcError::Remote)
     }
 
     /// Propagate ET₀ uncertainty through FAO-56.
@@ -219,8 +228,8 @@ impl GroundSpringClient {
         self.inner
             .et0_propagation(tarpc::context::current(), params)
             .await
-            .map_err(|e| IpcError(format!("rpc: {e}")))?
-            .map_err(|e| IpcError(e))
+            .map_err(|e| IpcError::Transport(format!("{e}")))?
+            .map_err(IpcError::Remote)
     }
 }
 

@@ -22,6 +22,11 @@ const BENCHMARK: &str =
     clippy::too_many_lines,
     reason = "validation harness with neutral + selection sweep checks"
 )]
+#[expect(
+    clippy::expect_used,
+    clippy::unwrap_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn run() -> i32 {
     let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {
         eprintln!("FATAL: invalid benchmark JSON");

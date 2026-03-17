@@ -46,6 +46,10 @@ fn params_from_json(model: &Value) -> MultiSignalParams {
     }
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn ic_from_json(model: &Value) -> [f64; 7] {
     let arr = array_field(model, "initial_state");
     let mut ic = [0.0; 7];

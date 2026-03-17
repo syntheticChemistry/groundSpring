@@ -49,6 +49,10 @@ fn validate_forward(h: &mut ValidationHarness, ctx: &ModelCtx) {
     );
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn validate_chi2_and_grid(h: &mut ValidationHarness, ctx: &ModelCtx, grid: &Value, exp: &Value) {
     println!("\n--- Part 2: Chi-squared at truth ---");
     let mut rng = Xorshift64::new(ctx.seed);
@@ -98,6 +102,10 @@ fn validate_chi2_and_grid(h: &mut ValidationHarness, ctx: &ModelCtx, grid: &Valu
     );
 }
 
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn validate_replicates_and_determinism(
     h: &mut ValidationHarness,
     ctx: &ModelCtx,
@@ -211,6 +219,10 @@ fn validate_replicates_and_determinism(
 #[expect(
     clippy::similar_names,
     reason = "t0/k2 and lo/hi are domain-standard names"
+)]
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
 )]
 fn run() -> i32 {
     let Ok(bench) = serde_json::from_str::<Value>(BENCHMARK) else {

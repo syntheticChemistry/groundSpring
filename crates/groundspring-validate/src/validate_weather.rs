@@ -168,6 +168,10 @@ fn main() {
 /// Validate the observation-gap benchmark JSON: parse it, extract acceptance
 /// criteria, and confirm that a synthetic dataset matching those criteria
 /// passes our stat functions. This closes the Python→JSON→Rust parity chain.
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
 fn validate_observation_gap_benchmark(h: &mut ValidationHarness) {
     println!("\n--- Observation Gap Benchmark JSON Parity ---");
 
