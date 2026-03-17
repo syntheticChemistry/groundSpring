@@ -5,7 +5,7 @@
 **To**: barraCuda, toadStool, coralReef, ecosystem
 **Authority**: Control experiment status + changelog
 **Supersedes**: V112 (GROUNDSPRING_V112_DEEP_DEBT_OREXIT_HANDOFF_MAR16_2026.md)
-**Pins**: barraCuda v0.3.5, toadStool S155b+, coralReef Iteration 52+
+**Pins**: barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+
 **License**: AGPL-3.0-or-later
 
 ## Executive Summary

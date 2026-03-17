@@ -5,14 +5,14 @@
 > (Phase 0), a Rust validation (Phase 1), and a barracuda delegation path
 > (Phase 2+).
 
-**Total**: 395/395 validation checks across 35 experiments, 10 domains. 912+ Rust tests + 287 Python provenance tests.
+**Total**: 395/395 validation checks across 35 experiments, 10 domains. 930+ Rust tests + 287 Python provenance tests.
 **Core**: 340/340 checks across 29 experiments (no feature flags).
 **NUCLEUS**: 55 checks across 4 experiments (Exp 029–032, `--features biomeos`).
 **Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across 28 benchmarked experiments.
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **Coverage**: Zero clippy warnings (pedantic + nursery, -D warnings). Zero unsafe. Zero TODO/FIXME. All files < 1000 lines. CI targets 90% line coverage via `cargo-llvm-cov`.
-**barraCuda**: 102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10. `PrecisionRoutingAdvice` wired into 21 GPU dispatch paths.
-**NUCLEUS**: biomeOS Neural API live (V112) — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) with sovereign fallback. Adaptive health probing, direct primal discovery. Typed capability-based discovery. V112: `OrExit<T>` + parse_benchmark() (28 binaries), generic socket_env_var(), provenance trio, thiserror BenchFieldError. V111: thiserror for errors, DispatchOutcome, safe casts, DI config, dead code removal. V110: cross-ecosystem absorption, `#[expect(reason)]`, Python tolerance mirror, toadStool direct dispatch, dual-format capability parsing.
+**barraCuda**: 102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+. `PrecisionRoutingAdvice` wired into 21 GPU dispatch paths.
+**NUCLEUS**: biomeOS Neural API live (V113) — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) with sovereign fallback. Adaptive health probing, direct primal discovery. Typed capability-based discovery. V113: GemmF64 transpose, RetryPolicy + CircuitBreaker, 4-format capability parsing, exit_code. V112: `OrExit<T>` + parse_benchmark() (28 binaries), generic socket_env_var(), provenance trio, thiserror BenchFieldError. V111: thiserror for errors, DispatchOutcome, safe casts, DI config, dead code removal. V110: cross-ecosystem absorption, `#[expect(reason)]`, Python tolerance mirror, toadStool direct dispatch, dual-format capability parsing.
 **Modules**: 39 (including `esn`, `lanczos`, `linalg`, `error`, `jackknife`, `freeze_out`, `spectral_recon`, `wdm`, `npu`, `biomeos`, `nestgate`, `drift`, `tissue_anderson`, `niche`, `primal_names`, `ipc`).
 **metalForge**: 30 workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed), 140 metalForge checks, 5+ substrates, architecture-aware routing, `PCIe` topology, GPU→NPU PCIe bypass, pipeline dispatch, NUCLEUS atomics.
 **Baseline integrity**: All 29 benchmark JSONs verified — provenance fields (including `python_version`, `numpy_version`), hex commit hashes, UTF-8. Python CI coverage enforced at 80%.
@@ -65,10 +65,10 @@ Each experiment is validated at three levels:
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
 Current status: **CPU complete** (340/340 core + 55 NUCLEUS = 395 total),
-**102 active delegations (61 CPU + 41 GPU) — toadStool S130+, barraCuda v0.3.5**.
+**102 active delegations (61 CPU + 41 GPU) — toadStool S156+, barraCuda v0.3.5**.
 **NUCLEUS**: biomeOS Neural API live — 4 experiments exercise Tower, Node, Squirrel, Nest
 with sovereign fallback. All delegations use sovereign fallback.
-35/35 experiments validated. 912+ Rust tests + 287 Python tests.
+35/35 experiments validated. 930+ Rust tests + 287 Python tests.
 **bench-cpu-vs-gpu**: Dedicated binary for CPU vs GPU performance comparison across 6 workloads.
 **metalForge tier**: groundspring-forge crate with live hardware validation
 (RTX 4070, Titan V, AKD1000 NPU). 5 validation binaries, 140 metalForge checks, 5+ substrates.

@@ -155,7 +155,7 @@ Phase 1 ports each experiment's core algorithm to idiomatic Rust in the
 
 | Gate | Requirement |
 |------|-------------|
-| `cargo test` | 391 total Rust tests (includes 23 three-tier parity integration tests), all pass |
+| `cargo test` | 930+ total Rust tests (includes 23 three-tier parity integration tests), all pass |
 | `cargo clippy` | Zero warnings (pedantic + nursery) × 3 feature modes |
 | `cargo fmt` | Clean |
 | `cargo doc` | Clean, `missing_docs = "deny"` |
@@ -198,7 +198,7 @@ Same as all ecoPrimals springs:
 ## Grand Total
 
 - **Phase 0 (Python)**: ~288 quantitative checks passed across 28 experiments, 9 domains.
-- **Phase 1 (Rust)**: 395/395 checks passed across 34 validation binaries (340 core + 55 NUCLEUS). 936 Rust tests.
-- **Phase 2a (Barracuda)**: 102 delegations (61 CPU + 41 GPU) — barraCuda v0.3.5. 11.6× faster than Python (excl. LAPACK-bound). 29/29 parity proven. 878+ tests (no-default-features). runtime f64 smoke test + three-tier parity (V110).
+- **Phase 1 (Rust)**: 395/395 checks passed across 34 validation binaries (340 core + 55 NUCLEUS). 930+ Rust tests.
+- **Phase 2a (Barracuda)**: 102 delegations (61 CPU + 41 GPU) — barraCuda v0.3.5. 11.6× faster than Python (excl. LAPACK-bound). 29/29 parity proven. 878+ tests (no-default-features). runtime f64 smoke test + three-tier parity (V113).
 - **Phase 4 (NUCLEUS)**: biomeOS Neural API live — Tower + Node + Squirrel validated. NestGate data pipelines (NCBI, NOAA, IRIS). 4 NUCLEUS experiments (Exp 029–032).
-- **metalForge**: 5 live hardware binaries (RTX 4070, Titan V, AKD1000 NPU). 140 metalForge checks, 30 workloads, 5 substrates, architecture-aware routing, `PCIe` topology, GPU→NPU bypass, pipeline dispatch, NUCLEUS atomics (V110).
+- **metalForge**: 5 live hardware binaries (RTX 4070, Titan V, AKD1000 NPU). 140 metalForge checks, 30 workloads, 5 substrates, architecture-aware routing, `PCIe` topology, GPU→NPU bypass, pipeline dispatch, NUCLEUS atomics (V113).

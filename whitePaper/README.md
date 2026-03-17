@@ -12,6 +12,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **395/395 checks passed** across 34 validation binaries (340 core + 55 NUCLEUS).
 - Mathematical parity: **29/29 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.6× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.4× from Sturm tridiag**.
+- V113: GemmF64 transpose delegation, RetryPolicy + CircuitBreaker (IPC resilience), 4-format capability parsing, exit_code constants (UNIBIN_ARCHITECTURE_STANDARD). 930+ tests.
 - V110: Cross-ecosystem absorption — `#[expect(reason)]` migration (95 files, zero `#[allow()]`), `control/tolerances.py` (full Python tolerance mirror, 28 constants), structured tracing in primal binary, toadStool `compute.dispatch.*` direct dispatch (3 methods), dual-format capability parsing (neuralSpring S156 compat), `deny.toml`, aarch64 cross-compile CI. 912+ tests, 0 clippy, 0 fmt diff.
 - V110: Zero-panic validation binaries (28 converted to Result-based), smart module refactoring (regression/fao56/pipeline/validate-lib), named physical constants, Python deps pinned.
 - V108: License corrected to AGPL-3.0-or-later (SCYBORG trio), barracuda WelfordState CPU delegation, tolerance centralization, typed capability-based discovery, Python provenance enrichment.

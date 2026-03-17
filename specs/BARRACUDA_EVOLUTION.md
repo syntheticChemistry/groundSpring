@@ -2,8 +2,8 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 16, 2026 (V112 — 102 delegations (61 CPU + 41 GPU), 906 tests (all feature gates),
-barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10.
+**Last updated**: March 16, 2026 (V113 — 102 delegations (61 CPU + 41 GPU), 930+ tests (all feature gates),
+barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+.
 V108: AGPL-3.0-or-later (SCYBORG trio), barracuda WelfordState CPU delegation for std_dev/mean_and_std_dev,
 tolerance centralization (tol::ANALYTICAL in tests), typed capability-based discovery, provenance enrichment.
 V107: release profile, enriched niche.rs, tolerance provenance citations, bare literal elimination.
@@ -43,7 +43,7 @@ dispatch blocks: `freeze_out::grid_fit_2d` (2D parallel grid),
 `quasispecies::quasispecies_simulation` (batched Wright-Fisher via
 `barracuda::ops::bio::wright_fisher_simulate`), `rare_biosphere::abundance_occupancy`
 and `tier_detection_rate` (batched multinomial via `barracuda::ops::bio`).
-140 metalForge checks, 5+ discovered substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). 102 active barracuda delegations (61 CPU + 41 GPU), barraCuda v0.3.5, toadStool S155b. V59: jackknife GPU promoted (S71 `jackknife_mean_f64.wgsl`), HargreavesBatchGpu (S71 `hargreaves_batch_f64.wgsl`).
+140 metalForge checks, 5+ discovered substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). 102 active barracuda delegations (61 CPU + 41 GPU), barraCuda v0.3.5, toadStool S156+. V59: jackknife GPU promoted (S71 `jackknife_mean_f64.wgsl`), HargreavesBatchGpu (S71 `hargreaves_batch_f64.wgsl`).
 These dispatch blocks compile only with `--features barracuda-gpu` and call
 expected barracuda functions — ToadStool absorbs them to activate GPU paths.
 
@@ -607,7 +607,7 @@ See `data/parity_report.json` for the machine-readable certificate.
 | Phase 1b | metalForge production WGSL | **Done** (2 production shaders, 261 combined lines) |
 | Phase 1c | Paper queue buildout (Exp 006-014) | **Done** (33 new checks for Exp 012-014, 23.4× faster than Python) |
 | Phase 1d | Full-suite parity + benchmarks | **Done** (28/28 parity proven, timing data for all experiments) |
-| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **102 active delegations** (61 CPU + 41 GPU), **906 tests** — barraCuda `a898dee`, toadStool S130+, coralReef Iteration 10. V98: upstream rewire. V97: runtime f64 smoke test + three-tier parity. V96: PrecisionRoutingAdvice wired, shader.compile.* IPC aligned. V87: multinomial_sample + anderson_potential CPU-delegated; Tier B resolved |
+| Phase 2a | Tier A rewire (stats + bootstrap + anderson + linalg → barracuda) + GPU stats dispatch + batch APIs + cross-spring S59+ evolution | **102 active delegations** (61 CPU + 41 GPU), **930+ tests** — barraCuda `a898dee`, toadStool S156+, coralReef Iteration 52+. V98: upstream rewire. V97: runtime f64 smoke test + three-tier parity. V96: PrecisionRoutingAdvice wired, shader.compile.* IPC aligned. V87: multinomial_sample + anderson_potential CPU-delegated; Tier B resolved |
 | Phase 2b | Tier B adapt (GPU dispatch wiring, PRNG alignment) | **V31–V69** — 15 modules GPU-wired, 187 metalForge checks, 5 substrates; arch-aware dispatch (f64→Titan V, f32→RTX 4070); GPU→NPU PCIe bypass validated |
 | Phase 2c | Tier C absorption (multinomial, RAWR kernels) | After 2b |
 | Phase 3 | Full GPU pipeline, metalForge cross-substrate | After Phase 2 |

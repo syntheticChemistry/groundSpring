@@ -1,7 +1,7 @@
 # groundSpring — The Dirty Differences
 
 **Date**: March 16, 2026 | **License**: AGPL-3.0-or-later
-**Status**: V113 — 39 modules, 35 experiments, 618 unit + 24 integration Rust tests + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda v0.3.5, toadStool S155b+, coralReef Iteration 52+. **Three-tier parity proven**: 29/29 validation binaries PASS at all three tiers. **V113**: GemmF64 transpose delegation (`execute_gemm_ex` trans_a=true), exit_code constants (UNIBIN_ARCHITECTURE_STANDARD), RetryPolicy + CircuitBreaker (IPC resilience), 4-format capability parsing. **V112**: `OrExit<T>` trait + `parse_benchmark()` (28 binaries migrated), generic `socket_env_var()` discovery, provenance trio, `thiserror` for `BenchFieldError`. **V111**: Deep debt evolution — `thiserror` for errors, `DispatchOutcome` enum, safe casts, DI config injection. **V110**: Cross-ecosystem absorption — `#[expect(reason)]` migration, structured tracing, toadStool direct dispatch, dual-format capability parsing. **V109**: Zero-panic validation binaries. **V108**: AGPL-3.0-or-later.
+**Status**: V113 — 39 modules, 35 experiments, 618 unit + 24 integration Rust tests + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 102 active barracuda delegations (61 CPU + 41 GPU) — synced against barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+. **Three-tier parity proven**: 29/29 validation binaries PASS at all three tiers. **V113**: GemmF64 transpose delegation (`execute_gemm_ex` trans_a=true), exit_code constants (UNIBIN_ARCHITECTURE_STANDARD), RetryPolicy + CircuitBreaker (IPC resilience), 4-format capability parsing. **V112**: `OrExit<T>` trait + `parse_benchmark()` (28 binaries migrated), generic `socket_env_var()` discovery, provenance trio, `thiserror` for `BenchFieldError`. **V111**: Deep debt evolution — `thiserror` for errors, `DispatchOutcome` enum, safe casts, DI config injection. **V110**: Cross-ecosystem absorption — `#[expect(reason)]` migration, structured tracing, toadStool direct dispatch, dual-format capability parsing. **V109**: Zero-panic validation binaries. **V108**: AGPL-3.0-or-later.
 
 **The gap between what models predict and what instruments measure.**
 
@@ -241,7 +241,7 @@ Run parity report: `python3 scripts/parity_report.py`
 | BarraCUDA CPU | 18.4 | +47% (dispatch overhead on small workloads) |
 | **BarraCUDA GPU** | **9.9** | **−21% (1.27× faster)** |
 
-### Workspace Test Benchmark (906 tests, release mode)
+### Workspace Test Benchmark (930+ tests, release mode)
 
 | Mode | Wall time (s) | Δ vs local |
 |------|--------------|------------|
@@ -267,7 +267,7 @@ hotSpring (precision)  ─────┐
   stress_virial, CG kernels ├──► 784 WGSL shaders, f64-canonical
                              │    with f16/f32/f64/Df64 per hardware
 wetSpring (bio)  ────────────┤
-  smith_waterman, gillespie, │    toadStool S130+ routes hardware
+  smith_waterman, gillespie, │    toadStool S156+ routes hardware
   fused_map_reduce, HMM      │    coralReef compiles to native GPU binary
                              │
 neuralSpring (ML)  ──────────┤    groundSpring consumes 102 ops:
@@ -291,7 +291,7 @@ Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardwar
   NumPy/SciPy         Pure safe Rust     BarraCUDA/ToadStool   metalForge dispatch    biomeOS Neural API
   ✓ Complete          ✓ 395/395 PASS     ◐ 102 active          30 workloads           Tower+Node+Squirrel
   11.5× slower        35/35 experiments    (61+41)              24 GPU + 2 NPU + 2 CPU-only         NestGate data pipes
-                      906 workspace tests                       PCIe topology          NUCLEUS atomics
+                      930+ workspace tests                      PCIe topology          NUCLEUS atomics
                                                                 Pipeline dispatch      Sovereign degradation
 
   Write locally    →  Hand off          →  Lean on upstream   →  Cross-substrate     →  Primal orchestration

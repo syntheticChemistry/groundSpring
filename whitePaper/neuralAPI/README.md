@@ -2,7 +2,7 @@
 
 > groundSpring as a **validation science primal** in the biomeOS ecosystem.
 
-**Status**: V110 live (March 16, 2026) — first live NUCLEUS connection
+**Status**: V113 live (March 16, 2026) — first live NUCLEUS connection
 
 ## Role
 

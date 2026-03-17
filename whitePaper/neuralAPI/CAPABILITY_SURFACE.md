@@ -2,7 +2,7 @@
 
 > Semantic capabilities for the biomeOS capability registry.
 
-**Status**: V110 (March 16, 2026)
+**Status**: V113 (March 16, 2026)
 **Domain**: `measurement`
 
 ## Capabilities Provided

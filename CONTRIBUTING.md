@@ -105,7 +105,7 @@ scripts/             Automation (baselines, benchmarks)
 ### Rust
 
 ```bash
-cargo test --workspace                         # 912+ tests, all PASS (V112)
+cargo test --workspace                         # 930+ tests, all PASS (V113)
 cargo test --workspace --features biomeos      # biomeos tests (NUCLEUS client active)
 cargo test --workspace --features barracuda-gpu # GPU dispatch active
 cargo clippy --workspace --all-targets -D warnings # zero warnings (pedantic + nursery)

@@ -1,6 +1,6 @@
 # Cross-Spring Shader Evolution
 
-**Last updated**: March 16, 2026 (V112 — 102 active delegations (61 CPU + 41 GPU), 908 default-feature tests (936 across all feature gates), three-tier parity proven: 29/29 at all 3 tiers)
+**Last updated**: March 16, 2026 (V113 — 102 active delegations (61 CPU + 41 GPU), 930+ default-feature tests (936 across all feature gates), three-tier parity proven: 29/29 at all 3 tiers)
 
 The ecoPrimals shader ecosystem evolved organically as each spring
 absorbed domain-specific knowledge, then shared it through barraCuda
@@ -212,7 +212,7 @@ runtime f64 reduction smoke test:
 | Mar 5 | wgpu 28 migration | ALL springs | barraCuda v0.3.3 | Arc removal, workgroup constants, modern API |
 | Mar 6 | f64 shared-memory bug | groundSpring V84-V85 | ALL springs | `PrecisionRoutingAdvice` — RTX 4070 naga zeros detected |
 | Mar 7 | `shader.compile.*` IPC | toadStool S130 | coralReef proxy | Sovereign shader compilation via coralReef |
-| Mar 7 | coralReef Iteration 10 | coralReef | ALL springs | AMD E2E dispatch, f64 reduction shader fix for SM70/SM89 |
+| Mar 7 | coralReef Iteration 52+ | coralReef | ALL springs | AMD E2E dispatch, f64 reduction shader fix for SM70/SM89 |
 | Mar 8 | **V98 upstream rewire** | barraCuda `a898dee` | groundSpring | Typed errors, named constants, three-tier parity proven |
 
 ### Cross-Spring Flow Matrix
