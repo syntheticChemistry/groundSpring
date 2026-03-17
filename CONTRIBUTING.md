@@ -91,13 +91,21 @@ scripts/             Automation (baselines, benchmarks)
 10. **Graceful barracuda fallback.** All `#[cfg(feature = "barracuda")]` blocks
     use `if let Ok` with a CPU fallback that is always compiled. Never `.expect()`
     or `.unwrap()` on barracuda calls in production code.
+11. **Validation binaries use `parse_benchmark()`.** All validation binaries follow
+    the `OrExit<T>` pattern: load benchmark JSON via `parse_benchmark()` and use
+    `.or_exit()` for clean failure reporting. No `.expect()` or `.unwrap()` on
+    benchmark parsing.
+12. **Error types use `thiserror`.** Custom error types derive `thiserror::Error`
+    with `#[error("...")]` messages for structured error handling.
+13. **Socket discovery via generic helpers.** Use `socket_env_var()` (or equivalent
+    generic discovery helpers) for capability/socket discovery; avoid hardcoded paths.
 
 ## Development
 
 ### Rust
 
 ```bash
-cargo test --workspace                         # 912+ tests, all PASS (V110)
+cargo test --workspace                         # 912+ tests, all PASS (V112)
 cargo test --workspace --features biomeos      # biomeos tests (NUCLEUS client active)
 cargo test --workspace --features barracuda-gpu # GPU dispatch active
 cargo clippy --workspace --all-targets -D warnings # zero warnings (pedantic + nursery)
@@ -109,6 +117,9 @@ cargo test --workspace
 cargo test --workspace --features barracuda
 cargo test --workspace --features barracuda-gpu
 cargo test --workspace --features biomeos
+
+# Validate crate (no-default-features for minimal deps)
+cargo test -p groundspring-validate --no-default-features
 
 # Three-mode benchmark (local vs barracuda vs barracuda-gpu)
 bash scripts/three_mode_benchmark.sh

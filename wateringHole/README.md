@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 16, 2026 (V110)
+**Last Updated**: March 16, 2026 (V112)
 
 ## What This Is
 
@@ -18,7 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V110 Cross-Ecosystem Absorption | [GROUNDSPRING_V110_ECOSYSTEM_ABSORPTION_HANDOFF_MAR16_2026.md](handoffs/GROUNDSPRING_V110_ECOSYSTEM_ABSORPTION_HANDOFF_MAR16_2026.md) | Mar 16, 2026 | `#[expect(reason)]` migration (95 files), Python tolerance mirror, tracing, toadStool direct dispatch, dual-format capability parsing, deny.toml, aarch64 CI. |
+| V112 Deep Debt + OrExit | [GROUNDSPRING_V112_DEEP_DEBT_OREXIT_HANDOFF_MAR16_2026.md](handoffs/GROUNDSPRING_V112_DEEP_DEBT_OREXIT_HANDOFF_MAR16_2026.md) | Mar 16, 2026 | thiserror error types, DispatchOutcome RPC, OrExit&lt;T&gt; validation pattern, generic primal discovery, safe cast/DI patterns, validate crate decoupled. |
 
 ## Cross-Spring Documentation
 
@@ -38,6 +38,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | Scope |
 |---------|-------|
+| V110 Cross-Ecosystem Absorption | `#[expect(reason)]` migration (95 files), Python tolerance mirror, tracing, toadStool direct dispatch, dual-format capability parsing, deny.toml, aarch64 CI (superseded by V112) |
 | V109 Deep Debt + Smart Refactor | Zero-panic validation binaries (28 converted), smart module refactoring (regression/fao56/pipeline/validate-lib), named physical constants, Python dep pinning (superseded by V110) |
 | V108 Deep Debt + Absorption | License AGPL-3.0-or-later, barracuda WelfordState CPU delegation, tolerance centralization, typed capability discovery, provenance enrichment, Result-based validate pattern (superseded by V109) |
 | V107 License/Niche/Tolerance | AGPL-3.0-or-later (302 files), release profile, enriched niche.rs, tolerance provenance, bare literal removal (superseded by V108) |

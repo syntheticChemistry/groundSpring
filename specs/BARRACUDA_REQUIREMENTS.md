@@ -1,6 +1,6 @@
 # groundSpring — BarraCUDA Requirements
 
-**Last Updated**: March 16, 2026 (V110)
+**Last Updated**: March 16, 2026 (V112)
 **Purpose**: GPU kernel requirements, gap analysis, and evolution priorities
 
 ---
@@ -17,7 +17,7 @@ groundSpring Phase 0 (Python), Phase 1 (Rust), and Phase 2a (barracuda CPU) are 
 - 2 production WGSL shaders in `metalForge/shaders/` (261 combined lines)
 - All matrices use flat row-major `Vec<f64>` — GPU-promotable layout
 - Rust is **11.6× faster** than Python (excl. LAPACK-bound); 5.1× overall. Exp 009: **47.7× from Sturm tridiag**
-- **28/28 mathematical parity proven** (Python ⇌ Rust; `data/parity_report.json`), all provenance fields stamped, 13 bitwise determinism tests
+- **29/29 mathematical parity proven** (Python ⇌ Rust; `data/parity_report.json`), all provenance fields stamped, 13 bitwise determinism tests
 - metalForge live hardware: RTX 4070, Titan V, AKD1000 NPU (80 NPs, ~51µs DMA), i9-12900K. Architecture-aware routing: f64→Titan V (Volta), f32→RTX 4070 (Ada)
 
 See [BARRACUDA_EVOLUTION.md](BARRACUDA_EVOLUTION.md) for the module-by-module
