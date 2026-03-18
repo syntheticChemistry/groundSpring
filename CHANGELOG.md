@@ -4,6 +4,54 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V117 All-Features Compilation + cargo deny + PRNG Feature Gate (Mar 18, 2026)
+
+#### All-Features Compilation Fixed
+- `tarpc-ipc` feature: added missing `serde-transport-json` to tarpc dependency —
+  `cargo check --workspace --all-features` now compiles cleanly (was `E0433:
+  could not find formats in tokio_serde`)
+- `clippy --workspace --all-features -- -D warnings` now passes with zero warnings
+
+#### Clippy All-Features Cleanup
+- Removed duplicate `Display` trait bound from `ResilienceError<E>` in
+  `biomeos/resilience.rs` (thiserror derives its own where clause)
+- Removed stale `#[expect(clippy::cast_possible_truncation)]` from `seismic.rs`
+  — `u32 as usize` never truncates on 64-bit targets
+- Removed redundant outer `cast_possible_truncation` from `npu.rs` — inner
+  `#[expect]` attributes already covered those casts
+- Removed unfulfilled `#[expect(clippy::expect_used)]` on `validate_npu_anderson`
+  `main()` — helper functions have their own `#[expect]`
+- Merged identical match arms in `groundspring_primal.rs` (`match_same_arms`)
+- Added `#[expect(dead_code)]` to pre-absorbed `extract_rpc_result` in
+  `biomeos/protocol.rs`
+
+#### cargo deny Fixed and Passing
+- Removed obsolete `vulnerability = "deny"` (removed in cargo-deny 0.19)
+- Changed `unmaintained = "warn"` to valid `unmaintained = "workspace"`
+- Fixed invalid SPDX: `AGPL-3.0+` → `AGPL-3.0-or-later`
+- Added `AGPL-3.0-only` and `CC0-1.0` to license allowlist
+- Added `blake3` as allowed wrapper for `cc` (build-time SIMD, not runtime C)
+- Changed `wildcards = "deny"` → `"allow"` (path deps in monorepo are standard)
+
+#### PRNG Feature Gate
+- `DefaultRng` is now feature-gated: `prng-xoshiro-default` switches from
+  `Xorshift64` (validation baseline) to `Xoshiro128StarStar` (GPU-aligned)
+- Conditional tests for both PRNG modes
+- Enables zero-diff PRNG migration when Python baselines are regenerated
+
+#### Bare Literal Cleanup
+- `metalForge/forge/src/tolerance.rs`: extracted `NEAR_ZERO_THRESHOLD` constant
+- `validate_pure_gpu_workloads.rs`: `1e-10` → `groundspring::tol::ANALYTICAL`
+- `validate_weather.rs`: `365` → `DAYS_PER_YEAR` constant
+
+#### validate_all Meta-Binary
+- Verified: 29/29 core validations PASS, 0 failures, 1 hardware skip (NPU)
+- Underscore naming confirmed working across all binaries
+
+**Quality**: 960+ tests, 0 clippy (default + all-features), 0 fmt diff,
+0 doc warnings, 0 unsafe, `cargo deny check` PASS, all 29 validation
+binaries PASS.
+
 ### V116 Deep Absorption + Idiomatic Error Evolution (Mar 18, 2026)
 
 #### Typed Error Evolution

@@ -1,11 +1,11 @@
 # LAN HPC Deployment Readiness Checklist
 
 **Date**: March 17, 2026
-**Status**: Eastgate NUCLEUS validated (V116), awaiting 10G Cat6a cables
+**Status**: Eastgate NUCLEUS validated (V117), awaiting 10G Cat6a cables
 
 ---
 
-## Eastgate (Primary NUCLEUS) — VALIDATED (V116)
+## Eastgate (Primary NUCLEUS) — VALIDATED (V117)
 
 | Component | Status | Details |
 |-----------|--------|---------|
@@ -113,7 +113,7 @@ NODE_ID=northgate ./start.sh
 
 ## What Can Run Now (Before LAN)
 
-With local NUCLEUS on eastGate, groundSpring V116 can execute all Tier 0-1
+With local NUCLEUS on eastGate, groundSpring V117 can execute all Tier 0-1
 dataset extensions without LAN infrastructure:
 
 | Tier | Datasets | Compute | Status |
@@ -126,7 +126,7 @@ Tara Oceans 100GB, HMP 50GB) and Tier 3 (multi-TB SRA surveys).
 
 ---
 
-## Phased Gate Deployment Plan (V116)
+## Phased Gate Deployment Plan (V117)
 
 ### Immediate (Now — Local NUCLEUS on eastGate)
 
@@ -137,7 +137,7 @@ eastGate [Tower + Node + Nest]
   ├── ToadStool (GPU: RTX 4070, 12GB VRAM)
   ├── NestGate (NCBI + NOAA + IRIS + local storage)
   ├── Squirrel (AI: ESN/LSTM classification)
-  └── groundSpring V116 (measurement.* capabilities + health probes)
+  └── groundSpring V117 (measurement.* capabilities + health probes)
 ```
 
 **Actionable now:**
@@ -222,7 +222,7 @@ discovery enables distributed dispatch across all GPU/NPU resources:
 
 ---
 
-## Compute Budget by Tier (V116)
+## Compute Budget by Tier (V117)
 
 | Tier | Data | eastGate (single GPU) | Full LAN | Blocking |
 |------|------|-----------------------|----------|----------|

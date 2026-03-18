@@ -52,12 +52,7 @@ pub fn rawr_mean(
     Ok(rawr_mean_cpu(data, n_replicates, confidence, seed))
 }
 
-fn rawr_mean_cpu(
-    data: &[f64],
-    n_replicates: usize,
-    confidence: f64,
-    seed: u64,
-) -> BootstrapResult {
+fn rawr_mean_cpu(data: &[f64], n_replicates: usize, confidence: f64, seed: u64) -> BootstrapResult {
     let n = data.len();
     let mut rng = Xorshift64::new(seed);
     let mut means = Vec::with_capacity(n_replicates);
@@ -83,10 +78,7 @@ fn rawr_mean_cpu(
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::float_cmp,
-    reason = "bitwise determinism test"
-)]
+#[expect(clippy::float_cmp, reason = "bitwise determinism test")]
 #[expect(clippy::unwrap_used, reason = "test assertions use unwrap for clarity")]
 mod tests {
     use super::*;

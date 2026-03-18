@@ -26,58 +26,58 @@ bytemuck = { version = "1", features = ["derive"] }
 serde_json = "1"
 
 [[bin]]
-name = "validate-metalforge-inventory"
+name = "validate_metalforge_inventory"
 path = "src/bin/validate_metalforge_inventory.rs"
 
 [[bin]]
-name = "validate-metalforge-gpu"
+name = "validate_metalforge_gpu"
 path = "src/bin/validate_metalforge_gpu.rs"
 
 [[bin]]
-name = "validate-metalforge-titan-v"
+name = "validate_metalforge_titan_v"
 path = "src/bin/validate_metalforge_titan_v.rs"
 
 [[bin]]
-name = "validate-metalforge-cross-substrate"
+name = "validate_metalforge_cross_substrate"
 path = "src/bin/validate_metalforge_cross_substrate.rs"
 required-features = ["npu"]
 
 [[bin]]
-name = "validate-metalforge-spectral"
+name = "validate_metalforge_spectral"
 path = "src/bin/validate_metalforge_spectral.rs"
 
 [[bin]]
-name = "validate-metalforge-mathieu"
+name = "validate_metalforge_mathieu"
 path = "src/bin/validate_metalforge_mathieu.rs"
 
 [[bin]]
-name = "benchmark-cross-spring"
+name = "benchmark_cross_spring"
 path = "src/bin/benchmark_cross_spring.rs"
 
 [[bin]]
-name = "validate-gpu-tier"
+name = "validate_gpu_tier"
 path = "src/bin/validate_gpu_tier/main.rs"
 
 [[bin]]
-name = "validate-pure-gpu-workloads"
+name = "validate_pure_gpu_workloads"
 path = "src/bin/validate_pure_gpu_workloads.rs"
 
 [[bin]]
-name = "validate-nestgate-ncbi"
+name = "validate_nestgate_ncbi"
 path = "src/bin/validate_nestgate_ncbi.rs"
 required-features = ["biomeos"]
 
 [[bin]]
-name = "validate-mixed-hardware"
+name = "validate_mixed_hardware"
 path = "src/bin/validate_mixed_hardware.rs"
 
 [[bin]]
-name = "validate-nucleus-pipeline"
+name = "validate_nucleus_pipeline"
 path = "src/bin/validate_nucleus_pipeline.rs"
 required-features = ["biomeos"]
 
 [[bin]]
-name = "validate-metalforge-pipeline"
+name = "validate_metalforge_pipeline"
 path = "src/bin/validate_metalforge_pipeline.rs"
 
 [lints]

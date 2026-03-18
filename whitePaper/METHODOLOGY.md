@@ -139,17 +139,17 @@ Phase 1 ports each experiment's core algorithm to idiomatic Rust in the
 
 | Binary | Experiment | Checks | Modules Exercised |
 |--------|-----------|--------|-------------------|
-| `validate-decompose` | Exp 001 | 36 | `stats`, `decompose` |
-| `validate-rarefaction` | Exp 004 | 15 | `rarefaction`, `prng` |
-| `validate-seismic` | Exp 005 | 9 | `seismic`, `stats` |
-| `validate-weather` | Exp 002 | 13 | `stats`, `decompose`, `prng` |
-| `validate-fao56` | Exp 003 | 15 | `fao56`, `prng`, `stats` |
-| `validate-signal-specificity` | Exp 006 | 12 | `gillespie`, `prng` |
-| `validate-rawr` | Exp 007 | 11 | `bootstrap`, `prng`, `stats` |
-| `validate-anderson` | Exp 008 | 8 | `anderson`, `prng` |
-| `validate-quasiperiodic` | Exp 009 | 8 | `anderson` |
-| `validate-bistable` | Exp 010 | 9 | `bistable` |
-| `validate-multisignal` | Exp 011 | 8 | `multisignal` |
+| `validate_decompose` | Exp 001 | 36 | `stats`, `decompose` |
+| `validate_rarefaction` | Exp 004 | 15 | `rarefaction`, `prng` |
+| `validate_seismic` | Exp 005 | 9 | `seismic`, `stats` |
+| `validate_weather` | Exp 002 | 13 | `stats`, `decompose`, `prng` |
+| `validate_fao56` | Exp 003 | 15 | `fao56`, `prng`, `stats` |
+| `validate_signal_specificity` | Exp 006 | 12 | `gillespie`, `prng` |
+| `validate_rawr` | Exp 007 | 11 | `bootstrap`, `prng`, `stats` |
+| `validate_anderson` | Exp 008 | 8 | `anderson`, `prng` |
+| `validate_quasiperiodic` | Exp 009 | 8 | `anderson` |
+| `validate_bistable` | Exp 010 | 9 | `bistable` |
+| `validate_multisignal` | Exp 011 | 8 | `multisignal` |
 
 ### Rust Quality Gates
 

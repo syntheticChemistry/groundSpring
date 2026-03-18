@@ -449,6 +449,7 @@ pub fn neutral_diversity_trajectory(
 #[cfg(test)]
 #[expect(
     clippy::expect_used,
+    clippy::unwrap_used,
     reason = "test assertions use unwrap/expect for clarity"
 )]
 mod tests {

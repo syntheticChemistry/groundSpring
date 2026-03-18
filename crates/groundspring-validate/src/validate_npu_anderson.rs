@@ -225,10 +225,6 @@ fn run_npu_checks(bench: &Value, h: &mut ValidationHarness) {
     );
 }
 
-#[expect(
-    clippy::expect_used,
-    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
-)]
 fn main() {
     let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::stdout("Exp 028 — NPU Anderson Regime Classification");

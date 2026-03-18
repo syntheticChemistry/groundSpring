@@ -35,36 +35,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - run: cargo run --bin validate-decompose
-      - run: cargo run --bin validate-rarefaction
-      - run: cargo run --bin validate-seismic
-      - run: cargo run --bin validate-weather
-      - run: cargo run --bin validate-fao56
-      - run: cargo run --bin validate-signal-specificity
-      - run: cargo run --bin validate-rawr
-      - run: cargo run --bin validate-anderson
-      - run: cargo run --bin validate-quasiperiodic
-      - run: cargo run --bin validate-bistable
-      - run: cargo run --bin validate-multisignal
-      - run: cargo run --bin validate-transport
-      - run: cargo run --bin validate-resampling-conv
-      - run: cargo run --bin validate-drift
-      - run: cargo run --bin validate-uncertainty-bridge
-      - run: cargo run --bin validate-rare-biosphere
-      - run: cargo run --bin validate-quasispecies
-      - run: cargo run --bin validate-band-edge
-      - run: cargo run --bin validate-jackknife
-      - run: cargo run --bin validate-freeze-out
-      - run: cargo run --bin validate-spectral-recon
-      - run: cargo run --bin validate-et0-anderson
-      - run: cargo run --bin validate-notill-sampling
-      - run: cargo run --bin validate-aggregate-stability
-      - run: cargo run --bin validate-precision-drift
-      - run: cargo run --bin validate-size-convergence
-      - run: cargo run --bin validate-vendor-parity
-      - run: cargo run --bin validate-npu-anderson || echo "NPU binary skipped (requires AKD1000 hardware)"
-      - run: cargo run --bin validate-tissue-anderson
-      - run: cargo run --bin validate-et0-methods
+      - run: cargo run --bin validate_decompose
+      - run: cargo run --bin validate_rarefaction
+      - run: cargo run --bin validate_seismic
+      - run: cargo run --bin validate_weather
+      - run: cargo run --bin validate_fao56
+      - run: cargo run --bin validate_signal_specificity
+      - run: cargo run --bin validate_rawr
+      - run: cargo run --bin validate_anderson
+      - run: cargo run --bin validate_quasiperiodic
+      - run: cargo run --bin validate_bistable
+      - run: cargo run --bin validate_multisignal
+      - run: cargo run --bin validate_transport
+      - run: cargo run --bin validate_resampling_conv
+      - run: cargo run --bin validate_drift
+      - run: cargo run --bin validate_uncertainty_bridge
+      - run: cargo run --bin validate_rare_biosphere
+      - run: cargo run --bin validate_quasispecies
+      - run: cargo run --bin validate_band_edge
+      - run: cargo run --bin validate_jackknife
+      - run: cargo run --bin validate_freeze_out
+      - run: cargo run --bin validate_spectral_recon
+      - run: cargo run --bin validate_et0_anderson
+      - run: cargo run --bin validate_notill_sampling
+      - run: cargo run --bin validate_aggregate_stability
+      - run: cargo run --bin validate_precision_drift
+      - run: cargo run --bin validate_size_convergence
+      - run: cargo run --bin validate_vendor_parity
+      - run: cargo run --bin validate_npu_anderson || echo "NPU binary skipped (requires AKD1000 hardware)"
+      - run: cargo run --bin validate_tissue_anderson
+      - run: cargo run --bin validate_et0_methods
 
   validate-biomeos:
     name: biomeOS validation (NUCLEUS-dependent)
@@ -73,10 +73,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - run: cargo run --features biomeos --bin validate-real-ghcnd-et0 || echo "skipped (requires NUCLEUS + NestGate)"
-      - run: cargo run --features biomeos --bin validate-real-ncbi-16s || echo "skipped (requires NUCLEUS + NestGate)"
-      - run: cargo run --features biomeos --bin validate-nucleus-stack || echo "skipped (requires NUCLEUS)"
-      - run: cargo run --features biomeos --bin validate-iris-seismic || echo "skipped (requires NUCLEUS + NestGate)"
+      - run: cargo run --features biomeos --bin validate_real_ghcnd_et0 || echo "skipped (requires NUCLEUS + NestGate)"
+      - run: cargo run --features biomeos --bin validate_real_ncbi_16s || echo "skipped (requires NUCLEUS + NestGate)"
+      - run: cargo run --features biomeos --bin validate_nucleus_stack || echo "skipped (requires NUCLEUS)"
+      - run: cargo run --features biomeos --bin validate_iris_seismic || echo "skipped (requires NUCLEUS + NestGate)"
 
   validate-metalforge:
     name: metalForge validation
@@ -85,18 +85,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - run: cargo run --bin validate-metalforge-inventory || echo "metalForge inventory skipped (requires GPU hardware)"
-      - run: cargo run --bin validate-metalforge-spectral || echo "metalForge spectral skipped (requires GPU hardware)"
-      - run: cargo run --bin validate-metalforge-mathieu || echo "metalForge mathieu skipped (requires GPU hardware)"
-      - run: cargo run --bin validate-metalforge-pipeline || echo "metalForge pipeline skipped (requires GPU hardware)"
-      - run: cargo run --bin validate-metalforge-gpu || echo "metalForge GPU skipped (requires GPU hardware)"
-      - run: cargo run --bin validate-metalforge-titan-v || echo "metalForge Titan V skipped (requires GPU hardware)"
-      - run: cargo run --bin validate-metalforge-cross-substrate || echo "metalForge cross-substrate skipped (requires GPU+NPU)"
-      - run: cargo run --features biomeos --bin validate-nestgate-ncbi || echo "NestGate NCBI skipped (requires NUCLEUS)"
-      - run: cargo run --features biomeos --bin validate-nucleus-pipeline || echo "NUCLEUS pipeline skipped (requires NUCLEUS)"
-      - run: cargo run --bin validate-gpu-tier || echo "GPU tier skipped (requires GPU hardware)"
-      - run: cargo run --bin validate-pure-gpu-workloads || echo "pure GPU workloads skipped (requires GPU hardware)"
-      - run: cargo run --bin validate-mixed-hardware || echo "mixed hardware skipped (requires GPU+NPU)"
+      - run: cargo run --bin validate_metalforge_inventory || echo "metalForge inventory skipped (requires GPU hardware)"
+      - run: cargo run --bin validate_metalforge_spectral || echo "metalForge spectral skipped (requires GPU hardware)"
+      - run: cargo run --bin validate_metalforge_mathieu || echo "metalForge mathieu skipped (requires GPU hardware)"
+      - run: cargo run --bin validate_metalforge_pipeline || echo "metalForge pipeline skipped (requires GPU hardware)"
+      - run: cargo run --bin validate_metalforge_gpu || echo "metalForge GPU skipped (requires GPU hardware)"
+      - run: cargo run --bin validate_metalforge_titan_v || echo "metalForge Titan V skipped (requires GPU hardware)"
+      - run: cargo run --bin validate_metalforge_cross_substrate || echo "metalForge cross-substrate skipped (requires GPU+NPU)"
+      - run: cargo run --features biomeos --bin validate_nestgate_ncbi || echo "NestGate NCBI skipped (requires NUCLEUS)"
+      - run: cargo run --features biomeos --bin validate_nucleus_pipeline || echo "NUCLEUS pipeline skipped (requires NUCLEUS)"
+      - run: cargo run --bin validate_gpu_tier || echo "GPU tier skipped (requires GPU hardware)"
+      - run: cargo run --bin validate_pure_gpu_workloads || echo "pure GPU workloads skipped (requires GPU hardware)"
+      - run: cargo run --bin validate_mixed_hardware || echo "mixed hardware skipped (requires GPU+NPU)"
 
   python:
     name: Python baselines

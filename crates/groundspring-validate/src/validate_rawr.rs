@@ -48,7 +48,13 @@ fn generate_ar1(n: usize, mu: f64, sigma: f64, rho: f64, seed: u64) -> Vec<f64> 
 fn coverage_test(
     data_gen: impl Fn(u64) -> Vec<f64>,
     true_param: f64,
-    method: impl Fn(&[f64], usize, f64, u64) -> Result<groundspring::bootstrap::BootstrapResult, groundspring::error::InputError>,
+    method: impl Fn(
+        &[f64],
+        usize,
+        f64,
+        u64,
+    )
+        -> Result<groundspring::bootstrap::BootstrapResult, groundspring::error::InputError>,
     n_trials: usize,
     n_bootstrap: usize,
     confidence: f64,
@@ -71,6 +77,12 @@ fn coverage_test(
     covers as f64 / n_trials as f64
 }
 
+/// Factor for "estimate near true parameter" check: |estimate − μ| < k·σ.
+///
+/// k = 2 captures ≈95.4% of a standard normal — a conservative sanity
+/// check that the point estimate hasn't drifted catastrophically.
+const ESTIMATE_SIGMA_BOUND: f64 = 2.0;
+
 /// Validate bootstrap and RAWR on symmetric Gaussian data.
 ///
 /// Coverage tolerance: [0.9, 1.0] — 200 trials at 95% confidence;
@@ -90,10 +102,9 @@ fn validate_gaussian(h: &mut ValidationHarness, bench: &Value) {
     let seed = u64_field(tc, "seed");
 
     let data = generate_normal(n, mu, sigma, seed);
-    let boot_r = bootstrap_mean(&data, n_boot, conf, seed + 1)
-        .expect("validated inputs must not fail");
-    let rawr_r = rawr_mean(&data, n_boot, conf, seed + 2)
-        .expect("validated inputs must not fail");
+    let boot_r =
+        bootstrap_mean(&data, n_boot, conf, seed + 1).expect("validated inputs must not fail");
+    let rawr_r = rawr_mean(&data, n_boot, conf, seed + 2).expect("validated inputs must not fail");
 
     println!(
         "  Bootstrap: {:.3} [{:.3}, {:.3}] w={:.3}",
@@ -112,11 +123,11 @@ fn validate_gaussian(h: &mut ValidationHarness, bench: &Value) {
 
     h.check_true(
         "Bootstrap estimate near true μ",
-        (boot_r.estimate - mu).abs() < 2.0 * sigma,
+        (boot_r.estimate - mu).abs() < ESTIMATE_SIGMA_BOUND * sigma,
     );
     h.check_true(
         "RAWR estimate near true μ",
-        (rawr_r.estimate - mu).abs() < 2.0 * sigma,
+        (rawr_r.estimate - mu).abs() < ESTIMATE_SIGMA_BOUND * sigma,
     );
 
     let (ci_lo, ci_hi) = f64_range(&exp["gaussian_bootstrap_ci_width_range"]);

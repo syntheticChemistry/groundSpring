@@ -12,8 +12,9 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **395/395 checks passed** across 34 validation binaries (340 core + 55 NUCLEUS).
 - Mathematical parity: **29/29 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.6× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.4× from Sturm tridiag**.
-- V116: Typed error evolution — `DispatchError`, `EsnError`, `ResilienceError<E>`; `ValidationSink` trait; Format C/D capability parsing; `OnceLock` GPU probe cache; RAWR extracted to `rawr.rs`; dispatch defaults named with provenance. 960+ tests.
-- V115: cross-ecosystem deep absorption — safe_cast expansion, health probes, resilient_call, OrExit evolution, zero eprintln/expect/allow. V113: GemmF64 transpose, RetryPolicy + CircuitBreaker. 930+ tests.
+- V117: All-features compilation fixed (tarpc-ipc), `cargo deny` modernised and passing, PRNG `DefaultRng` feature-gated for GPU alignment, `validate_all` meta-binary (29/29 PASS), clippy `--all-features` clean, bare literal cleanup. 960+ tests.
+- V116: Typed error evolution — `DispatchError`, `EsnError`, `ResilienceError<E>`; `ValidationSink` trait; Format C/D capability parsing; `OnceLock` GPU probe cache; RAWR extracted to `rawr.rs`; dispatch defaults named with provenance.
+- V115: API evolution (`assert!` → `Result`), CI hardening, ecoBin compliance. V113: GemmF64 transpose, RetryPolicy + CircuitBreaker.
 - V110: Cross-ecosystem absorption — `#[expect(reason)]` migration (95 files, zero `#[allow()]`), `control/tolerances.py` (full Python tolerance mirror, 28 constants), structured tracing in primal binary, toadStool `compute.dispatch.*` direct dispatch (3 methods), dual-format capability parsing (neuralSpring S156 compat), `deny.toml`, aarch64 cross-compile CI. 912+ tests, 0 clippy, 0 fmt diff.
 - V110: Zero-panic validation binaries (28 converted to Result-based), smart module refactoring (regression/fao56/pipeline/validate-lib), named physical constants, Python deps pinned.
 - V108: License corrected to AGPL-3.0-or-later (SCYBORG trio), barracuda WelfordState CPU delegation, tolerance centralization, typed capability-based discovery, Python provenance enrichment.

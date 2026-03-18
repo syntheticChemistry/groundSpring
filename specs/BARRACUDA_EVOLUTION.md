@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 18, 2026 (V116 — 102 delegations (61 CPU + 41 GPU), 960+ tests (all feature gates),
+**Last updated**: March 18, 2026 (V117 — 102 delegations (61 CPU + 41 GPU), 960+ tests (all feature gates),
 barraCuda v0.3.5, toadStool S158+, coralReef Iteration 55+.
 V108: AGPL-3.0-or-later (SCYBORG trio), barracuda WelfordState CPU delegation for std_dev/mean_and_std_dev,
 tolerance centralization (tol::ANALYTICAL in tests), typed capability-based discovery, provenance enrichment.
@@ -52,7 +52,7 @@ validation science primal. The `biomeos` feature gate adds a JSON-RPC 2.0
 Unix socket client (`crates/groundspring/src/biomeos/`) that routes
 compute through the Neural API: `capability.call` → ToadStool GPU dispatch
 or NestGate storage, with sovereign local fallback when biomeOS is
-unavailable. `validate-anderson` is the first wired experiment — Lyapunov
+unavailable. `validate_anderson` is the first wired experiment — Lyapunov
 computation optionally routes through `compute.execute`, and results are
 stored in NestGate for provenance. See `whitePaper/neuralAPI/` for the
 concept docs and `graphs/groundspring_validation.toml` for the pipeline
@@ -192,7 +192,7 @@ graph.
 > neuralSpring metalForge provenance, S64+). Added `pollster` as optional
 > dependency for `barracuda-gpu` feature, `gpu.rs` device singleton for
 > lazy `WgpuDevice` creation. Delegation count: **39 active** (30 CPU + 9
-> GPU) + **7 pending**. New `benchmark-cross-spring` binary maps shader
+> GPU) + **7 pending**. New `benchmark_cross_spring` binary maps shader
 > provenance across all 5 springs and benchmarks three-mode execution.
 > `CROSS_SPRING_EVOLUTION.md` documents the full shader ecosystem.
 > 17/17 benchmark checks pass in all modes. 0 clippy warnings × 4 modes.
@@ -200,9 +200,9 @@ graph.
 > **V43 (Feb 28 2026)**: Three-tier parity certificate + pure GPU workload validation.
 > Full three-tier parity report: 27/27 experiments PROVEN (default = barracuda-CPU =
 > barracuda-GPU). Certificate: `data/three_tier_parity_report.json`. New validation
-> binaries: `validate-gpu-tier` (39/39 checks × 3 modes — stats, regression, bootstrap,
+> binaries: `validate_gpu_tier` (39/39 checks × 3 modes — stats, regression, bootstrap,
 > diversity, Hill kinetics, Anderson, Almost-Mathieu, bistable ODE, spectral recon,
-> rare biosphere, band structure), `validate-pure-gpu-workloads` (26/26 checks —
+> rare biosphere, band structure), `validate_pure_gpu_workloads` (26/26 checks —
 > hardware discovery, dispatch routing, pure math parity, timing). metalForge routes
 > 17/19 workloads to Titan V. 462 Rust tests, 0 warnings, 0 failures.
 >
@@ -248,21 +248,21 @@ graph.
 > - `prng::GpuAlignedRng` type alias (Xoshiro128StarStar matching `prng_xoshiro_wgsl`)
 >
 > Phase 2 — Benchmark + parity expansion:
-> - `bench-cpu-vs-gpu`: 4 new benchmarks (multinomial, tikhonov, tridiag, transport MSD)
-> - `validate-gpu-tier`: 73/73 checks (was 66) — 6 new GPU parity + 7 tissue Anderson
+> - `bench_cpu_vs_gpu`: 4 new benchmarks (multinomial, tikhonov, tridiag, transport MSD)
+> - `validate_gpu_tier`: 73/73 checks (was 66) — 6 new GPU parity + 7 tissue Anderson
 >
 > Phase 3 — NUCLEUS compute dispatch:
 > - `validate_compute_execute_anderson`, `validate_compute_submit_batch`,
 >   `validate_compute_roundtrip` — Neural API → provider → validate vs CPU baseline
 >
 > Phase 4 — metalForge mixed-hardware pipeline:
-> - `validate-metalforge-pipeline` (NEW binary): 30/30 checks — NPU→GPU→CPU routing,
+> - `validate_metalforge_pipeline` (NEW binary): 30/30 checks — NPU→GPU→CPU routing,
 >   PCIe P2P/PcieLow, all FallbackPolicy paths, NodeAtomic integration
 >
 > Paper 12 — Anderson in Immunological Signaling:
 > - `tissue_anderson` module: cytokine Anderson lattice, dimensional promotion-collapse
 >   duality, barrier disruption sweep, geometry-aware drug scoring (6-drug AD panel)
-> - `validate-tissue-anderson` binary: 29/29 PASS
+> - `validate_tissue_anderson` binary: 29/29 PASS
 > - 18 unit tests (compartment disorder, Pielou, barrier sweep, drug scoring, determinism)
 >
 > Total: **67 delegations** (37 CPU + 26 GPU + 4 cross-spring),
@@ -516,34 +516,34 @@ Full 28-binary validation suite (best-of-1, release build, i9-12900K):
 
 | Binary | Local (ms) | barraCuda (ms) | Δ |
 |--------|-----------|---------------|---|
-| validate-anderson | 864 | 834 | **−3%** |
-| validate-band-edge | 40 | 43 | noise |
-| validate-bistable | 125 | 135 | noise |
-| validate-decompose | 8 | 17 | noise |
-| validate-drift | 1263 | 1093 | **−13%** |
-| validate-et0-anderson | 92 | 51 | **−45%** |
-| validate-fao56 | 74 | 16 | **−78%** |
-| validate-freeze-out | 30 | 10 | **−67%** |
-| validate-jackknife | 14 | 6 | **−57%** |
-| validate-multisignal | 114 | 199 | +75% |
-| validate-precision-drift | 4162 | 3453 | **−17%** |
-| validate-quasiperiodic | 12681 | 11448 | **−10%** |
-| validate-quasispecies | 30 | 49 | +63% |
-| validate-rare-biosphere | 137 | 126 | **−8%** |
-| validate-rarefaction | 26 | 26 | = |
-| validate-rawr | 614 | 548 | **−11%** |
-| validate-seismic | 93 | 101 | noise |
-| validate-signal-specificity | 791 | 812 | noise |
-| validate-size-convergence | 20 | 8 | **−60%** |
-| validate-spectral-recon | 62 | 12 | **−81%** |
-| validate-tissue-anderson | 26 | 24 | noise |
-| validate-transport | 247 | 274 | +11% |
-| validate-uncertainty-bridge | 46 | 54 | noise |
-| validate-vendor-parity | 61 | 84 | noise |
-| validate-weather | 8 | 9 | noise |
-| validate-aggregate-stability | 8 | 9 | noise |
-| validate-notill-sampling | 40 | 61 | noise |
-| validate-resampling-conv | 60 | 56 | noise |
+| validate_anderson | 864 | 834 | **−3%** |
+| validate_band_edge | 40 | 43 | noise |
+| validate_bistable | 125 | 135 | noise |
+| validate_decompose | 8 | 17 | noise |
+| validate_drift | 1263 | 1093 | **−13%** |
+| validate_et0_anderson | 92 | 51 | **−45%** |
+| validate_fao56 | 74 | 16 | **−78%** |
+| validate_freeze_out | 30 | 10 | **−67%** |
+| validate_jackknife | 14 | 6 | **−57%** |
+| validate_multisignal | 114 | 199 | +75% |
+| validate_precision_drift | 4162 | 3453 | **−17%** |
+| validate_quasiperiodic | 12681 | 11448 | **−10%** |
+| validate_quasispecies | 30 | 49 | +63% |
+| validate_rare_biosphere | 137 | 126 | **−8%** |
+| validate_rarefaction | 26 | 26 | = |
+| validate_rawr | 614 | 548 | **−11%** |
+| validate_seismic | 93 | 101 | noise |
+| validate_signal_specificity | 791 | 812 | noise |
+| validate_size_convergence | 20 | 8 | **−60%** |
+| validate_spectral_recon | 62 | 12 | **−81%** |
+| validate_tissue_anderson | 26 | 24 | noise |
+| validate_transport | 247 | 274 | +11% |
+| validate_uncertainty_bridge | 46 | 54 | noise |
+| validate_vendor_parity | 61 | 84 | noise |
+| validate_weather | 8 | 9 | noise |
+| validate_aggregate_stability | 8 | 9 | noise |
+| validate_notill_sampling | 40 | 61 | noise |
+| validate_resampling_conv | 60 | 56 | noise |
 | **TOTAL** | **21736** | **19558** | **−10%** |
 
 **10% overall speedup** with barraCuda CPU delegation (47 CPU primitives). Notable
@@ -557,14 +557,14 @@ Cross-spring benchmark: **23/23 PASS**, 4.5s total.
 
 | Binary | Local (ms) | BarraCUDA (ms) | BarraCUDA-GPU (ms) | Overhead |
 |--------|-----------|---------------|-------------------|----------|
-| validate-anderson | 671 | 670 | 640 | **−5%** |
-| validate-decompose | 5 | 4 | 5 | noise |
-| validate-fao56 | 12 | 12 | 13 | noise |
-| validate-rarefaction | 11 | 12 | 12 | noise |
-| validate-rawr | 555 | 560 | 556 | **<1%** |
-| validate-seismic | 56 | 59 | 58 | noise |
-| validate-signal-specificity | 795 | 787 | 787 | **−1%** |
-| validate-weather | 3 | 3 | 5 | noise |
+| validate_anderson | 671 | 670 | 640 | **−5%** |
+| validate_decompose | 5 | 4 | 5 | noise |
+| validate_fao56 | 12 | 12 | 13 | noise |
+| validate_rarefaction | 11 | 12 | 12 | noise |
+| validate_rawr | 555 | 560 | 556 | **<1%** |
+| validate_seismic | 56 | 59 | 58 | noise |
+| validate_signal_specificity | 795 | 787 | 787 | **−1%** |
+| validate_weather | 3 | 3 | 5 | noise |
 | **TOTAL** | **2108** | **2107** | **2076** | **~0%** |
 
 ## Rust vs Python Performance (Phase 1c — Full Suite)

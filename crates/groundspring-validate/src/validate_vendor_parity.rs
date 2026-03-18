@@ -140,7 +140,7 @@ fn run() -> i32 {
         .zip(d_vendor_b.iter())
         .all(|(da, db)| (da - db).abs() / da.abs().max(EPS_SAFE_DIV_STRICT) <= max_rel_tol); // same guard as above
 
-    // Chi-squared per DOF: sum((D_A - D_B)^2 / max(D_A^2, 1e-20)) / n_observables
+    // Chi-squared per DOF: sum((D_A - D_B)^2 / max(D_A^2, EPS_SAFE_DIV_STRICT)) / n_observables
     let chi2_sum: f64 = d_vendor_a
         .iter()
         .zip(d_vendor_b.iter())

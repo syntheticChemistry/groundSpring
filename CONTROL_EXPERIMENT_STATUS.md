@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 18, 2026 (V116 — 960+ tests, 0 clippy, 0 fmt diff, license AGPL-3.0-or-later (SCYBORG trio). V116: typed error evolution — `DispatchError`, `EsnError`, `ResilienceError<E>` replace opaque strings; `ValidationSink` trait; Format C/D capability parsing; `OnceLock` GPU probe cache; RAWR extracted to `rawr.rs`; dispatch defaults named with provenance. V115: cross-ecosystem deep absorption — safe_cast expansion, health probes, resilient_call, OrExit evolution, zero eprintln/expect/allow. V113: GemmF64 transpose delegation, exit_code constants, RetryPolicy + CircuitBreaker, 4-format capability parsing. V112: `OrExit<T>` trait + `parse_benchmark()` (28 binaries), generic `socket_env_var()`, provenance trio, `thiserror` for `BenchFieldError`, tempdir test hygiene. V111: deep debt — `thiserror` errors, `DispatchOutcome`, safe casts, DI config, dead code removal. V110: cross-ecosystem absorption — `#[expect(reason)]` migration, structured tracing, toadStool dispatch, dual-format capability parsing, `deny.toml`, aarch64 CI)
+**Last updated**: March 18, 2026 (V117 — 960+ tests, 0 clippy (default + all-features), 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later (SCYBORG trio). V117: all-features compilation fixed (tarpc-ipc), cargo deny modernised, PRNG feature-gated, validate_all meta-binary, bare literal cleanup. V116: typed error evolution. V115: API evolution, CI hardening, ecoBin compliance.)
 
 ## Experiment Register
 
@@ -268,28 +268,28 @@
 
 ## Phase 1 — Rust Validation (hotSpring Pattern)
 
-### validate-decompose (36/36 PASS)
+### validate_decompose (36/36 PASS)
 
 Ports Exp 001 core algorithm to pure safe Rust.  Verifies:
 - All 6 sensor-soil decompositions match analytically derived expected values
 - Pythagorean identity (RMSE² = MBE² + σ²) holds to machine epsilon
 - Noise floor reduction pythagorean holds
 
-### validate-rarefaction (15/15 PASS)
+### validate_rarefaction (15/15 PASS)
 
 Ports Exp 004 core algorithm to pure safe Rust.  Verifies:
 - Shannon diversity analytical known values (uniform, single-species)
 - Multinomial sampling determinism, total conservation, proportion accuracy
 - Rarefaction convergence properties (monotonicity, high-depth completeness)
 
-### validate-seismic (9/9 PASS)
+### validate_seismic (9/9 PASS)
 
 Ports Exp 005 core algorithm to pure safe Rust.  Verifies:
 - Haversine distance known values (zero, NY-London)
 - Travel-time proportionality and known values
 - Grid-search inversion recovers clean source exactly
 
-### validate-weather (13/13 PASS)
+### validate_weather (13/13 PASS)
 
 Ports Exp 002 core algorithm to pure safe Rust.  Verifies:
 - Precipitation hit-rate analytical known values
@@ -297,7 +297,7 @@ Ports Exp 002 core algorithm to pure safe Rust.  Verifies:
 - Bias-variance decomposition on weather-domain data
 - Edge cases (empty hit_rate)
 
-### validate-fao56 (15/15 PASS)
+### validate_fao56 (15/15 PASS)
 
 Ports Exp 003 core algorithm to pure safe Rust.  Verifies:
 - Penman-Monteith ET₀ against FAO-56 Example 18 (Uccle, Belgium)
@@ -305,7 +305,7 @@ Ports Exp 003 core algorithm to pure safe Rust.  Verifies:
 - Determinism of MC runs
 - Sensitivity ranking (humidity > radiation > temperature > wind)
 
-### validate-signal-specificity (12/12 PASS)
+### validate_signal_specificity (12/12 PASS)
 
 Ports Exp 006 Gillespie SSA to pure safe Rust.  Verifies:
 - Analytical steady-state mean and Poisson variance
@@ -314,7 +314,7 @@ Ports Exp 006 Gillespie SSA to pure safe Rust.  Verifies:
 - SNR scaling (monotonicity, range bounds)
 - Determinism with same/different seeds
 
-### validate-rawr (11/11 PASS)
+### validate_rawr (11/11 PASS)
 
 Ports Exp 007 bootstrap/RAWR to pure safe Rust.  Verifies:
 - Bootstrap and RAWR CIs on Gaussian data
@@ -322,7 +322,7 @@ Ports Exp 007 bootstrap/RAWR to pure safe Rust.  Verifies:
 - RAWR/Bootstrap RMSE ratio on correlated data
 - Determinism of both methods
 
-### validate-anderson (8/8 PASS)
+### validate_anderson (8/8 PASS)
 
 Ports Exp 008 transfer-matrix Lyapunov to pure safe Rust.  Verifies:
 - Clean system γ ≈ 0
@@ -332,43 +332,43 @@ Ports Exp 008 transfer-matrix Lyapunov to pure safe Rust.  Verifies:
 - Localization length decreases with disorder
 - Determinism of potential generation and Lyapunov computation
 
-### validate-quasiperiodic (8/8 PASS)
+### validate_quasiperiodic (8/8 PASS)
 
 Ports Exp 009 Almost-Mathieu quasiperiodic localization to pure safe Rust.  Verifies:
 - Almost-Mathieu Hamiltonian; barracuda-gpu delegation for `almost_mathieu_hamiltonian`
 
-### validate-bistable (10/10 PASS)
+### validate_bistable (10/10 PASS)
 
 Ports Exp 010 bistable phenotypic switching to pure safe Rust.  Verifies:
 - BistableOde::cpu_derivative barracuda delegation
 
-### validate-multisignal (9/9 PASS)
+### validate_multisignal (9/9 PASS)
 
 Ports Exp 011 multi-signal QS integration to pure safe Rust.  Verifies:
 - MultiSignalOde::cpu_derivative barracuda delegation
 
-### validate-transport (18/18 PASS)
+### validate_transport (18/18 PASS)
 
 Ports Exp 012 spin chain transport to pure safe Rust.  Verifies:
 - Tridiagonal eigenvector solver (implicit QL), wavepacket MSD, transport exponent
 
-### validate-resampling-convergence (8/8 PASS)
+### validate_resampling_conv (8/8 PASS)
 
 Ports Exp 013 resampling convergence to pure safe Rust.  Verifies:
 - Bootstrap convergence (Lee & Liu 2024); uses bootstrap module
 
-### validate-drift (7/7 PASS)
+### validate_drift (7/7 PASS)
 
 Ports Exp 014 drift vs selection to pure safe Rust.  Verifies:
 - Wright-Fisher fixation, Kimura fixation probability, neutral diversity trajectory
 
-### validate-uncertainty-bridge (8/8 PASS)
+### validate_uncertainty_bridge (8/8 PASS)
 
 Ports Exp 015 uncertainty bridge to pure safe Rust.  Verifies:
 - Sensor noise → disorder mapping → Lyapunov exponent → localization length ξ
 - CV(ξ) ranking preserved (EC5 > CS616); bias correction effect at typical θ
 
-### validate-rare-biosphere (12/12 PASS)
+### validate_rare_biosphere (12/12 PASS)
 
 Ports Exp 016 rare biosphere detection to pure safe Rust. Verifies:
 - Chao1 accuracy at high and low depth
@@ -377,7 +377,7 @@ Ports Exp 016 rare biosphere detection to pure safe Rust. Verifies:
 - Singleton fraction behavior
 - Determinism
 
-### validate-quasispecies (6/6 PASS)
+### validate_quasispecies (6/6 PASS)
 
 Ports Exp 017 quasispecies dynamics to pure safe Rust. Verifies:
 - Error threshold in expected analytical range
@@ -387,7 +387,7 @@ Ports Exp 017 quasispecies dynamics to pure safe Rust. Verifies:
 - Monotonic master frequency decay
 - Determinism
 
-### validate-band-edge (10/10 PASS)
+### validate_band_edge (10/10 PASS)
 
 Ports Exp 018 band edge structure to pure safe Rust. Verifies:
 - Free lattice band edges (±2t)
@@ -396,50 +396,50 @@ Ports Exp 018 band edge structure to pure safe Rust. Verifies:
 - Finite-system eigenvalue band fraction (≥95%)
 - Determinism
 
-### validate-jackknife (9/9 PASS)
+### validate_jackknife (9/9 PASS)
 
 Ports Exp 019 jackknife error estimation to pure safe Rust. Verifies:
 - Jackknife variance accuracy
 - Bias correction
 - Leave-one-out resampling determinism
 
-### validate-freeze-out (8/8 PASS)
+### validate_freeze_out (8/8 PASS)
 
 Ports Exp 020 freeze-out inverse problem to pure safe Rust. Verifies:
 - Freeze-out temperature inversion from hadron yields
 - Hadron yield fitting against benchmark
 
-### validate-spectral-recon (8/8 PASS)
+### validate_spectral_recon (8/8 PASS)
 
 Ports Exp 021 spectral function reconstruction to pure safe Rust. Verifies:
 - Spectral reconstruction from Euclidean correlators
 - Inverse problem stability
 
-### validate-et0-anderson (7/7 PASS)
+### validate_et0_anderson (7/7 PASS)
 
 Ports Exp 022 FAO-56→Anderson propagation chain. Verifies ET₀ range, CV propagation, humidity dominance, Anderson propagation ratio.
 
-### validate-notill-sampling (7/7 PASS)
+### validate_notill_sampling (7/7 PASS)
 
 Ports Exp 023 no-till vs tilled rarefaction. Verifies diversity ordering, Chao1, community distinguishability, saturation depths.
 
-### validate-aggregate-stability (8/8 PASS)
+### validate_aggregate_stability (8/8 PASS)
 
 Ports Exp 024 aggregate stability noise decomposition. Verifies d_eff ranges, bias-variance decomposition, regime discrimination, noise floor.
 
-### validate-precision-drift (7/7 PASS)
+### validate_precision_drift (7/7 PASS)
 
 Ports Exp 025 f32 vs f64 precision drift. Verifies f64 analytical match, f32 relative error bounds, bias fraction, error-magnitude correlation.
 
-### validate-size-convergence (7/7 PASS)
+### validate_size_convergence (7/7 PASS)
 
 Ports Exp 026 system-size convergence. Verifies D∞ extrapolation, fitted α, R², convergence at N_max.
 
-### validate-vendor-parity (7/7 PASS)
+### validate_vendor_parity (7/7 PASS)
 
 Ports Exp 027 GPU vendor parity. Verifies max/mean relative difference, correlation, bias fraction, chi-squared per DOF.
 
-### validate-npu-anderson (9/9 PASS)
+### validate_npu_anderson (9/9 PASS)
 
 Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classification on AKD1000, CPU/NPU parity, DMA round-trip.
 
@@ -505,7 +505,7 @@ GPU dispatch buildout: wired 3 new batch GPU APIs, added pure GPU workload valid
 
 **Public API**: Added `groundspring::gpu_available()` for runtime GPU status without exposing the internal `gpu` module.
 
-**CPU vs GPU benchmark**: `bench-cpu-vs-gpu` binary times 6 workloads (Gillespie, Wright-Fisher, FAO-56, rare biosphere, Anderson, neutral diversity) in both sequential-CPU and batch/GPU modes. GPU produces correct results matching CPU baselines; small-batch overhead expected — GPU shines at production scale via ToadStool streaming.
+**CPU vs GPU benchmark**: `bench_cpu_vs_gpu` binary times 6 workloads (Gillespie, Wright-Fisher, FAO-56, rare biosphere, Anderson, neutral diversity) in both sequential-CPU and batch/GPU modes. GPU produces correct results matching CPU baselines; small-batch overhead expected — GPU shines at production scale via ToadStool streaming.
 
 **Pure GPU validation tests** (6 new): Verify GPU-dispatched results match known scientific values directly — steady-state convergence (Gillespie), Kimura agreement (WF), FAO-56 Example 18 (ET₀), Anderson localization (positive γ), rare biosphere dominance, and batch determinism.
 
@@ -851,7 +851,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V58: Cross-Spring Evolution + Deep Debt | Cross-spring WGSL evolution, 13 clippy fixes, provenance headers, 4 NUCLEUS binaries | Archived |
 | V56–V57: Gap closure | NestGate, NUCLEUS validation, real data pipelines | Archived |
 | V52–V55: GPU evolution + metalForge expansion | GPU parity proof, metalForge remote, tolerance module, 85 metalForge tests | Archived |
-| V51: GPU Stats Dispatch + CPU/GPU Parity Proof | GPU stats dispatch, batch GPU APIs, 9 parity tests, bench-cpu-vs-gpu. 48 active. | Archived |
+| V51: GPU Stats Dispatch + CPU/GPU Parity Proof | GPU stats dispatch, batch GPU APIs, 9 parity tests, bench_cpu_vs_gpu. 48 active. | Archived |
 | V47: Library Buildout + BarraCUDA CPU Expansion | 7 new barracuda CPU delegations, 46 active (37 CPU + 9 GPU), 322 lib tests | Superseded by V51 |
 | V46: Idiomatic Rust Evolution | `stats::agreement` domain split, `#[allow]` → `#[expect]`, hardcoded thresholds → benchmark JSONs, named constants | Superseded by V47 |
 | V45: Validation Gap Closure | +4 checks (292/292): Exp 010 low-noise agreement, Exp 011 dual-signal variance, Exp 016 Spearman occupancy + multinomial determinism. All Python checks now covered in Rust. | Superseded by V46 |
@@ -864,14 +864,14 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V31: GPU Dispatch Wiring + metalForge Expansion | 5 GPU dispatch blocks, 5 metalForge workloads (12 total), 10 GPU parity tests | Superseded by V32 |
 | V28: Coverage Evolution + PRNG Readiness | 368 tests + 196 Python integrity, xoshiro128** API parity, CI baseline drift detection, 45 new coverage tests | Superseded by V31 |
 | V27: Docs + Handoff Audit | 29 delegations (23 CPU + 6 GPU), paper controls confirmed, three-tier validation, 323 tests, 99.37% coverage | Superseded by V28 |
-| V26: MetalForge Live Hardware + Exp 028 | groundspring-forge crate, npu module, validate-metalforge-*; 28 experiments, 288/288 checks, 314 tests, 31 metalForge checks | Superseded by V27 |
+| V26: MetalForge Live Hardware + Exp 028 | groundspring-forge crate, npu module, validate_metalforge_*; 28 experiments, 288/288 checks, 314 tests, 31 metalForge checks | Superseded by V27 |
 | V25: Experiment Buildout Exp 025-027 | precision-drift, size-convergence, vendor-parity; 27 experiments, 279/279 checks, 302 tests | Superseded by V26 |
 | V24: Experiment Buildout Exp 022-024 | ET₀→Anderson, notill-sampling, aggregate-stability; 24 experiments, 258/258 checks, 290 tests | Superseded by V25 |
 | V23: Experiment Buildout Exp 019-021 | Jackknife, freeze-out, spectral recon; 21 experiments, 236/236 checks, 280 tests | Superseded by V24 |
 | V22: Experiment Buildout Exp 016-018 | Rare biosphere, quasispecies threshold, band edge structure; 18 experiments, 211/211 checks, 262 tests | Superseded by V23 |
 | V21: Complete Rewiring + Dual-Mode CI | Complete barracuda rewiring, dual-mode CI (clippy/test with and without barracuda), 27 delegations, domain guard fix | Superseded by V22 |
 | V20: S68 Catch-Up + Hill | Hill delegation #27 (22 CPU + 5 GPU), ToadStool f0feb226 (S68), 700 shaders, 2,546+ tests | Superseded by V21 |
-| V19: Uncertainty Bridge | Exp 015 (8/8 PASS), validate-uncertainty-bridge, 225 tests, 185/185 checks, zero #[allow] | Superseded |
+| V19: Uncertainty Bridge | Exp 015 (8/8 PASS), validate_uncertainty_bridge, 225 tests, 185/185 checks, zero #[allow] | Superseded |
 | V17: Deep Debt Evolution | Bug fix, delegation patterns, 9 action items, 3 absorption candidates | Superseded |
 | V16: S66 Catch-Up + Rewiring | rawr_mean delegation #26, V13–V15 consumption audit, 26 delegations (21 CPU + 5 GPU) | Superseded |
 | V15: Absorption Request | 2 shaders, 3 semantic fixes, 25 delegations, cross-spring learnings | Archived |

@@ -15,6 +15,7 @@ workspace = true
 [features]
 default = ["barracuda"]
 barracuda = ["dep:barracuda"]
+prng-xoshiro-default = []
 barracuda-gpu = ["barracuda", "barracuda/gpu", "barracuda/domain-esn", "dep:wgpu", "dep:bytemuck"]
 nautilus = ["dep:bingocube-nautilus"]
 biomeos = ["dep:serde_json", "dep:tracing", "dep:tracing-subscriber"]
@@ -33,7 +34,7 @@ serde_json = { version = "1", optional = true }
 tracing = { version = "0.1", optional = true }
 tracing-subscriber = { version = "0.3", optional = true, features = ["fmt", "env-filter"] }
 serde = { version = "1", optional = true, features = ["derive"] }
-tarpc = { version = "0.37", optional = true, features = ["serde-transport", "tokio1", "unix"] }
+tarpc = { version = "0.37", optional = true, features = ["serde-transport", "serde-transport-json", "tokio1", "unix"] }
 tokio = { version = "1", optional = true, features = ["rt", "net"] }
 
 [[bin]]

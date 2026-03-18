@@ -106,7 +106,7 @@ scripts/             Automation (baselines, benchmarks)
 ### Rust
 
 ```bash
-cargo test --workspace                         # 960+ tests, all PASS (V116)
+cargo test --workspace                         # 960+ tests, all PASS (V117)
 cargo test --workspace --all-features          # all feature paths tested
 cargo test --workspace --features biomeos      # biomeos tests (NUCLEUS client active)
 cargo test --workspace --features barracuda-gpu # GPU dispatch active
@@ -127,40 +127,40 @@ cargo test -p groundspring-validate --no-default-features
 bash scripts/three_mode_benchmark.sh
 
 # Validation binaries (hotSpring pattern: exit 0 = pass, exit 1 = fail)
-cargo run --bin validate-decompose
-cargo run --bin validate-rarefaction
-cargo run --bin validate-seismic
-cargo run --bin validate-weather
-cargo run --bin validate-fao56
-cargo run --bin validate-signal-specificity
-cargo run --bin validate-rawr
-cargo run --bin validate-anderson
-cargo run --bin validate-quasiperiodic
-cargo run --bin validate-bistable
-cargo run --bin validate-multisignal
-cargo run --bin validate-transport
-cargo run --bin validate-resampling-conv
-cargo run --bin validate-drift
-cargo run --bin validate-uncertainty-bridge
-cargo run --bin validate-rare-biosphere
-cargo run --bin validate-quasispecies
-cargo run --bin validate-band-edge
-cargo run --bin validate-jackknife
-cargo run --bin validate-freeze-out
-cargo run --bin validate-spectral-recon
-cargo run --bin validate-et0-anderson
-cargo run --bin validate-notill-sampling
-cargo run --bin validate-aggregate-stability
-cargo run --bin validate-precision-drift
-cargo run --bin validate-size-convergence
-cargo run --bin validate-vendor-parity
-cargo run --bin validate-npu-anderson
+cargo run --bin validate_decompose
+cargo run --bin validate_rarefaction
+cargo run --bin validate_seismic
+cargo run --bin validate_weather
+cargo run --bin validate_fao56
+cargo run --bin validate_signal_specificity
+cargo run --bin validate_rawr
+cargo run --bin validate_anderson
+cargo run --bin validate_quasiperiodic
+cargo run --bin validate_bistable
+cargo run --bin validate_multisignal
+cargo run --bin validate_transport
+cargo run --bin validate_resampling_conv
+cargo run --bin validate_drift
+cargo run --bin validate_uncertainty_bridge
+cargo run --bin validate_rare_biosphere
+cargo run --bin validate_quasispecies
+cargo run --bin validate_band_edge
+cargo run --bin validate_jackknife
+cargo run --bin validate_freeze_out
+cargo run --bin validate_spectral_recon
+cargo run --bin validate_et0_anderson
+cargo run --bin validate_notill_sampling
+cargo run --bin validate_aggregate_stability
+cargo run --bin validate_precision_drift
+cargo run --bin validate_size_convergence
+cargo run --bin validate_vendor_parity
+cargo run --bin validate_npu_anderson
 
 # metalForge live hardware validation (140 checks, 5 substrates)
-cargo run --bin validate-metalforge-inventory
-cargo run --bin validate-metalforge-gpu
-cargo run --bin validate-metalforge-cross-substrate
-cargo run --bin validate-metalforge-titan-v
+cargo run --bin validate_metalforge_inventory
+cargo run --bin validate_metalforge_gpu
+cargo run --bin validate_metalforge_cross_substrate
+cargo run --bin validate_metalforge_titan_v
 
 # Performance benchmarks (Rust vs Python)
 python3 scripts/bench_rust_vs_python.py

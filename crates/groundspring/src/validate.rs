@@ -194,9 +194,8 @@ impl<S: ValidationSink> ValidationHarness<S> {
     pub fn check_approx(&mut self, label: &str, computed: f64, expected: f64, tol: f64) -> bool {
         let diff = (computed - expected).abs();
         let ok = diff <= tol;
-        let detail = format!(
-            "{computed:.6} (expected {expected:.6}, tol {tol:.6}, diff {diff:.6})"
-        );
+        let detail =
+            format!("{computed:.6} (expected {expected:.6}, tol {tol:.6}, diff {diff:.6})");
         if ok {
             self.sink.record_pass(label, &detail);
         } else {

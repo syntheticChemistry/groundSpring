@@ -271,7 +271,13 @@ fn extract_capabilities_from_value(value: &Value) -> Vec<String> {
 /// - **Format D** (`semantic_mappings`): `{"semantic_method": "compute.execute", ...}`
 ///   or `{"method_name": "compute.execute", ...}`
 fn extract_method_name_from_object(obj: &serde_json::Map<String, Value>) -> Option<String> {
-    for key in ["name", "capability", "method", "semantic_method", "method_name"] {
+    for key in [
+        "name",
+        "capability",
+        "method",
+        "semantic_method",
+        "method_name",
+    ] {
         if let Some(s) = obj.get(key).and_then(Value::as_str) {
             return Some(s.to_owned());
         }
@@ -424,10 +430,7 @@ mod tests {
         let caps = extract_capabilities(body);
         assert_eq!(
             caps,
-            vec![
-                "measurement.noise_decomposition",
-                "measurement.bootstrap"
-            ]
+            vec!["measurement.noise_decomposition", "measurement.bootstrap"]
         );
     }
 

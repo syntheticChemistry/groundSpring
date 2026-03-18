@@ -35,12 +35,11 @@ fn main() -> ExitCode {
         Some("server") => cmd_server(),
         Some("status") => cmd_status(),
         Some("version" | "--version" | "-V") => cmd_version(),
-        Some("help" | "--help" | "-h") => cmd_help(),
+        Some("help" | "--help" | "-h") | None => cmd_help(),
         Some(other) => {
             error!(subcommand = other, "unknown subcommand");
             cmd_help()
         }
-        None => cmd_help(),
     }
 }
 

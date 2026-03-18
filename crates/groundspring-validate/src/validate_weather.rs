@@ -35,6 +35,9 @@ use groundspring_validate::{
 const BENCHMARK_OBS_GAP: &str =
     include_str!("../../../control/observation_gap/benchmark_observation_gap.json");
 
+/// Days in a standard (non-leap) year — used for synthetic temperature sine waves.
+const DAYS_PER_YEAR: u32 = 365;
+
 fn run() -> i32 {
     let mut h = ValidationHarness::stdout("Rust Validation: Weather Model-Observation Gap");
 
@@ -76,16 +79,16 @@ fn run() -> i32 {
     );
 
     // ── Temperature-like paired data (constant bias) ────────────────
-    // Tol 1e-10: RMSE/MBE pass through a sum of 365 terms; each
+    // Tol 1e-10: RMSE/MBE pass through a sum of DAYS_PER_YEAR terms; each
     // f64 add has ≤ 0.5 ULP error, so accumulated error ≤ 365 × ε/2
     // ≈ 4e-14 — 1e-10 provides ~2500× margin.
     println!("\n--- Temperature Stats (constant +2°C bias) ---");
 
-    let obs_temp: Vec<f64> = (0..365)
+    let obs_temp: Vec<f64> = (0..DAYS_PER_YEAR)
         .map(|d| {
             let doy = f64::from(d);
             14.5f64.mul_add(
-                (2.0 * std::f64::consts::PI * (doy - 100.0) / 365.0).sin(),
+                (2.0 * std::f64::consts::PI * (doy - 100.0) / f64::from(DAYS_PER_YEAR)).sin(),
                 8.5,
             )
         })
@@ -126,7 +129,10 @@ fn run() -> i32 {
         .iter()
         .enumerate()
         .map(|(i, &t)| {
-            #[expect(clippy::cast_precision_loss, reason = "day index i ≤ 365 ≪ 2^53")]
+            #[expect(
+                clippy::cast_precision_loss,
+                reason = "day index i ≤ DAYS_PER_YEAR ≪ 2^53"
+            )]
             let phase = i as f64 * 0.1;
             phase.sin().mul_add(3.0, t)
         })
@@ -192,12 +198,12 @@ fn validate_observation_gap_benchmark(h: &mut ValidationHarness) {
     h.check_min("tmax RMSE range: lo > 0", tmax_rmse_lo, 0.1);
     h.check_min("tmax RMSE range: hi > lo", tmax_rmse_hi, tmax_rmse_lo + 0.1);
 
-    let n = 365;
+    let n = DAYS_PER_YEAR;
     let obs_synth: Vec<f64> = (0..n)
         .map(|d| {
             let doy = f64::from(d);
             14.5f64.mul_add(
-                (2.0 * std::f64::consts::PI * (doy - 100.0) / 365.0).sin(),
+                (2.0 * std::f64::consts::PI * (doy - 100.0) / f64::from(DAYS_PER_YEAR)).sin(),
                 8.5,
             )
         })

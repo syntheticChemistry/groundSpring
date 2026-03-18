@@ -211,7 +211,11 @@ impl EsnClassifier {
     /// # Errors
     ///
     /// Returns an error if training fails (insufficient data, GPU error).
-    pub fn train(&mut self, features: &[Vec<f32>], labels: &[Vec<f32>]) -> Result<f32, super::EsnError> {
+    pub fn train(
+        &mut self,
+        features: &[Vec<f32>],
+        labels: &[Vec<f32>],
+    ) -> Result<f32, super::EsnError> {
         barracuda::device::test_pool::tokio_block_on(self.esn.train(features, labels))
             .map_err(super::EsnError::Train)
     }

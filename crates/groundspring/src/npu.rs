@@ -257,7 +257,6 @@ pub fn train_classifier_weights(disorders: &[f64], n_sites: usize) -> [i8; 9] {
 /// Returns error on DMA failure.
 #[expect(
     clippy::cast_sign_loss,
-    clippy::cast_possible_truncation,
     clippy::cast_possible_wrap,
     reason = "i8→u8 DMA encoding and u8→RegimeClass with checked bounds"
 )]

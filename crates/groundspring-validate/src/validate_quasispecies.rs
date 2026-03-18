@@ -57,10 +57,9 @@ fn run() -> i32 {
     // Part 2: Below threshold — signal survives
     println!("\n--- Part 2: Below Threshold ---");
     let mu_below = mutation_rates[1];
-    let freqs_below = quasispecies_simulation(
-        pop_size, genome_length, sigma, mu_below, n_gen, base_seed,
-    )
-    .or_exit("quasispecies_simulation below threshold");
+    let freqs_below =
+        quasispecies_simulation(pop_size, genome_length, sigma, mu_below, n_gen, base_seed)
+            .or_exit("quasispecies_simulation below threshold");
     let steady_below = tail_mean(&freqs_below, n_gen / 2);
     let x_m_theory = master_frequency_analytical(sigma, mu_below, genome_length);
     println!("  μ={mu_below}: steady x_m = {steady_below:.4} (theory {x_m_theory:.4})");

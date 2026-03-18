@@ -5,7 +5,7 @@ See [CONTROL_EXPERIMENT_STATUS.md](CONTROL_EXPERIMENT_STATUS.md) for the current
 
 > **Note**: V75+ runs are documented in CHANGELOG.md and per-version handoffs
 > in `wateringHole/handoffs/`. This log covers the structured run format used
-> through V74. Current status: V116, 960+ tests (default), 395/395 checks, 102 delegations.
+> through V74. Current status: V117, 960+ tests (default), 395/395 checks, 102 delegations.
 
 ## Run Log
 
@@ -73,9 +73,9 @@ See [CONTROL_EXPERIMENT_STATUS.md](CONTROL_EXPERIMENT_STATUS.md) for the current
 - `cargo clippy --workspace --all-targets -- -D warnings`: PASS (0 warnings)
 - `RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps`: PASS (0 warnings)
 - `cargo test --workspace` (default): 743 tests, all PASS (up from 725)
-- **NEW** `validate-tissue-anderson`: 29/29 PASS — 10 validation scenarios (Exp 033+034)
+- **NEW** `validate_tissue_anderson`: 29/29 PASS — 10 validation scenarios (Exp 033+034)
 - **NEW** `tissue_anderson` module: cytokine Anderson lattice, barrier disruption sweep, dimensional duality, geometry-aware drug scoring (6-drug AD panel), 18 unit tests
-- **UPDATED** `validate-gpu-tier`: 73/73 PASS (was 66) — 7 tissue Anderson parity checks + Wright-Fisher param fix (s=0.05→s=0.0 for neutral drift)
+- **UPDATED** `validate_gpu_tier`: 73/73 PASS (was 66) — 7 tissue Anderson parity checks + Wright-Fisher param fix (s=0.05→s=0.0 for neutral drift)
 - **UPDATED** `CONTROL_EXPERIMENT_STATUS.md`: Exp 033/034 registered, 376/376 total validation checks
 - **UPDATED** `specs/PAPER_REVIEW_QUEUE.md`: Paper 12 (Anderson Localization in Immunological Signaling) added
 - **UPDATED** `specs/BARRACUDA_EVOLUTION.md`: V63 delegation history + tissue_anderson mapping
@@ -87,7 +87,7 @@ See [CONTROL_EXPERIMENT_STATUS.md](CONTROL_EXPERIMENT_STATUS.md) for the current
 - `cargo doc --workspace --no-deps`: PASS (0 warnings)
 - `cargo test --workspace` (default): 725 tests, all PASS (up from 668)
 - Validation binaries (core): 292/292 PASS (unchanged)
-- **NEW** `validate-metalforge-pipeline`: 30/30 PASS — 3-stage NPU→GPU→CPU pipeline, P2P transfer strategy, all FallbackPolicy paths, NodeAtomic planning, sovereign degradation, timing instrumentation
+- **NEW** `validate_metalforge_pipeline`: 30/30 PASS — 3-stage NPU→GPU→CPU pipeline, P2P transfer strategy, all FallbackPolicy paths, NodeAtomic planning, sovereign degradation, timing instrumentation
 - **Phase 1 — 6 GPU delegations wired**:
   - `gillespie::birth_death_ssa_batch` → `GillespieGpu` batch dispatch with 3-mode parity test
   - `drift::wright_fisher_fixation_batch` → `WrightFisherGpu` device acquisition + buffer management
@@ -96,12 +96,12 @@ See [CONTROL_EXPERIMENT_STATUS.md](CONTROL_EXPERIMENT_STATUS.md) for the current
   - `linalg::tridiag_eigh_barracuda` → `barracuda::linalg::eigh_f64` (Jacobi rotation validation path)
   - `prng::Xoshiro128StarStar` + `GpuAlignedRng` type alias — aligned with `barracuda::ops::prng_xoshiro_wgsl`
 - **Phase 2 — bench + parity expansion**:
-  - `bench-cpu-vs-gpu` expanded: `bench_multinomial_batch`, `bench_tikhonov`, `bench_tridiag_eigh`, `bench_transport_msd`
-  - `validate-gpu-tier` expanded: 6 new parity functions (Gillespie, Wright-Fisher, multinomial, Cholesky, tridiag eigh, PRNG stream)
+  - `bench_cpu_vs_gpu` expanded: `bench_multinomial_batch`, `bench_tikhonov`, `bench_tridiag_eigh`, `bench_transport_msd`
+  - `validate_gpu_tier` expanded: 6 new parity functions (Gillespie, Wright-Fisher, multinomial, Cholesky, tridiag eigh, PRNG stream)
 - **Phase 3 — NUCLEUS compute dispatch**:
-  - `validate-nucleus-pipeline` expanded: `validate_compute_execute_anderson`, `validate_compute_submit_batch`, `validate_compute_roundtrip` — Neural API → provider → validate vs local CPU baseline
+  - `validate_nucleus_pipeline` expanded: `validate_compute_execute_anderson`, `validate_compute_submit_batch`, `validate_compute_roundtrip` — Neural API → provider → validate vs local CPU baseline
 - **Phase 4 — metalForge mixed-hardware pipeline**:
-  - `validate-metalforge-pipeline` (NEW binary): 10 validation scenarios, 30 checks — Anderson regime pipeline, NPU→GPU PCIe P2P/PcieLow transfer, full 3-stage pipeline, Degrade/Skip/Fail fallback, GPU-only chain (zero transfer), CPU-only sovereign degradation, timing instrumentation, NodeAtomic integration
+  - `validate_metalforge_pipeline` (NEW binary): 10 validation scenarios, 30 checks — Anderson regime pipeline, NPU→GPU PCIe P2P/PcieLow transfer, full 3-stage pipeline, Degrade/Skip/Fail fallback, GPU-only chain (zero transfer), CPU-only sovereign degradation, timing instrumentation, NodeAtomic integration
   - AKD1000 NPU correctly identified as PcieLow (PCIe 2.0 x1) with HostBounce fallback
 - **Quality**: 0 unsafe, 0 unwrap in library, 0 mocks in production, 0 hardcoded primal names, all `#[expect]` with reasons
 - **ToadStool pin**: S79 (`f97fc2ae`) — barracuda GPU delegation fully wired
@@ -116,7 +116,7 @@ See [CONTROL_EXPERIMENT_STATUS.md](CONTROL_EXPERIMENT_STATUS.md) for the current
 - `python3 -m pytest tests/`: 375/375 PASS + 3 skipped
 - Validation binaries (core): 292/292 PASS (27 binaries)
 - metalForge validation: 130/132 PASS (2 expected NPU absence failures)
-- **NEW** `validate-mixed-hardware`: 42/42 PASS — topology, fallback chains, pipeline, atomics, degradation, tolerances
+- **NEW** `validate_mixed_hardware`: 42/42 PASS — topology, fallback chains, pipeline, atomics, degradation, tolerances
 - **metalForge infrastructure**: `topology.rs` (PCIe device adjacency, 6 bandwidth tiers), `pipeline.rs` (multi-stage dispatch with fallback), `atomic.rs` (NUCLEUS compositions with sovereign degradation), `dispatch::fallback_chain()` (ordered substrate selection)
 - **Deep idiomatic pass**: 13 clippy errors, iterator chains, `serde_json::json!`, `mul_add`, Result-based validate API, provenance headers, hardcoding evolution
 - **Coverage**: 668 tests (up from 620), 120 metalForge tests (up from 85), 42 new mixed-hardware checks
@@ -229,7 +229,7 @@ See [CONTROL_EXPERIMENT_STATUS.md](CONTROL_EXPERIMENT_STATUS.md) for the current
 - Validation checks: 288/288 PASS (28 binaries)
 - Python pytest: 322 collected, 320 pass + 2 skip (unchanged)
 - New feature: `biomeos` — JSON-RPC 2.0 Unix socket client for biomeOS Neural API
-- Anderson biomeOS routing: `validate-anderson` optionally routes through `capability.call("compute.execute")`
+- Anderson biomeOS routing: `validate_anderson` optionally routes through `capability.call("compute.execute")`
 - Docs: `whitePaper/neuralAPI/` (concept + capability surface), `graphs/groundspring_validation.toml` (pipeline graph)
 - Total: 423 Rust (biomeos) + 322 Python = 745 tests
 
@@ -320,7 +320,7 @@ See [CONTROL_EXPERIMENT_STATUS.md](CONTROL_EXPERIMENT_STATUS.md) for the current
 - Validation checks: 185/185 PASS (15 binaries)
 - `cargo llvm-cov`: 99.37% line coverage
 - Python pytest: 37/37 PASS (Exp 001-015)
-- Added: Exp 015 Uncertainty Bridge (8/8 PASS), validate-uncertainty-bridge binary
+- Added: Exp 015 Uncertainty Bridge (8/8 PASS), validate_uncertainty_bridge binary
 - Zero `#[allow]` remaining (transport.rs fix)
 
 ### Run 17 (V18 Deep Debt Evolution, Feb 26, 2026)
@@ -344,7 +344,7 @@ ToadStool S66 review: 2,541 tests, 707 WGSL shaders, sovereign compiler.
 New delegation #26: rawr_mean → barracuda::stats::rawr_mean (CPU)
   Total: 26 active delegations (21 CPU + 5 GPU)
 
-Test fix: bootstrap_different_from_rawr and validate-rawr RAWR comparison
+Test fix: bootstrap_different_from_rawr and validate_rawr RAWR comparison
   updated for barracuda parity (compare CI widths instead of exact estimates).
 
 Three-mode revalidation:
@@ -396,17 +396,17 @@ Code quality:
 
 Three-mode benchmark (release, single pass):
   Binary                   Local(ms)  Barracuda(ms)  Barra-GPU(ms)
-  validate-decompose             82           71            560
-  validate-rarefaction            70           99            102
-  validate-seismic              141          128            171
-  validate-weather                65           71             97
-  validate-fao56                  79           80            106
-  validate-signal-specificity    854          858            898
-  validate-rawr                  619          625            651
-  validate-anderson              745          745            774
-  validate-quasiperiodic      11986        11867            242
-  validate-bistable              167          222            207
-  validate-multisignal            85          118            118
+  validate_decompose             82           71            560
+  validate_rarefaction            70           99            102
+  validate_seismic              141          128            171
+  validate_weather                65           71             97
+  validate_fao56                  79           80            106
+  validate_signal_specificity    854          858            898
+  validate_rawr                  619          625            651
+  validate_anderson              745          745            774
+  validate_quasiperiodic      11986        11867            242
+  validate_bistable              167          222            207
+  validate_multisignal            85          118            118
   TOTAL                       14893        14884           3926
 
 Three-mode validation:
@@ -456,9 +456,9 @@ Phase 0 (Python):
   Exp 011: Multi-Signal QS Integration   9/9  PASS
 
 Phase 1 (Rust):
-  validate-quasiperiodic                  8/8  PASS
-  validate-bistable                      9/9  PASS
-  validate-multisignal                   8/8  PASS
+  validate_quasiperiodic                  8/8  PASS
+  validate_bistable                      9/9  PASS
+  validate_multisignal                   8/8  PASS
 
 New experiments:
   control/quasiperiodic/                  Almost-Mathieu Hamiltonian
@@ -521,14 +521,14 @@ Complete barracuda API audit:
 
 Three-mode benchmarks (release, best-of-3):
   Binary                   Local(ms)  BarraCUDA(ms)  BarraCUDA-GPU(ms)
-  validate-anderson            671         670             640
-  validate-decompose             5           4               5
-  validate-fao56                12          12              13
-  validate-rarefaction          11          12              12
-  validate-rawr                555         560             556
-  validate-seismic              56          59              58
-  validate-signal-specificity  795         787             787
-  validate-weather               3           3               5
+  validate_anderson            671         670             640
+  validate_decompose             5           4               5
+  validate_fao56                12          12              13
+  validate_rarefaction          11          12              12
+  validate_rawr                555         560             556
+  validate_seismic              56          59              58
+  validate_signal_specificity  795         787             787
+  validate_weather               3           3               5
   TOTAL                       2108        2107            2076
   Overhead: ~0% (compute-heavy <1%, signal-spec -1%, anderson -5%)
 
@@ -616,14 +616,14 @@ Verified:
 
 ```
 Phase 1 (Rust):
-  validate-decompose                 36/36 PASS
-  validate-rarefaction               15/15 PASS
-  validate-seismic                    9/9  PASS
-  validate-weather                   13/13 PASS
-  validate-fao56                     15/15 PASS
-  validate-signal-specificity        12/12 PASS
-  validate-rawr                      11/11 PASS
-  validate-anderson                   8/8  PASS
+  validate_decompose                 36/36 PASS
+  validate_rarefaction               15/15 PASS
+  validate_seismic                    9/9  PASS
+  validate_weather                   13/13 PASS
+  validate_fao56                     15/15 PASS
+  validate_signal_specificity        12/12 PASS
+  validate_rawr                      11/11 PASS
+  validate_anderson                   8/8  PASS
 
 Fixes:
   barracuda::spectral::anderson::*  → barracuda::spectral::* (E0603 fix)
@@ -653,14 +653,14 @@ Phase 0 (Python):
   Exp 008: Anderson Localization      8/8  PASS
 
 Phase 1 (Rust):
-  validate-decompose                 36/36 PASS
-  validate-rarefaction               15/15 PASS
-  validate-seismic                    9/9  PASS
-  validate-weather                   13/13 PASS
-  validate-fao56                     15/15 PASS
-  validate-signal-specificity        12/12 PASS
-  validate-rawr                      11/11 PASS
-  validate-anderson                   8/8  PASS
+  validate_decompose                 36/36 PASS
+  validate_rarefaction               15/15 PASS
+  validate_seismic                    9/9  PASS
+  validate_weather                   13/13 PASS
+  validate_fao56                     15/15 PASS
+  validate_signal_specificity        12/12 PASS
+  validate_rawr                      11/11 PASS
+  validate_anderson                   8/8  PASS
 
 pytest:
   test_common                        18/18 PASS
@@ -679,11 +679,11 @@ Phase 0 (Python):
   Exp 005: Seismic Inversion          PASS
 
 Phase 1 (Rust):
-  validate-decompose                 36/36 PASS
-  validate-rarefaction               15/15 PASS
-  validate-seismic                    9/9  PASS
-  validate-weather                   13/13 PASS
-  validate-fao56                     15/15 PASS
+  validate_decompose                 36/36 PASS
+  validate_rarefaction               15/15 PASS
+  validate_seismic                    9/9  PASS
+  validate_weather                   13/13 PASS
+  validate_fao56                     15/15 PASS
 
 pytest:
   test_common                        18/18 PASS

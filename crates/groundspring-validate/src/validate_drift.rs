@@ -13,7 +13,7 @@ use groundspring::drift::{
 };
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    f64_field, f64_range, parse_benchmark, print_provenance_header, usize_field, OrExit,
+    OrExit, f64_field, f64_range, parse_benchmark, print_provenance_header, usize_field,
 };
 
 const BENCHMARK: &str =
@@ -140,12 +140,10 @@ fn run() -> i32 {
     let n_sp = usize_field(model, "n_species_neutral");
     let n_gen = usize_field(model, "n_generations_diversity");
 
-    let div_small =
-        neutral_diversity_trajectory(n_sp, 50, n_gen, base_seed + 90000)
-            .or_exit("neutral_diversity_trajectory small");
-    let div_large =
-        neutral_diversity_trajectory(n_sp, 500, n_gen, base_seed + 91000)
-            .or_exit("neutral_diversity_trajectory large");
+    let div_small = neutral_diversity_trajectory(n_sp, 50, n_gen, base_seed + 90000)
+        .or_exit("neutral_diversity_trajectory small");
+    let div_large = neutral_diversity_trajectory(n_sp, 500, n_gen, base_seed + 91000)
+        .or_exit("neutral_diversity_trajectory large");
 
     let h0s = *div_small.first().expect("non-empty small-pop trajectory");
     let hes = *div_small.last().expect("non-empty small-pop trajectory");

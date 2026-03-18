@@ -1,7 +1,7 @@
-# Paper Extension Roadmap — groundSpring V116
+# Paper Extension Roadmap — groundSpring V117
 
 **Date:** March 18, 2026
-**Version:** V116
+**Version:** V117
 **Prerequisite:** Local NUCLEUS on eastGate, NestGate data pipeline validated
 
 ---
@@ -14,7 +14,7 @@ extend the work, what compute is needed, what new experiments result, and
 what primal wiring is required.
 
 All extensions build on the NestGate data pipeline validated in Exp 029-032
-and the NUCLEUS deploy graphs updated to V116.
+and the NUCLEUS deploy graphs updated to V117.
 
 ---
 

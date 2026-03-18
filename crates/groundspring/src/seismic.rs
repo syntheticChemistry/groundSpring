@@ -210,10 +210,6 @@ fn grid_search_inversion_gpu<S: AsRef<str>>(
     )
     .ok()?;
 
-    #[expect(
-        clippy::cast_possible_truncation,
-        reason = "barracuda grid_search_3d returns u32 indices, fit in usize"
-    )]
     let lat = lat_grid[result.min_ix as usize];
     let lon = lon_grid[result.min_iy as usize];
     let depth = depth_grid[result.min_iz as usize];

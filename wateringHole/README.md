@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 18, 2026 (V116)
+**Last Updated**: March 18, 2026 (V117)
 
 ## What This Is
 
@@ -18,8 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V116 Typed Errors | [GROUNDSPRING_V116_TYPED_ERROR_EVOLUTION_HANDOFF_MAR18_2026.md](handoffs/GROUNDSPRING_V116_TYPED_ERROR_EVOLUTION_HANDOFF_MAR18_2026.md) | Mar 18, 2026 | Typed error evolution: `DispatchError`, `EsnError`, `ResilienceError<E>`; Format C/D capability parsing; `ValidationSink` trait; `OnceLock` GPU probe cache; RAWR extraction; named dispatch constants. |
-| V116 Comprehensive | [GROUNDSPRING_V116_TOADSTOOL_BARRACUDA_COMPREHENSIVE_HANDOFF_MAR18_2026.md](handoffs/GROUNDSPRING_V116_TOADSTOOL_BARRACUDA_COMPREHENSIVE_HANDOFF_MAR18_2026.md) | Mar 18, 2026 | Full 102-delegation inventory, PRNG/eigenvector/Chao1 evolution roadmap, V116 patterns to absorb (typed errors, OnceLock, ValidationSink, named constants), quality certificate. |
+| V117 All-Features + PRNG | [GROUNDSPRING_V117_ALLFEATURES_DENY_PRNG_HANDOFF_MAR18_2026.md](handoffs/GROUNDSPRING_V117_ALLFEATURES_DENY_PRNG_HANDOFF_MAR18_2026.md) | Mar 18, 2026 | All-features compilation fixed (tarpc-ipc), cargo deny modernised, PRNG DefaultRng feature-gated, validate_all meta-binary, clippy --all-features clean. |
 
 ## Cross-Spring Documentation
 

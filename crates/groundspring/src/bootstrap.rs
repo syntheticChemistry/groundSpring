@@ -56,7 +56,9 @@ pub(crate) fn validate_bootstrap_inputs(
 
 /// Map a barracuda `BootstrapCI` to our `BootstrapResult`.
 #[cfg(feature = "barracuda")]
-pub(crate) const fn from_barracuda_ci(ci: &barracuda::stats::bootstrap::BootstrapCI) -> BootstrapResult {
+pub(crate) const fn from_barracuda_ci(
+    ci: &barracuda::stats::bootstrap::BootstrapCI,
+) -> BootstrapResult {
     BootstrapResult {
         estimate: ci.estimate,
         ci_lower: ci.lower,
@@ -281,7 +283,11 @@ fn bootstrap_std_cpu(
 
 /// Compute the percentile confidence interval from a pre-filled
 /// replicate distribution.  Shared by both bootstrap and RAWR.
-pub(crate) fn percentile_ci(means: &[f64], n_replicates: usize, confidence: f64) -> BootstrapResult {
+pub(crate) fn percentile_ci(
+    means: &[f64],
+    n_replicates: usize,
+    confidence: f64,
+) -> BootstrapResult {
     let mut sorted: Vec<f64> = means.to_vec();
     sorted.sort_unstable_by(f64::total_cmp);
 
@@ -302,10 +308,7 @@ pub(crate) fn percentile_ci(means: &[f64], n_replicates: usize, confidence: f64)
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::float_cmp,
-    reason = "bitwise determinism test"
-)]
+#[expect(clippy::float_cmp, reason = "bitwise determinism test")]
 #[expect(clippy::unwrap_used, reason = "test assertions use unwrap for clarity")]
 mod tests {
     use super::*;

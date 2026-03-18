@@ -18,9 +18,21 @@ use std::f64::consts::TAU;
 
 /// Default PRNG type for groundSpring validation.
 ///
-/// Uses `Xorshift64` for validation baselines. When barracuda GPU promotion
-/// requires stream-compatible PRNG, use [`Xoshiro128StarStar`] directly.
+/// Currently `Xorshift64` to preserve existing benchmark JSON baselines.
+/// Enable the `prng-xoshiro-default` feature gate to switch to
+/// [`Xoshiro128StarStar`] (GPU-aligned). After switching, all Python
+/// baselines must be regenerated with a compatible xoshiro128** implementation
+/// and benchmark JSONs updated (see `specs/BARRACUDA_EVOLUTION.md` Phase 2b).
+#[cfg(not(feature = "prng-xoshiro-default"))]
 pub type DefaultRng = Xorshift64;
+
+/// Default PRNG type — GPU-aligned variant.
+///
+/// Active when the `prng-xoshiro-default` feature gate is enabled.
+/// Produces streams compatible with barracuda's `ops::prng_xoshiro_wgsl`
+/// GPU kernel, enabling reproducible CPU-GPU parity.
+#[cfg(feature = "prng-xoshiro-default")]
+pub type DefaultRng = Xoshiro128StarStar;
 
 /// GPU-aligned PRNG type matching barracuda's `ops::prng_xoshiro_wgsl`.
 ///
@@ -352,9 +364,18 @@ mod tests {
     }
 
     #[test]
+    #[cfg(not(feature = "prng-xoshiro-default"))]
     fn default_rng_is_xorshift64() {
         let mut a = DefaultRng::new(42);
         let mut b = Xorshift64::new(42);
+        assert_eq!(a.next_u64(), b.next_u64());
+    }
+
+    #[test]
+    #[cfg(feature = "prng-xoshiro-default")]
+    fn default_rng_is_xoshiro() {
+        let mut a = DefaultRng::new(42);
+        let mut b = Xoshiro128StarStar::new(42);
         assert_eq!(a.next_u64(), b.next_u64());
     }
 

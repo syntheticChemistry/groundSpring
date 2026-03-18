@@ -123,7 +123,7 @@ to biodiversity assessment.
 
 ## Benchmark Results (V97, March 7, 2026)
 
-Three-mode benchmark (`benchmark-cross-spring --release`):
+Three-mode benchmark (`benchmark_cross_spring --release`):
 
 ### Cross-Spring Provenance Benchmark (barraCuda v0.3.5, toadStool S158+)
 
@@ -137,7 +137,7 @@ Three-mode benchmark (`benchmark-cross-spring --release`):
 | ET₀ 5 methods (Uccle) | airSpring → barraCuda v0.3.2 | <1µs each | PM/Hargreaves/Makkink/Turc/Hamon |
 | Anderson Lyapunov (L=200, R=500) | hotSpring → S26 | 2.4ms | Transfer matrix, spectral theory |
 
-### CPU vs GPU Benchmark (bench-cpu-vs-gpu)
+### CPU vs GPU Benchmark (bench_cpu_vs_gpu)
 
 | Workload | CPU (ms) | GPU (ms) | Notes |
 |---|---|---|---|

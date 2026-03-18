@@ -262,8 +262,14 @@ fn validate_regression_parity(h: &mut Harness) {
             "    slope={:.6}, intercept={:.6}, R²={:.10}",
             f.slope, f.intercept, f.r_squared
         );
-        h.check("Slope ≈ 2.5", (f.slope - 2.5).abs() < 1e-10);
-        h.check("Intercept ≈ 1.0", (f.intercept - 1.0).abs() < 1e-10);
+        h.check(
+            "Slope ≈ 2.5",
+            (f.slope - 2.5).abs() < groundspring::tol::ANALYTICAL,
+        );
+        h.check(
+            "Intercept ≈ 1.0",
+            (f.intercept - 1.0).abs() < groundspring::tol::ANALYTICAL,
+        );
         h.check(
             "Regression deterministic",
             f.r_squared.to_bits() == f2.r_squared.to_bits(),

@@ -183,6 +183,7 @@ pub fn mean_fitness(sigma: f64, master_freq: f64) -> f64 {
 }
 
 #[cfg(test)]
+#[expect(clippy::unwrap_used, reason = "test assertions use unwrap for clarity")]
 mod tests {
     use super::*;
     use crate::tol;

@@ -73,6 +73,9 @@ pub struct WorkloadTolerance {
     pub justification: &'static str,
 }
 
+/// Near-zero threshold for switching from relative to absolute comparison.
+const NEAR_ZERO_THRESHOLD: f64 = 1e-15;
+
 /// Compare a GPU result against a CPU reference within the given tolerance.
 ///
 /// Returns `Ok(relative_diff)` if within tolerance, `Err(relative_diff)` if not.
@@ -83,7 +86,7 @@ pub struct WorkloadTolerance {
 /// tolerance tier's threshold.
 pub fn compare(cpu: f64, gpu: f64, tier: ToleranceTier) -> Result<f64, f64> {
     let tol = tier.relative_tolerance();
-    let diff = if cpu.abs() > 1e-15 {
+    let diff = if cpu.abs() > NEAR_ZERO_THRESHOLD {
         ((gpu - cpu) / cpu).abs()
     } else {
         (gpu - cpu).abs()

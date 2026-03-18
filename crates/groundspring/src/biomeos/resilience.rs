@@ -14,7 +14,7 @@ use std::time::{Duration, Instant};
 /// Distinguishes between a circuit-open fast-fail and retry exhaustion
 /// that preserves the last underlying error.
 #[derive(Debug, thiserror::Error)]
-pub enum ResilienceError<E: std::fmt::Display + std::fmt::Debug> {
+pub enum ResilienceError<E: std::fmt::Debug> {
     /// The circuit breaker is open — IPC endpoint is considered unavailable.
     #[error("circuit open — IPC endpoint unavailable")]
     CircuitOpen,
@@ -27,6 +27,22 @@ pub enum ResilienceError<E: std::fmt::Display + std::fmt::Debug> {
         last_error: E,
     },
 }
+
+/// Default exponential backoff multiplier (doubles each attempt).
+const DEFAULT_BACKOFF_MULTIPLIER: f64 = 2.0;
+
+/// Default maximum retry attempts before giving up.
+const DEFAULT_MAX_RETRIES: u32 = 3;
+
+/// Default initial delay before the first retry.
+const DEFAULT_INITIAL_DELAY: Duration = Duration::from_millis(100);
+
+/// Default maximum delay cap to prevent unbounded waits.
+const DEFAULT_MAX_DELAY: Duration = Duration::from_secs(5);
+
+/// Scale factor for converting the floating-point multiplier to an
+/// integer ratio — avoids f64→Duration casts in the delay computation.
+const RATIO_SCALE: u32 = 1000;
 
 /// Exponential backoff retry policy.
 #[derive(Debug, Clone)]
@@ -44,10 +60,10 @@ pub struct RetryPolicy {
 impl Default for RetryPolicy {
     fn default() -> Self {
         Self {
-            max_retries: 3,
-            initial_delay: Duration::from_millis(100),
-            max_delay: Duration::from_secs(5),
-            multiplier: 2.0,
+            max_retries: DEFAULT_MAX_RETRIES,
+            initial_delay: DEFAULT_INITIAL_DELAY,
+            max_delay: DEFAULT_MAX_DELAY,
+            multiplier: DEFAULT_BACKOFF_MULTIPLIER,
         }
     }
 }
@@ -99,8 +115,8 @@ impl RetryPolicy {
             reason = "multiplier is a positive backoff factor, typically 2.0; \
                       truncation to integer ratio is intentional approximation"
         )]
-        let numer = (self.multiplier * 1000.0) as u32;
-        (numer, 1000)
+        let numer = (self.multiplier * f64::from(RATIO_SCALE)) as u32;
+        (numer, RATIO_SCALE)
     }
 }
 
@@ -362,13 +378,15 @@ mod tests {
             ..Default::default()
         };
         let mut attempt = 0u32;
-        let result: Result<(), ResilienceError<String>> =
-            resilient_call(&mut cb, &policy, || {
-                attempt += 1;
-                Err(format!("fail-{attempt}"))
-            });
+        let result: Result<(), ResilienceError<String>> = resilient_call(&mut cb, &policy, || {
+            attempt += 1;
+            Err(format!("fail-{attempt}"))
+        });
         match result {
-            Err(ResilienceError::RetriesExhausted { attempts, last_error }) => {
+            Err(ResilienceError::RetriesExhausted {
+                attempts,
+                last_error,
+            }) => {
                 assert_eq!(attempts, 3);
                 assert_eq!(last_error, "fail-3");
             }

@@ -25,154 +25,158 @@ serde_json = "1.0.149"
 thiserror = "2"
 
 [[bin]]
-name = "validate-decompose"
+name = "validate_all"
+path = "src/validate_all.rs"
+
+[[bin]]
+name = "validate_decompose"
 path = "src/validate_decompose.rs"
 
 [[bin]]
-name = "validate-rarefaction"
+name = "validate_rarefaction"
 path = "src/validate_rarefaction.rs"
 
 [[bin]]
-name = "validate-seismic"
+name = "validate_seismic"
 path = "src/validate_seismic.rs"
 
 [[bin]]
-name = "validate-weather"
+name = "validate_weather"
 path = "src/validate_weather.rs"
 
 [[bin]]
-name = "validate-fao56"
+name = "validate_fao56"
 path = "src/validate_fao56.rs"
 
 [[bin]]
-name = "validate-signal-specificity"
+name = "validate_signal_specificity"
 path = "src/validate_signal_specificity.rs"
 
 [[bin]]
-name = "validate-rawr"
+name = "validate_rawr"
 path = "src/validate_rawr.rs"
 
 [[bin]]
-name = "validate-anderson"
+name = "validate_anderson"
 path = "src/validate_anderson.rs"
 
 [[bin]]
-name = "validate-quasiperiodic"
+name = "validate_quasiperiodic"
 path = "src/validate_quasiperiodic.rs"
 
 [[bin]]
-name = "validate-bistable"
+name = "validate_bistable"
 path = "src/validate_bistable.rs"
 
 [[bin]]
-name = "validate-multisignal"
+name = "validate_multisignal"
 path = "src/validate_multisignal.rs"
 
 [[bin]]
-name = "validate-transport"
+name = "validate_transport"
 path = "src/validate_transport.rs"
 
 [[bin]]
-name = "validate-resampling-conv"
+name = "validate_resampling_conv"
 path = "src/validate_resampling_conv.rs"
 
 [[bin]]
-name = "validate-drift"
+name = "validate_drift"
 path = "src/validate_drift.rs"
 
 [[bin]]
-name = "validate-uncertainty-bridge"
+name = "validate_uncertainty_bridge"
 path = "src/validate_uncertainty_bridge.rs"
 
 [[bin]]
-name = "validate-rare-biosphere"
+name = "validate_rare_biosphere"
 path = "src/validate_rare_biosphere.rs"
 
 [[bin]]
-name = "validate-quasispecies"
+name = "validate_quasispecies"
 path = "src/validate_quasispecies.rs"
 
 [[bin]]
-name = "validate-band-edge"
+name = "validate_band_edge"
 path = "src/validate_band_edge.rs"
 
 [[bin]]
-name = "validate-jackknife"
+name = "validate_jackknife"
 path = "src/validate_jackknife.rs"
 
 [[bin]]
-name = "validate-freeze-out"
+name = "validate_freeze_out"
 path = "src/validate_freeze_out.rs"
 
 [[bin]]
-name = "validate-spectral-recon"
+name = "validate_spectral_recon"
 path = "src/validate_spectral_recon.rs"
 
 [[bin]]
-name = "validate-et0-anderson"
+name = "validate_et0_anderson"
 path = "src/validate_et0_anderson.rs"
 
 [[bin]]
-name = "validate-notill-sampling"
+name = "validate_notill_sampling"
 path = "src/validate_notill_sampling.rs"
 
 [[bin]]
-name = "validate-aggregate-stability"
+name = "validate_aggregate_stability"
 path = "src/validate_aggregate_stability.rs"
 
 [[bin]]
-name = "validate-precision-drift"
+name = "validate_precision_drift"
 path = "src/validate_precision_drift.rs"
 
 [[bin]]
-name = "validate-size-convergence"
+name = "validate_size_convergence"
 path = "src/validate_size_convergence.rs"
 
 [[bin]]
-name = "validate-vendor-parity"
+name = "validate_vendor_parity"
 path = "src/validate_vendor_parity.rs"
 
 [[bin]]
-name = "validate-npu-anderson"
+name = "validate_npu_anderson"
 path = "src/validate_npu_anderson.rs"
 required-features = ["npu"]
 
 [[bin]]
-name = "bench-cpu-vs-gpu"
+name = "bench_cpu_vs_gpu"
 path = "src/bench_cpu_vs_gpu.rs"
 
 [[bin]]
-name = "validate-real-ghcnd-et0"
+name = "validate_real_ghcnd_et0"
 path = "src/validate_real_ghcnd_et0.rs"
 required-features = ["biomeos"]
 
 [[bin]]
-name = "validate-real-ncbi-16s"
+name = "validate_real_ncbi_16s"
 path = "src/validate_real_ncbi_16s.rs"
 required-features = ["biomeos"]
 
 [[bin]]
-name = "validate-nucleus-stack"
+name = "validate_nucleus_stack"
 path = "src/validate_nucleus_stack.rs"
 required-features = ["biomeos"]
 
 [[bin]]
-name = "validate-iris-seismic"
+name = "validate_iris_seismic"
 path = "src/validate_iris_seismic.rs"
 required-features = ["biomeos"]
 
 [[bin]]
-name = "validate-tissue-anderson"
+name = "validate_tissue_anderson"
 path = "src/validate_tissue_anderson.rs"
 
 [[bin]]
-name = "validate-et0-methods"
+name = "validate_et0_methods"
 path = "src/validate_et0_methods.rs"
 
 [[bin]]
-name = "bench-kokkos-parity"
+name = "bench_kokkos_parity"
 path = "src/bench_kokkos_parity.rs"
 
 [[bin]]
-name = "bench-gpu-vs-kokkos"
+name = "bench_gpu_vs_kokkos"
 path = "src/bench_gpu_vs_kokkos.rs"

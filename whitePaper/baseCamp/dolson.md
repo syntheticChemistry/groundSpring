@@ -65,7 +65,7 @@ Python baseline (Exp 017)
 - `quasispecies_simulation` and `quasispecies_simulation_batch` now return
   `Result<Vec<f64>, InputError>` — zero panicking public APIs
 - New error-path tests for invalid mutation rates, zero population, zero generations
-- `validate-quasispecies` binary updated to `.or_exit()` on Result
+- `validate_quasispecies` binary updated to `.or_exit()` on Result
 - CI: nursery lint enforcement, `--all-features` test coverage
 
 ### V116 Capabilities
@@ -75,7 +75,7 @@ Python baseline (Exp 017)
 
 ### V114 Capabilities
 
-- `.expect()` → `OrExit` in validation binary (validate-quasispecies)
+- `.expect()` → `OrExit` in validation binary (validate_quasispecies)
 - `cast::usize_u64()` in quasispecies module — checked numeric conversions
 - `health.liveness`/`health.readiness` for NUCLEUS deployment
 - `resilient_call()` for IPC to ToadStool GPU dispatch

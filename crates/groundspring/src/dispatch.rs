@@ -127,7 +127,7 @@ const DEFAULT_N_OMEGA: u64 = 50;
 /// # Errors
 ///
 /// Returns `Err` if the method is unknown, required parameters are missing,
-/// or the underlying library call fails with an [`InputError`].
+/// or the underlying library call fails with an [`crate::error::InputError`].
 pub fn dispatch(method: &str, params: &Value) -> Result<Value, DispatchError> {
     match method {
         "health.check" | "health" => Ok(health_check()),
@@ -507,7 +507,7 @@ mod tests {
         let params = serde_json::json!({
             "cpu_values": [1.0, 2.0, 3.0],
             "gpu_values": [1.0, 2.0, 3.0],
-            "tolerance": 1e-10,
+            "tolerance": crate::tol::ANALYTICAL,
         });
         let result = dispatch("measurement.parity_check", &params);
         assert!(result.is_ok());
@@ -520,7 +520,7 @@ mod tests {
         let params = serde_json::json!({
             "cpu_values": [1.0, 2.0, 3.0],
             "gpu_values": [1.0, 2.0, 4.0],
-            "tolerance": 1e-10,
+            "tolerance": crate::tol::ANALYTICAL,
         });
         let result = dispatch("measurement.parity_check", &params);
         assert!(result.is_ok());
