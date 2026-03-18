@@ -12,6 +12,7 @@ use groundspring::anderson::{anderson_potential, lyapunov_exponent};
 use groundspring::bootstrap::bootstrap_mean;
 use groundspring::prng::Xorshift64;
 use groundspring::stats::{mean, pearson_r, std_dev};
+use groundspring_validate::OrExit;
 
 #[expect(
     clippy::too_many_lines,
@@ -114,7 +115,7 @@ fn main() {
         }
 
         let t0 = Instant::now();
-        let br = bootstrap_mean(&data, N_REPLICATES, CONFIDENCE, SEED);
+        let br = bootstrap_mean(&data, N_REPLICATES, CONFIDENCE, SEED).or_exit("bootstrap_mean");
         let elapsed = t0.elapsed().as_secs_f64() * 1e6;
 
         println!(

@@ -63,3 +63,48 @@ Statistical Resampling Assessments." IEEE BIBM 2024.
 - **wetSpring**: Liu is a primary wetSpring faculty member (phylogenetics,
   RAWR, tree confidence). groundSpring adds the error propagation perspective.
 - **neuralSpring**: Confidence estimation methods transfer to ML uncertainty.
+
+## V114 Extension Roadmap
+
+### V115 Capabilities
+
+- `bootstrap_mean`, `rawr_mean`, `bootstrap_median`, `bootstrap_std` now return
+  `Result<BootstrapResult, InputError>` — zero panicking public APIs
+- New error-path tests: empty data, out-of-range confidence, insufficient samples
+- CI: `--all-features` doc/test, nursery lint enforcement, biomeOS validation jobs
+- ecoBin: 14 C-dependency crates banned in `deny.toml`, UniBin flags
+
+### V114 Capabilities
+
+- `.expect()` → `OrExit` in validation binaries (validate-rawr, validate-resampling-conv)
+- `cast::` helpers in bootstrap module — checked numeric conversions
+- `health.liveness`/`health.readiness` for NUCLEUS deployment
+- `resilient_call()` for IPC to ToadStool GPU dispatch
+
+### Extension Opportunities
+
+- **RAWR GPU kernel**: `rawr_mean` not yet in barraCuda — parallel weighted resampling is an ideal GPU target
+- **Exp 003 upgrade**: Replace naive Monte Carlo in FAO-56 error propagation with RAWR for tighter CIs
+- **Adaptive resampling**: Lee & Liu (2024) meta-statistical optimization — choose resampling strategy dynamically
+- **Phylogenetic application**: RAWR on tree topologies from TreeBASE/Dryad (via wetSpring)
+- **Cross-spring**: neuralSpring confidence estimation methods can adopt RAWR for ML uncertainty quantification
+
+### Compute Budget
+
+| Workload | Single GPU (RTX 4070) | LAN |
+|----------|-----------------------|-----|
+| RAWR 10K replicates × 1K samples | ~10s (CPU) | N/A |
+| RAWR 100K replicates × 10K samples | ~5min GPU | N/A |
+| Phylogenetic RAWR (TreeBASE) | ~1h | ~10min |
+
+### New Experiments (Planned)
+
+- **Exp 036+**: RAWR-enhanced FAO-56 error propagation (upgrade Exp 003)
+- **Exp 037+**: Adaptive resampling strategy selection per dataset characteristics
+- `rawr_mean` GPU kernel → barraCuda absorption target (P2 request in V114 handoff)
+
+### Primal Wiring
+
+- ToadStool: `compute.execute` for GPU RAWR when kernel is available
+- NestGate: TreeBASE/Dryad phylogenetic dataset storage
+- Node Atomic sufficient (Tower + ToadStool) — compute-bound

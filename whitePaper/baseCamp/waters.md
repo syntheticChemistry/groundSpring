@@ -77,3 +77,47 @@ Quorum Sensing in the Control of vpsT and aphA." J Bacteriology 193:6331-41.
 - **wetSpring**: Waters is a primary wetSpring faculty member (QS, ODE,
   cooperation game theory). groundSpring adds the noise quantification layer.
 - **Shared with wetSpring**: Experiments 020, 022, 032-037 (Waters ODE/QS work)
+
+## V114 Extension Roadmap
+
+### V115 Capabilities
+
+- All public APIs now return `Result` — zero panicking entry points
+- CI: nursery lints enforced, `--all-features` test coverage
+- ecoBin: 14 C-dependency crates banned in `deny.toml`
+
+### V114 Capabilities
+
+- `.expect()` → `OrExit` in validation binaries (Exp 006, 010, 011)
+- `cast::` helpers in gillespie module — checked numeric conversions
+- `resilient_call()` for IPC calls to ToadStool GPU dispatch
+- `health.liveness`/`health.readiness` for NUCLEUS deployment
+- PRNG alignment blocker documented: Xorshift64 → xoshiro128** required before Gillespie GPU delegation can proceed
+
+### Blockers
+
+| Blocker | Impact | Status |
+|---------|--------|--------|
+| PRNG alignment (Xorshift64 → xoshiro128**) | Blocks Gillespie GPU delegation for Exp 006 | Open — barraCuda P2 request |
+| Stochastic rebaseline | All stochastic experiments need rebaseline after PRNG change | Blocked on PRNG |
+
+### Extension Opportunities
+
+- **Real FRET data**: Massie 2012 supplementary FRET quantification → `decompose` for c-di-GMP signal vs instrument noise
+- **Flow cytometry data**: Fernandez 2020 supplementary → bistable attractor separation in real data
+- **Multi-signal QS time series**: Srivastava 2011 qRT-PCR fold-change → time-domain signal integration
+- **Cross-spring**: wetSpring QS gene profiling (Exp140/141) provides habitat-specific c-di-GMP gene counts → groundSpring quantifies noise floor for each habitat
+
+### Compute Budget
+
+| Workload | Single GPU | Notes |
+|----------|-----------|-------|
+| Gillespie SSA (100K trajectories) | ~1min (GillespieGpu exists) | Blocked on PRNG alignment |
+| Batched ODE parameter sweep | ~30s (BatchedOdeRK4 delegated) | Active |
+| Bifurcation analysis | ~5min (BatchedEighGpu) | Active |
+
+### Primal Wiring
+
+- ToadStool: `compute.execute` for batched ODE and bifurcation sweeps
+- NestGate: Supplementary data storage for FRET/flow cytometry datasets
+- Node Atomic sufficient (Tower + ToadStool) — no storage-heavy data

@@ -1,11 +1,11 @@
 # LAN HPC Deployment Readiness Checklist
 
-**Date**: March 16, 2026
-**Status**: Eastgate NUCLEUS validated, awaiting 10G Cat6a cables
+**Date**: March 17, 2026
+**Status**: Eastgate NUCLEUS validated (V115), awaiting 10G Cat6a cables
 
 ---
 
-## Eastgate (Primary NUCLEUS) — VALIDATED
+## Eastgate (Primary NUCLEUS) — VALIDATED (V115)
 
 | Component | Status | Details |
 |-----------|--------|---------|
@@ -20,7 +20,7 @@
 | `.lineage.seed` | PRESENT | |
 | Family ID | `8ff3b864a4bc589a` | Derived from `.family.seed[0..8]` |
 
-### Validation Results
+### V115 Validation Results
 
 - 930+ Rust tests: ALL PASS (default + biomeos features)
 - 395/395 experiment checks: ALL PASS (340 core + 55 NUCLEUS)
@@ -31,7 +31,23 @@
 - metalForge Titan V: 13/13
 - metalForge inventory: 11/14 (3 expected NPU-only failures)
 - NestGate NCBI validation: 9/9
-- clippy::pedantic: CLEAN
+- clippy pedantic + nursery: ZERO WARNINGS
+- `cargo fmt`: CLEAN
+- Zero `#[allow()]` in production code
+- Zero unsafe code
+- Zero mocks outside `#[cfg(test)]`
+
+### V114 Evolution (since V113)
+
+| Evolution | Impact |
+|-----------|--------|
+| `.expect()` → `OrExit` | 29 validation binaries, zero-panic exits |
+| `cast::` module | Checked numeric conversions in 7 modules |
+| `resilient_call()` | RetryPolicy + CircuitBreaker for NestGate pipeline |
+| `health.liveness`/`health.readiness` | NUCLEUS health probes registered |
+| `primal_names::roles` | Runtime discovery, zero hardcoded names |
+| `#[expect(reason)]` | All lint exceptions documented |
+| Deploy graphs V114 | All 3 graphs updated, health probes added |
 
 ---
 
@@ -88,6 +104,128 @@ NODE_ID=northgate ./start.sh
 - **Southgate**: Node Atomic, RTX 3090 additional capacity
 - **FlockGate/KinGate/Swiftgate**: Tower Atomic relay nodes
 - **3× Intel NUC**: Always-on Tower Atomic beacons
+
+---
+
+## What Can Run Now (Before LAN)
+
+With local NUCLEUS on eastGate, groundSpring V115 can execute all Tier 0-1
+dataset extensions without LAN infrastructure:
+
+| Tier | Datasets | Compute | Status |
+|------|----------|---------|--------|
+| 0 | EMP 30K synthetic, NCBI Protein QS, analytical baselines | Minutes | Ready |
+| 1 | Cold seep metadata, LTEE, real GHCND, IRIS, symbiotic metagenomes | ~3h total | Ready via NestGate |
+
+LAN is needed only for Tier 2+ (KBS LTER 200GB, EMP 30K real 50GB,
+Tara Oceans 100GB, HMP 50GB) and Tier 3 (multi-TB SRA surveys).
+
+---
+
+## Phased Gate Deployment Plan (V115)
+
+### Immediate (Now — Local NUCLEUS on eastGate)
+
+```
+eastGate [Tower + Node + Nest]
+  ├── BearDog (crypto/identity)
+  ├── Songbird (discovery)
+  ├── ToadStool (GPU: RTX 4070, 12GB VRAM)
+  ├── NestGate (NCBI + NOAA + IRIS + local storage)
+  ├── Squirrel (AI: ESN/LSTM classification)
+  └── groundSpring V115 (measurement.* capabilities + health probes)
+```
+
+**Actionable now:**
+1. Fetch real GHCND weather → Exp 036 (ET₀ → Anderson on real Ohio data)
+2. Fetch NCBI Protein QS genes → extend Exp 140-142
+3. Fetch cold seep PRJNA315684 metadata → new Exp 036 (regime classification)
+4. Fetch symbiotic metagenomes → new Exp 036 (cross-species QS)
+
+### Phase 1: westGate Nest Atomic (after 10G cables)
+
+**Priority: FIRST** — 76TB ZFS enables Tier 2 dataset storage.
+
+```
+westGate [Tower + NestGate]
+  ├── BearDog + Songbird
+  └── NestGate (76TB ZFS: cold storage for SRA FASTQ, EMP, KBS LTER)
+```
+
+**Unlocks:**
+- EMP 30K real samples (~50GB) stored on ZFS
+- KBS LTER 30yr soil data (~200GB) archived
+- Cold seep FASTQ bulk download (~170GB) cached
+- NestGate SRA evolution target (bulk FASTQ via SRA Toolkit)
+
+### Phase 2: northGate Node Atomic (after 10G cables)
+
+```
+northGate [Tower + ToadStool]
+  ├── BearDog + Songbird
+  └── ToadStool (GPU: RTX 5090, 32GB VRAM)
+```
+
+**Unlocks:**
+- Large Anderson lattices (L=14-20, 3D) for Paper 01/12
+- EMP full pipeline at scale (~30min vs ~4h on eastGate)
+- Parallel parameter sweeps via biomeOS distributed dispatch
+
+### Phase 3: strandGate Full NUCLEUS (bioinformatics hub)
+
+```
+strandGate [Tower + Node + Nest + Squirrel (Full)]
+  ├── BearDog + Songbird
+  ├── ToadStool (GPU: RTX 3090 + RX 6950 XT — multi-vendor)
+  ├── NestGate (local storage)
+  ├── Squirrel (2× Akida NPU)
+  └── CPU: Dual EPYC 7313 (128 threads)
+```
+
+**Unlocks:**
+- Multi-vendor GPU parity validation (NVIDIA + AMD)
+- CPU-bound bioinformatics (Kraken2, DADA2 on 128 threads)
+- NPU sentinel pipeline (Akida × 2 for ESN classification)
+
+### Phase 4: biomeGate Node Atomic (precision GPU)
+
+```
+biomeGate [Tower + ToadStool]
+  ├── BearDog + Songbird
+  └── ToadStool (GPU: 2× Titan V HBM2 + 2× MI50 + Akida NPU)
+```
+
+**Unlocks:**
+- Native f64 GPU compute (Titan V: 5120 CUDA cores with HBM2)
+- DF64 validation (MI50: 16GB HBM2)
+- Large-lattice 3D Anderson at full f64 precision
+- Paper 07 WDM precision-critical workloads
+
+### Phase 5: Full LAN Mesh
+
+All gates connected via 10G backbone. biomeOS Plasmodium collective
+discovery enables distributed dispatch across all GPU/NPU resources:
+
+| Gate | VRAM | Storage | Specialization |
+|------|------|---------|----------------|
+| eastGate | 12GB (RTX 4070) | 2TB NVMe | Primary orchestrator |
+| westGate | — | 76TB ZFS | Cold storage + SRA archive |
+| northGate | 32GB (RTX 5090) | 2TB NVMe | Heavy GPU compute |
+| strandGate | 24GB + 16GB | 4TB NVMe | Multi-vendor + bioinformatics |
+| biomeGate | 24GB + 32GB + 32GB | 2TB NVMe | Precision f64 + NPU |
+| southGate | 24GB (RTX 3090) | 2TB NVMe | Additional capacity |
+| **Total** | **~164GB** | **~88TB** | |
+
+---
+
+## Compute Budget by Tier (V115)
+
+| Tier | Data | eastGate (single GPU) | Full LAN | Blocking |
+|------|------|-----------------------|----------|----------|
+| 0 | In-memory | Minutes | N/A | Nothing |
+| 1 | ~200GB | ~4h | N/A (local sufficient) | Nothing |
+| 2 | ~400GB | ~10h | ~1h | 10G cables |
+| 3 | Multi-TB | Days | ~12h | 10G cables + NestGate SRA |
 
 ---
 

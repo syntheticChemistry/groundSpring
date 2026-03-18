@@ -36,8 +36,8 @@ fn prng_deterministic() {
 #[test]
 fn bootstrap_deterministic() {
     let data = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
-    let r1 = bootstrap_mean(&data, 500, 0.95, 42);
-    let r2 = bootstrap_mean(&data, 500, 0.95, 42);
+    let r1 = bootstrap_mean(&data, 500, 0.95, 42).unwrap();
+    let r2 = bootstrap_mean(&data, 500, 0.95, 42).unwrap();
     assert_eq!(r1.estimate, r2.estimate);
     assert_eq!(r1.ci_lower, r2.ci_lower);
     assert_eq!(r1.ci_upper, r2.ci_upper);
@@ -46,8 +46,8 @@ fn bootstrap_deterministic() {
 #[test]
 fn rawr_deterministic() {
     let data = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
-    let r1 = rawr_mean(&data, 500, 0.95, 42);
-    let r2 = rawr_mean(&data, 500, 0.95, 42);
+    let r1 = rawr_mean(&data, 500, 0.95, 42).unwrap();
+    let r2 = rawr_mean(&data, 500, 0.95, 42).unwrap();
     assert_eq!(r1.estimate, r2.estimate);
     assert_eq!(r1.ci_lower, r2.ci_lower);
     assert_eq!(r1.ci_upper, r2.ci_upper);
@@ -123,8 +123,8 @@ fn gillespie_deterministic() {
 
 #[test]
 fn wright_fisher_deterministic() {
-    let r1 = wright_fisher_fixation(100, 0.5, 0.0, 42);
-    let r2 = wright_fisher_fixation(100, 0.5, 0.0, 42);
+    let r1 = wright_fisher_fixation(100, 0.5, 0.0, 42).unwrap();
+    let r2 = wright_fisher_fixation(100, 0.5, 0.0, 42).unwrap();
     assert_eq!(r1, r2);
 }
 

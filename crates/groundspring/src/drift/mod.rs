@@ -77,21 +77,31 @@ fn shannon_from_abundances(abundances: &[u64]) -> f64 {
 ///
 /// Returns `true` if allele A fixes, `false` if lost.
 ///
-/// # Panics
+/// # Errors
 ///
-/// Panics if `pop_size` is zero or `initial_freq` is outside [0, 1].
-#[must_use]
+/// Returns [`InputError`](crate::error::InputError) if `pop_size` is zero
+/// or `initial_freq` is outside [0, 1].
 pub fn wright_fisher_fixation(
     pop_size: usize,
     selection: f64,
     initial_freq: f64,
     seed: u64,
-) -> bool {
-    assert!(pop_size > 0, "pop_size must be positive");
-    assert!(
-        (0.0..=1.0).contains(&initial_freq),
-        "initial_freq must be in [0, 1]"
-    );
+) -> Result<bool, crate::error::InputError> {
+    if pop_size == 0 {
+        return Err(crate::error::InputError::InsufficientData {
+            name: "pop_size",
+            min: 1,
+            got: 0,
+        });
+    }
+    if !(0.0..=1.0).contains(&initial_freq) {
+        return Err(crate::error::InputError::OutOfRange {
+            name: "initial_freq",
+            lo: 0.0,
+            hi: 1.0,
+            got: initial_freq,
+        });
+    }
 
     let n_alleles = 2 * pop_size;
     let n_alleles_f = usize_f64(n_alleles);
@@ -109,10 +119,10 @@ pub fn wright_fisher_fixation(
 
     for _ in 0..max_gens {
         if n_a == 0 {
-            return false;
+            return Ok(false);
         }
         if n_a == n_alleles_u64 {
-            return true;
+            return Ok(true);
         }
 
         let freq_a = crate::cast::u64_f64(n_a) / n_alleles_f;
@@ -123,7 +133,7 @@ pub fn wright_fisher_fixation(
         n_a = rng.binomial(n_alleles, prob_a);
     }
 
-    n_a > n_alleles_u64 / 2
+    Ok(n_a > n_alleles_u64 / 2)
 }
 
 /// Kimura (1968) analytical fixation probability.
@@ -210,6 +220,7 @@ fn wf_batch_cpu(
                 initial_freq,
                 base_seed.wrapping_add(usize_u64(i)),
             )
+            .unwrap()
         })
         .count()
 }
@@ -372,17 +383,30 @@ fn wf_batch_gpu(
 ///
 /// Returns a vector of Shannon diversities, one per generation.
 ///
-/// # Panics
+/// # Errors
 ///
-/// Panics if `n_species` or `pop_size` is zero.
-#[must_use]
+/// Returns [`InputError`](crate::error::InputError) if `n_species` or
+/// `pop_size` is zero.
 pub fn neutral_diversity_trajectory(
     n_species: usize,
     pop_size: usize,
     n_generations: usize,
     seed: u64,
-) -> Vec<f64> {
-    assert!(n_species > 0 && pop_size > 0);
+) -> Result<Vec<f64>, crate::error::InputError> {
+    if n_species == 0 {
+        return Err(crate::error::InputError::InsufficientData {
+            name: "n_species",
+            min: 1,
+            got: 0,
+        });
+    }
+    if pop_size == 0 {
+        return Err(crate::error::InputError::InsufficientData {
+            name: "pop_size",
+            min: 1,
+            got: 0,
+        });
+    }
 
     let mut rng = Xorshift64::new(seed);
     let base_count = pop_size / n_species;
@@ -419,7 +443,7 @@ pub fn neutral_diversity_trajectory(
         abundances = new_abundances;
     }
 
-    diversities
+    Ok(diversities)
 }
 
 #[cfg(test)]
@@ -459,14 +483,14 @@ mod tests {
 
     #[test]
     fn wf_deterministic() {
-        let r1 = wright_fisher_fixation(100, 0.01, 0.5, 42);
-        let r2 = wright_fisher_fixation(100, 0.01, 0.5, 42);
+        let r1 = wright_fisher_fixation(100, 0.01, 0.5, 42).unwrap();
+        let r2 = wright_fisher_fixation(100, 0.01, 0.5, 42).unwrap();
         assert_eq!(r1, r2, "same seed should give same result");
     }
 
     #[test]
     fn diversity_declines_under_drift() {
-        let div = neutral_diversity_trajectory(10, 50, 200, 42);
+        let div = neutral_diversity_trajectory(10, 50, 200, 42).unwrap();
         assert!(
             *div.last().expect("non-empty diversity trajectory") < div[0],
             "diversity should decline"
@@ -475,14 +499,30 @@ mod tests {
 
     #[test]
     fn larger_pop_preserves_diversity() {
-        let div_small = neutral_diversity_trajectory(10, 50, 200, 42);
-        let div_large = neutral_diversity_trajectory(10, 500, 200, 42);
+        let div_small = neutral_diversity_trajectory(10, 50, 200, 42).unwrap();
+        let div_large = neutral_diversity_trajectory(10, 500, 200, 42).unwrap();
         let final_large = *div_large.last().expect("non-empty large-pop trajectory");
         let final_small = *div_small.last().expect("non-empty small-pop trajectory");
         assert!(
             final_large > final_small,
             "larger populations should preserve more diversity"
         );
+    }
+
+    #[test]
+    fn wf_zero_pop_returns_error() {
+        assert!(wright_fisher_fixation(0, 0.01, 0.5, 42).is_err());
+    }
+
+    #[test]
+    fn wf_bad_freq_returns_error() {
+        assert!(wright_fisher_fixation(100, 0.01, 1.5, 42).is_err());
+        assert!(wright_fisher_fixation(100, 0.01, -0.1, 42).is_err());
+    }
+
+    #[test]
+    fn diversity_zero_species_returns_error() {
+        assert!(neutral_diversity_trajectory(0, 50, 200, 42).is_err());
     }
 
     #[test]

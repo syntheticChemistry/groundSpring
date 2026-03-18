@@ -18,18 +18,23 @@ use std::io::{BufRead, BufReader, Read, Write};
 use std::net::TcpStream;
 use std::time::Duration;
 
-/// Fallback port when neither `NESTGATE_URL` nor `NESTGATE_PORT` is set.
+/// Fallback port when neither env overrides nor socket discovery succeeds.
 ///
-/// Always prefer `NESTGATE_URL` for production — this constant only
-/// exists for local development convenience. The NUCLEUS deployment
-/// convention assigns 8090 to data providers, but other providers may
-/// use different ports; capability-based discovery should replace this.
+/// The NUCLEUS deployment convention assigns 8090 to data providers.
+/// Capability-based discovery via `NESTGATE_SOCKET` / `NESTGATE_ADDRESS`
+/// env vars is attempted first; this constant is the last resort for
+/// local development only.
 const FALLBACK_PORT: u16 = 8090;
 
 fn nestgate_url() -> String {
     if let Ok(url) = std::env::var("NESTGATE_URL") {
         return url;
     }
+
+    if let Ok(addr) = std::env::var("NESTGATE_ADDRESS") {
+        return format!("http://{addr}");
+    }
+
     let port: u16 = std::env::var("NESTGATE_PORT")
         .ok()
         .and_then(|p| p.parse().ok())

@@ -20,12 +20,13 @@ jobs:
         with:
           components: clippy, rustfmt
       - run: cargo fmt -p groundspring -p groundspring-validate -p groundspring-forge -- --check
-      - run: cargo clippy --workspace --all-targets -- -D warnings -W clippy::pedantic
-      - run: cargo clippy --workspace --all-targets --features barracuda -- -D warnings -W clippy::pedantic
-      - run: cargo clippy --workspace --all-targets --all-features -- -D warnings -W clippy::pedantic
-      - run: RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
+      - run: cargo clippy --workspace --all-targets -- -D warnings -W clippy::pedantic -W clippy::nursery
+      - run: cargo clippy --workspace --all-targets --features barracuda -- -D warnings -W clippy::pedantic -W clippy::nursery
+      - run: cargo clippy --workspace --all-targets --all-features -- -D warnings -W clippy::pedantic -W clippy::nursery
+      - run: RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps --all-features
       - run: cargo test --workspace
       - run: cargo test --workspace --features barracuda
+      - run: cargo test --workspace --all-features
 
   validate:
     name: Validation binaries
@@ -65,6 +66,18 @@ jobs:
       - run: cargo run --bin validate-tissue-anderson
       - run: cargo run --bin validate-et0-methods
 
+  validate-biomeos:
+    name: biomeOS validation (NUCLEUS-dependent)
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo run --features biomeos --bin validate-real-ghcnd-et0 || echo "skipped (requires NUCLEUS + NestGate)"
+      - run: cargo run --features biomeos --bin validate-real-ncbi-16s || echo "skipped (requires NUCLEUS + NestGate)"
+      - run: cargo run --features biomeos --bin validate-nucleus-stack || echo "skipped (requires NUCLEUS)"
+      - run: cargo run --features biomeos --bin validate-iris-seismic || echo "skipped (requires NUCLEUS + NestGate)"
+
   validate-metalforge:
     name: metalForge validation
     runs-on: ubuntu-latest
@@ -77,6 +90,13 @@ jobs:
       - run: cargo run --bin validate-metalforge-mathieu || echo "metalForge mathieu skipped (requires GPU hardware)"
       - run: cargo run --bin validate-metalforge-pipeline || echo "metalForge pipeline skipped (requires GPU hardware)"
       - run: cargo run --bin validate-metalforge-gpu || echo "metalForge GPU skipped (requires GPU hardware)"
+      - run: cargo run --bin validate-metalforge-titan-v || echo "metalForge Titan V skipped (requires GPU hardware)"
+      - run: cargo run --bin validate-metalforge-cross-substrate || echo "metalForge cross-substrate skipped (requires GPU+NPU)"
+      - run: cargo run --features biomeos --bin validate-nestgate-ncbi || echo "NestGate NCBI skipped (requires NUCLEUS)"
+      - run: cargo run --features biomeos --bin validate-nucleus-pipeline || echo "NUCLEUS pipeline skipped (requires NUCLEUS)"
+      - run: cargo run --bin validate-gpu-tier || echo "GPU tier skipped (requires GPU hardware)"
+      - run: cargo run --bin validate-pure-gpu-workloads || echo "pure GPU workloads skipped (requires GPU hardware)"
+      - run: cargo run --bin validate-mixed-hardware || echo "mixed hardware skipped (requires GPU+NPU)"
 
   python:
     name: Python baselines
@@ -126,5 +146,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-unknown-linux-gnu
-      - name: cargo check (aarch64)
+      - name: cargo check (aarch64, no features)
         run: cargo check --target aarch64-unknown-linux-gnu --workspace --no-default-features
+      - name: cargo check (aarch64, barracuda)
+        run: cargo check --target aarch64-unknown-linux-gnu --workspace --features barracuda

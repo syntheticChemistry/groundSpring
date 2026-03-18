@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 17, 2026 (V114 — 715+ tests, 0 clippy, 0 fmt diff, license AGPL-3.0-or-later (SCYBORG trio). V114: cross-ecosystem deep absorption — safe_cast expansion, health probes, resilient_call, OrExit evolution, zero eprintln/expect/allow. V113: GemmF64 transpose delegation (execute_gemm_ex trans_a=true), exit_code constants (UNIBIN_ARCHITECTURE_STANDARD), RetryPolicy + CircuitBreaker (IPC resilience), 4-format capability parsing. V112: `OrExit<T>` trait + `parse_benchmark()` (28 binaries), generic `socket_env_var()`, provenance trio, `thiserror` for `BenchFieldError`, tempdir test hygiene. V111: deep debt — `thiserror` errors, `DispatchOutcome`, safe casts, DI config, dead code removal. V110: cross-ecosystem absorption — `#[expect(reason)]` migration, structured tracing, toadStool dispatch, dual-format capability parsing, `deny.toml`, aarch64 CI)
+**Last updated**: March 17, 2026 (V115 — 930+ tests, 0 clippy, 0 fmt diff, license AGPL-3.0-or-later (SCYBORG trio). V115: cross-ecosystem deep absorption — safe_cast expansion, health probes, resilient_call, OrExit evolution, zero eprintln/expect/allow. V113: GemmF64 transpose delegation (execute_gemm_ex trans_a=true), exit_code constants (UNIBIN_ARCHITECTURE_STANDARD), RetryPolicy + CircuitBreaker (IPC resilience), 4-format capability parsing. V112: `OrExit<T>` trait + `parse_benchmark()` (28 binaries), generic `socket_env_var()`, provenance trio, `thiserror` for `BenchFieldError`, tempdir test hygiene. V111: deep debt — `thiserror` errors, `DispatchOutcome`, safe casts, DI config, dead code removal. V110: cross-ecosystem absorption — `#[expect(reason)]` migration, structured tracing, toadStool dispatch, dual-format capability parsing, `deny.toml`, aarch64 CI)
 
 ## Experiment Register
 
@@ -565,7 +565,7 @@ Each experiment is validated at three hardware tiers:
 | **GPU** | `barracuda` feature + GPU adapter | GPU matches CPU within tolerance |
 | **metalForge** | Mixed hardware dispatch | Cross-substrate agreement |
 
-### Current Status (V114)
+### Current Status (V115)
 
 | # | Experiment | CPU | GPU | metalForge | GPU Status |
 |---|-----------|:---:|:---:|:----------:|------------|
@@ -818,7 +818,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V79: Exp 035 + seismic delegation | 85 delegations (51 CPU + 34 GPU), 807 tests, barraCuda v0.3.3, toadStool S94b | Archived |
 | V80: Fused Ops + BarraCuda Catch-Up | 87 delegations (51 CPU + 36 GPU), 812 tests, barraCuda v0.3.3+, toadStool S94b | Archived |
 | V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `0bd401f`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
-| V114: cross-ecosystem deep absorption | 102 delegations (61 CPU + 41 GPU), 715+ tests, safe_cast expansion, health probes, resilient_call, OrExit evolution, zero eprintln/expect/allow | **Current** |
+| V115: cross-ecosystem deep absorption | 102 delegations (61 CPU + 41 GPU), 930+ tests, safe_cast expansion, health probes, resilient_call, OrExit evolution, zero eprintln/expect/allow | **Current** |
 | V113: Ecosystem Resilience | 102 delegations (61 CPU + 41 GPU), 618 unit + 24 integration tests, GemmF64 transpose delegation, exit_code constants, RetryPolicy + CircuitBreaker, 4-format capability parsing | Archived |
 | V112: Deep Debt + OrExit | 102 delegations (61 CPU + 41 GPU), 912+ tests, `OrExit<T>` + parse_benchmark() (28 binaries), generic socket_env_var(), provenance trio, thiserror BenchFieldError, tempdir test hygiene | Archived |
 | V109: Deep Debt Resolution + Smart Refactoring | 102 delegations (61 CPU + 41 GPU), 878 tests (no-default-features), 39 modules, zero-panic validation binaries, smart module refactoring (regression/fao56/pipeline/validate-lib), named physical constants, Python dep pinning | Archived |

@@ -88,10 +88,9 @@ pub fn master_frequency_analytical(sigma: f64, mu: f64, genome_length: usize) ->
 ///
 /// For batched replicates, see [`quasispecies_simulation_batch`].
 ///
-/// # Panics
+/// # Errors
 ///
-/// Panics if `pop_size` is zero.
-#[must_use]
+/// Returns [`InputError`](crate::error::InputError) if `pop_size` is zero.
 pub fn quasispecies_simulation(
     pop_size: usize,
     genome_length: usize,
@@ -99,7 +98,7 @@ pub fn quasispecies_simulation(
     mu: f64,
     n_generations: usize,
     seed: u64,
-) -> Vec<f64> {
+) -> Result<Vec<f64>, crate::error::InputError> {
     quasispecies_simulation_cpu(pop_size, genome_length, sigma, mu, n_generations, seed)
 }
 
@@ -110,7 +109,10 @@ pub fn quasispecies_simulation(
 /// independence.
 ///
 /// CPU by design — see [`quasispecies_simulation`] delegation rationale.
-#[must_use]
+///
+/// # Errors
+///
+/// Returns [`InputError`](crate::error::InputError) if `pop_size` is zero.
 pub fn quasispecies_simulation_batch(
     pop_size: usize,
     genome_length: usize,
@@ -119,7 +121,7 @@ pub fn quasispecies_simulation_batch(
     n_generations: usize,
     n_replicates: usize,
     base_seed: u64,
-) -> Vec<Vec<f64>> {
+) -> Result<Vec<Vec<f64>>, crate::error::InputError> {
     (0..n_replicates)
         .map(|i| {
             let seed = base_seed.wrapping_add(usize_u64(i));
@@ -135,8 +137,14 @@ fn quasispecies_simulation_cpu(
     mu: f64,
     n_generations: usize,
     seed: u64,
-) -> Vec<f64> {
-    assert!(pop_size > 0, "pop_size must be positive");
+) -> Result<Vec<f64>, crate::error::InputError> {
+    if pop_size == 0 {
+        return Err(crate::error::InputError::InsufficientData {
+            name: "pop_size",
+            min: 1,
+            got: 0,
+        });
+    }
 
     let q = (1.0 - mu).powf(usize_f64(genome_length));
     let pop_f = usize_f64(pop_size);
@@ -163,7 +171,7 @@ fn quasispecies_simulation_cpu(
         }
     }
 
-    freqs
+    Ok(freqs)
 }
 
 /// Compute mean fitness from master frequency.
@@ -224,14 +232,14 @@ mod tests {
 
     #[test]
     fn simulation_deterministic() {
-        let f1 = quasispecies_simulation(500, 50, 10.0, 0.01, 100, 42);
-        let f2 = quasispecies_simulation(500, 50, 10.0, 0.01, 100, 42);
+        let f1 = quasispecies_simulation(500, 50, 10.0, 0.01, 100, 42).unwrap();
+        let f2 = quasispecies_simulation(500, 50, 10.0, 0.01, 100, 42).unwrap();
         assert_eq!(f1, f2, "same seed must give same trajectory");
     }
 
     #[test]
     fn simulation_below_threshold_master_survives() {
-        let freqs = quasispecies_simulation(2000, 100, 10.0, 0.01, 500, 42);
+        let freqs = quasispecies_simulation(2000, 100, 10.0, 0.01, 500, 42).unwrap();
         let tail_mean: f64 = freqs[250..].iter().sum::<f64>() / 250.0;
         assert!(
             tail_mean > 0.05,
@@ -241,7 +249,7 @@ mod tests {
 
     #[test]
     fn simulation_above_threshold_master_lost() {
-        let freqs = quasispecies_simulation(2000, 100, 10.0, 0.04, 500, 42);
+        let freqs = quasispecies_simulation(2000, 100, 10.0, 0.04, 500, 42).unwrap();
         let tail_mean: f64 = freqs[250..].iter().sum::<f64>() / 250.0;
         assert!(
             tail_mean < tol::NORM_2PCT,

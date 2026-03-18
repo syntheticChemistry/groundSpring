@@ -3,9 +3,9 @@
 **Purpose**: Per-faculty research briefings for groundSpring noise characterization
 reproductions and extensions.
 
-**Last Updated**: March 17, 2026
+**Last Updated**: March 18, 2026
 
-**Validation Summary**: V114 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+**. 715+ Rust tests + 287 Python provenance tests. All 35 experiments PASS. **29/29 mathematical parity proven**. V114: `safe_cast` expansion (neuralSpring `usize_u32`/`f64_f32`), `BiomeOsError::is_recoverable()/is_retriable()`, health probes (liveness/readiness), `resilient_call()`, `extract_rpc_result()`, `FAMILY_ID`-aware discovery, zero `eprintln!` in prod, `NEURAL_API_SOCKET_NAMES` centralization, bare `as` → `cast::` helpers, `.expect()` → `OrExit` in validation binaries, primal composition guidance. Zero clippy (pedantic + nursery), zero unsafe, zero TODO, all files < 1000 lines. 10 domains, 39 modules.
+**Validation Summary**: V115 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+**. 930+ Rust tests + 287 Python provenance tests. All 35 experiments PASS. **29/29 mathematical parity proven**. V115: `assert!` → `Result<T, InputError>` in `bootstrap`, `drift`, `quasispecies` public APIs; CI hardened (nursery enforced, `--all-features` doc/test, biomeOS + metalForge validation jobs, aarch64 cross-compile); ecoBin compliance (14 C-dep crates banned in `deny.toml`, UniBin flags, niche YAML cost estimates); zero panicking public APIs. Zero clippy (pedantic + nursery), zero unsafe, zero TODO, all files < 1000 lines. 10 domains, 39 modules.
 
 ---
 

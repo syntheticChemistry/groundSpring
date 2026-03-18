@@ -92,3 +92,49 @@ of 2d periodic elliptic operators." Acta Math 221:59-80.
   Anderson localization). Shared barracuda `spectral` module.
 - **Shared kernel**: Lanczos eigensolve is needed by both hotSpring (nuclear EOS)
   and groundSpring (Anderson model). Joint priority.
+
+## V114 Extension Roadmap
+
+### V115 Capabilities
+
+- All public APIs now return `Result` — zero panicking entry points
+- CI: nursery lints enforced, `--all-features` doc/test, aarch64 cross-compile
+- ecoBin: 14 C-dependency crates banned; UniBin flags in primal binary
+
+### V114 Capabilities
+
+- `cast::` helpers in anderson/mod.rs — checked numeric conversions for disorder sweep indices
+- `.expect()` → `OrExit` in validation binaries (Exp 008, 009)
+- `health.liveness`/`health.readiness` for NUCLEUS deployment
+- `resilient_call()` for IPC to ToadStool large-lattice GPU dispatch
+
+### Large-Lattice DF64 Roadmap
+
+| Lattice Size | Precision | Substrate | Status |
+|-------------|-----------|-----------|--------|
+| L=100-1000 (1D) | f64 | CPU/GPU | Done (Exp 008) |
+| L=50-200 (2D/3D) | f64 | GPU (barracuda spectral) | Done (Exp 008) |
+| L=14-20 (large 3D) | DF64 (f64-pair) | Titan V (biomeGate) | Planned — hotSpring DF64 shaders |
+| L=50+ (large 3D) | DF64 | LAN (2x Titan V + 2x MI50) | Planned — requires 10G cables |
+
+### Extension Opportunities
+
+- **Two-particle Anderson** (Bourgain & Kachkovskiy 2018): Interaction-induced delocalization — relevant to coupled sensor systems
+- **Band edge 2D periodic** (Filonov & Kachkovskiy 2018): Frequency-dependent signal filtering through periodic tissue layers (Paper 12 connection)
+- **XY spin chain transport** (Kachkovskiy 2016): Already Exp 012 — extend to larger chains via LAN GPU
+
+### Compute Budget
+
+| Workload | Single GPU (RTX 4070) | biomeGate (2x Titan V) | LAN |
+|----------|-----------------------|------------------------|-----|
+| 1D Anderson sweep L=10000 | ~5min | ~1min | N/A |
+| 3D Anderson L=14 (DF64) | ~30min | ~5min (HBM2) | N/A |
+| 3D Anderson L=20 (DF64) | ~4h | ~30min | ~10min |
+| Two-particle L=500 | ~2h | ~20min | ~5min |
+
+### Primal Wiring
+
+- ToadStool: `compute.execute` for GPU spectral dispatch (Lanczos, Anderson sweep)
+- coralReef: Sovereign shader compilation for DF64 Anderson kernels on Titan V
+- Node Atomic on biomeGate: 2x Titan V (HBM2) + 2x MI50 for large-lattice DF64 work
+- LAN: Distributed Anderson sweep across multiple Node Atomics

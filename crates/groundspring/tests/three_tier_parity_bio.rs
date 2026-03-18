@@ -43,8 +43,8 @@ fn drift_kimura_parity_known_value() {
 
 #[test]
 fn drift_wf_parity_deterministic() {
-    let a = groundspring::drift::wright_fisher_fixation(100, 0.01, 0.5, 42);
-    let b = groundspring::drift::wright_fisher_fixation(100, 0.01, 0.5, 42);
+    let a = groundspring::drift::wright_fisher_fixation(100, 0.01, 0.5, 42).unwrap();
+    let b = groundspring::drift::wright_fisher_fixation(100, 0.01, 0.5, 42).unwrap();
     assert_eq!(a, b);
 }
 
@@ -189,8 +189,10 @@ fn quasispecies_master_freq_parity() {
 
 #[test]
 fn quasispecies_simulation_parity_deterministic() {
-    let a = groundspring::quasispecies::quasispecies_simulation(500, 100, 10.0, 0.01, 50, 42);
-    let b = groundspring::quasispecies::quasispecies_simulation(500, 100, 10.0, 0.01, 50, 42);
+    let a = groundspring::quasispecies::quasispecies_simulation(500, 100, 10.0, 0.01, 50, 42)
+        .unwrap();
+    let b = groundspring::quasispecies::quasispecies_simulation(500, 100, 10.0, 0.01, 50, 42)
+        .unwrap();
     assert_eq!(a.len(), b.len());
     for (x, y) in a.iter().zip(b.iter()) {
         assert_eq!(x.to_bits(), y.to_bits(), "bitwise determinism");
@@ -200,8 +202,10 @@ fn quasispecies_simulation_parity_deterministic() {
 #[test]
 fn quasispecies_simulation_parity_below_threshold() {
     let mu_c = groundspring::quasispecies::error_threshold(10.0, 100);
-    let freqs =
-        groundspring::quasispecies::quasispecies_simulation(1000, 100, 10.0, mu_c * 0.5, 200, 42);
+    let freqs = groundspring::quasispecies::quasispecies_simulation(
+        1000, 100, 10.0, mu_c * 0.5, 200, 42,
+    )
+    .unwrap();
     #[expect(clippy::cast_precision_loss, reason = "slice length < 2^52")]
     let avg: f64 = freqs.iter().skip(100).sum::<f64>() / freqs[100..].len() as f64;
     assert!(avg > 0.05, "below threshold, master persists: avg={avg}");

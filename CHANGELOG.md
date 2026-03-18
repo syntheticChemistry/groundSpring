@@ -4,6 +4,51 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V115 Deep Debt + Idiomatic API Evolution (Mar 18, 2026)
+
+#### API Evolution: `assert!` → `Result<T, InputError>`
+- `bootstrap::bootstrap_mean`, `rawr_mean`, `bootstrap_median`, `bootstrap_std`
+  now return `Result<BootstrapResult, InputError>` instead of panicking
+- `quasispecies::quasispecies_simulation`, `quasispecies_simulation_batch`
+  return `Result<Vec<f64>, InputError>`
+- `drift::wright_fisher_fixation` returns `Result<bool, InputError>`
+- `drift::neutral_diversity_trajectory` returns `Result<Vec<f64>, InputError>`
+- All callers updated: `.unwrap()` in tests, `.or_exit()` in validation binaries,
+  `?` propagation in library dispatch
+- New error-path tests for all evolved functions
+
+#### CI Hardening
+- Clippy: `-W clippy::nursery` added to all 3 CI invocations (was enabled
+  in workspace `Cargo.toml` but not enforced in CI)
+- `cargo doc --all-features` (was default-only, missed biomeos/npu/tarpc-ipc)
+- `cargo test --all-features` added (covers biomeos, npu, IPC code paths)
+- New `validate-biomeos` job: 4 NUCLEUS-dependent validation binaries
+  (`validate-real-ghcnd-et0`, `validate-real-ncbi-16s`, `validate-nucleus-stack`,
+  `validate-iris-seismic`) with graceful skip
+- `validate-metalforge` expanded: 7 additional binaries (`titan-v`,
+  `cross-substrate`, `nestgate-ncbi`, `nucleus-pipeline`, `gpu-tier`,
+  `pure-gpu-workloads`, `mixed-hardware`)
+- Cross-compile: `--features barracuda` check added for aarch64
+
+#### ecoBin Compliance
+- `deny.toml`: 14 C-dependency crates banned (`openssl-sys`, `ring`,
+  `aws-lc-sys`, `native-tls`, `libz-sys`, `curl-sys`, `cmake`, `cc`, etc.)
+- UniBin: `--help`/`-h` and `--version`/`-V` flags in primal binary
+- Niche YAML: `cost_estimates` section synced from `niche.rs`
+  (8 capabilities × estimated_ms, gpu_beneficial, peak_memory_mb, deterministic)
+
+#### Hardcoded Fallback Evolution
+- `validate_nestgate_ncbi.rs`: `NESTGATE_ADDRESS` env-var discovery added
+  before host/port fallback; follows `primal_names::address_env_var()` convention
+- Last `.expect()` in production (`validate_uncertainty_bridge.rs`) → `.or_exit()`
+
+#### Documentation
+- README badges: CI, coverage, license, Rust edition, ecoBin compliance
+- V115 toadStool/barraCuda evolution handoff
+
+**Quality**: 930+ tests, 0 clippy (pedantic+nursery), 0 doc warnings,
+0 unsafe, 0 `#[allow()]`, 0 `.expect()` in binaries, 0 panicking public APIs.
+
 ### V114 Cross-Ecosystem Deep Absorption (Mar 17, 2026)
 
 #### safe_cast Expansion (neuralSpring S147)

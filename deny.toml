@@ -42,6 +42,25 @@ multiple-versions = "warn"
 wildcards = "deny"
 highlight = "all"
 
+# ecoBin compliance: zero C dependencies in application code.
+# These crates pull in native C libraries and are forbidden.
+deny = [
+    { crate = "openssl-sys", wrappers = [] },
+    { crate = "openssl", wrappers = [] },
+    { crate = "native-tls", wrappers = [] },
+    { crate = "aws-lc-sys", wrappers = [] },
+    { crate = "aws-lc-rs", wrappers = [] },
+    { crate = "ring", wrappers = [] },
+    { crate = "libz-sys", wrappers = [] },
+    { crate = "bzip2-sys", wrappers = [] },
+    { crate = "curl-sys", wrappers = [] },
+    { crate = "libsqlite3-sys", wrappers = [] },
+    { crate = "cmake", wrappers = [] },
+    { crate = "cc", wrappers = [] },
+    { crate = "pkg-config", wrappers = [] },
+    { crate = "vcpkg", wrappers = [] },
+]
+
 [sources]
 unknown-registry = "deny"
 unknown-git = "deny"

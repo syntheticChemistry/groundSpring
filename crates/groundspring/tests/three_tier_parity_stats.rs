@@ -248,8 +248,8 @@ fn regression_logarithmic_parity() {
 #[test]
 fn bootstrap_mean_parity_deterministic() {
     let data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
-    let r1 = groundspring::bootstrap::bootstrap_mean(&data, 1000, 0.95, 42);
-    let r2 = groundspring::bootstrap::bootstrap_mean(&data, 1000, 0.95, 42);
+    let r1 = groundspring::bootstrap::bootstrap_mean(&data, 1000, 0.95, 42).unwrap();
+    let r2 = groundspring::bootstrap::bootstrap_mean(&data, 1000, 0.95, 42).unwrap();
     assert_eq!(r1.estimate.to_bits(), r2.estimate.to_bits(), "mean bitwise");
     assert_eq!(
         r1.ci_lower.to_bits(),
@@ -271,7 +271,7 @@ fn bootstrap_mean_parity_deterministic() {
 #[test]
 fn bootstrap_mean_parity_ci_contains_true() {
     let data = [2.0, 4.0, 6.0, 8.0, 10.0];
-    let r = groundspring::bootstrap::bootstrap_mean(&data, 2000, 0.95, 99);
+    let r = groundspring::bootstrap::bootstrap_mean(&data, 2000, 0.95, 99).unwrap();
     assert!(
         r.ci_lower <= 6.0 && r.ci_upper >= 6.0,
         "95% CI should contain true mean 6.0"
@@ -281,8 +281,8 @@ fn bootstrap_mean_parity_ci_contains_true() {
 #[test]
 fn rawr_mean_parity_deterministic() {
     let data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
-    let r1 = groundspring::bootstrap::rawr_mean(&data, 1000, 0.95, 42);
-    let r2 = groundspring::bootstrap::rawr_mean(&data, 1000, 0.95, 42);
+    let r1 = groundspring::bootstrap::rawr_mean(&data, 1000, 0.95, 42).unwrap();
+    let r2 = groundspring::bootstrap::rawr_mean(&data, 1000, 0.95, 42).unwrap();
     assert_eq!(r1.estimate.to_bits(), r2.estimate.to_bits(), "rawr bitwise");
     assert_eq!(
         r1.std_error.to_bits(),
@@ -294,8 +294,8 @@ fn rawr_mean_parity_deterministic() {
 #[test]
 fn bootstrap_median_parity_deterministic() {
     let data = [1.0, 3.0, 5.0, 7.0, 9.0, 11.0, 13.0];
-    let r1 = groundspring::bootstrap::bootstrap_median(&data, 1000, 0.95, 7);
-    let r2 = groundspring::bootstrap::bootstrap_median(&data, 1000, 0.95, 7);
+    let r1 = groundspring::bootstrap::bootstrap_median(&data, 1000, 0.95, 7).unwrap();
+    let r2 = groundspring::bootstrap::bootstrap_median(&data, 1000, 0.95, 7).unwrap();
     assert_eq!(
         r1.estimate.to_bits(),
         r2.estimate.to_bits(),
@@ -311,8 +311,8 @@ fn bootstrap_median_parity_deterministic() {
 #[test]
 fn bootstrap_std_parity_deterministic() {
     let data = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
-    let r1 = groundspring::bootstrap::bootstrap_std(&data, 1000, 0.95, 13);
-    let r2 = groundspring::bootstrap::bootstrap_std(&data, 1000, 0.95, 13);
+    let r1 = groundspring::bootstrap::bootstrap_std(&data, 1000, 0.95, 13).unwrap();
+    let r2 = groundspring::bootstrap::bootstrap_std(&data, 1000, 0.95, 13).unwrap();
     assert_eq!(r1.estimate.to_bits(), r2.estimate.to_bits(), "std bitwise");
     assert!(r1.estimate > 0.0, "std positive");
 }

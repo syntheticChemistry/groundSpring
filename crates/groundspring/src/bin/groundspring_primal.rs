@@ -34,17 +34,39 @@ fn main() -> ExitCode {
     match subcommand {
         Some("server") => cmd_server(),
         Some("status") => cmd_status(),
-        Some("version") => cmd_version(),
+        Some("version" | "--version" | "-V") => cmd_version(),
+        Some("help" | "--help" | "-h") => cmd_help(),
         Some(other) => {
             error!(subcommand = other, "unknown subcommand");
-            eprintln!("usage: groundspring <server|status|version>");
-            ExitCode::FAILURE
+            cmd_help()
         }
-        None => {
-            eprintln!("usage: groundspring <server|status|version>");
-            ExitCode::FAILURE
-        }
+        None => cmd_help(),
     }
+}
+
+// ─── help ────────────────────────────────────────────────────────────────────
+
+fn cmd_help() -> ExitCode {
+    println!(
+        "groundspring {} — measurement noise characterization primal",
+        env!("CARGO_PKG_VERSION")
+    );
+    println!();
+    println!("USAGE:");
+    println!("    groundspring <COMMAND>");
+    println!();
+    println!("COMMANDS:");
+    println!("    server     Start JSON-RPC 2.0 server (germination mode for biomeOS)");
+    println!("    status     Health check against running instance");
+    println!("    version    Print version, capabilities, and build info");
+    println!("    help       Print this help message");
+    println!();
+    println!("OPTIONS:");
+    println!("    -h, --help       Print help");
+    println!("    -V, --version    Print version");
+    println!();
+    println!("LICENSE: AGPL-3.0-or-later");
+    ExitCode::SUCCESS
 }
 
 // ─── server ──────────────────────────────────────────────────────────────────

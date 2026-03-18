@@ -57,8 +57,10 @@ fn run() -> i32 {
     // Part 2: Below threshold — signal survives
     println!("\n--- Part 2: Below Threshold ---");
     let mu_below = mutation_rates[1];
-    let freqs_below =
-        quasispecies_simulation(pop_size, genome_length, sigma, mu_below, n_gen, base_seed);
+    let freqs_below = quasispecies_simulation(
+        pop_size, genome_length, sigma, mu_below, n_gen, base_seed,
+    )
+    .or_exit("quasispecies_simulation below threshold");
     let steady_below = tail_mean(&freqs_below, n_gen / 2);
     let x_m_theory = master_frequency_analytical(sigma, mu_below, genome_length);
     println!("  μ={mu_below}: steady x_m = {steady_below:.4} (theory {x_m_theory:.4})");
@@ -77,7 +79,8 @@ fn run() -> i32 {
         mu_above,
         n_gen,
         base_seed + 1000,
-    );
+    )
+    .or_exit("quasispecies_simulation above threshold");
     let steady_above = tail_mean(&freqs_above, n_gen / 2);
     println!("  μ={mu_above}: steady x_m = {steady_above:.4}");
     h.check_true(
@@ -97,7 +100,8 @@ fn run() -> i32 {
             mu,
             n_gen,
             base_seed + 5000 + (i as u64) * 100,
-        );
+        )
+        .or_exit("quasispecies_simulation sweep");
         let ss = tail_mean(&freqs, n_gen / 2);
         let mf = mean_fitness(sigma, ss);
         steady_states.push(ss);
@@ -125,8 +129,10 @@ fn run() -> i32 {
 
     // Part 6: Determinism
     println!("\n--- Part 6: Determinism ---");
-    let f1 = quasispecies_simulation(pop_size, genome_length, sigma, 0.01, 100, 99999);
-    let f2 = quasispecies_simulation(pop_size, genome_length, sigma, 0.01, 100, 99999);
+    let f1 = quasispecies_simulation(pop_size, genome_length, sigma, 0.01, 100, 99999)
+        .or_exit("quasispecies_simulation determinism run 1");
+    let f2 = quasispecies_simulation(pop_size, genome_length, sigma, 0.01, 100, 99999)
+        .or_exit("quasispecies_simulation determinism run 2");
     h.check_true("Simulation deterministic", f1 == f2);
 
     h.summary()

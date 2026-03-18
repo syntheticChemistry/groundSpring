@@ -1,6 +1,6 @@
 # groundSpring — BarraCUDA Requirements
 
-**Last Updated**: March 16, 2026 (V113)
+**Last Updated**: March 16, 2026 (V115)
 **Purpose**: GPU kernel requirements, gap analysis, and evolution priorities
 
 ---

@@ -244,7 +244,7 @@ proptest! {
     #[test]
     fn bootstrap_ci_contains_mean(v in positive_vec(10, 100)) {
         let m = mean(&v);
-        let ci = bootstrap_mean(&v, 500, 0.95, 42);
+        let ci = bootstrap_mean(&v, 500, 0.95, 42).unwrap();
         prop_assert!(
             ci.ci_lower <= m + tol::STOCHASTIC && ci.ci_upper >= m - tol::STOCHASTIC,
             "mean {m} outside CI [{}, {}]", ci.ci_lower, ci.ci_upper
@@ -253,7 +253,7 @@ proptest! {
 
     #[test]
     fn bootstrap_ci_ordered(v in positive_vec(5, 100)) {
-        let ci = bootstrap_mean(&v, 200, 0.95, 42);
+        let ci = bootstrap_mean(&v, 200, 0.95, 42).unwrap();
         prop_assert!(
             ci.ci_lower <= ci.ci_upper + tol::EXACT,
             "lo={} > hi={}", ci.ci_lower, ci.ci_upper

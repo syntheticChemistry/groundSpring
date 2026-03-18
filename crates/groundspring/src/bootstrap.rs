@@ -31,15 +31,27 @@ pub struct BootstrapResult {
 /// Validate common bootstrap preconditions.
 ///
 /// `min_len` is the minimum data length (1 for mean/median/RAWR, 2 for std).
-fn validate_bootstrap_inputs(data: &[f64], min_len: usize, confidence: f64) {
-    assert!(
-        data.len() >= min_len,
-        "data must have at least {min_len} element(s)"
-    );
-    assert!(
-        (0.0..1.0).contains(&(1.0 - confidence)),
-        "confidence must be in (0, 1)"
-    );
+fn validate_bootstrap_inputs(
+    data: &[f64],
+    min_len: usize,
+    confidence: f64,
+) -> Result<(), crate::error::InputError> {
+    if data.len() < min_len {
+        return Err(crate::error::InputError::InsufficientData {
+            name: "data",
+            min: min_len,
+            got: data.len(),
+        });
+    }
+    if !(0.0..1.0).contains(&(1.0 - confidence)) {
+        return Err(crate::error::InputError::OutOfRange {
+            name: "confidence",
+            lo: 0.0,
+            hi: 1.0,
+            got: confidence,
+        });
+    }
+    Ok(())
 }
 
 /// Map a barracuda `BootstrapCI` to our `BootstrapResult`.
@@ -60,42 +72,42 @@ const fn from_barracuda_ci(ci: &barracuda::stats::bootstrap::BootstrapCI) -> Boo
 /// `barracuda::stats::bootstrap_mean` (CPU), then to a local
 /// implementation.
 ///
-/// # Panics
+/// # Errors
 ///
-/// Panics if `data` is empty or `confidence` is outside (0, 1).
+/// Returns [`InputError`](crate::error::InputError) if `data` is empty
+/// or `confidence` is outside (0, 1).
 ///
 /// # Examples
 ///
 /// ```
 /// let data: Vec<f64> = (0..100).map(|i| f64::from(i) * 0.01).collect();
-/// let ci = groundspring::bootstrap::bootstrap_mean(&data, 500, 0.05, 42);
+/// let ci = groundspring::bootstrap::bootstrap_mean(&data, 500, 0.05, 42).unwrap();
 /// assert!(ci.ci_lower < ci.ci_upper);
 /// assert!(ci.ci_lower <= ci.estimate && ci.estimate <= ci.ci_upper);
 /// ```
-#[must_use]
 pub fn bootstrap_mean(
     data: &[f64],
     n_replicates: usize,
     confidence: f64,
     seed: u64,
-) -> BootstrapResult {
-    validate_bootstrap_inputs(data, 1, confidence);
+) -> Result<BootstrapResult, crate::error::InputError> {
+    validate_bootstrap_inputs(data, 1, confidence)?;
 
     #[cfg(feature = "barracuda-gpu")]
     {
         if let Some(result) = bootstrap_mean_gpu(data, n_replicates, confidence, seed) {
-            return result;
+            return Ok(result);
         }
     }
 
     #[cfg(feature = "barracuda")]
     {
         if let Ok(ci) = barracuda::stats::bootstrap_mean(data, n_replicates, confidence, seed) {
-            return from_barracuda_ci(&ci);
+            return Ok(from_barracuda_ci(&ci));
         }
     }
 
-    bootstrap_mean_cpu(data, n_replicates, confidence, seed)
+    Ok(bootstrap_mean_cpu(data, n_replicates, confidence, seed))
 }
 
 #[cfg(feature = "barracuda-gpu")]
@@ -149,21 +161,26 @@ fn bootstrap_mean_cpu(
 /// When the `barracuda` feature is enabled, delegates to
 /// `barracuda::stats::rawr_mean` (absorbed in barraCuda S66).
 ///
-/// # Panics
+/// # Errors
 ///
-/// Panics if `data` is empty or `confidence` is outside (0, 1).
-#[must_use]
-pub fn rawr_mean(data: &[f64], n_replicates: usize, confidence: f64, seed: u64) -> BootstrapResult {
-    validate_bootstrap_inputs(data, 1, confidence);
+/// Returns [`InputError`](crate::error::InputError) if `data` is empty
+/// or `confidence` is outside (0, 1).
+pub fn rawr_mean(
+    data: &[f64],
+    n_replicates: usize,
+    confidence: f64,
+    seed: u64,
+) -> Result<BootstrapResult, crate::error::InputError> {
+    validate_bootstrap_inputs(data, 1, confidence)?;
 
     #[cfg(feature = "barracuda")]
     {
         if let Ok(ci) = barracuda::stats::rawr_mean(data, n_replicates, confidence, seed) {
-            return from_barracuda_ci(&ci);
+            return Ok(from_barracuda_ci(&ci));
         }
     }
 
-    rawr_mean_cpu(data, n_replicates, confidence, seed)
+    Ok(rawr_mean_cpu(data, n_replicates, confidence, seed))
 }
 
 /// Cap for -ln(0) fallback when Exp(1) variate would be infinite.
@@ -201,26 +218,26 @@ fn rawr_mean_cpu(data: &[f64], n_replicates: usize, confidence: f64, seed: u64) 
 /// When the `barracuda` feature is enabled, delegates to
 /// `barracuda::stats::bootstrap_median` (absorbed in barraCuda S64).
 ///
-/// # Panics
+/// # Errors
 ///
-/// Panics if `data` is empty or `confidence` is outside (0, 1).
-#[must_use]
+/// Returns [`InputError`](crate::error::InputError) if `data` is empty
+/// or `confidence` is outside (0, 1).
 pub fn bootstrap_median(
     data: &[f64],
     n_replicates: usize,
     confidence: f64,
     seed: u64,
-) -> BootstrapResult {
-    validate_bootstrap_inputs(data, 1, confidence);
+) -> Result<BootstrapResult, crate::error::InputError> {
+    validate_bootstrap_inputs(data, 1, confidence)?;
 
     #[cfg(feature = "barracuda")]
     {
         if let Ok(ci) = barracuda::stats::bootstrap_median(data, n_replicates, confidence, seed) {
-            return from_barracuda_ci(&ci);
+            return Ok(from_barracuda_ci(&ci));
         }
     }
 
-    bootstrap_median_cpu(data, n_replicates, confidence, seed)
+    Ok(bootstrap_median_cpu(data, n_replicates, confidence, seed))
 }
 
 fn bootstrap_median_cpu(
@@ -264,26 +281,26 @@ fn bootstrap_median_cpu(
 /// When the `barracuda` feature is enabled, delegates to
 /// `barracuda::stats::bootstrap_std` (absorbed in barraCuda S64).
 ///
-/// # Panics
+/// # Errors
 ///
-/// Panics if `data` has fewer than 2 elements or `confidence` is outside (0, 1).
-#[must_use]
+/// Returns [`InputError`](crate::error::InputError) if `data` has fewer
+/// than 2 elements or `confidence` is outside (0, 1).
 pub fn bootstrap_std(
     data: &[f64],
     n_replicates: usize,
     confidence: f64,
     seed: u64,
-) -> BootstrapResult {
-    validate_bootstrap_inputs(data, 2, confidence);
+) -> Result<BootstrapResult, crate::error::InputError> {
+    validate_bootstrap_inputs(data, 2, confidence)?;
 
     #[cfg(feature = "barracuda")]
     {
         if let Ok(ci) = barracuda::stats::bootstrap_std(data, n_replicates, confidence, seed) {
-            return from_barracuda_ci(&ci);
+            return Ok(from_barracuda_ci(&ci));
         }
     }
 
-    bootstrap_std_cpu(data, n_replicates, confidence, seed)
+    Ok(bootstrap_std_cpu(data, n_replicates, confidence, seed))
 }
 
 fn bootstrap_std_cpu(
@@ -343,15 +360,19 @@ fn percentile_ci(means: &[f64], n_replicates: usize, confidence: f64) -> Bootstr
 }
 
 #[cfg(test)]
-#[expect(clippy::float_cmp, reason = "bitwise determinism test")]
+#[expect(
+    clippy::float_cmp,
+    reason = "bitwise determinism test"
+)]
+#[expect(clippy::unwrap_used, reason = "test assertions use unwrap for clarity")]
 mod tests {
     use super::*;
 
     #[test]
     fn bootstrap_deterministic() {
         let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
-        let r1 = bootstrap_mean(&data, 500, 0.95, 42);
-        let r2 = bootstrap_mean(&data, 500, 0.95, 42);
+        let r1 = bootstrap_mean(&data, 500, 0.95, 42).unwrap();
+        let r2 = bootstrap_mean(&data, 500, 0.95, 42).unwrap();
         assert_eq!(r1.estimate, r2.estimate);
         assert_eq!(r1.ci_lower, r2.ci_lower);
     }
@@ -359,8 +380,8 @@ mod tests {
     #[test]
     fn rawr_deterministic() {
         let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
-        let r1 = rawr_mean(&data, 500, 0.95, 42);
-        let r2 = rawr_mean(&data, 500, 0.95, 42);
+        let r1 = rawr_mean(&data, 500, 0.95, 42).unwrap();
+        let r2 = rawr_mean(&data, 500, 0.95, 42).unwrap();
         assert_eq!(r1.estimate, r2.estimate);
     }
 
@@ -370,7 +391,7 @@ mod tests {
         let data: Vec<f64> = (0..200)
             .map(|_| (rng.next_f64() - 0.5).mul_add(4.0, 5.0))
             .collect();
-        let r = bootstrap_mean(&data, 1000, 0.95, 123);
+        let r = bootstrap_mean(&data, 1000, 0.95, 123).unwrap();
         assert!(
             r.ci_lower <= 5.0 && 5.0 <= r.ci_upper,
             "CI [{}, {}] should contain 5.0",
@@ -385,7 +406,7 @@ mod tests {
         let data: Vec<f64> = (0..200)
             .map(|_| (rng.next_f64() - 0.5).mul_add(4.0, 5.0))
             .collect();
-        let r = rawr_mean(&data, 1000, 0.95, 123);
+        let r = rawr_mean(&data, 1000, 0.95, 123).unwrap();
         assert!(
             r.ci_lower <= 5.0 && 5.0 <= r.ci_upper,
             "RAWR CI [{}, {}] should contain 5.0",
@@ -397,8 +418,8 @@ mod tests {
     #[test]
     fn bootstrap_different_from_rawr() {
         let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
-        let b = bootstrap_mean(&data, 500, 0.95, 42);
-        let r = rawr_mean(&data, 500, 0.95, 42);
+        let b = bootstrap_mean(&data, 500, 0.95, 42).unwrap();
+        let r = rawr_mean(&data, 500, 0.95, 42).unwrap();
         let b_width = b.ci_upper - b.ci_lower;
         let r_width = r.ci_upper - r.ci_lower;
         assert!(
@@ -414,8 +435,8 @@ mod tests {
     #[test]
     fn bootstrap_median_deterministic() {
         let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
-        let r1 = bootstrap_median(&data, 500, 0.95, 42);
-        let r2 = bootstrap_median(&data, 500, 0.95, 42);
+        let r1 = bootstrap_median(&data, 500, 0.95, 42).unwrap();
+        let r2 = bootstrap_median(&data, 500, 0.95, 42).unwrap();
         assert_eq!(r1.estimate, r2.estimate);
         assert_eq!(r1.ci_lower, r2.ci_lower);
     }
@@ -423,8 +444,8 @@ mod tests {
     #[test]
     fn bootstrap_median_robust_to_outlier() {
         let data = vec![1.0, 2.0, 3.0, 4.0, 5.0, 1000.0];
-        let median_r = bootstrap_median(&data, 1000, 0.95, 42);
-        let mean_r = bootstrap_mean(&data, 1000, 0.95, 42);
+        let median_r = bootstrap_median(&data, 1000, 0.95, 42).unwrap();
+        let mean_r = bootstrap_mean(&data, 1000, 0.95, 42).unwrap();
         assert!(
             median_r.estimate < mean_r.estimate,
             "median ({}) should be less than mean ({}) with outlier",
@@ -436,15 +457,15 @@ mod tests {
     #[test]
     fn bootstrap_std_deterministic() {
         let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
-        let r1 = bootstrap_std(&data, 500, 0.95, 42);
-        let r2 = bootstrap_std(&data, 500, 0.95, 42);
+        let r1 = bootstrap_std(&data, 500, 0.95, 42).unwrap();
+        let r2 = bootstrap_std(&data, 500, 0.95, 42).unwrap();
         assert_eq!(r1.estimate, r2.estimate);
     }
 
     #[test]
     fn bootstrap_std_positive() {
         let data = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
-        let r = bootstrap_std(&data, 500, 0.95, 42);
+        let r = bootstrap_std(&data, 500, 0.95, 42).unwrap();
         assert!(
             r.estimate > 0.0,
             "std should be positive, got {}",
@@ -463,8 +484,8 @@ mod tests {
         let mut rng = Xorshift64::new(77);
         let data_small: Vec<f64> = (0..20).map(|_| rng.next_f64() * 10.0).collect();
         let data_large: Vec<f64> = (0..200).map(|_| rng.next_f64() * 10.0).collect();
-        let r_small = bootstrap_mean(&data_small, 1000, 0.95, 42);
-        let r_large = bootstrap_mean(&data_large, 1000, 0.95, 42);
+        let r_small = bootstrap_mean(&data_small, 1000, 0.95, 42).unwrap();
+        let r_large = bootstrap_mean(&data_large, 1000, 0.95, 42).unwrap();
         assert!(
             r_large.ci_upper - r_large.ci_lower < r_small.ci_upper - r_small.ci_lower,
             "larger sample should have narrower CI"
@@ -474,7 +495,7 @@ mod tests {
     #[test]
     fn bootstrap_mean_single_value() {
         let data = vec![7.0];
-        let r = bootstrap_mean(&data, 200, 0.95, 42);
+        let r = bootstrap_mean(&data, 200, 0.95, 42).unwrap();
         assert!(
             (r.estimate - 7.0).abs() < 1e-12,
             "single-value bootstrap mean should be 7.0"
@@ -485,7 +506,7 @@ mod tests {
     #[test]
     fn rawr_ci_width_positive() {
         let data: Vec<f64> = (0..50).map(f64::from).collect();
-        let r = rawr_mean(&data, 500, 0.95, 42);
+        let r = rawr_mean(&data, 500, 0.95, 42).unwrap();
         assert!(r.ci_upper > r.ci_lower, "RAWR CI width must be positive");
         assert!(r.std_error > 0.0);
     }
@@ -493,7 +514,7 @@ mod tests {
     #[test]
     fn bootstrap_std_ci_contains_analytical() {
         let data: Vec<f64> = (1..=100).map(f64::from).collect();
-        let r = bootstrap_std(&data, 1000, 0.95, 42);
+        let r = bootstrap_std(&data, 1000, 0.95, 42).unwrap();
         let analytical_std = 29.01; // std of 1..100 ≈ 29.01
         assert!(
             r.ci_lower < analytical_std && analytical_std < r.ci_upper,
@@ -506,7 +527,7 @@ mod tests {
     #[test]
     fn bootstrap_median_ci_contains_analytical() {
         let data: Vec<f64> = (1..=99).map(f64::from).collect();
-        let r = bootstrap_median(&data, 1000, 0.95, 42);
+        let r = bootstrap_median(&data, 1000, 0.95, 42).unwrap();
         assert!(
             r.ci_lower < 50.0 && 50.0 < r.ci_upper,
             "CI [{}, {}] should contain 50.0",
@@ -518,8 +539,8 @@ mod tests {
     #[test]
     fn rawr_different_seeds_differ() {
         let data = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
-        let r1 = rawr_mean(&data, 500, 0.95, 42);
-        let r2 = rawr_mean(&data, 500, 0.95, 99);
+        let r1 = rawr_mean(&data, 500, 0.95, 42).unwrap();
+        let r2 = rawr_mean(&data, 500, 0.95, 99).unwrap();
         assert!(
             r1.ci_lower.to_bits() != r2.ci_lower.to_bits()
                 || r1.ci_upper.to_bits() != r2.ci_upper.to_bits()
@@ -572,7 +593,7 @@ mod tests {
     #[test]
     fn bootstrap_mean_large_sample() {
         let data: Vec<f64> = (0..500).map(|i| f64::from(i) * 0.1).collect();
-        let r = bootstrap_mean(&data, 200, 0.95, 7);
+        let r = bootstrap_mean(&data, 200, 0.95, 7).unwrap();
         assert!((r.estimate - 24.95).abs() < 2.0);
         assert!(r.std_error > 0.0);
     }
@@ -580,14 +601,14 @@ mod tests {
     #[test]
     fn rawr_single_value() {
         let data = vec![42.0];
-        let r = rawr_mean(&data, 200, 0.95, 1);
+        let r = rawr_mean(&data, 200, 0.95, 1).unwrap();
         assert!((r.estimate - 42.0).abs() < 1e-12);
     }
 
     #[test]
     fn bootstrap_median_even_length() {
         let data = vec![1.0, 2.0, 3.0, 4.0];
-        let r = bootstrap_median(&data, 500, 0.95, 42);
+        let r = bootstrap_median(&data, 500, 0.95, 42).unwrap();
         assert!(r.ci_lower <= r.estimate);
         assert!(r.estimate <= r.ci_upper);
     }
@@ -595,7 +616,7 @@ mod tests {
     #[test]
     fn bootstrap_std_uniform_data() {
         let data = vec![5.0; 20];
-        let r = bootstrap_std(&data, 200, 0.95, 42);
+        let r = bootstrap_std(&data, 200, 0.95, 42).unwrap();
         assert!(r.estimate < 1e-12, "std of constant data should be ~0");
     }
 
@@ -604,8 +625,8 @@ mod tests {
         let mut rng = crate::prng::Xorshift64::new(77);
         let small: Vec<f64> = (0..20).map(|_| rng.next_f64() * 10.0).collect();
         let large: Vec<f64> = (0..200).map(|_| rng.next_f64() * 10.0).collect();
-        let r_small = rawr_mean(&small, 500, 0.95, 42);
-        let r_large = rawr_mean(&large, 500, 0.95, 42);
+        let r_small = rawr_mean(&small, 500, 0.95, 42).unwrap();
+        let r_large = rawr_mean(&large, 500, 0.95, 42).unwrap();
         assert!(
             r_large.ci_upper - r_large.ci_lower < r_small.ci_upper - r_small.ci_lower,
             "larger sample should have narrower RAWR CI"
@@ -615,11 +636,34 @@ mod tests {
     #[test]
     fn bootstrap_confidence_level_90() {
         let data: Vec<f64> = (1..=100).map(f64::from).collect();
-        let r90 = bootstrap_mean(&data, 1000, 0.90, 42);
-        let r95 = bootstrap_mean(&data, 1000, 0.95, 42);
+        let r90 = bootstrap_mean(&data, 1000, 0.90, 42).unwrap();
+        let r95 = bootstrap_mean(&data, 1000, 0.95, 42).unwrap();
         assert!(
             r90.ci_upper - r90.ci_lower <= r95.ci_upper - r95.ci_lower + 1.0,
             "90% CI should generally be narrower than 95% CI"
         );
+    }
+
+    #[test]
+    fn bootstrap_empty_data_returns_error() {
+        let empty: Vec<f64> = vec![];
+        assert!(bootstrap_mean(&empty, 100, 0.95, 42).is_err());
+        assert!(rawr_mean(&empty, 100, 0.95, 42).is_err());
+        assert!(bootstrap_median(&empty, 100, 0.95, 42).is_err());
+    }
+
+    #[test]
+    fn bootstrap_bad_confidence_returns_error() {
+        let data = vec![1.0, 2.0, 3.0];
+        assert!(bootstrap_mean(&data, 100, 1.5, 42).is_err());
+        assert!(bootstrap_mean(&data, 100, -0.1, 42).is_err());
+    }
+
+    #[test]
+    fn bootstrap_std_needs_two_elements() {
+        let one = vec![1.0];
+        assert!(bootstrap_std(&one, 100, 0.95, 42).is_err());
+        let two = vec![1.0, 2.0];
+        assert!(bootstrap_std(&two, 100, 0.95, 42).is_ok());
     }
 }

@@ -76,3 +76,41 @@ QCD." arXiv 2501.12259.
   groundSpring adds the noise/uncertainty perspective. Exp 019-021 validate
   inverse problem primitives for lattice QCD.
 - **Shared kernel need**: Grid-search and Cholesky are shared with seismic (Exp 005).
+
+## V114 Extension Roadmap
+
+### V115 Capabilities
+
+- All public APIs now return `Result` — zero panicking entry points for library consumers
+- CI: nursery lints enforced, `--all-features` doc/test, biomeOS + metalForge validation jobs
+- ecoBin: 14 C-dependency crates banned in `deny.toml`
+
+### V114 Capabilities
+
+- `.expect()` → `OrExit` in validation binaries (validate-jackknife, validate-freeze-out, validate-spectral-recon)
+- GemmF64 transpose delegation (V113) for Tikhonov KᵀK/KᵀG — GPU pipeline complete
+- `health.liveness`/`health.readiness` for NUCLEUS deployment
+- `resilient_call()` for IPC to ToadStool GPU dispatch
+
+### Extension Opportunities
+
+- **GPU FFT**: Real + complex FFT in barraCuda (P1 request) would enable frequency-domain spectral reconstruction
+- **NUCLEUS distributed**: Freeze-out parameter sweep across multiple Node Atomics on LAN
+- **Cross-spring with hotSpring**: Bazavov papers connect directly to hotSpring lattice QCD (Phase C/D) — shared jackknife and spectral reconstruction primitives
+- **Spectral recon at scale**: Larger correlator matrices (N_tau > 200) benefit from GPU Cholesky + Tikhonov pipeline
+
+### Compute Budget
+
+| Workload | Single GPU (RTX 4070) | LAN |
+|----------|-----------------------|-----|
+| Jackknife (N=1000, block sizes 1-50) | ~10s | N/A |
+| Freeze-out grid search (100×100 grid) | ~30s | N/A |
+| Spectral recon (N_tau=200, N_omega=200) | ~5s (GPU) | N/A |
+| Distributed parameter sweep (10K points) | ~30min | ~5min |
+
+### Primal Wiring
+
+- ToadStool: `compute.execute` for GPU Tikhonov pipeline and grid search
+- coralReef: Sovereign shader compilation for precision-critical inverse problems
+- NestGate: Storage for large correlator datasets from hotSpring
+- Node Atomic on biomeGate: Titan V (HBM2) for high-precision Tikhonov at scale

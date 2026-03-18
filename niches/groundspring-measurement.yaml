@@ -143,6 +143,55 @@ customization:
     options: ["local_fs", "sqlite"]
     default: "local_fs"
 
+cost_estimates:
+  - capability: "measurement.noise_decomposition"
+    estimated_ms: 5
+    gpu_beneficial: false
+    peak_memory_mb: 1
+    deterministic: true
+
+  - capability: "measurement.anderson_validation"
+    estimated_ms: 50
+    gpu_beneficial: true
+    peak_memory_mb: 64
+    deterministic: true
+
+  - capability: "measurement.parity_check"
+    estimated_ms: 10
+    gpu_beneficial: false
+    peak_memory_mb: 1
+    deterministic: true
+
+  - capability: "measurement.et0_propagation"
+    estimated_ms: 15
+    gpu_beneficial: true
+    peak_memory_mb: 8
+    deterministic: true
+
+  - capability: "measurement.regime_classification"
+    estimated_ms: 30
+    gpu_beneficial: true
+    peak_memory_mb: 16
+    deterministic: false
+
+  - capability: "measurement.uncertainty_budget"
+    estimated_ms: 20
+    gpu_beneficial: true
+    peak_memory_mb: 4
+    deterministic: true
+
+  - capability: "measurement.spectral_features"
+    estimated_ms: 25
+    gpu_beneficial: true
+    peak_memory_mb: 8
+    deterministic: true
+
+  - capability: "measurement.freeze_out"
+    estimated_ms: 100
+    gpu_beneficial: true
+    peak_memory_mb: 128
+    deterministic: true
+
 resources:
   base:
     cpu_cores: 4

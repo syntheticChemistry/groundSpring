@@ -13,7 +13,7 @@ use groundspring::drift::{
 };
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    f64_field, f64_range, parse_benchmark, print_provenance_header, usize_field,
+    f64_field, f64_range, parse_benchmark, print_provenance_header, usize_field, OrExit,
 };
 
 const BENCHMARK: &str =
@@ -59,7 +59,10 @@ fn run() -> i32 {
     println!("\n--- Part 1: Neutral Fixation (s=0) ---");
     let n_neutral = 100;
     let neutral_fixes: usize = (0..n_trials)
-        .filter(|&i| wright_fisher_fixation(n_neutral, 0.0, p0, base_seed + i as u64))
+        .filter(|&i| {
+            wright_fisher_fixation(n_neutral, 0.0, p0, base_seed + i as u64)
+                .or_exit("wright_fisher_fixation neutral")
+        })
         .count();
 
     #[expect(
@@ -81,6 +84,7 @@ fn run() -> i32 {
             .filter(|&i| {
                 let seed = base_seed + 10000 + (n_pop as u64) * 1000 + i as u64;
                 wright_fisher_fixation(n_pop, s_coeff, p0, seed)
+                    .or_exit("wright_fisher_fixation selection")
             })
             .count();
 
@@ -136,8 +140,12 @@ fn run() -> i32 {
     let n_sp = usize_field(model, "n_species_neutral");
     let n_gen = usize_field(model, "n_generations_diversity");
 
-    let div_small = neutral_diversity_trajectory(n_sp, 50, n_gen, base_seed + 90000);
-    let div_large = neutral_diversity_trajectory(n_sp, 500, n_gen, base_seed + 91000);
+    let div_small =
+        neutral_diversity_trajectory(n_sp, 50, n_gen, base_seed + 90000)
+            .or_exit("neutral_diversity_trajectory small");
+    let div_large =
+        neutral_diversity_trajectory(n_sp, 500, n_gen, base_seed + 91000)
+            .or_exit("neutral_diversity_trajectory large");
 
     let h0s = *div_small.first().expect("non-empty small-pop trajectory");
     let hes = *div_small.last().expect("non-empty small-pop trajectory");
@@ -152,8 +160,8 @@ fn run() -> i32 {
 
     // Part 5: Determinism
     println!("\n--- Part 5: Determinism ---");
-    let r1 = wright_fisher_fixation(100, 0.01, 0.5, 99999);
-    let r2 = wright_fisher_fixation(100, 0.01, 0.5, 99999);
+    let r1 = wright_fisher_fixation(100, 0.01, 0.5, 99999).or_exit("WF determinism run 1");
+    let r2 = wright_fisher_fixation(100, 0.01, 0.5, 99999).or_exit("WF determinism run 2");
     h.check_true("WF deterministic", r1 == r2);
 
     h.summary()

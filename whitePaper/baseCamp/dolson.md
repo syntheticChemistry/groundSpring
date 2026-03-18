@@ -57,3 +57,46 @@ Python baseline (Exp 017)
       → BarraCUDA GPU (population-parallel mutation scan)
         → metalForge (mixed substrate for large populations)
 ```
+
+## V114 Extension Roadmap
+
+### V115 Capabilities
+
+- `quasispecies_simulation` and `quasispecies_simulation_batch` now return
+  `Result<Vec<f64>, InputError>` — zero panicking public APIs
+- New error-path tests for invalid mutation rates, zero population, zero generations
+- `validate-quasispecies` binary updated to `.or_exit()` on Result
+- CI: nursery lint enforcement, `--all-features` test coverage
+
+### V114 Capabilities
+
+- `.expect()` → `OrExit` in validation binary (validate-quasispecies)
+- `cast::usize_u64()` in quasispecies module — checked numeric conversions
+- `health.liveness`/`health.readiness` for NUCLEUS deployment
+- `resilient_call()` for IPC to ToadStool GPU dispatch
+
+### Extension Opportunities
+
+- **Eco-evolutionary complexity**: Dolson et al. (2023) explores how ecological interactions modify the error threshold — extend Exp 017 with multi-species quasispecies
+- **Population-parallel mutation scan**: GPU-parallel mutation rate sweep across large populations
+- **Constrained evolution connection**: Error threshold as the noise boundary for information persistence — directly validates thesis Chapter 3 framework
+- **Cross-spring**: wetSpring mutation-selection balance (Track 1c Anderson) provides biological context for error threshold predictions
+
+### Compute Budget
+
+| Workload | Single GPU (RTX 4070) | LAN |
+|----------|-----------------------|-----|
+| Error threshold sweep (100 mutation rates × 10K organisms) | ~5min | N/A |
+| Multi-species quasispecies (10 species × 100 μ values) | ~30min | ~5min |
+| Population-parallel scan (1M organisms × 50 μ values) | ~2h | ~15min |
+
+### New Experiments (Planned)
+
+- **Exp 036+**: Multi-species quasispecies threshold — does interspecies competition shift μ_c?
+- **Exp 037+**: Large-population Wright-Fisher with per-locus mutation on GPU
+- Integration with wetSpring Anderson QS to test whether QS cooperation modifies the error threshold
+
+### Primal Wiring
+
+- ToadStool: `compute.execute` for GPU-parallel population simulation
+- Node Atomic sufficient (Tower + ToadStool) — compute-bound, not data-bound

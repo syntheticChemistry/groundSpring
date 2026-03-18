@@ -216,7 +216,8 @@ fn uncertainty_budget(params: &Value) -> Result<Value, String> {
     let n_bootstrap = extract_usize(params, "n_bootstrap", 10_000)?;
     let seed = extract_u64(params, "seed", 42);
 
-    let boot_mean = crate::bootstrap::bootstrap_mean(&data, n_bootstrap, confidence, seed);
+    let boot_mean = crate::bootstrap::bootstrap_mean(&data, n_bootstrap, confidence, seed)
+        .map_err(|e| format!("bootstrap error: {e}"))?;
     let jk = crate::jackknife::jackknife_mean_variance(&data)
         .map_err(|e| format!("jackknife error: {e}"))?;
 

@@ -11,6 +11,7 @@
 //! Usage:
 //!     cargo run --release --features barracuda-gpu --bin bench-cpu-vs-gpu
 
+use groundspring_validate::OrExit;
 use std::time::Instant;
 
 struct BenchEntry {
@@ -66,7 +67,9 @@ fn bench_wright_fisher(iters: u32) -> BenchEntry {
         || {
             let mut count = 0_usize;
             for i in 0..100_u64 {
-                if groundspring::drift::wright_fisher_fixation(200, 0.01, 0.5, 42 + i) {
+                if groundspring::drift::wright_fisher_fixation(200, 0.01, 0.5, 42 + i)
+                    .or_exit("wright_fisher_fixation bench")
+                {
                     count += 1;
                 }
             }
@@ -168,7 +171,8 @@ fn bench_anderson(iters: u32) -> BenchEntry {
 fn bench_diversity(iters: u32) -> BenchEntry {
     let cpu_ms = bench(
         || {
-            let r = groundspring::drift::neutral_diversity_trajectory(20, 200, 500, 42);
+            let r = groundspring::drift::neutral_diversity_trajectory(20, 200, 500, 42)
+                .or_exit("neutral_diversity_trajectory bench");
             std::hint::black_box(r);
         },
         iters,

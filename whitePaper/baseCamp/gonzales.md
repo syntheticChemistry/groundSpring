@@ -88,3 +88,52 @@ compromised.
 | Paper 04 → 12 | ESN regime classifier (AKD1000, Exp 028) can classify AD flare from cytokine panel — same architecture, different biology |
 | Paper 06 → 12 | Dimensional duality: tillage collapse (3D→2D) vs barrier promotion (2D→3D) — both validated by Exp 008 |
 | Paper 11 → 12 | Nautilus Shell edge detection identifies phase boundaries in disorder sweeps — DriftAction steers treatment optimization |
+
+## V114 Extension Roadmap
+
+### V115 Capabilities
+
+- All public APIs now return `Result` — zero panicking entry points
+- CI: nursery lints enforced, `--all-features` doc/test, metalForge validation expansion
+- ecoBin: 14 C-dependency crates banned; `NESTGATE_ADDRESS` env-var discovery
+
+### V114 Capabilities
+
+- `BiomeOsError::is_recoverable()`/`is_retriable()` for IPC retry in drug pipeline calls
+- `health.liveness`/`health.readiness` for NUCLEUS orchestration of tissue_anderson
+- `cast::f64_f32()` in tissue_anderson — checked precision conversions for GPU dispatch
+- `resilient_call()` wrapping CircuitBreaker + RetryPolicy for ADDRC data fetch
+- Primal composition guidance: Paper 12 naturally spans Full NUCLEUS (Tower + Node + Nest + Squirrel)
+
+### Dataset Extensions
+
+| Dataset | Source | Size | NestGate Route | Status |
+|---------|--------|------|----------------|--------|
+| NCBI Protein (IL-31RA, IL-4Rα, OSMR) | NCBI | Metadata | `data.ncbi_search` (protein) | Tier 1 |
+| ADDRC 8,000+ compound library | MSU ADDRC | Metadata | Manual / future NestGate | Tier 3 |
+| Single-cell skin transcriptomics | GEO/SRA | ~50GB | `data.ncbi_search` (sra) | Tier 3 |
+| 3D AD skin imaging | Literature | Published | Manual digitization | Tier 3 |
+| Gonzales iPSC validation data | Lab data | TBD | Direct collaboration | Future |
+
+### Compute Budget
+
+| Workload | Single GPU (RTX 4070) | LAN (176GB VRAM) |
+|----------|-----------------------|------------------|
+| NCBI cytokine receptor search | Minutes | N/A |
+| Anderson-augmented MATRIX scoring | ~1h | ~10min |
+| Single-cell W estimation | ~1h GPU | ~10min |
+| 3D tissue lattice simulation | ~30min | ~5min |
+
+### New Experiments (Planned)
+
+- **Exp 036+**: Real cytokine receptor density from NCBI → W estimation for skin compartments
+- **Exp 037+**: Anderson-augmented MATRIX scoring with geometry dimension
+- Integration with neuralSpring nS-605 (MATRIX scoring) for drug-disease pipeline
+- Gonzales iPSC validation pipeline when lab data available
+
+### Primal Wiring
+
+- NestGate: `data.ncbi_search` with `database: "protein"` for cytokine receptor counts
+- ToadStool: `compute.execute` for 3D tissue lattice Anderson simulation
+- Squirrel: ConceptEdge/DriftAction for AD flare detection from cytokine panels
+- Full NUCLEUS: Tower (crypto for patient data) + Node (GPU tissue sim) + Nest (data storage) + Squirrel (AI classification)

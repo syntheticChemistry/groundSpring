@@ -95,7 +95,7 @@ fn validate_anderson_baseline(
     );
     h.check_true(
         "Strong disorder (W=12) has large γ",
-        *gammas.last().expect("non-empty disorder range") > THRESHOLD_LARGE_GAMMA,
+        *gammas.last().or_exit("non-empty disorder range") > THRESHOLD_LARGE_GAMMA,
     );
 }
 

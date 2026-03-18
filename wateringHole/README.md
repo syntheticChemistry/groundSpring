@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 17, 2026 (V114)
+**Last Updated**: March 18, 2026 (V115)
 
 ## What This Is
 
@@ -18,8 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V114 Evolution | [GROUNDSPRING_V114_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR17_2026.md](handoffs/GROUNDSPRING_V114_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR17_2026.md) | Mar 17, 2026 | Cross-ecosystem deep absorption: safe_cast, health probes, resilient_call, OrExit evolution, FAMILY_ID discovery, primal composition guidance. |
-| V114 Primal Composition | [GROUNDSPRING_V114_PRIMAL_COMPOSITION_GUIDANCE_MAR17_2026.md](handoffs/GROUNDSPRING_V114_PRIMAL_COMPOSITION_GUIDANCE_MAR17_2026.md) | Mar 17, 2026 | How groundSpring fits in NUCLEUS atomic types (Tower, Node, Nest, Full), trio compositions, cross-spring combos. |
+| V115 Evolution | [GROUNDSPRING_V115_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR18_2026.md](handoffs/GROUNDSPRING_V115_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR18_2026.md) | Mar 18, 2026 | Deep debt + idiomatic API evolution: `assert!` → `Result`, CI hardened, ecoBin compliance (14 C-deps banned, UniBin flags, niche cost estimates), zero panicking public APIs. |
 
 ## Cross-Spring Documentation
 
@@ -39,6 +38,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | Scope |
 |---------|-------|
+| V114 Cross-Ecosystem Deep Absorption | safe_cast, health probes, resilient_call, OrExit evolution, FAMILY_ID discovery, primal composition guidance (superseded by V115) |
 | V113 Ecosystem Resilience | GemmF64 transpose, exit_code constants, RetryPolicy + CircuitBreaker, 4-format capability parsing (superseded by V114) |
 | V112 Deep Debt + OrExit | `OrExit<T>` + parse_benchmark() (28 binaries), generic socket_env_var(), provenance trio, thiserror BenchFieldError, tempdir test hygiene (superseded by V113) |
 | V110 Cross-Ecosystem Absorption | `#[expect(reason)]` migration (95 files), Python tolerance mirror, tracing, toadStool direct dispatch, dual-format capability parsing, deny.toml, aarch64 CI (superseded by V112) |

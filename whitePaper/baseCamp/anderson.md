@@ -78,3 +78,50 @@ Biosphere." mSystems 6:e00731-21.
 - **wetSpring**: Metagenomic pipelines (DADA2, taxonomy) are wetSpring's domain.
   groundSpring adds drift-vs-selection decomposition.
 - **Shared with wetSpring**: Rarefaction (Exp 004), Bray-Curtis, Shannon diversity
+
+## V114 Extension Roadmap
+
+### V115 Capabilities
+
+- `wright_fisher_fixation` returns `Result<bool, InputError>` — zero panicking public API
+- `neutral_diversity_trajectory` returns `Result<Vec<f64>, InputError>`
+- New error-path tests: zero population, out-of-range frequency, zero species
+- `validate-drift` binary updated to `.or_exit()` on Result
+- CI: nursery lint enforcement, `--all-features` test coverage, aarch64 cross-compile
+
+### V114 Capabilities
+
+- `.expect()` → `OrExit` in all validation binaries (Exp 014, 016)
+- `cast::usize_u64()` in rarefaction sampling — checked numeric conversions
+- `resilient_call()` for NestGate IPC data pipeline calls
+- `health.liveness`/`health.readiness` probes for NUCLEUS deployment
+- NUCLEUS composition: groundSpring measurement.* capabilities in Tower + Node + Nest
+
+### Dataset Extensions
+
+| Dataset | Accession | Size | NestGate Route | Papers |
+|---------|-----------|------|----------------|--------|
+| Cold seep 170 metagenomes | PRJNA315684 | ~5GB metadata, ~170GB raw | `data.ncbi_search` (sra) | 01, 05, 06 |
+| LTEE frozen fossil | PRJNA294072 | ~2GB | `data.ncbi_search` (sra) | 01 |
+| Deep-sea vent 16S | PRJNA283159 | ~3GB | `data.ncbi_search` (sra) | 01 |
+| Symbiotic metagenomes | NCBI isolation_source | ~20GB | `data.ncbi_search` | 05 |
+
+### Compute Budget
+
+| Workload | Single GPU (RTX 4070) | LAN (176GB VRAM) |
+|----------|-----------------------|------------------|
+| Cold seep diversity + W | ~2h | ~15min |
+| LTEE drift/selection | ~30min | N/A |
+| Rare biosphere D* on real data | ~1h | ~10min |
+
+### New Experiments (Planned)
+
+- **Exp 036+**: Real SRA drift vs selection on Anderson 2022 mBio sequences (NestGate → NCBI)
+- **Exp 037+**: Rare biosphere D* calibration on real deep-sea vent communities
+- Integration with wetSpring QS gene profiling (Exp140/141/144/146) for biological context
+
+### Primal Wiring
+
+- NestGate: `data.ncbi_search` with `database: "sra"` for real 16S datasets (Exp 029/030 pattern)
+- ToadStool: `compute.execute` for GPU rarefaction at scale
+- Squirrel: ESN regime classification on real community diversity time series
