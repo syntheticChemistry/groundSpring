@@ -9,6 +9,25 @@
 
 use std::time::{Duration, Instant};
 
+/// Typed error from [`resilient_call`].
+///
+/// Distinguishes between a circuit-open fast-fail and retry exhaustion
+/// that preserves the last underlying error.
+#[derive(Debug, thiserror::Error)]
+pub enum ResilienceError<E: std::fmt::Display + std::fmt::Debug> {
+    /// The circuit breaker is open — IPC endpoint is considered unavailable.
+    #[error("circuit open — IPC endpoint unavailable")]
+    CircuitOpen,
+    /// All retry attempts failed; carries the last error from the closure.
+    #[error("retries exhausted after {attempts} attempts: {last_error}")]
+    RetriesExhausted {
+        /// Total attempts made (initial + retries).
+        attempts: u32,
+        /// The error from the final attempt.
+        last_error: E,
+    },
+}
+
 /// Exponential backoff retry policy.
 #[derive(Debug, Clone)]
 pub struct RetryPolicy {
@@ -162,9 +181,9 @@ impl CircuitBreaker {
 
 /// Execute an IPC call with combined circuit-breaker + retry protection.
 ///
-/// If the circuit is open, returns `Err` immediately (fail-fast).
-/// Otherwise, retries transient failures according to the retry policy,
-/// recording successes/failures on the circuit breaker.
+/// If the circuit is open, returns [`ResilienceError::CircuitOpen`] immediately
+/// (fail-fast). Otherwise, retries transient failures according to the retry
+/// policy, recording successes/failures on the circuit breaker.
 ///
 /// Absorbed from neuralSpring V113 `resilient_call()` / airSpring V0.8.8
 /// `resilient_send()` pattern. Synchronous — suitable for the blocking
@@ -172,40 +191,50 @@ impl CircuitBreaker {
 ///
 /// # Errors
 ///
-/// Returns the last error from `f` if all retry attempts fail,
-/// or a circuit-open error if the breaker is open.
-pub fn resilient_call<T, E: std::fmt::Display>(
+/// Returns [`ResilienceError::RetriesExhausted`] with the last error from `f`
+/// if all retry attempts fail, or [`ResilienceError::CircuitOpen`] if the
+/// breaker is open.
+pub fn resilient_call<T, E: std::fmt::Display + std::fmt::Debug>(
     breaker: &mut CircuitBreaker,
     policy: &RetryPolicy,
     mut f: impl FnMut() -> Result<T, E>,
-) -> Result<T, String> {
+) -> Result<T, ResilienceError<E>> {
     if !breaker.is_allowed() {
-        return Err("circuit open — IPC endpoint unavailable".to_string());
+        return Err(ResilienceError::CircuitOpen);
     }
 
-    let mut last_err = String::new();
-    let mut attempt = 0u32;
     let total_attempts = policy.max_retries + 1;
 
-    for _ in 0..total_attempts {
-        if attempt > 0 {
-            std::thread::sleep(policy.delay_for_attempt(attempt - 1));
+    let mut last_error = match f() {
+        Ok(val) => {
+            breaker.record_success();
+            return Ok(val);
         }
+        Err(e) => {
+            log::debug!("resilient_call attempt 0 failed: {e}");
+            e
+        }
+    };
+
+    for attempt in 1..total_attempts {
+        std::thread::sleep(policy.delay_for_attempt(attempt - 1));
         match f() {
             Ok(val) => {
                 breaker.record_success();
                 return Ok(val);
             }
             Err(e) => {
-                last_err = e.to_string();
-                log::debug!("resilient_call attempt {attempt} failed: {last_err}");
+                log::debug!("resilient_call attempt {attempt} failed: {e}");
+                last_error = e;
             }
         }
-        attempt += 1;
     }
 
     breaker.record_failure();
-    Err(last_err)
+    Err(ResilienceError::RetriesExhausted {
+        attempts: total_attempts,
+        last_error,
+    })
 }
 
 #[cfg(test)]
@@ -308,5 +337,63 @@ mod tests {
         std::thread::sleep(Duration::from_millis(5));
         assert_eq!(cb.state(), CircuitState::HalfOpen);
         assert!(cb.is_allowed());
+    }
+
+    #[test]
+    fn resilient_call_circuit_open_returns_typed_error() {
+        let mut cb = CircuitBreaker::new(1, Duration::from_secs(60));
+        cb.record_failure();
+        let policy = RetryPolicy {
+            max_retries: 0,
+            initial_delay: Duration::from_millis(1),
+            ..Default::default()
+        };
+        let result: Result<(), ResilienceError<String>> =
+            resilient_call(&mut cb, &policy, || Err("never called".to_owned()));
+        assert!(matches!(result, Err(ResilienceError::CircuitOpen)));
+    }
+
+    #[test]
+    fn resilient_call_retries_exhausted_preserves_last_error() {
+        let mut cb = CircuitBreaker::new(5, Duration::from_secs(60));
+        let policy = RetryPolicy {
+            max_retries: 2,
+            initial_delay: Duration::from_millis(1),
+            ..Default::default()
+        };
+        let mut attempt = 0u32;
+        let result: Result<(), ResilienceError<String>> =
+            resilient_call(&mut cb, &policy, || {
+                attempt += 1;
+                Err(format!("fail-{attempt}"))
+            });
+        match result {
+            Err(ResilienceError::RetriesExhausted { attempts, last_error }) => {
+                assert_eq!(attempts, 3);
+                assert_eq!(last_error, "fail-3");
+            }
+            other => panic!("expected RetriesExhausted, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn resilient_call_succeeds_after_transient() {
+        let mut cb = CircuitBreaker::new(5, Duration::from_secs(60));
+        let policy = RetryPolicy {
+            max_retries: 3,
+            initial_delay: Duration::from_millis(1),
+            ..Default::default()
+        };
+        let mut attempt = 0u32;
+        let result: Result<&str, ResilienceError<String>> =
+            resilient_call(&mut cb, &policy, || {
+                attempt += 1;
+                if attempt < 3 {
+                    Err("transient".to_owned())
+                } else {
+                    Ok("ok")
+                }
+            });
+        assert_eq!(result.ok(), Some("ok"));
     }
 }

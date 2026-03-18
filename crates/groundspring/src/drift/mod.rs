@@ -220,7 +220,7 @@ fn wf_batch_cpu(
                 initial_freq,
                 base_seed.wrapping_add(usize_u64(i)),
             )
-            .unwrap()
+            .unwrap_or(false)
         })
         .count()
 }

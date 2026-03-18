@@ -3,7 +3,7 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 16, 2026 (V113: 102 active delegations (61 CPU + 41 GPU), barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+. V113: GemmF64 transpose, RetryPolicy + CircuitBreaker, 4-format capability parsing, exit_code. V110: zero-panic validation binaries, smart module refactoring, named physical constants. V108: AGPL-3.0-or-later, WelfordState, tolerance centralization, typed capability discovery. V105: deep debt, named constants. V102: niche deployment. V98: upstream rewire. V95: coralReef breakthrough. V87: Tier B resolution. V73: tolerance architecture)
+**Last Updated**: March 16, 2026 (V113: 102 active delegations (61 CPU + 41 GPU), barraCuda v0.3.5, toadStool S158+, coralReef Iteration 55+. V113: GemmF64 transpose, RetryPolicy + CircuitBreaker, 4-format capability parsing, exit_code. V110: zero-panic validation binaries, smart module refactoring, named physical constants. V108: AGPL-3.0-or-later, WelfordState, tolerance centralization, typed capability discovery. V105: deep debt, named constants. V102: niche deployment. V98: upstream rewire. V95: coralReef breakthrough. V87: Tier B resolution. V73: tolerance architecture)
 
 ---
 
@@ -34,7 +34,7 @@ groundSpring (noise validation) → jackknife, evolution (Kimura fixation, quasi
                                   grid search/fit ops, batched multinomial, MC ET₀ propagation,
                                   L-BFGS refinement, 4D Anderson tissue + Wegner RG
                                   ↓
-                          barraCuda v0.3.3 (standalone primal)
+                          barraCuda v0.3.5 (standalone primal)
                     14,200+ tests, 844 WGSL shaders (f64-canonical, DF64 universal precision, 15 transcendentals)
 ```
 

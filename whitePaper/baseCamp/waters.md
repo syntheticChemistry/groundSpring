@@ -86,6 +86,12 @@ Quorum Sensing in the Control of vpsT and aphA." J Bacteriology 193:6331-41.
 - CI: nursery lints enforced, `--all-features` test coverage
 - ecoBin: 14 C-dependency crates banned in `deny.toml`
 
+### V116 Capabilities
+
+- Test count: 960+; zero `Result<_, String>` in dispatch layer; ValidationSink trait for structured output
+- EsnError typed error chain replaces format! strings in ESN regime classification
+- Preserves BarracudaError source instead of flattening
+
 ### V114 Capabilities
 
 - `.expect()` → `OrExit` in validation binaries (Exp 006, 010, 011)

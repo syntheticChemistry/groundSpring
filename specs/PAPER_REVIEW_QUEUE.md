@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: March 17, 2026 (V115)
+**Last Updated**: March 18, 2026 (V116)
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---
@@ -279,7 +279,7 @@ Write → Absorb → Lean cycle:
 | 33 | Tissue Anderson 4D + Wegner RG | **29/29** | **Wired** (V68 `anderson_4d` + `wegner_block_4d`) | Workload | 4D Anderson + RG GPU |
 
 **CPU tier**: 395/395 PASS across 34 validation binaries.
-**Barracuda**: 102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+. **Performance**: 11.6× faster than Python (excl. LAPACK-bound); 5.1× overall; 53.5× peak (seismic). **Tests**: 930+ default-feature Rust tests (936 across all feature gates) + 287 Python provenance. 100+ three-tier parity tests (100% delegation coverage). `PrecisionRoutingAdvice` wired.
+**Barracuda**: 102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+. **Performance**: 11.6× faster than Python (excl. LAPACK-bound); 5.1× overall; 53.5× peak (seismic). **Tests**: 960+ default-feature Rust tests (936 across all feature gates) + 287 Python provenance. 100+ three-tier parity tests (100% delegation coverage). `PrecisionRoutingAdvice` wired.
 **Mathematical parity**: 29/29 PROVEN. See `data/parity_report.json` and `data/bench_rust_vs_python.json`.
 **Three-tier parity**: 100+ parity tests validate CPU ↔ barracuda-CPU equivalence (100% delegation coverage).
 **GPU tier**: 15 modules wired with `#[cfg(feature = "barracuda-gpu")]` — stats Tier A complete (MAE, NSE, R²), bistable batch ODE, McEt0PropagateGpu, SeasonalPipelineF64, 4D Anderson + Wegner RG, L-BFGS refinement. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only). GPU grid adapters (seismic, freeze-out). 936 tests pass. 11 GPU dispatch paths runtime smoke test + three-tier parity (V97).
@@ -371,7 +371,7 @@ Papers 1-11, 14, 15, 16, 18, 20, 21, 22, 23, 24, 33 — **fully wired** with act
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
 102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S156+. 11.5× faster than Python (excl. LAPACK-bound).
-930+ Rust workspace tests + 287 Python provenance tests. 29/29 mathematical parity proven. 100+ three-tier parity tests (100% delegation coverage).
+960+ Rust workspace tests + 287 Python provenance tests. 29/29 mathematical parity proven. 100+ three-tier parity tests (100% delegation coverage).
 395/395 validation checks across 34 experiments (V113, zero-debt audit certified).
 All 34 experiments validated. GPU stats dispatch (mean, std_dev, rmse, mbe, mae, nse, r², pearson_r). L-BFGS post-grid refinement (V68). 14 CPU vs GPU parity tests. CPU vs GPU benchmark binary.
 

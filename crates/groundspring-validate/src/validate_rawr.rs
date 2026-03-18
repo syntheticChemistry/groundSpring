@@ -48,7 +48,7 @@ fn generate_ar1(n: usize, mu: f64, sigma: f64, rho: f64, seed: u64) -> Vec<f64> 
 fn coverage_test(
     data_gen: impl Fn(u64) -> Vec<f64>,
     true_param: f64,
-    method: impl Fn(&[f64], usize, f64, u64) -> groundspring::bootstrap::BootstrapResult,
+    method: impl Fn(&[f64], usize, f64, u64) -> Result<groundspring::bootstrap::BootstrapResult, groundspring::error::InputError>,
     n_trials: usize,
     n_bootstrap: usize,
     confidence: f64,
@@ -62,7 +62,8 @@ fn coverage_test(
             n_bootstrap,
             confidence,
             base_seed + 100_000 + trial as u64,
-        );
+        )
+        .expect("coverage test inputs must not fail");
         if result.ci_lower <= true_param && true_param <= result.ci_upper {
             covers += 1;
         }
@@ -89,8 +90,10 @@ fn validate_gaussian(h: &mut ValidationHarness, bench: &Value) {
     let seed = u64_field(tc, "seed");
 
     let data = generate_normal(n, mu, sigma, seed);
-    let boot_r = bootstrap_mean(&data, n_boot, conf, seed + 1);
-    let rawr_r = rawr_mean(&data, n_boot, conf, seed + 2);
+    let boot_r = bootstrap_mean(&data, n_boot, conf, seed + 1)
+        .expect("validated inputs must not fail");
+    let rawr_r = rawr_mean(&data, n_boot, conf, seed + 2)
+        .expect("validated inputs must not fail");
 
     println!(
         "  Bootstrap: {:.3} [{:.3}, {:.3}] w={:.3}",
@@ -235,13 +238,15 @@ fn validate_correlated(h: &mut ValidationHarness, bench: &Value) {
             n_boot_c,
             conf_c,
             seed_c + corr_offset + trial as u64,
-        );
+        )
+        .expect("validated inputs must not fail");
         let rr = rawr_mean(
             &data_ar,
             n_boot_c,
             conf_c,
             seed_c + corr_offset + 100_000 + trial as u64,
-        );
+        )
+        .expect("validated inputs must not fail");
         boot_mses.push((br.estimate - mu_c).powi(2));
         rawr_mses.push((rr.estimate - mu_c).powi(2));
     }
@@ -280,12 +285,16 @@ fn validate_determinism(h: &mut ValidationHarness, bench: &Value) {
     let det_conf = f64_field(tc_cfg, "determinism_confidence");
 
     let det_data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
-    let b1 = bootstrap_mean(&det_data, det_n_boot, det_conf, det_boot_seed);
-    let b2 = bootstrap_mean(&det_data, det_n_boot, det_conf, det_boot_seed);
+    let b1 = bootstrap_mean(&det_data, det_n_boot, det_conf, det_boot_seed)
+        .expect("validated inputs must not fail");
+    let b2 = bootstrap_mean(&det_data, det_n_boot, det_conf, det_boot_seed)
+        .expect("validated inputs must not fail");
     h.check_true("Bootstrap deterministic", b1.estimate == b2.estimate);
 
-    let r1 = rawr_mean(&det_data, det_n_boot, det_conf, det_rawr_seed);
-    let r2 = rawr_mean(&det_data, det_n_boot, det_conf, det_rawr_seed);
+    let r1 = rawr_mean(&det_data, det_n_boot, det_conf, det_rawr_seed)
+        .expect("validated inputs must not fail");
+    let r2 = rawr_mean(&det_data, det_n_boot, det_conf, det_rawr_seed)
+        .expect("validated inputs must not fail");
     h.check_true("RAWR deterministic", r1.estimate == r2.estimate);
 
     let b_width = b1.ci_upper - b1.ci_lower;

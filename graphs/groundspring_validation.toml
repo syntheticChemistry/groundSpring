@@ -14,7 +14,7 @@ description = "Anderson localization validation: benchmark → Lyapunov → pari
 coordination = "Sequential"
 
 [graph.metadata]
-toadstool_pin = "S130+"
+toadstool_pin = "S158+"
 toadstool_commit = "bfe7977b"
 groundspring_version = "V104"
 target_node = "eastgate"

@@ -4,6 +4,50 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V116 Deep Absorption + Idiomatic Error Evolution (Mar 18, 2026)
+
+#### Typed Error Evolution
+- `dispatch::dispatch()` returns `Result<Value, DispatchError>` (was `Result<Value, String>`)
+  — new `DispatchError` enum with `MethodNotFound`, `MissingParam`, `InvalidParam`,
+  and `#[from] InputError` variants; 12+ ad-hoc `format!` / `.to_string()` error sites replaced
+- `serve_one()` / `handle_connection()` now generic over `E: Display` (non-breaking)
+- `EsnClassifier::new/train/classify` return `Result<_, EsnError>` (was `Result<_, String>`)
+  — preserves source `BarracudaError` chain instead of flattening to string
+- `resilient_call()` returns `Result<T, ResilienceError<E>>` (was `Result<T, String>`)
+  — distinguishes `CircuitOpen` from `RetriesExhausted { attempts, last_error }`
+
+#### Capability Parsing Evolution
+- Format C (`method_info`): `{"method": "compute.execute", ...}` objects
+- Format D (`semantic_mappings`): `{"semantic_method": "...", ...}` and `{"method_name": "...", ...}`
+- `"methods"` wrapper key support (biomeOS uses `{"methods": [...]}` in some responses)
+- `extract_method_name_from_object()` helper factored out for 5-key priority chain
+
+#### ValidationSink Trait (ludoSpring/rhizoCrypt/primalSpring absorption)
+- `ValidationSink` trait: `record_pass`, `record_fail`, `section`, `write_summary`
+- `WriteSink<W: Write>` — standard output path (backwards compatible)
+- `StdoutSink` — type alias for `WriteSink<io::Stdout>`
+- `NullSink` — zero-output sink for benchmarks / programmatic validation
+- `ValidationHarness<S: ValidationSink>` — generic over sink
+- `ValidationHarness::silent()` constructor for null output
+- `ValidationHarness::section()` method for structured output grouping
+
+#### Infrastructure
+- `OnceLock` GPU probe cache in metalForge `probe.rs` — prevents SIGSEGV from
+  concurrent `wgpu::Instance` creation in parallel tests (toadStool S158 finding)
+- Named constants for all dispatch method-body defaults with provenance comments
+  (`DEFAULT_SEED`, `DEFAULT_ANDERSON_N_SITES`, `DEFAULT_N_BOOTSTRAP`, etc.)
+
+#### Smart Refactoring
+- `rawr.rs` extracted from `bootstrap.rs` (669L → ~520L + ~180L) — RAWR
+  Bayesian bootstrap is a distinct algorithm from percentile bootstrap;
+  shared infrastructure (`validate_bootstrap_inputs`, `percentile_ci`,
+  `BootstrapResult`) stays in `bootstrap.rs` with `pub(crate)` access
+- Backwards-compatible re-export: `bootstrap::rawr_mean` still works
+
+**Quality**: 960+ tests, 0 clippy (pedantic+nursery), 0 doc warnings,
+0 unsafe, 0 `#[allow()]`, 0 `.expect()` in binaries, 0 panicking public APIs,
+0 `Result<_, String>` in dispatch layer.
+
 ### V115 Deep Debt + Idiomatic API Evolution (Mar 18, 2026)
 
 #### API Evolution: `assert!` → `Result<T, InputError>`

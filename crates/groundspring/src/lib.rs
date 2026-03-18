@@ -58,6 +58,7 @@ pub mod bistable;
 pub mod bootstrap;
 pub mod decompose;
 pub mod drift;
+pub mod rawr;
 pub mod esn;
 pub mod fao56;
 pub mod freeze_out;

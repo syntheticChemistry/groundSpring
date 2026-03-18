@@ -4,7 +4,11 @@
 //! Validation harness following the hotSpring pattern.
 //!
 //! [`ValidationHarness`] tracks pass/fail counters and writes results to
-//! any [`std::io::Write`] destination (defaults to stdout).
+//! any [`ValidationSink`] destination (defaults to stdout via [`StdoutSink`]).
+//!
+//! The [`ValidationSink`] trait (absorbed from ludoSpring/rhizoCrypt/primalSpring)
+//! provides a higher-level abstraction over raw `Write`, supporting structured
+//! section markers and silent sinks for programmatic use.
 //!
 //! # Example
 //!
@@ -18,20 +22,92 @@
 
 use std::io::{self, Write};
 
-/// Validation harness with independent pass/fail counters.
+// ─── ValidationSink Trait ────────────────────────────────────────────────────
+
+/// Abstraction for validation output destinations.
 ///
-/// Output goes to the `Write` destination provided at construction.
-/// Use [`stdout`](Self::stdout) for terminal output or
-/// [`new`](Self::new) to supply a custom writer (e.g. `Vec<u8>`
-/// for in-memory capture during tests).
-pub struct ValidationHarness<W: Write = io::Stdout> {
-    name: String,
-    passes: u32,
-    fails: u32,
+/// Absorbed from ludoSpring V22 / rhizoCrypt v0.13 / primalSpring validation
+/// patterns. Allows validation harnesses to target stdout, in-memory buffers,
+/// or null sinks (benchmarks / CI) without changing harness logic.
+pub trait ValidationSink {
+    /// Record a passing check.
+    fn record_pass(&mut self, label: &str, detail: &str);
+    /// Record a failing check.
+    fn record_fail(&mut self, label: &str, detail: &str);
+    /// Begin a named section (visual grouping in output).
+    fn section(&mut self, name: &str);
+    /// Write a summary line.
+    fn write_summary(&mut self, text: &str);
+}
+
+/// Sink that writes to an [`io::Write`] destination — the standard path.
+///
+/// [`StdoutSink`] wraps `io::Stdout`; use [`WriteSink`] for custom writers.
+pub struct WriteSink<W: Write> {
     writer: W,
 }
 
-impl ValidationHarness<io::Stdout> {
+impl<W: Write> WriteSink<W> {
+    /// Wrap any [`Write`] as a validation sink.
+    #[must_use]
+    pub const fn new(writer: W) -> Self {
+        Self { writer }
+    }
+
+    /// Access the inner writer (e.g. for reading captured bytes in tests).
+    #[must_use]
+    pub const fn inner(&self) -> &W {
+        &self.writer
+    }
+}
+
+impl<W: Write> ValidationSink for WriteSink<W> {
+    fn record_pass(&mut self, label: &str, detail: &str) {
+        let _ = writeln!(self.writer, "  [PASS] {label}: {detail}");
+    }
+
+    fn record_fail(&mut self, label: &str, detail: &str) {
+        let _ = writeln!(self.writer, "  [FAIL] {label}: {detail}");
+    }
+
+    fn section(&mut self, name: &str) {
+        let _ = writeln!(self.writer, "\n--- {name} ---\n");
+    }
+
+    fn write_summary(&mut self, text: &str) {
+        let _ = writeln!(self.writer, "{text}");
+    }
+}
+
+/// Convenience alias for a stdout-backed sink.
+pub type StdoutSink = WriteSink<io::Stdout>;
+
+/// Sink that discards all output — for benchmarks or programmatic validation.
+pub struct NullSink;
+
+impl ValidationSink for NullSink {
+    fn record_pass(&mut self, _label: &str, _detail: &str) {}
+    fn record_fail(&mut self, _label: &str, _detail: &str) {}
+    fn section(&mut self, _name: &str) {}
+    fn write_summary(&mut self, _text: &str) {}
+}
+
+// ─── ValidationHarness ──────────────────────────────────────────────────────
+
+/// Validation harness with independent pass/fail counters.
+///
+/// Output goes to the [`ValidationSink`] provided at construction.
+/// Use [`stdout`](Self::stdout) for terminal output,
+/// [`new`](Self::new) with a [`WriteSink`] for custom writers,
+/// or [`silent`](Self::silent) for zero-output programmatic use.
+pub struct ValidationHarness<S: ValidationSink = StdoutSink> {
+    name: String,
+    passes: u32,
+    fails: u32,
+    sink: S,
+}
+
+impl ValidationHarness<StdoutSink> {
     /// Create a harness that writes to stdout (the common case).
     #[must_use]
     pub fn stdout(name: impl Into<String>) -> Self {
@@ -39,20 +115,46 @@ impl ValidationHarness<io::Stdout> {
             name: name.into(),
             passes: 0,
             fails: 0,
-            writer: io::stdout(),
+            sink: WriteSink::new(io::stdout()),
         }
     }
 }
 
-impl<W: Write> ValidationHarness<W> {
-    /// Create a harness with a custom writer.
+impl ValidationHarness<NullSink> {
+    /// Create a harness that discards all output.
+    #[must_use]
+    pub fn silent(name: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            passes: 0,
+            fails: 0,
+            sink: NullSink,
+        }
+    }
+}
+
+impl<W: Write> ValidationHarness<WriteSink<W>> {
+    /// Create a harness with a custom writer (backwards-compatible path).
     #[must_use]
     pub fn new(name: impl Into<String>, writer: W) -> Self {
         Self {
             name: name.into(),
             passes: 0,
             fails: 0,
-            writer,
+            sink: WriteSink::new(writer),
+        }
+    }
+}
+
+impl<S: ValidationSink> ValidationHarness<S> {
+    /// Create a harness with an arbitrary [`ValidationSink`].
+    #[must_use]
+    pub fn with_sink(name: impl Into<String>, sink: S) -> Self {
+        Self {
+            name: name.into(),
+            passes: 0,
+            fails: 0,
+            sink,
         }
     }
 
@@ -68,6 +170,17 @@ impl<W: Write> ValidationHarness<W> {
         self.fails
     }
 
+    /// Access the underlying sink.
+    #[must_use]
+    pub const fn sink(&self) -> &S {
+        &self.sink
+    }
+
+    /// Begin a named section in the output.
+    pub fn section(&mut self, name: &str) {
+        self.sink.section(name);
+    }
+
     const fn record(&mut self, passed: bool) -> bool {
         if passed {
             self.passes += 1;
@@ -81,52 +194,60 @@ impl<W: Write> ValidationHarness<W> {
     pub fn check_approx(&mut self, label: &str, computed: f64, expected: f64, tol: f64) -> bool {
         let diff = (computed - expected).abs();
         let ok = diff <= tol;
-        let status = if ok { "PASS" } else { "FAIL" };
-        let _ = writeln!(
-            self.writer,
-            "  [{status}] {label}: {computed:.6} \
-             (expected {expected:.6}, tol {tol:.6}, diff {diff:.6})"
+        let detail = format!(
+            "{computed:.6} (expected {expected:.6}, tol {tol:.6}, diff {diff:.6})"
         );
+        if ok {
+            self.sink.record_pass(label, &detail);
+        } else {
+            self.sink.record_fail(label, &detail);
+        }
         self.record(ok)
     }
 
     /// Check that `computed` falls within [`low`, `high`].
     pub fn check_range(&mut self, label: &str, computed: f64, low: f64, high: f64) -> bool {
         let ok = (low..=high).contains(&computed);
-        let status = if ok { "PASS" } else { "FAIL" };
-        let _ = writeln!(
-            self.writer,
-            "  [{status}] {label}: {computed:.6} (expected [{low:.6}, {high:.6}])"
-        );
+        let detail = format!("{computed:.6} (expected [{low:.6}, {high:.6}])");
+        if ok {
+            self.sink.record_pass(label, &detail);
+        } else {
+            self.sink.record_fail(label, &detail);
+        }
         self.record(ok)
     }
 
     /// Check that `computed` <= `maximum`.
     pub fn check_max(&mut self, label: &str, computed: f64, maximum: f64) -> bool {
         let ok = computed <= maximum;
-        let status = if ok { "PASS" } else { "FAIL" };
-        let _ = writeln!(
-            self.writer,
-            "  [{status}] {label}: {computed:.6} (max {maximum:.6})"
-        );
+        let detail = format!("{computed:.6} (max {maximum:.6})");
+        if ok {
+            self.sink.record_pass(label, &detail);
+        } else {
+            self.sink.record_fail(label, &detail);
+        }
         self.record(ok)
     }
 
     /// Check that `computed` >= `minimum`.
     pub fn check_min(&mut self, label: &str, computed: f64, minimum: f64) -> bool {
         let ok = computed >= minimum;
-        let status = if ok { "PASS" } else { "FAIL" };
-        let _ = writeln!(
-            self.writer,
-            "  [{status}] {label}: {computed:.6} (min {minimum:.6})"
-        );
+        let detail = format!("{computed:.6} (min {minimum:.6})");
+        if ok {
+            self.sink.record_pass(label, &detail);
+        } else {
+            self.sink.record_fail(label, &detail);
+        }
         self.record(ok)
     }
 
     /// Check that a boolean condition holds.
     pub fn check_true(&mut self, label: &str, condition: bool) -> bool {
-        let status = if condition { "PASS" } else { "FAIL" };
-        let _ = writeln!(self.writer, "  [{status}] {label}");
+        if condition {
+            self.sink.record_pass(label, "");
+        } else {
+            self.sink.record_fail(label, "");
+        }
         self.record(condition)
     }
 
@@ -135,19 +256,18 @@ impl<W: Write> ValidationHarness<W> {
     pub fn summary(&mut self) -> i32 {
         let total = self.passes + self.fails;
         let sep = "=".repeat(72);
-        let _ = writeln!(self.writer, "{sep}");
-        let _ = writeln!(self.writer, "{}", self.name);
-        let _ = writeln!(
-            self.writer,
+        self.sink.write_summary(&sep);
+        self.sink.write_summary(&self.name);
+        self.sink.write_summary(&format!(
             "TOTAL: {}/{total} PASS, {}/{total} FAIL",
             self.passes, self.fails
-        );
-        let _ = writeln!(self.writer, "{sep}");
+        ));
+        self.sink.write_summary(&sep);
         i32::from(self.fails != 0)
     }
 }
 
-impl<W: Write> std::fmt::Debug for ValidationHarness<W> {
+impl<S: ValidationSink> std::fmt::Debug for ValidationHarness<S> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("ValidationHarness")
             .field("name", &self.name)
@@ -161,7 +281,7 @@ impl<W: Write> std::fmt::Debug for ValidationHarness<W> {
 mod tests {
     use super::*;
 
-    fn harness(name: &str) -> ValidationHarness<Vec<u8>> {
+    fn harness(name: &str) -> ValidationHarness<WriteSink<Vec<u8>>> {
         ValidationHarness::new(name, Vec::new())
     }
 
@@ -256,7 +376,7 @@ mod tests {
         let mut h = harness("capture");
         h.check_approx("temp", 20.5, 20.5, 0.01);
         h.check_approx("bad", 1.0, 9.0, 0.01);
-        let output = String::from_utf8_lossy(&h.writer);
+        let output = String::from_utf8_lossy(h.sink().inner());
         assert!(output.contains("[PASS] temp"));
         assert!(output.contains("[FAIL] bad"));
     }
@@ -268,7 +388,7 @@ mod tests {
         h.check_true("b", false);
         let code = h.summary();
         assert_eq!(code, 1);
-        let output = String::from_utf8_lossy(&h.writer);
+        let output = String::from_utf8_lossy(h.sink().inner());
         assert!(output.contains("1/2 PASS"));
         assert!(output.contains("1/2 FAIL"));
     }
@@ -287,7 +407,7 @@ mod tests {
         let mut h = harness("rng");
         h.check_range("too_low", 0.5, 1.0, 2.0);
         h.check_range("too_high", 3.0, 1.0, 2.0);
-        let output = String::from_utf8_lossy(&h.writer);
+        let output = String::from_utf8_lossy(h.sink().inner());
         assert!(output.contains("[FAIL] too_low"));
         assert!(output.contains("[FAIL] too_high"));
     }
@@ -296,7 +416,34 @@ mod tests {
     fn check_min_fail_output() {
         let mut h = harness("min_fail");
         assert!(!h.check_min("below", 3.0, 5.0));
-        let output = String::from_utf8_lossy(&h.writer);
+        let output = String::from_utf8_lossy(h.sink().inner());
         assert!(output.contains("[FAIL] below"));
+    }
+
+    #[test]
+    fn null_sink_tracks_counts_silently() {
+        let mut h = ValidationHarness::silent("null_test");
+        h.check_true("a", true);
+        h.check_true("b", false);
+        h.section("ignored");
+        assert_eq!(h.passes(), 1);
+        assert_eq!(h.fails(), 1);
+        assert_eq!(h.summary(), 1);
+    }
+
+    #[test]
+    fn section_appears_in_output() {
+        let mut h = harness("section_test");
+        h.section("Part 1");
+        h.check_true("x", true);
+        let output = String::from_utf8_lossy(h.sink().inner());
+        assert!(output.contains("Part 1"));
+    }
+
+    #[test]
+    fn with_sink_custom() {
+        let mut h = ValidationHarness::with_sink("custom", NullSink);
+        h.check_true("silent", true);
+        assert_eq!(h.passes(), 1);
     }
 }

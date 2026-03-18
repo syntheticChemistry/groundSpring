@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: March 18, 2026
-**Status**: V115 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 102 delegations (61 CPU + 41 GPU) — 930+ Rust tests, 287 Python tests, 140 metalForge checks, 35 experiments, 39 modules. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). V115: `assert!` → `Result<T, InputError>` in public APIs, CI hardened (nursery, all-features, biomeOS/metalForge jobs, aarch64), ecoBin (14 C-deps banned, UniBin flags), zero panicking public APIs
+**Status**: V116 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 102 delegations (61 CPU + 41 GPU) — 960+ Rust tests, 287 Python tests, 140 metalForge checks, 35 experiments, 39 modules. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). V115: `assert!` → `Result<T, InputError>` in public APIs, CI hardened (nursery, all-features, biomeOS/metalForge jobs, aarch64), ecoBin (14 C-deps banned, UniBin flags), zero panicking public APIs. V116: DispatchError, EsnError, ResilienceError; ValidationSink absorbed; Format C/D parsing; OnceLock GPU probe cache; RAWR in rawr.rs; dispatch defaults named with provenance
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -15,7 +15,7 @@
 | Phase 4 (NUCLEUS) | 55/55 PASS — 4 NUCLEUS validation binaries (Exp 029–032) |
 | Total Validation | 395/395 PASS across 34 experiments |
 | Mathematical Parity | 29/29 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
-| Rust tests | 930+ default-feature + 287 Python = 1193+ total |
+| Rust tests | 960+ default-feature + 287 Python = 1223+ total |
 | metalForge | 2 production WGSL shaders (anderson_lyapunov, anderson_lyapunov_f32) |
 | Exp 001 | Sensor noise decomposition — EC5 bias-dominated, CS616 mixed |
 | Exp 002 | Observation gap ERA5 vs station — methodology validated |

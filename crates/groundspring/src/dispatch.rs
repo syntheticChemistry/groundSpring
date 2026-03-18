@@ -13,6 +13,8 @@
 
 use serde_json::Value;
 
+use crate::error::DispatchError;
+
 // ─── Dispatch Defaults ───────────────────────────────────────────────────────
 //
 // RPC callers may omit optional parameters; these defaults mirror the
@@ -72,16 +74,61 @@ const DEFAULT_RHMIN_PCT: f64 = 40.0;
 /// Default margin for rule-based regime classification (spacing-ratio window).
 const DEFAULT_REGIME_MARGIN: f64 = 0.1;
 
+// ─── Method-Body Defaults ────────────────────────────────────────────────────
+//
+// Inline numeric defaults that appear in dispatch method bodies.
+// Named here for provenance tracking and consistent documentation.
+
+/// Default reproducibility seed for stochastic methods.
+///
+/// The answer to the Ultimate Question — ensures deterministic results
+/// when callers omit the seed parameter, matching the convention used
+/// across hotSpring, wetSpring, and airSpring dispatch layers.
+const DEFAULT_SEED: u64 = 42;
+
+/// Default Anderson lattice size — 10 000 sites.
+///
+/// Provenance: standard 1D lattice length in Kachkovskiy (Paper 2)
+/// and Anderson localization finite-size scaling studies. Balances
+/// accuracy with sub-second evaluation on CPU.
+const DEFAULT_ANDERSON_N_SITES: u64 = 10_000;
+
+/// Default Anderson disorder strength W = 4.0.
+///
+/// Provenance: W = 4.0 sits in the strongly localized regime for 1D
+/// Anderson (all states are localized for W > 0), producing
+/// localization lengths accessible to finite-size lattices.
+/// Validated: hotSpring Exp 015 disorder sweeps, groundSpring Exp 031.
+const DEFAULT_ANDERSON_DISORDER: f64 = 4.0;
+
+/// Default number of disorder realizations for Anderson averaging.
+///
+/// 20 realizations balances statistical averaging with evaluation time.
+/// Provenance: finite-size analysis convention in Papers 2 & 3.
+const DEFAULT_ANDERSON_REALIZATIONS: u64 = 20;
+
+/// Default bootstrap replicate count — 10 000.
+///
+/// Standard recommendation (Efron & Tibshirani 1993) for percentile-
+/// bootstrap CIs with moderate sample sizes.
+const DEFAULT_N_BOOTSTRAP: u64 = 10_000;
+
+/// Default spectral ω grid size — 50 points.
+///
+/// Sufficient resolution for Matsubara peak detection in lattice QCD
+/// correlator spectral reconstruction (Exp 028).
+const DEFAULT_N_OMEGA: u64 = 50;
+
 /// Dispatch a JSON-RPC method call to the appropriate library function.
 ///
-/// Returns `Ok(result_json)` on success or `Err(message)` on failure.
-/// Unknown methods return a standard JSON-RPC "method not found" error.
+/// Returns `Ok(result_json)` on success or a typed [`DispatchError`] on failure.
+/// Unknown methods return [`DispatchError::MethodNotFound`].
 ///
 /// # Errors
 ///
-/// Returns `Err` with a human-readable message if the method is unknown,
-/// required parameters are missing, or the underlying library call fails.
-pub fn dispatch(method: &str, params: &Value) -> Result<Value, String> {
+/// Returns `Err` if the method is unknown, required parameters are missing,
+/// or the underlying library call fails with an [`InputError`].
+pub fn dispatch(method: &str, params: &Value) -> Result<Value, DispatchError> {
     match method {
         "health.check" | "health" => Ok(health_check()),
         "health.liveness" => Ok(health_liveness()),
@@ -98,7 +145,7 @@ pub fn dispatch(method: &str, params: &Value) -> Result<Value, String> {
         "measurement.parity_check" => parity_check(params),
         "measurement.freeze_out" => freeze_out(params),
 
-        _ => Err(format!("method not found: {method}")),
+        _ => Err(DispatchError::MethodNotFound(method.to_owned())),
     }
 }
 
@@ -172,12 +219,14 @@ fn health_readiness() -> Value {
 
 // ─── Measurement Methods ─────────────────────────────────────────────────────
 
-fn noise_decomposition(params: &Value) -> Result<Value, String> {
+fn noise_decomposition(params: &Value) -> Result<Value, DispatchError> {
     let observed = extract_f64_array(params, "observed")?;
     let modeled = extract_f64_array(params, "modeled")?;
 
     if observed.len() != modeled.len() {
-        return Err("observed and modeled must have equal length".to_string());
+        return Err(DispatchError::InvalidParam(
+            "observed and modeled must have equal length".into(),
+        ));
     }
 
     let rmse = crate::stats::rmse(&observed, &modeled);
@@ -192,12 +241,12 @@ fn noise_decomposition(params: &Value) -> Result<Value, String> {
     }))
 }
 
-fn anderson_validation(params: &Value) -> Result<Value, String> {
-    let n_sites = extract_usize(params, "n_sites", 10_000)?;
-    let disorder = extract_f64(params, "disorder", 4.0);
+fn anderson_validation(params: &Value) -> Result<Value, DispatchError> {
+    let n_sites = extract_usize(params, "n_sites", DEFAULT_ANDERSON_N_SITES)?;
+    let disorder = extract_f64(params, "disorder", DEFAULT_ANDERSON_DISORDER);
     let energy = extract_f64(params, "energy", DEFAULT_ENERGY);
-    let n_realizations = extract_usize(params, "n_realizations", 20)?;
-    let seed = extract_u64(params, "seed", 42);
+    let n_realizations = extract_usize(params, "n_realizations", DEFAULT_ANDERSON_REALIZATIONS)?;
+    let seed = extract_u64(params, "seed", DEFAULT_SEED);
 
     let gamma = crate::anderson::lyapunov_averaged(n_sites, disorder, energy, n_realizations, seed);
     let loc_length = crate::anderson::localization_length(gamma);
@@ -210,16 +259,14 @@ fn anderson_validation(params: &Value) -> Result<Value, String> {
     }))
 }
 
-fn uncertainty_budget(params: &Value) -> Result<Value, String> {
+fn uncertainty_budget(params: &Value) -> Result<Value, DispatchError> {
     let data = extract_f64_array(params, "data")?;
     let confidence = extract_f64(params, "confidence", DEFAULT_CONFIDENCE);
-    let n_bootstrap = extract_usize(params, "n_bootstrap", 10_000)?;
-    let seed = extract_u64(params, "seed", 42);
+    let n_bootstrap = extract_usize(params, "n_bootstrap", DEFAULT_N_BOOTSTRAP)?;
+    let seed = extract_u64(params, "seed", DEFAULT_SEED);
 
-    let boot_mean = crate::bootstrap::bootstrap_mean(&data, n_bootstrap, confidence, seed)
-        .map_err(|e| format!("bootstrap error: {e}"))?;
-    let jk = crate::jackknife::jackknife_mean_variance(&data)
-        .map_err(|e| format!("jackknife error: {e}"))?;
+    let boot_mean = crate::bootstrap::bootstrap_mean(&data, n_bootstrap, confidence, seed)?;
+    let jk = crate::jackknife::jackknife_mean_variance(&data)?;
 
     Ok(serde_json::json!({
         "bootstrap": {
@@ -236,7 +283,7 @@ fn uncertainty_budget(params: &Value) -> Result<Value, String> {
     }))
 }
 
-fn et0_propagation(params: &Value) -> Result<Value, String> {
+fn et0_propagation(params: &Value) -> Result<Value, DispatchError> {
     let tmax = require_f64(params, "temperature_max")?;
     let tmin = require_f64(params, "temperature_min")?;
     let wind = require_f64(params, "wind_speed")?;
@@ -245,8 +292,9 @@ fn et0_propagation(params: &Value) -> Result<Value, String> {
     let doy_u64 = params
         .get("day_of_year")
         .and_then(Value::as_u64)
-        .ok_or("missing day_of_year")?;
-    let doy = u16::try_from(doy_u64).map_err(|_| "day_of_year out of u16 range")?;
+        .ok_or_else(|| DispatchError::MissingParam("day_of_year".into()))?;
+    let doy = u16::try_from(doy_u64)
+        .map_err(|_| DispatchError::InvalidParam("day_of_year out of u16 range".into()))?;
     let elevation = extract_f64(params, "elevation", DEFAULT_ELEVATION_M);
     let rhmax = extract_f64(params, "rhmax", DEFAULT_RHMAX_PCT);
     let rhmin = extract_f64(params, "rhmin", DEFAULT_RHMIN_PCT);
@@ -271,7 +319,7 @@ fn et0_propagation(params: &Value) -> Result<Value, String> {
     }))
 }
 
-fn regime_classification(params: &Value) -> Result<Value, String> {
+fn regime_classification(params: &Value) -> Result<Value, DispatchError> {
     let mut eigenvalues = extract_f64_array(params, "eigenvalues")?;
     let margin = extract_f64(params, "margin", DEFAULT_REGIME_MARGIN);
 
@@ -286,9 +334,9 @@ fn regime_classification(params: &Value) -> Result<Value, String> {
     }))
 }
 
-fn spectral_features(params: &Value) -> Result<Value, String> {
+fn spectral_features(params: &Value) -> Result<Value, DispatchError> {
     let correlator = extract_f64_array(params, "correlator")?;
-    let n_omega = extract_usize(params, "n_omega", 50)?;
+    let n_omega = extract_usize(params, "n_omega", DEFAULT_N_OMEGA)?;
     let alpha = extract_f64(params, "regularization", DEFAULT_REGULARIZATION);
 
     let n_tau = correlator.len();
@@ -312,13 +360,15 @@ fn spectral_features(params: &Value) -> Result<Value, String> {
     }))
 }
 
-fn parity_check(params: &Value) -> Result<Value, String> {
+fn parity_check(params: &Value) -> Result<Value, DispatchError> {
     let cpu_values = extract_f64_array(params, "cpu_values")?;
     let gpu_values = extract_f64_array(params, "gpu_values")?;
     let tolerance = extract_f64(params, "tolerance", crate::tol::EXACT);
 
     if cpu_values.len() != gpu_values.len() {
-        return Err("cpu_values and gpu_values must have equal length".to_string());
+        return Err(DispatchError::InvalidParam(
+            "cpu_values and gpu_values must have equal length".into(),
+        ));
     }
 
     let max_diff = cpu_values
@@ -337,7 +387,7 @@ fn parity_check(params: &Value) -> Result<Value, String> {
     }))
 }
 
-fn freeze_out(params: &Value) -> Result<Value, String> {
+fn freeze_out(params: &Value) -> Result<Value, DispatchError> {
     let observed = extract_f64_array(params, "observed")?;
     let mu_b = extract_f64_array(params, "mu_b")?;
 
@@ -353,8 +403,7 @@ fn freeze_out(params: &Value) -> Result<Value, String> {
         k2_step: extract_f64(params, "k2_step", DEFAULT_K2_STEP),
     };
 
-    let fit =
-        crate::freeze_out::grid_fit_2d(&config).map_err(|e| format!("freeze_out error: {e}"))?;
+    let fit = crate::freeze_out::grid_fit_2d(&config)?;
 
     Ok(serde_json::json!({
         "t0": fit.t0,
@@ -366,32 +415,33 @@ fn freeze_out(params: &Value) -> Result<Value, String> {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-fn extract_f64_array(params: &Value, key: &str) -> Result<Vec<f64>, String> {
+fn extract_f64_array(params: &Value, key: &str) -> Result<Vec<f64>, DispatchError> {
     params
         .get(key)
         .and_then(Value::as_array)
         .map(|arr| arr.iter().filter_map(Value::as_f64).collect::<Vec<_>>())
-        .ok_or_else(|| format!("missing or invalid array: {key}"))
+        .ok_or_else(|| DispatchError::MissingParam(key.into()))
 }
 
 fn extract_f64(params: &Value, key: &str, default: f64) -> f64 {
     params.get(key).and_then(Value::as_f64).unwrap_or(default)
 }
 
-fn require_f64(params: &Value, key: &str) -> Result<f64, String> {
+fn require_f64(params: &Value, key: &str) -> Result<f64, DispatchError> {
     params
         .get(key)
         .and_then(Value::as_f64)
-        .ok_or_else(|| format!("missing {key}"))
+        .ok_or_else(|| DispatchError::MissingParam(key.into()))
 }
 
 fn extract_u64(params: &Value, key: &str, default: u64) -> u64 {
     params.get(key).and_then(Value::as_u64).unwrap_or(default)
 }
 
-fn extract_usize(params: &Value, key: &str, default: u64) -> Result<usize, String> {
+fn extract_usize(params: &Value, key: &str, default: u64) -> Result<usize, DispatchError> {
     let v = extract_u64(params, key, default);
-    usize::try_from(v).map_err(|_| format!("{key} too large for usize"))
+    usize::try_from(v)
+        .map_err(|_| DispatchError::InvalidParam(format!("{key} too large for usize")))
 }
 
 #[cfg(test)]
@@ -403,7 +453,12 @@ mod tests {
     fn dispatch_unknown_method_returns_error() {
         let result = dispatch("nonexistent.method", &Value::Null);
         assert!(result.is_err());
-        assert!(result.unwrap_err().contains("method not found"));
+        let err = result.unwrap_err();
+        assert!(
+            matches!(err, crate::error::DispatchError::MethodNotFound(_)),
+            "expected MethodNotFound, got {err:?}"
+        );
+        assert!(err.to_string().contains("nonexistent.method"));
     }
 
     #[test]

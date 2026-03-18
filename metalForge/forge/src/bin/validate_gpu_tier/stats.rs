@@ -81,8 +81,10 @@ fn validate_bootstrap_parity(h: &mut Harness) {
 
     let data: Vec<f64> = (0..1000).map(|i| f64::from(i) * 0.001).collect();
 
-    let ci1 = groundspring::bootstrap::rawr_mean(&data, 500, 0.05, 42);
-    let ci2 = groundspring::bootstrap::rawr_mean(&data, 500, 0.05, 42);
+    let ci1 = groundspring::bootstrap::rawr_mean(&data, 500, 0.05, 42)
+        .expect("hardcoded validation inputs are valid");
+    let ci2 = groundspring::bootstrap::rawr_mean(&data, 500, 0.05, 42)
+        .expect("hardcoded validation inputs are valid");
 
     println!(
         "  CI: [{:.6}, {:.6}], estimate={:.6}",

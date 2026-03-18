@@ -11,6 +11,26 @@
 
 use thiserror::Error;
 
+/// Error returned by the JSON-RPC dispatch layer.
+///
+/// Wraps library-level [`InputError`] and adds dispatch-specific variants
+/// so the JSON-RPC boundary is the only place that converts to strings.
+#[derive(Debug, Error)]
+pub enum DispatchError {
+    /// The requested JSON-RPC method is not implemented.
+    #[error("method not found: {0}")]
+    MethodNotFound(String),
+    /// A required parameter was missing or had an invalid type.
+    #[error("missing parameter: {0}")]
+    MissingParam(String),
+    /// A parameter value was out of its valid domain.
+    #[error("invalid parameter: {0}")]
+    InvalidParam(String),
+    /// The underlying library function returned an input validation error.
+    #[error(transparent)]
+    Input(#[from] InputError),
+}
+
 /// Error returned when a function receives invalid input.
 #[derive(Debug, Clone, PartialEq, Error)]
 pub enum InputError {
@@ -104,5 +124,28 @@ mod tests {
         let e2 = e1.clone();
         assert_eq!(e1, e2);
         assert_eq!(format!("{e1:?}"), format!("{e2:?}"));
+    }
+
+    #[test]
+    fn dispatch_error_method_not_found_display() {
+        let e = DispatchError::MethodNotFound("foo.bar".into());
+        assert!(e.to_string().contains("foo.bar"));
+    }
+
+    #[test]
+    fn dispatch_error_from_input_error() {
+        let input = InputError::InsufficientData {
+            name: "data",
+            min: 2,
+            got: 0,
+        };
+        let dispatch: DispatchError = input.into();
+        assert!(dispatch.to_string().contains("data"));
+    }
+
+    #[test]
+    fn dispatch_error_missing_param_display() {
+        let e = DispatchError::MissingParam("temperature_max".into());
+        assert!(e.to_string().contains("temperature_max"));
     }
 }

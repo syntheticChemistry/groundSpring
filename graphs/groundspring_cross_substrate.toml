@@ -15,7 +15,7 @@ description = "Three-tier validation: CPU reference → GPU parity → NPU parit
 coordination = "Sequential"
 
 [graph.metadata]
-toadstool_pin = "S130+"
+toadstool_pin = "S158+"
 toadstool_commit = "bfe7977b"
 groundspring_version = "V104"
 target_node = "eastgate"

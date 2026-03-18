@@ -18,7 +18,7 @@ description = "Node atomic: 35-experiment validation through ToadStool S155b GPU
 coordination = "Parallel"
 
 [graph.metadata]
-toadstool_pin = "S130+"
+toadstool_pin = "S158+"
 toadstool_commit = "bfe7977b"
 groundspring_version = "V104"
 target_node = "eastgate"

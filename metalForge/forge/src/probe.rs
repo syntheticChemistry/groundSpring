@@ -5,6 +5,7 @@
 
 use crate::substrate::{Capability, GpuArch, Identity, Properties, Substrate, SubstrateKind};
 use std::fs;
+use std::sync::OnceLock;
 
 /// Environment variable to override the NPU device node.
 ///
@@ -33,12 +34,27 @@ const PROCFS_CPUINFO: &str = "/proc/cpuinfo";
 #[cfg(target_os = "linux")]
 const PROCFS_MEMINFO: &str = "/proc/meminfo";
 
-/// Probe all GPU adapters via wgpu.
+/// Cached GPU probe result.
+///
+/// Creating `wgpu::Instance` concurrently from multiple threads (e.g. parallel
+/// tests) can trigger SIGSEGV on some drivers (toadStool S158 finding).
+/// `OnceLock` ensures the probe runs exactly once; subsequent calls return
+/// the cached result.
+static GPU_PROBE_CACHE: OnceLock<Vec<Substrate>> = OnceLock::new();
+
+/// Probe all GPU adapters via wgpu (cached after first call).
 ///
 /// Each adapter becomes a substrate with capabilities derived from its
 /// feature flags (`SHADER_F64` -> `F64Compute`, etc.).
+///
+/// Results are cached in a process-wide `OnceLock` to prevent SIGSEGV
+/// from concurrent `wgpu::Instance` creation in parallel test environments.
 #[must_use]
 pub fn probe_gpus() -> Vec<Substrate> {
+    GPU_PROBE_CACHE.get_or_init(probe_gpus_inner).clone()
+}
+
+fn probe_gpus_inner() -> Vec<Substrate> {
     let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
         backends: wgpu::Backends::all(),
         ..Default::default()

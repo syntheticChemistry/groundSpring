@@ -183,7 +183,7 @@ impl EsnClassifier {
     /// # Errors
     ///
     /// Returns an error if GPU device initialization fails.
-    pub fn new(seed: u64) -> Result<Self, String> {
+    pub fn new(seed: u64) -> Result<Self, super::EsnError> {
         let config = barracuda::esn_v2::ESNConfig {
             input_size: 3,
             reservoir_size: ESN_RESERVOIR_SIZE,
@@ -196,7 +196,7 @@ impl EsnClassifier {
             ..barracuda::esn_v2::ESNConfig::default()
         };
         let esn = barracuda::device::test_pool::tokio_block_on(barracuda::esn_v2::ESN::new(config))
-            .map_err(|e| format!("ESN init failed: {e}"))?;
+            .map_err(super::EsnError::Init)?;
         Ok(Self { esn })
     }
 
@@ -211,9 +211,9 @@ impl EsnClassifier {
     /// # Errors
     ///
     /// Returns an error if training fails (insufficient data, GPU error).
-    pub fn train(&mut self, features: &[Vec<f32>], labels: &[Vec<f32>]) -> Result<f32, String> {
+    pub fn train(&mut self, features: &[Vec<f32>], labels: &[Vec<f32>]) -> Result<f32, super::EsnError> {
         barracuda::device::test_pool::tokio_block_on(self.esn.train(features, labels))
-            .map_err(|e| format!("ESN training failed: {e}"))
+            .map_err(super::EsnError::Train)
     }
 
     /// Classify a single observation.
@@ -224,9 +224,9 @@ impl EsnClassifier {
     /// # Errors
     ///
     /// Returns an error if prediction fails.
-    pub fn classify(&mut self, features: &[f32; 3]) -> Result<RegimeLabel, String> {
+    pub fn classify(&mut self, features: &[f32; 3]) -> Result<RegimeLabel, super::EsnError> {
         let output = barracuda::device::test_pool::tokio_block_on(self.esn.predict(features))
-            .map_err(|e| format!("ESN predict failed: {e}"))?;
+            .map_err(super::EsnError::Predict)?;
 
         let (max_idx, _) = output
             .iter()

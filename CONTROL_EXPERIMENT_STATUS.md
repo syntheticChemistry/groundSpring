@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 17, 2026 (V115 — 930+ tests, 0 clippy, 0 fmt diff, license AGPL-3.0-or-later (SCYBORG trio). V115: cross-ecosystem deep absorption — safe_cast expansion, health probes, resilient_call, OrExit evolution, zero eprintln/expect/allow. V113: GemmF64 transpose delegation (execute_gemm_ex trans_a=true), exit_code constants (UNIBIN_ARCHITECTURE_STANDARD), RetryPolicy + CircuitBreaker (IPC resilience), 4-format capability parsing. V112: `OrExit<T>` trait + `parse_benchmark()` (28 binaries), generic `socket_env_var()`, provenance trio, `thiserror` for `BenchFieldError`, tempdir test hygiene. V111: deep debt — `thiserror` errors, `DispatchOutcome`, safe casts, DI config, dead code removal. V110: cross-ecosystem absorption — `#[expect(reason)]` migration, structured tracing, toadStool dispatch, dual-format capability parsing, `deny.toml`, aarch64 CI)
+**Last updated**: March 18, 2026 (V116 — 960+ tests, 0 clippy, 0 fmt diff, license AGPL-3.0-or-later (SCYBORG trio). V116: typed error evolution — `DispatchError`, `EsnError`, `ResilienceError<E>` replace opaque strings; `ValidationSink` trait; Format C/D capability parsing; `OnceLock` GPU probe cache; RAWR extracted to `rawr.rs`; dispatch defaults named with provenance. V115: cross-ecosystem deep absorption — safe_cast expansion, health probes, resilient_call, OrExit evolution, zero eprintln/expect/allow. V113: GemmF64 transpose delegation, exit_code constants, RetryPolicy + CircuitBreaker, 4-format capability parsing. V112: `OrExit<T>` trait + `parse_benchmark()` (28 binaries), generic `socket_env_var()`, provenance trio, `thiserror` for `BenchFieldError`, tempdir test hygiene. V111: deep debt — `thiserror` errors, `DispatchOutcome`, safe casts, DI config, dead code removal. V110: cross-ecosystem absorption — `#[expect(reason)]` migration, structured tracing, toadStool dispatch, dual-format capability parsing, `deny.toml`, aarch64 CI)
 
 ## Experiment Register
 
@@ -46,7 +46,7 @@
 **Rust Phase 1 (core)**: 340/340 PASS across 30 validation binaries (340 core)
 **Rust Phase 1 (NUCLEUS)**: 55/55 PASS across 4 validation binaries (Exp 029–032, `--features biomeos`)
 **Total validation**: 395/395 PASS across 34 validation binaries
-**Rust tests**: 930+/930+ PASS (default workspace)
+**Rust tests**: 960+/960+ PASS (default workspace)
 **pytest**: 390/390 PASS + 2 skipped
 **Three-tier parity**: 102+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
 **BarraCUDA dispatch**: 102 active (61 CPU + 41 GPU) — V105: barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+. `PrecisionRoutingAdvice` wired into 11 GPU dispatch paths via `get_device_f64_safe()`. tarpc 0.37, ops GPU-gated rewire, domain-esn feature, Rust 2024 unsafe model. coralReef sovereign dispatch path proven on Titan V
@@ -461,7 +461,7 @@ Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classi
 | Rust doc test | 2 | Documentation example test |
 | Rust forge | 49 | groundspring-forge crate tests (incl. 14 V35 arch-aware routing) |
 | Rust biomeos | 32 | biomeOS client + integration tests (feature-gated) |
-| **Total Rust (default)** | **930+** | |
+| **Total Rust (default)** | **960+** | |
 | **Total Rust (barracuda-gpu)** | **814** | |
 | **Total Python** | **375** | (+3 skipped) |
 | **Grand Total** | **1,182** | |
@@ -565,7 +565,7 @@ Each experiment is validated at three hardware tiers:
 | **GPU** | `barracuda` feature + GPU adapter | GPU matches CPU within tolerance |
 | **metalForge** | Mixed hardware dispatch | Cross-substrate agreement |
 
-### Current Status (V115)
+### Current Status (V116)
 
 | # | Experiment | CPU | GPU | metalForge | GPU Status |
 |---|-----------|:---:|:---:|:----------:|------------|
@@ -602,7 +602,7 @@ Each experiment is validated at three hardware tiers:
 
 **CPU tier**: 395/395 PASS (34 binaries, complete)
 **GPU tier**: 27 of 34 papers have GPU wiring (79%). 102 delegations (61 CPU + 41 GPU). 30/30 metalForge parity.
-**V113**: GemmF64 transpose delegation, exit_code constants, RetryPolicy + CircuitBreaker, 4-format capability parsing. **V112**: `OrExit<T>` trait + parse_benchmark() (28 binaries), generic socket_env_var() discovery, provenance trio (RHIZOCRYPT, LOAMSPINE, SWEETGRASS), thiserror for BenchFieldError, tempdir test hygiene. **V111**: thiserror for errors, DispatchOutcome, safe casts, DI config, dead code removal. **V110**: cross-ecosystem absorption. **V109**: Zero-panic validation binaries, smart module refactoring. **V108**: AGPL-3.0-or-later, WelfordState CPU delegation, tolerance centralization, typed capability-based discovery, Python provenance enrichment. **V107**: Release profile, niche.rs, tolerance provenance. **V106**: primal_names, typed BiomeOsError. barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+.
+**V116**: Typed error evolution — `DispatchError`, `EsnError`, `ResilienceError<E>`; `ValidationSink` trait; Format C/D capability parsing; `OnceLock` GPU probe; RAWR extracted to `rawr.rs`; dispatch defaults named with provenance. **V115**: cross-ecosystem deep absorption — safe_cast expansion, health probes, resilient_call, OrExit evolution. **V113**: GemmF64 transpose delegation, exit_code constants, RetryPolicy + CircuitBreaker, 4-format capability parsing. **V112**: `OrExit<T>` trait + parse_benchmark() (28 binaries), generic socket_env_var() discovery, provenance trio, thiserror for BenchFieldError. barraCuda v0.3.5, toadStool S158+, coralReef Iteration 55+.
 **metalForge tier**: 30 workloads, 140 checks. Exp 028 NPU 9/9 PASS (AKD1000 DMA). GPU→NPU→CPU pipeline dispatch validated.
 
 ### BarraCUDA Integration Status (V105 — toadStool S156+, coralReef Iteration 52+)
@@ -681,9 +681,9 @@ Each experiment is validated at three hardware tiers:
 | `cargo clippy --features barracuda` | PASS (0 warnings) |
 | `cargo clippy --features barracuda-gpu` | PASS (0 warnings) |
 | `cargo doc --no-deps` | PASS (0 warnings) |
-| `cargo test` | 930+/930+ PASS (default) |
+| `cargo test` | 960+/960+ PASS (default) |
 | `cargo test --features biomeos` | ~830 PASS |
-| `cargo test --features barracuda` | 930+/930+ PASS |
+| `cargo test --features barracuda` | 960+/960+ PASS |
 | `cargo test --features barracuda-gpu` | 814/814 PASS |
 | Validation binaries (local) | 395/395 PASS (34 binaries) |
 | Validation binaries (barracuda-gpu) | 395/395 PASS |
@@ -818,7 +818,8 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V79: Exp 035 + seismic delegation | 85 delegations (51 CPU + 34 GPU), 807 tests, barraCuda v0.3.3, toadStool S94b | Archived |
 | V80: Fused Ops + BarraCuda Catch-Up | 87 delegations (51 CPU + 36 GPU), 812 tests, barraCuda v0.3.3+, toadStool S94b | Archived |
 | V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `0bd401f`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
-| V115: cross-ecosystem deep absorption | 102 delegations (61 CPU + 41 GPU), 930+ tests, safe_cast expansion, health probes, resilient_call, OrExit evolution, zero eprintln/expect/allow | **Current** |
+| V116: typed error evolution | 102 delegations (61 CPU + 41 GPU), 960+ tests, `DispatchError`/`EsnError`/`ResilienceError<E>`, `ValidationSink`, Format C/D, `OnceLock` GPU probe, RAWR extraction, named dispatch constants | **Current** |
+| V115: cross-ecosystem deep absorption | 102 delegations (61 CPU + 41 GPU), 930+ tests, safe_cast expansion, health probes, resilient_call, OrExit evolution, zero eprintln/expect/allow | Archived |
 | V113: Ecosystem Resilience | 102 delegations (61 CPU + 41 GPU), 618 unit + 24 integration tests, GemmF64 transpose delegation, exit_code constants, RetryPolicy + CircuitBreaker, 4-format capability parsing | Archived |
 | V112: Deep Debt + OrExit | 102 delegations (61 CPU + 41 GPU), 912+ tests, `OrExit<T>` + parse_benchmark() (28 binaries), generic socket_env_var(), provenance trio, thiserror BenchFieldError, tempdir test hygiene | Archived |
 | V109: Deep Debt Resolution + Smart Refactoring | 102 delegations (61 CPU + 41 GPU), 878 tests (no-default-features), 39 modules, zero-panic validation binaries, smart module refactoring (regression/fao56/pipeline/validate-lib), named physical constants, Python dep pinning | Archived |
@@ -884,7 +885,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_V113_ECOSYSTEM_RESILIENCE_HANDOFF_MAR16_2026.md` (V112 archived)
+Active: `wateringHole/handoffs/GROUNDSPRING_V116_TYPED_ERROR_EVOLUTION_HANDOFF_MAR18_2026.md` (V115 archived)
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

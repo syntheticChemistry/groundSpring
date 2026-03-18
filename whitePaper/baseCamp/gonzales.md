@@ -97,6 +97,13 @@ compromised.
 - CI: nursery lints enforced, `--all-features` doc/test, metalForge validation expansion
 - ecoBin: 14 C-dependency crates banned; `NESTGATE_ADDRESS` env-var discovery
 
+### V116 Capabilities
+
+- Test count: 960+; zero `Result<_, String>` in dispatch layer; ValidationSink trait for structured output
+- ResilienceError<E> typed error for resilient_call
+- Format C/D capability parsing
+- OnceLock GPU probe cache
+
 ### V114 Capabilities
 
 - `BiomeOsError::is_recoverable()`/`is_retriable()` for IPC retry in drug pipeline calls

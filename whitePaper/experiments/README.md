@@ -5,15 +5,15 @@
 > (Phase 0), a Rust validation (Phase 1), and a barracuda delegation path
 > (Phase 2+).
 
-**Total**: 395/395 validation checks across 35 experiments, 10 domains. 930+ Rust tests + 287 Python provenance tests.
+**Total**: 395/395 validation checks across 35 experiments, 10 domains. 960+ Rust tests + 287 Python provenance tests.
 **Core**: 340/340 checks across 29 experiments (no feature flags).
 **NUCLEUS**: 55 checks across 4 experiments (Exp 029–032, `--features biomeos`).
 **Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across 28 benchmarked experiments.
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **Coverage**: Zero clippy warnings (pedantic + nursery, -D warnings). Zero unsafe. Zero TODO/FIXME. All files < 1000 lines. CI targets 90% line coverage via `cargo-llvm-cov`. Zero panicking public APIs — all library entry points return `Result`.
 **barraCuda**: 102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+. `PrecisionRoutingAdvice` wired into 21 GPU dispatch paths.
-**NUCLEUS**: biomeOS Neural API live (V115) — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) with sovereign fallback. V115: `assert!` → `Result<T, InputError>` in `bootstrap`, `drift`, `quasispecies` APIs; CI hardened (nursery enforced, `--all-features` doc/test, biomeOS + metalForge validation jobs, aarch64 cross-compile); ecoBin compliance (14 C-dep crates banned, UniBin flags, niche YAML cost estimates). V114: cross-ecosystem deep absorption. V113: GemmF64 transpose, RetryPolicy + CircuitBreaker. V112: `OrExit<T>`, provenance trio.
-**Modules**: 39 (including `esn`, `lanczos`, `linalg`, `error`, `jackknife`, `freeze_out`, `spectral_recon`, `wdm`, `npu`, `biomeos`, `nestgate`, `drift`, `tissue_anderson`, `niche`, `primal_names`, `ipc`).
+**NUCLEUS**: biomeOS Neural API live (V116) — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) with sovereign fallback. V115: `assert!` → `Result<T, InputError>` in `bootstrap`, `drift`, `quasispecies` APIs; CI hardened (nursery enforced, `--all-features` doc/test, biomeOS + metalForge validation jobs, aarch64 cross-compile); ecoBin compliance (14 C-dep crates banned, UniBin flags, niche YAML cost estimates). V116: DispatchError, EsnError, ResilienceError; ValidationSink absorbed; Format C/D parsing; OnceLock GPU probe cache; RAWR in rawr.rs; dispatch defaults named with provenance. V114: cross-ecosystem deep absorption. V113: GemmF64 transpose, RetryPolicy + CircuitBreaker. V112: `OrExit<T>`, provenance trio.
+**Modules**: 40 (including `esn`, `lanczos`, `linalg`, `error`, `jackknife`, `freeze_out`, `spectral_recon`, `wdm`, `npu`, `biomeos`, `nestgate`, `drift`, `tissue_anderson`, `niche`, `primal_names`, `ipc`, `rawr`).
 **metalForge**: 30 workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed), 140 metalForge checks, 5+ substrates, architecture-aware routing, `PCIe` topology, GPU→NPU PCIe bypass, pipeline dispatch, NUCLEUS atomics.
 **Baseline integrity**: All 29 benchmark JSONs verified — provenance fields (including `python_version`, `numpy_version`), hex commit hashes, UTF-8. Python CI coverage enforced at 80%.
 
@@ -54,7 +54,7 @@
 | 031 | [NUCLEUS Stack](031_nucleus_stack.md) | Infrastructure | NUCLEUS Neural API | — | 28/28 | biomeOS multi-primal |
 | 032 | [IRIS Seismic](032_iris_seismic.md) | Geological (IRIS) | IRIS FDSN | — | 12/12 | NestGate live data |
 | 033 | [Tissue Anderson](033_tissue_anderson.md) | Immunological | Paper 12 (Gonzales) | — | 29/29 | Uses anderson GPU |
-| 035 | [Multi-Method ET₀](035_et0_methods.md) | Hydrology | FAO-56 + airSpring lineage | — | 5/5 | 3 ET₀ methods delegated |
+| 035 | [Multi-Method ET₀](035_et0_methods.md) | Hydrology | FAO-56 + airSpring lineage | — | 19/19 PASS | 3 ET₀ methods delegated |
 
 ## Three-Tier Control Plan
 
@@ -68,7 +68,7 @@ Current status: **CPU complete** (340/340 core + 55 NUCLEUS = 395 total),
 **102 active delegations (61 CPU + 41 GPU) — toadStool S156+, barraCuda v0.3.5**.
 **NUCLEUS**: biomeOS Neural API live — 4 experiments exercise Tower, Node, Squirrel, Nest
 with sovereign fallback. All delegations use sovereign fallback.
-35/35 experiments validated. 930+ Rust tests + 287 Python tests.
+35/35 experiments validated. 960+ Rust tests + 287 Python tests.
 **bench-cpu-vs-gpu**: Dedicated binary for CPU vs GPU performance comparison across 6 workloads.
 **metalForge tier**: groundspring-forge crate with live hardware validation
 (RTX 4070, Titan V, AKD1000 NPU). 5 validation binaries, 140 metalForge checks, 5+ substrates.

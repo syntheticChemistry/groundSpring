@@ -44,7 +44,7 @@ use std::time::Instant;
 
 fn main() {
     println!("=== groundSpring Cross-Spring Benchmark ===");
-    println!("=== ToadStool S94b / barraCuda v0.3.3 / wgpu 28 / DF64 Precision Tiers ===\n");
+    println!("=== ToadStool S158+ / barraCuda v0.3.5 / wgpu 28 / DF64 Precision Tiers ===\n");
 
     let mut h = Harness::new();
 
@@ -142,11 +142,13 @@ fn bench_bootstrap_rawr(h: &mut Harness) {
         .collect();
 
     let t0 = Instant::now();
-    let ci = groundspring::bootstrap::rawr_mean(&data, 1000, 0.05, 42);
+    let ci = groundspring::bootstrap::rawr_mean(&data, 1000, 0.05, 42)
+        .expect("hardcoded benchmark inputs are valid");
     let rawr_us = t0.elapsed().as_micros();
 
     let t1 = Instant::now();
-    let ci_classic = groundspring::bootstrap::bootstrap_mean(&data, 1000, 0.05, 42);
+    let ci_classic = groundspring::bootstrap::bootstrap_mean(&data, 1000, 0.05, 42)
+        .expect("hardcoded benchmark inputs are valid");
     let classic_us = t1.elapsed().as_micros();
 
     println!("  n = {}, B = 1000, α = 0.05", data.len());

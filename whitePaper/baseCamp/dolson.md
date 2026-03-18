@@ -68,6 +68,11 @@ Python baseline (Exp 017)
 - `validate-quasispecies` binary updated to `.or_exit()` on Result
 - CI: nursery lint enforcement, `--all-features` test coverage
 
+### V116 Capabilities
+
+- Test count: 960+; zero `Result<_, String>` in dispatch layer
+- ValidationSink trait for structured validation output
+
 ### V114 Capabilities
 
 - `.expect()` → `OrExit` in validation binary (validate-quasispecies)

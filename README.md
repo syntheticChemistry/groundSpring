@@ -7,7 +7,7 @@
 [![ecoBin](https://img.shields.io/badge/ecoBin-compliant-green.svg)](https://github.com/ecoPrimals/wateringHole/blob/main/ECOBIN_ARCHITECTURE_STANDARD.md)
 
 **Date**: March 18, 2026 | **License**: AGPL-3.0-or-later
-**Status**: V115 — 39 modules, 35 experiments, 930+ Rust tests + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 102 active barraCuda delegations (61 CPU + 41 GPU) — synced against barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+. Three-tier parity proven: 29/29 validation binaries PASS at all three tiers. **V115**: API evolution — `assert!` → `Result<T, InputError>` in `bootstrap`, `drift`, `quasispecies` public APIs; CI hardened (nursery, `--all-features`, biomeOS/metalForge validation jobs, aarch64 cross-compile); ecoBin compliance (14 C-dep crates banned in `deny.toml`, UniBin `--help`/`--version` flags, niche YAML cost estimates); hardcoded fallback evolution (`NESTGATE_ADDRESS` env-var discovery); zero panicking public APIs. **V114**: Cross-ecosystem deep absorption. **V113**: GemmF64 transpose delegation, RetryPolicy + CircuitBreaker. **V112**: `OrExit<T>`, provenance trio.
+**Status**: V116 — 40 modules, 35 experiments, 960+ Rust tests + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 102 active barraCuda delegations (61 CPU + 41 GPU) — synced against barraCuda v0.3.5, toadStool S158+, coralReef Iteration 55+. Three-tier parity proven: 29/29 validation binaries PASS at all three tiers. **V116**: Typed error evolution — `DispatchError`, `EsnError`, `ResilienceError<E>` replace opaque strings; `ValidationSink` trait absorbed from ludoSpring/rhizoCrypt/primalSpring; Format C/D capability parsing; `OnceLock` GPU probe cache; RAWR extracted to `rawr.rs`; all dispatch defaults named with provenance. **V115**: API evolution, CI hardening, ecoBin compliance. **V114**: Cross-ecosystem deep absorption. **V113**: GemmF64 transpose delegation, RetryPolicy + CircuitBreaker.
 
 **The gap between what models predict and what instruments measure.**
 
@@ -119,7 +119,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace                         # 930+ tests, all PASS
+cargo test --workspace                         # 960+ tests, all PASS
 cargo test --workspace --all-features          # all feature paths tested
 cargo test --workspace --features biomeos      # NUCLEUS client active
 cargo test --workspace --features barracuda-gpu # GPU dispatch active
@@ -249,7 +249,7 @@ Run parity report: `python3 scripts/parity_report.py`
 | BarraCUDA CPU | 18.4 | +47% (dispatch overhead on small workloads) |
 | **BarraCUDA GPU** | **9.9** | **−21% (1.27× faster)** |
 
-### Workspace Test Benchmark (930+ tests, release mode)
+### Workspace Test Benchmark (960+ tests, release mode)
 
 | Mode | Wall time (s) | Δ vs local |
 |------|--------------|------------|
@@ -271,11 +271,11 @@ Every spring contributes shaders that benefit the entire ecosystem through barra
 
 ```
 hotSpring (precision)  ─────┐
-  df64_core, Sturm tridiag, │    All absorbed into barraCuda v0.3.3
+  df64_core, Sturm tridiag, │    All absorbed into barraCuda v0.3.5
   stress_virial, CG kernels ├──► 784 WGSL shaders, f64-canonical
                              │    with f16/f32/f64/Df64 per hardware
 wetSpring (bio)  ────────────┤
-  smith_waterman, gillespie, │    toadStool S156+ routes hardware
+  smith_waterman, gillespie, │    toadStool S158+ routes hardware
   fused_map_reduce, HMM      │    coralReef compiles to native GPU binary
                              │
 neuralSpring (ML)  ──────────┤    groundSpring consumes 102 ops:
@@ -299,7 +299,7 @@ Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardwar
   NumPy/SciPy         Pure safe Rust     BarraCUDA/ToadStool   metalForge dispatch    biomeOS Neural API
   ✓ Complete          ✓ 395/395 PASS     ◐ 102 active          30 workloads           Tower+Node+Squirrel
   11.5× slower        35/35 experiments    (61+41)              24 GPU + 2 NPU + 2 CPU-only         NestGate data pipes
-                      930+ workspace tests                      PCIe topology          NUCLEUS atomics
+                      960+ workspace tests                      PCIe topology          NUCLEUS atomics
                                                                 Pipeline dispatch      Sovereign degradation
 
   Write locally    →  Hand off          →  Lean on upstream   →  Cross-substrate     →  Primal orchestration
@@ -368,7 +368,7 @@ groundSpring/
 │   ├── npu_anderson/               # Exp 028: NPU Anderson regime classification
 │   └── et0_methods/                # Exp 034: Multi-method ET₀ cross-validation
 ├── crates/
-│   ├── groundspring/               # Phase 1 Rust library (39 modules incl. esn, lanczos, tissue_anderson, biomeos, nestgate, npu, primal_names)
+│   ├── groundspring/               # Phase 1 Rust library (40 modules incl. rawr, esn, lanczos, tissue_anderson, biomeos, nestgate, npu, primal_names)
 │   └── groundspring-validate/      # 34 validation binaries (hotSpring pattern)
 ├── metalForge/                     # Write → Absorb → Lean artifacts
 │   ├── forge/                      # groundspring-forge crate: hardware discovery, dispatch, topology, pipeline, atomics, remote
@@ -378,7 +378,7 @@ groundSpring/
 ├── graphs/                         # biomeOS pipeline graphs (deploy, Tower, Node, cross-substrate, validation)
 ├── niches/                         # BYOB niche YAML definitions (groundspring-measurement)
 ├── .github/workflows/ci.yml        # GitHub Actions CI
-├── wateringHole/                   # Handoff directory (V115 current)
+├── wateringHole/                   # Handoff directory (V116 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md      # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md   # GPU kernel gap analysis

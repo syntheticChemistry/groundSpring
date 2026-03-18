@@ -94,9 +94,10 @@ pub fn bind_socket() -> Result<(std::os::unix::net::UnixListener, PathBuf)> {
 /// Reads one newline-delimited request, calls `handler(method, params)`,
 /// and writes the response. Used by the primal binary's accept loop.
 #[cfg(unix)]
-pub fn serve_one<F>(stream: &std::os::unix::net::UnixStream, handler: F)
+pub fn serve_one<F, E>(stream: &std::os::unix::net::UnixStream, handler: F)
 where
-    F: Fn(&str, &Value) -> std::result::Result<Value, String>,
+    F: Fn(&str, &Value) -> std::result::Result<Value, E>,
+    E: std::fmt::Display,
 {
     if let Err(e) = handle_connection(stream, &handler) {
         log::error!("connection error: {e}");
@@ -105,9 +106,10 @@ where
 
 /// Handle a single JSON-RPC connection.
 #[cfg(unix)]
-fn handle_connection<F>(stream: &std::os::unix::net::UnixStream, handler: &F) -> Result<()>
+fn handle_connection<F, E>(stream: &std::os::unix::net::UnixStream, handler: &F) -> Result<()>
 where
-    F: Fn(&str, &Value) -> std::result::Result<Value, String>,
+    F: Fn(&str, &Value) -> std::result::Result<Value, E>,
+    E: std::fmt::Display,
 {
     let _ = stream.set_read_timeout(Some(std::time::Duration::from_secs(30)));
     let _ = stream.set_write_timeout(Some(std::time::Duration::from_secs(10)));
@@ -138,11 +140,14 @@ where
             "result": result,
             "id": id,
         }),
-        Err(msg) => serde_json::json!({
-            "jsonrpc": "2.0",
-            "error": { "code": -32000, "message": msg },
-            "id": id,
-        }),
+        Err(err) => {
+            let message = err.to_string();
+            serde_json::json!({
+                "jsonrpc": "2.0",
+                "error": { "code": -32000, "message": message },
+                "id": id,
+            })
+        }
     };
 
     let mut response_bytes = response.to_string().into_bytes();

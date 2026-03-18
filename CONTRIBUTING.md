@@ -33,17 +33,18 @@ control/             Python Phase 0 experiments (29 experiments across 9 domains
   freeze_out_inverse/ Exp 020: Freeze-out inverse (Bazavov 2016)
   spectral_recon/     Exp 021: Spectral reconstruction (Bazavov 2025)
 crates/
-  groundspring/            Rust library (39 modules)
+  groundspring/            Rust library (40 modules)
     src/stats/             RMSE, MBE, R², IA, hit rate, Pearson/Spearman, covariance,
                            norm_cdf/ppf, chi2_statistic, mean, std, percentile (3 submodules)
     src/decompose.rs       Bias-variance decomposition, noise floor
-    src/fao56.rs           FAO-56 Penman-Monteith equation chain
+    src/fao56/             FAO-56 Penman-Monteith equation chain (modular: daily, hargreaves, crop_soil, et0_methods, pipeline)
     src/prng.rs            Xorshift64 PRNG, Box-Muller normal sampling, binomial
     src/rarefaction.rs     Multinomial sampling, Shannon, evenness
     src/seismic.rs         Haversine, travel time, grid-search inversion
     src/gillespie.rs       Gillespie SSA for stochastic kinetics
-    src/bootstrap.rs       Bootstrap + RAWR confidence intervals (bootstrap_mean delegated)
-    src/anderson.rs        Anderson localization, Lyapunov exponents, analytical ξ(W,E)
+    src/bootstrap.rs       Bootstrap confidence intervals (bootstrap_mean delegated)
+    src/rawr.rs            RAWR (Resampling with Analytical Weights) confidence intervals
+    src/anderson/          Anderson localization, Lyapunov exponents, analytical ξ(W,E), spectral diagnostics
     src/almost_mathieu.rs  Almost-Mathieu quasiperiodic localization, level spacing
     src/kinetics.rs       Hill-function kinetics (hill, hill_repress) shared by bistable + multisignal
     src/bistable.rs        Bistable ODE (RK4, Euler-Maruyama, BistableOde delegation)
@@ -105,7 +106,7 @@ scripts/             Automation (baselines, benchmarks)
 ### Rust
 
 ```bash
-cargo test --workspace                         # 930+ tests, all PASS (V115)
+cargo test --workspace                         # 960+ tests, all PASS (V116)
 cargo test --workspace --all-features          # all feature paths tested
 cargo test --workspace --features biomeos      # biomeos tests (NUCLEUS client active)
 cargo test --workspace --features barracuda-gpu # GPU dispatch active

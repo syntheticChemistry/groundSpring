@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 18, 2026 (V115)
+**Last Updated**: March 18, 2026 (V116)
 
 ## What This Is
 
@@ -18,7 +18,8 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V115 Evolution | [GROUNDSPRING_V115_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR18_2026.md](handoffs/GROUNDSPRING_V115_TOADSTOOL_BARRACUDA_EVOLUTION_HANDOFF_MAR18_2026.md) | Mar 18, 2026 | Deep debt + idiomatic API evolution: `assert!` → `Result`, CI hardened, ecoBin compliance (14 C-deps banned, UniBin flags, niche cost estimates), zero panicking public APIs. |
+| V116 Typed Errors | [GROUNDSPRING_V116_TYPED_ERROR_EVOLUTION_HANDOFF_MAR18_2026.md](handoffs/GROUNDSPRING_V116_TYPED_ERROR_EVOLUTION_HANDOFF_MAR18_2026.md) | Mar 18, 2026 | Typed error evolution: `DispatchError`, `EsnError`, `ResilienceError<E>`; Format C/D capability parsing; `ValidationSink` trait; `OnceLock` GPU probe cache; RAWR extraction; named dispatch constants. |
+| V116 Comprehensive | [GROUNDSPRING_V116_TOADSTOOL_BARRACUDA_COMPREHENSIVE_HANDOFF_MAR18_2026.md](handoffs/GROUNDSPRING_V116_TOADSTOOL_BARRACUDA_COMPREHENSIVE_HANDOFF_MAR18_2026.md) | Mar 18, 2026 | Full 102-delegation inventory, PRNG/eigenvector/Chao1 evolution roadmap, V116 patterns to absorb (typed errors, OnceLock, ValidationSink, named constants), quality certificate. |
 
 ## Cross-Spring Documentation
 
@@ -38,6 +39,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | Scope |
 |---------|-------|
+| V115 Deep Debt + Idiomatic API Evolution | `assert!` → `Result<T, InputError>`, CI hardened (nursery, `--all-features`), ecoBin compliance (14 C-deps banned), zero panicking public APIs (superseded by V116) |
 | V114 Cross-Ecosystem Deep Absorption | safe_cast, health probes, resilient_call, OrExit evolution, FAMILY_ID discovery, primal composition guidance (superseded by V115) |
 | V113 Ecosystem Resilience | GemmF64 transpose, exit_code constants, RetryPolicy + CircuitBreaker, 4-format capability parsing (superseded by V114) |
 | V112 Deep Debt + OrExit | `OrExit<T>` + parse_benchmark() (28 binaries), generic socket_env_var(), provenance trio, thiserror BenchFieldError, tempdir test hygiene (superseded by V113) |

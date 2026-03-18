@@ -9,7 +9,7 @@ cross-pollination of shaders across springs.
 
 ## Overview
 
-barraCuda v0.3.3 has absorbed 708 WGSL shaders from five springs, compiled
+barraCuda v0.3.5 has absorbed 708 WGSL shaders from five springs, compiled
 through a universal precision pipeline (`compile_shader_universal()` +
 naga IR rewrite) that gives every spring f64-class precision on any GPU.
 
@@ -125,7 +125,7 @@ to biodiversity assessment.
 
 Three-mode benchmark (`benchmark-cross-spring --release`):
 
-### Cross-Spring Provenance Benchmark (barraCuda v0.3.5, toadStool S130+)
+### Cross-Spring Provenance Benchmark (barraCuda v0.3.5, toadStool S158+)
 
 | Workload | Origin Spring | Time | Notes |
 |---|---|---|---|

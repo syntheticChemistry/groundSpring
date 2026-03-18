@@ -29,7 +29,8 @@ fn ci_width(data: &[f64], n_boot: usize, confidence: f64, seed: u64, use_rawr: b
         rawr_mean(data, n_boot, confidence, seed)
     } else {
         bootstrap_mean(data, n_boot, confidence, seed)
-    };
+    }
+    .expect("validated inputs must not fail");
     r.ci_upper - r.ci_lower
 }
 

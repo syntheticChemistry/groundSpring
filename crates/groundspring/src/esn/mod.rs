@@ -53,6 +53,25 @@ pub use classifier::{
     GOE_R, POISSON_R, classify_by_lyapunov, classify_by_spacing_ratio, spectral_features,
 };
 
+/// Typed error for ESN classifier operations.
+///
+/// Preserves the operation context (init / train / predict) and the
+/// source error from the barraCuda GPU layer instead of flattening
+/// to an opaque `String`.
+#[cfg(feature = "barracuda-gpu")]
+#[derive(Debug, thiserror::Error)]
+pub enum EsnError {
+    /// GPU device initialization or ESN reservoir creation failed.
+    #[error("ESN init failed: {0}")]
+    Init(#[source] barracuda::error::BarracudaError),
+    /// Readout weight training failed.
+    #[error("ESN training failed: {0}")]
+    Train(#[source] barracuda::error::BarracudaError),
+    /// Prediction (forward pass) failed.
+    #[error("ESN predict failed: {0}")]
+    Predict(#[source] barracuda::error::BarracudaError),
+}
+
 /// Localization regime labels for Anderson model classification.
 ///
 /// The three regimes correspond to distinct spectral statistics:

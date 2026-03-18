@@ -242,11 +242,10 @@ fn extract_capabilities(body: &str) -> Vec<String> {
 
 fn extract_capabilities_from_value(value: &Value) -> Vec<String> {
     if let Value::Object(obj) = value {
-        if let Some(inner) = obj.get("capabilities") {
-            return extract_capabilities_from_value(inner);
-        }
-        if let Some(inner) = obj.get("result") {
-            return extract_capabilities_from_value(inner);
+        for wrapper_key in ["capabilities", "result", "methods"] {
+            if let Some(inner) = obj.get(wrapper_key) {
+                return extract_capabilities_from_value(inner);
+            }
         }
     }
 
@@ -255,16 +254,29 @@ fn extract_capabilities_from_value(value: &Value) -> Vec<String> {
             .iter()
             .filter_map(|v| match v {
                 Value::String(s) => Some(s.clone()),
-                Value::Object(obj) => obj
-                    .get("name")
-                    .or_else(|| obj.get("capability"))
-                    .and_then(|n| n.as_str())
-                    .map(str::to_owned),
+                Value::Object(obj) => extract_method_name_from_object(obj),
                 _ => None,
             })
             .collect(),
         _ => Vec::new(),
     }
+}
+
+/// Extract a method/capability name from a JSON object, supporting all
+/// known capability advertisement formats:
+///
+/// - **Format A** (flat string) — handled by caller
+/// - **Format B** (`name`/`capability` key): `{"name": "compute.execute", ...}`
+/// - **Format C** (`method_info`): `{"method": "compute.execute", "description": "..."}`
+/// - **Format D** (`semantic_mappings`): `{"semantic_method": "compute.execute", ...}`
+///   or `{"method_name": "compute.execute", ...}`
+fn extract_method_name_from_object(obj: &serde_json::Map<String, Value>) -> Option<String> {
+    for key in ["name", "capability", "method", "semantic_method", "method_name"] {
+        if let Some(s) = obj.get(key).and_then(Value::as_str) {
+            return Some(s.to_owned());
+        }
+    }
+    None
 }
 
 // ─── toadStool compute.dispatch.* Direct Dispatch ────────────────────────────
@@ -391,5 +403,53 @@ mod tests {
         let body = r#"{"result": [{"name": "compute.execute"}, {"capability": "storage.put"}]}"#;
         let caps = extract_capabilities(body);
         assert_eq!(caps, vec!["compute.execute", "storage.put"]);
+    }
+
+    #[test]
+    fn extract_capabilities_format_c_method_info() {
+        let body = r#"[
+            {"method": "compute.execute", "description": "Execute GPU compute workload"},
+            {"method": "compute.status", "description": "Query job status"}
+        ]"#;
+        let caps = extract_capabilities(body);
+        assert_eq!(caps, vec!["compute.execute", "compute.status"]);
+    }
+
+    #[test]
+    fn extract_capabilities_format_d_semantic_mappings() {
+        let body = r#"[
+            {"semantic_method": "measurement.noise_decomposition", "provider": "groundSpring"},
+            {"method_name": "measurement.bootstrap", "provider": "groundSpring"}
+        ]"#;
+        let caps = extract_capabilities(body);
+        assert_eq!(
+            caps,
+            vec![
+                "measurement.noise_decomposition",
+                "measurement.bootstrap"
+            ]
+        );
+    }
+
+    #[test]
+    fn extract_capabilities_methods_wrapper() {
+        let body = r#"{"methods": ["health.check", "compute.dispatch.submit"]}"#;
+        let caps = extract_capabilities(body);
+        assert_eq!(caps, vec!["health.check", "compute.dispatch.submit"]);
+    }
+
+    #[test]
+    fn extract_capabilities_mixed_formats() {
+        let body = r#"{"capabilities": [
+            "health",
+            {"name": "compute.execute"},
+            {"method": "data.query"},
+            {"semantic_method": "analysis.run"}
+        ]}"#;
+        let caps = extract_capabilities(body);
+        assert_eq!(
+            caps,
+            vec!["health", "compute.execute", "data.query", "analysis.run"]
+        );
     }
 }
