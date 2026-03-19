@@ -48,7 +48,7 @@ const EOSINOPHIL_ON_SITE_ENERGY: f64 = 0.9;
 /// (collagen/ECM production). Slightly above keratinocyte.
 const FIBROBLAST_ON_SITE_ENERGY: f64 = 0.15;
 
-use crate::prng::Xorshift64;
+use crate::prng::DefaultRng;
 
 /// Skin compartment in the tissue Anderson lattice.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -189,7 +189,7 @@ pub fn pielou_evenness(composition: &[(CellType, f64)]) -> f64 {
 /// The perturbation magnitude is scaled by the compartment's base disorder.
 #[must_use]
 pub fn tissue_potential(n_sites: usize, compartment: &TissueCompartment, seed: u64) -> Vec<f64> {
-    let mut rng = Xorshift64::new(seed);
+    let mut rng = DefaultRng::new(seed);
     let w = compartment.base_disorder;
     let half_w = w / 2.0;
 

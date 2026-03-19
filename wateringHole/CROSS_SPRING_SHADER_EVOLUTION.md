@@ -3,13 +3,13 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 16, 2026 (V113: 102 active delegations (61 CPU + 41 GPU), barraCuda v0.3.5, toadStool S158+, coralReef Iteration 55+. V113: GemmF64 transpose, RetryPolicy + CircuitBreaker, 4-format capability parsing, exit_code. V110: zero-panic validation binaries, smart module refactoring, named physical constants. V108: AGPL-3.0-or-later, WelfordState, tolerance centralization, typed capability discovery. V105: deep debt, named constants. V102: niche deployment. V98: upstream rewire. V95: coralReef breakthrough. V87: Tier B resolution. V73: tolerance architecture)
+**Last Updated**: March 19, 2026 (V118: 110 active delegations (67 CPU + 43 GPU), barraCuda v0.3.5, toadStool S158+, coralReef Iteration 55+. V113: GemmF64 transpose, RetryPolicy + CircuitBreaker, 4-format capability parsing, exit_code. V110: zero-panic validation binaries, smart module refactoring, named physical constants. V108: AGPL-3.0-or-later, WelfordState, tolerance centralization, typed capability discovery. V105: deep debt, named constants. V102: niche deployment. V98: upstream rewire. V95: coralReef breakthrough. V87: Tier B resolution. V73: tolerance architecture)
 
 ---
 
 ## Overview
 
-groundSpring has **102 active delegations** (61 CPU + 41 GPU) with **0 evolution candidates** — Tier B fully resolved (V87).
+groundSpring has **110 active delegations** (67 CPU + 43 GPU) with **0 evolution candidates** — Tier B fully resolved (V87).
 Those barracuda functions were not built in isolation — they were refined and
 battle-tested through absorption from **five Springs**, each bringing domain-specific
 requirements that hardened the shared library.
@@ -781,11 +781,11 @@ correctly in production.
 
 | Tier | Count | Notes |
 |------|-------|-------|
-| CPU active | 60 | barraCuda v0.3.3 canonical — V87: +multinomial_sample, +anderson_potential |
-| GPU active | 41 | includes 4D Anderson, Wegner RG, McEt0, seasonal pipeline, JackknifeMeanGpu, HargreavesBatchGpu |
+| CPU active | 67 | barraCuda v0.3.3 canonical — V87: +multinomial_sample, +anderson_potential |
+| GPU active | 43 | includes 4D Anderson, Wegner RG, McEt0, seasonal pipeline, JackknifeMeanGpu, HargreavesBatchGpu |
 | CPU by design | 2 | `quasispecies_simulation` (per-gen mutation thinning), `band_structure` coarse scan (data-dependent matrix chains) |
 | Evolution candidates | 0 | Tier B fully resolved |
-| **Total active** | **102** | 936 tests, clippy pedantic clean |
+| **Total active** | **110** | 936 tests, clippy pedantic clean |
 
 ### NUCLEUS Integration (V63)
 

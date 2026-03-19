@@ -37,7 +37,7 @@ mod monitor;
 pub use monitor::{DriftAction, DriftMonitor};
 
 use crate::cast::{usize_f64, usize_u64};
-use crate::prng::Xorshift64;
+use crate::prng::DefaultRng;
 
 /// Shannon diversity from integer abundances.
 ///
@@ -114,7 +114,7 @@ pub fn wright_fisher_fixation(
     // Factor 10: Wright-Fisher fixation typically takes O(N) generations;
     // 10× gives headroom for slow selection near neutrality.
     let max_gens = 10 * n_alleles;
-    let mut rng = Xorshift64::new(seed);
+    let mut rng = DefaultRng::new(seed);
     let n_alleles_u64 = usize_u64(n_alleles);
 
     for _ in 0..max_gens {
@@ -232,7 +232,7 @@ fn wf_batch_cpu(
 #[cfg(feature = "barracuda-gpu")]
 fn wf_generate_prng_state(n_trials: usize, base_seed: u64) -> Vec<u32> {
     let mut state = Vec::with_capacity(n_trials * 4);
-    let mut rng = crate::prng::Xorshift64::new(base_seed);
+    let mut rng = crate::prng::DefaultRng::new(base_seed);
     for _ in 0..n_trials {
         for _ in 0..4 {
             #[expect(
@@ -408,7 +408,7 @@ pub fn neutral_diversity_trajectory(
         });
     }
 
-    let mut rng = Xorshift64::new(seed);
+    let mut rng = DefaultRng::new(seed);
     let base_count = pop_size / n_species;
     let mut abundances: Vec<u64> = vec![usize_u64(base_count); n_species];
     let remainder = pop_size - base_count * n_species;

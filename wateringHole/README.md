@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 18, 2026 (V117)
+**Last Updated**: March 19, 2026 (V118)
 
 ## What This Is
 
@@ -18,7 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V117 All-Features + PRNG | [GROUNDSPRING_V117_ALLFEATURES_DENY_PRNG_HANDOFF_MAR18_2026.md](handoffs/GROUNDSPRING_V117_ALLFEATURES_DENY_PRNG_HANDOFF_MAR18_2026.md) | Mar 18, 2026 | All-features compilation fixed (tarpc-ipc), cargo deny modernised, PRNG DefaultRng feature-gated, validate_all meta-binary, clippy --all-features clean. |
+| V118 Deep Audit + RPC + PRNG | [GROUNDSPRING_V118_DEEP_AUDIT_RPC_PRNG_HANDOFF_MAR19_2026.md](handoffs/GROUNDSPRING_V118_DEEP_AUDIT_RPC_PRNG_HANDOFF_MAR19_2026.md) | Mar 19, 2026 | RPC expansion (16 capabilities), 16 proptest invariants, PRNG DefaultRng production migration, spectral_recon GPU GEMM, 110 delegations (67 CPU + 43 GPU), provenance hardening, CI Python 90%. |
 
 ## Cross-Spring Documentation
 
@@ -38,6 +38,8 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | Scope |
 |---------|-------|
+| V117 All-Features + PRNG | All-features compilation fixed (tarpc-ipc), cargo deny modernised, PRNG DefaultRng feature-gated, validate_all meta-binary, clippy --all-features clean (superseded by V118) |
+| V116 Typed Error Evolution | `DispatchError`, `EsnError`, `ResilienceError<E>`, `ValidationSink` trait, Format C/D capability parsing, `OnceLock` GPU probe, RAWR extraction, dispatch defaults named with provenance (superseded by V117) |
 | V115 Deep Debt + Idiomatic API Evolution | `assert!` → `Result<T, InputError>`, CI hardened (nursery, `--all-features`), ecoBin compliance (14 C-deps banned), zero panicking public APIs (superseded by V116) |
 | V114 Cross-Ecosystem Deep Absorption | safe_cast, health probes, resilient_call, OrExit evolution, FAMILY_ID discovery, primal composition guidance (superseded by V115) |
 | V113 Ecosystem Resilience | GemmF64 transpose, exit_code constants, RetryPolicy + CircuitBreaker, 4-format capability parsing (superseded by V114) |

@@ -16,7 +16,7 @@
 //! `barracuda::stats::rawr_mean()` (absorbed in barraCuda S66).
 
 use crate::bootstrap::{BootstrapResult, percentile_ci, validate_bootstrap_inputs};
-use crate::prng::Xorshift64;
+use crate::prng::DefaultRng;
 
 /// Cap for -ln(0) fallback when Exp(1) variate would be infinite.
 const EXP_VARIATE_CAP: f64 = 30.0;
@@ -54,7 +54,7 @@ pub fn rawr_mean(
 
 fn rawr_mean_cpu(data: &[f64], n_replicates: usize, confidence: f64, seed: u64) -> BootstrapResult {
     let n = data.len();
-    let mut rng = Xorshift64::new(seed);
+    let mut rng = DefaultRng::new(seed);
     let mut means = Vec::with_capacity(n_replicates);
 
     for _ in 0..n_replicates {
@@ -82,6 +82,7 @@ fn rawr_mean_cpu(data: &[f64], n_replicates: usize, confidence: f64, seed: u64) 
 #[expect(clippy::unwrap_used, reason = "test assertions use unwrap for clarity")]
 mod tests {
     use super::*;
+    use crate::prng::Xorshift64;
 
     #[test]
     fn rawr_deterministic() {
@@ -139,7 +140,7 @@ mod tests {
     fn rawr_single_value() {
         let data = vec![42.0];
         let r = rawr_mean(&data, 200, 0.95, 1).unwrap();
-        assert!((r.estimate - 42.0).abs() < 1e-12);
+        assert!((r.estimate - 42.0).abs() < crate::tol::EXACT);
     }
 
     #[test]

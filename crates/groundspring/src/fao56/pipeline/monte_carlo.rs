@@ -111,7 +111,7 @@ fn monte_carlo_et0_cpu(
     n_samples: usize,
     seed: u64,
 ) -> McEt0Result {
-    let mut rng = crate::prng::Xorshift64::new(seed);
+    let mut rng = crate::prng::DefaultRng::new(seed);
     let mut samples = Vec::with_capacity(n_samples);
 
     for _ in 0..n_samples {

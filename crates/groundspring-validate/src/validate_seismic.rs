@@ -171,6 +171,10 @@ fn run() -> i32 {
     h.check_range("NY-London ~5570 km", ny_london, hav_lo, hav_hi);
 
     // ── Travel time ─────────────────────────────────────────────────
+    // Provenance: 100 km surface distance at vp = 6.0 km/s (IASP91
+    // upper-crust velocity, Kennett & Engdahl 1991 Table 1). At zero
+    // depth the slant distance equals the surface distance, so
+    // travel_time = 100 / 6 ≈ 16.667 s.
     println!("\n--- Travel Time ---");
 
     let tt_100 = travel_time_1d(100.0, 0.0, 6.0);

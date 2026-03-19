@@ -91,7 +91,7 @@ fn nelder_mead_multi_start_gpu(
         ..BatchNelderMeadConfig::default()
     };
 
-    let mut rng = crate::prng::Xorshift64::new(NM_SEED);
+    let mut rng = crate::prng::DefaultRng::new(NM_SEED);
     let mut simplices = Vec::with_capacity(n_starts * 3 * 2);
     for _ in 0..n_starts {
         for vertex in 0..3 {

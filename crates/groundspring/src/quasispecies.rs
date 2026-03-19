@@ -32,7 +32,7 @@
 //! replicates via `WrightFisherGpu` (barraCuda S66).
 
 use crate::cast::{usize_f64, usize_u64};
-use crate::prng::Xorshift64;
+use crate::prng::DefaultRng;
 
 /// Analytical error threshold for the single-peak landscape.
 ///
@@ -148,7 +148,7 @@ fn quasispecies_simulation_cpu(
 
     let q = (1.0 - mu).powf(usize_f64(genome_length));
     let pop_f = usize_f64(pop_size);
-    let mut rng = Xorshift64::new(seed);
+    let mut rng = DefaultRng::new(seed);
     let mut n_master = pop_size / 2;
 
     let mut freqs = Vec::with_capacity(n_generations);

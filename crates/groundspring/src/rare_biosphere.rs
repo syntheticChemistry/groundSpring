@@ -202,12 +202,12 @@ fn abundance_occupancy_cpu(
     n_samples: usize,
     base_seed: u64,
 ) -> Vec<f64> {
-    use crate::prng::Xorshift64;
+    use crate::prng::DefaultRng;
     use crate::rarefaction::multinomial_sample;
 
     let n = community.len();
     let mut detection_counts = vec![0u64; n];
-    let mut seed_rng = Xorshift64::new(base_seed);
+    let mut seed_rng = DefaultRng::new(base_seed);
 
     for _ in 0..n_samples {
         let seed = seed_rng.next_u64();
@@ -232,10 +232,10 @@ pub fn singleton_fraction(
     n_replicates: usize,
     base_seed: u64,
 ) -> f64 {
-    use crate::prng::Xorshift64;
+    use crate::prng::DefaultRng;
     use crate::rarefaction::multinomial_sample;
 
-    let mut rng = Xorshift64::new(base_seed);
+    let mut rng = DefaultRng::new(base_seed);
     let mut total = 0.0;
 
     for _ in 0..n_replicates {
@@ -259,10 +259,10 @@ pub fn mean_chao1_at_depth(
     n_replicates: usize,
     base_seed: u64,
 ) -> (f64, f64) {
-    use crate::prng::Xorshift64;
+    use crate::prng::DefaultRng;
     use crate::rarefaction::{multinomial_sample, taxa_detected};
 
-    let mut rng = Xorshift64::new(base_seed);
+    let mut rng = DefaultRng::new(base_seed);
     let mut chao1_sum = 0.0;
     let mut sobs_sum = 0.0;
 
@@ -357,10 +357,10 @@ fn tier_detection_rate_cpu(
     n_replicates: usize,
     base_seed: u64,
 ) -> f64 {
-    use crate::prng::Xorshift64;
+    use crate::prng::DefaultRng;
     use crate::rarefaction::multinomial_sample;
 
-    let mut rng = Xorshift64::new(base_seed);
+    let mut rng = DefaultRng::new(base_seed);
     let n_species = tier_hi - tier_lo;
     let mut detections = 0usize;
 
@@ -397,8 +397,8 @@ fn community_to_cumulative(community: &[f64]) -> Vec<f64> {
 /// Generate xoshiro128** seed array: `n_reps * 4` u32 values.
 #[cfg(feature = "barracuda-gpu")]
 fn generate_xoshiro_seeds(n_reps: usize, base_seed: u64) -> Vec<u32> {
-    use crate::prng::Xorshift64;
-    let mut rng = Xorshift64::new(base_seed);
+    use crate::prng::DefaultRng;
+    let mut rng = DefaultRng::new(base_seed);
     let mut seeds = Vec::with_capacity(n_reps * 4);
     for _ in 0..n_reps * 4 {
         #[expect(

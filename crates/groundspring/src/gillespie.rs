@@ -19,7 +19,7 @@
 
 #[cfg(feature = "barracuda-gpu")]
 use crate::eps;
-use crate::prng::Xorshift64;
+use crate::prng::DefaultRng;
 
 /// A recorded trajectory from a Gillespie SSA run.
 #[derive(Debug, Clone)]
@@ -54,7 +54,7 @@ pub fn birth_death_ssa(
     );
 
     let total_syn: f64 = synthesis_rates.iter().sum();
-    let mut rng = Xorshift64::new(seed);
+    let mut rng = DefaultRng::new(seed);
     let mut t = 0.0;
     let mut s = initial;
     let mut times = vec![0.0];
@@ -192,7 +192,7 @@ fn birth_death_ssa_batch_gpu(
     let initial_states: Vec<f64> = vec![crate::cast::u64_f64(initial); n_trajectories];
 
     let mut prng_seeds = Vec::with_capacity(n_trajectories * 4);
-    let mut rng = crate::prng::Xorshift64::new(base_seed);
+    let mut rng = crate::prng::DefaultRng::new(base_seed);
     for _ in 0..n_trajectories {
         for _ in 0..4 {
             #[expect(

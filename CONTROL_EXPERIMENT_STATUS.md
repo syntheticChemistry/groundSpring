@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 18, 2026 (V117 — 960+ tests, 0 clippy (default + all-features), 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later (SCYBORG trio). V117: all-features compilation fixed (tarpc-ipc), cargo deny modernised, PRNG feature-gated, validate_all meta-binary, bare literal cleanup. V116: typed error evolution. V115: API evolution, CI hardening, ecoBin compliance.)
+**Last updated**: March 19, 2026 (V118 — 960+ tests, 0 clippy (default + all-features), 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later (SCYBORG trio). V118: RPC expansion (8 new measurement methods, 16 total), 16 proptest invariants, PRNG DefaultRng production migration, spectral_recon GPU GEMM delegation, 110 delegations (67 CPU + 43 GPU), provenance hardening, CI Python coverage 90%. V117: all-features compilation fixed. V116: typed error evolution.)
 
 ## Experiment Register
 
@@ -49,7 +49,7 @@
 **Rust tests**: 960+/960+ PASS (default workspace)
 **pytest**: 390/390 PASS + 2 skipped
 **Three-tier parity**: 102+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
-**BarraCUDA dispatch**: 102 active (61 CPU + 41 GPU) — V105: barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+. `PrecisionRoutingAdvice` wired into 11 GPU dispatch paths via `get_device_f64_safe()`. tarpc 0.37, ops GPU-gated rewire, domain-esn feature, Rust 2024 unsafe model. coralReef sovereign dispatch path proven on Titan V
+**BarraCUDA dispatch**: 110 active (67 CPU + 43 GPU) — V105: barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+. `PrecisionRoutingAdvice` wired into 11 GPU dispatch paths via `get_device_f64_safe()`. tarpc 0.37, ops GPU-gated rewire, domain-esn feature, Rust 2024 unsafe model. coralReef sovereign dispatch path proven on Titan V
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); compute.execute + compute.submit validated
 **metalForge workloads**: 30 (24 GPU + 2 NPU + 2 CPU-only), 140 checks
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
@@ -454,7 +454,7 @@ Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classi
 | `test_three_tier_parity.py` | 72 | Three-tier parity verification |
 | Rust `#[test]` (lib) | 272 | Unit tests for Rust library modules |
 | Rust `#[test]` (validate-lib) | 12 | Unit tests for shared validation helpers |
-| Rust proptest | 14 | Property-based invariant tests |
+| Rust proptest | 30 | Property-based invariant tests |
 | Rust determinism | 13 | Bitwise-identical rerun verification |
 | Rust three-tier parity | 100 | CPU/GPU/barracuda parity + pure GPU validation + CPU/GPU stats parity (100% delegation coverage) |
 | Rust integration | 33 | Validation binary integration tests |
@@ -565,7 +565,7 @@ Each experiment is validated at three hardware tiers:
 | **GPU** | `barracuda` feature + GPU adapter | GPU matches CPU within tolerance |
 | **metalForge** | Mixed hardware dispatch | Cross-substrate agreement |
 
-### Current Status (V116)
+### Current Status (V118)
 
 | # | Experiment | CPU | GPU | metalForge | GPU Status |
 |---|-----------|:---:|:---:|:----------:|------------|
@@ -601,13 +601,13 @@ Each experiment is validated at three hardware tiers:
 | 33 | Tissue Anderson 4D + Wegner RG | **29/29 PASS** | **Wired** | Workload | `anderson_4d` + `wegner_block_4d` (V68) |
 
 **CPU tier**: 395/395 PASS (34 binaries, complete)
-**GPU tier**: 27 of 34 papers have GPU wiring (79%). 102 delegations (61 CPU + 41 GPU). 30/30 metalForge parity.
-**V116**: Typed error evolution — `DispatchError`, `EsnError`, `ResilienceError<E>`; `ValidationSink` trait; Format C/D capability parsing; `OnceLock` GPU probe; RAWR extracted to `rawr.rs`; dispatch defaults named with provenance. **V115**: cross-ecosystem deep absorption — safe_cast expansion, health probes, resilient_call, OrExit evolution. **V113**: GemmF64 transpose delegation, exit_code constants, RetryPolicy + CircuitBreaker, 4-format capability parsing. **V112**: `OrExit<T>` trait + parse_benchmark() (28 binaries), generic socket_env_var() discovery, provenance trio, thiserror for BenchFieldError. barraCuda v0.3.5, toadStool S158+, coralReef Iteration 55+.
+**GPU tier**: 27 of 34 papers have GPU wiring (79%). 110 delegations (67 CPU + 43 GPU). 30/30 metalForge parity.
+**V118**: RPC expansion (16 capabilities), 16 proptest invariants, PRNG DefaultRng production migration, spectral_recon GPU GEMM delegation, 110 delegations (67 CPU + 43 GPU), provenance hardening. **V117**: all-features compilation, cargo deny, PRNG feature gate. **V116**: typed error evolution. **V115**: cross-ecosystem deep absorption. barraCuda v0.3.5, toadStool S158+, coralReef Iteration 55+.
 **metalForge tier**: 30 workloads, 140 checks. Exp 028 NPU 9/9 PASS (AKD1000 DMA). GPU→NPU→CPU pipeline dispatch validated.
 
 ### BarraCUDA Integration Status (V105 — toadStool S156+, coralReef Iteration 52+)
 
-**102 active delegations** (61 CPU + 41 GPU). V82: `BootstrapMeanGpu` GPU dispatch, `freeze_out` gate fix. V81: fused `correlation_full` GPU. V68: `lbfgs_numerical`, `anderson_4d`, `wegner_block_4d`. All active delegations use `if let Ok` / `#[cfg]` with always-compiled CPU fallback.
+**110 active delegations** (67 CPU + 43 GPU). V82: `BootstrapMeanGpu` GPU dispatch, `freeze_out` gate fix. V81: fused `correlation_full` GPU. V68: `lbfgs_numerical`, `anderson_4d`, `wegner_block_4d`. All active delegations use `if let Ok` / `#[cfg]` with always-compiled CPU fallback.
 
 | # | Module | BarraCUDA Target | Feature Gate | Status |
 |---|--------|-----------------|:------------:|--------|
@@ -657,7 +657,7 @@ Each experiment is validated at three hardware tiers:
 - **Phase 1**: Rust CPU validation — **COMPLETE** (395/395 across 34 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
 - **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 001-033: all domains)
-- **Phase 2a**: Tier A rewire — **COMPLETE** — 102 active delegations (61 CPU + 41 GPU), toadStool S156+. PrecisionRoutingAdvice wired (V101)
+- **Phase 2a**: Tier A rewire — **COMPLETE** — 110 active delegations (67 CPU + 43 GPU), toadStool S156+. PrecisionRoutingAdvice wired (V101) PrecisionRoutingAdvice wired (V101)
 - **Phase 2b**: BarraCUDA CPU parity — **PROVEN** — 11.6× faster than Python (excl. LAPACK-bound), 28/28 math parity
 - **Phase 2c**: BarraCUDA GPU tier — **PROVEN** — 30/30 three-tier parity, 2.2× total GPU speedup, 47.4× peak (Exp 009)
   - GPU-wired: 25 of 34 papers (76%) — stats, hydrology, spectral, bio ODE, multinomial, optimization, 4D Anderson
@@ -801,7 +801,7 @@ Python (interpreted)     107.1s   ─── math correctness (open data + open s
 Rust (compiled)           20.5s   ─── pure safe Rust, same math (28/28 parity)
   │  ~0% overhead                     395/395 validation checks (34 experiments)
 barracuda-CPU             22.8s   ─── delegation proves portability (30/30 parity)
-  │  2.2× faster                     102 delegations (61 CPU + 41 GPU)
+  │  2.2× faster                     110 delegations (67 CPU + 43 GPU)
 barracuda-GPU              9.8s   ─── GPU proves the math is truly portable
   │                                    47.4× peak (hotSpring Sturm eigensolver)
   │                                    ToadStool unidirectional streaming
@@ -818,7 +818,8 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V79: Exp 035 + seismic delegation | 85 delegations (51 CPU + 34 GPU), 807 tests, barraCuda v0.3.3, toadStool S94b | Archived |
 | V80: Fused Ops + BarraCuda Catch-Up | 87 delegations (51 CPU + 36 GPU), 812 tests, barraCuda v0.3.3+, toadStool S94b | Archived |
 | V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `0bd401f`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
-| V116: typed error evolution | 102 delegations (61 CPU + 41 GPU), 960+ tests, `DispatchError`/`EsnError`/`ResilienceError<E>`, `ValidationSink`, Format C/D, `OnceLock` GPU probe, RAWR extraction, named dispatch constants | **Current** |
+| V118: deep audit + RPC expansion | 110 delegations (67 CPU + 43 GPU), 960+ tests, 16 capabilities, 30 proptests, DefaultRng production migration, spectral_recon GPU GEMM, provenance hardening, CI Python 90% | **Current** |
+| V116: typed error evolution | 102 delegations (61 CPU + 41 GPU), 960+ tests, `DispatchError`/`EsnError`/`ResilienceError<E>`, `ValidationSink`, Format C/D, `OnceLock` GPU probe, RAWR extraction, named dispatch constants | Archived |
 | V115: cross-ecosystem deep absorption | 102 delegations (61 CPU + 41 GPU), 930+ tests, safe_cast expansion, health probes, resilient_call, OrExit evolution, zero eprintln/expect/allow | Archived |
 | V113: Ecosystem Resilience | 102 delegations (61 CPU + 41 GPU), 618 unit + 24 integration tests, GemmF64 transpose delegation, exit_code constants, RetryPolicy + CircuitBreaker, 4-format capability parsing | Archived |
 | V112: Deep Debt + OrExit | 102 delegations (61 CPU + 41 GPU), 912+ tests, `OrExit<T>` + parse_benchmark() (28 binaries), generic socket_env_var(), provenance trio, thiserror BenchFieldError, tempdir test hygiene | Archived |
@@ -885,7 +886,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_V116_TYPED_ERROR_EVOLUTION_HANDOFF_MAR18_2026.md` (V115 archived)
+Active: `wateringHole/handoffs/GROUNDSPRING_V118_DEEP_AUDIT_RPC_PRNG_HANDOFF_MAR19_2026.md` (V117, V116 archived)
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

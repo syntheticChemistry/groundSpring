@@ -11,7 +11,7 @@
 //! When the `barracuda` feature is enabled:
 //! - `bootstrap_mean` delegates to `barracuda::stats::bootstrap_mean()`
 
-use crate::prng::Xorshift64;
+use crate::prng::DefaultRng;
 
 pub use crate::rawr::rawr_mean;
 
@@ -136,7 +136,7 @@ fn bootstrap_mean_cpu(
     seed: u64,
 ) -> BootstrapResult {
     let n = data.len();
-    let mut rng = Xorshift64::new(seed);
+    let mut rng = DefaultRng::new(seed);
     let mut means = Vec::with_capacity(n_replicates);
 
     for _ in 0..n_replicates {
@@ -191,7 +191,7 @@ fn bootstrap_median_cpu(
     seed: u64,
 ) -> BootstrapResult {
     let n = data.len();
-    let mut rng = Xorshift64::new(seed);
+    let mut rng = DefaultRng::new(seed);
     let mut medians = Vec::with_capacity(n_replicates);
     let mut resample = Vec::with_capacity(n);
 
@@ -255,7 +255,7 @@ fn bootstrap_std_cpu(
 ) -> BootstrapResult {
     let n = data.len();
     let n_f = crate::cast::usize_f64(n);
-    let mut rng = Xorshift64::new(seed);
+    let mut rng = DefaultRng::new(seed);
     let mut stds = Vec::with_capacity(n_replicates);
 
     let mut resample_buf = Vec::with_capacity(n);
@@ -312,6 +312,7 @@ pub(crate) fn percentile_ci(
 #[expect(clippy::unwrap_used, reason = "test assertions use unwrap for clarity")]
 mod tests {
     use super::*;
+    use crate::prng::Xorshift64;
 
     #[test]
     fn bootstrap_deterministic() {
@@ -402,10 +403,13 @@ mod tests {
         let data = vec![7.0];
         let r = bootstrap_mean(&data, 200, 0.95, 42).unwrap();
         assert!(
-            (r.estimate - 7.0).abs() < 1e-12,
+            (r.estimate - 7.0).abs() < crate::tol::EXACT,
             "single-value bootstrap mean should be 7.0"
         );
-        assert!(r.std_error < 1e-12, "single-value bootstrap has zero SE");
+        assert!(
+            r.std_error < crate::tol::EXACT,
+            "single-value bootstrap has zero SE"
+        );
     }
 
     #[test]
@@ -486,7 +490,10 @@ mod tests {
     fn bootstrap_std_uniform_data() {
         let data = vec![5.0; 20];
         let r = bootstrap_std(&data, 200, 0.95, 42).unwrap();
-        assert!(r.estimate < 1e-12, "std of constant data should be ~0");
+        assert!(
+            r.estimate < crate::tol::EXACT,
+            "std of constant data should be ~0"
+        );
     }
 
     #[test]

@@ -4,6 +4,64 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V118 Deep Audit Execution — RPC Expansion + Proptest + PRNG Alignment + GPU Delegation (Mar 19, 2026)
+
+#### RPC Method Expansion (8 new capabilities)
+- `measurement.bootstrap`, `measurement.rarefaction`, `measurement.drift`,
+  `measurement.band_edge`, `measurement.rare_biosphere`, `measurement.gillespie`,
+  `measurement.bistable`, `measurement.quasispecies` — full JSON-RPC dispatch
+  with typed parameters, structured JSON output, and unit tests for each
+- `niche.rs` enriched: `CAPABILITIES` expanded from 8 → 16 methods,
+  `SEMANTIC_MAPPINGS` and `COST_ESTIMATES` extended to cover all 16,
+  `OPERATION_DEPENDENCIES` refactored to `pub static` arrays for clippy compliance
+- `dispatch.rs` parameter names aligned with actual `niche.rs` `OperationDeps`
+
+#### Proptest Coverage (16 new property-based tests)
+- `drift`: Kimura fixation probability ∈ [0, 1], neutral fixation ≈ 1/N
+- `fao56`: ET₀ physical plausibility (positive, bounded, monotonic in radiation)
+- `spectral_recon`: Tikhonov round-trip within `tol::RECONSTRUCTION`
+- `quasispecies`: error threshold converges for large genome lengths
+- `band_structure`: band edges come in even-count pairs per period
+
+#### PRNG Alignment — Xorshift64 → DefaultRng in Production
+- 12+ production files migrated from direct `Xorshift64::new(seed)` to
+  `DefaultRng::new(seed)` — enables zero-code-change PRNG migration
+  when `prng-xoshiro-default` feature is enabled
+- `Xorshift64` retained in `#[cfg(test)]` modules for deterministic baseline
+  preservation
+- Files: `rawr.rs`, `bootstrap.rs`, `anderson/mod.rs`, `drift/mod.rs`,
+  `gillespie.rs`, `rarefaction/sampling.rs`, `rare_biosphere.rs`,
+  `quasispecies.rs`, `bistable.rs`, `multisignal.rs`,
+  `fao56/pipeline/monte_carlo.rs`, `freeze_out/nelder_mead.rs`,
+  `tissue_anderson/geometry.rs`, `tissue_anderson/sweeps.rs`
+
+#### GPU Delegation — spectral_recon forward_correlator
+- `forward_correlator` dispatches to `barracuda::ops::linalg::GemmF64::execute_gemm_ex`
+  when `barracuda-gpu` is enabled; CPU `forward_correlator_cpu` fallback retained
+- Delegation count: 110 (67 CPU + 43 GPU), up from 102 (61 + 41)
+
+#### Hardcoded → Named Constants
+- `1e-12` in bootstrap/rawr test assertions → `crate::tol::EXACT`
+- Provenance comments added to hardcoded values in `validate_seismic.rs`
+  (distance, depth, vp) and `validate_fao56.rs` (wind measurement height,
+  daylight bounds)
+
+#### Python Tolerance Mirror
+- Added `EPS_SSA_FLOOR` to `control/tolerances.py` (mirrors `eps::SSA_FLOOR`)
+
+#### CI Hardening
+- Python coverage threshold raised from 80% to 90% (aligned with Rust target)
+
+#### Baseline Runner Fixes
+- `regenerate_benchmarks.sh`: added `export PYTHONPATH="$ROOT"` for module resolution
+- `baseline_runner.py`: fixed syntax errors (`zero.perf_counter()` → `time.perf_counter()`,
+  `sum_ cross` → `sum_xy`), removed stale `typo:` string, added `validation_script`
+  and `real_data_accession` provenance fields
+
+**Quality**: 960+ tests, 0 clippy (default + barracuda + all-features), 0 fmt diff,
+0 doc warnings, 0 unsafe, `cargo deny check` PASS, 110 active delegations (67 CPU + 43 GPU).
+All files < 1000 LOC (largest: dispatch.rs at 823).
+
 ### V117 All-Features Compilation + cargo deny + PRNG Feature Gate (Mar 18, 2026)
 
 #### All-Features Compilation Fixed

@@ -2,7 +2,7 @@
 
 > How groundSpring absorbs from and contributes to the ecoPrimals ecosystem.
 >
-> **Last updated**: March 18, 2026 (V117 — 102 delegations, 960+ tests)
+> **Last updated**: March 19, 2026 (V118 — 110 delegations, 960+ tests)
 
 ## Leverage Philosophy
 
@@ -18,7 +18,7 @@ tolerances.
 
 ## What groundSpring Consumes
 
-### barraCuda (102 delegations)
+### barraCuda (110 delegations)
 
 | Domain | CPU | GPU | Key primitives |
 |--------|-----|-----|----------------|

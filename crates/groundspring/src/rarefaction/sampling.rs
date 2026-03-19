@@ -41,7 +41,7 @@ fn multinomial_sample_barracuda(abundances: &[f64], depth: u64, seed: u64) -> Ve
         reason = "sequencing depth ≤ 10^6, fits u32"
     )]
     let depth_u32 = depth as u32;
-    let mut rng = crate::prng::Xorshift64::new(seed);
+    let mut rng = crate::prng::DefaultRng::new(seed);
     let counts_u32 =
         barracuda::ops::bio::multinomial_sample_cpu(&cumulative, depth_u32, &mut || rng.next_f64());
     counts_u32.iter().map(|&c| u64::from(c)).collect()
@@ -49,13 +49,13 @@ fn multinomial_sample_barracuda(abundances: &[f64], depth: u64, seed: u64) -> Ve
 
 #[cfg(not(feature = "barracuda-gpu"))]
 fn multinomial_sample_cpu(abundances: &[f64], depth: u64, seed: u64) -> Vec<u64> {
-    use crate::prng::Xorshift64;
+    use crate::prng::DefaultRng;
 
     let n = abundances.len();
     let mut counts = vec![0u64; n];
     let cumulative: Vec<f64> = abundances_to_cumulative(abundances);
 
-    let mut rng = Xorshift64::new(seed);
+    let mut rng = DefaultRng::new(seed);
     for _ in 0..depth {
         let u = rng.next_f64();
         let idx = match cumulative.binary_search_by(|probe| probe.total_cmp(&u)) {

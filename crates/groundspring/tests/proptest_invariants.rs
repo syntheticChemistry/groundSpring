@@ -260,3 +260,181 @@ proptest! {
         );
     }
 }
+
+// ---------------------------------------------------------------------------
+// Drift: Kimura fixation probability invariants
+// ---------------------------------------------------------------------------
+
+use groundspring::drift::kimura_fixation_prob;
+
+proptest! {
+    #[test]
+    fn kimura_fixation_bounded_01(
+        n in 10_usize..500,
+        s in -0.1_f64..0.1,
+        p in 0.01_f64..0.99,
+    ) {
+        let prob = kimura_fixation_prob(n, s, p);
+        prop_assert!(
+            (-tol::STOCHASTIC..=1.0 + tol::STOCHASTIC).contains(&prob),
+            "kimura({n}, {s}, {p}) = {prob}"
+        );
+    }
+
+    #[test]
+    fn kimura_neutral_equals_initial_freq(n in 10_usize..500, p in 0.01_f64..0.99) {
+        let prob = kimura_fixation_prob(n, 0.0, p);
+        prop_assert!(
+            (prob - p).abs() < tol::DECOMPOSITION,
+            "kimura({n}, 0.0, {p}) = {prob}, expected ~{p}"
+        );
+    }
+}
+
+// ---------------------------------------------------------------------------
+// FAO-56: ET₀ physical plausibility
+// ---------------------------------------------------------------------------
+
+use groundspring::fao56::{DailyWeatherInputs, daily_et0};
+
+proptest! {
+    #[test]
+    fn et0_is_nonnegative(
+        tmax in 10.0_f64..45.0,
+        wind in 1.0_f64..30.0,
+        sunshine in 2.0_f64..14.0,
+    ) {
+        let inp = DailyWeatherInputs {
+            tmax_c: tmax,
+            tmin_c: tmax - 10.0,
+            rhmax_pct: 80.0,
+            rhmin_pct: 40.0,
+            wind_speed_10m_km_h: wind,
+            sunshine_hours: sunshine,
+            latitude_deg_n: 40.0,
+            altitude_m: 100.0,
+            day_of_year: 172,
+        };
+        let et0 = daily_et0(&inp);
+        prop_assert!(et0 >= 0.0, "ET₀ = {et0}");
+    }
+
+    #[test]
+    fn et0_within_plausible_range(
+        tmax in 15.0_f64..40.0,
+        sunshine in 4.0_f64..12.0,
+    ) {
+        let inp = DailyWeatherInputs {
+            tmax_c: tmax,
+            tmin_c: tmax - 8.0,
+            rhmax_pct: 70.0,
+            rhmin_pct: 35.0,
+            wind_speed_10m_km_h: 8.0,
+            sunshine_hours: sunshine,
+            latitude_deg_n: 45.0,
+            altitude_m: 0.0,
+            day_of_year: 180,
+        };
+        let et0 = daily_et0(&inp);
+        prop_assert!(
+            et0 < 20.0,
+            "ET₀ = {et0} exceeds physical max"
+        );
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Spectral reconstruction: Tikhonov round-trip invariants
+// ---------------------------------------------------------------------------
+
+use groundspring::spectral_recon::{build_kernel, forward_correlator, tikhonov_solve};
+
+proptest! {
+    #[test]
+    fn tikhonov_nonnegative_with_nonneg_data(
+        n_tau in 5_usize..20,
+        n_omega in 5_usize..20,
+    ) {
+        let tau: Vec<f64> = (0..n_tau).map(|i| f64::from(u32::try_from(i).unwrap()) * 0.1).collect();
+        let omega: Vec<f64> = (0..n_omega).map(|i| f64::from(u32::try_from(i).unwrap()) * 0.2).collect();
+        let kernel = build_kernel(&tau, &omega);
+        let rho_true: Vec<f64> = omega.iter().map(|w| (-(*w - 1.0).powi(2)).exp()).collect();
+        let data = forward_correlator(&kernel, &rho_true, n_tau, n_omega);
+        let rho_recon = tikhonov_solve(&kernel, &data, 1e-4, n_tau, n_omega);
+        prop_assert_eq!(rho_recon.len(), n_omega);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Quasispecies: error threshold invariants
+// ---------------------------------------------------------------------------
+
+use groundspring::quasispecies::{error_threshold, master_frequency_analytical};
+
+proptest! {
+    #[test]
+    fn error_threshold_bounded_01(sigma in 2.0_f64..100.0, l in 10_usize..500) {
+        let mu_c = error_threshold(sigma, l);
+        prop_assert!(
+            (0.0..=1.0).contains(&mu_c),
+            "error_threshold({sigma}, {l}) = {mu_c}"
+        );
+    }
+
+    #[test]
+    fn error_threshold_decreases_with_genome_length(sigma in 5.0_f64..50.0) {
+        let short = error_threshold(sigma, 50);
+        let long = error_threshold(sigma, 200);
+        prop_assert!(
+            long < short + tol::DECOMPOSITION,
+            "mu_c(L=200)={long} should be < mu_c(L=50)={short}"
+        );
+    }
+
+    #[test]
+    fn master_freq_below_threshold_is_high(sigma in 5.0_f64..50.0, l in 50_usize..200) {
+        let mu_c = error_threshold(sigma, l);
+        let mu_below = mu_c * 0.5;
+        let freq = master_frequency_analytical(sigma, mu_below, l);
+        prop_assert!(freq > 0.0, "master freq = {freq} should be positive below threshold");
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Band structure: band edge invariants
+// ---------------------------------------------------------------------------
+
+use groundspring::band_structure::{count_bands, find_band_edges};
+
+proptest! {
+    #[test]
+    fn band_edges_come_in_pairs(n_atoms in 2_usize..8) {
+        let potential = vec![0.0; n_atoms];
+        let edges = find_band_edges(&potential, 1.0, -5.0, 5.0, 500);
+        prop_assert!(
+            edges.len().is_multiple_of(2),
+            "band edges should come in pairs, got {}",
+            edges.len()
+        );
+    }
+
+    #[test]
+    fn band_edges_are_sorted(n_atoms in 2_usize..6) {
+        let potential = vec![0.0; n_atoms];
+        let edges = find_band_edges(&potential, 1.0, -5.0, 5.0, 300);
+        for pair in edges.windows(2) {
+            prop_assert!(
+                pair[0] <= pair[1] + tol::ANALYTICAL,
+                "edges not sorted: {} > {}", pair[0], pair[1]
+            );
+        }
+    }
+
+    #[test]
+    fn count_bands_equals_half_edges(n_atoms in 2_usize..6) {
+        let potential = vec![0.0; n_atoms];
+        let edges = find_band_edges(&potential, 1.0, -5.0, 5.0, 300);
+        let n = count_bands(&potential, 1.0, -5.0, 5.0, 300);
+        prop_assert_eq!(n, edges.len() / 2);
+    }
+}

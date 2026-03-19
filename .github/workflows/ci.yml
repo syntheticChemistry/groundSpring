@@ -113,7 +113,7 @@ jobs:
       - run: mypy control/ tests/
       - run: python -m pytest tests/test_common.py tests/test_determinism.py tests/test_baseline_integrity.py -v
       - run: python -m pytest tests/test_experiments.py -v --timeout=300
-      - run: python -m pytest tests/ --cov=control --cov-fail-under=80 --timeout=300
+      - run: python -m pytest tests/ --cov=control --cov-fail-under=90 --timeout=300
 
   coverage:
     name: Coverage

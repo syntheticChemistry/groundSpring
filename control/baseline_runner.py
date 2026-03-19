@@ -283,8 +283,9 @@ def main() -> None:
             "baseline_commit": _git_commit_hash(),
             "backend": "CPython + pure Python math",
             "python_version": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
-            "generated_by": "control/baseline_runner.py",
+            "validation_script": "control/baseline_runner.py",
             "command": "python3 control/baseline_runner.py",
+            "real_data_accession": "N/A (synthetic benchmarks)",
         },
         "results": [
             {"name": r.name, "value": r.value, "elapsed_us": r.elapsed_us}

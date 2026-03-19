@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: March 18, 2026 (V117)
+**Last Updated**: March 19, 2026 (V118)
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---
@@ -46,7 +46,7 @@
 **Phase 0**: ~276 checks (Python, 29 experiments). **Phase 1**: 395/395 PASS (Rust, 34 experiments). **Speedup**: 11.6× median (excl. LAPACK-bound), 51.2× peak (seismic).
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs (Exp 029–033 have no Python baseline).
 **V97 fresh validation**: 395/395 checks (34 binaries), 824+ workspace tests, 100+ three-tier parity tests.
-**GPU dispatch (V31–V95)**: 16 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson, tissue_anderson, jackknife, bootstrap. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). 102 delegations (61 CPU + 41 GPU). V95: Exp 023/024 promoted Partial→Wired via `multinomial_sample_batch`.
+**GPU dispatch (V31–V95)**: 16 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson, tissue_anderson, jackknife, bootstrap. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). 110 delegations (67 CPU + 43 GPU). V95: Exp 023/024 promoted Partial→Wired via `multinomial_sample_batch`.
 **V66 stats Tier A**: MAE, NSE/R² wired to `FusedMapReduceF64` GPU path. Bistable batch ODE via `BatchedOdeRK4F64`. Papers 1-5 stats fully GPU-capable.
 **V67 hydrology GPU**: `McEt0PropagateGpu` + `SeasonalPipelineF64` + `BatchedMultinomialGpu` API fix (3 call sites).
 **V68 spectral GPU**: `anderson_4d` + `wegner_block_4d` (tissue immunology). `lbfgs_numerical` post-grid refinement.
@@ -279,7 +279,7 @@ Write → Absorb → Lean cycle:
 | 33 | Tissue Anderson 4D + Wegner RG | **29/29** | **Wired** (V68 `anderson_4d` + `wegner_block_4d`) | Workload | 4D Anderson + RG GPU |
 
 **CPU tier**: 395/395 PASS across 34 validation binaries.
-**Barracuda**: 102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+. **Performance**: 11.6× faster than Python (excl. LAPACK-bound); 5.1× overall; 53.5× peak (seismic). **Tests**: 960+ default-feature Rust tests (936 across all feature gates) + 287 Python provenance. 100+ three-tier parity tests (100% delegation coverage). `PrecisionRoutingAdvice` wired.
+**Barracuda**: 110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+. **Performance**: 11.6× faster than Python (excl. LAPACK-bound); 5.1× overall; 53.5× peak (seismic). **Tests**: 960+ default-feature Rust tests (936 across all feature gates) + 287 Python provenance. 100+ three-tier parity tests (100% delegation coverage). `PrecisionRoutingAdvice` wired.
 **Mathematical parity**: 29/29 PROVEN. See `data/parity_report.json` and `data/bench_rust_vs_python.json`.
 **Three-tier parity**: 100+ parity tests validate CPU ↔ barracuda-CPU equivalence (100% delegation coverage).
 **GPU tier**: 15 modules wired with `#[cfg(feature = "barracuda-gpu")]` — stats Tier A complete (MAE, NSE, R²), bistable batch ODE, McEt0PropagateGpu, SeasonalPipelineF64, 4D Anderson + Wegner RG, L-BFGS refinement. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only). GPU grid adapters (seismic, freeze-out). 936 tests pass. 11 GPU dispatch paths runtime smoke test + three-tier parity (V97).
@@ -370,7 +370,7 @@ Papers 1-11, 14, 15, 16, 18, 20, 21, 22, 23, 24, 33 — **fully wired** with act
 ### Tier 1: BarraCUDA CPU (current — 376/376 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
-102 active delegations (61 CPU + 41 GPU) — barraCuda v0.3.5, toadStool S156+. 11.5× faster than Python (excl. LAPACK-bound).
+110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.5, toadStool S156+. 11.5× faster than Python (excl. LAPACK-bound).
 960+ Rust workspace tests + 287 Python provenance tests. 29/29 mathematical parity proven. 100+ three-tier parity tests (100% delegation coverage).
 395/395 validation checks across 34 experiments (V113, zero-debt audit certified).
 All 34 experiments validated. GPU stats dispatch (mean, std_dev, rmse, mbe, mae, nse, r², pearson_r). L-BFGS post-grid refinement (V68). 14 CPU vs GPU parity tests. CPU vs GPU benchmark binary.

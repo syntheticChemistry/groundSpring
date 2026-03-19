@@ -145,6 +145,15 @@ pub fn dispatch(method: &str, params: &Value) -> Result<Value, DispatchError> {
         "measurement.parity_check" => parity_check(params),
         "measurement.freeze_out" => freeze_out(params),
 
+        "measurement.bootstrap" => bootstrap(params),
+        "measurement.rarefaction" => rarefaction(params),
+        "measurement.drift" => drift(params),
+        "measurement.band_edge" => band_edge(params),
+        "measurement.rare_biosphere" => rare_biosphere(params),
+        "measurement.gillespie" => gillespie(params),
+        "measurement.bistable" => bistable(params),
+        "measurement.quasispecies" => quasispecies(params),
+
         _ => Err(DispatchError::MethodNotFound(method.to_owned())),
     }
 }
@@ -413,6 +422,179 @@ fn freeze_out(params: &Value) -> Result<Value, DispatchError> {
     }))
 }
 
+// ─── Extended Measurement Methods ────────────────────────────────────────────
+
+fn bootstrap(params: &Value) -> Result<Value, DispatchError> {
+    let data = extract_f64_array(params, "data")?;
+    let statistic = params
+        .get("statistic")
+        .and_then(Value::as_str)
+        .unwrap_or("mean");
+    let n_replicates = extract_usize(params, "n_replicates", DEFAULT_N_BOOTSTRAP)?;
+    let confidence = extract_f64(params, "confidence", DEFAULT_CONFIDENCE);
+    let seed = extract_u64(params, "seed", DEFAULT_SEED);
+
+    let result = match statistic {
+        "median" => crate::bootstrap::bootstrap_median(&data, n_replicates, confidence, seed)?,
+        "std" => crate::bootstrap::bootstrap_std(&data, n_replicates, confidence, seed)?,
+        _ => crate::bootstrap::bootstrap_mean(&data, n_replicates, confidence, seed)?,
+    };
+
+    Ok(serde_json::json!({
+        "statistic": statistic,
+        "estimate": result.estimate,
+        "ci_lower": result.ci_lower,
+        "ci_upper": result.ci_upper,
+        "std_error": result.std_error,
+    }))
+}
+
+fn rarefaction(params: &Value) -> Result<Value, DispatchError> {
+    let counts = extract_u64_array(params, "counts")?;
+    let depths = extract_u64_array(params, "depths")?;
+
+    let curve = crate::rarefaction::analytical_rarefaction(&counts, &depths);
+    let shannon = crate::rarefaction::shannon_diversity(&counts);
+    let simpson = crate::rarefaction::simpson_diversity(&counts);
+    let evn = crate::rarefaction::evenness(&counts);
+    let taxa = crate::rarefaction::taxa_detected(&counts);
+
+    Ok(serde_json::json!({
+        "rarefaction_curve": curve,
+        "shannon": shannon,
+        "simpson": simpson,
+        "evenness": evn,
+        "taxa_detected": taxa,
+    }))
+}
+
+fn drift(params: &Value) -> Result<Value, DispatchError> {
+    let pop_size = extract_usize(params, "pop_size", 1000)?;
+    let selection = extract_f64(params, "selection", 0.01);
+    let initial_freq = extract_f64(params, "initial_freq", 0.5);
+    let n_trials = extract_usize(params, "n_trials", 1000)?;
+    let seed = extract_u64(params, "seed", DEFAULT_SEED);
+
+    let n_fixed = crate::drift::wright_fisher_fixation_batch(
+        pop_size,
+        selection,
+        initial_freq,
+        n_trials,
+        seed,
+    );
+    let empirical_prob = crate::cast::usize_f64(n_fixed) / crate::cast::usize_f64(n_trials);
+    let kimura = crate::drift::kimura_fixation_prob(pop_size, selection, initial_freq);
+
+    Ok(serde_json::json!({
+        "n_fixed": n_fixed,
+        "n_trials": n_trials,
+        "fixation_probability": empirical_prob,
+        "kimura_analytical": kimura,
+        "pop_size": pop_size,
+        "selection": selection,
+    }))
+}
+
+fn band_edge(params: &Value) -> Result<Value, DispatchError> {
+    let potential = extract_f64_array(params, "potential")?;
+    let hopping = extract_f64(params, "hopping", 1.0);
+    let e_lo = extract_f64(params, "e_lo", -5.0);
+    let e_hi = extract_f64(params, "e_hi", 5.0);
+    let n_points = extract_usize(params, "n_points", 1000)?;
+
+    let edges = crate::band_structure::find_band_edges(&potential, hopping, e_lo, e_hi, n_points);
+    let n_bands = crate::band_structure::count_bands(&potential, hopping, e_lo, e_hi, n_points);
+
+    Ok(serde_json::json!({
+        "band_edges": edges,
+        "n_bands": n_bands,
+        "e_lo": e_lo,
+        "e_hi": e_hi,
+    }))
+}
+
+fn rare_biosphere(params: &Value) -> Result<Value, DispatchError> {
+    let counts = extract_u64_array(params, "counts")?;
+    let target_power = extract_f64(params, "target_power", 0.95);
+
+    let richness = crate::rare_biosphere::chao1(&counts);
+    let n_total: u64 = counts.iter().sum();
+    let taxa = crate::rarefaction::taxa_detected(&counts);
+
+    Ok(serde_json::json!({
+        "chao1": richness,
+        "observed_taxa": taxa,
+        "total_reads": n_total,
+        "target_power": target_power,
+    }))
+}
+
+fn gillespie(params: &Value) -> Result<Value, DispatchError> {
+    let synthesis_rates = extract_f64_array(params, "synthesis_rates")?;
+    let degradation_rate = require_f64(params, "degradation_rate")?;
+    let initial = extract_u64(params, "initial", 100);
+    let t_max = extract_f64(params, "t_max", 100.0);
+    let n_trajectories = extract_usize(params, "n_trajectories", 100)?;
+    let seed = extract_u64(params, "seed", DEFAULT_SEED);
+
+    let total_synthesis: f64 = synthesis_rates.iter().sum();
+    let analytical_mean = crate::gillespie::steady_state_mean(total_synthesis, degradation_rate);
+
+    let batch = crate::gillespie::birth_death_ssa_batch(
+        &synthesis_rates,
+        degradation_rate,
+        initial,
+        t_max,
+        n_trajectories,
+        t_max * 0.1,
+        seed,
+    );
+
+    Ok(serde_json::json!({
+        "analytical_steady_state": analytical_mean,
+        "ensemble_mean": batch.mean,
+        "ensemble_variance": batch.variance,
+        "n_trajectories": n_trajectories,
+    }))
+}
+
+fn bistable(params: &Value) -> Result<Value, DispatchError> {
+    let initial_cdg = extract_f64(params, "initial_cdg", 0.5);
+    let dt = extract_f64(params, "dt", 0.01);
+    let n_steps = extract_usize(params, "n_steps", 10_000)?;
+
+    let state0 = [initial_cdg, 0.0, 0.0, 0.0, 0.0];
+    let params_ode = crate::bistable::BistableParams::default();
+
+    let final_state = crate::bistable::integrate(&state0, &params_ode, dt, n_steps);
+
+    Ok(serde_json::json!({
+        "final_state": final_state.to_vec(),
+        "cdg_concentration": final_state[0],
+        "dt": dt,
+        "n_steps": n_steps,
+    }))
+}
+
+fn quasispecies(params: &Value) -> Result<Value, DispatchError> {
+    let sigma = require_f64(params, "sigma")?;
+    let genome_length = extract_usize(params, "genome_length", 100)?;
+    let mu = extract_f64(params, "mu", 0.01);
+
+    let threshold = crate::quasispecies::error_threshold(sigma, genome_length);
+    let master_freq = crate::quasispecies::master_frequency_analytical(sigma, mu, genome_length);
+    let fitness = crate::quasispecies::mean_fitness(sigma, master_freq);
+
+    Ok(serde_json::json!({
+        "error_threshold": threshold,
+        "master_frequency": master_freq,
+        "mean_fitness": fitness,
+        "sigma": sigma,
+        "genome_length": genome_length,
+        "mu": mu,
+    }))
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 fn extract_f64_array(params: &Value, key: &str) -> Result<Vec<f64>, DispatchError> {
@@ -420,6 +602,14 @@ fn extract_f64_array(params: &Value, key: &str) -> Result<Vec<f64>, DispatchErro
         .get(key)
         .and_then(Value::as_array)
         .map(|arr| arr.iter().filter_map(Value::as_f64).collect::<Vec<_>>())
+        .ok_or_else(|| DispatchError::MissingParam(key.into()))
+}
+
+fn extract_u64_array(params: &Value, key: &str) -> Result<Vec<u64>, DispatchError> {
+    params
+        .get(key)
+        .and_then(Value::as_array)
+        .map(|arr| arr.iter().filter_map(Value::as_u64).collect::<Vec<_>>())
         .ok_or_else(|| DispatchError::MissingParam(key.into()))
 }
 
@@ -526,5 +716,108 @@ mod tests {
         assert!(result.is_ok());
         let v = result.unwrap();
         assert_eq!(v["parity"], false);
+    }
+
+    #[test]
+    fn dispatch_bootstrap_mean() {
+        let params = serde_json::json!({
+            "data": [1.0, 2.0, 3.0, 4.0, 5.0],
+            "n_replicates": 200,
+        });
+        let v = dispatch("measurement.bootstrap", &params).unwrap();
+        assert_eq!(v["statistic"], "mean");
+        assert!(v["estimate"].as_f64().unwrap() > 0.0);
+        assert!(v["ci_lower"].as_f64().unwrap() < v["ci_upper"].as_f64().unwrap());
+    }
+
+    #[test]
+    fn dispatch_bootstrap_median() {
+        let params = serde_json::json!({
+            "data": [1.0, 2.0, 3.0, 4.0, 5.0],
+            "statistic": "median",
+            "n_replicates": 200,
+        });
+        let v = dispatch("measurement.bootstrap", &params).unwrap();
+        assert_eq!(v["statistic"], "median");
+    }
+
+    #[test]
+    fn dispatch_rarefaction() {
+        let params = serde_json::json!({
+            "counts": [100, 200, 300, 50],
+            "depths": [100, 200, 400],
+        });
+        let v = dispatch("measurement.rarefaction", &params).unwrap();
+        assert!(v["shannon"].as_f64().unwrap() > 0.0);
+        assert!(v["simpson"].as_f64().unwrap() > 0.0);
+        assert_eq!(v["taxa_detected"], 4);
+    }
+
+    #[test]
+    fn dispatch_drift() {
+        let params = serde_json::json!({
+            "pop_size": 100,
+            "selection": 0.01,
+            "n_trials": 50,
+        });
+        let v = dispatch("measurement.drift", &params).unwrap();
+        assert!(v["kimura_analytical"].as_f64().unwrap() > 0.0);
+        assert_eq!(v["n_trials"], 50);
+    }
+
+    #[test]
+    fn dispatch_band_edge() {
+        let params = serde_json::json!({
+            "potential": [0.0, 0.0, 0.0, 0.0],
+            "hopping": 1.0,
+            "n_points": 100,
+        });
+        let v = dispatch("measurement.band_edge", &params).unwrap();
+        assert!(v["n_bands"].as_u64().unwrap() > 0);
+    }
+
+    #[test]
+    fn dispatch_rare_biosphere() {
+        let params = serde_json::json!({
+            "counts": [100, 1, 1, 50, 200],
+        });
+        let v = dispatch("measurement.rare_biosphere", &params).unwrap();
+        assert!(v["chao1"].as_f64().unwrap() >= 5.0);
+        assert_eq!(v["observed_taxa"], 5);
+    }
+
+    #[test]
+    fn dispatch_gillespie() {
+        let params = serde_json::json!({
+            "synthesis_rates": [10.0],
+            "degradation_rate": 0.1,
+            "n_trajectories": 10,
+            "t_max": 50.0,
+        });
+        let v = dispatch("measurement.gillespie", &params).unwrap();
+        assert!(v["analytical_steady_state"].as_f64().unwrap() > 0.0);
+    }
+
+    #[test]
+    fn dispatch_bistable() {
+        let params = serde_json::json!({
+            "initial_cdg": 0.5,
+            "n_steps": 100,
+        });
+        let v = dispatch("measurement.bistable", &params).unwrap();
+        assert!(v["cdg_concentration"].as_f64().is_some());
+    }
+
+    #[test]
+    fn dispatch_quasispecies() {
+        let params = serde_json::json!({
+            "sigma": 10.0,
+            "genome_length": 100,
+            "mu": 0.01,
+        });
+        let v = dispatch("measurement.quasispecies", &params).unwrap();
+        let threshold = v["error_threshold"].as_f64().unwrap();
+        assert!(threshold > 0.0 && threshold < 1.0);
+        assert!(v["master_frequency"].as_f64().unwrap() > 0.0);
     }
 }

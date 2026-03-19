@@ -31,6 +31,8 @@ HEAD_SHA="$(git rev-parse HEAD)"
 TODAY="$(date +%Y-%m-%d)"
 FAIL=0
 
+export PYTHONPATH="$ROOT"
+
 echo "================================================================"
 echo "  groundSpring — Benchmark Drift Guard"
 echo "  HEAD: $HEAD_SHA"

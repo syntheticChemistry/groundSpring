@@ -112,6 +112,11 @@ EPS_LOG_FLOOR: float = 1e-15
 # Underflow guard for condition number / matrix element magnitude.
 EPS_UNDERFLOW: float = 1e-300
 
+# SSA floor guard (barracuda-gpu path).
+# Provenance: SSA propensity near-zero guard; reactions with propensity
+# below this are numerically extinct. Only used when barracuda-gpu is active.
+EPS_SSA_FLOOR: float = 1e-15
+
 # ── Physical bounds ───────────────────────────────────────────────────
 
 # Minimum plausible daily ET₀ (mm/day).

@@ -35,7 +35,7 @@
 //!   phase classification via `barracuda::spectral::stats` (barraCuda S79).
 
 #[cfg(not(feature = "barracuda"))]
-use crate::prng::Xorshift64;
+use crate::prng::DefaultRng;
 
 /// Derrida-Gardner constant for ξ ≈ C / W² at band center.
 #[cfg(not(feature = "barracuda"))]
@@ -66,7 +66,7 @@ pub fn anderson_potential(n: usize, disorder: f64, seed: u64) -> Vec<f64> {
 #[cfg(not(feature = "barracuda"))]
 fn anderson_potential_cpu(n: usize, disorder: f64, seed: u64) -> Vec<f64> {
     let half_w = disorder / 2.0;
-    let mut rng = Xorshift64::new(seed);
+    let mut rng = DefaultRng::new(seed);
     (0..n)
         .map(|_| rng.next_f64().mul_add(disorder, -half_w))
         .collect()

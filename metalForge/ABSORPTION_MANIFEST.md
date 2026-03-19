@@ -6,7 +6,7 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: March 7, 2026 (V98 — 102 active delegations (61 CPU + 41 GPU), barraCuda `a898dee`, toadStool S158+, coralReef Iteration 55+, 936 tests, clippy pedantic clean. V96: PrecisionRoutingAdvice wired into 11 GPU dispatch paths. V95: coralReef push buffer breakthrough — sovereign GPU dispatch on Titan V. V84: dual-GPU probe. V82: BootstrapMeanGpu dispatch)
+**Last updated**: March 19, 2026 (V118 — 110 active delegations (67 CPU + 43 GPU), barraCuda `a898dee`, toadStool S158+, coralReef Iteration 55+, 936 tests, clippy pedantic clean. V96: PrecisionRoutingAdvice wired into 11 GPU dispatch paths. V95: coralReef push buffer breakthrough — sovereign GPU dispatch on Titan V. V84: dual-GPU probe. V82: BootstrapMeanGpu dispatch)
 
 ## Absorption Status Summary
 
@@ -22,7 +22,7 @@
 | Reduce ops (GPU) | **Lean** | 4 | sum_reduce, variance_reduce, fused_map_reduce, correlation_f64 |
 | ESN (GPU) | **Lean** | 1 | esn_v2::ESN regime classification |
 | Grid ops (GPU) | **Lean** | 1 | grid_search_3d (seismic) |
-| **Total** | | **102** | 61 CPU + 41 GPU |
+| **Total** | | **110** | 67 CPU + 43 GPU |
 | PRNG | **Adapt** | 1 | xorshift64→xoshiro alignment pending |
 | Scalar math | **Stays local** | 5 | decompose, haversine, travel_time |
 | NPU | **Lean** | 1 | akida-driver (ToadStool hardware, not barraCuda math) |
@@ -42,7 +42,7 @@
 
 ---
 
-## Tier A — Lean (102 active: 61 CPU + 41 GPU)
+## Tier A — Lean (110 active: 67 CPU + 43 GPU)
 
 Full delegation inventory as of V97, barraCuda v0.3.5:
 
@@ -178,7 +178,7 @@ Both Tier C shaders have been absorbed upstream and local copies removed (V62):
 
 ## Handoff Checklist (per shader)
 
-- [x] 102 active delegations (61 CPU + 41 GPU) verified, barraCuda `a898dee`, toadStool S158+, coralReef Iteration 55+
+- [x] 110 active delegations (67 CPU + 43 GPU) verified, barraCuda `a898dee`, toadStool S158+, coralReef Iteration 55+
 - [x] CPU reference passes all validation checks (34 binaries, 936 tests)
 - [x] All delegations use `#[cfg]` or `if let Ok` with CPU fallback always compiled
 - [x] Mathematical parity: 28/28 PROVEN (Python ⇌ Rust, `data/parity_report.json`)

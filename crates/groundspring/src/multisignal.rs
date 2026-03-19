@@ -233,7 +233,7 @@ pub fn stochastic_integrate(
     seed: u64,
 ) -> [f64; 7] {
     let sqrt_dt = dt.sqrt();
-    let mut rng = crate::prng::Xorshift64::new(seed);
+    let mut rng = crate::prng::DefaultRng::new(seed);
     let mut state = *state0;
     for _ in 0..n_steps {
         let deriv = multisignal_derivative(&state, params);

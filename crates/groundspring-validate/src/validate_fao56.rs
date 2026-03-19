@@ -327,9 +327,14 @@ fn run() -> i32 {
     let p = fao56::atmospheric_pressure(base.altitude_m);
     h.check_range("P (kPa)", p, 99.0, 102.0);
 
+    // Provenance: 10.0 m is the WMO standard anemometer height
+    // (WMO-No. 8, Guide to Meteorological Instruments, §5.8.1).
     let u2 = fao56::wind_speed_at_2m(base.wind_speed_10m_km_h / 3.6, 10.0);
     h.check_range("u₂ (m/s)", u2, 1.5, 2.5);
 
+    // Provenance: 15–17 h daylight bounds correspond to summer solstice
+    // at the benchmark latitude (~45°N). FAO-56 Eq. 34 yields N ≈ 15.6 h
+    // for DOY 172 at 45°N (Allen et al. 1998, Table 2.7).
     let n_hours = fao56::daylight_hours(base.latitude_deg_n, base.day_of_year);
     h.check_range("Daylight hours", n_hours, 15.0, 17.0);
 
