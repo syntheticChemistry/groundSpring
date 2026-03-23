@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 #![forbid(unsafe_code)]
+#![expect(
+    clippy::expect_used,
+    reason = "validation binaries use expect for compile-time benchmark JSON; missing data is a programmer error"
+)]
 
 //! Pure GPU Workload Validation: the final tier in groundSpring's
 //! CPU → barracuda-CPU → barracuda-GPU → pure-GPU progression.

@@ -29,9 +29,38 @@ use crate::error::DispatchError;
 
 pub use lifecycle::init_start_time;
 
+/// Known legacy prefixes that older callers may prepend to method names.
+///
+/// `normalize_method` strips these so both `"groundspring.measurement.bootstrap"`
+/// and `"measurement.bootstrap"` route to the same handler.
+///
+/// Absorbed from barraCuda v0.3.7 / wetSpring V132 `normalize_method()` pattern.
+const LEGACY_PREFIXES: &[&str] = &["groundspring.", "barracuda."];
+
+/// Strip legacy primal-name prefixes from a JSON-RPC method name.
+///
+/// The ecosystem Semantic Method Naming Standard uses bare `domain.operation`
+/// names (e.g., `"measurement.bootstrap"`). Older callers may prefix with the
+/// primal name (`"groundspring.measurement.bootstrap"`). This function
+/// normalizes both forms to the canonical bare name.
+///
+/// Returns the input unchanged if no legacy prefix is found.
+///
+/// Absorbed from barraCuda v0.3.7 / wetSpring V132.
+#[must_use]
+pub fn normalize_method(method: &str) -> &str {
+    for prefix in LEGACY_PREFIXES {
+        if let Some(stripped) = method.strip_prefix(prefix) {
+            return stripped;
+        }
+    }
+    method
+}
+
 /// Dispatch a JSON-RPC method call to the appropriate library function.
 ///
-/// Returns `Ok(result_json)` on success or a typed [`DispatchError`] on failure.
+/// Normalizes legacy-prefixed method names before routing. Returns
+/// `Ok(result_json)` on success or a typed [`DispatchError`] on failure.
 /// Unknown methods return [`DispatchError::MethodNotFound`].
 ///
 /// # Errors
@@ -39,11 +68,12 @@ pub use lifecycle::init_start_time;
 /// Returns `Err` if the method is unknown, required parameters are missing,
 /// or the underlying library call fails with an [`crate::error::InputError`].
 pub fn dispatch(method: &str, params: &Value) -> Result<Value, DispatchError> {
+    let method = normalize_method(method);
     match method {
         "health.check" | "health" => Ok(lifecycle::health_check()),
         "health.liveness" => Ok(lifecycle::health_liveness()),
         "health.readiness" => Ok(lifecycle::health_readiness()),
-        "capability.list" => Ok(lifecycle::capability_list()),
+        "capability.list" | "capabilities.list" => Ok(lifecycle::capability_list()),
         "lifecycle.status" => Ok(lifecycle::lifecycle_status()),
 
         "measurement.noise_decomposition" => measurement::noise_decomposition(params),
@@ -253,5 +283,52 @@ mod tests {
         let threshold = v["error_threshold"].as_f64().unwrap();
         assert!(threshold > 0.0 && threshold < 1.0);
         assert!(v["master_frequency"].as_f64().unwrap() > 0.0);
+    }
+
+    // ── normalize_method tests ──────────────────────────────────────────
+
+    #[test]
+    fn normalize_method_strips_groundspring_prefix() {
+        assert_eq!(
+            normalize_method("groundspring.measurement.bootstrap"),
+            "measurement.bootstrap"
+        );
+    }
+
+    #[test]
+    fn normalize_method_strips_barracuda_prefix() {
+        assert_eq!(
+            normalize_method("barracuda.measurement.drift"),
+            "measurement.drift"
+        );
+    }
+
+    #[test]
+    fn normalize_method_passes_bare_name_through() {
+        assert_eq!(
+            normalize_method("measurement.bootstrap"),
+            "measurement.bootstrap"
+        );
+    }
+
+    #[test]
+    fn normalize_method_preserves_unknown_prefix() {
+        assert_eq!(
+            normalize_method("wetspring.measurement.test"),
+            "wetspring.measurement.test"
+        );
+    }
+
+    #[test]
+    fn dispatch_legacy_prefixed_method() {
+        init_start_time();
+        let v = dispatch("groundspring.health.check", &Value::Null).unwrap();
+        assert_eq!(v["status"], "healthy");
+    }
+
+    #[test]
+    fn dispatch_capabilities_list_plural() {
+        let v = dispatch("capabilities.list", &Value::Null).unwrap();
+        assert_eq!(v["domain"], "measurement");
     }
 }

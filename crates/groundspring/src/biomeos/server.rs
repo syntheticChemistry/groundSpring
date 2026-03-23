@@ -111,8 +111,8 @@ where
     F: Fn(&str, &Value) -> std::result::Result<Value, E>,
     E: std::fmt::Display,
 {
-    let _ = stream.set_read_timeout(Some(std::time::Duration::from_secs(30)));
-    let _ = stream.set_write_timeout(Some(std::time::Duration::from_secs(10)));
+    let _ = stream.set_read_timeout(Some(super::read_timeout()));
+    let _ = stream.set_write_timeout(Some(super::connect_timeout()));
 
     let mut reader = BufReader::new(stream);
     let mut line = String::new();

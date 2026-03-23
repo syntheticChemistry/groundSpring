@@ -35,7 +35,10 @@ control/             Python Phase 0 experiments (29 experiments across 9 domains
 crates/
   groundspring/            Rust library (40 modules)
     src/stats/             RMSE, MBE, R², IA, hit rate, Pearson/Spearman, covariance,
-                           norm_cdf/ppf, chi2_statistic, mean, std, percentile (3 submodules)
+                           norm_cdf/ppf, chi2_statistic, mean, std, percentile
+      agreement/           RMSE, MAE, MBE, NSE, R², IA, WIA, hit rate (6 submodules)
+      metrics.rs           Mean, std_dev, percentile, Welford online
+      correlation.rs       Pearson, Spearman, covariance (+ GPU fused paths)
     src/decompose.rs       Bias-variance decomposition, noise floor
     src/fao56/             FAO-56 Penman-Monteith equation chain (modular: daily, hargreaves, crop_soil, et0_methods, pipeline)
     src/prng.rs            Xorshift64 PRNG, Box-Muller normal sampling, binomial

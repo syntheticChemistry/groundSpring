@@ -34,8 +34,13 @@ pub(super) enum DispatchOutcome {
     ProtocolError { code: i64, message: String },
     /// Application-level error (code >= -32000 or non-standard).
     ApplicationError {
-        #[allow(dead_code)]
-        // Classified in `classify_rpc_error`; non-test handlers only surface `message`.
+        #[cfg_attr(
+            not(test),
+            expect(
+                dead_code,
+                reason = "classified in classify_rpc_error; non-test handlers only surface message"
+            )
+        )]
         code: i64,
         message: String,
     },

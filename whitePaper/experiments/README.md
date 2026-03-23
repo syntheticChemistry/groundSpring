@@ -5,14 +5,14 @@
 > (Phase 0), a Rust validation (Phase 1), and a barracuda delegation path
 > (Phase 2+).
 
-**Total**: 395/395 validation checks across 35 experiments, 10 domains. 990+ Rust tests + 287 Python provenance tests.
+**Total**: 395/395 validation checks across 35 experiments, 10 domains. 691+ lib tests + 287 Python provenance tests.
 **Core**: 340/340 checks across 29 experiments (no feature flags).
 **NUCLEUS**: 55 checks across 4 experiments (Exp 029–032, `--features biomeos`).
 **Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across 28 benchmarked experiments.
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs.
-**Coverage**: ≥92% library line coverage (`cargo llvm-cov --workspace --lib`). Zero clippy warnings (pedantic + nursery, -D warnings). Zero unsafe. Zero TODO/FIXME. All files < 1000 lines. Zero panicking public APIs — all library entry points return `Result`.
-**barraCuda**: 110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.5, toadStool S158+, coralReef Iteration 55+. `PrecisionRoutingAdvice` wired into 21 GPU dispatch paths.
-**NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) with sovereign fallback. V120: deep audit execution (dispatch refactored into 4 submodules, `#![forbid(unsafe_code)]` on all 50 binaries, release-mode CI, `ValidationHarness` expanded). V119: cross-ecosystem absorption (publish = false, MSRV 1.85, provenance registry, cast parity). V118: RPC expansion (16 capabilities), 110 delegations, provenance hardening. V117: all-features compilation. V116: typed error evolution.
+**Coverage**: ≥92% library line coverage (`cargo llvm-cov --workspace --lib`). Zero clippy warnings (pedantic + nursery, -D warnings). Zero unsafe. Zero TODO/FIXME. All files < 1000 lines. Zero panicking public APIs — all library entry points return `Result`. Zero unwrap/expect in production code.
+**barraCuda**: 110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.7, toadStool S158+, coralReef Iteration 55+. `PrecisionRoutingAdvice` wired into 21 GPU dispatch paths. `DeviceCapabilities` adopted (V120).
+**NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) with sovereign fallback. V121: deep debt + ecosystem absorption (smart refactoring, 5-tier discovery, NDJSON sink, MSRV 1.87, provenance trio lifecycle, MCP manifest). V120: deep audit (dispatch → 4 submodules, `#![forbid(unsafe_code)]` on 50 binaries, release-mode CI).
 **Modules**: 40 (including `esn`, `lanczos`, `linalg`, `error`, `jackknife`, `freeze_out`, `spectral_recon`, `wdm`, `npu`, `biomeos`, `nestgate`, `drift`, `tissue_anderson`, `niche`, `primal_names`, `ipc`, `rawr`).
 **metalForge**: 30 workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed), 140 metalForge checks, 5+ substrates, architecture-aware routing, `PCIe` topology, GPU→NPU PCIe bypass, pipeline dispatch, NUCLEUS atomics.
 **Baseline integrity**: All 29 benchmark JSONs verified — provenance fields (including `python_version`, `numpy_version`), hex commit hashes, UTF-8. Python CI coverage enforced at 80%.

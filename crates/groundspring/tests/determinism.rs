@@ -10,6 +10,11 @@
     clippy::float_cmp,
     reason = "determinism tests require bitwise f64 equality"
 )]
+#![expect(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    reason = "test assertions use unwrap/expect for clarity"
+)]
 
 use groundspring::almost_mathieu::{eigenvalues, level_spacing_ratio, potential};
 use groundspring::anderson::lyapunov_exponent;

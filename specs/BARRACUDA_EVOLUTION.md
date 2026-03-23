@@ -2,8 +2,10 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 23, 2026 (V120 — 110 delegations (67 CPU + 43 GPU), 990+ tests (all feature gates),
-barraCuda v0.3.5, toadStool S158+, coralReef Iteration 55+.
+**Last updated**: March 23, 2026 (V121 — 110 delegations (67 CPU + 43 GPU), 691+ lib tests,
+barraCuda v0.3.7, toadStool S158+, coralReef Iteration 55+. V121: smart refactoring (biomeos 631→232,
+stats/agreement → directory), normalize_method(), 5-tier discovery, NdjsonSink, MSRV 1.87,
+workspace deny unwrap_used/expect_used, MCP capability_registry.toml, provenance trio lifecycle.
 V108: AGPL-3.0-or-later (SCYBORG trio), barracuda WelfordState CPU delegation for std_dev/mean_and_std_dev,
 tolerance centralization (tol::ANALYTICAL in tests), typed capability-based discovery, provenance enrichment.
 V107: release profile, enriched niche.rs, tolerance provenance citations, bare literal elimination.

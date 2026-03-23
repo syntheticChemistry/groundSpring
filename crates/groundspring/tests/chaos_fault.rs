@@ -11,6 +11,11 @@
 //!
 //! No panics, no UB, only clean error returns or well-defined outputs.
 
+#![expect(
+    clippy::unwrap_used,
+    reason = "test assertions use unwrap/expect for clarity"
+)]
+
 use groundspring::{
     anderson, decompose, linalg, prng, quasispecies, rare_biosphere, seismic, stats, tol, transport,
 };

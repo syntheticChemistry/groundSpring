@@ -3,7 +3,7 @@
 > Complete inventory of named tolerance constants, epsilon guards, and
 > validation-specific thresholds used across groundSpring.
 >
-> **Last updated**: March 18, 2026 (V117 — 13-tier `tol::` architecture,
+> **Last updated**: March 23, 2026 (V121 — 13-tier `tol::` architecture,
 > 4 `eps::` guards, 15 validation-specific constants)
 
 ## Philosophy

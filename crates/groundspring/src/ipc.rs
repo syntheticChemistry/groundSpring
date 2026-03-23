@@ -31,6 +31,8 @@
 
 use std::path::Path;
 
+pub use crate::ipc_error::{IpcError, IpcResult};
+
 /// groundSpring measurement capabilities exposed to the ecosystem.
 ///
 /// These are the capabilities groundSpring registers with `biomeOS` for
@@ -99,30 +101,6 @@ pub trait DataPipeline {
 
 // ─── Client ──────────────────────────────────────────────────────────────
 
-/// Error type for typed IPC client operations.
-///
-/// Structured variants for the IPC lifecycle: connect, transport, and
-/// remote (application-level) errors. Pattern source: rhizoCrypt v0.13.0
-/// `IpcErrorPhase` / healthSpring V30.
-#[derive(Debug, thiserror::Error)]
-pub enum IpcError {
-    /// Failed to connect to the IPC socket.
-    #[error("ipc connect: {0}")]
-    Connect(String),
-    /// Transport-level error during an RPC call.
-    #[error("ipc transport: {0}")]
-    Transport(String),
-    /// Remote endpoint returned an application error.
-    #[error("ipc remote: {0}")]
-    Remote(String),
-    /// No IPC socket discovered via environment.
-    #[error("ipc discovery: {0}")]
-    Discovery(String),
-}
-
-/// Result alias for IPC operations.
-pub type IpcResult<T> = Result<T, IpcError>;
-
 /// tarpc socket filename suffix, derived from primal self-identity.
 const TARPC_SOCK_SUFFIX: &str = "ipc.sock";
 
@@ -156,7 +134,7 @@ impl GroundSpringClient {
     /// Connect via runtime-discovered socket (env-based discovery).
     ///
     /// Fallback chain:
-    /// 1. `GROUNDSPRING_IPC_SOCKET` env var
+    /// 1. `GROUNDSPRING_SOCKET` env var (via [`crate::primal_names::socket_env_var`])
     /// 2. `$XDG_RUNTIME_DIR/biomeos/groundspring-ipc.sock`
     /// 3. `<temp_dir>/groundspring-ipc.sock`
     ///

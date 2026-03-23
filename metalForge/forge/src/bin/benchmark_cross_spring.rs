@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 #![forbid(unsafe_code)]
+#![expect(
+    clippy::expect_used,
+    reason = "validation binaries use expect for compile-time benchmark JSON; missing data is a programmer error"
+)]
 
 //! Cross-spring benchmark: CPU-local vs barracuda-CPU vs barracuda-GPU.
 //!

@@ -1,7 +1,7 @@
 # Benchmark JSON Provenance Schema
 
-**Last Updated**: March 6, 2026
-**Status**: Active — enforced by `tests/test_baseline_integrity.py` (261 tests)
+**Last Updated**: March 23, 2026
+**Status**: Active — enforced by `tests/test_baseline_integrity.py` (parametrized per benchmark + experiment)
 **Scope**: All `control/*/benchmark_*.json` files
 
 ---

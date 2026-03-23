@@ -1,0 +1,93 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# groundSpring capability registry for MCP tool discovery (Squirrel integration).
+#
+# Absorbed from airSpring V0.10 / primalSpring V0.3.0 / loamSpine V0.9.9
+# MCP tool manifest pattern. Squirrel uses `tools.list` / `tools.call`
+# to discover and invoke these capabilities at runtime.
+
+[primal]
+name = "groundspring"
+domain = "measurement"
+description = "Measurement noise characterization and validation"
+version = "0.1.0"
+license = "AGPL-3.0-or-later"
+
+[[tools]]
+name = "measurement.noise_decomposition"
+description = "Bias-variance error decomposition (RMSE, MBE, R², IA)"
+parameters = ["observed: f64[]", "modeled: f64[]"]
+
+[[tools]]
+name = "measurement.anderson_validation"
+description = "Anderson localization Lyapunov exponent validation"
+parameters = ["disorder: f64", "n_sites: u32", "precision: string"]
+
+[[tools]]
+name = "measurement.bootstrap"
+description = "Bootstrap confidence intervals (mean, median, std)"
+parameters = ["data: f64[]", "n_replicates: u32", "statistic: string?", "confidence: f64?", "seed: u64?"]
+
+[[tools]]
+name = "measurement.rarefaction"
+description = "Multinomial rarefaction for sequencing noise analysis"
+parameters = ["counts: u64[]", "depths: u64[]"]
+
+[[tools]]
+name = "measurement.drift"
+description = "Drift vs selection in finite populations (Wright-Fisher, Kimura)"
+parameters = ["pop_size: u32", "selection: f64", "n_trials: u32"]
+
+[[tools]]
+name = "measurement.rare_biosphere"
+description = "Rare biosphere detection (Chao1, detection power)"
+parameters = ["counts: u64[]"]
+
+[[tools]]
+name = "measurement.gillespie"
+description = "Stochastic chemical kinetics (Gillespie SSA)"
+parameters = ["synthesis_rates: f64[]", "degradation_rate: f64", "n_trajectories: u32", "t_max: f64"]
+
+[[tools]]
+name = "measurement.bistable"
+description = "Bistable phenotypic switching (c-di-GMP circuit)"
+parameters = ["initial_cdg: f64", "n_steps: u32"]
+
+[[tools]]
+name = "measurement.quasispecies"
+description = "Eigen quasispecies error threshold estimation"
+parameters = ["sigma: f64", "genome_length: u32", "mu: f64"]
+
+[[tools]]
+name = "measurement.band_edge"
+description = "Band structure of periodic tight-binding chains"
+parameters = ["potential: f64[]", "hopping: f64", "n_points: u32"]
+
+[[tools]]
+name = "measurement.parity_check"
+description = "Cross-substrate parity validation (CPU vs GPU)"
+parameters = ["cpu_values: f64[]", "gpu_values: f64[]", "tolerance: f64"]
+
+[[tools]]
+name = "measurement.et0_propagation"
+description = "FAO-56 Penman-Monteith ET₀ uncertainty propagation"
+parameters = ["params: json"]
+
+[[tools]]
+name = "measurement.freeze_out"
+description = "Freeze-out curve chi-squared fitting (2D grid search)"
+parameters = ["temperatures: f64[]", "yields: f64[]"]
+
+[[tools]]
+name = "measurement.regime_classification"
+description = "ESN-based regime classification"
+parameters = ["features: f64[][]", "params: json?"]
+
+[[tools]]
+name = "measurement.spectral_features"
+description = "Spectral function reconstruction (Tikhonov regularization)"
+parameters = ["kernel: f64[][]", "spectrum: f64[]", "params: json?"]
+
+[[tools]]
+name = "measurement.uncertainty_budget"
+description = "Multi-source uncertainty budget estimation"
+parameters = ["observed: f64[]", "modeled: f64[]", "params: json?"]

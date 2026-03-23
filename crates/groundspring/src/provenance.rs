@@ -76,6 +76,52 @@ pub fn record_attribution(socket: &Path, session_id: &str, contribution: &str) -
     biomeos::capability_call(socket, "contribution.recordDehydration", &params)
 }
 
+/// Store a validation result in the provenance chain via `storage.put`.
+///
+/// Routes through capability-based storage — biomeOS resolves to the
+/// active `NestGate` or equivalent storage provider at runtime.
+///
+/// # Errors
+///
+/// Returns `Err` if the storage provider is unavailable.
+pub fn store_result(socket: &Path, key: &str, result_json: &str) -> Result<()> {
+    biomeos::storage_put(socket, key, result_json)
+}
+
+/// Execute a complete provenance lifecycle for a validation run.
+///
+/// 1. Start session → 2. Store result → 3. Commit session → 4. Record attribution.
+///
+/// Each step gracefully degrades: if the trio is unavailable, the validation
+/// still succeeds locally. Returns the session ID on full success, or the
+/// first error encountered.
+///
+/// Absorbed from primalSpring V0.3.0 `RootPulse` session lifecycle pattern.
+///
+/// # Errors
+///
+/// Returns `Err` if the first step (session creation) fails. Subsequent
+/// failures are logged but do not abort the lifecycle.
+pub fn run_lifecycle(socket: &Path, experiment_id: &str, result_json: &str) -> Result<String> {
+    let session_id = start_session(socket, experiment_id)?;
+
+    let result_key = format!("{}/{experiment_id}", biomeos::FAMILY_ID);
+    if let Err(e) = store_result(socket, &result_key, result_json) {
+        log::warn!("provenance store failed (non-fatal): {e}");
+    }
+
+    if let Err(e) = commit_session(socket, &session_id, result_json) {
+        log::warn!("provenance commit failed (non-fatal): {e}");
+    }
+
+    let contribution = format!("measurement validation: {experiment_id}");
+    if let Err(e) = record_attribution(socket, &session_id, &contribution) {
+        log::warn!("provenance attribution failed (non-fatal): {e}");
+    }
+
+    Ok(session_id)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -98,6 +144,20 @@ mod tests {
     fn record_attribution_fails_without_socket() {
         let path = std::env::temp_dir().join("groundspring_test_prov_attr.sock");
         let err = record_attribution(&path, "sess-123", "measurement validation");
+        assert!(err.is_err());
+    }
+
+    #[test]
+    fn store_result_fails_without_socket() {
+        let path = std::env::temp_dir().join("groundspring_test_prov_store.sock");
+        let err = store_result(&path, "test/key", r#"{"pass":true}"#);
+        assert!(err.is_err());
+    }
+
+    #[test]
+    fn run_lifecycle_fails_without_socket() {
+        let path = std::env::temp_dir().join("groundspring_test_prov_lifecycle.sock");
+        let err = run_lifecycle(&path, "exp001", r#"{"pass":true}"#);
         assert!(err.is_err());
     }
 }

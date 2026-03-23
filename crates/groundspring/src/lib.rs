@@ -139,6 +139,9 @@ pub mod provenance;
 #[cfg(feature = "npu")]
 pub mod npu;
 
+#[cfg(any(feature = "tarpc-ipc", test))]
+mod ipc_error;
+
 #[cfg(feature = "tarpc-ipc")]
 pub mod ipc;
 

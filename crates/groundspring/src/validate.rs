@@ -92,6 +92,58 @@ impl ValidationSink for NullSink {
     fn write_summary(&mut self, _text: &str) {}
 }
 
+/// Machine-readable NDJSON sink for CI and pipeline consumption.
+///
+/// Emits one JSON object per line (Newline-Delimited JSON). Each check
+/// produces a `{"type":"check","status":"pass"|"fail","label":"...","detail":"..."}`
+/// line. Sections emit `{"type":"section","name":"..."}`. Summaries emit
+/// `{"type":"summary","text":"..."}`.
+///
+/// Absorbed from wetSpring V132 `StreamItem` NDJSON pattern.
+pub struct NdjsonSink<W: Write> {
+    writer: W,
+}
+
+impl<W: Write> NdjsonSink<W> {
+    /// Wrap any [`Write`] as an NDJSON validation sink.
+    #[must_use]
+    pub const fn new(writer: W) -> Self {
+        Self { writer }
+    }
+
+    /// Access the inner writer (e.g. for reading captured bytes in tests).
+    #[must_use]
+    pub const fn inner(&self) -> &W {
+        &self.writer
+    }
+
+    fn write_json(&mut self, json: &str) {
+        let _ = writeln!(self.writer, "{json}");
+    }
+}
+
+impl<W: Write> ValidationSink for NdjsonSink<W> {
+    fn record_pass(&mut self, label: &str, detail: &str) {
+        self.write_json(&format!(
+            r#"{{"type":"check","status":"pass","label":"{label}","detail":"{detail}"}}"#
+        ));
+    }
+
+    fn record_fail(&mut self, label: &str, detail: &str) {
+        self.write_json(&format!(
+            r#"{{"type":"check","status":"fail","label":"{label}","detail":"{detail}"}}"#
+        ));
+    }
+
+    fn section(&mut self, name: &str) {
+        self.write_json(&format!(r#"{{"type":"section","name":"{name}"}}"#));
+    }
+
+    fn write_summary(&mut self, text: &str) {
+        self.write_json(&format!(r#"{{"type":"summary","text":"{text}"}}"#));
+    }
+}
+
 // ─── ValidationHarness ──────────────────────────────────────────────────────
 
 /// Validation harness with independent pass/fail counters.
@@ -557,5 +609,56 @@ mod tests {
         let mut h = ValidationHarness::with_sink("custom", NullSink);
         h.check_true("silent", true);
         assert_eq!(h.passes(), 1);
+    }
+
+    // ── NDJSON sink tests ────────────────────────────────────────────────
+
+    fn ndjson_harness(name: &str) -> ValidationHarness<NdjsonSink<Vec<u8>>> {
+        ValidationHarness::with_sink(name, NdjsonSink::new(Vec::new()))
+    }
+
+    #[test]
+    fn ndjson_pass_emits_check_line() {
+        let mut h = ndjson_harness("ndjson");
+        h.check_true("ok", true);
+        let output = String::from_utf8_lossy(h.sink().inner());
+        assert!(output.contains(r#""type":"check""#));
+        assert!(output.contains(r#""status":"pass""#));
+        assert!(output.contains(r#""label":"ok""#));
+    }
+
+    #[test]
+    fn ndjson_fail_emits_check_line() {
+        let mut h = ndjson_harness("ndjson");
+        h.check_true("bad", false);
+        let output = String::from_utf8_lossy(h.sink().inner());
+        assert!(output.contains(r#""status":"fail""#));
+    }
+
+    #[test]
+    fn ndjson_section_emits_section_line() {
+        let mut h = ndjson_harness("ndjson");
+        h.section("Part A");
+        let output = String::from_utf8_lossy(h.sink().inner());
+        assert!(output.contains(r#""type":"section""#));
+        assert!(output.contains(r#""name":"Part A""#));
+    }
+
+    #[test]
+    fn ndjson_summary_emits_summary_line() {
+        let mut h = ndjson_harness("ndjson");
+        h.check_true("x", true);
+        let _ = h.summary();
+        let output = String::from_utf8_lossy(h.sink().inner());
+        assert!(output.contains(r#""type":"summary""#));
+    }
+
+    #[test]
+    fn ndjson_lines_are_newline_delimited() {
+        let mut h = ndjson_harness("ndjson");
+        h.check_true("a", true);
+        h.check_true("b", false);
+        let output = String::from_utf8_lossy(h.sink().inner());
+        assert_eq!(output.lines().count(), 2);
     }
 }

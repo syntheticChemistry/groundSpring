@@ -5,6 +5,11 @@
 //! `groundspring` library.  These complement deterministic unit tests by
 //! exercising edge cases that manual test vectors cannot cover.
 
+#![expect(
+    clippy::unwrap_used,
+    reason = "test assertions use unwrap/expect for clarity"
+)]
+
 use proptest::prelude::*;
 
 use groundspring::stats::{

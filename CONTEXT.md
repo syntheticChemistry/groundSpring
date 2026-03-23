@@ -28,7 +28,7 @@ for noise characterization and uncertainty quantification.
 - **License:** AGPL-3.0-or-later
 - **Tests:** 990+ Rust tests + 287 Python provenance tests
 - **Coverage:** ≥92% library line coverage (`cargo llvm-cov --workspace --lib`)
-- **MSRV:** Rust 1.85 (2024 edition)
+- **MSRV:** Rust 1.87 (2024 edition)
 - **Crate count:** 3 workspace crates
 - **Validation checks:** 395/395 PASS across 34 binaries
 - **barraCuda delegations:** 110 active (67 CPU + 43 GPU)

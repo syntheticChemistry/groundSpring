@@ -7,6 +7,11 @@
 //! and moving-window functions produce identical results regardless of
 //! feature mode (default / barracuda / barracuda-gpu).
 
+#![expect(
+    clippy::unwrap_used,
+    reason = "test assertions use unwrap/expect for clarity"
+)]
+
 use groundspring::tol;
 
 // ── stats::metrics ────────────────────────────────────────────────

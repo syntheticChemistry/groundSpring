@@ -8,6 +8,11 @@
 //! within-tolerance) outputs. Also includes the dispatch target
 //! inventory sentinel.
 
+#![expect(
+    clippy::expect_used,
+    reason = "test assertions use unwrap/expect for clarity"
+)]
+
 use groundspring::tol;
 
 // ══════════════════════════════════════════════════════════════════

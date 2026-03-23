@@ -4,6 +4,59 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V121 Deep Debt + Ecosystem Absorption (Mar 23, 2026)
+
+#### Smart Refactoring
+- **`biomeos/mod.rs` refactored**: 631 → 232 lines — extracted `storage.rs`,
+  `compute.rs`, `registration.rs`, `health.rs`, `routing.rs`, `client_tests.rs`
+  into focused submodules. Zero public API change
+- **`stats/agreement.rs` refactored**: 534-line monolith → `stats/agreement/`
+  directory with `coefficient.rs`, `error_metrics.rs`, `efficiency.rs`,
+  `willmott.rs`, `hit_rate.rs`, `mod.rs`. Zero public API change
+
+#### Ecosystem Absorption
+- **`normalize_method()`**: Strips legacy `groundspring.`/`barracuda.` prefixes
+  from RPC method names before dispatch. `capabilities.list` plural alias added.
+  Absorbed from barraCuda v0.3.7 / wetSpring V132
+- **5-tier socket discovery**: `primal_names::discover_socket()` now supports
+  env var → XDG family-qualified → XDG flat → socket-registry.json → temp_dir.
+  Registry uses zero-dependency string parsing. Absorbed from biomeOS V266
+- **`NdjsonSink<W>`**: Machine-readable NDJSON validation output — one JSON
+  object per line for CI/pipeline consumption. Absorbed from wetSpring V132
+- **`IpcError::is_recoverable()`**: Connect/Transport → recoverable,
+  Remote/Discovery → permanent. Absorbed from wetSpring V132 / healthSpring V41
+- **Provenance trio lifecycle**: `store_result()` + `run_lifecycle()` —
+  start→store→commit→attribute session pattern. Absorbed from primalSpring V0.3.0
+- **MCP capability registry**: `capability_registry.toml` with 16 tool
+  definitions for Squirrel integration. Absorbed from airSpring V0.10
+
+#### Lint & Safety Hardening
+- **Workspace lints tightened**: `clippy::unwrap_used` and `clippy::expect_used`
+  now denied at workspace level. All test modules and validation binaries
+  annotated with `#[expect]`
+- **`#[allow(dead_code)]` → `#[cfg_attr(not(test), expect(dead_code, ...))]`**
+  in `biomeos/protocol.rs` for correct feature-conditional handling
+- **MSRV bumped**: 1.85 → 1.87 (aligns with wgpu 29 MSRV)
+
+#### Hardcoding → Capability-Based
+- **`/tmp` → `std::env::temp_dir()`** in socket discovery fallback
+- **Server timeouts** now env-driven via shared `connect_timeout()`/`read_timeout()`
+- **`is_enabled()`** accepts `"biomeos"`, `"true"`, `"1"` (no longer hardcoded to single role name)
+- **Stale doc fixed**: `GROUNDSPRING_IPC_SOCKET` → `GROUNDSPRING_SOCKET` in ipc.rs
+
+#### Provenance
+- **Missing DOI added**: `benchmark_et0_methods.json` → `10.4060/x0490e` (FAO-56)
+
+#### Quality Gates
+- `cargo fmt --all -- --check`: PASS
+- `cargo clippy --workspace --all-targets -- -D warnings -W clippy::pedantic -W clippy::nursery`: 0 warnings
+- `cargo doc --no-deps`: PASS (0 warnings)
+- `cargo test -p groundspring --lib`: 691 tests, 0 failures
+- Library line coverage: ≥92%
+- 0 TODOs/FIXMEs in library code
+- 0 unsafe code in lib
+- 0 unwrap/expect in production code (workspace-denied)
+
 ### V120 Deep Audit Execution — Refactoring + Safety + CI Hardening (Mar 23, 2026)
 
 #### Structural Refactoring

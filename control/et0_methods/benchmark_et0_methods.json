@@ -12,6 +12,7 @@
     "notes": "Deterministic comparison of 5 ET\u2080 methods. PM reference 3.88 from FAO-56 Example 18. Hamon underestimates in humid climates (by design \u2014 minimal inputs).",
     "real_data_accession": "N/A (analytical FAO-56 Example 18)"
   },
+  "_doi": "10.4060/x0490e",
   "_description": "5-method ET\u2080 cross-validation: PM, Hargreaves, Makkink, Turc, Hamon",
   "_groundspring_question": "Do simplified ET\u2080 methods (fewer inputs) agree with the full Penman-Monteith equation chain?",
   "_references": [

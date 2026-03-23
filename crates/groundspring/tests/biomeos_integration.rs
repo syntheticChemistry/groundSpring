@@ -12,6 +12,11 @@
 //! - Sovereign fallback when socket is unavailable
 
 #![cfg(feature = "biomeos")]
+#![expect(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    reason = "test assertions use unwrap/expect for clarity"
+)]
 
 use groundspring::biomeos;
 
