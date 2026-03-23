@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: March 19, 2026
-**Status**: V118 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 110 delegations (67 CPU + 43 GPU) — 960+ Rust tests, 287 Python tests, 140 metalForge checks, 35 experiments, 39 modules. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). V115: `assert!` → `Result<T, InputError>` in public APIs, CI hardened (nursery, all-features, biomeOS/metalForge jobs, aarch64), ecoBin (14 C-deps banned, UniBin flags), zero panicking public APIs. V116: DispatchError, EsnError, ResilienceError; ValidationSink absorbed; Format C/D parsing; OnceLock GPU probe cache; RAWR in rawr.rs; dispatch defaults named with provenance
+**Status**: V119 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 110 delegations (67 CPU + 43 GPU) — 960+ Rust tests, 287 Python tests, 140 metalForge checks, 35 experiments, 39 modules. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). V115: `assert!` → `Result<T, InputError>` in public APIs, CI hardened (nursery, all-features, biomeOS/metalForge jobs, aarch64), ecoBin (14 C-deps banned, UniBin flags), zero panicking public APIs. V116: DispatchError, EsnError, ResilienceError; ValidationSink absorbed; Format C/D parsing; OnceLock GPU probe cache; RAWR in rawr.rs; dispatch defaults named with provenance
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---

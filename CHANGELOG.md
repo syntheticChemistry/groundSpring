@@ -4,6 +4,38 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V119 Deep Evolution Audit + Cross-Ecosystem Absorption (Mar 22, 2026)
+
+#### Ecosystem Hygiene
+- `publish = false` on all 3 workspace crates (groundspring, groundspring-validate,
+  groundspring-forge) — prevents accidental crates.io publishing
+- `rust-version = "1.85"` in `[workspace.package]` — explicit MSRV for edition 2024
+- Archived superseded V118 RPC/PRNG handoff to `handoffs/archive/`
+
+#### Pattern Absorption
+- **Provenance registry completeness test** (neuralSpring V120 pattern): compile-time
+  `include_str!` of all 29 benchmark JSONs with count + parse assertion — prevents
+  silent benchmark drift
+- **Cast module expanded** (airSpring barracuda pattern): 7 new helpers (`i32_f64`,
+  `u32_f64`, `f64_u32`, `u32_usize`, `u64_usize`, `f64_i32`, `usize_i32`) with
+  documented safety, debug assertions, and unit tests
+- **IPC test isolation** (ludoSpring V28 pattern): `AtomicU64` counter for unique
+  socket paths in biomeOS tests — prevents CI flakiness from parallel test collisions
+
+#### Documentation
+- README: version timeline evolved from paragraph to structured table (Tufte compliance),
+  coverage badge ≥90% → ≥92%, test counts 960+ → 990+, version to V119
+- whitePaper/baseCamp/, experiments/, specs/ updated to V119
+- New barraCuda/toadStool absorption handoff with full 110-delegation inventory
+- graphs/, wateringHole/, CONTRIBUTING.md aligned to V119
+
+#### Quality Gates
+- `cargo fmt --all -- --check`: PASS
+- `cargo clippy --workspace -- -W clippy::pedantic -W clippy::nursery`: 0 warnings
+- `cargo test --workspace`: 990+ tests, 0 failures
+- Library line coverage: ≥92% (`cargo llvm-cov --workspace --lib`)
+- Dead code: 10 `#[expect(dead_code)]` sites (3 original + 7 new cast helpers, all `cfg_attr`-gated)
+
 ### V118 Deep Audit Execution — RPC Expansion + Proptest + PRNG Alignment + GPU Delegation (Mar 19, 2026)
 
 #### RPC Method Expansion (8 new capabilities)

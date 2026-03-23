@@ -2,7 +2,7 @@
 
 > How groundSpring absorbs from and contributes to the ecoPrimals ecosystem.
 >
-> **Last updated**: March 19, 2026 (V118 — 110 delegations, 960+ tests)
+> **Last updated**: March 19, 2026 (V119 — 110 delegations, 960+ tests)
 
 ## Leverage Philosophy
 

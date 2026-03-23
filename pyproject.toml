@@ -4,7 +4,7 @@
 [project]
 name = "groundspring"
 version = "0.1.0"
-description = "The Dirty Differences — measurement noise characterization across scientific domains"
+description = "Pure Python baselines for groundSpring — measurement noise characterization across geochemistry, soil physics, meteorology, and microbial ecology"
 license = "AGPL-3.0-or-later"
 requires-python = ">=3.10"
 dependencies = [

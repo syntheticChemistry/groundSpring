@@ -4,6 +4,7 @@
 [package]
 name = "groundspring"
 version = "0.1.0"
+publish = false
 description = "Measurement noise characterization primitives — bias-variance decomposition, Monte Carlo error propagation, rarefaction, seismic inversion"
 edition.workspace = true
 license.workspace = true

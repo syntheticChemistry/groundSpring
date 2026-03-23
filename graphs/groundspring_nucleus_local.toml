@@ -20,7 +20,7 @@
 #   Exp 005 (seismic)        — nestgate.iris_stations/iris_events → NMSZ data
 #   Exp 023 (no-till 16S)    — nestgate.ncbi_search → no-till vs tilled 16S
 #
-# STATUS: V118 (March 19, 2026) — barraCuda v0.3.5, measurement domain niche
+# STATUS: V119 (March 22, 2026) — barraCuda v0.3.5, measurement domain niche
 # Target: Eastgate (local, single machine)
 #
 # Run: biomeos deploy graphs/groundspring_nucleus_local.toml
@@ -33,7 +33,7 @@ coordination = "Sequential"
 [graph.metadata]
 toadstool_pin = "S158+"
 toadstool_commit = "bfe7977b"
-groundspring_version = "V118"
+groundspring_version = "V119"
 target_node = "eastgate"
 precision_strategy = "f64-capable with DF64 fallback"
 domain = "measurement"
@@ -173,7 +173,7 @@ params = { primal = "groundspring", capabilities = [
     "measurement.freeze_out",
     "health.liveness",
     "health.readiness",
-], family_id = "groundspring", version = "V118" }
+], family_id = "groundspring", version = "V119" }
 
 [nodes.constraints]
 timeout_ms = 10000
@@ -265,7 +265,7 @@ name = "capability_call"
 
 [nodes.operation.params]
 capability = "provenance.session_create"
-params = { agent = "groundspring", experiment_id = "nucleus_local_bootstrap", version = "V118", family_id = "groundspring" }
+params = { agent = "groundspring", experiment_id = "nucleus_local_bootstrap", version = "V119", family_id = "groundspring" }
 
 [nodes.constraints]
 timeout_ms = 10000

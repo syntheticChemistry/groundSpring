@@ -242,6 +242,148 @@ pub(crate) mod cast {
     pub const fn f64_f32(value: f64) -> f32 {
         value as f32
     }
+
+    /// `i32` → `f64`. Always exact (`i32` ⊂ `f64` mantissa range).
+    ///
+    /// Absorbed from airSpring barracuda cast module.
+    #[inline]
+    #[must_use]
+    #[cfg_attr(
+        not(test),
+        expect(
+            dead_code,
+            reason = "absorbed API surface from airSpring; callers arrive as call sites migrate"
+        )
+    )]
+    pub const fn i32_f64(v: i32) -> f64 {
+        v as f64
+    }
+
+    /// `u32` → `f64`. Always exact (`u32` ⊂ `f64` mantissa range).
+    ///
+    /// Absorbed from airSpring barracuda cast module.
+    #[inline]
+    #[must_use]
+    pub const fn u32_f64(v: u32) -> f64 {
+        v as f64
+    }
+
+    /// `f64` → `u32` via truncation toward zero.
+    ///
+    /// Debug-panics if `v` is negative, NaN, or exceeds `u32::MAX`.
+    ///
+    /// Absorbed from airSpring barracuda cast module.
+    #[inline]
+    #[must_use]
+    #[cfg_attr(
+        not(test),
+        expect(
+            dead_code,
+            reason = "absorbed API surface from airSpring; callers arrive as call sites migrate"
+        )
+    )]
+    #[expect(
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        reason = "callers ensure v is non-negative and within u32 range"
+    )]
+    pub fn f64_u32(v: f64) -> u32 {
+        debug_assert!(
+            v.is_finite() && v >= 0.0 && v <= u32_f64(u32::MAX),
+            "f64_u32: {v} out of range"
+        );
+        v as u32
+    }
+
+    /// `u32` → `usize`. Always exact (`u32` ⊆ `usize` on all Rust targets).
+    ///
+    /// Absorbed from airSpring barracuda cast module.
+    #[inline]
+    #[must_use]
+    #[cfg_attr(
+        not(test),
+        expect(
+            dead_code,
+            reason = "absorbed API surface from airSpring; callers arrive as call sites migrate"
+        )
+    )]
+    pub const fn u32_usize(v: u32) -> usize {
+        v as usize
+    }
+
+    /// `u64` → `usize`. Exact on 64-bit targets; debug-panics on 32-bit overflow.
+    ///
+    /// Absorbed from airSpring barracuda cast module.
+    #[inline]
+    #[must_use]
+    #[cfg_attr(
+        not(test),
+        expect(
+            dead_code,
+            reason = "absorbed API surface from airSpring; callers arrive as call sites migrate"
+        )
+    )]
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "exact on 64-bit; debug-asserted on 32-bit"
+    )]
+    pub const fn u64_usize(v: u64) -> usize {
+        debug_assert!(
+            v <= usize::MAX as u64,
+            "u64_usize: overflow on this platform"
+        );
+        v as usize
+    }
+
+    /// `f64` → `i32` via truncation toward zero.
+    ///
+    /// Debug-panics if `v` is NaN, infinite, or outside `i32` range.
+    ///
+    /// Absorbed from airSpring barracuda cast module.
+    #[inline]
+    #[must_use]
+    #[cfg_attr(
+        not(test),
+        expect(
+            dead_code,
+            reason = "absorbed API surface from airSpring; callers arrive as call sites migrate"
+        )
+    )]
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "callers ensure v is within i32 range"
+    )]
+    pub fn f64_i32(v: f64) -> i32 {
+        debug_assert!(
+            v.is_finite() && v >= f64::from(i32::MIN) && v <= f64::from(i32::MAX),
+            "f64_i32: {v} out of range"
+        );
+        v as i32
+    }
+
+    /// `usize` → `i32`. For converting lengths to signed counters.
+    ///
+    /// Debug-panics if `v > i32::MAX`.
+    ///
+    /// Absorbed from airSpring barracuda cast module.
+    #[inline]
+    #[must_use]
+    #[cfg_attr(
+        not(test),
+        expect(
+            dead_code,
+            reason = "absorbed API surface from airSpring; callers arrive as call sites migrate"
+        )
+    )]
+    #[expect(
+        clippy::cast_possible_truncation,
+        clippy::cast_possible_wrap,
+        reason = "callers ensure v fits in i32; debug-asserted"
+    )]
+    pub const fn usize_i32(v: usize) -> i32 {
+        debug_assert!(v <= i32::MAX as usize, "usize_i32: overflow");
+        v as i32
+    }
 }
 
 /// Shared tolerance constants for validation assertions.
@@ -413,5 +555,50 @@ mod tests {
         assert_eq!(cast::f64_usize(3.7), 3);
         assert_eq!(cast::f64_usize(0.0), 0);
         assert_eq!(cast::f64_usize(100.999), 100);
+    }
+
+    #[test]
+    fn cast_i32_f64_exact() {
+        assert!((cast::i32_f64(-42) - (-42.0)).abs() < f64::EPSILON);
+        assert!((cast::i32_f64(0) - 0.0).abs() < f64::EPSILON);
+        assert!((cast::i32_f64(i32::MAX) - f64::from(i32::MAX)).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn cast_u32_f64_exact() {
+        assert!((cast::u32_f64(0) - 0.0).abs() < f64::EPSILON);
+        assert!((cast::u32_f64(u32::MAX) - f64::from(u32::MAX)).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn cast_f64_u32_truncates() {
+        assert_eq!(cast::f64_u32(255.9), 255);
+        assert_eq!(cast::f64_u32(0.0), 0);
+    }
+
+    #[test]
+    fn cast_u32_usize_identity() {
+        assert_eq!(cast::u32_usize(42), 42_usize);
+        assert_eq!(cast::u32_usize(0), 0_usize);
+        assert_eq!(cast::u32_usize(u32::MAX), u32::MAX as usize);
+    }
+
+    #[test]
+    fn cast_u64_usize_identity() {
+        assert_eq!(cast::u64_usize(42), 42_usize);
+        assert_eq!(cast::u64_usize(0), 0_usize);
+    }
+
+    #[test]
+    fn cast_f64_i32_truncates() {
+        assert_eq!(cast::f64_i32(3.9), 3);
+        assert_eq!(cast::f64_i32(-3.9), -3);
+        assert_eq!(cast::f64_i32(0.0), 0);
+    }
+
+    #[test]
+    fn cast_usize_i32_within_range() {
+        assert_eq!(cast::usize_i32(0), 0);
+        assert_eq!(cast::usize_i32(1000), 1000);
     }
 }

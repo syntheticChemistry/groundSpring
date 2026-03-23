@@ -4,6 +4,7 @@
 [package]
 name = "groundspring-validate"
 version = "0.1.0"
+publish = false
 description = "Validation binaries for groundSpring — hotSpring-pattern pass/fail with hardcoded expected values"
 edition.workspace = true
 license.workspace = true

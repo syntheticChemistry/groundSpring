@@ -2,7 +2,7 @@
 # Validates mathematical parity across CPU, GPU, and NPU substrates
 # using metalForge dispatch and NUCLEUS atomic coordination.
 #
-# STATUS: V118 (March 19, 2026) — barraCuda v0.3.5, measurement domain niche
+# STATUS: V119 (March 22, 2026) — barraCuda v0.3.5, measurement domain niche
 # Atomic: Node (Tower + ToadStool) — requires GPU compute (f64-capable device)
 # Optional: Nest (Tower + NestGate) — provenance storage
 #
@@ -17,7 +17,7 @@ coordination = "Sequential"
 [graph.metadata]
 toadstool_pin = "S158+"
 toadstool_commit = "bfe7977b"
-groundspring_version = "V118"
+groundspring_version = "V119"
 target_node = "eastgate"
 domain = "measurement"
 
@@ -132,7 +132,7 @@ name = "capability_call"
 
 [nodes.operation.params]
 capability = "provenance.session_create"
-params = { agent = "groundspring", experiment_id = "cross_substrate_${RUN_ID}", version = "V118", family_id = "groundspring" }
+params = { agent = "groundspring", experiment_id = "cross_substrate_${RUN_ID}", version = "V119", family_id = "groundspring" }
 
 [nodes.constraints]
 timeout_ms = 10000

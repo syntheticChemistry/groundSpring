@@ -2,7 +2,7 @@
 # Used by biomeOS to orchestrate Anderson localization validation
 # through the primal ecosystem: groundSpring (science) → ToadStool (GPU) → NestGate (provenance)
 #
-# STATUS: V118 (March 19, 2026) — barraCuda v0.3.5, measurement domain
+# STATUS: V119 (March 22, 2026) — barraCuda v0.3.5, measurement domain
 # Requires: Tower (BearDog + Songbird) + ToadStool (GPU compute, f64-capable)
 # Optional: NestGate (provenance storage), metalForge (hardware dispatch)
 #
@@ -16,7 +16,7 @@ coordination = "Sequential"
 [graph.metadata]
 toadstool_pin = "S158+"
 toadstool_commit = "bfe7977b"
-groundspring_version = "V118"
+groundspring_version = "V119"
 target_node = "eastgate"
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -166,7 +166,7 @@ name = "capability_call"
 
 [nodes.operation.params]
 capability = "provenance.session_create"
-params = { agent = "groundspring", experiment_id = "${EXPERIMENT_ID}", version = "V118", family_id = "groundspring" }
+params = { agent = "groundspring", experiment_id = "${EXPERIMENT_ID}", version = "V119", family_id = "groundspring" }
 
 [nodes.constraints]
 timeout_ms = 10000

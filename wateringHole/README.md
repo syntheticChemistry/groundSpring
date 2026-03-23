@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 19, 2026 (V118)
+**Last Updated**: March 22, 2026 (V119)
 
 ## What This Is
 
@@ -18,7 +18,8 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V118 Deep Audit + RPC + PRNG | [GROUNDSPRING_V118_DEEP_AUDIT_RPC_PRNG_HANDOFF_MAR19_2026.md](handoffs/GROUNDSPRING_V118_DEEP_AUDIT_RPC_PRNG_HANDOFF_MAR19_2026.md) | Mar 19, 2026 | RPC expansion (16 capabilities), 16 proptest invariants, PRNG DefaultRng production migration, spectral_recon GPU GEMM, 110 delegations (67 CPU + 43 GPU), provenance hardening, CI Python 90%. |
+| V119 Deep Audit + Absorption | [GROUNDSPRING_V118_DEEP_EVOLUTION_AUDIT_HANDOFF_MAR22_2026.md](handoffs/GROUNDSPRING_V118_DEEP_EVOLUTION_AUDIT_HANDOFF_MAR22_2026.md) | Mar 22, 2026 | Deep audit + cross-ecosystem absorption: publish hygiene, MSRV 1.85, provenance registry, cast parity, IPC isolation, 990+ tests, ≥92% coverage. |
+| V119 barraCuda/toadStool | [GROUNDSPRING_V119_BARRACUDA_TOADSTOOL_ABSORPTION_HANDOFF_MAR22_2026.md](handoffs/GROUNDSPRING_V119_BARRACUDA_TOADSTOOL_ABSORPTION_HANDOFF_MAR22_2026.md) | Mar 22, 2026 | 110 delegations inventory, upstream compile fix needed, cast module promotion, evolution priorities. |
 
 ## Cross-Spring Documentation
 
@@ -38,6 +39,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | Scope |
 |---------|-------|
+| V118 Deep Audit + RPC + PRNG | RPC expansion (16 capabilities), proptest, PRNG production, spectral_recon GPU GEMM, 110 delegations, provenance hardening (superseded by V119) |
 | V117 All-Features + PRNG | All-features compilation fixed (tarpc-ipc), cargo deny modernised, PRNG DefaultRng feature-gated, validate_all meta-binary, clippy --all-features clean (superseded by V118) |
 | V116 Typed Error Evolution | `DispatchError`, `EsnError`, `ResilienceError<E>`, `ValidationSink` trait, Format C/D capability parsing, `OnceLock` GPU probe, RAWR extraction, dispatch defaults named with provenance (superseded by V117) |
 | V115 Deep Debt + Idiomatic API Evolution | `assert!` → `Result<T, InputError>`, CI hardened (nursery, `--all-features`), ecoBin compliance (14 C-deps banned), zero panicking public APIs (superseded by V116) |

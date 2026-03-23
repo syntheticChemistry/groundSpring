@@ -1,13 +1,13 @@
 # groundSpring — The Dirty Differences
 
 [![CI](https://github.com/ecoPrimals/groundSpring/actions/workflows/ci.yml/badge.svg)](https://github.com/ecoPrimals/groundSpring/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/badge/coverage-%E2%89%A590%25-brightgreen)](https://github.com/ecoPrimals/groundSpring/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-%E2%89%A592%25-brightgreen)](https://github.com/ecoPrimals/groundSpring/actions/workflows/ci.yml)
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-2024_edition-orange.svg)](https://www.rust-lang.org/)
 [![ecoBin](https://img.shields.io/badge/ecoBin-compliant-green.svg)](https://github.com/ecoPrimals/wateringHole/blob/main/ECOBIN_ARCHITECTURE_STANDARD.md)
 
-**Date**: March 19, 2026 | **License**: AGPL-3.0-or-later
-**Status**: V118 — 40 modules, 35 experiments, 960+ Rust tests + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 110 active barraCuda delegations (67 CPU + 43 GPU) — synced against barraCuda v0.3.5, toadStool S158+, coralReef Iteration 55+. Three-tier parity proven: 29/29 validation binaries PASS at all three tiers. cargo deny check PASS, cargo clippy --all-features clean, cargo check --all-features compiles. **V118**: RPC expansion (8 new measurement methods — 16 total), 16 proptest invariants, PRNG DefaultRng production migration, spectral_recon GPU GEMM delegation, niche enrichment (110 delegations), provenance hardening, CI Python coverage 90%. **V117**: All-features compilation fixed (tarpc-ipc), cargo deny modernised, PRNG DefaultRng feature-gated for GPU alignment. **V116**: Typed error evolution. **V115**: API evolution, CI hardening, ecoBin compliance.
+**Date**: March 22, 2026 | **License**: AGPL-3.0-or-later
+**Status**: V119 — 40 modules, 35 experiments, 990+ Rust tests + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 110 active barraCuda delegations (67 CPU + 43 GPU) — synced against barraCuda v0.3.5, toadStool S158+, coralReef Iteration 55+. Three-tier parity proven: 29/29 validation binaries PASS at all three tiers. `cargo deny check` PASS, `cargo clippy --all-features` clean, `cargo check --all-features` compiles. ≥92% library line coverage (`cargo llvm-cov --workspace --lib`). **V119**: Deep evolution audit + cross-ecosystem absorption — `publish = false` on all crates, MSRV 1.85, provenance registry completeness test (29 benchmarks verified at compile time), cast module expanded (airSpring parity: 7 new helpers), IPC test isolation (atomic socket counter), 30+ new tests. **V118**: RPC expansion (16 capabilities), 16 proptest invariants, PRNG DefaultRng production, spectral_recon GPU GEMM, 110 delegations, provenance hardening, CI Python 90%. **V117**: All-features compilation, cargo deny, PRNG feature gate. **V116**: Typed error evolution. **V115**: API evolution, CI hardening, ecoBin compliance.
 
 **The gap between what models predict and what instruments measure.**
 
@@ -119,7 +119,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace                         # 960+ tests, all PASS
+cargo test --workspace                         # 990+ tests, all PASS
 cargo test --workspace --all-features          # all feature paths tested
 cargo test --workspace --features biomeos      # NUCLEUS client active
 cargo test --workspace --features barracuda-gpu # GPU dispatch active
@@ -193,7 +193,7 @@ mypy control/ tests/              # zero errors
 ### Test Coverage
 
 ```bash
-cargo llvm-cov --workspace          # 97.25% library line coverage (target 90%)
+cargo llvm-cov --workspace --lib    # ≥92% library line coverage (target 90%)
 ```
 
 ## Performance: Rust vs Python
@@ -252,7 +252,7 @@ Run parity report: `python3 scripts/parity_report.py`
 | BarraCUDA CPU | 18.4 | +47% (dispatch overhead on small workloads) |
 | **BarraCUDA GPU** | **9.9** | **−21% (1.27× faster)** |
 
-### Workspace Test Benchmark (960+ tests, release mode)
+### Workspace Test Benchmark (990+ tests, release mode)
 
 | Mode | Wall time (s) | Δ vs local |
 |------|--------------|------------|
@@ -302,7 +302,7 @@ Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardwar
   NumPy/SciPy         Pure safe Rust     BarraCUDA/ToadStool   metalForge dispatch    biomeOS Neural API
   ✓ Complete          ✓ 395/395 PASS     ◐ 110 active          30 workloads           Tower+Node+Squirrel
   11.5× slower        35/35 experiments    (67+43)              24 GPU + 2 NPU + 2 CPU-only         NestGate data pipes
-                      960+ workspace tests                      PCIe topology          NUCLEUS atomics
+                      990+ workspace tests                      PCIe topology          NUCLEUS atomics
                                                                 Pipeline dispatch      Sovereign degradation
 
   Write locally    →  Hand off          →  Lean on upstream   →  Cross-substrate     →  Primal orchestration
@@ -381,7 +381,7 @@ groundSpring/
 ├── graphs/                         # biomeOS pipeline graphs (deploy, Tower, Node, cross-substrate, validation)
 ├── niches/                         # BYOB niche YAML definitions (groundspring-measurement)
 ├── .github/workflows/ci.yml        # GitHub Actions CI
-├── wateringHole/                   # Handoff directory (V117 current)
+├── wateringHole/                   # Handoff directory (V119 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md      # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md   # GPU kernel gap analysis
@@ -419,4 +419,23 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 
 ---
 
-*Initialized: February 16, 2026 | Phase 1 complete: February 25, 2026 | Full-suite parity: February 26, 2026 | V21 complete barracuda rewiring: February 26, 2026 | V26 metalForge live hardware: February 27, 2026 | V30 biomeOS Neural API: February 27, 2026 | V35 Titan V / NAK adaptive GPU dispatch: February 27, 2026 | V39 NUCLEUS integration + NestGate data pipeline + metalForge remote discovery: February 27, 2026 | V53 complete rewiring + GPU grid adapters — 57 active: February 28, 2026 | V56 NUCLEUS live validation + ToadStool handoff: March 1, 2026 | V58 cross-spring evolution + deep-debt completion: March 1, 2026 | V63 brain architecture + capability-based discovery + Paper 12: March 2, 2026 | V68 complete rewiring — L-BFGS refinement, 4D Anderson: March 2, 2026 | V72 deep audit + debt evolution — zero clippy, BTreeMap determinism: March 3, 2026 | V73 tolerance architecture + epsilon guards + idiomatic evolution: March 4, 2026 | V74 deep debt + clippy pedantic CI + ToadStool/barraCuda full catch-up: March 4, 2026 | V76 structural evolution + deep debt zero + toadstool/barracuda absorption handoff: March 5, 2026 | V77 wgpu 28 migration + barraCuda v0.3.3 sync + DF64 precision tiers: March 5, 2026 | V78 modern rewiring + fused ops + ET₀ methods + cross-spring benchmark evolution: March 5, 2026 | V80 fused correlation_full GPU + Welford CPU stats + covariance GPU: March 5, 2026 | V81 BootstrapMeanGpu + freeze_out gate fix + coralReef sovereign compiler: March 5, 2026 | V84 GPU validation — RTX 4070 + Titan V dual-GPU probed, f64 shared memory issue found: March 6, 2026 | V85 coralReef sovereign compilation — CFG/RA fixes, f64 reduction compiles to native SM70/SM89: March 6, 2026 | V96 upstream rewire + PrecisionRoutingAdvice — 925 tests, barraCuda 2a6c072, toadStool S130, coralReef Iteration 7: March 7, 2026 | V97 GPU smoke test + three-tier parity proven — 936 tests, 29/29 validation at all 3 tiers, runtime f64 reduction verification: March 7, 2026 | V98 upstream rewire — barraCuda a898dee, toadStool S130+ bfe7977b, coralReef Iteration 10 d29a734: March 8, 2026 | V103 deep debt audit — named constants, biomeos/interaction extraction, centralized tolerances, zero clippy: March 15, 2026 | V105 deep code evolution — deny(expect\_used/unwrap\_used), freeze\_out 4-module refactor, tarpc IPC client, Result-based provenance, shared Python tolerances: March 15, 2026 | V106 primal_names module, typed BiomeOsError, zero hardcoded primal strings: March 16, 2026 | V107 license alignment, release profile, niche.rs enrichment, tolerance provenance, bare literal elimination, feature-gated spectral constants, 906 tests / 0 clippy: March 16, 2026 | V109 zero-panic validation binaries, smart module refactoring (regression, fao56, pipeline, validate-lib), named physical constants, Python dep pinning, 878 tests / 0 clippy: March 16, 2026 | V110 cross-ecosystem absorption: #[expect(reason)] migration (95 files), Python tolerance mirror (28 constants), tracing in primal binary, toadStool compute.dispatch.* direct dispatch, dual-format capability parsing, deny.toml, aarch64 CI, 912+ tests / 0 clippy: March 16, 2026 | V115 deep debt + idiomatic API evolution: assert!→Result in bootstrap/drift/quasispecies, CI hardened (nursery + all-features + biomeOS/metalForge jobs + aarch64 barracuda), ecoBin compliance (14 C-deps banned, UniBin flags, niche cost estimates), zero panicking public APIs, 930+ tests / 0 clippy: March 18, 2026 | V117 all-features compilation fixed (tarpc-ipc serde-transport-json), cargo deny modernised and passing, PRNG DefaultRng feature-gated for GPU alignment, validate\_all meta-binary, clippy --all-features clean, bare literal cleanup, 960+ tests / 0 clippy: March 18, 2026 | V118 deep audit execution — RPC expansion (16 capabilities), 16 proptest invariants, PRNG DefaultRng production migration, spectral_recon GPU GEMM, 110 delegations (67 CPU + 43 GPU), provenance hardening, CI Python coverage 90%: March 19, 2026*
+## Version Timeline
+
+| Version | Date | Milestone |
+|---------|------|-----------|
+| Init | Feb 16 | Repository initialized |
+| Phase 1 | Feb 25 | 29 experiments PASS in Rust |
+| V21 | Feb 26 | Complete barraCuda rewiring |
+| V26 | Feb 27 | metalForge live hardware (RTX 4070, Titan V, AKD1000) |
+| V39 | Feb 27 | NUCLEUS integration + NestGate data pipelines |
+| V53 | Feb 28 | 57 active delegations + GPU grid adapters |
+| V68 | Mar 2 | L-BFGS refinement, 4D Anderson |
+| V76 | Mar 5 | Structural evolution, deep debt zero |
+| V85 | Mar 6 | coralReef sovereign compilation (SM70/SM89) |
+| V97 | Mar 7 | Three-tier parity proven (29/29 binaries × 3 tiers) |
+| V110 | Mar 16 | Cross-ecosystem absorption, `#[expect(reason)]` migration |
+| V115 | Mar 18 | Zero panicking APIs, ecoBin compliance, 930+ tests |
+| V118 | Mar 19 | RPC expansion (16 caps), 110 delegations, 960+ tests |
+| V119 | Mar 22 | Deep audit + cross-ecosystem absorption, 990+ tests, ≥92% coverage |
+
+Part of [ecoPrimals](https://github.com/syntheticChemistry) · [wateringHole](https://github.com/ecoPrimals/wateringHole) · AGPL-3.0-or-later

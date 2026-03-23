@@ -550,4 +550,160 @@ mod tests {
         assert!(msg.contains('x'));
         assert!(msg.contains("f64"));
     }
+
+    /// Provenance registry completeness test (neuralSpring V120 pattern).
+    ///
+    /// Verifies all 29 benchmark JSONs are present and parseable at compile
+    /// time. If a benchmark is added or removed, update EXPECTED_BENCHMARKS.
+    #[test]
+    fn provenance_registry_completeness() {
+        const EXPECTED_BENCHMARKS: usize = 29;
+
+        let benchmarks: &[(&str, &str)] = &[
+            (
+                "sensor_noise",
+                include_str!("../../../control/sensor_noise/benchmark_sensor_noise.json"),
+            ),
+            (
+                "observation_gap",
+                include_str!("../../../control/observation_gap/benchmark_observation_gap.json"),
+            ),
+            (
+                "error_propagation",
+                include_str!("../../../control/error_propagation/benchmark_error_propagation.json"),
+            ),
+            (
+                "sequencing_noise",
+                include_str!("../../../control/sequencing_noise/benchmark_sequencing_noise.json"),
+            ),
+            (
+                "seismic",
+                include_str!("../../../control/seismic/benchmark_seismic.json"),
+            ),
+            (
+                "signal_specificity",
+                include_str!(
+                    "../../../control/signal_specificity/benchmark_signal_specificity.json"
+                ),
+            ),
+            (
+                "rawr_resampling",
+                include_str!("../../../control/rawr_resampling/benchmark_rawr_resampling.json"),
+            ),
+            (
+                "anderson_localization",
+                include_str!(
+                    "../../../control/anderson_localization/benchmark_anderson_localization.json"
+                ),
+            ),
+            (
+                "quasiperiodic",
+                include_str!("../../../control/quasiperiodic/benchmark_quasiperiodic.json"),
+            ),
+            (
+                "bistable",
+                include_str!("../../../control/bistable_switching/benchmark_bistable.json"),
+            ),
+            (
+                "multisignal",
+                include_str!("../../../control/multisignal_qs/benchmark_multisignal.json"),
+            ),
+            (
+                "spin_transport",
+                include_str!("../../../control/spin_transport/benchmark_spin_transport.json"),
+            ),
+            (
+                "resampling_convergence",
+                include_str!(
+                    "../../../control/resampling_convergence/benchmark_resampling_convergence.json"
+                ),
+            ),
+            (
+                "drift_selection",
+                include_str!("../../../control/drift_selection/benchmark_drift_selection.json"),
+            ),
+            (
+                "uncertainty_bridge",
+                include_str!(
+                    "../../../control/uncertainty_bridge/benchmark_uncertainty_bridge.json"
+                ),
+            ),
+            (
+                "rare_biosphere",
+                include_str!("../../../control/rare_biosphere/benchmark_rare_biosphere.json"),
+            ),
+            (
+                "quasispecies",
+                include_str!("../../../control/quasispecies_threshold/benchmark_quasispecies.json"),
+            ),
+            (
+                "band_edge",
+                include_str!("../../../control/band_edge/benchmark_band_edge.json"),
+            ),
+            (
+                "jackknife",
+                include_str!("../../../control/jackknife_estimation/benchmark_jackknife.json"),
+            ),
+            (
+                "freeze_out",
+                include_str!("../../../control/freeze_out_inverse/benchmark_freeze_out.json"),
+            ),
+            (
+                "spectral_recon",
+                include_str!("../../../control/spectral_recon/benchmark_spectral_recon.json"),
+            ),
+            (
+                "et0_anderson",
+                include_str!(
+                    "../../../control/et0_anderson_propagation/benchmark_et0_anderson.json"
+                ),
+            ),
+            (
+                "notill_sampling",
+                include_str!("../../../control/notill_sampling/benchmark_notill_sampling.json"),
+            ),
+            (
+                "aggregate_stability",
+                include_str!(
+                    "../../../control/aggregate_stability/benchmark_aggregate_stability.json"
+                ),
+            ),
+            (
+                "precision_drift",
+                include_str!("../../../control/precision_drift/benchmark_precision_drift.json"),
+            ),
+            (
+                "size_convergence",
+                include_str!("../../../control/size_convergence/benchmark_size_convergence.json"),
+            ),
+            (
+                "vendor_parity",
+                include_str!("../../../control/vendor_parity/benchmark_vendor_parity.json"),
+            ),
+            (
+                "npu_anderson",
+                include_str!("../../../control/npu_anderson/benchmark_npu_anderson.json"),
+            ),
+            (
+                "et0_methods",
+                include_str!("../../../control/et0_methods/benchmark_et0_methods.json"),
+            ),
+        ];
+
+        assert_eq!(
+            benchmarks.len(),
+            EXPECTED_BENCHMARKS,
+            "benchmark count mismatch: got {}, expected {EXPECTED_BENCHMARKS}",
+            benchmarks.len()
+        );
+
+        for (name, json_str) in benchmarks {
+            let parsed: Result<serde_json::Value, _> = serde_json::from_str(json_str);
+            assert!(
+                parsed.is_ok(),
+                "benchmark '{name}' failed to parse: {}",
+                parsed.unwrap_err()
+            );
+        }
+    }
 }

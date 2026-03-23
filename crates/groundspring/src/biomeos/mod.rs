@@ -500,6 +500,16 @@ pub fn raw_rpc_call(socket: &Path, request: &str) -> Result<String> {
 #[expect(clippy::unwrap_used, reason = "test assertions use unwrap for clarity")]
 mod tests {
     use super::*;
+    use std::sync::atomic::{AtomicU64, Ordering};
+
+    /// Atomic counter for unique test socket paths (ludoSpring V28 pattern).
+    /// Prevents CI flakiness from parallel test socket collisions.
+    static TEST_SOCKET_ID: AtomicU64 = AtomicU64::new(0);
+
+    fn unique_test_socket(label: &str) -> std::path::PathBuf {
+        let id = TEST_SOCKET_ID.fetch_add(1, Ordering::Relaxed);
+        std::env::temp_dir().join(format!("gs_test_{label}_{id}.sock"))
+    }
 
     #[test]
     fn is_enabled_default_false() {
@@ -552,7 +562,7 @@ mod tests {
 
     #[test]
     fn register_capabilities_nonexistent_socket_errors() {
-        let path = std::env::temp_dir().join("groundspring_test_nonexistent_register.sock");
+        let path = unique_test_socket("register");
         let err = register_capabilities(&path).unwrap_err();
         let msg = err.to_string();
         assert!(
@@ -563,7 +573,7 @@ mod tests {
 
     #[test]
     fn health_nonexistent_socket_errors() {
-        let path = std::env::temp_dir().join("groundspring_test_nonexistent_biomeos.sock");
+        let path = unique_test_socket("health");
         let err = health(&path).unwrap_err();
         let msg = err.to_string();
         assert!(msg.contains("biomeOS connect") || msg.contains("invalid socket"));
@@ -571,7 +581,7 @@ mod tests {
 
     #[test]
     fn capability_call_nonexistent_socket_errors() {
-        let path = std::env::temp_dir().join("groundspring_test_nonexistent_cap.sock");
+        let path = unique_test_socket("cap");
         let err = capability_call(&path, "science.test", "{}").unwrap_err();
         let msg = err.to_string();
         assert!(msg.contains("biomeOS connect") || msg.contains("invalid socket"));
@@ -579,9 +589,16 @@ mod tests {
 
     #[test]
     fn direct_rpc_call_nonexistent_socket_errors() {
-        let path = std::env::temp_dir().join("groundspring_test_nonexistent_rpc.sock");
+        let path = unique_test_socket("rpc");
         let err = direct_rpc_call(&path, "compute", "health", "{}").unwrap_err();
         let msg = err.to_string();
         assert!(msg.contains("biomeOS connect") || msg.contains("invalid socket"));
+    }
+
+    #[test]
+    fn unique_test_socket_paths_are_unique() {
+        let a = unique_test_socket("uniq");
+        let b = unique_test_socket("uniq");
+        assert_ne!(a, b, "each call should produce a distinct path");
     }
 }
