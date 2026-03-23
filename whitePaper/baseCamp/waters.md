@@ -88,7 +88,7 @@ Quorum Sensing in the Control of vpsT and aphA." J Bacteriology 193:6331-41.
 
 ### V116 Capabilities
 
-- Test count: 960+; zero `Result<_, String>` in dispatch layer; ValidationSink trait for structured output
+- Test count: 990+; zero `Result<_, String>` in dispatch layer; ValidationSink trait for structured output
 - EsnError typed error chain replaces format! strings in ESN regime classification
 - Preserves BarracudaError source instead of flattening
 

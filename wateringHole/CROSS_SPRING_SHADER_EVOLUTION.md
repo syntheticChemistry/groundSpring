@@ -3,7 +3,7 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 22, 2026 (V119: cross-ecosystem absorption, 990+ tests, ≥92% coverage, 110 active delegations (67 CPU + 43 GPU), barraCuda v0.3.5, toadStool S158+, coralReef Iteration 55+. V118: RPC expansion, 16 capabilities. V113: GemmF64 transpose, RetryPolicy + CircuitBreaker. V110: zero-panic binaries. V105: deep debt. V98: upstream rewire. V95: coralReef breakthrough. V87: Tier B resolution. V73: tolerance architecture)
+**Last Updated**: March 23, 2026 (V120: deep audit execution — dispatch refactored, `#![forbid(unsafe_code)]` on all 50 binaries, `DeviceCapabilities` migration, release-mode CI. 990+ tests, ≥92% coverage, 110 active delegations (67 CPU + 43 GPU), barraCuda v0.3.5, toadStool S158+, coralReef Iteration 55+. V119: cross-ecosystem absorption. V118: RPC expansion, 16 capabilities. V113: GemmF64 transpose. V110: zero-panic binaries. V98: upstream rewire. V95: coralReef breakthrough. V87: Tier B resolution. V73: tolerance architecture)
 
 ---
 

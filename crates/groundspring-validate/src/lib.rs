@@ -554,8 +554,12 @@ mod tests {
     /// Provenance registry completeness test (neuralSpring V120 pattern).
     ///
     /// Verifies all 29 benchmark JSONs are present and parseable at compile
-    /// time. If a benchmark is added or removed, update EXPECTED_BENCHMARKS.
+    /// time. If a benchmark is added or removed, update `EXPECTED_BENCHMARKS`.
     #[test]
+    #[expect(
+        clippy::too_many_lines,
+        reason = "registry test is necessarily long — one entry per benchmark JSON"
+    )]
     fn provenance_registry_completeness() {
         const EXPECTED_BENCHMARKS: usize = 29;
 

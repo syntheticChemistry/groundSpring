@@ -34,10 +34,8 @@ pub(super) enum DispatchOutcome {
     ProtocolError { code: i64, message: String },
     /// Application-level error (code >= -32000 or non-standard).
     ApplicationError {
-        #[expect(
-            dead_code,
-            reason = "code field reserved for future error classification and retry logic"
-        )]
+        #[allow(dead_code)]
+        // Classified in `classify_rpc_error`; non-test handlers only surface `message`.
         code: i64,
         message: String,
     },
@@ -128,10 +126,6 @@ pub(super) fn response_has_error(response: &str) -> Result<()> {
 /// [`BiomeOsError`].
 ///
 /// Absorbed from ludoSpring V23 / healthSpring V30 `extract_rpc_result()`.
-#[expect(
-    dead_code,
-    reason = "pre-absorbed ecosystem helper, wired when biomeos server dispatches"
-)]
 pub(super) fn extract_rpc_result(response: &str) -> Result<Value> {
     let v: Value = serde_json::from_str(response)
         .map_err(|e| BiomeOsError::Protocol(format!("invalid JSON-RPC response: {e}")))?;

@@ -83,8 +83,8 @@ pub const EPS_SAFE_DIV_STRICT: f64 = 1e-20;
 /// Kelvin convention (273.0 vs 273.16), `mul_add` vs multiply-then-add.
 /// Hargreaves amplifies Ra differences.
 ///
-/// Provenance: `control/et0_methods/et0_methods.py` (commit `a29480fd`,
-/// 2026-03-05) — `python3 control/et0_methods/et0_methods.py`.
+/// Provenance: `control/et0_methods/et0_methods.py` (commit `231a3e99`,
+/// 2026-03-19) — `python3 control/et0_methods/et0_methods.py`.
 /// Observed max delta: PM 0.002, HG 0.004, MK 0.001, TU 0.001, HA 0.001.
 /// 0.005 provides 1.25× margin over worst case (Hargreaves 0.004).
 pub const TOL_ET0: f64 = 0.005;

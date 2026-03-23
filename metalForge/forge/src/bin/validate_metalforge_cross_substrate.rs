@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
+#![forbid(unsafe_code)]
 
 //! Cross-substrate parity validation: CPU vs GPU vs NPU on Anderson localization.
 //!

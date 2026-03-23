@@ -276,10 +276,10 @@ pub(crate) mod cast {
     #[inline]
     #[must_use]
     #[cfg_attr(
-        not(test),
+        not(any(test, feature = "biomeos")),
         expect(
             dead_code,
-            reason = "absorbed API surface from airSpring; callers arrive as call sites migrate"
+            reason = "used by biomeos::resilience and tests; unused in non-test non-biomeos builds"
         )
     )]
     #[expect(
@@ -301,10 +301,10 @@ pub(crate) mod cast {
     #[inline]
     #[must_use]
     #[cfg_attr(
-        not(test),
+        not(any(test, feature = "barracuda-gpu")),
         expect(
             dead_code,
-            reason = "absorbed API surface from airSpring; callers arrive as call sites migrate"
+            reason = "used by seismic/freeze_out GPU paths and tests; unused in non-test non-GPU builds"
         )
     )]
     pub const fn u32_usize(v: u32) -> usize {

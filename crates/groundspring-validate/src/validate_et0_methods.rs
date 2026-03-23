@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
+#![forbid(unsafe_code)]
 
 //! Validation binary for Exp 035: Multi-Method ET₀ Cross-Validation.
 //!

@@ -13,6 +13,8 @@
 //! dispatches as a 3D workgroup with per-point RMS reduction.
 //! [`haversine_km`] and [`travel_time_1d`] stay local (scalar trig).
 
+#[cfg(feature = "barracuda-gpu")]
+use crate::cast::u32_usize;
 use crate::cast::{f64_usize, usize_f64};
 
 /// Earth's mean radius in kilometers.
@@ -210,9 +212,9 @@ fn grid_search_inversion_gpu<S: AsRef<str>>(
     )
     .ok()?;
 
-    let lat = lat_grid[result.min_ix as usize];
-    let lon = lon_grid[result.min_iy as usize];
-    let depth = depth_grid[result.min_iz as usize];
+    let lat = lat_grid[u32_usize(result.min_ix)];
+    let lon = lon_grid[u32_usize(result.min_iy)];
+    let depth = depth_grid[u32_usize(result.min_iz)];
 
     pred_tt.clear();
     obs_times.clear();

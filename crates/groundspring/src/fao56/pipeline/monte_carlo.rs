@@ -2,6 +2,7 @@
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
 use super::{RH_MAX_CEIL_PCT, RH_MIN_FLOOR_PCT, RHMAX_FLOOR_PCT, WIND_SPEED_FLOOR_KMH};
+use crate::cast::f64_usize;
 use crate::fao56::{DailyWeatherInputs, daily_et0};
 
 /// Uncertainty (σ) for each meteorological input perturbed during
@@ -173,18 +174,8 @@ fn summarize_mc_samples(samples: &mut [f64]) -> McEt0Result {
 
     samples.sort_by(f64::total_cmp);
 
-    #[expect(
-        clippy::cast_possible_truncation,
-        clippy::cast_sign_loss,
-        reason = "percentile index from f64 fraction of known-valid usize"
-    )]
-    let pct_05 = samples[(0.05 * n) as usize];
-    #[expect(
-        clippy::cast_possible_truncation,
-        clippy::cast_sign_loss,
-        reason = "percentile index from f64 fraction of known-valid usize"
-    )]
-    let pct_95 = samples[(0.95 * n) as usize];
+    let pct_05 = samples[f64_usize(0.05 * n)];
+    let pct_95 = samples[f64_usize(0.95 * n)];
 
     McEt0Result {
         mean,

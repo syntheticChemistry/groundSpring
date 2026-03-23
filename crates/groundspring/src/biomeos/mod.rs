@@ -56,7 +56,9 @@ use std::time::Duration;
 
 use serde_json::Value;
 
-use protocol::{DispatchOutcome, build_request, parse_rpc_dispatch, parse_rpc_response};
+use protocol::{
+    DispatchOutcome, build_request, extract_rpc_result, parse_rpc_dispatch, parse_rpc_response,
+};
 use transport::rpc_call;
 
 // ─── Configuration ───────────────────────────────────────────────────────────
@@ -217,6 +219,31 @@ fn capability_call_value(socket: &Path, capability: &str, args: &Value) -> Resul
     let request = build_request("capability.call", &params);
     let response = rpc_call(socket, &request)?;
     parse_rpc_response(&response)
+}
+
+/// Route a request through biomeOS and return the parsed JSON result.
+///
+/// Like [`capability_call`] but returns the structured `serde_json::Value`
+/// directly instead of a `String`, avoiding a redundant serialization
+/// round-trip for callers that consume the result as JSON.
+///
+/// # Errors
+///
+/// Returns `Err` if the socket is unavailable, the RPC fails, or the
+/// response contains a JSON-RPC error.
+pub fn capability_call_typed(socket: &Path, capability: &str, params_json: &str) -> Result<Value> {
+    let args: Value = serde_json::from_str(params_json)
+        .map_err(|e| BiomeOsError::Serialization(format!("invalid params JSON: {e}")))?;
+    let (cap, op) = capability.split_once('.').unwrap_or((capability, "call"));
+    let params = serde_json::json!({
+        "capability": cap,
+        "operation": op,
+        "args": args,
+        "family_id": FAMILY_ID,
+    });
+    let request = build_request("capability.call", &params);
+    let response = rpc_call(socket, &request)?;
+    extract_rpc_result(&response)
 }
 
 /// Direct JSON-RPC call targeting a specific biomeOS primal by name.

@@ -54,8 +54,8 @@ fn get_device_with_env(env: impl Fn(&str) -> Option<String>) -> Option<Arc<WgpuD
 
 /// Query precision routing advice for the cached GPU device.
 ///
-/// Returns the hardware-appropriate precision strategy based on driver
-/// profile detection (barraCuda `GpuDriverProfile` from toadStool S128):
+/// Returns the hardware-appropriate precision strategy based on device
+/// capabilities detection (barraCuda `DeviceCapabilities` from Sprint 14):
 ///
 /// - [`PrecisionRoutingAdvice::F64Native`] — workgroup f64 reductions safe
 /// - [`PrecisionRoutingAdvice::F64NativeNoSharedMem`] — avoid `var<workgroup>` f64
@@ -65,10 +65,10 @@ fn get_device_with_env(env: impl Fn(&str) -> Option<String>) -> Option<Arc<WgpuD
 /// Returns `None` if no GPU is available.
 #[must_use]
 pub fn precision_routing() -> Option<PrecisionRoutingAdvice> {
-    use barracuda::device::driver_profile::GpuDriverProfile;
+    use barracuda::device::capabilities::DeviceCapabilities;
     let device = get_device()?;
-    let profile = GpuDriverProfile::from_device(&device);
-    Some(profile.precision_routing())
+    let caps = DeviceCapabilities::from_device(&device);
+    Some(caps.precision_routing())
 }
 
 /// Returns `true` when the GPU can safely run f64 workgroup-reduction

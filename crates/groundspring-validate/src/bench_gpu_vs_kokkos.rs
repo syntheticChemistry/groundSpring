@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
+#![forbid(unsafe_code)]
 
 //! GPU head-to-head benchmark: `BarraCuda` WGSL vs Kokkos CUDA.
 //!

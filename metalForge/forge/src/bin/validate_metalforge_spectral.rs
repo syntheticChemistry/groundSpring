@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
+#![forbid(unsafe_code)]
 
 //! GPU live validation: spectral function reconstruction via Tikhonov
 //! regularization. Compares CPU-only Cholesky with barracuda-dispatched

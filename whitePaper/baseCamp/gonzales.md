@@ -99,7 +99,7 @@ compromised.
 
 ### V116 Capabilities
 
-- Test count: 960+; zero `Result<_, String>` in dispatch layer; ValidationSink trait for structured output
+- Test count: 990+; zero `Result<_, String>` in dispatch layer; ValidationSink trait for structured output
 - ResilienceError<E> typed error for resilient_call
 - Format C/D capability parsing
 - OnceLock GPU probe cache

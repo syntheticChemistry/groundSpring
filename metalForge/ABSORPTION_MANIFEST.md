@@ -44,9 +44,9 @@
 
 ## Tier A — Lean (110 active: 67 CPU + 43 GPU)
 
-Full delegation inventory as of V97, barraCuda v0.3.5:
+Full delegation inventory as of V119, barraCuda v0.3.5:
 
-### CPU delegations (51)
+### CPU delegations (67)
 
 | Function | BarraCUDA target | Wiring |
 |---|---|---|

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
+#![forbid(unsafe_code)]
 
 //! Validation binary for Experiment 025: f32 vs f64 Transport Coefficient Precision Drift.
 //!

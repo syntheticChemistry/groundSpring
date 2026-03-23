@@ -240,6 +240,76 @@ impl<S: ValidationSink> ValidationHarness<S> {
         self.record(ok)
     }
 
+    /// Check that `computed` is within `rel_tol` *relative* to `expected`.
+    ///
+    /// Uses `|computed − expected| / |expected|` when `|expected| > 1e-15`,
+    /// falling back to absolute comparison otherwise (avoids division by near-zero).
+    /// Matches the metalForge `tolerance::compare` semantics and the
+    /// hotSpring/neuralSpring `check_rel` pattern.
+    pub fn check_relative(
+        &mut self,
+        label: &str,
+        computed: f64,
+        expected: f64,
+        rel_tol: f64,
+    ) -> bool {
+        let abs_diff = (computed - expected).abs();
+        let rel_err = if expected.abs() > 1e-15 {
+            abs_diff / expected.abs()
+        } else {
+            abs_diff
+        };
+        let ok = rel_err <= rel_tol;
+        let detail = format!(
+            "{computed:.6} (expected {expected:.6}, rel_tol {rel_tol:.6}, rel_err {rel_err:.6})"
+        );
+        if ok {
+            self.sink.record_pass(label, &detail);
+        } else {
+            self.sink.record_fail(label, &detail);
+        }
+        self.record(ok)
+    }
+
+    /// Check that `computed` matches `expected` within *either* an absolute
+    /// or relative tolerance — whichever is more lenient.
+    ///
+    /// Combines [`check_approx`](Self::check_approx) (absolute) and
+    /// [`check_relative`](Self::check_relative) semantics: a check passes
+    /// if `|computed − expected| ≤ abs_tol` **or** the relative error
+    /// `|computed − expected| / |expected| ≤ rel_tol`. This handles both
+    /// near-zero values (where absolute tolerance dominates) and large-magnitude
+    /// values (where relative tolerance is more meaningful).
+    pub fn check_abs_or_rel(
+        &mut self,
+        label: &str,
+        computed: f64,
+        expected: f64,
+        abs_tol: f64,
+        rel_tol: f64,
+    ) -> bool {
+        let abs_diff = (computed - expected).abs();
+        let abs_ok = abs_diff <= abs_tol;
+        let rel_err = if expected.abs() > 1e-15 {
+            abs_diff / expected.abs()
+        } else {
+            abs_diff
+        };
+        let rel_ok = rel_err <= rel_tol;
+        let ok = abs_ok || rel_ok;
+        let detail = format!(
+            "{computed:.6} (expected {expected:.6}, \
+             abs_tol {abs_tol:.6}, rel_tol {rel_tol:.6}, \
+             diff {abs_diff:.6}, rel_err {rel_err:.6})"
+        );
+        if ok {
+            self.sink.record_pass(label, &detail);
+        } else {
+            self.sink.record_fail(label, &detail);
+        }
+        self.record(ok)
+    }
+
     /// Check that a boolean condition holds.
     pub fn check_true(&mut self, label: &str, condition: bool) -> bool {
         if condition {
@@ -332,6 +402,49 @@ mod tests {
         assert!(h.check_min("equal", 5.0, 5.0));
         assert!(h.check_min("above", 6.0, 5.0));
         assert!(!h.check_min("below", 4.0, 5.0));
+    }
+
+    #[test]
+    fn check_relative_pass() {
+        let mut h = harness("test");
+        assert!(h.check_relative("close", 1.005, 1.0, 0.01));
+        assert_eq!(h.passes(), 1);
+        assert_eq!(h.fails(), 0);
+    }
+
+    #[test]
+    fn check_relative_fail() {
+        let mut h = harness("test");
+        assert!(!h.check_relative("far", 1.5, 1.0, 0.01));
+        assert_eq!(h.fails(), 1);
+    }
+
+    #[test]
+    fn check_relative_near_zero_falls_back_to_absolute() {
+        let mut h = harness("test");
+        assert!(h.check_relative("near_zero", 1e-16, 0.0, 1e-10));
+        assert_eq!(h.passes(), 1);
+    }
+
+    #[test]
+    fn check_abs_or_rel_pass_via_absolute() {
+        let mut h = harness("test");
+        assert!(h.check_abs_or_rel("abs_wins", 100.001, 100.0, 0.01, 1e-10));
+        assert_eq!(h.passes(), 1);
+    }
+
+    #[test]
+    fn check_abs_or_rel_pass_via_relative() {
+        let mut h = harness("test");
+        assert!(h.check_abs_or_rel("rel_wins", 1000.5, 1000.0, 0.001, 0.001));
+        assert_eq!(h.passes(), 1);
+    }
+
+    #[test]
+    fn check_abs_or_rel_fail_both() {
+        let mut h = harness("test");
+        assert!(!h.check_abs_or_rel("both_fail", 2.0, 1.0, 0.01, 0.01));
+        assert_eq!(h.fails(), 1);
     }
 
     #[test]

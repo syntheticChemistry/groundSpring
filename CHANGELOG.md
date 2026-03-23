@@ -4,6 +4,57 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V120 Deep Audit Execution — Refactoring + Safety + CI Hardening (Mar 23, 2026)
+
+#### Structural Refactoring
+- **`dispatch.rs` → `dispatch/` module**: 823-line monolith refactored into 4
+  focused submodules (`defaults.rs`, `extract.rs`, `lifecycle.rs`, `measurement.rs`)
+  with `mod.rs` router — all files under 400 lines, single-responsibility, zero
+  public API change
+- **`ValidationHarness` expanded**: `check_relative` (relative tolerance comparison)
+  and `check_abs_or_rel` (abs-or-rel tolerance with named labels) added with full
+  unit tests — supports broader floating-point validation patterns
+
+#### Safety & Correctness
+- **`#![forbid(unsafe_code)]` on all 50 binary entry points**: Validation binaries
+  (37), benchmarks (3), metalForge binaries (10) — completes the "zero unsafe in
+  application code" mandate (was already on 3 crate lib roots)
+- **`GpuDriverProfile` → `DeviceCapabilities` migration**: Replaced deprecated
+  barraCuda type in `gpu.rs` precision routing — forward-compatible with upstream
+- **Cast helper `cfg_attr` hardened**: `#[cfg_attr(not(any(test, feature = "...")),
+  expect(dead_code))]` correctly handles test compilation + feature interaction —
+  eliminates unfulfilled lint expectations in `--all-targets` builds
+- **Clippy `--all-features` clean**: Fixed unfulfilled lint expectations in 5 test
+  modules (`lanczos`, `interaction`, `nestgate`, `provenance`, `npu`), expanded
+  `server.rs` test `#[expect]` to cover `expect_used`, fixed `protocol.rs`
+  `ApplicationError::code` dead_code annotation
+
+#### biomeOS Evolution
+- **`capability_call_typed`**: New public function in `biomeos` module — typed
+  JSON-RPC capability invocation using `extract_rpc_result`, reduces boilerplate
+  for primal-to-primal communication
+- **`extract_rpc_result` promoted**: Removed dead_code annotation — now called
+  from production `capability_call_typed` path
+
+#### CI & Documentation
+- **Release-mode CI validation**: New `validate-release` job runs 7 validation
+  binaries under `--release` (LTO + codegen-units=1) — catches release-only
+  numeric divergence
+- **Provenance fix**: `TOL_ET0` provenance updated to match `benchmark_et0_methods.json`
+  (commit `231a3e99`, 2026-03-19)
+- **Delegation count docs**: Updated CPU delegation count from 51 → 67 in
+  `BARRACUDA_EVOLUTION.md`, `BARRACUDA_REQUIREMENTS.md`, `ABSORPTION_MANIFEST.md`
+- **Doc link fix**: Removed `[`measurement`]` intra-doc link to private module
+  in dispatch documentation
+
+#### Quality Gates
+- `cargo fmt --all -- --check`: PASS
+- `cargo clippy --workspace --all-targets -- -W clippy::pedantic -W clippy::nursery`: 0 warnings
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings -W clippy::pedantic -W clippy::nursery`: 0 warnings
+- `cargo doc --all-features -D warnings`: PASS
+- `cargo test --workspace`: 990+ tests, 0 failures
+- Library line coverage: ≥92% (`cargo llvm-cov --workspace --lib`)
+
 ### V119 Deep Evolution Audit + Cross-Ecosystem Absorption (Mar 22, 2026)
 
 #### Ecosystem Hygiene

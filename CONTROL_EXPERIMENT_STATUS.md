@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 22, 2026 (V119 — 990+ tests, ≥92% library coverage, 0 clippy (default + all-features), 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later. V119: cross-ecosystem absorption (publish = false, MSRV 1.85, provenance registry, cast parity, IPC isolation). V118: RPC expansion (16 capabilities), 110 delegations (67 CPU + 43 GPU). V117: all-features compilation. V116: typed error evolution.)
+**Last updated**: March 23, 2026 (V120 — 990+ tests, ≥92% library coverage, 0 clippy (default + all-features), 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later. V120: deep audit execution (dispatch refactored into 4 submodules, `#![forbid(unsafe_code)]` on all 50 binaries, `GpuDriverProfile` → `DeviceCapabilities`, release-mode CI, `ValidationHarness` expanded). V119: cross-ecosystem absorption (publish = false, MSRV 1.85, provenance registry, cast parity, IPC isolation). V118: RPC expansion (16 capabilities), 110 delegations (67 CPU + 43 GPU). V117: all-features compilation. V116: typed error evolution.)
 
 ## Experiment Register
 
@@ -42,12 +42,12 @@
 | 034 | Geometry-Aware Drug Scoring | Immunological (drug repurposing) | — | (combined with 033) |
 | 035 | Multi-Method ET₀ Cross-Validation | Hydrology (ET₀ methods) | 15/15 PASS | 19/19 PASS |
 
-**Python Phase 0**: All 29 experiments passing (390 pass + 2 skip)
+**Python Phase 0**: All 29 experiments with Python baselines passing
 **Rust Phase 1 (core)**: 340/340 PASS across 30 validation binaries (340 core)
 **Rust Phase 1 (NUCLEUS)**: 55/55 PASS across 4 validation binaries (Exp 029–032, `--features biomeos`)
 **Total validation**: 395/395 PASS across 34 validation binaries
 **Rust tests**: 990+/990+ PASS (default workspace)
-**pytest**: 390/390 PASS + 2 skipped
+**pytest**: 400 collected, 314 PASS + 19 skipped + 67 fail (Kokkos benchmark binary name issues — build-dependent)
 **Three-tier parity**: 102+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
 **BarraCUDA dispatch**: 110 active (67 CPU + 43 GPU) — V105: barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+. `PrecisionRoutingAdvice` wired into 11 GPU dispatch paths via `get_device_f64_safe()`. tarpc 0.37, ops GPU-gated rewire, domain-esn feature, Rust 2024 unsafe model. coralReef sovereign dispatch path proven on Titan V
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); compute.execute + compute.submit validated
@@ -687,10 +687,10 @@ Each experiment is validated at three hardware tiers:
 | `cargo test --features barracuda-gpu` | 814/814 PASS |
 | Validation binaries (local) | 395/395 PASS (34 binaries) |
 | Validation binaries (barracuda-gpu) | 395/395 PASS |
-| `python3 -m pytest tests/` | 375/375 PASS + 2 skipped (28 experiments + unit/determinism) |
-| Library line coverage | 99.37% (cargo-llvm-cov, 100% function coverage) |
-| Unsafe code | Forbidden (workspace lint) |
-| Max file size | 405 lines (all < 1000) |
+| `python3 -m pytest tests/` | 314/400 PASS + 19 skipped (67 fail: Kokkos benchmark binaries — build-dependent, not baseline errors) |
+| Library line coverage | ≥92% (cargo-llvm-cov --workspace --lib) |
+| Unsafe code | Forbidden (workspace lint + `#![forbid(unsafe_code)]` on all 50 binaries) |
+| Max file size | 388 lines (all < 1000) |
 | `#[allow]` → `#[expect]` | **Zero `#[allow]` remaining** — all lint suppressions use `#[expect]` with `reason` (warns if suppression becomes unnecessary); migration caught 1 stale suppression in seismic.rs |
 | Magic numbers | Extracted to named constants (npu.rs, probe.rs, regression.rs `SINGULARITY_THRESHOLD`) |
 | Validation thresholds | All hardcoded thresholds evolved to benchmark JSON with rationale strings |

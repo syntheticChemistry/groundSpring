@@ -328,11 +328,6 @@ pub fn load_classifier_weights(handle: &mut NpuHandle, weights: &[i8; 9]) -> Res
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     use super::*;
     use crate::tol;

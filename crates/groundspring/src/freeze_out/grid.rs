@@ -7,7 +7,10 @@
 //! per-point chi-squared reduction, then refines via L-BFGS with
 //! numerical gradient (absorbed from airSpring V035 → barraCuda S84).
 
-use crate::cast::usize_f64;
+use crate::cast::{f64_usize, usize_f64};
+
+#[cfg(feature = "barracuda-gpu")]
+use crate::cast::u32_usize;
 
 use super::curve::{chi_squared_per_dof, chi2_freeze_out};
 use super::{GridFitConfig, GridFitResult};
@@ -116,8 +119,6 @@ fn lbfgs_refine_barracuda(
 
 #[cfg(feature = "barracuda-gpu")]
 fn grid_fit_2d_gpu(config: &GridFitConfig<'_>) -> Option<GridFitResult> {
-    use crate::cast::f64_usize;
-
     let device = crate::gpu::get_device()?;
 
     let n_data = config.observed.len();
@@ -153,8 +154,8 @@ fn grid_fit_2d_gpu(config: &GridFitConfig<'_>) -> Option<GridFitResult> {
             .ok()?;
 
     Some(GridFitResult {
-        t0: t0_grid[result.min_ix as usize],
-        kappa2: k2_grid[result.min_iy as usize],
+        t0: t0_grid[u32_usize(result.min_ix)],
+        kappa2: k2_grid[u32_usize(result.min_iy)],
         chi_squared: result.min_value,
         chi2_per_dof: chi_squared_per_dof(result.min_value, n_data, 2),
     })
@@ -162,9 +163,7 @@ fn grid_fit_2d_gpu(config: &GridFitConfig<'_>) -> Option<GridFitResult> {
 
 #[expect(
     clippy::similar_names,
-    clippy::cast_possible_truncation,
-    clippy::cast_sign_loss,
-    reason = "t0/k2 and lo/hi are domain-standard names; loop index fits in f64"
+    reason = "t0/k2 and lo/hi are domain-standard names"
 )]
 pub(super) fn grid_fit_2d_cpu(config: &GridFitConfig<'_>) -> GridFitResult {
     let n_data = config.observed.len();
@@ -174,8 +173,8 @@ pub(super) fn grid_fit_2d_cpu(config: &GridFitConfig<'_>) -> GridFitResult {
     let mut best_t0 = config.t0_lo;
     let mut best_k2 = config.k2_lo;
 
-    let n_t0 = ((config.t0_hi - config.t0_lo) / config.t0_step).ceil() as usize + 1;
-    let n_k2 = ((config.k2_hi - config.k2_lo) / config.k2_step).ceil() as usize + 1;
+    let n_t0 = f64_usize(((config.t0_hi - config.t0_lo) / config.t0_step).ceil()) + 1;
+    let n_k2 = f64_usize(((config.k2_hi - config.k2_lo) / config.k2_step).ceil()) + 1;
 
     for it in 0..n_t0 {
         let t0 = usize_f64(it).mul_add(config.t0_step, config.t0_lo);

@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
-**Last Updated**: March 19, 2026
-**Status**: V119 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 110 delegations (67 CPU + 43 GPU) — 960+ Rust tests, 287 Python tests, 140 metalForge checks, 35 experiments, 39 modules. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). V115: `assert!` → `Result<T, InputError>` in public APIs, CI hardened (nursery, all-features, biomeOS/metalForge jobs, aarch64), ecoBin (14 C-deps banned, UniBin flags), zero panicking public APIs. V116: DispatchError, EsnError, ResilienceError; ValidationSink absorbed; Format C/D parsing; OnceLock GPU probe cache; RAWR in rawr.rs; dispatch defaults named with provenance
+**Last Updated**: March 23, 2026
+**Status**: V120 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 110 delegations (67 CPU + 43 GPU) — 990+ Rust tests, 287 Python tests, 140 metalForge checks, 35 experiments, 40 modules. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). V120: dispatch refactored (4 submodules), `#![forbid(unsafe_code)]` on all 50 binaries, `GpuDriverProfile` → `DeviceCapabilities`, release-mode CI, `ValidationHarness` expanded. V119: cross-ecosystem absorption (publish = false, MSRV 1.85, provenance registry, cast parity). V118: RPC expansion (16 capabilities), 110 delegations. V117: all-features compilation, cargo deny. V116: typed error evolution. V115: API evolution, CI hardening, ecoBin compliance
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -10,12 +10,12 @@
 
 | Metric | Value |
 |--------|-------|
-| Phase 0 (Python) | 28/28 experiments PASS across 9 scientific domains (~288 checks) |
+| Phase 0 (Python) | 29/29 experiments PASS across 9 scientific domains (~290 checks) |
 | Phase 1 (Rust) | 395/395 PASS — 34 validation binaries (340 core + 55 NUCLEUS) |
 | Phase 4 (NUCLEUS) | 55/55 PASS — 4 NUCLEUS validation binaries (Exp 029–032) |
-| Total Validation | 395/395 PASS across 34 experiments |
+| Total Validation | 395/395 PASS across 35 experiments (34 binaries; Exp 034 combined with 033) |
 | Mathematical Parity | 29/29 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
-| Rust tests | 960+ default-feature + 287 Python = 1223+ total |
+| Rust tests | 990+ default-feature + 287 Python = 1277+ total |
 | metalForge | 2 production WGSL shaders (anderson_lyapunov, anderson_lyapunov_f32) |
 | Exp 001 | Sensor noise decomposition — EC5 bias-dominated, CS616 mixed |
 | Exp 002 | Observation gap ERA5 vs station — methodology validated |

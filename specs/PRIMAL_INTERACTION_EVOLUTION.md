@@ -143,14 +143,14 @@ a primal is absent.
 - Direct health: 3/3 primals healthy (beardog v0.9.0, toadstool v0.1.0, squirrel)
 - NestGate: binary version mismatch (no `daemon` subcommand) — needs P1 rebuild
 - 40/40 NUCLEUS experiment checks PASS (Exp 029, 030, 031, 032)
-- 936 unit/integration tests PASS (0 fail, `--features biomeos`)
+- 990+ unit/integration tests PASS (0 fail, `--features biomeos`)
 
 ## Next Steps
 
+- [x] Register groundSpring capabilities once Neural API supports it (DONE V118 — 16 capabilities)
+- [x] Test `capability.call` after Neural API binary update (DONE V120 — `capability_call_typed`)
 - [ ] Update NestGate binary to version with `daemon` subcommand (P1)
 - [ ] Wire Exp 029/030 to cache results via NestGate when live
-- [ ] Test `capability.call` after Neural API binary update (P2)
-- [ ] Register groundSpring capabilities once Neural API supports it
 - [ ] Create biomeOS graph pipeline for science workflows (Phase V5)
 - [ ] Measure and record interaction latencies for pathway learning (Phase V6)
 - [ ] Cross-spring NUCLEUS experiments (wetSpring diversity × groundSpring noise)

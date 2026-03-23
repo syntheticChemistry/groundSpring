@@ -3,9 +3,9 @@
 **Purpose**: Per-faculty research briefings for groundSpring noise characterization
 reproductions and extensions.
 
-**Last Updated**: March 22, 2026
+**Last Updated**: March 23, 2026
 
-**Validation Summary**: V119 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.5, toadStool S158+, coralReef Iteration 55+**. 990+ Rust tests + 287 Python provenance tests. ≥92% library line coverage. `cargo deny check` PASS, `cargo clippy --all-features` clean. V119: cross-ecosystem absorption (publish = false, MSRV 1.85, provenance registry, cast parity, IPC test isolation). V118: 110 delegations (67 CPU + 43 GPU), RPC expansion (16 capabilities). All 35 experiments PASS. **29/29 mathematical parity proven**. Zero clippy (pedantic + nursery, default + all-features), zero unsafe, zero TODO, all files < 1000 lines. 10 domains, 40 modules.
+**Validation Summary**: V120 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.5, toadStool S158+, coralReef Iteration 55+**. 990+ Rust tests + 287 Python provenance tests. ≥92% library line coverage. `cargo deny check` PASS, `cargo clippy --all-features` clean. V120: deep audit execution (dispatch refactored into 4 submodules, `#![forbid(unsafe_code)]` on all 50 binaries, `GpuDriverProfile` → `DeviceCapabilities`, release-mode CI, `ValidationHarness` expanded). V119: cross-ecosystem absorption (publish = false, MSRV 1.85, provenance registry, cast parity, IPC test isolation). V118: 110 delegations (67 CPU + 43 GPU), RPC expansion (16 capabilities). All 35 experiments PASS. **29/29 mathematical parity proven**. Zero clippy (pedantic + nursery, default + all-features), zero unsafe, zero TODO, all files < 1000 lines. 10 domains, 40 modules.
 
 ---
 

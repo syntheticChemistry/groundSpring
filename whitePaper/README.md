@@ -12,7 +12,8 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **395/395 checks passed** across 34 validation binaries (340 core + 55 NUCLEUS).
 - Mathematical parity: **29/29 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.6× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.4× from Sturm tridiag**.
-- V119: Cross-ecosystem absorption (publish = false, MSRV 1.85, provenance registry, cast parity, IPC isolation), 990+ tests, ≥92% coverage, March 22, 2026.
+- V120: Deep audit execution (dispatch refactored into 4 submodules, `#![forbid(unsafe_code)]` on all 50 binaries, `GpuDriverProfile` → `DeviceCapabilities`, release-mode CI, `ValidationHarness` expanded), 990+ tests, ≥92% coverage, March 23, 2026.
+- V119: Cross-ecosystem absorption (publish = false, MSRV 1.85, provenance registry, cast parity, IPC isolation), March 22, 2026.
 - V118: RPC expansion (16 capabilities), 110 delegations (67 CPU + 43 GPU), March 19, 2026.
 - V117: All-features compilation fixed (tarpc-ipc), `cargo deny` modernised, PRNG feature-gated, 960+ tests.
 - V116: Typed error evolution — `DispatchError`, `EsnError`, `ResilienceError<E>`; `ValidationSink` trait; Format C/D capability parsing; `OnceLock` GPU probe cache; RAWR extracted to `rawr.rs`; dispatch defaults named with provenance.

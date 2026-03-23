@@ -9,6 +9,8 @@
 
 use std::time::{Duration, Instant};
 
+use crate::cast::f64_u32;
+
 /// Typed error from [`resilient_call`].
 ///
 /// Distinguishes between a circuit-open fast-fail and retry exhaustion
@@ -109,13 +111,7 @@ impl RetryPolicy {
     /// Approximate the multiplier as an integer ratio (numerator, denominator)
     /// so delay computation is pure integer arithmetic — no float casts.
     fn multiplier_ratio(&self) -> (u32, u32) {
-        #[expect(
-            clippy::cast_sign_loss,
-            clippy::cast_possible_truncation,
-            reason = "multiplier is a positive backoff factor, typically 2.0; \
-                      truncation to integer ratio is intentional approximation"
-        )]
-        let numer = (self.multiplier * f64::from(RATIO_SCALE)) as u32;
+        let numer = f64_u32(self.multiplier * f64::from(RATIO_SCALE));
         (numer, RATIO_SCALE)
     }
 }

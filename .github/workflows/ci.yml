@@ -66,6 +66,21 @@ jobs:
       - run: cargo run --bin validate_tissue_anderson
       - run: cargo run --bin validate_et0_methods
 
+  validate-release:
+    name: Release-mode validation (LTO)
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo run --release --bin validate_decompose
+      - run: cargo run --release --bin validate_anderson
+      - run: cargo run --release --bin validate_fao56
+      - run: cargo run --release --bin validate_transport
+      - run: cargo run --release --bin validate_drift
+      - run: cargo run --release --bin validate_spectral_recon
+      - run: cargo run --release --bin validate_et0_methods
+
   validate-biomeos:
     name: biomeOS validation (NUCLEUS-dependent)
     runs-on: ubuntu-latest

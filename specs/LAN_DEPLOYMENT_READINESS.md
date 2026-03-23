@@ -26,7 +26,7 @@
 
 ### V116 Validation Results
 
-- 960+ Rust tests: ALL PASS (default + biomeos features)
+- 990+ Rust tests: ALL PASS (default + biomeos features)
 - 395/395 experiment checks: ALL PASS (340 core + 55 NUCLEUS)
 - 44 three-tier parity tests: ALL PASS
 - metalForge GPU: 11/11

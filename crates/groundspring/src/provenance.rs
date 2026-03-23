@@ -77,11 +77,6 @@ pub fn record_attribution(socket: &Path, session_id: &str, contribution: &str) -
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    reason = "test assertions use unwrap/expect for clarity"
-)]
 mod tests {
     use super::*;
 
