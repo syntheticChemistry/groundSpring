@@ -447,11 +447,7 @@ fn fft_correlator_gpu(correlator: &[f64], n: usize) -> Option<(Vec<f64>, Vec<f64
 
     let tensor = Tensor::from_data_pod(&interleaved, vec![n, 2], device).ok()?;
 
-    #[expect(
-        clippy::cast_possible_truncation,
-        reason = "FFT degree n is power of 2 ≤ 2^20, fits u32 for spectral reconstruction"
-    )]
-    let fft = Fft1DF64::new(tensor, n as u32).ok()?;
+    let fft = Fft1DF64::new(tensor, crate::cast::u64_u32_truncate(n as u64)).ok()?;
     let result = barracuda::device::test_pool::tokio_block_on(fft.execute()).ok()?;
 
     let f32_data = result.to_vec().ok()?;

@@ -4,6 +4,44 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V122 Cast Evolution + Module Extraction (Mar 24, 2026)
+
+#### Smart Refactoring
+- **`lib.rs` refactored**: 607 → 182 lines — extracted `cast.rs` (centralized
+  numeric cast helpers), `tol.rs` (13 named tolerance constants with mathematical
+  provenance), `eps.rs` (4 production epsilon guards). Zero public API change
+- **`groundspring-validate/lib.rs` refactored**: 769 → 226 lines — extracted
+  `accessors.rs` (typed JSON benchmark field accessors with fallible `get_*` and
+  panicking `*_field` wrappers). Zero public API change
+- **`cast` module promoted to `pub`**: enables cross-crate use by
+  `groundspring-validate` (e.g. `groundspring::cast::u64_usize` in `get_usize`)
+
+#### Cast Evolution
+- **20+ bare `as` casts → named helpers**: `u64_u32_truncate()` for PRNG seed
+  generation (gillespie, drift, rare_biosphere, rarefaction, bootstrap),
+  `u64_usize()` for binomial/index results (drift, bootstrap, quasispecies),
+  GPU dispatch params (bistable, fao56, spectral_recon, rarefaction).
+  Each eliminates an `#[expect(clippy::cast_possible_truncation)]` block
+- **New helper `cast::u64_u32_truncate()`**: intentional low-32-bit extraction
+  for PRNG seeds — documents the truncation intent at the type level
+- **`eps::SSA_FLOOR` unconditional**: constant available in all builds (was
+  behind `barracuda-gpu` feature gate); `cfg_attr` dead_code annotation for
+  non-GPU builds
+
+#### Dependency Cleanup
+- **`deny.toml`**: removed stale `ring` license clarification that contradicted
+  the ban list (ring is banned for ecoBin compliance)
+- **README/specs**: replaced `data/` generated artifact references with
+  generation commands (`python3 scripts/parity_report.py`, etc.)
+
+#### Quality Gates
+- `cargo check --workspace`: PASS (0 warnings)
+- `cargo clippy --workspace`: PASS (0 warnings)
+- `cargo fmt --check`: PASS (0 diffs)
+- `cargo doc --workspace`: PASS (0 warnings)
+- `cargo test --workspace`: PASS (1000+ tests, 0 failures)
+- `cargo deny check`: PASS (advisories, bans, licenses, sources OK)
+
 ### V121 Deep Debt + Ecosystem Absorption (Mar 23, 2026)
 
 #### Smart Refactoring

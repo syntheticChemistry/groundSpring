@@ -121,11 +121,13 @@ fn bootstrap_mean_gpu(
 ) -> Option<BootstrapResult> {
     let device = crate::gpu::get_device_f64_safe()?;
     let gpu = barracuda::stats::bootstrap::BootstrapMeanGpu::new(device).ok()?;
-    #[expect(
-        clippy::cast_possible_truncation,
-        reason = "n_replicates and seed fit in u32 for GPU dispatch"
-    )]
-    let means = gpu.dispatch(data, n_replicates as u32, seed as u32).ok()?;
+    let means = gpu
+        .dispatch(
+            data,
+            crate::cast::u64_u32_truncate(n_replicates as u64),
+            crate::cast::u64_u32_truncate(seed),
+        )
+        .ok()?;
     Some(percentile_ci(&means, means.len(), confidence))
 }
 
@@ -142,11 +144,7 @@ fn bootstrap_mean_cpu(
     for _ in 0..n_replicates {
         let mut sum = 0.0;
         for _ in 0..n {
-            #[expect(
-                clippy::cast_possible_truncation,
-                reason = "n fits in u64 on all targets"
-            )]
-            let idx = (rng.next_u64() % crate::cast::usize_u64(n)) as usize;
+            let idx = crate::cast::u64_usize(rng.next_u64() % crate::cast::usize_u64(n));
             sum += data[idx];
         }
         means.push(sum / crate::cast::usize_f64(n));
@@ -198,11 +196,7 @@ fn bootstrap_median_cpu(
     for _ in 0..n_replicates {
         resample.clear();
         for _ in 0..n {
-            #[expect(
-                clippy::cast_possible_truncation,
-                reason = "n fits in u64 on all targets"
-            )]
-            let idx = (rng.next_u64() % crate::cast::usize_u64(n)) as usize;
+            let idx = crate::cast::u64_usize(rng.next_u64() % crate::cast::usize_u64(n));
             resample.push(data[idx]);
         }
         resample.sort_unstable_by(f64::total_cmp);
@@ -262,11 +256,7 @@ fn bootstrap_std_cpu(
     for _ in 0..n_replicates {
         resample_buf.clear();
         for _ in 0..n {
-            #[expect(
-                clippy::cast_possible_truncation,
-                reason = "n fits in u64 on all targets"
-            )]
-            let idx = (rng.next_u64() % crate::cast::usize_u64(n)) as usize;
+            let idx = crate::cast::u64_usize(rng.next_u64() % crate::cast::usize_u64(n));
             resample_buf.push(data[idx]);
         }
         let sample_mean = resample_buf.iter().sum::<f64>() / n_f;

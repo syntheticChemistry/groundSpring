@@ -151,7 +151,7 @@ fn seasonal_step_gpu(
     }
 
     let mut gpu_params = <SeasonalGpuParams as bytemuck::Zeroable>::zeroed();
-    gpu_params.cell_count = cells.len() as u32;
+    gpu_params.cell_count = crate::cast::u64_u32_truncate(cells.len() as u64);
     gpu_params.day_of_year = u32::from(params.day_of_year);
     gpu_params.stage_length = params.stage_length;
     gpu_params.day_in_stage = params.day_in_stage;

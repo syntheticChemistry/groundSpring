@@ -162,13 +162,7 @@ fn quasispecies_simulation_cpu(
         let p_master = (sigma * n_master_f) / fitness_total;
 
         let n_selected = rng.binomial(pop_size, p_master);
-        #[expect(
-            clippy::cast_possible_truncation,
-            reason = "binomial result ≤ pop_size which fits usize"
-        )]
-        {
-            n_master = rng.binomial(n_selected as usize, q) as usize;
-        }
+        n_master = crate::cast::u64_usize(rng.binomial(crate::cast::u64_usize(n_selected), q));
     }
 
     Ok(freqs)

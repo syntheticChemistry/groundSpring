@@ -36,11 +36,7 @@ pub fn multinomial_sample(abundances: &[f64], depth: u64, seed: u64) -> Vec<u64>
 #[cfg(feature = "barracuda-gpu")]
 fn multinomial_sample_barracuda(abundances: &[f64], depth: u64, seed: u64) -> Vec<u64> {
     let cumulative = abundances_to_cumulative(abundances);
-    #[expect(
-        clippy::cast_possible_truncation,
-        reason = "sequencing depth ≤ 10^6, fits u32"
-    )]
-    let depth_u32 = depth as u32;
+    let depth_u32 = crate::cast::u64_u32_truncate(depth);
     let mut rng = crate::prng::DefaultRng::new(seed);
     let counts_u32 =
         barracuda::ops::bio::multinomial_sample_cpu(&cumulative, depth_u32, &mut || rng.next_f64());
@@ -147,16 +143,8 @@ fn multinomial_sample_batch_gpu(
         }
     }
 
-    #[expect(
-        clippy::cast_possible_truncation,
-        reason = "sequencing depth ≤ 10^6, fits u32"
-    )]
-    let depth_u32 = depth as u32;
-    #[expect(
-        clippy::cast_possible_truncation,
-        reason = "n_replicates ≤ 100, fits u32"
-    )]
-    let n_reps_u32 = n_replicates as u32;
+    let depth_u32 = crate::cast::u64_u32_truncate(depth);
+    let n_reps_u32 = crate::cast::u64_u32_truncate(n_replicates as u64);
 
     let config = BatchedMultinomialConfig {
         cumulative_probs: true,

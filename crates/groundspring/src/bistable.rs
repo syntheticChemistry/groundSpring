@@ -262,8 +262,8 @@ fn integrate_batch_gpu(
 
     let device = crate::gpu::get_device()?;
     let config = BatchedRk4Config {
-        n_batches: initial_conditions.len() as u32,
-        n_steps: n_steps as u32,
+        n_batches: crate::cast::u64_u32_truncate(initial_conditions.len() as u64),
+        n_steps: crate::cast::u64_u32_truncate(n_steps as u64),
         h: dt,
         ..BatchedRk4Config::default()
     };

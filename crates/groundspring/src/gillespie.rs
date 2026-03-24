@@ -195,11 +195,7 @@ fn birth_death_ssa_batch_gpu(
     let mut rng = crate::prng::DefaultRng::new(base_seed);
     for _ in 0..n_trajectories {
         for _ in 0..4 {
-            #[expect(
-                clippy::cast_possible_truncation,
-                reason = "RNG u64 → u32 seed; high bits discarded intentionally"
-            )]
-            prng_seeds.push(rng.next_u64() as u32);
+            prng_seeds.push(crate::cast::u64_u32_truncate(rng.next_u64()));
         }
     }
 

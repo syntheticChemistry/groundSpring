@@ -3,9 +3,9 @@
 **Purpose**: Per-faculty research briefings for groundSpring noise characterization
 reproductions and extensions.
 
-**Last Updated**: March 23, 2026
+**Last Updated**: March 24, 2026
 
-**Validation Summary**: V121 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.7, toadStool S158+, coralReef Iteration 55+**. 691+ lib tests + 287 Python provenance tests. ≥92% library line coverage. `cargo deny check` PASS, `cargo clippy --all-features` clean, workspace-level `deny` for `unwrap_used`/`expect_used`. V121: deep debt + ecosystem absorption (biomeos/mod.rs 631→232 lines, stats/agreement → directory, 5-tier socket discovery, NDJSON sink, MSRV 1.87, `normalize_method()`, provenance trio lifecycle, MCP capability registry). V120: deep audit execution (dispatch → 4 submodules, `#![forbid(unsafe_code)]` on 50 binaries, `DeviceCapabilities`, release-mode CI). All 35 experiments PASS. **29/29 mathematical parity proven**. Zero clippy (pedantic + nursery), zero unsafe, zero TODO, zero unwrap/expect in production code. 10 domains, 40 modules.
+**Validation Summary**: V122 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.7, toadStool S158+, coralReef Iteration 55+**. 1000+ Rust tests + 287 Python provenance tests. ≥92% library line coverage. `cargo deny check` PASS, `cargo clippy --all-features` clean, workspace-level `deny` for `unwrap_used`/`expect_used`. V122: cast evolution + module extraction (`lib.rs` 607→182, `validate/lib.rs` 769→226, 20+ bare casts→named helpers, `cast` promoted to `pub`, `eps::SSA_FLOOR` unconditional). V121: deep debt + ecosystem absorption (tolerance centralization, provenance hardening, MSRV 1.87). V120: deep audit execution (dispatch → 4 submodules, `#![forbid(unsafe_code)]` on 50 binaries). All 35 experiments PASS. **29/29 mathematical parity proven**. Zero clippy (pedantic + nursery), zero unsafe, zero TODO, zero unwrap/expect in production code. 10 domains, 40 modules.
 
 ---
 

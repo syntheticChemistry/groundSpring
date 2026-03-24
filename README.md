@@ -6,8 +6,8 @@
 [![Rust](https://img.shields.io/badge/rust-2024_edition-orange.svg)](https://www.rust-lang.org/)
 [![ecoBin](https://img.shields.io/badge/ecoBin-compliant-green.svg)](https://github.com/ecoPrimals/wateringHole/blob/main/ECOBIN_ARCHITECTURE_STANDARD.md)
 
-**Date**: March 23, 2026 | **License**: AGPL-3.0-or-later | **MSRV**: Rust 1.87 (2024 edition)
-**Status**: V121 — 40 modules, 35 experiments, 691+ lib tests + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 110 active barraCuda delegations (67 CPU + 43 GPU) — synced against barraCuda v0.3.7, toadStool S158+, coralReef Iteration 55+. Three-tier parity proven: 29/29 validation binaries PASS at all three tiers. `cargo deny check` PASS, `cargo clippy --all-features` clean, `cargo check --all-features` compiles. ≥92% library line coverage (`cargo llvm-cov --workspace --lib`). **V121**: Deep debt + ecosystem absorption — `biomeos/mod.rs` refactored 631→232 lines (extracted storage, compute, registration, health, routing submodules), `stats/agreement.rs` refactored into directory (coefficient, error_metrics, efficiency, willmott, hit_rate), `normalize_method()` for legacy RPC prefixes, 5-tier socket discovery with `socket-registry.json`, `NdjsonSink` for machine-readable validation output, workspace lints deny `unwrap_used`/`expect_used`, `IpcError::is_recoverable()`, provenance trio `run_lifecycle()`, MCP `capability_registry.toml`, MSRV 1.87, hardcoding→capability-based patterns (temp_dir, env-driven server timeouts, generalized `is_enabled()`). **V120**: Deep audit execution — `dispatch/` module, `ValidationHarness` expanded, `#![forbid(unsafe_code)]` on 50 binaries, `DeviceCapabilities` migration, release-mode CI. **V119**: Cross-ecosystem absorption — MSRV 1.85, provenance registry, cast module. **V118**: RPC expansion (16 capabilities), 110 delegations. **V117–V115**: All-features compilation, typed errors, ecoBin compliance.
+**Date**: March 24, 2026 | **License**: AGPL-3.0-or-later | **MSRV**: Rust 1.87 (2024 edition)
+**Status**: V122 — 40 modules, 35 experiments, 691+ lib tests + 287 Python provenance tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, 110 active barraCuda delegations (67 CPU + 43 GPU) — synced against barraCuda v0.3.7, toadStool S158+, coralReef Iteration 55+. Three-tier parity proven: 29/29 validation binaries PASS at all three tiers. `cargo deny check` PASS, `cargo clippy --all-features` clean, `cargo check --all-features` compiles. ≥92% library line coverage (`cargo llvm-cov --workspace --lib`). **V122**: Cast evolution + module extraction — `lib.rs` refactored 607→182 lines (extracted `cast.rs`, `tol.rs`, `eps.rs`), `groundspring-validate/lib.rs` refactored 769→226 lines (extracted `accessors.rs`), cast module promoted to `pub` for cross-crate use, 20+ bare `as` casts evolved to named helpers (`u64_u32_truncate`, `u64_usize`), `eps::SSA_FLOOR` made unconditional, `deny.toml` ring clarification removed, `data/` references replaced with generation commands. **V121**: Deep debt + ecosystem absorption — tolerance centralization, provenance hardening, MSRV 1.87, `NdjsonSink`, capability-based patterns. **V120**: Deep audit execution — `dispatch/` module, `ValidationHarness` expanded, `#![forbid(unsafe_code)]` on 50 binaries. **V119**: Cross-ecosystem absorption — provenance registry, cast module. **V118**: RPC expansion (16 capabilities), 110 delegations.
 
 **The gap between what models predict and what instruments measure.**
 
@@ -198,7 +198,7 @@ cargo llvm-cov --workspace --lib    # ≥92% library line coverage (target 90%)
 
 ## Performance: Rust vs Python
 
-Median of 3 trials across all 28 experiments (Feb 27, 2026). See `data/bench_rust_vs_python.json` for full data.
+Median of 3 trials across all 28 experiments (Feb 27, 2026). Generate full data: `python3 scripts/bench_rust_vs_python.py`.
 
 | Experiment | Python (s) | Rust (s) | Speedup |
 |---|---|---|---|
@@ -237,7 +237,7 @@ Median of 3 trials across all 28 experiments (Feb 27, 2026). See `data/bench_rus
 (Sturm tridiag from hotSpring S26) closes the gap: **47.7× speedup** for Exp 009.
 
 **Mathematical parity**: 29/29 PROVEN — both languages validate against the
-same shared benchmark JSONs. See `data/parity_report.json`.
+same shared benchmark JSONs. Generate report: `python3 scripts/parity_report.py`.
 
 Run benchmarks: `python3 scripts/bench_rust_vs_python.py`
 Run parity report: `python3 scripts/parity_report.py`
@@ -439,5 +439,6 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 | V119 | Mar 22 | Deep audit + cross-ecosystem absorption, 990+ tests, ≥92% coverage |
 | V120 | Mar 23 | Deep audit execution: dispatch refactored, forbid(unsafe_code) on 50 binaries, DeviceCapabilities |
 | V121 | Mar 23 | Deep debt + ecosystem absorption: tolerance centralization, provenance hardening, MSRV 1.87 |
+| V122 | Mar 24 | Cast evolution + module extraction: lib.rs 607→182, validate/lib.rs 769→226, 20+ bare casts→named helpers |
 
 Part of [ecoPrimals](https://github.com/syntheticChemistry) · [wateringHole](https://github.com/ecoPrimals/wateringHole) · AGPL-3.0-or-later

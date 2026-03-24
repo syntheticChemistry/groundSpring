@@ -101,7 +101,11 @@ fn monte_carlo_et0_gpu(
     };
 
     let mut samples = gpu
-        .dispatch(&base_inputs, &uncertainties, n_samples as u32)
+        .dispatch(
+            &base_inputs,
+            &uncertainties,
+            crate::cast::u64_u32_truncate(n_samples as u64),
+        )
         .ok()?;
     Some(summarize_mc_samples(&mut samples))
 }

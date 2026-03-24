@@ -150,10 +150,6 @@ impl Xoshiro128StarStar {
     /// The seed is split into two 32-bit halves and mixed via `SplitMix32`
     /// to initialise the four-word state. A zero seed is replaced.
     #[must_use]
-    #[expect(
-        clippy::cast_possible_truncation,
-        reason = "deliberate u64→u32 seed split"
-    )]
     pub const fn new(seed: u64) -> Self {
         let seed = if seed == 0 {
             0x9E37_79B9_7F4A_7C15
@@ -165,7 +161,12 @@ impl Xoshiro128StarStar {
         let z2 = splitmix64(z1);
         let z3 = splitmix64(z2);
         Self {
-            s: [z0 as u32, z1 as u32, z2 as u32, z3 as u32],
+            s: [
+                crate::cast::u64_u32_truncate(z0),
+                crate::cast::u64_u32_truncate(z1),
+                crate::cast::u64_u32_truncate(z2),
+                crate::cast::u64_u32_truncate(z3),
+            ],
         }
     }
 

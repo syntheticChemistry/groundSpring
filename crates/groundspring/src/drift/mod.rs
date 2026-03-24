@@ -235,11 +235,7 @@ fn wf_generate_prng_state(n_trials: usize, base_seed: u64) -> Vec<u32> {
     let mut rng = crate::prng::DefaultRng::new(base_seed);
     for _ in 0..n_trials {
         for _ in 0..4 {
-            #[expect(
-                clippy::cast_possible_truncation,
-                reason = "RNG u64 → u32 seed; high bits discarded intentionally"
-            )]
-            state.push(rng.next_u64() as u32);
+            state.push(crate::cast::u64_u32_truncate(rng.next_u64()));
         }
     }
     state
@@ -304,17 +300,9 @@ fn wf_batch_gpu(
     let d = wgpu_dev.device();
     let q = wgpu_dev.queue();
 
-    #[expect(
-        clippy::cast_possible_truncation,
-        reason = "n_trials ≤ 10000, fits u32"
-    )]
-    let n_pops = n_trials as u32;
+    let n_pops = crate::cast::u64_u32_truncate(n_trials as u64);
     let n_loci: u32 = 1;
-    #[expect(
-        clippy::cast_possible_truncation,
-        reason = "2 * pop_size ≤ 2000, fits u32"
-    )]
-    let two_n = (2 * pop_size) as u32;
+    let two_n = crate::cast::u64_u32_truncate((2 * pop_size) as u64);
     let max_gens = 10 * (2 * pop_size);
 
     let freq_init: Vec<f64> = vec![initial_freq; n_trials];
@@ -430,11 +418,7 @@ pub fn neutral_diversity_trajectory(
                 break;
             }
             let prob = crate::cast::u64_f64(abundances[sp]) / remaining_prob_mass;
-            #[expect(
-                clippy::cast_possible_truncation,
-                reason = "remaining individuals ≤ community_size which fits usize"
-            )]
-            let n_remaining = remaining as usize;
+            let n_remaining = crate::cast::u64_usize(remaining);
             new_abundances[sp] = rng.binomial(n_remaining, prob);
             remaining = remaining.saturating_sub(new_abundances[sp]);
             remaining_prob_mass -= crate::cast::u64_f64(abundances[sp]);

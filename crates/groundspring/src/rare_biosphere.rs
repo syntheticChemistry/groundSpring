@@ -165,16 +165,12 @@ fn abundance_occupancy_gpu(
         seed: None,
     };
     let gpu = BatchedMultinomialGpu::new(device).ok()?;
-    #[expect(
-        clippy::cast_possible_truncation,
-        reason = "BatchedMultinomialGpu API expects u32 for depth and n_samples"
-    )]
     let counts = gpu
         .sample(
             &cumulative,
             Some(&mut seeds),
-            depth as u32,
-            n_samples as u32,
+            crate::cast::u64_u32_truncate(depth as u64),
+            crate::cast::u64_u32_truncate(n_samples as u64),
             config,
         )
         .ok()?;
@@ -321,16 +317,12 @@ fn tier_detection_rate_gpu(
         seed: None,
     };
     let gpu = BatchedMultinomialGpu::new(device).ok()?;
-    #[expect(
-        clippy::cast_possible_truncation,
-        reason = "BatchedMultinomialGpu API expects u32 for depth and n_replicates"
-    )]
     let counts = gpu
         .sample(
             &cumulative,
             Some(&mut seeds),
-            depth as u32,
-            n_replicates as u32,
+            crate::cast::u64_u32_truncate(depth as u64),
+            crate::cast::u64_u32_truncate(n_replicates as u64),
             config,
         )
         .ok()?;
@@ -401,11 +393,7 @@ fn generate_xoshiro_seeds(n_reps: usize, base_seed: u64) -> Vec<u32> {
     let mut rng = DefaultRng::new(base_seed);
     let mut seeds = Vec::with_capacity(n_reps * 4);
     for _ in 0..n_reps * 4 {
-        #[expect(
-            clippy::cast_possible_truncation,
-            reason = "RNG u64 → u32 seed; high bits discarded intentionally"
-        )]
-        let s = rng.next_u64() as u32;
+        let s = crate::cast::u64_u32_truncate(rng.next_u64());
         seeds.push(s.max(1));
     }
     seeds

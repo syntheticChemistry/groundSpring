@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 23, 2026 (V121 — 990+ tests, ≥92% library coverage, 0 clippy (default + all-features), 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later. V121: deep debt + ecosystem absorption (10 tolerance constants centralized, provenance hardening, benchmark JSON round-trip test, `#[allow]` → `#[expect]` evolution, barraCuda v0.3.7 doc sync, MSRV 1.87). V120: deep audit execution (dispatch refactored into 4 submodules, `#![forbid(unsafe_code)]` on all 50 binaries, `DeviceCapabilities`, release-mode CI). V119: cross-ecosystem absorption. V118: RPC expansion (16 capabilities), 110 delegations (67 CPU + 43 GPU).)
+**Last updated**: March 24, 2026 (V122 — 1000+ tests, ≥92% library coverage, 0 clippy (default + all-features), 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later. V122: cast evolution + module extraction (`lib.rs` 607→182 LOC, `validate/lib.rs` 769→226 LOC, 20+ bare `as` casts evolved to named cast helpers, `cast` module promoted to `pub`, `eps::SSA_FLOOR` unconditional, `deny.toml` cleaned). V121: deep debt + ecosystem absorption (tolerance centralization, provenance hardening, MSRV 1.87). V120: deep audit execution (dispatch refactored, `#![forbid(unsafe_code)]` on all 50 binaries). V119: cross-ecosystem absorption. V118: RPC expansion (16 capabilities), 110 delegations (67 CPU + 43 GPU).)
 
 ## Experiment Register
 

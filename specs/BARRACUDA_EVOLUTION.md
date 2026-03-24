@@ -598,7 +598,7 @@ All 28 experiments: **PARITY PROVEN**.  Both Python baselines and Rust
 validation binaries check against the same shared benchmark JSON files.
 If both pass, the math is identical within stated tolerances.
 
-See `data/parity_report.json` for the machine-readable certificate.
+Generate the machine-readable certificate: `python3 scripts/parity_report.py`.
 
 ## Timeline
 
