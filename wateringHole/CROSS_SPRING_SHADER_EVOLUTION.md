@@ -3,13 +3,17 @@
 > How the ecoPrimals Springs collectively evolved BarraCUDA into the library
 > groundSpring depends on for statistical validation.
 
-**Last Updated**: March 23, 2026 (V120: deep audit execution — dispatch refactored, `#![forbid(unsafe_code)]` on all 50 binaries, `DeviceCapabilities` migration, release-mode CI. 990+ tests, ≥92% coverage, 110 active delegations (67 CPU + 43 GPU), barraCuda v0.3.5, toadStool S158+, coralReef Iteration 55+. V119: cross-ecosystem absorption. V118: RPC expansion, 16 capabilities. V113: GemmF64 transpose. V110: zero-panic binaries. V98: upstream rewire. V95: coralReef breakthrough. V87: Tier B resolution. V73: tolerance architecture)
+**Last Updated**: March 23, 2026 (V121: deep audit — tolerance centralization, provenance hardening, doc reconciliation. 1137 tests, ≥92% coverage, 110 active delegations (67 CPU + 43 GPU), barraCuda v0.3.7, toadStool S158+, coralReef Iteration 55+. V120: dispatch refactored, `#![forbid(unsafe_code)]` on all 55 binaries, `DeviceCapabilities` migration, release-mode CI. V119: cross-ecosystem absorption. V118: RPC expansion, 16 capabilities. V113: GemmF64 transpose. V110: zero-panic binaries. V98: upstream rewire. V95: coralReef breakthrough. V87: Tier B resolution. V73: tolerance architecture)
 
 ---
 
 ## Overview
 
-groundSpring has **110 active delegations** (67 CPU + 43 GPU) with **0 evolution candidates** — Tier B fully resolved (V87).
+groundSpring has **110 active delegations** (67 CPU + 43 GPU) with **Tier B fully resolved** (V87).
+Two long-horizon evolution candidates remain in `specs/BARRACUDA_REQUIREMENTS.md`:
+RAWR GPU kernel (new shader needed) and Lanczos/SpMV at scale (narrative,
+not blocking). PRNG alignment (xorshift64 → xoshiro128**) requires full
+rebaseline. These are **Phase 3** items, not blocking current validation.
 Those barracuda functions were not built in isolation — they were refined and
 battle-tested through absorption from **five Springs**, each bringing domain-specific
 requirements that hardened the shared library.
@@ -34,7 +38,7 @@ groundSpring (noise validation) → jackknife, evolution (Kimura fixation, quasi
                                   grid search/fit ops, batched multinomial, MC ET₀ propagation,
                                   L-BFGS refinement, 4D Anderson tissue + Wegner RG
                                   ↓
-                          barraCuda v0.3.5 (standalone primal)
+                          barraCuda v0.3.7 (standalone primal)
                     14,200+ tests, 844 WGSL shaders (f64-canonical, DF64 universal precision, 15 transcendentals)
 ```
 

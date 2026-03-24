@@ -274,7 +274,7 @@ Every spring contributes shaders that benefit the entire ecosystem through barra
 
 ```
 hotSpring (precision)  ─────┐
-  df64_core, Sturm tridiag, │    All absorbed into barraCuda v0.3.5
+  df64_core, Sturm tridiag, │    All absorbed into barraCuda v0.3.7
   stress_virial, CG kernels ├──► 784 WGSL shaders, f64-canonical
                              │    with f16/f32/f64/Df64 per hardware
 wetSpring (bio)  ────────────┤
@@ -381,7 +381,7 @@ groundSpring/
 ├── graphs/                         # biomeOS pipeline graphs (deploy, Tower, Node, cross-substrate, validation)
 ├── niches/                         # BYOB niche YAML definitions (groundspring-measurement)
 ├── .github/workflows/ci.yml        # GitHub Actions CI
-├── wateringHole/                   # Handoff directory (V119 current)
+├── wateringHole/                   # Handoff directory (V121 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md      # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md   # GPU kernel gap analysis
@@ -437,5 +437,7 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 | V115 | Mar 18 | Zero panicking APIs, ecoBin compliance, 930+ tests |
 | V118 | Mar 19 | RPC expansion (16 caps), 110 delegations, 960+ tests |
 | V119 | Mar 22 | Deep audit + cross-ecosystem absorption, 990+ tests, ≥92% coverage |
+| V120 | Mar 23 | Deep audit execution: dispatch refactored, forbid(unsafe_code) on 50 binaries, DeviceCapabilities |
+| V121 | Mar 23 | Deep debt + ecosystem absorption: tolerance centralization, provenance hardening, MSRV 1.87 |
 
 Part of [ecoPrimals](https://github.com/syntheticChemistry) · [wateringHole](https://github.com/ecoPrimals/wateringHole) · AGPL-3.0-or-later

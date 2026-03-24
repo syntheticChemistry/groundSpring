@@ -13,8 +13,9 @@ use groundspring::fao56::{self, DailyWeatherInputs};
 use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    OrExit, TOL_EQUILIBRIUM, array_field, f64_field, get_f64_range, parse_benchmark,
-    print_provenance_header, u64_field,
+    OrExit, SANITY_DAYLIGHT_HOURS, SANITY_EA_KPA, SANITY_ES_KPA, SANITY_MC_CV_PCT, SANITY_P_KPA,
+    SANITY_U2_MS, SANITY_VARIANCE_SUM, TOL_EQUILIBRIUM, TOL_ET0_BASELINE, array_field, f64_field,
+    get_f64_range, parse_benchmark, print_provenance_header, u64_field,
 };
 use serde_json::Value;
 
@@ -206,7 +207,7 @@ fn validate_monte_carlo(
     h.check_range("MC ET₀ std", mc.std, et0_std_lo, et0_std_hi);
 
     let cv = mc.std / mc.mean * 100.0;
-    h.check_range("MC CV (%)", cv, 1.0, 15.0);
+    h.check_range("MC CV (%)", cv, SANITY_MC_CV_PCT.0, SANITY_MC_CV_PCT.1);
     h.check_true(
         "90% CI brackets expected",
         mc.pct_05 < expected_et0 && mc.pct_95 > expected_et0,
@@ -238,7 +239,12 @@ fn validate_sensitivity(
     }
 
     let frac_sum: f64 = fracs.iter().sum();
-    h.check_range("Variance fractions sum ≈ 1.0", frac_sum, 0.9, 1.1);
+    h.check_range(
+        "Variance fractions sum ≈ 1.0",
+        frac_sum,
+        SANITY_VARIANCE_SUM.0,
+        SANITY_VARIANCE_SUM.1,
+    );
 
     let max_idx = fracs
         .iter()
@@ -293,9 +299,6 @@ fn run() -> i32 {
         .collect();
 
     // ── Baseline ET₀ ────────────────────────────────────────────────
-    // Tol 0.10: FAO-56 Example 18 reference value is 3.88 mm/day;
-    // ±0.10 absorbs rounding from different intermediate precision
-    // and the 273.0 vs 273.16 Kelvin convention across equations.
     println!("\n--- Part 1: Baseline ET₀ ---");
 
     let et0 = fao56::daily_et0(&base);
@@ -305,39 +308,38 @@ fn run() -> i32 {
     h.check_range(
         "Baseline ET₀",
         et0,
-        expected_et0 - 0.10,
-        expected_et0 + 0.10,
+        expected_et0 - TOL_ET0_BASELINE,
+        expected_et0 + TOL_ET0_BASELINE,
     );
 
     // ── Intermediate verification ───────────────────────────────────
-    // Wide ranges (e.g. e_s 1.8–2.2) are sanity bounds, not precision
-    // checks — they verify the equation chain produces physically
-    // plausible intermediates, not bit-exact results.
     println!("\n--- Part 2: Intermediate Values ---");
 
     let tmean = f64::midpoint(base.tmax_c, base.tmin_c);
     h.check_approx("T_mean", tmean, 16.9, TOL_EQUILIBRIUM);
 
     let es = fao56::mean_saturation_vapour_pressure(base.tmax_c, base.tmin_c);
-    h.check_range("e_s (kPa)", es, 1.8, 2.2);
+    h.check_range("e_s (kPa)", es, SANITY_ES_KPA.0, SANITY_ES_KPA.1);
 
     let ea =
         fao56::actual_vapour_pressure_rh(base.tmax_c, base.tmin_c, base.rhmax_pct, base.rhmin_pct);
-    h.check_range("e_a (kPa)", ea, 1.2, 1.6);
+    h.check_range("e_a (kPa)", ea, SANITY_EA_KPA.0, SANITY_EA_KPA.1);
 
     let p = fao56::atmospheric_pressure(base.altitude_m);
-    h.check_range("P (kPa)", p, 99.0, 102.0);
+    h.check_range("P (kPa)", p, SANITY_P_KPA.0, SANITY_P_KPA.1);
 
     // Provenance: 10.0 m is the WMO standard anemometer height
     // (WMO-No. 8, Guide to Meteorological Instruments, §5.8.1).
     let u2 = fao56::wind_speed_at_2m(base.wind_speed_10m_km_h / 3.6, 10.0);
-    h.check_range("u₂ (m/s)", u2, 1.5, 2.5);
+    h.check_range("u₂ (m/s)", u2, SANITY_U2_MS.0, SANITY_U2_MS.1);
 
-    // Provenance: 15–17 h daylight bounds correspond to summer solstice
-    // at the benchmark latitude (~45°N). FAO-56 Eq. 34 yields N ≈ 15.6 h
-    // for DOY 172 at 45°N (Allen et al. 1998, Table 2.7).
     let n_hours = fao56::daylight_hours(base.latitude_deg_n, base.day_of_year);
-    h.check_range("Daylight hours", n_hours, 15.0, 17.0);
+    h.check_range(
+        "Daylight hours",
+        n_hours,
+        SANITY_DAYLIGHT_HOURS.0,
+        SANITY_DAYLIGHT_HOURS.1,
+    );
 
     // ── Determinism ─────────────────────────────────────────────────
     println!("\n--- Part 3: Determinism ---");

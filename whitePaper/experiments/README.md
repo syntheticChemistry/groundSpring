@@ -65,7 +65,7 @@ Each experiment is validated at three levels:
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
 Current status: **CPU complete** (340/340 core + 55 NUCLEUS = 395 total),
-**110 active delegations (67 CPU + 43 GPU) — toadStool S156+, barraCuda v0.3.5**.
+**110 active delegations (67 CPU + 43 GPU) — toadStool S158+, barraCuda v0.3.7**.
 **NUCLEUS**: biomeOS Neural API live — 4 experiments exercise Tower, Node, Squirrel, Nest
 with sovereign fallback. All delegations use sovereign fallback.
 35/35 experiments validated. 990+ Rust tests + 287 Python tests.

@@ -97,10 +97,12 @@ fn main() {
         if harg_mean > 0.0 {
             let ratio = pm_mean / harg_mean;
             println!("  Ratio PM/Harg:       {ratio:.3}");
-            // [0.3, 3.5]: FAO-56 §4 notes Hargreaves overestimates in humid
-            // climates (~×0.7) and underestimates in arid/windy (~×2). Range
-            // encompasses all documented agroclimate zones with 50% margin.
-            h.check_range("PM/Hargreaves ratio", ratio, 0.3, 3.5);
+            h.check_range(
+                "PM/Hargreaves ratio",
+                ratio,
+                groundspring_validate::SANITY_PM_HARG_RATIO.0,
+                groundspring_validate::SANITY_PM_HARG_RATIO.1,
+            );
         }
 
         let diffs: Vec<f64> = pm_values[..n]
@@ -110,10 +112,11 @@ fn main() {
             .collect();
         let mean_abs_diff = groundspring::stats::mean(&diffs);
         println!("  Mean |PM - Harg|:    {mean_abs_diff:.3} mm/day");
-        // 10.0 mm/day: PM peak ≈ 12 mm/day in continental summer; Hargreaves
-        // peak ≈ 8 mm/day. Mean abs diff typically < 3 mm/day. 10.0 is a
-        // generous guard against data pipeline failures, not a precision claim.
-        h.check_max("Mean absolute difference", mean_abs_diff, 10.0);
+        h.check_max(
+            "Mean absolute difference",
+            mean_abs_diff,
+            groundspring_validate::SANITY_PM_HARG_DIFF_MAX,
+        );
     }
 
     if let Some(ref sock) = socket {

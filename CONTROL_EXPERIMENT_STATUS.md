@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 23, 2026 (V120 — 990+ tests, ≥92% library coverage, 0 clippy (default + all-features), 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later. V120: deep audit execution (dispatch refactored into 4 submodules, `#![forbid(unsafe_code)]` on all 50 binaries, `GpuDriverProfile` → `DeviceCapabilities`, release-mode CI, `ValidationHarness` expanded). V119: cross-ecosystem absorption (publish = false, MSRV 1.85, provenance registry, cast parity, IPC isolation). V118: RPC expansion (16 capabilities), 110 delegations (67 CPU + 43 GPU). V117: all-features compilation. V116: typed error evolution.)
+**Last updated**: March 23, 2026 (V121 — 990+ tests, ≥92% library coverage, 0 clippy (default + all-features), 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later. V121: deep debt + ecosystem absorption (10 tolerance constants centralized, provenance hardening, benchmark JSON round-trip test, `#[allow]` → `#[expect]` evolution, barraCuda v0.3.7 doc sync, MSRV 1.87). V120: deep audit execution (dispatch refactored into 4 submodules, `#![forbid(unsafe_code)]` on all 50 binaries, `DeviceCapabilities`, release-mode CI). V119: cross-ecosystem absorption. V118: RPC expansion (16 capabilities), 110 delegations (67 CPU + 43 GPU).)
 
 ## Experiment Register
 
@@ -49,7 +49,7 @@
 **Rust tests**: 990+/990+ PASS (default workspace)
 **pytest**: 400 collected, 314 PASS + 19 skipped + 67 fail (Kokkos benchmark binary name issues — build-dependent)
 **Three-tier parity**: 102+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
-**BarraCUDA dispatch**: 110 active (67 CPU + 43 GPU) — V105: barraCuda v0.3.5, toadStool S156+, coralReef Iteration 52+. `PrecisionRoutingAdvice` wired into 11 GPU dispatch paths via `get_device_f64_safe()`. tarpc 0.37, ops GPU-gated rewire, domain-esn feature, Rust 2024 unsafe model. coralReef sovereign dispatch path proven on Titan V
+**BarraCUDA dispatch**: 110 active (67 CPU + 43 GPU) — barraCuda v0.3.7, toadStool S158+, coralReef Iteration 55+. `PrecisionRoutingAdvice` wired into 11 GPU dispatch paths via `get_device_f64_safe()`. tarpc 0.37, ops GPU-gated rewire, domain-esn feature, Rust 2024 unsafe model. coralReef sovereign dispatch path proven on Titan V
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); compute.execute + compute.submit validated
 **metalForge workloads**: 30 (24 GPU + 2 NPU + 2 CPU-only), 140 checks
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
@@ -602,7 +602,7 @@ Each experiment is validated at three hardware tiers:
 
 **CPU tier**: 395/395 PASS (34 binaries, complete)
 **GPU tier**: 27 of 34 papers have GPU wiring (79%). 110 delegations (67 CPU + 43 GPU). 30/30 metalForge parity.
-**V119**: Cross-ecosystem absorption (publish = false, MSRV 1.85, provenance registry, cast parity, IPC isolation), 990+ tests, ≥92% library coverage. **V118**: RPC expansion (16 capabilities), 110 delegations (67 CPU + 43 GPU), provenance hardening. **V117**: all-features compilation, cargo deny, PRNG feature gate. barraCuda v0.3.5, toadStool S158+, coralReef Iteration 55+.
+**V121**: Deep debt + ecosystem absorption (tolerance centralization, provenance hardening, MSRV 1.87, barraCuda v0.3.7). **V120**: Deep audit execution (dispatch refactored, forbid unsafe on 50 binaries, DeviceCapabilities). **V119**: Cross-ecosystem absorption. **V118**: RPC expansion (16 capabilities), 110 delegations (67 CPU + 43 GPU). barraCuda v0.3.7, toadStool S158+, coralReef Iteration 55+.
 **metalForge tier**: 30 workloads, 140 checks. Exp 028 NPU 9/9 PASS (AKD1000 DMA). GPU→NPU→CPU pipeline dispatch validated.
 
 ### BarraCUDA Integration Status (V105 — toadStool S156+, coralReef Iteration 52+)
@@ -887,7 +887,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_V118_DEEP_EVOLUTION_AUDIT_HANDOFF_MAR22_2026.md` + `GROUNDSPRING_V119_BARRACUDA_TOADSTOOL_ABSORPTION_HANDOFF_MAR22_2026.md` (V118 RPC/PRNG, V117, V116 archived)
+Active: `wateringHole/handoffs/GROUNDSPRING_V121_BARRACUDA_TOADSTOOL_DEEP_DEBT_HANDOFF_MAR23_2026.md` (V121 tolerance centralization, provenance hardening, barraCuda v0.3.7 sync) + `GROUNDSPRING_V120_BARRACUDA_TOADSTOOL_DEEP_AUDIT_HANDOFF_MAR23_2026.md` (V120 dispatch refactor, forbid unsafe)
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

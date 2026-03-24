@@ -89,6 +89,52 @@ pub const EPS_SAFE_DIV_STRICT: f64 = 1e-20;
 /// 0.005 provides 1.25× margin over worst case (Hargreaves 0.004).
 pub const TOL_ET0: f64 = 0.005;
 
+// ── FAO-56 intermediate sanity bounds ────────────────────────────────
+//
+// Wide physical sanity ranges for FAO-56 intermediate values. These are
+// not precision checks — they verify the equation chain produces
+// plausible intermediates for the benchmark reference day (temperate
+// summer, ~45°N, DOY 172).
+//
+// Provenance: Allen et al. (1998) FAO Irrigation and Drainage Paper 56,
+// Tables 2.1–2.7. Commit `231a3e99`, 2026-03-19.
+
+/// Baseline ET₀ match tolerance (mm/day) around the JSON `expected_et0_mm_day`.
+///
+/// ±0.10 absorbs rounding from different intermediate precision
+/// and the 273.0 vs 273.16 Kelvin convention across FAO-56 equations.
+pub const TOL_ET0_BASELINE: f64 = 0.10;
+
+/// Mean saturation vapour pressure `e_s` (kPa) — summer temperate range.
+pub const SANITY_ES_KPA: (f64, f64) = (1.8, 2.2);
+
+/// Actual vapour pressure `e_a` (kPa) — summer temperate range.
+pub const SANITY_EA_KPA: (f64, f64) = (1.2, 1.6);
+
+/// Atmospheric pressure P (kPa) — near sea level.
+pub const SANITY_P_KPA: (f64, f64) = (99.0, 102.0);
+
+/// Wind speed at 2m u₂ (m/s) — typical moderate-wind conditions.
+pub const SANITY_U2_MS: (f64, f64) = (1.5, 2.5);
+
+/// Daylight hours N — summer solstice at ~45°N (FAO-56 Eq. 34).
+pub const SANITY_DAYLIGHT_HOURS: (f64, f64) = (15.0, 17.0);
+
+/// Monte Carlo coefficient of variation range (%) for FAO-56 with
+/// WMO sensor uncertainty — 1–15% documented CV.
+pub const SANITY_MC_CV_PCT: (f64, f64) = (1.0, 15.0);
+
+/// Variance fraction sum for sensitivity analysis — must be ≈1.0.
+pub const SANITY_VARIANCE_SUM: (f64, f64) = (0.9, 1.1);
+
+/// PM / Hargreaves ET₀ ratio range — FAO-56 §4 documents HG overestimate
+/// in humid (~×0.7) and underestimate in arid/windy (~×2). 50% margin.
+pub const SANITY_PM_HARG_RATIO: (f64, f64) = (0.3, 3.5);
+
+/// Maximum plausible mean |PM − Hargreaves| difference (mm/day).
+/// Generous guard against data pipeline failures, not a precision claim.
+pub const SANITY_PM_HARG_DIFF_MAX: f64 = 10.0;
+
 // ── Physical bounds ──────────────────────────────────────────────────
 
 /// Minimum plausible daily ET₀ (mm/day).

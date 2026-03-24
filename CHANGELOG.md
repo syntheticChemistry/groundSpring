@@ -44,8 +44,31 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 - **`is_enabled()`** accepts `"biomeos"`, `"true"`, `"1"` (no longer hardcoded to single role name)
 - **Stale doc fixed**: `GROUNDSPRING_IPC_SOCKET` → `GROUNDSPRING_SOCKET` in ipc.rs
 
-#### Provenance
+#### Tolerance Centralization
+- **10 new named constants** in `tolerances.rs` for FAO-56 intermediate sanity bounds:
+  `TOL_ET0_BASELINE`, `SANITY_ES_KPA`, `SANITY_EA_KPA`, `SANITY_P_KPA`,
+  `SANITY_U2_MS`, `SANITY_DAYLIGHT_HOURS`, `SANITY_MC_CV_PCT`,
+  `SANITY_VARIANCE_SUM`, `SANITY_PM_HARG_RATIO`, `SANITY_PM_HARG_DIFF_MAX`
+  — all with FAO-56 provenance citations
+- **8 inline float literals replaced** in `validate_fao56.rs` with named constants
+- **2 inline literals replaced** in `validate_real_ghcnd_et0.rs` with named constants
+- **`specs/TOLERANCE_REGISTRY.md`** updated with all 10 new constants
+
+#### Provenance Hardening
+- **`provenance.rs`**: `validation_script` and `command` fields now **required**
+  in benchmark JSON provenance blocks (previously optional). Missing fields
+  return `Err` instead of silently skipping
+- **`benchmark_json_round_trip` test**: Verifies benchmark JSON parse → serialize
+  → reparse losslessness and required provenance field presence
+- **`provenance_requires_script_and_command` test**: Validates error on missing fields
 - **Missing DOI added**: `benchmark_et0_methods.json` → `10.4060/x0490e` (FAO-56)
+
+#### Lint Evolution
+- **`#[allow(dead_code)]` → `#[expect(dead_code, reason)]`** in `ipc_error.rs`
+  for `IpcResult` type alias under `cfg(not(feature = "tarpc-ipc"))`
+- **barraCuda version refs**: `v0.3.5` → `v0.3.7` across `ABSORPTION_MANIFEST.md`,
+  `CROSS_SPRING_SHADER_EVOLUTION.md`, `BARRACUDA_EVOLUTION.md`,
+  `BARRACUDA_REQUIREMENTS.md`
 
 #### Quality Gates
 - `cargo fmt --all -- --check`: PASS
@@ -1432,4 +1455,4 @@ binaries PASS.
 
 ---
 
-For entries prior to V70 (Feb 25 – Mar 2, 2026), see [CHANGELOG_ARCHIVE.md](CHANGELOG_ARCHIVE.md).
+For entries prior to V70 (Feb 25 – Mar 2, 2026), see `ecoPrimals/whitePaper/gen3/baseCamp/GROUNDSPRING_CHANGELOG_ARCHIVE.md` (fossil record in the whitePaper repo).

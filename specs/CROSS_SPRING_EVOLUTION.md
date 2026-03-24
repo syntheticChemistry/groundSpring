@@ -1,6 +1,6 @@
 # Cross-Spring Shader Evolution
 
-**Last updated**: March 23, 2026 (V120 — 110 active delegations (67 CPU + 43 GPU), 990+ default-feature tests, three-tier parity proven: 29/29 at all 3 tiers)
+**Last updated**: March 23, 2026 (V121 — 110 active delegations (67 CPU + 43 GPU), 990+ default-feature tests, three-tier parity proven: 29/29 at all 3 tiers, barraCuda v0.3.7)
 
 The ecoPrimals shader ecosystem evolved organically as each spring
 absorbed domain-specific knowledge, then shared it through barraCuda
@@ -9,7 +9,7 @@ cross-pollination of shaders across springs.
 
 ## Overview
 
-barraCuda v0.3.5 has absorbed 708 WGSL shaders from five springs, compiled
+barraCuda v0.3.7 has absorbed 708 WGSL shaders from five springs, compiled
 through a universal precision pipeline (`compile_shader_universal()` +
 naga IR rewrite) that gives every spring f64-class precision on any GPU.
 
@@ -125,7 +125,7 @@ to biodiversity assessment.
 
 Three-mode benchmark (`benchmark_cross_spring --release`):
 
-### Cross-Spring Provenance Benchmark (barraCuda v0.3.5, toadStool S158+)
+### Cross-Spring Provenance Benchmark (barraCuda v0.3.7, toadStool S158+)
 
 | Workload | Origin Spring | Time | Notes |
 |---|---|---|---|

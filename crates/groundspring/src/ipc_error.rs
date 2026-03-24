@@ -39,7 +39,10 @@ impl IpcError {
 }
 
 /// Result alias for IPC operations.
-#[cfg_attr(not(feature = "tarpc-ipc"), allow(dead_code))]
+#[cfg_attr(
+    not(feature = "tarpc-ipc"),
+    expect(dead_code, reason = "used only with tarpc-ipc feature")
+)]
 pub type IpcResult<T> = Result<T, IpcError>;
 
 #[cfg(test)]

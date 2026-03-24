@@ -434,10 +434,24 @@ mod tests {
             "_source": "Test experiment",
             "_provenance": {
                 "baseline_commit": "abc1234",
-                "baseline_date": "2026-02-27"
+                "baseline_date": "2026-02-27",
+                "validation_script": "control/test/test.py",
+                "command": "python3 control/test/test.py"
             }
         });
         try_print_provenance_header(&bench, "Test Title").unwrap();
+    }
+
+    #[test]
+    fn provenance_requires_script_and_command() {
+        let bench = json!({
+            "_source": "Test experiment",
+            "_provenance": {
+                "baseline_commit": "abc1234",
+                "baseline_date": "2026-02-27"
+            }
+        });
+        assert!(try_print_provenance_header(&bench, "No Script").is_err());
     }
 
     #[test]
@@ -549,6 +563,48 @@ mod tests {
         let msg = err.to_string();
         assert!(msg.contains('x'));
         assert!(msg.contains("f64"));
+    }
+
+    #[test]
+    fn benchmark_json_round_trip() {
+        let original = include_str!("../../../control/sensor_noise/benchmark_sensor_noise.json");
+        let parsed: serde_json::Value = serde_json::from_str(original).unwrap();
+        let serialized = serde_json::to_string_pretty(&parsed).unwrap();
+        let reparsed: serde_json::Value = serde_json::from_str(&serialized).unwrap();
+        assert_eq!(
+            parsed, reparsed,
+            "benchmark JSON round-trip must be lossless"
+        );
+
+        assert!(
+            parsed.get("_source").is_some(),
+            "benchmark must have _source"
+        );
+        assert!(
+            parsed.get("_provenance").is_some(),
+            "benchmark must have _provenance"
+        );
+        let prov = &parsed["_provenance"];
+        assert!(
+            prov.get("baseline_commit").is_some(),
+            "provenance must have baseline_commit"
+        );
+        assert!(
+            prov.get("baseline_date").is_some(),
+            "provenance must have baseline_date"
+        );
+        assert!(
+            prov.get("validation_script")
+                .or_else(|| parsed.get("validation_script"))
+                .is_some(),
+            "provenance must have validation_script"
+        );
+        assert!(
+            prov.get("command")
+                .or_else(|| parsed.get("command"))
+                .is_some(),
+            "provenance must have command"
+        );
     }
 
     /// Provenance registry completeness test (neuralSpring V120 pattern).

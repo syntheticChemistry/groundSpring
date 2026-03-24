@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 23, 2026 (V120)
+**Last Updated**: March 23, 2026 (V121)
 
 ## What This Is
 
@@ -18,8 +18,8 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
+| V121 Deep Debt + Absorption | [GROUNDSPRING_V121_BARRACUDA_TOADSTOOL_DEEP_DEBT_HANDOFF_MAR23_2026.md](handoffs/GROUNDSPRING_V121_BARRACUDA_TOADSTOOL_DEEP_DEBT_HANDOFF_MAR23_2026.md) | Mar 23, 2026 | Tolerance centralization (10 new named constants), provenance hardening, benchmark round-trip test, `#[allow]`→`#[expect]` evolution, barraCuda v0.3.7 doc sync, evolution priorities for toadStool/barraCuda team. |
 | V120 Deep Audit Execution | [GROUNDSPRING_V120_BARRACUDA_TOADSTOOL_DEEP_AUDIT_HANDOFF_MAR23_2026.md](handoffs/GROUNDSPRING_V120_BARRACUDA_TOADSTOOL_DEEP_AUDIT_HANDOFF_MAR23_2026.md) | Mar 23, 2026 | Deep audit execution: dispatch refactored, `#![forbid(unsafe_code)]` on all 50 binaries, `DeviceCapabilities` migration, release-mode CI, `ValidationHarness` expanded, updated evolution priorities. |
-| V119 barraCuda/toadStool | [GROUNDSPRING_V119_BARRACUDA_TOADSTOOL_ABSORPTION_HANDOFF_MAR22_2026.md](handoffs/GROUNDSPRING_V119_BARRACUDA_TOADSTOOL_ABSORPTION_HANDOFF_MAR22_2026.md) | Mar 22, 2026 | 110 delegations inventory, upstream compile fix needed, cast module promotion, evolution priorities. |
 
 ## Cross-Spring Documentation
 
@@ -39,7 +39,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | Scope |
 |---------|-------|
-| V119 Deep Audit + Absorption | Cross-ecosystem absorption: publish hygiene, MSRV 1.85, provenance registry, cast parity, IPC isolation (superseded by V120) |
+| V119 Deep Audit + Absorption | Cross-ecosystem absorption: publish hygiene, MSRV 1.85, provenance registry, cast parity, IPC isolation (superseded by V121, archived) |
 | V118 Deep Audit + RPC + PRNG | RPC expansion (16 capabilities), proptest, PRNG production, spectral_recon GPU GEMM, 110 delegations, provenance hardening (superseded by V119) |
 | V117 All-Features + PRNG | All-features compilation fixed (tarpc-ipc), cargo deny modernised, PRNG DefaultRng feature-gated, validate_all meta-binary, clippy --all-features clean (superseded by V118) |
 | V116 Typed Error Evolution | `DispatchError`, `EsnError`, `ResilienceError<E>`, `ValidationSink` trait, Format C/D capability parsing, `OnceLock` GPU probe, RAWR extraction, dispatch defaults named with provenance (superseded by V117) |

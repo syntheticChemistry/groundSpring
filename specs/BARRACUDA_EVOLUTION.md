@@ -45,7 +45,7 @@ dispatch blocks: `freeze_out::grid_fit_2d` (2D parallel grid),
 `quasispecies::quasispecies_simulation` (batched Wright-Fisher via
 `barracuda::ops::bio::wright_fisher_simulate`), `rare_biosphere::abundance_occupancy`
 and `tier_detection_rate` (batched multinomial via `barracuda::ops::bio`).
-140 metalForge checks, 5+ discovered substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). 110 active barracuda delegations (67 CPU + 43 GPU), barraCuda v0.3.5, toadStool S156+. V59: jackknife GPU promoted (S71 `jackknife_mean_f64.wgsl`), HargreavesBatchGpu (S71 `hargreaves_batch_f64.wgsl`).
+140 metalForge checks, 5+ discovered substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). 110 active barracuda delegations (67 CPU + 43 GPU), barraCuda v0.3.7, toadStool S158+. V59: jackknife GPU promoted (S71 `jackknife_mean_f64.wgsl`), HargreavesBatchGpu (S71 `hargreaves_batch_f64.wgsl`).
 These dispatch blocks compile only with `--features barracuda-gpu` and call
 expected barracuda functions — ToadStool absorbs them to activate GPU paths.
 

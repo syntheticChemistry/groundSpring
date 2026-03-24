@@ -3,8 +3,8 @@
 > Complete inventory of named tolerance constants, epsilon guards, and
 > validation-specific thresholds used across groundSpring.
 >
-> **Last updated**: March 23, 2026 (V121 — 13-tier `tol::` architecture,
-> 4 `eps::` guards, 15 validation-specific constants)
+> **Last updated**: March 23, 2026 (V121 deep audit — 13-tier `tol::` architecture,
+> 4 `eps::` guards, 25 validation-specific constants including FAO-56 sanity bounds)
 
 ## Philosophy
 
@@ -76,6 +76,16 @@ Source: `crates/groundspring-validate/src/tolerances.rs`
 | `EPS_SAFE_DIV_STRICT` | 1e-20 | Strict guard for diffusion coefficients (~1e-15 m²/s floor) |
 | `ET0_PLAUSIBLE_MIN_MM` | 0.01 | Physical lower bound for daily ET₀ (FAO-56 Table 2) |
 | `ET0_PLAUSIBLE_MAX_MM` | 15.0 | Physical upper bound for daily ET₀ (FAO-56 Appendix A) |
+| `TOL_ET0_BASELINE` | 0.10 | FAO-56 baseline ET₀ match ± (Kelvin convention rounding) |
+| `SANITY_ES_KPA` | (1.8, 2.2) | Saturation vapour pressure range, summer temperate (FAO-56 Tbl 2.3) |
+| `SANITY_EA_KPA` | (1.2, 1.6) | Actual vapour pressure range, summer temperate |
+| `SANITY_P_KPA` | (99.0, 102.0) | Atmospheric pressure near sea level |
+| `SANITY_U2_MS` | (1.5, 2.5) | Wind speed at 2m, moderate conditions |
+| `SANITY_DAYLIGHT_HOURS` | (15.0, 17.0) | Summer solstice ~45°N (FAO-56 Eq. 34) |
+| `SANITY_MC_CV_PCT` | (1.0, 15.0) | FAO-56 MC coefficient of variation with WMO sensor uncertainty |
+| `SANITY_VARIANCE_SUM` | (0.9, 1.1) | Sensitivity analysis variance fraction sum ≈ 1.0 |
+| `SANITY_PM_HARG_RATIO` | (0.3, 3.5) | PM/Hargreaves ratio, all agroclimate zones (FAO-56 §4) |
+| `SANITY_PM_HARG_DIFF_MAX` | 10.0 | Maximum plausible mean |PM − Hargreaves| (mm/day) |
 
 ## Python Mirror
 
