@@ -4,6 +4,73 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V123 Cross-Ecosystem Absorption + Provenance (Mar 24, 2026)
+
+#### Ecosystem Absorption
+- **`SECURITY.md`**: added (neuralSpring S174 / healthSpring V42 pattern).
+  Vulnerability reporting, dependency audit posture, data provenance
+- **`rustfmt.toml`**: added (neuralSpring S173 pattern). Edition 2024,
+  max_width 100, field init shorthand, try shorthand — explicit to
+  prevent drift across contributors
+- **Upstream contract tolerance pins** (`tol.rs`): 6 new constants pinning
+  groundSpring to specific barraCuda v0.3.7 behaviour:
+  `UPSTREAM_SPECTRAL_EIGH`, `UPSTREAM_BIO_MULTINOMIAL`,
+  `UPSTREAM_OPTIMIZE_BRENT`, `UPSTREAM_SPECTRAL_ANDERSON`,
+  `UPSTREAM_SPECTRAL_ALMOST_MATHIEU`, `UPSTREAM_SPECTRAL_BANDS`.
+  If upstream drifts, pinned tests fail immediately
+  (neuralSpring V124 `UPSTREAM_HYDRO_*` / `UPSTREAM_PHYSICS_*` pattern)
+
+#### Provenance Registry
+- **`provenance_registry.rs`**: new centralized module mapping all 29
+  Python baselines to their scripts, benchmark JSONs, validators, and
+  science domains. Lookup by exp_id, name, validator, or domain.
+  14 tests: uniqueness, lookup correctness, extension validation
+
+#### Typed Error Evolution
+- **`cast::CastOverflowError`**: `usize_u32` now returns a typed error
+  with label, value, and target_max instead of `Result<u32, String>`.
+  Derives `thiserror::Error` + `Debug + Clone + PartialEq + Eq`.
+  tarpc wire protocol `Result<String, String>` retained as convention
+
+#### PRNG Hardening
+- **5 new bitwise determinism tests**: `xorshift64_bitwise_determinism_1000_rounds`,
+  `xoshiro128_bitwise_determinism_1000_rounds`,
+  `xorshift64_known_sequence_pin` (pinned to seed 42 first output),
+  `xoshiro128_known_first_output_pin`,
+  `binomial_determinism_across_generators`
+  (healthSpring V42 RNG bitwise identity pattern)
+
+#### Full Ecosystem Review
+- Pulled and reviewed all 7 sibling springs (hotSpring v0.6.32,
+  neuralSpring V124, wetSpring V135, airSpring v0.10.0,
+  healthSpring V42, ludoSpring V30, primalSpring 0.7.0)
+- Reviewed all phase1 primals (toadStool S163, Squirrel alpha.23,
+  NestGate 4.1.0-dev, Songbird v0.2.1 Wave 66, BearDog 0.9.0 Wave 14)
+- Reviewed all phase2 primals (biomeOS v2.67, petalTongue v1.6.6,
+  sweetGrass v0.7.27, rhizoCrypt 0.14.0-dev S20, LoamSpine 0.9.12)
+- Reviewed barraCuda v0.3.7, coralReef Phase 10 Iter 63
+- Synthesized absorption matrix: Tier A (6 items), Tier B (7 items),
+  Tier C (5 tracking items)
+
+#### Audits
+- **Large file review**: 11 files >500 LOC reviewed; all well-structured.
+  `rare_biosphere.rs` has optional GPU extraction (tracked for future)
+- **Mock audit**: zero production mocks found; all test doubles behind
+  `#[cfg(test)]`
+- **Hardcoding audit**: centralized in `primal_names.rs`; env overrides
+  on all socket/path discovery
+- **Dependency audit**: zero direct `-sys` crates; transitive only from
+  wgpu/rustix ecosystem
+- **TODO/FIXME/HACK inventory**: zero in all Rust sources
+
+#### Quality Gates
+- `cargo check --workspace`: PASS (0 warnings)
+- `cargo clippy --workspace`: PASS (0 warnings)
+- `cargo fmt --check`: PASS (0 diffs)
+- `cargo doc --workspace`: PASS (0 warnings)
+- `cargo test --workspace`: PASS (1020+ tests, 0 failures)
+- `cargo deny check`: PASS (advisories, bans, licenses, sources OK)
+
 ### V122 Cast Evolution + Module Extraction (Mar 24, 2026)
 
 #### Smart Refactoring

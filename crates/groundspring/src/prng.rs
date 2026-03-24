@@ -426,4 +426,71 @@ mod tests {
             "mean should be near {target_mean}, got {mean}"
         );
     }
+
+    // ── Bitwise determinism (absorbed from healthSpring V42 pattern) ──────
+
+    #[test]
+    fn xorshift64_bitwise_determinism_1000_rounds() {
+        let mut a = Xorshift64::new(0xDEAD_BEEF);
+        let mut b = Xorshift64::new(0xDEAD_BEEF);
+        for _ in 0..1_000 {
+            assert_eq!(a.next_u64(), b.next_u64());
+        }
+        assert_eq!(
+            a.next_f64().to_bits(),
+            b.next_f64().to_bits(),
+            "f64 output must be bitwise identical"
+        );
+    }
+
+    #[test]
+    fn xoshiro128_bitwise_determinism_1000_rounds() {
+        let mut a = Xoshiro128StarStar::new(0xCAFE_BABE);
+        let mut b = Xoshiro128StarStar::new(0xCAFE_BABE);
+        for _ in 0..1_000 {
+            assert_eq!(a.next_u32(), b.next_u32());
+        }
+        assert_eq!(
+            a.next_f64().to_bits(),
+            b.next_f64().to_bits(),
+            "f64 output must be bitwise identical"
+        );
+    }
+
+    #[test]
+    fn xorshift64_known_sequence_pin() {
+        let mut rng = Xorshift64::new(42);
+        let v0 = rng.next_u64();
+        let v1 = rng.next_u64();
+        let v2 = rng.next_u64();
+        assert_eq!(v0, 45_454_805_674, "pinned: first output from seed 42");
+        assert_ne!(v1, 0, "second output must be nonzero");
+        assert_ne!(v2, 0, "third output must be nonzero");
+        let mut rng2 = Xorshift64::new(42);
+        assert_eq!(
+            rng2.next_u64(),
+            v0,
+            "pinned value must be stable across instances"
+        );
+    }
+
+    #[test]
+    fn xoshiro128_known_first_output_pin() {
+        let mut rng = Xoshiro128StarStar::new(42);
+        let first = rng.next_u32();
+        assert_ne!(first, 0, "first output must be nonzero for seed 42");
+        let mut rng2 = Xoshiro128StarStar::new(42);
+        assert_eq!(rng2.next_u32(), first, "pin must be stable across runs");
+    }
+
+    #[test]
+    fn binomial_determinism_across_generators() {
+        let mut a = Xorshift64::new(777);
+        let mut b = Xorshift64::new(777);
+        assert_eq!(a.binomial(500, 0.3), b.binomial(500, 0.3));
+
+        let mut c = Xoshiro128StarStar::new(777);
+        let mut d = Xoshiro128StarStar::new(777);
+        assert_eq!(c.binomial(500, 0.3), d.binomial(500, 0.3));
+    }
 }

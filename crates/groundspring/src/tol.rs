@@ -114,3 +114,54 @@ pub const RECONSTRUCTION: f64 = 1e-4;
 /// with error O(h²) ≈ 1e-4, padded for boundary effects.
 /// Validated: `validate_quasispecies`, `validate_band_edge`.
 pub const NORM_2PCT: f64 = 0.02;
+
+// ─── Upstream Contract Pins ─────────────────────────────────────────────────
+//
+// Tolerance pins that bind groundSpring to specific barraCuda v0.3.7
+// behaviour. If barraCuda changes these upstream values, the pinned tests
+// will break immediately — intentional early detection of contract drift.
+//
+// Pattern absorbed from neuralSpring V124 (`UPSTREAM_HYDRO_*`,
+// `UPSTREAM_PHYSICS_*`, `UPSTREAM_BIO_*`).
+
+/// Pin: `barracuda::spectral::find_all_eigenvalues` must reproduce
+/// tridiagonal eigenvalues within this tolerance for Anderson localization.
+///
+/// Contract: barraCuda v0.3.7, Jacobi rotation eigensolver.
+/// Validated: `validate_anderson`, `validate_transport`.
+pub const UPSTREAM_SPECTRAL_EIGH: f64 = ANALYTICAL;
+
+/// Pin: `barracuda::ops::bio::multinomial_sample_cpu` must preserve
+/// rarefaction diversity indices within this tolerance.
+///
+/// Contract: barraCuda v0.3.7, sequential multinomial sampler.
+/// Validated: `validate_rarefaction`, `validate_rare_biosphere`.
+pub const UPSTREAM_BIO_MULTINOMIAL: f64 = DETERMINISM;
+
+/// Pin: `barracuda::optimize::brent` root finder must converge
+/// within this tolerance for Penman-Monteith ET₀ computation.
+///
+/// Contract: barraCuda v0.3.7, Brent's method.
+/// Validated: `validate_fao56`, `validate_et0_anderson`.
+pub const UPSTREAM_OPTIMIZE_BRENT: f64 = ANALYTICAL;
+
+/// Pin: `barracuda::spectral::anderson_sweep_averaged` must produce
+/// Lyapunov exponents within this tolerance for disorder sweep.
+///
+/// Contract: barraCuda v0.3.7, averaged sweep over 100+ realizations.
+/// Validated: `validate_anderson`, `validate_uncertainty_bridge`.
+pub const UPSTREAM_SPECTRAL_ANDERSON: f64 = LITERATURE;
+
+/// Pin: `barracuda::spectral::almost_mathieu_hamiltonian` must produce
+/// eigenvalues matching Hofstadter's butterfly within this tolerance.
+///
+/// Contract: barraCuda v0.3.7, dense Hamiltonian construction.
+/// Validated: `validate_quasiperiodic`.
+pub const UPSTREAM_SPECTRAL_ALMOST_MATHIEU: f64 = EXACT;
+
+/// Pin: `barracuda::spectral::detect_bands` must find band edges
+/// within this tolerance for tight-binding chains.
+///
+/// Contract: barraCuda v0.3.7, gap-based band detection.
+/// Validated: `validate_band_edge`.
+pub const UPSTREAM_SPECTRAL_BANDS: f64 = ANALYTICAL;

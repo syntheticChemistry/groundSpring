@@ -33,7 +33,7 @@ control/             Python Phase 0 experiments (29 experiments across 9 domains
   freeze_out_inverse/ Exp 020: Freeze-out inverse (Bazavov 2016)
   spectral_recon/     Exp 021: Spectral reconstruction (Bazavov 2025)
 crates/
-  groundspring/            Rust library (40 modules)
+  groundspring/            Rust library (41 modules)
     src/stats/             RMSE, MBE, R², IA, hit rate, Pearson/Spearman, covariance,
                            norm_cdf/ppf, chi2_statistic, mean, std, percentile
       agreement/           RMSE, MAE, MBE, NSE, R², IA, WIA, hit rate (6 submodules)
@@ -109,7 +109,7 @@ scripts/             Automation (baselines, benchmarks)
 ### Rust
 
 ```bash
-cargo test --workspace                         # 1000+ tests, all PASS (V122)
+cargo test --workspace                         # 1020+ tests, all PASS (V123)
 cargo test --workspace --all-features          # all feature paths tested
 cargo test --workspace --features biomeos      # biomeos tests (NUCLEUS client active)
 cargo test --workspace --features barracuda-gpu # GPU dispatch active

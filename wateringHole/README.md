@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 24, 2026 (V122)
+**Last Updated**: March 24, 2026 (V123)
 
 ## What This Is
 
@@ -18,7 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V122 Cast Evolution | [GROUNDSPRING_V122_BARRACUDA_TOADSTOOL_CAST_EVOLUTION_HANDOFF_MAR24_2026.md](handoffs/GROUNDSPRING_V122_BARRACUDA_TOADSTOOL_CAST_EVOLUTION_HANDOFF_MAR24_2026.md) | Mar 24, 2026 | Cast module extraction + promotion to `pub`, 20+ bare casts→named helpers, `u64_u32_truncate` pattern, `eps::SSA_FLOOR` unconditional, `deny.toml` cleaned. Cross-spring cast absorption recommendation. |
+| V123 Cross-Ecosystem Absorption | [GROUNDSPRING_V123_CROSS_ECOSYSTEM_ABSORPTION_PROVENANCE_HANDOFF_MAR24_2026.md](handoffs/GROUNDSPRING_V123_CROSS_ECOSYSTEM_ABSORPTION_PROVENANCE_HANDOFF_MAR24_2026.md) | Mar 24, 2026 | Full ecosystem review (7 springs + 10 primals), 6 upstream contract tolerance pins, provenance registry (29 baselines), `CastOverflowError`, 5 bitwise determinism tests, `SECURITY.md`, `rustfmt.toml` |
 | V121 Deep Debt + Absorption | [GROUNDSPRING_V121_BARRACUDA_TOADSTOOL_DEEP_DEBT_HANDOFF_MAR23_2026.md](handoffs/GROUNDSPRING_V121_BARRACUDA_TOADSTOOL_DEEP_DEBT_HANDOFF_MAR23_2026.md) | Mar 23, 2026 | Tolerance centralization (10 new named constants), provenance hardening, benchmark round-trip test, `#[allow]`→`#[expect]` evolution, barraCuda v0.3.7 doc sync, evolution priorities for toadStool/barraCuda team. |
 
 ## Cross-Spring Documentation
@@ -39,6 +39,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | Scope |
 |---------|-------|
+| V122 Cast Evolution | Cast module extraction + `pub`, 20+ bare casts→named helpers, `u64_u32_truncate`, `eps::SSA_FLOOR` unconditional (superseded by V123, archived) |
 | V120 Deep Audit Execution | Dispatch refactored, `#![forbid(unsafe_code)]` on 50 binaries, `DeviceCapabilities`, release-mode CI (superseded by V122, archived) |
 | V119 Deep Audit + Absorption | Cross-ecosystem absorption: publish hygiene, MSRV 1.85, provenance registry, cast parity, IPC isolation (superseded by V121, archived) |
 | V118 Deep Audit + RPC + PRNG | RPC expansion (16 capabilities), proptest, PRNG production, spectral_recon GPU GEMM, 110 delegations, provenance hardening (superseded by V119) |

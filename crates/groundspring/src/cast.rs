@@ -44,7 +44,19 @@ pub const fn f64_usize(x: f64) -> usize {
     x as usize
 }
 
-/// `usize` → `u32`, returning an error on overflow.
+/// Error returned when a numeric cast overflows the target type.
+#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
+#[error("{label}: {value} exceeds {target_max}")]
+pub struct CastOverflowError {
+    /// Name of the parameter being converted.
+    pub label: String,
+    /// The value that overflowed.
+    pub value: usize,
+    /// Human-readable description of the target limit.
+    pub target_max: &'static str,
+}
+
+/// `usize` → `u32`, returning a typed error on overflow.
 ///
 /// GPU dispatch parameters (workgroup counts, dimension sizes) must fit
 /// in `u32`. This makes the check explicit rather than silently truncating.
@@ -53,9 +65,13 @@ pub const fn f64_usize(x: f64) -> usize {
 ///
 /// # Errors
 ///
-/// Returns an error string if the value exceeds `u32::MAX`.
-pub fn usize_u32(value: usize, label: &str) -> Result<u32, String> {
-    u32::try_from(value).map_err(|_| format!("{label}: {value} exceeds u32::MAX"))
+/// Returns [`CastOverflowError`] if the value exceeds `u32::MAX`.
+pub fn usize_u32(value: usize, label: &str) -> Result<u32, CastOverflowError> {
+    u32::try_from(value).map_err(|_| CastOverflowError {
+        label: label.to_owned(),
+        value,
+        target_max: "u32::MAX (4_294_967_295)",
+    })
 }
 
 /// `usize` → `u64`, infallible on 64-bit platforms.
