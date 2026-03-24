@@ -12,6 +12,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Phase 1 Rust validation: **395/395 checks passed** across 34 validation binaries (340 core + 55 NUCLEUS).
 - Mathematical parity: **29/29 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.6× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.4× from Sturm tridiag**.
+- V124: Deep debt resolution + tolerance hardening — `eps` module public with `SAFE_DIV_STRICT`, all bare float literals named, NDJSON injection hardening (RFC 8259), `validate_all` exit-code disambiguation, capability-based NestGate discovery, UID discovery chain (4-tier, no hardcoded fallback), 29 validator integration tests, CI `validate-all` job, 5 clippy fixes. March 24, 2026.
 - V123: Cast evolution + module extraction (`lib.rs` 607→182, `validate/lib.rs` 769→226, 20+ bare `as` casts→named helpers, `cast` module promoted to `pub`, `eps::SSA_FLOOR` unconditional, `deny.toml` cleaned), March 24, 2026.
 - V121: Deep debt + ecosystem absorption (tolerance centralization, provenance hardening, benchmark JSON round-trip test, `#[allow]` → `#[expect]`, barraCuda v0.3.7 doc sync, MSRV 1.87), March 23, 2026.
 - V120: Deep audit execution (dispatch refactored into 4 submodules, `#![forbid(unsafe_code)]` on all 50 binaries, `DeviceCapabilities`, release-mode CI), March 23, 2026.

@@ -1,6 +1,6 @@
 # Primal Interaction Evolution
 
-**Last updated**: March 23, 2026 (V121 — live NUCLEUS with direct primal fallback, 5-tier socket discovery, provenance trio lifecycle, MCP capability registry, MSRV 1.87)
+**Last updated**: March 24, 2026 (V124 — capability-based discovery hardened, exit-code protocol (0/1/2), UID discovery 4-tier chain)
 
 This document tracks the evolution of groundSpring's interaction with the
 ecoPrimals ecosystem through biomeOS and the NUCLEUS Neural API, mirroring

@@ -19,29 +19,65 @@ use std::io::{BufRead, BufReader, Read, Write};
 use std::net::TcpStream;
 use std::time::Duration;
 
-/// Fallback port when neither env overrides nor socket discovery succeeds.
+/// Discover the `NestGate` URL via capability-based env chain.
 ///
-/// The NUCLEUS deployment convention assigns 8090 to data providers.
-/// Capability-based discovery via `NESTGATE_SOCKET` / `NESTGATE_ADDRESS`
-/// env vars is attempted first; this constant is the last resort for
-/// local development only.
-const FALLBACK_PORT: u16 = 8090;
-
-fn nestgate_url() -> String {
-    if let Ok(url) = std::env::var("NESTGATE_URL") {
-        return url;
+/// Priority (first success wins):
+/// 1. `NESTGATE_URL` — full URL override
+/// 2. `NESTGATE_ADDRESS` — `host:port` pair (HTTP assumed)
+/// 3. `NESTGATE_HOST` + `NESTGATE_PORT` — individual overrides
+/// 4. biomeOS socket registry lookup (future: JSON-RPC capability query)
+///
+/// Fails with a descriptive message if no discovery path succeeds,
+/// rather than silently falling back to a hardcoded address.
+fn nestgate_url() -> Result<String, String> {
+    if let Ok(url) = std::env::var("NESTGATE_URL")
+        && !url.is_empty()
+    {
+        return Ok(url);
     }
 
-    if let Ok(addr) = std::env::var("NESTGATE_ADDRESS") {
-        return format!("http://{addr}");
+    if let Ok(addr) = std::env::var("NESTGATE_ADDRESS")
+        && !addr.is_empty()
+    {
+        return Ok(format!("http://{addr}"));
     }
 
-    let port: u16 = std::env::var("NESTGATE_PORT")
+    let host = std::env::var("NESTGATE_HOST")
         .ok()
-        .and_then(|p| p.parse().ok())
-        .unwrap_or(FALLBACK_PORT);
-    let host = std::env::var("NESTGATE_HOST").unwrap_or_else(|_| String::from("localhost"));
-    format!("http://{host}:{port}")
+        .filter(|s| !s.is_empty());
+    let port = std::env::var("NESTGATE_PORT")
+        .ok()
+        .and_then(|p| p.parse::<u16>().ok());
+
+    match (host, port) {
+        (Some(h), Some(p)) => return Ok(format!("http://{h}:{p}")),
+        (Some(h), None) => return Ok(format!("http://{h}:8090")),
+        (None, Some(p)) => return Ok(format!("http://localhost:{p}")),
+        (None, None) => {}
+    }
+
+    let sock_dir = biomeos_socket_dir();
+    let registry = format!("{sock_dir}/socket-registry.json");
+    if let Ok(contents) = std::fs::read_to_string(&registry)
+        && let Some(addr) = contents
+            .lines()
+            .find(|l| l.contains("nestgate"))
+            .and_then(|l| l.split('"').nth(3))
+        && !addr.is_empty()
+    {
+        return Ok(if addr.starts_with("http") {
+            addr.to_string()
+        } else {
+            format!("http://{addr}")
+        });
+    }
+
+    Err(
+        "NestGate discovery failed. Set one of: NESTGATE_URL, NESTGATE_ADDRESS, \
+         NESTGATE_HOST+NESTGATE_PORT, or ensure the biomeOS socket registry \
+         is populated."
+            .to_string(),
+    )
 }
 
 fn nestgate_health(base_url: &str) -> Result<String, String> {
@@ -97,6 +133,9 @@ fn http_get(url: &str) -> Result<String, String> {
     Ok(body)
 }
 
+/// Default HTTP port used when no port is specified in the URL.
+const DEFAULT_HTTP_PORT: u16 = 80;
+
 fn parse_url(url: &str) -> Result<(String, u16, String), String> {
     let stripped = url
         .strip_prefix("http://")
@@ -107,8 +146,8 @@ fn parse_url(url: &str) -> Result<(String, u16, String), String> {
     let path = format!("/{path}");
     let (host, port) = host_port
         .split_once(':')
-        .map_or((host_port, FALLBACK_PORT), |(h, p)| {
-            (h, p.parse().unwrap_or(FALLBACK_PORT))
+        .map_or((host_port, DEFAULT_HTTP_PORT), |(h, p)| {
+            (h, p.parse().unwrap_or(DEFAULT_HTTP_PORT))
         });
     Ok((host.to_string(), port, path))
 }
@@ -178,7 +217,14 @@ fn main() {
     println!("  No benchmark JSON — pass/fail based on HTTP API and primal health contracts.\n");
 
     let mut harness = Harness::new();
-    let base_url = nestgate_url();
+    let base_url = match nestgate_url() {
+        Ok(url) => url,
+        Err(msg) => {
+            eprintln!("NestGate discovery failed: {msg}");
+            eprintln!("Skipping NestGate validation (hardware/infrastructure unavailable).");
+            std::process::exit(2);
+        }
+    };
     println!("NestGate URL: {base_url}");
     println!();
 

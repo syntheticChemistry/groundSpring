@@ -14,8 +14,8 @@ use groundspring::prng::Xorshift64;
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
     OrExit, SANITY_DAYLIGHT_HOURS, SANITY_EA_KPA, SANITY_ES_KPA, SANITY_MC_CV_PCT, SANITY_P_KPA,
-    SANITY_U2_MS, SANITY_VARIANCE_SUM, TOL_EQUILIBRIUM, TOL_ET0_BASELINE, array_field, f64_field,
-    get_f64_range, parse_benchmark, print_provenance_header, u64_field,
+    SANITY_U2_MS, SANITY_VARIANCE_SUM, TOL_DETERMINISM, TOL_EQUILIBRIUM, TOL_ET0_BASELINE,
+    array_field, f64_field, get_f64_range, parse_benchmark, print_provenance_header, u64_field,
 };
 use serde_json::Value;
 
@@ -216,7 +216,7 @@ fn validate_monte_carlo(
     let mc2 = monte_carlo_et0(base, unc, n_mc, mc_seed);
     h.check_true(
         "MC is deterministic",
-        (mc.mean - mc2.mean).abs() < f64::EPSILON,
+        (mc.mean - mc2.mean).abs() < TOL_DETERMINISM,
     );
 }
 
@@ -345,7 +345,10 @@ fn run() -> i32 {
     println!("\n--- Part 3: Determinism ---");
 
     let et0_b = fao56::daily_et0(&base);
-    h.check_true("ET₀ is deterministic", (et0 - et0_b).abs() < f64::EPSILON);
+    h.check_true(
+        "ET₀ is deterministic",
+        (et0 - et0_b).abs() < TOL_DETERMINISM,
+    );
 
     validate_monte_carlo(
         &mut h,

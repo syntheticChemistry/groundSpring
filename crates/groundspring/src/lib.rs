@@ -163,7 +163,7 @@ pub mod ipc;
 pub use bingocube_nautilus as nautilus;
 
 pub mod cast;
-pub(crate) mod eps;
+pub mod eps;
 pub mod provenance_registry;
 pub mod tol;
 

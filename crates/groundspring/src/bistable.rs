@@ -248,10 +248,6 @@ pub fn integrate_batch(
 }
 
 #[cfg(feature = "barracuda-gpu")]
-#[expect(
-    clippy::cast_possible_truncation,
-    reason = "batch count bounded by test setup"
-)]
 fn integrate_batch_gpu(
     initial_conditions: &[[f64; 5]],
     params: &BistableParams,

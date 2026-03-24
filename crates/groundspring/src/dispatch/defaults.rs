@@ -10,9 +10,10 @@
 
 /// Default Tikhonov regularization for spectral feature extraction.
 ///
-/// 1e-4 balances noise suppression against spectral peak resolution
+/// Balances noise suppression against spectral peak resolution
 /// in the correlator → spectral-function inversion (Exp 028).
-pub(super) const DEFAULT_REGULARIZATION: f64 = 1e-4;
+/// Matches the `tol::RECONSTRUCTION` tier (1e-4).
+pub(super) const DEFAULT_REGULARIZATION: f64 = crate::tol::RECONSTRUCTION;
 
 /// Default time-step spacing for correlator τ grid (spectral features).
 ///

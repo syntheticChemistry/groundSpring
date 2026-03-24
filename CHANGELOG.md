@@ -4,6 +4,66 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V124 Deep Debt Resolution + Tolerance Hardening (Mar 24, 2026)
+
+#### Tolerance Registry Hardening
+- **`eps` module promoted to `pub`**: downstream crates (`groundspring-validate`,
+  `groundspring-forge`) can now reference `groundspring::eps::*` directly
+- **`eps::SAFE_DIV_STRICT`** (1e-20): new strict near-zero guard for MSD
+  log-log filters, diffusion coefficients, and similar quantities where
+  `SAFE_DIV` (1e-10) is too generous. Mirrors `EPS_SAFE_DIV_STRICT` in
+  the validation crate (now re-exports from library)
+- **Named constants replace all bare float literals**: `drift/mod.rs`
+  (`NEUTRAL_SELECTION_THRESHOLD` → `eps::SAFE_DIV`, `KIMURA_DENOM_EPSILON`
+  → `tol::DETERMINISM`), `freeze_out/grid.rs` (L-BFGS constants →
+  `tol::EXACT`/`tol::DETERMINISM`/`tol::RECONSTRUCTION`),
+  `freeze_out/nelder_mead.rs` (`NM_TOL` → `tol::EXACT`),
+  `band_structure.rs` (`BRENT_TOL` → `tol::EXACT`),
+  `dispatch/defaults.rs` (`DEFAULT_REGULARIZATION` → `tol::RECONSTRUCTION`),
+  `transport.rs` (`MSD_MIN_THRESHOLD` → `eps::SAFE_DIV_STRICT`)
+- **`RELATIVE_DENOM_GUARD`** in `ValidationHarness`: `check_relative` and
+  `check_abs_or_rel` now use a named constant (= `tol::DETERMINISM`)
+  instead of bare `1e-15`
+- **Validation binaries**: all `f64::EPSILON` determinism checks replaced
+  with `TOL_DETERMINISM` (`validate_fao56`, `validate_et0_methods`,
+  `validate_rare_biosphere`)
+- Stale `SSA_FLOOR` dead-code `#[expect]` removed (now public, no longer dead)
+
+#### NDJSON Injection Hardening
+- **`json_escape()`** function added to `validate.rs`: escapes `"`, `\`,
+  newlines, and ASCII control characters per RFC 8259 before NDJSON output
+- All `NdjsonSink` methods now escape `label`, `detail`, `name`, `text`
+- 5 new adversarial tests: injection payloads, escaped quotes, backslashes,
+  newlines, control characters
+
+#### validate_all Skip/Fail Disambiguation
+- `run_binary` returns `RunResult` enum (`Pass`, `Fail`, `HardwareUnavailable`)
+  instead of `bool` — exit code 2 = hardware unavailable (skip), anything
+  else non-zero = real failure. Core binary failure always counts as FAIL.
+- Optional binary failure for non-hardware reasons now explicitly flagged
+
+#### Capability-Based Discovery Evolution
+- **`NestGate` validator** (`validate_nestgate_ncbi`): removed hardcoded
+  `FALLBACK_PORT: u16 = 8090`. `nestgate_url()` returns `Result` with
+  4-tier discovery: `NESTGATE_URL` → `NESTGATE_ADDRESS` →
+  `NESTGATE_HOST+PORT` → biomeOS socket registry
+- **UID discovery** (`nucleus.rs`): 4-tier chain (`$UID` →
+  `/proc/self/status` → `id -u` → `/run/user/` enumeration), panics
+  with descriptive message instead of silently using "1000"
+- Collapsible-if patterns modernized to idiomatic let-chain syntax
+
+#### CI Hardening
+- **`validate-all` CI job**: runs meta-validator after individual validation
+  jobs complete
+- **29 validator exit-code integration tests** in
+  `crates/groundspring-validate/tests/validator_exit_codes.rs`
+
+#### Clippy Debt Cleared
+- 3 stale `#[expect(clippy::cast_possible_truncation)]` removed
+  (`bistable.rs`, `fao56/pipeline/monte_carlo.rs`, `seasonal.rs`)
+- 2 unnecessary `as u64` casts removed (`rare_biosphere.rs`)
+- Doc link fixed (`RELATIVE_DENOM_GUARD` → inline reference)
+
 ### V123 Cross-Ecosystem Absorption + Provenance (Mar 24, 2026)
 
 #### Ecosystem Absorption

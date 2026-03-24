@@ -1,6 +1,6 @@
 # groundSpring — BarraCUDA Requirements
 
-**Last Updated**: March 23, 2026 (V121)
+**Last Updated**: March 24, 2026 (V124 — 110 delegations (67 CPU + 43 GPU), 41 modules, barraCuda v0.3.7. V124: deep debt + tolerance hardening)
 **Purpose**: GPU kernel requirements, gap analysis, and evolution priorities
 
 ---

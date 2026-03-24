@@ -26,8 +26,8 @@
 use groundspring::fao56::{self, DailyWeatherInputs};
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    ET0_PLAUSIBLE_MAX_MM, ET0_PLAUSIBLE_MIN_MM, TOL_EQUILIBRIUM, TOL_ET0, f64_field,
-    parse_benchmark, print_provenance_header,
+    ET0_PLAUSIBLE_MAX_MM, ET0_PLAUSIBLE_MIN_MM, TOL_DETERMINISM, TOL_EQUILIBRIUM, TOL_ET0,
+    f64_field, parse_benchmark, print_provenance_header,
 };
 use serde_json::Value;
 
@@ -140,7 +140,7 @@ fn validate_agreement_and_determinism(
     for (i, label) in labels.iter().enumerate() {
         harness.check_true(
             &format!("{label} deterministic"),
-            (results[i] - rerun[i]).abs() < f64::EPSILON,
+            (results[i] - rerun[i]).abs() < TOL_DETERMINISM,
         );
     }
 }

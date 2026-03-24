@@ -27,7 +27,7 @@ pub struct NelderMeadMultiStartResult {
 #[cfg(feature = "barracuda-gpu")]
 const NM_MAX_ITERS: usize = 500;
 #[cfg(feature = "barracuda-gpu")]
-const NM_TOL: f64 = 1e-12;
+const NM_TOL: f64 = crate::tol::EXACT;
 #[cfg(feature = "barracuda-gpu")]
 const NM_SEED: u64 = 42;
 

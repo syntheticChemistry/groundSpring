@@ -29,9 +29,9 @@ pub use crate::linalg::tridiag_eigh_barracuda;
 /// Minimum MSD threshold for log-log regression.
 ///
 /// Values below this are excluded from log-log regression to avoid
-/// `ln(0)` and numerical noise dominating the fit. 1e-20 is ~44 orders
-/// below typical MSD values and safely above the f64 denormal range.
-const MSD_MIN_THRESHOLD: f64 = 1e-20;
+/// `ln(0)` and numerical noise dominating the fit. Matches `eps::SAFE_DIV_STRICT`
+/// (~44 orders below typical MSD values, safely above the f64 denormal range).
+const MSD_MIN_THRESHOLD: f64 = crate::eps::SAFE_DIV_STRICT;
 
 /// Compute the mean square displacement of a wavepacket at a given time.
 ///

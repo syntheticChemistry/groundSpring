@@ -75,7 +75,7 @@ pub const EPS_SAFE_DIV: f64 = 1e-10;
 
 /// Strict division-safe epsilon for quantities where physical floor is ~1e-15
 /// (e.g. diffusion coefficients in m²/s). Below any physically meaningful value.
-pub const EPS_SAFE_DIV_STRICT: f64 = 1e-20;
+pub const EPS_SAFE_DIV_STRICT: f64 = groundspring::eps::SAFE_DIV_STRICT;
 
 /// Rust vs Python ET₀ method-comparison tolerance.
 ///

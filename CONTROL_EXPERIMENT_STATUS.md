@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 24, 2026 (V123 — 1020+ tests, ≥92% library coverage, 0 clippy, 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later. V123: cross-ecosystem absorption + provenance — `SECURITY.md`, `rustfmt.toml`, 6 upstream contract tolerance pins, `provenance_registry.rs` (29 baselines), `CastOverflowError` typed error, 5 bitwise determinism tests, full ecosystem review. V122: cast evolution + module extraction. V121: deep debt + ecosystem absorption. V120: deep audit execution. V119: cross-ecosystem absorption.)
+**Last updated**: March 24, 2026 (V124 — 1020+ tests, ≥92% library coverage, 0 clippy, 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later. V124: deep debt + tolerance hardening. V123: cross-ecosystem absorption + provenance — `SECURITY.md`, `rustfmt.toml`, 6 upstream contract tolerance pins, `provenance_registry.rs` (29 baselines), `CastOverflowError` typed error, 5 bitwise determinism tests, full ecosystem review. V122: cast evolution + module extraction. V121: deep debt + ecosystem absorption. V120: deep audit execution. V119: cross-ecosystem absorption.)
 
 ## Experiment Register
 

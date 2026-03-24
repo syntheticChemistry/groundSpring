@@ -13,10 +13,6 @@ pub const SAFE_DIV: f64 = 1e-10;
 /// Prevents division-by-zero in steady-state mean computation when
 /// degradation rate is negligible. The resulting value saturates at a
 /// large but finite number rather than infinity.
-#[cfg_attr(
-    not(feature = "barracuda-gpu"),
-    expect(dead_code, reason = "SSA GPU batch path behind barracuda-gpu feature")
-)]
 pub const SSA_FLOOR: f64 = 1e-15;
 
 /// Near-zero guard for log/entropy computations.
@@ -25,6 +21,13 @@ pub const SSA_FLOOR: f64 = 1e-15;
 /// sums to avoid `-0 × log(0)` NaN. Also used for coefficient-of-variation
 /// denominators in multi-head uncertainty measurement.
 pub const LOG_FLOOR: f64 = 1e-15;
+
+/// Strict near-zero guard for quantities with very small physical floors.
+///
+/// Used for log-log regression filters (MSD), diffusion coefficients
+/// (~1e-15 m²/s), and other quantities where `SAFE_DIV` is too generous.
+/// Matches `groundspring_validate::tolerances::EPS_SAFE_DIV_STRICT`.
+pub const SAFE_DIV_STRICT: f64 = 1e-20;
 
 /// Underflow guard for condition number / matrix element magnitude.
 ///

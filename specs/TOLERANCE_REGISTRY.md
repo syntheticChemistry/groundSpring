@@ -3,8 +3,11 @@
 > Complete inventory of named tolerance constants, epsilon guards, and
 > validation-specific thresholds used across groundSpring.
 >
-> **Last updated**: March 24, 2026 (V123 — `tol` module extracted to `tol.rs`, `eps` to `eps.rs`. V121: 13-tier `tol::` architecture,
-> 4 `eps::` guards, 25 validation-specific constants including FAO-56 sanity bounds)
+> **Last updated**: March 24, 2026 (V124 — `eps::SAFE_DIV_STRICT` added, all bare float literals
+> in library/validation code replaced with named constants, `RELATIVE_DENOM_GUARD` in
+> `ValidationHarness`. V123: `tol` module extracted to `tol.rs`, `eps` to `eps.rs`. V121:
+> 13-tier `tol::` architecture, 5 `eps::` guards, 25 validation-specific constants including
+> FAO-56 sanity bounds)
 
 ## Philosophy
 
@@ -35,13 +38,14 @@ Source: `crates/groundspring/src/lib.rs`
 
 ## Production Epsilon Guards (`groundspring::eps`)
 
-Source: `crates/groundspring/src/lib.rs`
+Source: `crates/groundspring/src/eps.rs`
 
 | Constant | Value | Purpose |
 |----------|-------|---------|
 | `SAFE_DIV` | 1e-10 | Division guard: `x / y.max(eps::SAFE_DIV)` |
 | `SSA_FLOOR` | 1e-15 | Gillespie SSA steady-state guard (~10× f64::EPSILON) |
 | `LOG_FLOOR` | 1e-15 | Near-zero guard for log/entropy sums |
+| `SAFE_DIV_STRICT` | 1e-20 | Strict near-zero guard for diffusion coefficients (~1e-15 m²/s floor), MSD log-log filters |
 | `UNDERFLOW` | 1e-300 | Condition number / matrix element underflow guard |
 
 ## Validation-Specific Tolerances (`groundspring_validate::tolerances`)

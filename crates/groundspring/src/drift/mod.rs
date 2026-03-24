@@ -159,11 +159,11 @@ pub fn kimura_fixation_prob(pop_size: usize, selection: f64, initial_freq: f64) 
 /// Below this 4Ns threshold, selection is effectively neutral and we return
 /// `initial_freq` directly to avoid numerical instability in the Kimura formula.
 #[cfg(not(feature = "barracuda"))]
-const NEUTRAL_SELECTION_THRESHOLD: f64 = 1e-10;
+const NEUTRAL_SELECTION_THRESHOLD: f64 = crate::eps::SAFE_DIV;
 
 /// Denominator zero-guard for the Kimura exponential ratio.
 #[cfg(not(feature = "barracuda"))]
-const KIMURA_DENOM_EPSILON: f64 = 1e-15;
+const KIMURA_DENOM_EPSILON: f64 = crate::tol::DETERMINISM;
 
 #[cfg(not(feature = "barracuda"))]
 fn kimura_fixation_prob_cpu(pop_size: usize, selection: f64, initial_freq: f64) -> f64 {

@@ -122,10 +122,6 @@ fn seasonal_step_single(cell: &SeasonalCellInputs, params: &SeasonalParams) -> S
 }
 
 #[cfg(feature = "barracuda-gpu")]
-#[expect(
-    clippy::cast_possible_truncation,
-    reason = "cell count and day parameters fit in u32 for practical sizes"
-)]
 fn seasonal_step_gpu(
     cells: &[SeasonalCellInputs],
     params: &SeasonalParams,

@@ -9,14 +9,24 @@
 
 /// Discover the current user's UID without `libc` or `unsafe`.
 ///
-/// Checks `$UID` (set by most shells), then falls back to parsing
-/// `/proc/self/status` on Linux. Logs a warning and returns `"1000"`
-/// as a last resort.
+/// Priority chain (first success wins):
+/// 1. `$UID` (set by most shells)
+/// 2. `/proc/self/status` `Uid:` field (Linux only)
+/// 3. `id -u` command (portable POSIX fallback)
+/// 4. Enumerate `/run/user/` directory entries
+///
+/// # Panics
+///
+/// Panics if all four discovery methods fail. Callers should prefer
+/// setting `$UID` or `$BIOMEOS_SOCKET_DIR` to avoid this path.
 #[must_use]
 pub fn discover_uid() -> String {
-    if let Ok(uid) = std::env::var("UID") {
+    if let Ok(uid) = std::env::var("UID")
+        && !uid.is_empty()
+    {
         return uid;
     }
+
     #[cfg(target_os = "linux")]
     if let Ok(status) = std::fs::read_to_string("/proc/self/status") {
         for line in status.lines() {
@@ -27,11 +37,32 @@ pub fn discover_uid() -> String {
             }
         }
     }
+
+    if let Ok(output) = std::process::Command::new("id").arg("-u").output()
+        && output.status.success()
+    {
+        let uid = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        if !uid.is_empty() {
+            return uid;
+        }
+    }
+
     log::warn!(
-        "UID discovery failed ($UID unset, /proc/self/status unreadable). \
-         Falling back to UID 1000. Set $UID or $BIOMEOS_SOCKET_DIR to override."
+        "UID discovery failed ($UID unset, /proc/self/status unreadable, \
+         `id -u` unavailable). Set $UID or $BIOMEOS_SOCKET_DIR to override."
     );
-    String::from("1000")
+    log::warn!("Attempting /run/user/ enumeration as last resort.");
+    if let Ok(entries) = std::fs::read_dir("/run/user") {
+        for entry in entries.flatten() {
+            if let Some(name) = entry.file_name().to_str()
+                && name.chars().all(|c| c.is_ascii_digit())
+            {
+                log::warn!("Using discovered UID {name} from /run/user/");
+                return name.to_string();
+            }
+        }
+    }
+    panic!("Cannot discover UID. Set $UID or $BIOMEOS_SOCKET_DIR environment variable.");
 }
 
 /// Discover the biomeOS socket directory.

@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
-**Last Updated**: March 23, 2026
-**Status**: V123 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 110 delegations (67 CPU + 43 GPU) — 1020+ Rust tests, 287 Python tests, 140 metalForge checks, 35 experiments, 41 modules. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). barraCuda v0.3.7. V123: cast evolution + module extraction (`lib.rs` 607→182, 20+ bare casts→named helpers). V121: deep debt (tolerance centralization, provenance hardening, MSRV 1.87). V120: dispatch refactored, `#![forbid(unsafe_code)]` on 50 binaries. V119: cross-ecosystem absorption. V118: 110 delegations
+**Last Updated**: March 24, 2026
+**Status**: V124 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 110 delegations (67 CPU + 43 GPU) — 1050+ Rust tests, 287 Python tests, 140 metalForge checks, 29 validator exit-code integration tests, 35 experiments, 41 modules. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). barraCuda v0.3.7. `eps` module public with 5 guards (incl. `SAFE_DIV_STRICT`). V124: deep debt resolution + tolerance hardening (named constants, NDJSON injection fix, validate_all disambiguation, capability-based discovery, CI hardened). V123: cross-ecosystem absorption + provenance. V122: cast evolution + module extraction. V121: deep debt + ecosystem absorption
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---

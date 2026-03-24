@@ -5,7 +5,7 @@
 > (Phase 0), a Rust validation (Phase 1), and a barracuda delegation path
 > (Phase 2+).
 
-**Total**: 395/395 validation checks across 35 experiments, 10 domains. 1020+ Rust tests + 287 Python provenance tests.
+**Total**: 395/395 validation checks across 35 experiments, 10 domains. 1050+ Rust tests + 287 Python provenance tests + 29 validator exit-code integration tests.
 **Core**: 340/340 checks across 29 experiments (no feature flags).
 **NUCLEUS**: 55 checks across 4 experiments (Exp 029–032, `--features biomeos`).
 **Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across 28 benchmarked experiments.

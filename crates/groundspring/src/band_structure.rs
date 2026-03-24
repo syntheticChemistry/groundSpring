@@ -100,9 +100,9 @@ fn refine_edges_brent(
     coarse_edges: &[f64],
 ) -> Vec<f64> {
     /// Brent root-finder convergence tolerance for band edge refinement.
-    /// Set to machine-precision scale (1e-12) since the transfer matrix
-    /// trace is an exact algebraic function of energy.
-    const BRENT_TOL: f64 = 1e-12;
+    /// Set to machine-precision scale since the transfer matrix trace is
+    /// an exact algebraic function of energy.
+    const BRENT_TOL: f64 = crate::tol::EXACT;
     const BRENT_MAX_ITER: usize = 100;
 
     let step = (e_hi - e_lo) / usize_f64(n_points - 1);

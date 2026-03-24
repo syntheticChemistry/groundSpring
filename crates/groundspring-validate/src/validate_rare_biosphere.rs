@@ -15,8 +15,8 @@ use groundspring::rare_biosphere::{
 };
 use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
-    OrExit, array_field, f64_field, get_array, get_f64_range, get_u64, parse_benchmark,
-    print_provenance_header, usize_field,
+    OrExit, TOL_DETERMINISM, array_field, f64_field, get_array, get_f64_range, get_u64,
+    parse_benchmark, print_provenance_header, usize_field,
 };
 use serde_json::Value;
 
@@ -239,7 +239,7 @@ fn run() -> i32 {
 
     let (c1, _) = mean_chao1_at_depth(&community, 1000, 10, 77777);
     let (c2, _) = mean_chao1_at_depth(&community, 1000, 10, 77777);
-    h.check_true("Chao1 deterministic", (c1 - c2).abs() < f64::EPSILON);
+    h.check_true("Chao1 deterministic", (c1 - c2).abs() < TOL_DETERMINISM);
 
     h.summary()
 }

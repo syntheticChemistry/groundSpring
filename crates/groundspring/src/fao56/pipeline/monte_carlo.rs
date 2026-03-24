@@ -63,10 +63,6 @@ pub fn monte_carlo_et0(
 }
 
 #[cfg(feature = "barracuda-gpu")]
-#[expect(
-    clippy::cast_possible_truncation,
-    reason = "n_samples fits in u32 for practical GPU dispatch sizes"
-)]
 fn monte_carlo_et0_gpu(
     base: &DailyWeatherInputs,
     unc: &Et0Uncertainties,

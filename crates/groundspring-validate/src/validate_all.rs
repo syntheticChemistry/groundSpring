@@ -45,10 +45,22 @@ const CORE_BINARIES: &[&str] = &[
     "validate_et0_methods",
 ];
 
-/// Hardware-dependent binaries — skipped (not failed) when unavailable.
+/// Hardware-dependent binaries — skipped (not failed) only when the binary
+/// itself signals hardware-unavailable via exit code 2.
 const OPTIONAL_BINARIES: &[&str] = &["validate_npu_anderson"];
 
-fn run_binary(name: &str) -> bool {
+/// Exit code that hardware-dependent validators return when prerequisites
+/// (GPU, NPU, NUCLEUS) are unavailable — distinct from validation failure (1).
+const EXIT_HARDWARE_UNAVAILABLE: i32 = 2;
+
+/// Result of running a single validation binary.
+enum RunResult {
+    Pass,
+    Fail,
+    HardwareUnavailable,
+}
+
+fn run_binary(name: &str) -> RunResult {
     let start = Instant::now();
     let result = Command::new("cargo")
         .args(["run", "--release", "--bin", name])
@@ -58,16 +70,21 @@ fn run_binary(name: &str) -> bool {
     match result {
         Ok(status) if status.success() => {
             println!("  PASS  {name} ({elapsed:.1?})");
-            true
+            RunResult::Pass
         }
         Ok(status) => {
             let code = status.code().unwrap_or(-1);
-            eprintln!("  FAIL  {name} (exit {code}, {elapsed:.1?})");
-            false
+            if code == EXIT_HARDWARE_UNAVAILABLE {
+                println!("  SKIP  {name} (hardware unavailable, exit {code}, {elapsed:.1?})");
+                RunResult::HardwareUnavailable
+            } else {
+                eprintln!("  FAIL  {name} (exit {code}, {elapsed:.1?})");
+                RunResult::Fail
+            }
         }
         Err(e) => {
             eprintln!("  ERROR {name}: {e}");
-            false
+            RunResult::Fail
         }
     }
 }
@@ -86,20 +103,21 @@ fn main() -> ExitCode {
 
     println!("=== Core Validation ===");
     for &name in CORE_BINARIES {
-        if run_binary(name) {
-            passed += 1;
-        } else {
-            failed += 1;
+        match run_binary(name) {
+            RunResult::Pass => passed += 1,
+            RunResult::Fail | RunResult::HardwareUnavailable => failed += 1,
         }
     }
 
     println!("\n=== Optional (hardware-dependent) ===");
     for &name in OPTIONAL_BINARIES {
-        if run_binary(name) {
-            passed += 1;
-        } else {
-            println!("  SKIP  {name} (hardware unavailable)");
-            skipped += 1;
+        match run_binary(name) {
+            RunResult::Pass => passed += 1,
+            RunResult::HardwareUnavailable => skipped += 1,
+            RunResult::Fail => {
+                eprintln!("  NOTE  {name} failed for non-hardware reasons — counting as FAIL");
+                failed += 1;
+            }
         }
     }
 

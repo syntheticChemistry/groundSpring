@@ -122,25 +122,55 @@ impl<W: Write> NdjsonSink<W> {
     }
 }
 
+/// Escape a string for safe embedding inside a JSON string value.
+///
+/// Handles `"`, `\`, and control characters (including newlines) per RFC 8259.
+/// This is intentionally minimal — we avoid pulling `serde_json` into the
+/// core validation harness (which has zero optional deps).
+fn json_escape(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for ch in s.chars() {
+        match ch {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            c if c.is_ascii_control() => {
+                use std::fmt::Write as _;
+                let _ = write!(out, "\\u{:04x}", u32::from(c));
+            }
+            c => out.push(c),
+        }
+    }
+    out
+}
+
 impl<W: Write> ValidationSink for NdjsonSink<W> {
     fn record_pass(&mut self, label: &str, detail: &str) {
+        let l = json_escape(label);
+        let d = json_escape(detail);
         self.write_json(&format!(
-            r#"{{"type":"check","status":"pass","label":"{label}","detail":"{detail}"}}"#
+            r#"{{"type":"check","status":"pass","label":"{l}","detail":"{d}"}}"#
         ));
     }
 
     fn record_fail(&mut self, label: &str, detail: &str) {
+        let l = json_escape(label);
+        let d = json_escape(detail);
         self.write_json(&format!(
-            r#"{{"type":"check","status":"fail","label":"{label}","detail":"{detail}"}}"#
+            r#"{{"type":"check","status":"fail","label":"{l}","detail":"{d}"}}"#
         ));
     }
 
     fn section(&mut self, name: &str) {
-        self.write_json(&format!(r#"{{"type":"section","name":"{name}"}}"#));
+        let n = json_escape(name);
+        self.write_json(&format!(r#"{{"type":"section","name":"{n}"}}"#));
     }
 
     fn write_summary(&mut self, text: &str) {
-        self.write_json(&format!(r#"{{"type":"summary","text":"{text}"}}"#));
+        let t = json_escape(text);
+        self.write_json(&format!(r#"{{"type":"summary","text":"{t}"}}"#));
     }
 }
 
@@ -292,12 +322,20 @@ impl<S: ValidationSink> ValidationHarness<S> {
         self.record(ok)
     }
 
+    /// Near-zero denominator guard for relative error computation.
+    ///
+    /// When `|expected|` is below this threshold, `check_relative` and
+    /// `check_abs_or_rel` fall back to absolute comparison to avoid
+    /// division by near-zero. Matches `tol::DETERMINISM` (~5× f64 ε).
+    const RELATIVE_DENOM_GUARD: f64 = crate::tol::DETERMINISM;
+
     /// Check that `computed` is within `rel_tol` *relative* to `expected`.
     ///
-    /// Uses `|computed − expected| / |expected|` when `|expected| > 1e-15`,
-    /// falling back to absolute comparison otherwise (avoids division by near-zero).
-    /// Matches the metalForge `tolerance::compare` semantics and the
-    /// hotSpring/neuralSpring `check_rel` pattern.
+    /// Uses `|computed − expected| / |expected|` when `|expected|` exceeds
+    /// `RELATIVE_DENOM_GUARD` (= [`tol::DETERMINISM`](crate::tol::DETERMINISM)),
+    /// falling back to absolute comparison otherwise (avoids division by
+    /// near-zero). Matches the metalForge `tolerance::compare` semantics
+    /// and the hotSpring/neuralSpring `check_rel` pattern.
     pub fn check_relative(
         &mut self,
         label: &str,
@@ -306,7 +344,7 @@ impl<S: ValidationSink> ValidationHarness<S> {
         rel_tol: f64,
     ) -> bool {
         let abs_diff = (computed - expected).abs();
-        let rel_err = if expected.abs() > 1e-15 {
+        let rel_err = if expected.abs() > Self::RELATIVE_DENOM_GUARD {
             abs_diff / expected.abs()
         } else {
             abs_diff
@@ -342,7 +380,7 @@ impl<S: ValidationSink> ValidationHarness<S> {
     ) -> bool {
         let abs_diff = (computed - expected).abs();
         let abs_ok = abs_diff <= abs_tol;
-        let rel_err = if expected.abs() > 1e-15 {
+        let rel_err = if expected.abs() > Self::RELATIVE_DENOM_GUARD {
             abs_diff / expected.abs()
         } else {
             abs_diff
@@ -660,5 +698,53 @@ mod tests {
         h.check_true("b", false);
         let output = String::from_utf8_lossy(h.sink().inner());
         assert_eq!(output.lines().count(), 2);
+    }
+
+    #[test]
+    fn ndjson_escapes_quotes_in_label() {
+        let mut h = ndjson_harness("escape");
+        h.check_true("val\"ue", true);
+        let output = String::from_utf8_lossy(h.sink().inner());
+        assert!(output.contains(r#""label":"val\"ue""#));
+        assert_eq!(output.lines().count(), 1);
+    }
+
+    #[test]
+    fn ndjson_escapes_backslash_and_newline() {
+        let mut h = ndjson_harness("escape");
+        h.check_true("a\\b\nc", false);
+        let output = String::from_utf8_lossy(h.sink().inner());
+        assert!(output.contains(r"a\\b\nc"));
+        assert_eq!(output.lines().count(), 1);
+    }
+
+    #[test]
+    fn ndjson_injection_produces_single_line() {
+        let mut h = ndjson_harness("inject");
+        h.check_true(r#"x","detail":"injected"},{"type":"check"#, true);
+        let output = String::from_utf8_lossy(h.sink().inner());
+        assert_eq!(
+            output.lines().count(),
+            1,
+            "injection must not create extra lines"
+        );
+    }
+
+    #[test]
+    fn json_escape_handles_control_chars() {
+        let escaped = super::json_escape("a\x00b\tc");
+        assert!(!escaped.contains('\x00'));
+        assert!(escaped.contains("\\t"));
+    }
+
+    // ── relative-denom-guard constant ────────────────────────────────
+
+    #[test]
+    fn relative_denom_guard_matches_tol_determinism() {
+        use crate::tol;
+        assert!(
+            (ValidationHarness::<NullSink>::RELATIVE_DENOM_GUARD - tol::DETERMINISM).abs()
+                < f64::EPSILON
+        );
     }
 }

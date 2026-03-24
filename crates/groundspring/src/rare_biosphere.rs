@@ -169,7 +169,7 @@ fn abundance_occupancy_gpu(
         .sample(
             &cumulative,
             Some(&mut seeds),
-            crate::cast::u64_u32_truncate(depth as u64),
+            crate::cast::u64_u32_truncate(depth),
             crate::cast::u64_u32_truncate(n_samples as u64),
             config,
         )
@@ -321,7 +321,7 @@ fn tier_detection_rate_gpu(
         .sample(
             &cumulative,
             Some(&mut seeds),
-            crate::cast::u64_u32_truncate(depth as u64),
+            crate::cast::u64_u32_truncate(depth),
             crate::cast::u64_u32_truncate(n_replicates as u64),
             config,
         )

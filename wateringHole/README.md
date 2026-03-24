@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: March 24, 2026 (V123)
+**Last Updated**: March 24, 2026 (V124)
 
 ## What This Is
 
@@ -18,6 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
+| V124 Deep Debt + Tolerance | [GROUNDSPRING_V124_DEEP_DEBT_TOLERANCE_HANDOFF_MAR24_2026.md](handoffs/GROUNDSPRING_V124_DEEP_DEBT_TOLERANCE_HANDOFF_MAR24_2026.md) | Mar 24, 2026 | `eps` module public + `SAFE_DIV_STRICT`, named constants, NDJSON injection hardening, validate_all disambiguation, capability-based discovery, CI hardened, 29 integration tests, 5 clippy fixes — evolution items for barraCuda/toadStool/springs |
 | V123 All-Teams Handoff | [GROUNDSPRING_V123_ALL_TEAMS_EVOLUTION_ABSORPTION_HANDOFF_MAR24_2026.md](handoffs/GROUNDSPRING_V123_ALL_TEAMS_EVOLUTION_ABSORPTION_HANDOFF_MAR24_2026.md) | Mar 24, 2026 | Comprehensive handoff to all spring + primal teams: 110 delegation inventory, 12 absorption patterns, per-team recommendations, capability surface map, evolution gaps |
 | V123 Cross-Ecosystem Absorption | [GROUNDSPRING_V123_CROSS_ECOSYSTEM_ABSORPTION_PROVENANCE_HANDOFF_MAR24_2026.md](handoffs/GROUNDSPRING_V123_CROSS_ECOSYSTEM_ABSORPTION_PROVENANCE_HANDOFF_MAR24_2026.md) | Mar 24, 2026 | Full ecosystem review (7 springs + 10 primals), 6 upstream contract tolerance pins, provenance registry (29 baselines), `CastOverflowError`, 5 bitwise determinism tests, `SECURITY.md`, `rustfmt.toml` |
 
