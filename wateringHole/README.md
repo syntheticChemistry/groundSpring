@@ -18,8 +18,8 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
+| V123 All-Teams Handoff | [GROUNDSPRING_V123_ALL_TEAMS_EVOLUTION_ABSORPTION_HANDOFF_MAR24_2026.md](handoffs/GROUNDSPRING_V123_ALL_TEAMS_EVOLUTION_ABSORPTION_HANDOFF_MAR24_2026.md) | Mar 24, 2026 | Comprehensive handoff to all spring + primal teams: 110 delegation inventory, 12 absorption patterns, per-team recommendations, capability surface map, evolution gaps |
 | V123 Cross-Ecosystem Absorption | [GROUNDSPRING_V123_CROSS_ECOSYSTEM_ABSORPTION_PROVENANCE_HANDOFF_MAR24_2026.md](handoffs/GROUNDSPRING_V123_CROSS_ECOSYSTEM_ABSORPTION_PROVENANCE_HANDOFF_MAR24_2026.md) | Mar 24, 2026 | Full ecosystem review (7 springs + 10 primals), 6 upstream contract tolerance pins, provenance registry (29 baselines), `CastOverflowError`, 5 bitwise determinism tests, `SECURITY.md`, `rustfmt.toml` |
-| V121 Deep Debt + Absorption | [GROUNDSPRING_V121_BARRACUDA_TOADSTOOL_DEEP_DEBT_HANDOFF_MAR23_2026.md](handoffs/GROUNDSPRING_V121_BARRACUDA_TOADSTOOL_DEEP_DEBT_HANDOFF_MAR23_2026.md) | Mar 23, 2026 | Tolerance centralization (10 new named constants), provenance hardening, benchmark round-trip test, `#[allow]`→`#[expect]` evolution, barraCuda v0.3.7 doc sync, evolution priorities for toadStool/barraCuda team. |
 
 ## Cross-Spring Documentation
 
@@ -39,6 +39,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | Scope |
 |---------|-------|
+| V121 Deep Debt + Absorption | Tolerance centralization, provenance hardening, MSRV 1.87, barraCuda v0.3.7 sync (superseded by V123, archived) |
 | V122 Cast Evolution | Cast module extraction + `pub`, 20+ bare casts→named helpers, `u64_u32_truncate`, `eps::SSA_FLOOR` unconditional (superseded by V123, archived) |
 | V120 Deep Audit Execution | Dispatch refactored, `#![forbid(unsafe_code)]` on 50 binaries, `DeviceCapabilities`, release-mode CI (superseded by V122, archived) |
 | V119 Deep Audit + Absorption | Cross-ecosystem absorption: publish hygiene, MSRV 1.85, provenance registry, cast parity, IPC isolation (superseded by V121, archived) |

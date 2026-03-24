@@ -2,7 +2,7 @@
 # Validates mathematical parity across CPU, GPU, and NPU substrates
 # using metalForge dispatch and NUCLEUS atomic coordination.
 #
-# STATUS: V123 (March 23, 2026) — barraCuda v0.3.5, measurement domain niche
+# STATUS: V123 (March 23, 2026) — barraCuda v0.3.7, measurement domain niche
 # Atomic: Node (Tower + ToadStool) — requires GPU compute (f64-capable device)
 # Optional: Nest (Tower + NestGate) — provenance storage
 #

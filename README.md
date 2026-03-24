@@ -119,7 +119,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace                         # 990+ tests, all PASS
+cargo test --workspace                         # 1020+ tests, all PASS
 cargo test --workspace --all-features          # all feature paths tested
 cargo test --workspace --features biomeos      # NUCLEUS client active
 cargo test --workspace --features barracuda-gpu # GPU dispatch active
@@ -252,7 +252,7 @@ Run parity report: `python3 scripts/parity_report.py`
 | BarraCUDA CPU | 18.4 | +47% (dispatch overhead on small workloads) |
 | **BarraCUDA GPU** | **9.9** | **−21% (1.27× faster)** |
 
-### Workspace Test Benchmark (990+ tests, release mode)
+### Workspace Test Benchmark (1020+ tests, release mode)
 
 | Mode | Wall time (s) | Δ vs local |
 |------|--------------|------------|
@@ -302,7 +302,7 @@ Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardwar
   NumPy/SciPy         Pure safe Rust     BarraCUDA/ToadStool   metalForge dispatch    biomeOS Neural API
   ✓ Complete          ✓ 395/395 PASS     ◐ 110 active          30 workloads           Tower+Node+Squirrel
   11.5× slower        35/35 experiments    (67+43)              24 GPU + 2 NPU + 2 CPU-only         NestGate data pipes
-                      990+ workspace tests                      PCIe topology          NUCLEUS atomics
+                      1020+ workspace tests                      PCIe topology          NUCLEUS atomics
                                                                 Pipeline dispatch      Sovereign degradation
 
   Write locally    →  Hand off          →  Lean on upstream   →  Cross-substrate     →  Primal orchestration
@@ -371,7 +371,7 @@ groundSpring/
 │   ├── npu_anderson/               # Exp 028: NPU Anderson regime classification
 │   └── et0_methods/                # Exp 034: Multi-method ET₀ cross-validation
 ├── crates/
-│   ├── groundspring/               # Phase 1 Rust library (40 modules incl. rawr, esn, lanczos, tissue_anderson, biomeos, nestgate, npu, primal_names)
+│   ├── groundspring/               # Phase 1 Rust library (41 modules incl. rawr, esn, lanczos, tissue_anderson, biomeos, nestgate, npu, primal_names)
 │   └── groundspring-validate/      # 34 validation binaries (hotSpring pattern)
 ├── metalForge/                     # Write → Absorb → Lean artifacts
 │   ├── forge/                      # groundspring-forge crate: hardware discovery, dispatch, topology, pipeline, atomics, remote
@@ -381,7 +381,7 @@ groundSpring/
 ├── graphs/                         # biomeOS pipeline graphs (deploy, Tower, Node, cross-substrate, validation)
 ├── niches/                         # BYOB niche YAML definitions (groundspring-measurement)
 ├── .github/workflows/ci.yml        # GitHub Actions CI
-├── wateringHole/                   # Handoff directory (V121 current)
+├── wateringHole/                   # Handoff directory (V123 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md      # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md   # GPU kernel gap analysis
@@ -437,6 +437,7 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 | V115 | Mar 18 | Zero panicking APIs, ecoBin compliance, 930+ tests |
 | V118 | Mar 19 | RPC expansion (16 caps), 110 delegations, 960+ tests |
 | V119 | Mar 22 | Deep audit + cross-ecosystem absorption, 990+ tests, ≥92% coverage |
+| V123 | Mar 24 | Cross-ecosystem absorption + provenance, 1020+ tests, 41 modules |
 | V120 | Mar 23 | Deep audit execution: dispatch refactored, forbid(unsafe_code) on 50 binaries, DeviceCapabilities |
 | V121 | Mar 23 | Deep debt + ecosystem absorption: tolerance centralization, provenance hardening, MSRV 1.87 |
 | V122 | Mar 24 | Cast evolution + module extraction: lib.rs 607→182, validate/lib.rs 769→226, 20+ bare casts→named helpers |

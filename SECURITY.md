@@ -6,7 +6,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 | Version | Supported |
 |---------|-----------|
-| V122+ (current) | Yes |
+| V123+ (current) | Yes |
 
 ## Security Model
 
@@ -23,7 +23,7 @@ security posture derives from the ecoPrimals sovereign stack:
 - **IPC isolation**: JSON-RPC 2.0 over Unix domain sockets with
   capability-based discovery. No shared memory, no global state.
 - **Deterministic validation**: Fixed seeds, named tolerances, provenance
-  tracing. All 1000+ tests are rerun-identical.
+  tracing. All 1020+ tests are rerun-identical.
 
 ## Reporting a Vulnerability
 

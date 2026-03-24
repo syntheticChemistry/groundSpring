@@ -818,7 +818,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V79: Exp 035 + seismic delegation | 85 delegations (51 CPU + 34 GPU), 807 tests, barraCuda v0.3.3, toadStool S94b | Archived |
 | V80: Fused Ops + BarraCuda Catch-Up | 87 delegations (51 CPU + 36 GPU), 812 tests, barraCuda v0.3.3+, toadStool S94b | Archived |
 | V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `0bd401f`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
-| V119: deep audit + absorption | 110 delegations (67 CPU + 43 GPU), 990+ tests, ≥92% coverage, publish hygiene, MSRV 1.85, provenance registry, cast parity, IPC isolation | **Current** |
+| V119: deep audit + absorption | 110 delegations (67 CPU + 43 GPU), 1020+ tests, ≥92% coverage, publish hygiene, MSRV 1.85, provenance registry, cast parity, IPC isolation | **Current** |
 | V118: deep audit + RPC expansion | 110 delegations (67 CPU + 43 GPU), 960+ tests, 16 capabilities, 30 proptests, DefaultRng production migration, spectral_recon GPU GEMM, provenance hardening, CI Python 90% | Archived |
 | V116: typed error evolution | 102 delegations (61 CPU + 41 GPU), 960+ tests, `DispatchError`/`EsnError`/`ResilienceError<E>`, `ValidationSink`, Format C/D, `OnceLock` GPU probe, RAWR extraction, named dispatch constants | Archived |
 | V115: cross-ecosystem deep absorption | 102 delegations (61 CPU + 41 GPU), 930+ tests, safe_cast expansion, health probes, resilient_call, OrExit evolution, zero eprintln/expect/allow | Archived |
