@@ -26,9 +26,9 @@ tarpc-ipc = ["dep:tarpc", "dep:tokio", "dep:serde"]
 [dependencies]
 log = "0.4"
 thiserror = "2"
-barracuda = { path = "../../../barraCuda/crates/barracuda", optional = true, default-features = false }
+barracuda = { path = "../../../../primals/barraCuda/crates/barracuda", optional = true, default-features = false }
 bingocube-nautilus = { path = "../../../primalTools/bingoCube/nautilus", optional = true }
-akida-driver = { path = "../../../phase1/toadStool/crates/neuromorphic/akida-driver", optional = true }
+akida-driver = { path = "../../../../primals/toadStool/crates/neuromorphic/akida-driver", optional = true }
 wgpu = { version = "28", optional = true, default-features = false, features = ["wgsl", "vulkan-portability"] }
 bytemuck = { version = "1", optional = true, features = ["derive"] }
 serde_json = { version = "1", optional = true }
