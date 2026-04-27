@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: March 24, 2026 (V124 — 1020+ tests, ≥92% library coverage, 0 clippy, 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later. V124: deep debt + tolerance hardening. V123: cross-ecosystem absorption + provenance — `SECURITY.md`, `rustfmt.toml`, 6 upstream contract tolerance pins, `provenance_registry.rs` (29 baselines), `CastOverflowError` typed error, 5 bitwise determinism tests, full ecosystem review. V122: cast evolution + module extraction. V121: deep debt + ecosystem absorption. V120: deep audit execution. V119: cross-ecosystem absorption.)
+**Last updated**: April 27, 2026 (V124 — 965+ tests, ≥92% library coverage, 0 clippy, 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later. guideStone Level 3 (bare scaffold + IPC wiring). 16 capabilities synced across YAML/graphs/code. All deploy graph verbs reconciled. barraCuda v0.3.12. V124: deep debt + tolerance hardening + guideStone L3. V123: cross-ecosystem absorption + provenance. V122: cast evolution + module extraction. V121: deep debt + ecosystem absorption.)
 
 ## Experiment Register
 

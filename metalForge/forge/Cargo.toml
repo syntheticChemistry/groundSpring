@@ -18,7 +18,7 @@ biomeos = ["groundspring/biomeos"]
 [dependencies]
 log = "0.4"
 groundspring = { path = "../../crates/groundspring" }
-barracuda = { path = "../../../../primals/barraCuda/crates/barracuda", features = ["gpu"] }
+barracuda = { path = "../../../../primals/barraCuda/crates/barracuda", default-features = false, features = ["gpu"] }
 wgpu = { version = "28", default-features = false, features = [
     "wgsl",
     "vulkan-portability",

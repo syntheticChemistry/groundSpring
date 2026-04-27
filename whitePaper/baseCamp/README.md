@@ -3,9 +3,9 @@
 **Purpose**: Per-faculty research briefings for groundSpring noise characterization
 reproductions and extensions.
 
-**Last Updated**: March 24, 2026
+**Last Updated**: April 27, 2026
 
-**Validation Summary**: V123 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.7, toadStool S158+, coralReef Iteration 55+**. 1020+ Rust tests + 287 Python provenance tests. ≥92% library line coverage. `cargo deny check` PASS, `cargo clippy --all-features` clean, workspace-level `deny` for `unwrap_used`/`expect_used`. V123: cross-ecosystem absorption + provenance. V122: cast evolution + module extraction. V121: deep debt + ecosystem absorption. V120: deep audit execution. All 35 experiments PASS. **29/29 mathematical parity proven**. Zero clippy (pedantic + nursery), zero unsafe, zero TODO, zero unwrap/expect in production code. 10 domains, 41 modules.
+**Validation Summary**: V124 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.12, toadStool S158+, coralReef Iteration 55+**. 965+ Rust tests + 287 Python provenance tests. ≥92% library line coverage. **guideStone Level 3** — `groundspring_guidestone` binary with 5 bare properties + 6 NUCLEUS IPC parity checks. 16 measurement capabilities synced across niche YAML, deploy graphs, and tower bootstrap. All deploy graph verbs reconciled. `cargo deny check` PASS, `cargo clippy --workspace` clean, workspace-level `deny` for `unwrap_used`/`expect_used`. All 35 experiments PASS. **29/29 mathematical parity proven**. Zero clippy (pedantic + nursery), zero unsafe, zero TODO, zero unwrap/expect in production code. 10 domains, 41 modules.
 
 ---
 

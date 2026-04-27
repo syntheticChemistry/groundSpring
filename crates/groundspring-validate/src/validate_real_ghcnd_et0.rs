@@ -80,10 +80,12 @@ fn main() {
     h.check_true("PM produces valid ET₀", !pm_values.is_empty());
     h.check_true("Hargreaves produces valid ET₀", !harg_values.is_empty());
 
-    let pm_reasonable = pm_values.iter().all(|&v| (0.0..=15.0).contains(&v));
-    let harg_reasonable = harg_values.iter().all(|&v| (0.0..=15.0).contains(&v));
-    h.check_true("PM values in [0, 15] mm/day", pm_reasonable);
-    h.check_true("Hargreaves values in [0, 15] mm/day", harg_reasonable);
+    let plausible =
+        groundspring_validate::ET0_PLAUSIBLE_MIN_MM..=groundspring_validate::ET0_PLAUSIBLE_MAX_MM;
+    let pm_reasonable = pm_values.iter().all(|v| plausible.contains(v));
+    let harg_reasonable = harg_values.iter().all(|v| plausible.contains(v));
+    h.check_true("PM values in plausible ET₀ range", pm_reasonable);
+    h.check_true("Hargreaves values in plausible ET₀ range", harg_reasonable);
 
     if !pm_values.is_empty() && !harg_values.is_empty() {
         let n = pm_values.len().min(harg_values.len());

@@ -19,6 +19,10 @@ use std::io::{BufRead, BufReader, Read, Write};
 use std::net::TcpStream;
 use std::time::Duration;
 
+/// NestGate default HTTP port (used when `NESTGATE_HOST` is set without
+/// `NESTGATE_PORT`). Matches the NestGate primal's default listen address.
+const NESTGATE_DEFAULT_PORT: u16 = 8090;
+
 /// Discover the `NestGate` URL via capability-based env chain.
 ///
 /// Priority (first success wins):
@@ -51,7 +55,7 @@ fn nestgate_url() -> Result<String, String> {
 
     match (host, port) {
         (Some(h), Some(p)) => return Ok(format!("http://{h}:{p}")),
-        (Some(h), None) => return Ok(format!("http://{h}:8090")),
+        (Some(h), None) => return Ok(format!("http://{h}:{NESTGATE_DEFAULT_PORT}")),
         (None, Some(p)) => return Ok(format!("http://localhost:{p}")),
         (None, None) => {}
     }

@@ -19,9 +19,11 @@ biomeos = ["groundspring/biomeos"]
 npu = ["groundspring/npu"]
 barracuda = ["groundspring/barracuda"]
 barracuda-gpu = ["groundspring/barracuda-gpu"]
+guidestone = ["dep:primalspring"]
 
 [dependencies]
 groundspring = { path = "../groundspring", default-features = false }
+primalspring = { path = "../../../primalSpring/ecoPrimal", optional = true }
 serde_json = "1.0.149"
 thiserror = "2"
 
@@ -181,3 +183,8 @@ path = "src/bench_kokkos_parity.rs"
 [[bin]]
 name = "bench_gpu_vs_kokkos"
 path = "src/bench_gpu_vs_kokkos.rs"
+
+[[bin]]
+name = "groundspring_guidestone"
+path = "src/groundspring_guidestone.rs"
+required-features = ["guidestone"]

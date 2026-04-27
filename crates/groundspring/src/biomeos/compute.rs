@@ -52,7 +52,7 @@ fn merge_compute_fields(args: &mut Value, op: &str) {
     }
 }
 
-/// Query compute capabilities.
+/// Query compute capabilities from the compute provider.
 ///
 /// Returns JSON listing available compute operations and GPU info.
 ///
@@ -61,5 +61,5 @@ fn merge_compute_fields(args: &mut Value, op: &str) {
 /// Returns `Err` if biomeOS or the compute provider is unavailable.
 pub fn compute_capabilities(socket: &Path) -> Result<String> {
     let args = serde_json::json!({ "family_id": FAMILY_ID });
-    capability_call_value(socket, "resource.health.check", &args)
+    capability_call_value(socket, "compute.capabilities", &args)
 }

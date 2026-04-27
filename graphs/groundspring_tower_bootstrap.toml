@@ -3,7 +3,7 @@
 # between all groundSpring primals. This is the foundation that
 # Node (Tower + ToadStool) and Nest (Tower + NestGate) build on.
 #
-# STATUS: V123 (March 23, 2026) — barraCuda v0.3.7, measurement domain niche
+# STATUS: V124 (April 27, 2026) — barraCuda v0.3.12, measurement domain niche
 # Atomic: Tower (BearDog + Songbird)
 # Target: Eastgate (local, single machine)
 # Precision: f64-capable device selection with DF64 fallback
@@ -22,7 +22,7 @@ coordination = "Sequential"
 [graph.metadata]
 toadstool_pin = "S158+"
 toadstool_commit = "bfe7977b"
-groundspring_version = "V123"
+groundspring_version = "V124"
 target_node = "eastgate"
 domain = "measurement"
 
@@ -77,7 +77,7 @@ output = "registration_status"
 name = "capability_call"
 
 [nodes.operation.params]
-capability = "registry.register"
+capability = "capability.register"
 params = { primal = "groundspring", capabilities = [
     "measurement.noise_decomposition",
     "measurement.anderson_validation",
@@ -87,9 +87,17 @@ params = { primal = "groundspring", capabilities = [
     "measurement.uncertainty_budget",
     "measurement.spectral_features",
     "measurement.freeze_out",
+    "measurement.bootstrap",
+    "measurement.rarefaction",
+    "measurement.drift",
+    "measurement.band_edge",
+    "measurement.rare_biosphere",
+    "measurement.gillespie",
+    "measurement.bistable",
+    "measurement.quasispecies",
     "health.liveness",
     "health.readiness",
-], family_id = "groundspring", version = "V123" }
+], family_id = "groundspring", version = "V124" }
 
 [nodes.constraints]
 timeout_ms = 10000

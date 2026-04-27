@@ -3,11 +3,11 @@
 > Complete inventory of named tolerance constants, epsilon guards, and
 > validation-specific thresholds used across groundSpring.
 >
-> **Last updated**: March 24, 2026 (V124 — `eps::SAFE_DIV_STRICT` added, all bare float literals
-> in library/validation code replaced with named constants, `RELATIVE_DENOM_GUARD` in
-> `ValidationHarness`. V123: `tol` module extracted to `tol.rs`, `eps` to `eps.rs`. V121:
-> 13-tier `tol::` architecture, 5 `eps::` guards, 25 validation-specific constants including
-> FAO-56 sanity bounds)
+> **Last updated**: April 27, 2026 (V124 — tissue Anderson thresholds + resampling convergence
+> heuristics documented. `TOLERANCE_REGISTRY.md` source path fixed. Previous: `eps::SAFE_DIV_STRICT`
+> added, all bare float literals in library/validation code replaced with named constants.
+> V123: `tol` module extracted to `tol.rs`, `eps` to `eps.rs`. V121: 13-tier `tol::`
+> architecture, 5 `eps::` guards, 25 validation-specific constants including FAO-56 sanity bounds)
 
 ## Philosophy
 
@@ -18,7 +18,7 @@ regime and cites the mathematical bound that justifies it.
 
 ## Library Tolerances (`groundspring::tol`)
 
-Source: `crates/groundspring/src/lib.rs`
+Source: `crates/groundspring/src/tol.rs`
 
 | Constant | Value | Regime | Provenance |
 |----------|-------|--------|------------|
@@ -98,6 +98,31 @@ Source: `control/tolerances.py`
 The Python tolerance module mirrors all 28 Rust constants (library + validation)
 with provenance comments linking back to the Rust source. This ensures
 benchmark JSONs produced by Python baselines use identical thresholds.
+
+### Tissue Anderson Thresholds (`validate_tissue_anderson`)
+
+Binary-local constants with provenance from Paper 12 — "Anderson Localization
+in Immunological Signaling" (Strandgate 2026). Structural invariants from
+Anderson theory extended to multi-compartment tissue geometry.
+
+| Constant | Value | Purpose |
+|----------|-------|---------|
+| `MIN_INFLAMED_EVENNESS` | 0.8 | Pielou J′ lower bound for inflamed dermis (immune infiltrate diversity) |
+| `MAX_HEALTHY_D_EFF` | 2.5 | System `d_eff` upper bound with intact barrier (quasi-2D) |
+| `ANDERSON_3D_W_C` | 16.5 | 3D Anderson transition (Slevin & Ohtsuki 1999) |
+| `MIN_BARRIER_TRANSITION` | 0.4 | Breach fraction lower bound for barrier transition (Paper 12 §3.2) |
+| `MAX_BARRIER_TRANSITION` | 0.8 | Breach fraction upper bound for barrier transition |
+| `MAX_TOPICAL_MAB_PENETRATION` | 0.15 | Max topical mAb penetration (intact barrier, Paper 12 Table 3) |
+| `MIN_SYSTEMIC_PENETRATION` | 0.8 | Min systemic small-molecule penetration to dermis |
+| `MIN_GOOD_COMPOSITE_SCORE` | 0.5 | Composite drug score threshold for "good candidate" |
+
+### Resampling Convergence Heuristics (`validate_resampling_conv`)
+
+| Constant | Value | Purpose |
+|----------|-------|---------|
+| `CONVERGENCE_FACTOR_GAUSSIAN` | 1.1 | CI width convergence bound (Gaussian, 10% headroom) |
+| `CONVERGENCE_FACTOR_LOGNORMAL` | 1.2 | CI width convergence bound (lognormal, wider for skew) |
+| `HEAVY_TAIL_WIDTH_FACTOR` | 0.8 | Heavy-tail vs Gaussian CI width comparison (20% discount) |
 
 ## Adding New Tolerances
 

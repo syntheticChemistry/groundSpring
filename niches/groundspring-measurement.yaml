@@ -48,6 +48,14 @@ organisms:
         - "measurement.uncertainty_budget"
         - "measurement.spectral_features"
         - "measurement.freeze_out"
+        - "measurement.bootstrap"
+        - "measurement.rarefaction"
+        - "measurement.drift"
+        - "measurement.band_edge"
+        - "measurement.rare_biosphere"
+        - "measurement.gillespie"
+        - "measurement.bistable"
+        - "measurement.quasispecies"
       config:
         mode: "server"
 

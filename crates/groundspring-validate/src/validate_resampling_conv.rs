@@ -24,6 +24,20 @@ use groundspring_validate::{
 const BENCHMARK: &str =
     include_str!("../../../control/resampling_convergence/benchmark_resampling_convergence.json");
 
+/// Gaussian CI convergence bound: final width ≤ initial × this factor.
+/// A well-behaved estimator should not widen with more replicates;
+/// 10% headroom absorbs seed-dependent fluctuations.
+const CONVERGENCE_FACTOR_GAUSSIAN: f64 = 1.1;
+
+/// Log-normal CI convergence bound (wider than Gaussian).
+/// Skewed distributions cause higher variance in bootstrap CI width.
+const CONVERGENCE_FACTOR_LOGNORMAL: f64 = 1.2;
+
+/// Heavy-tail CI width comparison factor: heavy-tailed data should
+/// produce wider CIs than Gaussian. The 20% discount guards against
+/// the rare seed where heavy-tail data is well-concentrated.
+const HEAVY_TAIL_WIDTH_FACTOR: f64 = 0.8;
+
 fn generate_normal(n: usize, mu: f64, sigma: f64, seed: u64) -> Vec<f64> {
     let mut rng = Xorshift64::new(seed);
     (0..n).map(|_| rng.normal(mu, sigma)).collect()
@@ -104,15 +118,15 @@ fn run() -> i32 {
         println!("  n={n_boot:5}: bootstrap={bw:.4}  RAWR={rw:.4}");
     }
 
-    // 1.1× bound: a well-behaved CI estimator's width should not increase
-    // with more replicates; 10% headroom absorbs seed-dependent fluctuations.
     h.check_true(
         "Bootstrap width converges (Gaussian)",
-        *boot_widths.last().unwrap_or(&f64::MAX) <= boot_widths[0] * 1.1,
+        *boot_widths.last().unwrap_or(&f64::MAX)
+            <= boot_widths[0] * CONVERGENCE_FACTOR_GAUSSIAN,
     );
     h.check_true(
         "RAWR width converges (Gaussian)",
-        *rawr_widths.last().unwrap_or(&f64::MAX) <= rawr_widths[0] * 1.1,
+        *rawr_widths.last().unwrap_or(&f64::MAX)
+            <= rawr_widths[0] * CONVERGENCE_FACTOR_GAUSSIAN,
     );
 
     let len = boot_widths.len();
@@ -148,11 +162,10 @@ fn run() -> i32 {
         );
         boot_widths_ln.push(bw);
     }
-    // 1.2× bound (wider than Gaussian's 1.1×): lognormal skew causes
-    // higher variance in bootstrap CI width across seed runs.
     h.check_true(
         "Log-normal width converges",
-        *boot_widths_ln.last().unwrap_or(&f64::MAX) <= boot_widths_ln[0] * 1.2,
+        *boot_widths_ln.last().unwrap_or(&f64::MAX)
+            <= boot_widths_ln[0] * CONVERGENCE_FACTOR_LOGNORMAL,
     );
 
     // Part 3: Heavy-tailed convergence (approximate t-distribution using normal)
@@ -187,10 +200,10 @@ fn run() -> i32 {
     let bw_g = *boot_widths.last().unwrap_or(&1.0);
     println!("  Heavy-tail width at n=10k: {bw_ht:.4} (Gaussian: {bw_g:.4})");
 
-    // 0.8× factor: heavy-tailed data should produce wider CIs than Gaussian.
-    // The 20% discount guards against the rare seed where heavy-tail data
-    // happens to be well-concentrated in a finite sample.
-    h.check_true("Heavy-tail wider than Gaussian", bw_ht > bw_g * 0.8);
+    h.check_true(
+        "Heavy-tail wider than Gaussian",
+        bw_ht > bw_g * HEAVY_TAIL_WIDTH_FACTOR,
+    );
 
     // Part 4: Determinism
     println!("\n--- Part 4: Determinism ---");

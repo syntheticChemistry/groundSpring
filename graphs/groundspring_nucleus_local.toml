@@ -20,7 +20,7 @@
 #   Exp 005 (seismic)        — nestgate.iris_stations/iris_events → NMSZ data
 #   Exp 023 (no-till 16S)    — nestgate.ncbi_search → no-till vs tilled 16S
 #
-# STATUS: V123 (March 23, 2026) — barraCuda v0.3.7, measurement domain niche
+# STATUS: V124 (April 27, 2026) — barraCuda v0.3.12, measurement domain niche
 # Target: Eastgate (local, single machine)
 #
 # Run: biomeos deploy graphs/groundspring_nucleus_local.toml
@@ -33,7 +33,7 @@ coordination = "Sequential"
 [graph.metadata]
 toadstool_pin = "S158+"
 toadstool_commit = "bfe7977b"
-groundspring_version = "V123"
+groundspring_version = "V124"
 target_node = "eastgate"
 precision_strategy = "f64-capable with DF64 fallback"
 domain = "measurement"

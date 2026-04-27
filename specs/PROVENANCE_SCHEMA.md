@@ -61,7 +61,11 @@ automation can produce and validate provenance without reading test code.
 ### Rust: `groundspring-validate` harness
 
 - `print_provenance_header()` panics if `_source`, `baseline_commit`, or `baseline_date` are missing
-- All validation binaries call `print_provenance_header()` before checks
+- Most validation binaries call `print_provenance_header()` before checks
+- Exceptions (by design): `validate_weather` (analytical, no JSON baseline),
+  `validate_tissue_anderson` (literature-derived, no Python run),
+  `validate_iris_seismic`, `validate_real_ghcnd_et0`, `validate_real_ncbi_16s`,
+  `validate_nucleus_stack` (live-data/infrastructure binaries with custom headers)
 
 ### Drift Guard: `scripts/regenerate_benchmarks.sh`
 
