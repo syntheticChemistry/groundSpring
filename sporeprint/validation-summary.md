@@ -1,28 +1,39 @@
 +++
 title = "groundSpring Validation Summary"
-description = "Measurement noise and uncertainty — 395/395 Rust + 287 Python checks, uncertainty budget for every spring"
-date = 2026-05-06
+description = "Measurement noise and uncertainty — 965 tests, 35 experiments, guideStone Level 3, 5 notebooks"
+date = 2026-05-07
 
 [taxonomies]
-primals = ["barracuda", "toadstool"]
+primals = ["barracuda", "toadstool", "beardog", "songbird", "nestgate"]
 springs = ["groundspring", "hotspring", "wetspring", "neuralspring", "airspring"]
 +++
 
 ## Status
 
-- **395/395 Rust + 287 Python** cross-validated checks, 936 Rust tests
-- **5 pillars**: Signal vs Noise, Inverse Problems, Sensing, Temporal, Spatial
-- **30+ papers reproduced** across 7 researchers (Bazavov, Waters, Liu, Kachkovskiy, Dolson, Anderson, Gonzales)
-- Contributes uncertainty budget to **every baseCamp paper**
-- 102 barraCuda delegations validated across RTX 4070, Titan V, AKD1000
+- **965 tests** passing, 0 failed (146s full suite)
+- **35 experiments** across 10 scientific domains
+- **395/395 validation checks** (340 core + 55 NUCLEUS)
+- **29/29 Python baselines** with math parity proven
+- **110 barraCuda delegations** (67 CPU + 43 GPU)
+- **guideStone Level 3** — bare + IPC wired
+- **16 measurement capabilities** synced (niche, YAML, deploy graphs)
+- **Zero** unsafe blocks, production mocks, hardcoded addresses, `#[allow]` attrs
 
 ## Key Validation Binaries
 
-<!-- TODO: Update with actual binary names from target/release/ -->
-- `validate_signal_noise` — sensor decomposition
-- `validate_inverse_problems` — error propagation
-- `validate_spectral` — Anderson, Almost-Mathieu, band edge
-- `validate_jackknife` — QCD statistical estimation
+- `groundspring_guidestone` — 5 bare properties + 6 NUCLEUS additive IPC checks
+- `validate_all` — meta-runner for all 29 Python-parity validators (exit-code protocol)
+- `bench_gpu_vs_kokkos` — three-mode GPU benchmark (default → barraCuda CPU → GPU)
+
+## Notebooks (5)
+
+| # | Notebook | Focus |
+|---|----------|-------|
+| 01 | Composition Validation | Deploy graphs, capabilities, guideStone, verb reconciliation |
+| 02 | Benchmark Comparison | Rust vs Python timing, three-mode GPU, delegation inventory |
+| 03 | Ecosystem Evidence | 35 experiments, domain distribution, gap resolution, security |
+| 04 | Cross-Spring Connections | Primal consumption matrix, ecosystem flows, patterns pioneered |
+| 05 | Measurement Science Deep Dive | Five pillars, tolerance architecture, Anderson localization thread |
 
 ## Workload TOMLs
 
@@ -31,4 +42,5 @@ Not yet created — contribute to `projectNUCLEUS/workloads/groundspring/`.
 ## See Also
 
 - [Spring Catalog](https://primals.eco/architecture/spring-catalog-status-science-and-evolution/) on primals.eco
+- [Lab Notebooks](https://primals.eco/lab/notebooks/) for rendered notebook views
 - All baseCamp papers (groundSpring contributes uncertainty to all)

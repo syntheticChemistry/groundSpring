@@ -1,0 +1,102 @@
+{
+  "generated": "2026-05-07T13:00:00Z",
+  "spring": "groundSpring",
+  "total_experiments": 35,
+  "total_validation_checks": 395,
+  "core_checks": 340,
+  "nucleus_checks": 55,
+  "math_parity_proven": "29/29",
+  "domains": {
+    "measurement": {
+      "experiments": ["001", "002", "003", "015", "022", "024"],
+      "count": 6,
+      "focus": "Sensor noise, observation gap, error propagation, uncertainty bridge, ET0-Anderson, aggregate stability"
+    },
+    "biological": {
+      "experiments": ["004", "006", "010", "011", "014", "016", "017"],
+      "count": 7,
+      "focus": "Sequencing noise, signal specificity, bistable switching, multi-signal QS, drift/selection, rare biosphere, quasispecies"
+    },
+    "mathematical": {
+      "experiments": ["008", "009", "012", "018"],
+      "count": 4,
+      "focus": "Anderson localization, Almost-Mathieu, spin chain transport, band edge structure"
+    },
+    "statistics": {
+      "experiments": ["007", "013"],
+      "count": 2,
+      "focus": "RAWR resampling, convergence analysis"
+    },
+    "geological": {
+      "experiments": ["005", "032"],
+      "count": 2,
+      "focus": "Seismic wave propagation, IRIS live seismic"
+    },
+    "hydrology": {
+      "experiments": ["035"],
+      "count": 1,
+      "focus": "Multi-method ET0 (PM, Hargreaves, Makink, Turc, Hamon)"
+    },
+    "inverse_problems": {
+      "experiments": ["019", "020", "021"],
+      "count": 3,
+      "focus": "Jackknife estimation, freeze-out inverse, spectral reconstruction"
+    },
+    "wdm": {
+      "experiments": ["025", "026", "027"],
+      "count": 3,
+      "focus": "f32/f64 precision drift, system-size convergence, GPU vendor parity"
+    },
+    "hardware": {
+      "experiments": ["028"],
+      "count": 1,
+      "focus": "NPU Anderson classification (BrainChip AKD1000)"
+    },
+    "cross_spring_nucleus": {
+      "experiments": ["023", "029", "030", "031", "033"],
+      "count": 5,
+      "focus": "No-till sampling, real GHCND ET0, real NCBI 16S, NUCLEUS stack, tissue Anderson"
+    },
+    "immunological": {
+      "experiments": ["033"],
+      "count": 1,
+      "focus": "Tissue Anderson localization (Paper 12, Gonzales)"
+    }
+  },
+  "experiments": [
+    {"id": "001", "title": "Sensor Noise Characterization", "domain": "measurement", "python": "32/32", "rust": "36/36", "speedup": "11.6x"},
+    {"id": "002", "title": "Observation Gap", "domain": "measurement", "python": "PASS", "rust": "13/13", "speedup": "8.2x"},
+    {"id": "003", "title": "Error Propagation FAO-56", "domain": "hydrology", "python": "PASS", "rust": "15/15", "speedup": "9.4x"},
+    {"id": "004", "title": "Sequencing Noise", "domain": "biological", "python": "PASS", "rust": "15/15", "speedup": "7.1x"},
+    {"id": "005", "title": "Seismic Wave Propagation", "domain": "geological", "python": "PASS", "rust": "9/9", "speedup": "4.2x"},
+    {"id": "006", "title": "Signal Specificity", "domain": "biological", "python": "12/12", "rust": "12/12", "speedup": "30.5x"},
+    {"id": "007", "title": "RAWR Resampling", "domain": "statistics", "python": "11/11", "rust": "11/11", "speedup": "7.3x"},
+    {"id": "008", "title": "Anderson Localization", "domain": "mathematical", "python": "8/8", "rust": "8/8", "speedup": "29.9x"},
+    {"id": "009", "title": "Almost-Mathieu Quasiperiodic", "domain": "mathematical", "python": "8/8", "rust": "8/8", "speedup": "49.5x"},
+    {"id": "010", "title": "Bistable Phenotypic Switching", "domain": "biological", "python": "10/10", "rust": "10/10", "speedup": "18.5x"},
+    {"id": "011", "title": "Multi-Signal QS Integration", "domain": "biological", "python": "9/9", "rust": "9/9", "speedup": "46.2x"},
+    {"id": "012", "title": "Spin Chain Transport", "domain": "mathematical", "python": "18/18", "rust": "18/18", "speedup": "12.3x"},
+    {"id": "013", "title": "Resampling Convergence", "domain": "statistics", "python": "10/10", "rust": "8/8", "speedup": "5.8x"},
+    {"id": "014", "title": "Drift vs Selection", "domain": "biological", "python": "7/7", "rust": "7/7", "speedup": "6.9x"},
+    {"id": "015", "title": "Uncertainty Bridge", "domain": "measurement", "python": "8/8", "rust": "8/8", "speedup": "14.1x"},
+    {"id": "016", "title": "Rare Biosphere Signal Detection", "domain": "biological", "python": "11/11", "rust": "12/12", "speedup": "8.7x"},
+    {"id": "017", "title": "Quasispecies Threshold", "domain": "biological", "python": "9/9", "rust": "6/6", "speedup": "11.2x"},
+    {"id": "018", "title": "Band Edge Structure", "domain": "mathematical", "python": "8/8", "rust": "10/10", "speedup": "22.4x"},
+    {"id": "019", "title": "Jackknife Error Estimation", "domain": "inverse_problems", "python": "9/9", "rust": "9/9", "speedup": "3.8x"},
+    {"id": "020", "title": "Freeze-Out Inverse", "domain": "inverse_problems", "python": "8/8", "rust": "8/8", "speedup": "7.6x"},
+    {"id": "021", "title": "Spectral Reconstruction", "domain": "inverse_problems", "python": "8/8", "rust": "8/8", "speedup": "5.4x"},
+    {"id": "022", "title": "ET0-Anderson Propagation", "domain": "measurement", "python": "7/7", "rust": "7/7", "speedup": "8.9x"},
+    {"id": "023", "title": "No-Till vs Tilled Sampling", "domain": "cross_spring_nucleus", "python": "7/7", "rust": "7/7", "speedup": "6.1x"},
+    {"id": "024", "title": "Aggregate Stability Noise", "domain": "measurement", "python": "8/8", "rust": "8/8", "speedup": "9.3x"},
+    {"id": "025", "title": "f32 vs f64 Precision Drift", "domain": "wdm", "python": "7/7", "rust": "7/7", "speedup": "4.5x"},
+    {"id": "026", "title": "System-Size Convergence", "domain": "wdm", "python": "7/7", "rust": "7/7", "speedup": "3.9x"},
+    {"id": "027", "title": "GPU Vendor Parity", "domain": "wdm", "python": "7/7", "rust": "7/7", "speedup": "2.1x"},
+    {"id": "028", "title": "NPU Anderson Classification", "domain": "hardware", "python": "7/7", "rust": "9/9", "speedup": "N/A"},
+    {"id": "029", "title": "Real GHCND ET0", "domain": "cross_spring_nucleus", "python": null, "rust": "6/6", "speedup": "live data"},
+    {"id": "030", "title": "Real NCBI 16S", "domain": "cross_spring_nucleus", "python": null, "rust": "9/9", "speedup": "live data"},
+    {"id": "031", "title": "NUCLEUS Stack", "domain": "cross_spring_nucleus", "python": null, "rust": "28/28", "speedup": "N/A"},
+    {"id": "032", "title": "IRIS Seismic", "domain": "geological", "python": null, "rust": "12/12", "speedup": "live data"},
+    {"id": "033", "title": "Tissue Anderson", "domain": "immunological", "python": null, "rust": "29/29", "speedup": "analytical"},
+    {"id": "035", "title": "Multi-Method ET0", "domain": "hydrology", "python": null, "rust": "19/19", "speedup": "delegated"}
+  ]
+}

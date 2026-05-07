@@ -1,0 +1,45 @@
+{
+  "generated": "2026-05-07T13:00:00Z",
+  "spring": "groundSpring",
+  "version": "V124",
+  "security_posture": {
+    "unsafe_blocks": 0,
+    "forbid_unsafe": true,
+    "allow_attributes": 0,
+    "todo_fixme": 0,
+    "production_mocks": 0,
+    "hardcoded_addresses": 0,
+    "direct_sys_crates": 0,
+    "cargo_deny_pass": true,
+    "license": "AGPL-3.0-or-later"
+  },
+  "gaps": {
+    "total": 11,
+    "active": 7,
+    "resolved": 4,
+    "blocked_upstream": 2,
+    "active_gaps": [
+      {"id": "GAP-GS-001", "primal": "squirrel", "severity": "low", "status": "not_started", "summary": "Squirrel not in composition (AI additive)"},
+      {"id": "GAP-GS-002", "primal": "coralreef", "severity": "low", "status": "deferred", "summary": "coralReef not wired (shader API not stable)"},
+      {"id": "GAP-GS-003", "primal": "barracuda", "severity": "low", "status": "deferred", "summary": "TensorSession not adopted"},
+      {"id": "GAP-GS-006", "primal": "self", "severity": "low", "status": "active", "summary": "metalForge tolerance system duplication"},
+      {"id": "GAP-GS-008", "primal": "beardog", "severity": "medium", "status": "blocked_upstream", "summary": "IONIC-RUNTIME cross-family GPU lease not implemented"},
+      {"id": "GAP-GS-009", "primal": "barracuda", "severity": "medium", "status": "blocked_upstream", "summary": "BTSP session crypto (Phase 3) not wired"},
+      {"id": "GAP-GS-011", "primal": "barracuda", "severity": "low", "status": "deferred", "summary": "PRNG rebaseline (xorshift64 → xoshiro128**)"}
+    ],
+    "resolved_gaps": [
+      {"id": "GAP-GS-004", "resolution": "Niche YAML synced 8→16 capabilities", "date": "2026-04-27"},
+      {"id": "GAP-GS-005", "resolution": "Deploy graph verbs reconciled to IPC contracts", "date": "2026-04-27"},
+      {"id": "GAP-GS-007", "resolution": "barraCuda version refs updated to v0.3.12", "date": "2026-04-27"},
+      {"id": "GAP-GS-010", "resolution": "compute_capabilities() fixed to compute.capabilities", "date": "2026-04-27"}
+    ]
+  },
+  "tolerance_system": {
+    "library_tiers": 13,
+    "epsilon_guards": 5,
+    "validation_specific": 25,
+    "upstream_contract_pins": 6,
+    "all_named_with_provenance": true,
+    "bare_float_literals": 0
+  }
+}

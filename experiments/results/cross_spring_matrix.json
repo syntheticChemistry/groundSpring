@@ -1,0 +1,70 @@
+{
+  "generated": "2026-05-07T13:00:00Z",
+  "spring": "groundSpring",
+  "version": "V124",
+  "primals_consumed": {
+    "beardog": {
+      "role": "security",
+      "capabilities_used": ["crypto.sign", "crypto.verify"],
+      "ipc_method": "JSON-RPC 2.0 over UDS",
+      "status": "validated"
+    },
+    "songbird": {
+      "role": "discovery",
+      "capabilities_used": ["discovery.find_primals", "discovery.query"],
+      "ipc_method": "JSON-RPC 2.0 over UDS",
+      "status": "validated"
+    },
+    "toadstool": {
+      "role": "compute",
+      "capabilities_used": ["compute.execute", "compute.submit"],
+      "ipc_method": "JSON-RPC 2.0 over UDS",
+      "status": "validated",
+      "note": "GPU dispatch for Lyapunov, Anderson, stats"
+    },
+    "nestgate": {
+      "role": "data + storage",
+      "capabilities_used": ["storage.put", "storage.get", "data.ncbi_search", "data.ncbi_fetch", "data.noaa_ghcnd", "data.iris_stations", "data.iris_events"],
+      "ipc_method": "HTTP API + JSON-RPC",
+      "status": "validated",
+      "note": "Live data pipelines for Exp 029-032"
+    },
+    "barracuda": {
+      "role": "math primitives",
+      "capabilities_used": ["stats", "spectral", "ops", "optimize", "numerical", "linalg", "esn_v2", "pipeline", "special"],
+      "ipc_method": "direct Rust crate import",
+      "status": "validated",
+      "delegations": 110,
+      "note": "67 CPU + 43 GPU delegations"
+    }
+  },
+  "primals_not_yet_consumed": {
+    "squirrel": {"reason": "AI additive, not required for measurement domain", "gap": "GAP-GS-001"},
+    "coralreef": {"reason": "Shader compiler API not stable", "gap": "GAP-GS-002"},
+    "biomeos": {"reason": "Orchestrator — groundSpring is a niche provider, not consumer", "note": "groundSpring registers capabilities with biomeOS"},
+    "petaltongue": {"reason": "Visualization — no active interaction yet"},
+    "rhizocrypt": {"reason": "Provenance trio — implicit via capability routing"},
+    "loamspine": {"reason": "Provenance trio — implicit via capability routing"},
+    "sweetgrass": {"reason": "Provenance trio — attribution via contribution.recordDehydration"}
+  },
+  "cross_spring_flows": [
+    {"from": "groundSpring", "to": "airSpring", "capability": "uncertainty budget", "experiments": ["022", "024"]},
+    {"from": "groundSpring", "to": "wetSpring", "capability": "noise floor for bio sensing", "experiments": ["004", "006", "016", "023"]},
+    {"from": "groundSpring", "to": "hotSpring", "capability": "spectral validation + inverse problems", "experiments": ["008", "009", "019", "020", "021"]},
+    {"from": "groundSpring", "to": "neuralSpring", "capability": "regime classification + ESN validation", "experiments": ["015", "033"]},
+    {"from": "airSpring", "to": "groundSpring", "capability": "FAO-56 equations → ET0 propagation", "experiments": ["003", "035"]},
+    {"from": "wetSpring", "to": "groundSpring", "capability": "16S pipeline → rarefaction validation", "experiments": ["004", "023"]},
+    {"from": "hotSpring", "to": "groundSpring", "capability": "Bazavov QCD methods → inverse problems", "experiments": ["019", "020", "021"]}
+  ],
+  "ecosystem_contribution": {
+    "patterns_pioneered": [
+      "upstream contract tolerance pins (tol.rs)",
+      "provenance registry (29 baselines)",
+      "cast module (15 named cast helpers)",
+      "ValidationSink trait (stdout, null, ndjson)",
+      "validate_all meta-runner with exit-code protocol",
+      "zero-#[allow] discipline (#[expect(reason)])",
+      "capability-based discovery (zero hardcoded addresses)"
+    ]
+  }
+}

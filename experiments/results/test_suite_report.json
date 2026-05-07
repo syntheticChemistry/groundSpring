@@ -1,0 +1,61 @@
+{
+  "generated": "2026-05-07T13:00:00Z",
+  "spring": "groundSpring",
+  "version": "V124",
+  "total_tests": 965,
+  "total_failed": 0,
+  "total_ignored": 0,
+  "suite_time_seconds": 146.0,
+  "crates": {
+    "groundspring": {"tests": 611, "time_s": 22.5},
+    "groundspring-validate": {"tests": 138, "time_s": 0.2},
+    "groundspring-forge": {"tests": 30, "time_s": 0.0}
+  },
+  "key_categories": {
+    "library_unit": 611,
+    "validation_integration": 138,
+    "forge_hardware": 30,
+    "validator_exit_codes": 29,
+    "doctests": 11,
+    "validation_binaries": 34,
+    "three_tier_parity": 41,
+    "biomeos_nucleus": 28,
+    "metalforge_gpu": 24,
+    "provenance": 13,
+    "other": 6
+  },
+  "modules": {
+    "stats": 89,
+    "anderson": 52,
+    "decompose": 38,
+    "fao56": 47,
+    "bootstrap": 31,
+    "rarefaction": 29,
+    "prng": 25,
+    "gillespie": 22,
+    "seismic": 18,
+    "drift": 17,
+    "bistable": 16,
+    "tissue_anderson": 15,
+    "quasispecies": 14,
+    "freeze_out": 24,
+    "spectral_recon": 19,
+    "band_structure": 12,
+    "transport": 11,
+    "jackknife": 10,
+    "wdm": 9,
+    "biomeos": 28,
+    "niche": 8,
+    "dispatch": 24,
+    "forge": 30,
+    "other": 37
+  },
+  "quality": {
+    "clippy_warnings": 0,
+    "unsafe_blocks": 0,
+    "allow_attributes": 0,
+    "todo_fixme": 0,
+    "library_coverage_pct": 92,
+    "python_provenance_tests": 287
+  }
+}

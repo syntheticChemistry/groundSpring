@@ -1,0 +1,53 @@
+{
+  "generated": "2026-05-07T13:00:00Z",
+  "spring": "groundSpring",
+  "version": "V124",
+  "rust_vs_python": {
+    "overall_speedup": "5.1x",
+    "excl_lapack_speedup": "11.6x",
+    "benchmarked_experiments": 28,
+    "highlights": [
+      {"experiment": "009 Almost-Mathieu", "speedup": "49.5x", "note": "Sturm tridiag vs scipy.linalg.eigvalsh_tridiagonal"},
+      {"experiment": "011 Multi-Signal QS", "speedup": "46.2x", "note": "Vectorized ODE integration"},
+      {"experiment": "006 Signal Specificity", "speedup": "30.5x", "note": "Gillespie SSA with PRNG"},
+      {"experiment": "008 Anderson Localization", "speedup": "29.9x", "note": "Transfer matrix product"},
+      {"experiment": "018 Band Edge", "speedup": "22.4x", "note": "Hamiltonian construction + eigenvalue solve"},
+      {"experiment": "010 Bistable Switching", "speedup": "18.5x", "note": "Batch ODE with Wright-Fisher"}
+    ]
+  },
+  "three_mode_benchmark": {
+    "default_features": {"time_s": 20.4, "tests": 611},
+    "barracuda_cpu": {"time_s": 14.8, "tests": 678},
+    "barracuda_gpu": {"time_s": 9.2, "tests": 719, "speedup_vs_default": "2.2x"}
+  },
+  "barracuda_delegations": {
+    "total": 110,
+    "cpu": 67,
+    "gpu": 43,
+    "modules": {
+      "stats": {"cpu": 28, "gpu": 8},
+      "spectral": {"cpu": 12, "gpu": 8},
+      "ops": {"cpu": 10, "gpu": 18},
+      "optimize": {"cpu": 4, "gpu": 3},
+      "numerical": {"cpu": 3, "gpu": 1},
+      "linalg": {"cpu": 4, "gpu": 2},
+      "esn_v2": {"cpu": 2, "gpu": 2},
+      "pipeline": {"cpu": 2, "gpu": 0},
+      "special": {"cpu": 2, "gpu": 1}
+    }
+  },
+  "metalforge": {
+    "total_checks": 140,
+    "substrates": ["RTX 4070", "Titan V", "AKD1000 NPU", "CPU (Zen 4)", "CPU (Intel 12th)"],
+    "workloads": 30,
+    "gpu_workloads": 24,
+    "npu_workloads": 2,
+    "cpu_workloads": 2,
+    "mixed_workloads": 2
+  },
+  "compilation": {
+    "cargo_check_workspace_s": 9.5,
+    "cargo_clippy_workspace_s": 1.4,
+    "cargo_test_workspace_s": 146.0
+  }
+}

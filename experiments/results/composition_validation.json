@@ -1,0 +1,86 @@
+{
+  "generated": "2026-05-07T13:00:00Z",
+  "spring": "groundSpring",
+  "version": "V124",
+  "guidestone_level": 3,
+  "graphs": {
+    "count": 6,
+    "names": [
+      "groundspring_deploy",
+      "groundspring_nucleus_node",
+      "groundspring_nucleus_local",
+      "groundspring_tower_bootstrap",
+      "groundspring_validation",
+      "groundspring_cross_substrate"
+    ],
+    "total_nodes": 38,
+    "avg_nodes_per_graph": 6.3
+  },
+  "capabilities_provided": {
+    "count": 16,
+    "names": [
+      "measurement.noise_decomposition",
+      "measurement.anderson_validation",
+      "measurement.parity_check",
+      "measurement.et0_propagation",
+      "measurement.regime_classification",
+      "measurement.uncertainty_budget",
+      "measurement.spectral_features",
+      "measurement.freeze_out",
+      "measurement.bootstrap",
+      "measurement.rarefaction",
+      "measurement.drift",
+      "measurement.band_edge",
+      "measurement.rare_biosphere",
+      "measurement.gillespie",
+      "measurement.bistable",
+      "measurement.quasispecies"
+    ],
+    "health_capabilities": ["health.liveness", "health.readiness"],
+    "synced_across": ["niche.rs", "niche YAML", "deploy graph", "tower bootstrap"]
+  },
+  "capabilities_consumed": {
+    "count": 14,
+    "names": [
+      "crypto.sign", "crypto.verify",
+      "discovery.find_primals", "discovery.query",
+      "compute.execute", "compute.submit",
+      "storage.put", "storage.get",
+      "data.ncbi_search", "data.ncbi_fetch",
+      "data.noaa_ghcnd",
+      "data.iris_stations", "data.iris_events"
+    ]
+  },
+  "primals_in_composition": {
+    "required": ["beardog", "songbird", "groundspring"],
+    "optional": ["toadstool", "nestgate"]
+  },
+  "guidestone": {
+    "level": 3,
+    "bare_properties": [
+      "deterministic_output",
+      "reference_traceable",
+      "self_verifying_blake3",
+      "environment_agnostic",
+      "tolerance_documented"
+    ],
+    "nucleus_additive_checks": [
+      "scalar_parity",
+      "vector_parity",
+      "decomposition_e2e",
+      "storage_roundtrip",
+      "crypto_witness",
+      "compute_dispatch"
+    ]
+  },
+  "deploy_graph_verbs_reconciled": {
+    "fixed_count": 4,
+    "fixes": [
+      {"old": "measurement.validate_suite", "new": "measurement.parity_check"},
+      {"old": "measurement.parity_report", "new": "measurement.uncertainty_budget"},
+      {"old": "storage.store", "new": "storage.put"},
+      {"old": "registry.register", "new": "capability.register"}
+    ]
+  },
+  "validation": "ALL PASS"
+}
