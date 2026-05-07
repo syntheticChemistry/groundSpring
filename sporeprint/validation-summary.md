@@ -71,12 +71,19 @@ Publication-grade Python baselines — each experiment as a live, executable not
 | 028 | NPU Anderson | Neuromorphic | metalForge |
 | 029 | Multi-Method ET₀ | Hydrology | airSpring cross |
 
-## Workload TOMLs
+## Workload TOMLs (foundation)
 
-Not yet created — contribute to `projectNUCLEUS/workloads/groundspring/`.
+4 workloads registered in `gardens/foundation/workloads/groundspring/`:
+
+| Workload | Purpose |
+|----------|---------|
+| `gs-validate-all` | Run all 29 Rust validators |
+| `gs-guidestone` | Run guideStone Level 3 check |
+| `gs-bench-gpu` | Three-mode GPU benchmark |
+| `gs-python-baselines` | Execute 29 Python baselines for provenance |
 
 ## See Also
 
-- [Spring Catalog](https://primals.eco/architecture/spring-catalog-status-science-and-evolution/) on primals.eco
+- [Spring Catalog](https://primals.eco/architecture/SPRING_CATALOG.md) on primals.eco
 - [Lab Notebooks](https://primals.eco/lab/notebooks/) for rendered notebook views
 - All baseCamp papers (groundSpring contributes uncertainty to all)

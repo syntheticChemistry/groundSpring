@@ -324,6 +324,9 @@ def build_notebook(exp_id: int, dir_name: str, script_name: str,
             for line in block.split("\n"):
                 if line.startswith("# -"):
                     continue
+                if "Path(__file__)" in line:
+                    var = line.split("=")[0].strip()
+                    line = f"{var} = Path('..')"
                 func_lines.append(line)
             code = "\n".join(func_lines).strip()
             if code and "def " in code:
@@ -342,24 +345,39 @@ def build_notebook(exp_id: int, dir_name: str, script_name: str,
     main_body = strip_main_wrapper(source)
     parts = extract_main_parts(source)
 
+    SKIP_PATTERNS = [
+        "Path(__file__)", "benchmark_path", "json.load(f)",
+        "reset_counters()", 'with open(benchmark_path',
+        '= json.load(', 'print("="', "print('='",
+        "print(f\"{'='", "if __name__",
+    ]
+
     if parts:
+        prev_name = None
         for part_name, part_code in parts:
-            part_code = part_code.strip()
-            if not part_code:
+            if part_name == prev_name:
                 continue
             lines = part_code.split("\n")
             code_lines = []
             for line in lines:
+                if any(pat in line for pat in SKIP_PATTERNS):
+                    continue
                 if "return print_summary" in line:
-                    code_lines.append(f"# Results: {{pass_count()}}/{{total_count()}} checks passed")
-                    code_lines.append("print_summary" + line.split("print_summary")[1])
+                    indent = " " * (len(line) - len(line.lstrip()))
+                    code_lines.append(f"{indent}# Results: {{pass_count()}}/{{total_count()}} checks passed")
+                    code_lines.append(indent + "print_summary" + line.split("print_summary")[1])
+                    continue
+                if "sys.exit(main())" in line:
                     continue
                 code_lines.append(line)
 
-            cleaned_code = "\n".join(code_lines).strip()
-            if cleaned_code:
-                cells.append(make_md_cell(f"### {part_name}"))
-                cells.append(make_code_cell(textwrap.dedent(cleaned_code)))
+            dedented = textwrap.dedent("\n".join(code_lines))
+            cleaned_code = dedented.strip()
+            if not cleaned_code or len(cleaned_code) < 10:
+                continue
+            prev_name = part_name
+            cells.append(make_md_cell(f"### {part_name}"))
+            cells.append(make_code_cell(cleaned_code))
     else:
         cells.append(make_code_cell("reset_counters()\n\n" + main_body))
 
