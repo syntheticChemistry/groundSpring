@@ -25,7 +25,7 @@ springs = ["groundspring", "hotspring", "wetspring", "neuralspring", "airspring"
 - `validate_all` — meta-runner for all 29 Python-parity validators (exit-code protocol)
 - `bench_gpu_vs_kokkos` — three-mode GPU benchmark (default → barraCuda CPU → GPU)
 
-## Notebooks (5)
+## sporePrint Notebooks (5)
 
 | # | Notebook | Focus |
 |---|----------|-------|
@@ -34,6 +34,42 @@ springs = ["groundspring", "hotspring", "wetspring", "neuralspring", "airspring"
 | 03 | Ecosystem Evidence | 35 experiments, domain distribution, gap resolution, security |
 | 04 | Cross-Spring Connections | Primal consumption matrix, ecosystem flows, patterns pioneered |
 | 05 | Measurement Science Deep Dive | Five pillars, tolerance architecture, Anderson localization thread |
+
+## Baseline Notebooks (29)
+
+Publication-grade Python baselines — each experiment as a live, executable notebook.
+
+| # | Notebook | Domain | Faculty |
+|---|----------|--------|---------|
+| 001 | Sensor Noise Characterization | Measurement | Dong et al. |
+| 002 | Observation Gap Analysis | Measurement | — |
+| 003 | Error Propagation FAO-56 | Hydrology | Allen et al. |
+| 004 | Sequencing Noise | Genomics | — |
+| 005 | Seismic Wave Propagation | Geophysics | — |
+| 006 | Signal Specificity (QS) | Biochemistry | Waters (MSU) |
+| 007 | RAWR Bootstrap | Statistics | Liu (MSU) |
+| 008 | Anderson Localization | Condensed Matter | Kachkovskiy (MSU) |
+| 009 | Almost-Mathieu | Condensed Matter | Kachkovskiy (MSU) |
+| 010 | Bistable Switching | Biochemistry | Waters (MSU) |
+| 011 | Multi-Signal QS | Biochemistry | Waters (MSU) |
+| 012 | Spin Chain Transport | Condensed Matter | Kachkovskiy / Gonzales |
+| 013 | Resampling Convergence | Statistics | — |
+| 014 | Drift vs Selection | Population Genetics | R. Anderson (Carleton) |
+| 015 | Uncertainty Bridge | Cross-Domain | — |
+| 016 | Rare Biosphere | Genomics | R. Anderson (Carleton) |
+| 017 | Quasispecies Threshold | Evolutionary Biology | Dolson (MSU) |
+| 018 | Band Edge Structure | Condensed Matter | Kachkovskiy (MSU) |
+| 019 | Jackknife Estimation | Statistics | Bazavov (MSU) |
+| 020 | Freeze-Out Inverse | Lattice QCD | Bazavov (MSU) |
+| 021 | Spectral Reconstruction | Lattice QCD | Bazavov (MSU) |
+| 022 | ET₀-Anderson Propagation | Hydrology | airSpring cross |
+| 023 | No-Till 16S Sampling | Soil Science | wetSpring cross |
+| 024 | Aggregate Stability | Soil Science | airSpring cross |
+| 025 | f32/f64 Precision Drift | Numerical Methods | WDM |
+| 026 | System-Size Convergence | Numerical Methods | WDM |
+| 027 | GPU Vendor Parity | GPU Validation | WDM |
+| 028 | NPU Anderson | Neuromorphic | metalForge |
+| 029 | Multi-Method ET₀ | Hydrology | airSpring cross |
 
 ## Workload TOMLs
 
