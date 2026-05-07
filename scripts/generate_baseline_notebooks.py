@@ -282,8 +282,6 @@ def build_notebook(exp_id: int, dir_name: str, script_name: str,
         for si in scipy_imports:
             import_code += f"{si}\n"
 
-    import_code += "import matplotlib\n"
-    import_code += "matplotlib.use('Agg')\n"
     import_code += "import matplotlib.pyplot as plt\n\n"
 
     import_code += f"# Wire path to groundSpring control/ for common utilities\n"
