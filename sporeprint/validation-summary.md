@@ -84,6 +84,6 @@ Publication-grade Python baselines — each experiment as a live, executable not
 
 ## See Also
 
-- [Spring Catalog](https://primals.eco/architecture/SPRING_CATALOG.md) on primals.eco
+- [Spring Catalog](https://primals.eco/architecture/spring-catalog/) on primals.eco
 - [Lab Notebooks](https://primals.eco/lab/notebooks/) for rendered notebook views
 - All baseCamp papers (groundSpring contributes uncertainty to all)
