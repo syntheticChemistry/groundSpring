@@ -251,3 +251,19 @@ fn discover_ipc_socket() -> Option<std::path::PathBuf> {
 
     None
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tarpc_sock_name_contains_suffix() {
+        let name = tarpc_sock_name();
+        assert!(name.ends_with(TARPC_SOCK_SUFFIX));
+    }
+
+    #[test]
+    fn discover_socket_does_not_panic() {
+        let _ = discover_ipc_socket();
+    }
+}

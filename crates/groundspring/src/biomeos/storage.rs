@@ -42,3 +42,20 @@ pub fn storage_get(socket: &Path, key: &str) -> Result<String> {
     });
     capability_call_value(socket, "storage.get", &args)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn storage_put_on_nonexistent_socket_fails() {
+        let path = std::path::Path::new("/tmp/nonexistent_groundspring_test.sock");
+        assert!(storage_put(path, "key", "value").is_err());
+    }
+
+    #[test]
+    fn storage_get_on_nonexistent_socket_fails() {
+        let path = std::path::Path::new("/tmp/nonexistent_groundspring_test.sock");
+        assert!(storage_get(path, "key").is_err());
+    }
+}

@@ -65,7 +65,7 @@ fn nestgate_url() -> Result<String, String> {
     if let Ok(contents) = std::fs::read_to_string(&registry)
         && let Some(addr) = contents
             .lines()
-            .find(|l| l.contains("nestgate"))
+            .find(|l| l.contains(groundspring::primal_names::roles::STORAGE))
             .and_then(|l| l.split('"').nth(3))
         && !addr.is_empty()
     {

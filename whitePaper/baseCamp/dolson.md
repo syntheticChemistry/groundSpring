@@ -70,7 +70,7 @@ Python baseline (Exp 017)
 
 ### V116 Capabilities
 
-- Test count: 990+; zero `Result<_, String>` in dispatch layer
+- Test count: 965+; zero `Result<_, String>` in dispatch layer
 - ValidationSink trait for structured validation output
 
 ### V114 Capabilities

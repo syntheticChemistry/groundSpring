@@ -8,15 +8,15 @@
 **Total**: 395/395 validation checks across 35 experiments, 10 domains. 965+ Rust tests + 287 Python provenance tests + 29 validator exit-code integration tests.
 **Core**: 340/340 checks across 29 experiments (no feature flags).
 **NUCLEUS**: 55 checks across 4 experiments (Exp 029–032, `--features biomeos`).
-**guideStone**: Level 3 (bare scaffold + IPC wiring) — `groundspring_guidestone` binary with 5 bare properties + 6 NUCLEUS additive IPC parity checks.
+**guideStone**: Level 4 (bare + NUCLEUS composition parity) — `groundspring_guidestone` binary with 5 bare properties + 6 NUCLEUS additive IPC parity checks + 2 composition experiment crates.
 **Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across 28 benchmarked experiments.
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **Coverage**: ≥92% library line coverage (`cargo llvm-cov --workspace --lib`). Zero clippy warnings (pedantic + nursery, -D warnings). Zero unsafe. Zero TODO/FIXME. All files < 1000 lines. Zero panicking public APIs — all library entry points return `Result`. Zero unwrap/expect in production code.
-**barraCuda**: 110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.12, toadStool S158+, coralReef Iteration 55+. `PrecisionRoutingAdvice` wired into 21 GPU dispatch paths. `DeviceCapabilities` adopted (V120).
+**barraCuda**: 110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+. `PrecisionRoutingAdvice` wired into 21 GPU dispatch paths. `DeviceCapabilities` adopted (V120).
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) with sovereign fallback. guideStone L3 wired via `primalspring` composition API with BLAKE3 checksums + IPC parity framework.
 **Modules**: 41 (including `esn`, `lanczos`, `linalg`, `error`, `jackknife`, `freeze_out`, `spectral_recon`, `wdm`, `npu`, `biomeos`, `nestgate`, `drift`, `tissue_anderson`, `niche`, `primal_names`, `ipc`, `rawr`).
 **metalForge**: 30 workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed), 140 metalForge checks, 5+ substrates, architecture-aware routing, `PCIe` topology, GPU→NPU PCIe bypass, pipeline dispatch, NUCLEUS atomics.
-**Baseline integrity**: All 29 benchmark JSONs verified — provenance fields (including `python_version`, `numpy_version`), hex commit hashes, UTF-8. Python CI coverage enforced at 80%.
+**Baseline integrity**: All 29 benchmark JSONs verified — provenance fields (including `python_version`, `numpy_version`), hex commit hashes, UTF-8. Python CI coverage enforced at 90%.
 
 ## Experiment Index
 

@@ -6,8 +6,8 @@
 [![Rust](https://img.shields.io/badge/rust-2024_edition-orange.svg)](https://www.rust-lang.org/)
 [![ecoBin](https://img.shields.io/badge/ecoBin-compliant-green.svg)](https://github.com/ecoPrimals/wateringHole/blob/main/ECOBIN_ARCHITECTURE_STANDARD.md)
 
-**Date**: April 27, 2026 | **License**: AGPL-3.0-or-later | **MSRV**: Rust 1.87 (2024 edition)
-**Status**: V124 — 41 modules, 35 experiments, 965+ tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks + 29 validator exit-code integration tests, 110 active barraCuda delegations (67 CPU + 43 GPU) — synced against barraCuda v0.3.12, toadStool S158+, coralReef Iteration 55+. Three-tier parity proven: 29/29 validation binaries PASS at all three tiers. **guideStone Level 3** (bare scaffold + IPC wiring) — `groundspring_guidestone` binary with 5 bare properties + 6 NUCLEUS additive IPC parity checks via `primalspring` composition API. 16 measurement capabilities synced across `niche.rs`, niche YAML, deploy graphs, and tower bootstrap registration. All deploy graph verbs reconciled to actual IPC contracts. `cargo deny check` PASS, `cargo clippy --workspace` zero warnings (pedantic+nursery), ≥92% library line coverage, `cargo doc -D warnings` clean. Zero hardcoded primal addresses — all discovery is capability-based at runtime. Zero production mocks — all test doubles behind `#[cfg(test)]`.
+**Date**: May 8, 2026 | **License**: AGPL-3.0-or-later | **MSRV**: Rust 1.87 (2024 edition)
+**Status**: V125 — 41 modules, 35 experiments, 965+ tests, 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks + 29 validator exit-code integration tests, 110 active barraCuda delegations (67 CPU + 43 GPU) — synced against barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+. Three-tier parity proven: 29/29 validation binaries PASS at all three tiers. **guideStone Level 4** (bare + NUCLEUS composition parity) — `groundspring_guidestone` binary with 5 bare properties + 6 NUCLEUS additive IPC parity checks via `primalspring` composition API. 2 composition experiment crates (exp094, exp095). 16 measurement capabilities synced across `niche.rs`, niche YAML, deploy graphs, and tower bootstrap registration. All deploy graph verbs reconciled to actual IPC contracts. `cargo deny check` PASS, `cargo clippy --workspace` zero warnings (pedantic+nursery), ≥92% library line coverage, `cargo doc -D warnings` clean. Zero hardcoded primal addresses — all discovery is capability-based at runtime. Zero production mocks — all test doubles behind `#[cfg(test)]`. 6 deploy graphs, 34 notebooks (5 sporePrint + 29 baselines).
 
 **The gap between what models predict and what instruments measure.**
 
@@ -68,9 +68,9 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | 031: NUCLEUS Stack | Infrastructure | — | 28/28 PASS | Full NUCLEUS primal validation: Tower + Node + Squirrel + Nest |
 | 032: IRIS Seismic | Geological (IRIS) | — | 12/12 PASS | IRIS FDSN station geometry + travel times via NestGate |
 | 033: Tissue Anderson | Immunological (Paper 12) | — | 29/29 PASS | Cytokine Anderson lattice + geometry-aware drug scoring |
-| 034: ET₀ Methods | Agricultural (FAO-56) | 15/15 PASS | 19/19 PASS | 5-method ET₀ cross-validation: PM, Hargreaves, Makkink, Turc, Hamon |
+| 035: ET₀ Methods | Agricultural (FAO-56) | 15/15 PASS | 19/19 PASS | 5-method ET₀ cross-validation: PM, Hargreaves, Makkink, Turc, Hamon |
 
-**Phase 1 total: 395/395 PASS across 34 validation binaries** (340 core + 55 NUCLEUS via `--features biomeos`). All public APIs return `Result` — zero panicking entry points.
+**Phase 1 total: 395/395 PASS across 35 validation binaries** (340 core + 55 NUCLEUS via `--features biomeos`). All public APIs return `Result` — zero panicking entry points.
 
 ## Library Modules
 
@@ -437,9 +437,11 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 | V115 | Mar 18 | Zero panicking APIs, ecoBin compliance, 930+ tests |
 | V118 | Mar 19 | RPC expansion (16 caps), 110 delegations, 960+ tests |
 | V119 | Mar 22 | Deep audit + cross-ecosystem absorption, 990+ tests, ≥92% coverage |
-| V123 | Mar 24 | Cross-ecosystem absorption + provenance, 1020+ tests, 41 modules |
 | V120 | Mar 23 | Deep audit execution: dispatch refactored, forbid(unsafe_code) on 50 binaries, DeviceCapabilities |
 | V121 | Mar 23 | Deep debt + ecosystem absorption: tolerance centralization, provenance hardening, MSRV 1.87 |
 | V122 | Mar 24 | Cast evolution + module extraction: lib.rs 607→182, validate/lib.rs 769→226, 20+ bare casts→named helpers |
+| V123 | Mar 24 | Cross-ecosystem absorption + provenance, 1020+ tests, 41 modules |
+| V124 | Apr 27 | guideStone L3, 16 caps synced, 6 deploy graphs, deep debt + tolerance hardening, 965+ tests |
+| V125 | May 8 | guideStone L4, deep debt evolution, tolerance unification, 29 new test modules, composition crates, sporePrint notebooks |
 
 Part of [ecoPrimals](https://github.com/syntheticChemistry) · [wateringHole](https://github.com/ecoPrimals/wateringHole) · AGPL-3.0-or-later

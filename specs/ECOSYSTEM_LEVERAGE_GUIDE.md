@@ -2,7 +2,7 @@
 
 > How groundSpring absorbs from and contributes to the ecoPrimals ecosystem.
 >
-> **Last updated**: March 23, 2026 (V123 — 110 delegations, 1020+ tests, barraCuda v0.3.7)
+> **Last updated**: May 8, 2026 (V125 — 110 delegations, 965+ tests, barraCuda v0.3.13, guideStone L4)
 
 ## Leverage Philosophy
 

@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# ARCHIVE NOTE (V125, May 8 2026): One-off generator that created the initial
+# notebooks/baselines/ set. Not wired into CI. Retained as fossil record.
+#
 """Generate publication-grade Jupyter notebooks from groundSpring Python baselines.
 
 Reads each control/<experiment>/<script>.py and converts it into a structured

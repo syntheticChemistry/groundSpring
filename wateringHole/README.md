@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: April 27, 2026 (V124 — guideStone L3 + NUCLEUS composition)
+**Last Updated**: May 8, 2026 (V125 — guideStone L4, deep debt evolution, sporePrint notebooks)
 
 ## What This Is
 
@@ -18,6 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
+| V125 Deep Evolution L4 | [GROUNDSPRING_V125_DEEP_EVOLUTION_L4_HANDOFF_MAY08_2026.md](handoffs/GROUNDSPRING_V125_DEEP_EVOLUTION_L4_HANDOFF_MAY08_2026.md) | May 8, 2026 | guideStone Level 4 (bare + NUCLEUS composition parity), deep debt evolution (tolerance unification, tracing migration, platform guards, 29 new test modules), 2 composition crates, sporePrint notebooks, foundation/sporeGarden integration, barraCuda v0.3.13 |
 | V124 guideStone + Composition | [GROUNDSPRING_V124_GUIDESTONE_NUCLEUS_COMPOSITION_HANDOFF_APR27_2026.md](handoffs/GROUNDSPRING_V124_GUIDESTONE_NUCLEUS_COMPOSITION_HANDOFF_APR27_2026.md) | Apr 27, 2026 | guideStone Level 3 (5 bare properties + 6 NUCLEUS IPC checks), 16 capabilities synced, 4 deploy graph verbs fixed, composition patterns, `PRIMAL_GAPS.md` handback (7 active + 4 resolved), barraCuda v0.3.12, hardcoding elimination |
 | V124 Deep Debt + Tolerance | [GROUNDSPRING_V124_DEEP_DEBT_TOLERANCE_HANDOFF_MAR24_2026.md](handoffs/GROUNDSPRING_V124_DEEP_DEBT_TOLERANCE_HANDOFF_MAR24_2026.md) | Mar 24, 2026 | `eps` module public + `SAFE_DIV_STRICT`, named constants, NDJSON injection hardening, validate_all disambiguation, capability-based discovery, CI hardened, 29 integration tests, 5 clippy fixes — evolution items for barraCuda/toadStool/springs |
 | V123 All-Teams Handoff | [GROUNDSPRING_V123_ALL_TEAMS_EVOLUTION_ABSORPTION_HANDOFF_MAR24_2026.md](handoffs/GROUNDSPRING_V123_ALL_TEAMS_EVOLUTION_ABSORPTION_HANDOFF_MAR24_2026.md) | Mar 24, 2026 | Comprehensive handoff to all spring + primal teams: 110 delegation inventory, 12 absorption patterns, per-team recommendations, capability surface map, evolution gaps |

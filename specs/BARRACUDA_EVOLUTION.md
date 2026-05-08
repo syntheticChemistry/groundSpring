@@ -2,8 +2,8 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: March 24, 2026 (V124 — 110 delegations (67 CPU + 43 GPU), 1050+ tests,
-barraCuda v0.3.7, toadStool S158+, coralReef Iteration 55+. V121: smart refactoring (biomeos 631→232,
+**Last updated**: May 8, 2026 (V125 — 110 delegations (67 CPU + 43 GPU), 965+ tests,
+barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+. guideStone Level 4. V121: smart refactoring (biomeos 631→232,
 stats/agreement → directory), normalize_method(), 5-tier discovery, NdjsonSink, MSRV 1.87,
 workspace deny unwrap_used/expect_used, MCP capability_registry.toml, provenance trio lifecycle.
 V108: AGPL-3.0-or-later (SCYBORG trio), barracuda WelfordState CPU delegation for std_dev/mean_and_std_dev,
@@ -495,8 +495,8 @@ GPU and CPU paths produce bitwise-identical streams.
 4. **Update benchmark JSONs** — new expected values, new `baseline_commit`,
    new `baseline_date`, xoshiro128** noted in `prng_algorithm` field.
 5. **Verify 177/177 checks** — run full validation suite.
-6. **Remove old baselines** — archive xorshift64 baselines in
-   `control/archive/xorshift64/` for fossil record.
+6. **Remove old baselines** — archive xorshift64 baselines for fossil record
+   (note: `control/archive/` is not yet created; baselines remain in-place).
 
 ### Variance Semantics
 

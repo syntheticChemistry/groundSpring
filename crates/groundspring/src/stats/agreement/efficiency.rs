@@ -74,3 +74,36 @@ pub fn r_squared(observed: &[f64], modeled: &[f64]) -> f64 {
     #[cfg(not(feature = "barracuda"))]
     coefficient_of_efficiency(observed, modeled)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn nse_perfect() {
+        let obs = [1.0, 2.0, 3.0];
+        assert!((nash_sutcliffe(&obs, &obs) - 1.0).abs() < crate::tol::EXACT);
+    }
+
+    #[test]
+    fn r_squared_perfect() {
+        let obs = [10.0, 20.0, 30.0];
+        assert!((r_squared(&obs, &obs) - 1.0).abs() < crate::tol::EXACT);
+    }
+
+    #[test]
+    fn nse_mean_model_is_zero() {
+        let obs = [1.0, 2.0, 3.0];
+        let mean = [2.0, 2.0, 2.0];
+        assert!(nash_sutcliffe(&obs, &mean).abs() < crate::tol::EXACT);
+    }
+
+    #[test]
+    fn nse_and_r2_are_identical() {
+        let obs = [1.0, 3.0, 5.0, 7.0];
+        let model = [1.2, 2.8, 5.1, 6.9];
+        let nse = nash_sutcliffe(&obs, &model);
+        let r2 = r_squared(&obs, &model);
+        assert!((nse - r2).abs() < crate::tol::EXACT);
+    }
+}

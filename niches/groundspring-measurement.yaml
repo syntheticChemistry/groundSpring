@@ -64,9 +64,8 @@ organisms:
       required: true
       role: "security"
       capabilities:
-        - "crypto.encrypt"
         - "crypto.sign"
-        - "identity.verify"
+        - "crypto.verify"
 
     songbird:
       type: "songbird"
@@ -198,6 +197,54 @@ cost_estimates:
     estimated_ms: 100
     gpu_beneficial: true
     peak_memory_mb: 128
+    deterministic: true
+
+  - capability: "measurement.bootstrap"
+    estimated_ms: 15
+    gpu_beneficial: true
+    peak_memory_mb: 4
+    deterministic: false
+
+  - capability: "measurement.rarefaction"
+    estimated_ms: 20
+    gpu_beneficial: true
+    peak_memory_mb: 8
+    deterministic: false
+
+  - capability: "measurement.drift"
+    estimated_ms: 10
+    gpu_beneficial: false
+    peak_memory_mb: 2
+    deterministic: true
+
+  - capability: "measurement.band_edge"
+    estimated_ms: 40
+    gpu_beneficial: true
+    peak_memory_mb: 32
+    deterministic: true
+
+  - capability: "measurement.rare_biosphere"
+    estimated_ms: 25
+    gpu_beneficial: true
+    peak_memory_mb: 16
+    deterministic: false
+
+  - capability: "measurement.gillespie"
+    estimated_ms: 50
+    gpu_beneficial: true
+    peak_memory_mb: 16
+    deterministic: false
+
+  - capability: "measurement.bistable"
+    estimated_ms: 30
+    gpu_beneficial: true
+    peak_memory_mb: 8
+    deterministic: false
+
+  - capability: "measurement.quasispecies"
+    estimated_ms: 20
+    gpu_beneficial: false
+    peak_memory_mb: 4
     deterministic: true
 
 resources:

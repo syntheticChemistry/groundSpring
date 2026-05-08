@@ -16,7 +16,7 @@ coordination = "Sequential"
 [graph.metadata]
 toadstool_pin = "S158+"
 toadstool_commit = "bfe7977b"
-groundspring_version = "V124"
+groundspring_version = "V125"
 target_node = "eastgate"
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -166,7 +166,7 @@ name = "capability_call"
 
 [nodes.operation.params]
 capability = "provenance.session_create"
-params = { agent = "groundspring", experiment_id = "${EXPERIMENT_ID}", version = "V123", family_id = "groundspring" }
+params = { agent = "groundspring", experiment_id = "${EXPERIMENT_ID}", version = "V125", family_id = "groundspring" }
 
 [nodes.constraints]
 timeout_ms = 10000

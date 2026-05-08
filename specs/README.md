@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
-**Last Updated**: March 24, 2026
-**Status**: V124 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 110 delegations (67 CPU + 43 GPU) — 1050+ Rust tests, 287 Python tests, 140 metalForge checks, 29 validator exit-code integration tests, 35 experiments, 41 modules. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). barraCuda v0.3.7. `eps` module public with 5 guards (incl. `SAFE_DIV_STRICT`). V124: deep debt resolution + tolerance hardening (named constants, NDJSON injection fix, validate_all disambiguation, capability-based discovery, CI hardened). V123: cross-ecosystem absorption + provenance. V122: cast evolution + module extraction. V121: deep debt + ecosystem absorption
+**Last Updated**: May 8, 2026
+**Status**: V125 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 110 delegations (67 CPU + 43 GPU) — 965+ Rust tests, 287 Python tests, 140 metalForge checks, 29 validator exit-code integration tests, 35 experiments, 41 modules. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). barraCuda v0.3.13. guideStone Level 4 (bare + NUCLEUS composition parity). `eps` module public with 5 guards (incl. `SAFE_DIV_STRICT`). V125: deep debt evolution + L4 + sporePrint notebooks. V124: deep debt resolution + tolerance hardening. V123: cross-ecosystem absorption + provenance. V122: cast evolution + module extraction. V121: deep debt + ecosystem absorption
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -11,11 +11,11 @@
 | Metric | Value |
 |--------|-------|
 | Phase 0 (Python) | 29/29 experiments PASS across 9 scientific domains (~290 checks) |
-| Phase 1 (Rust) | 395/395 PASS — 34 validation binaries (340 core + 55 NUCLEUS) |
+| Phase 1 (Rust) | 395/395 PASS — 35 validation binaries (340 core + 55 NUCLEUS) |
 | Phase 4 (NUCLEUS) | 55/55 PASS — 4 NUCLEUS validation binaries (Exp 029–032) |
 | Total Validation | 395/395 PASS across 35 experiments (34 binaries; Exp 034 combined with 033) |
 | Mathematical Parity | 29/29 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
-| Rust tests | 1020+ default-feature + 287 Python = 1277+ total |
+| Rust tests | 965+ across all feature gates + 287 Python |
 | metalForge | 2 production WGSL shaders (anderson_lyapunov, anderson_lyapunov_f32) |
 | Exp 001 | Sensor noise decomposition — EC5 bias-dominated, CS616 mixed |
 | Exp 002 | Observation gap ERA5 vs station — methodology validated |

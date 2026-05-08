@@ -4,6 +4,33 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V125 guideStone Level 4 + Deep Debt Evolution (May 8, 2026)
+
+#### guideStone Level 4 — NUCLEUS Composition Parity
+- **Tolerance unification**: `metalForge` `ToleranceTier::relative_tolerance()` now
+  delegates to canonical `groundspring::tol` constants — single source of truth,
+  zero duplication drift (resolves GAP-GS-006)
+- **Logging standardization**: `metalForge/forge` migrated from `log` to `tracing`
+  crate (`probe.rs`, `nucleus.rs`), aligning with ecosystem observability
+- **Platform guards**: `#[cfg(target_os = "linux")]` on `/run/user/` UID enumeration
+  in `nucleus.rs`; `primal_names::roles::STORAGE` constant replaces literal
+  `"nestgate"` in `validate_nestgate_ncbi.rs`
+- **29 new `#[cfg(test)]` modules**: freeze_out (chi2, curve, grid, nelder_mead),
+  stats/agreement (5 files), dispatch (defaults, extract, lifecycle, measurement),
+  biomeos (registration, compute, health, storage, transport), eps, tol,
+  fao56/constants, fao56/pipeline, esn, gpu, ipc — 965+ total tests
+- **2 composition experiment crates**: `exp094_composition_parity` (Tower + Node +
+  Nest + cross-atomic pipeline), `exp095_measurement_niche` (measurement niche
+  validation)
+- **sporePrint notebooks**: 5 sporePrint + 29 baseline notebooks live on primals.eco
+- **Frozen validation data**: 6 JSON snapshots in `experiments/results/`
+- **Foundation integration**: Thread 7 Anderson targets, 4 sporeGarden workloads,
+  `foundation_validate.sh` expanded to scan spring-specific dirs
+- **Documentation**: `PRIMAL_GAPS.md` updated to L4 / May 2026, GAP-GS-006 resolved
+  (5 resolved, 6 remaining)
+- **Python tests**: Exp 033 + 035 added to `test_experiments.py`; Exp 029-032
+  stubbed as `skip(requires NUCLEUS)`
+
 ### V124 guideStone Level 3 + Deep Debt Cleanup (Apr 27, 2026)
 
 #### guideStone Level 3 — Bare Scaffold + IPC Wiring

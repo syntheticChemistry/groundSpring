@@ -386,3 +386,34 @@ pub(super) fn quasispecies(params: &Value) -> Result<Value, DispatchError> {
         "mu": mu,
     }))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn noise_decomposition_basic() {
+        let params = serde_json::json!({
+            "observed": [1.0, 2.0, 3.0, 4.0],
+            "modeled": [1.1, 2.0, 2.9, 4.1],
+        });
+        let result = noise_decomposition(&params).unwrap();
+        assert!(result["rmse"].as_f64().unwrap() > 0.0);
+    }
+
+    #[test]
+    fn noise_decomposition_length_mismatch() {
+        let params = serde_json::json!({
+            "observed": [1.0],
+            "modeled": [1.0, 2.0],
+        });
+        assert!(noise_decomposition(&params).is_err());
+    }
+
+    #[test]
+    fn quasispecies_basic() {
+        let params = serde_json::json!({"sigma": 2.0});
+        let result = quasispecies(&params).unwrap();
+        assert!(result["error_threshold"].as_f64().unwrap() > 0.0);
+    }
+}

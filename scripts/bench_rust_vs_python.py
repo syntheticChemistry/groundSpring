@@ -203,6 +203,27 @@ EXPERIMENTS = [
     },
 ]
 
+# ── Rust-only experiments (029-034) ──────────────────────────────────────
+#
+# Experiments 029-034 are NUCLEUS live-infrastructure validation experiments
+# that have no Python baseline by design. They validate NestGate data
+# acquisition, NCBI/GHCND/IRIS pipeline integration, and real-data Anderson
+# analysis. Benchmarking measures Rust binary timing only since the
+# experiments cannot meaningfully run in interpreted Python:
+#
+#   Exp 029: NestGate NCBI validation (live NUCLEUS + NestGate HTTP API)
+#   Exp 030: GHCND weather pipeline (live NUCLEUS + NOAA CDO)
+#   Exp 031: Anderson NCBI (live 16S data + Anderson analysis)
+#   Exp 032: IRIS seismic (live NUCLEUS + IRIS FDSN)
+#   Exp 033: Tissue Anderson (correlated 3D, synthetic — Rust-only)
+#   Exp 034: Barrier W_c finder (Anderson sweep — Rust-only)
+#
+# These are not included in the benchmark table because there is no
+# Python baseline to compare against. For Rust-only timing, run:
+#   cargo bench --workspace (captures criterion benchmarks)
+#   cargo test --release -p groundspring-validate (integration timing)
+
+
 
 def main() -> int:
     print("=" * 72)

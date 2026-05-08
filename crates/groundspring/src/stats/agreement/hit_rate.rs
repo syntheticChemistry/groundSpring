@@ -43,3 +43,34 @@ fn hit_rate_cpu(observed: &[f64], modeled: &[f64], threshold: f64) -> f64 {
         .count();
     usize_f64(agree) / usize_f64(n)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn perfect_agreement() {
+        let a = [1.0, 0.0, 2.0, 0.0];
+        let b = [1.5, 0.0, 3.0, 0.0];
+        assert!((hit_rate(&a, &b, 0.5) - 1.0).abs() < crate::tol::EXACT);
+    }
+
+    #[test]
+    fn no_agreement() {
+        let a = [1.0, 1.0];
+        let b = [0.0, 0.0];
+        assert_eq!(hit_rate(&a, &b, 0.5), 0.0);
+    }
+
+    #[test]
+    fn empty_slices() {
+        assert_eq!(hit_rate(&[], &[], 0.5), 0.0);
+    }
+
+    #[test]
+    fn half_agreement() {
+        let a = [1.0, 1.0, 0.0, 0.0];
+        let b = [1.0, 0.0, 0.0, 1.0];
+        assert!((hit_rate(&a, &b, 0.5) - 0.5).abs() < crate::tol::EXACT);
+    }
+}

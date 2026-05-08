@@ -74,3 +74,37 @@ pub(super) fn chi2_freeze_out(
         .map(|(&o, &mu)| (o - freeze_out_curve(t0, k2, mu)).powi(2) * inv_sigma2)
         .sum()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn curve_at_zero_mu_returns_t0() {
+        assert!((freeze_out_curve(158.0, 0.015, 0.0) - 158.0).abs() < crate::tol::EXACT);
+    }
+
+    #[test]
+    fn curve_decreases_with_mu() {
+        let t0 = 158.0;
+        let k2 = 0.015;
+        assert!(freeze_out_curve(t0, k2, 100.0) < freeze_out_curve(t0, k2, 50.0));
+    }
+
+    #[test]
+    fn chi_squared_perfect_is_zero() {
+        let obs = [1.0, 2.0, 3.0];
+        let pred = [1.0, 2.0, 3.0];
+        assert_eq!(chi_squared(&obs, &pred, 1.0).unwrap(), 0.0);
+    }
+
+    #[test]
+    fn chi_squared_length_mismatch() {
+        assert!(chi_squared(&[1.0], &[1.0, 2.0], 1.0).is_err());
+    }
+
+    #[test]
+    fn chi_squared_per_dof_divides_correctly() {
+        assert!((chi_squared_per_dof(10.0, 7, 2) - 2.0).abs() < crate::tol::EXACT);
+    }
+}

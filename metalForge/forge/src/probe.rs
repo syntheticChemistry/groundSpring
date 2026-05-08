@@ -130,11 +130,11 @@ pub fn probe_cpu() -> Substrate {
     #[cfg(target_os = "linux")]
     let (cpuinfo_content, meminfo_content) = (
         fs::read_to_string(PROCFS_CPUINFO).unwrap_or_else(|e| {
-            log::warn!("failed to read {PROCFS_CPUINFO}: {e}");
+            tracing::warn!("failed to read {PROCFS_CPUINFO}: {e}");
             String::new()
         }),
         fs::read_to_string(PROCFS_MEMINFO).unwrap_or_else(|e| {
-            log::warn!("failed to read {PROCFS_MEMINFO}: {e}");
+            tracing::warn!("failed to read {PROCFS_MEMINFO}: {e}");
             String::new()
         }),
     );

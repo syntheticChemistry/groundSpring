@@ -6,7 +6,7 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: March 24, 2026 (V124 — 110 active delegations (67 CPU + 43 GPU), barraCuda v0.3.7, toadStool S158+, coralReef Iteration 55+, 1137 tests, ≥92% library coverage, clippy pedantic+nursery clean. V121: deep audit execution — tolerance centralization, provenance hardening, MSRV 1.87, Edition 2024. V119: publish = false, cast parity. V96: PrecisionRoutingAdvice. V95: coralReef push buffer. V84: dual-GPU probe. V82: BootstrapMeanGpu dispatch)
+**Last updated**: May 8, 2026 (V125 — 110 active delegations (67 CPU + 43 GPU), barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+, 965+ tests, ≥92% library coverage, clippy pedantic+nursery clean. guideStone Level 4. V125: deep debt evolution, tolerance unification (forge delegates to groundspring::tol), tracing migration, platform guards. V124: guideStone L3, 16 caps synced. V121: tolerance centralization, MSRV 1.87, Edition 2024)
 
 ## Absorption Status Summary
 

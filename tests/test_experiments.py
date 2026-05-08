@@ -217,3 +217,37 @@ class TestExperimentExitCodes:
             CONTROL_DIR / "npu_anderson" / "npu_anderson.py"
         )
         assert result.returncode == 0, result.stdout + result.stderr
+
+    # ── NUCLEUS live-infrastructure experiments (029-032) ────────────
+    # These require a running NUCLEUS with NestGate, NOAA CDO, and IRIS
+    # FDSN endpoints. Stubbed as skip for CI documentation.
+
+    @pytest.mark.skip(reason="Requires live NUCLEUS with NestGate")
+    def test_exp029_nestgate_ncbi(self) -> None:
+        pass
+
+    @pytest.mark.skip(reason="Requires live NUCLEUS with NOAA CDO")
+    def test_exp030_ghcnd_weather(self) -> None:
+        pass
+
+    @pytest.mark.skip(reason="Requires live NUCLEUS with NestGate + NCBI")
+    def test_exp031_anderson_ncbi(self) -> None:
+        pass
+
+    @pytest.mark.skip(reason="Requires live NUCLEUS with IRIS FDSN")
+    def test_exp032_iris_seismic(self) -> None:
+        pass
+
+    # ── Synthetic experiments with Python baselines (033, 035) ──────
+
+    def test_exp033_tissue_anderson(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "tissue_anderson" / "tissue_anderson.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_exp035_et0_methods(self) -> None:
+        result = _run_experiment(
+            CONTROL_DIR / "et0_methods" / "et0_methods.py"
+        )
+        assert result.returncode == 0, result.stdout + result.stderr

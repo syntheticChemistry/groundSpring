@@ -34,3 +34,34 @@ pub const SAFE_DIV_STRICT: f64 = 1e-20;
 /// Used by [`crate::linalg`] QL iteration to detect near-zero off-diagonal
 /// elements that would cause division overflow in implicit shift computation.
 pub const UNDERFLOW: f64 = 1e-300;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn safe_div_prevents_nan() {
+        let result = 1.0 / 0.0_f64.max(SAFE_DIV);
+        assert!(result.is_finite());
+    }
+
+    #[test]
+    fn log_floor_prevents_log_nan() {
+        let p = 0.0_f64.max(LOG_FLOOR);
+        assert!(p.ln().is_finite());
+    }
+
+    #[test]
+    fn constants_are_positive() {
+        assert!(SAFE_DIV > 0.0);
+        assert!(SSA_FLOOR > 0.0);
+        assert!(LOG_FLOOR > 0.0);
+        assert!(SAFE_DIV_STRICT > 0.0);
+        assert!(UNDERFLOW > 0.0);
+    }
+
+    #[test]
+    fn strict_is_stricter_than_safe() {
+        assert!(SAFE_DIV_STRICT < SAFE_DIV);
+    }
+}

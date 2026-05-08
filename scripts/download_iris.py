@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2026 ecoPrimals / Squirrel Team
+#
+# ARCHIVE NOTE (V125, May 8 2026): This standalone download helper is no longer
+# used in the validation pipeline. IRIS data acquisition is now handled by
+# NestGate via validate_iris_seismic (Rust). Retained as fossil record.
+#
 """
 Download seismic data from IRIS Web Services.
 

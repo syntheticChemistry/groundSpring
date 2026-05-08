@@ -29,3 +29,20 @@ pub use monte_carlo::{Et0Uncertainties, McEt0Result, monte_carlo_et0};
 pub use seasonal::{
     SeasonalCellInputs, SeasonalOutput, SeasonalParams, seasonal_multi_day, seasonal_step,
 };
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn rh_clamp_bounds_are_physical() {
+        assert!(RH_MIN_FLOOR_PCT >= 0.0);
+        assert!(RH_MAX_CEIL_PCT <= 100.0);
+        assert!(RHMAX_FLOOR_PCT > RH_MIN_FLOOR_PCT);
+    }
+
+    #[test]
+    fn wind_speed_floor_is_positive() {
+        assert!(WIND_SPEED_FLOOR_KMH > 0.0);
+    }
+}

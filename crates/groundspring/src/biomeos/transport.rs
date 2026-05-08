@@ -117,3 +117,15 @@ where
 
     Ok(line)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn rpc_call_nonexistent_socket_returns_transport_error() {
+        let path = std::path::Path::new("/tmp/nonexistent_groundspring_test.sock");
+        let err = rpc_call(path, "{}").unwrap_err();
+        assert!(matches!(err, BiomeOsError::Transport(_)));
+    }
+}

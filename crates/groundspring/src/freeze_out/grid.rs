@@ -197,3 +197,58 @@ pub(super) fn grid_fit_2d_cpu(config: &GridFitConfig<'_>) -> GridFitResult {
         chi2_per_dof: chi_squared_per_dof(best_chi2, n_data, n_params),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::freeze_out::GridFitConfig;
+
+    fn test_config() -> GridFitConfig<'static> {
+        static OBS: [f64; 4] = [155.0, 150.0, 140.0, 120.0];
+        static MU_B: [f64; 4] = [0.0, 100.0, 200.0, 400.0];
+        GridFitConfig {
+            observed: &OBS,
+            mu_b: &MU_B,
+            sigma: 2.0,
+            t0_lo: 150.0,
+            t0_hi: 160.0,
+            t0_step: 1.0,
+            k2_lo: 0.001,
+            k2_hi: 0.02,
+            k2_step: 0.001,
+        }
+    }
+
+    #[test]
+    fn grid_fit_cpu_returns_finite() {
+        let cfg = test_config();
+        let result = grid_fit_2d_cpu(&cfg);
+        assert!(result.t0.is_finite());
+        assert!(result.kappa2.is_finite());
+        assert!(result.chi_squared >= 0.0);
+    }
+
+    #[test]
+    fn grid_fit_cpu_t0_in_range() {
+        let cfg = test_config();
+        let result = grid_fit_2d_cpu(&cfg);
+        assert!(result.t0 >= cfg.t0_lo && result.t0 <= cfg.t0_hi);
+        assert!(result.kappa2 >= cfg.k2_lo && result.kappa2 <= cfg.k2_hi);
+    }
+
+    #[test]
+    fn grid_fit_2d_validates_lengths() {
+        let cfg = GridFitConfig {
+            observed: &[1.0],
+            mu_b: &[1.0, 2.0],
+            sigma: 1.0,
+            t0_lo: 1.0,
+            t0_hi: 2.0,
+            t0_step: 0.5,
+            k2_lo: 0.0,
+            k2_hi: 0.1,
+            k2_step: 0.05,
+        };
+        assert!(grid_fit_2d(&cfg).is_err());
+    }
+}

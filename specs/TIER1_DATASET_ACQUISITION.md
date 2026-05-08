@@ -1,7 +1,7 @@
 # Tier 1 Dataset Acquisition Plan
 
-**Date:** March 18, 2026
-**Version:** V117
+**Date:** May 8, 2026
+**Version:** V125
 **Prerequisite:** Local NUCLEUS on eastGate (groundspring_nucleus_local.toml)
 
 ---

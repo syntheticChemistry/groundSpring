@@ -855,8 +855,8 @@ dependencies = [
  "barracuda",
  "bytemuck",
  "groundspring",
- "log",
  "serde_json",
+ "tracing",
  "wgpu",
 ]
 

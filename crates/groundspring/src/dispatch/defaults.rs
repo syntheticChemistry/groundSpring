@@ -100,3 +100,33 @@ pub(super) const DEFAULT_N_BOOTSTRAP: u64 = 10_000;
 /// Sufficient resolution for Matsubara peak detection in lattice QCD
 /// correlator spectral reconstruction (Exp 028).
 pub(super) const DEFAULT_N_OMEGA: u64 = 50;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn confidence_in_unit_interval() {
+        assert!(DEFAULT_CONFIDENCE > 0.0 && DEFAULT_CONFIDENCE < 1.0);
+    }
+
+    #[test]
+    fn grid_bounds_ordered() {
+        assert!(DEFAULT_T0_LO < DEFAULT_T0_HI);
+        assert!(DEFAULT_K2_LO < DEFAULT_K2_HI);
+    }
+
+    #[test]
+    fn grid_steps_positive() {
+        assert!(DEFAULT_T0_STEP > 0.0);
+        assert!(DEFAULT_K2_STEP > 0.0);
+        assert!(DEFAULT_TAU_STEP > 0.0);
+        assert!(DEFAULT_OMEGA_STEP > 0.0);
+    }
+
+    #[test]
+    fn rh_defaults_physical() {
+        assert!(DEFAULT_RHMIN_PCT < DEFAULT_RHMAX_PCT);
+        assert!(DEFAULT_RHMAX_PCT <= 100.0);
+    }
+}

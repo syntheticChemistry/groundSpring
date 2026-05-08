@@ -18,7 +18,7 @@ description = "groundSpring measurement provider atop Tower Atomic"
 coordination = "Sequential"
 
 [graph.metadata]
-groundspring_version = "V124"
+groundspring_version = "V125"
 domain = "measurement"
 target_node = "eastgate"
 
@@ -203,7 +203,7 @@ name = "capability_call"
 
 [nodes.operation.params]
 capability = "provenance.session_create"
-params = { agent = "groundspring", experiment_id = "niche_deploy", version = "V123", family_id = "groundspring" }
+params = { agent = "groundspring", experiment_id = "niche_deploy", version = "V125", family_id = "groundspring" }
 
 [nodes.constraints]
 timeout_ms = 10000

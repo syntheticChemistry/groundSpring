@@ -70,7 +70,7 @@ Biosphere." mSystems 6:e00731-21.
 | Tier | Validation | Status |
 |------|-----------|--------|
 | CPU | Python metagenomic baseline matches Rust | **DONE** — Exp 014 (drift/selection 8/8 Py, 8/8 Rust), Exp 016 (rare biosphere 10/10 Py, 10/10 Rust) |
-| GPU | barracuda alignment + diversity GPU | Partial (SW, BC exist; 19 GPU delegations active) |
+| GPU | barracuda alignment + diversity GPU | Partial (SW, BC exist; 43 GPU delegations active) |
 | metalForge | Cross-substrate for full pipeline | In progress (19 workloads defined, `forge::tolerance` module with 4 tiers) |
 
 ## Cross-Spring

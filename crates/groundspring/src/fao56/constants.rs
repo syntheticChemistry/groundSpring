@@ -63,3 +63,30 @@ pub const HARGREAVES_COEFF: f64 = 0.0023;
 
 /// Hargreaves temperature offset (°C) (Hargreaves & Samani, 1985).
 pub const HARGREAVES_TEMP_OFFSET: f64 = 17.8;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tetens_at_20c() {
+        let t = 20.0;
+        let e_sat = TETENS_A * ((TETENS_B * t) / (t + TETENS_C)).exp();
+        assert!((e_sat - 2.338).abs() < 0.01);
+    }
+
+    #[test]
+    fn albedo_in_range() {
+        assert!(ALBEDO > 0.0 && ALBEDO < 1.0);
+    }
+
+    #[test]
+    fn angstrom_coefficients_sum_to_expected() {
+        assert!((ANGSTROM_A + ANGSTROM_B - 0.75).abs() < 1e-10);
+    }
+
+    #[test]
+    fn pm_lambda_inv_reasonable() {
+        assert!((PM_LAMBDA_INV - 0.408).abs() < 1e-10);
+    }
+}

@@ -10,7 +10,7 @@ springs = ["groundspring", "hotspring", "wetspring", "neuralspring", "airspring"
 
 ## Status
 
-- **965 tests** passing, 0 failed (146s full suite)
+- **965+ tests** passing, 0 failed (146s full suite)
 - **35 experiments** across 10 scientific domains
 - **395/395 validation checks** (340 core + 55 NUCLEUS)
 - **29/29 Python baselines** with math parity proven

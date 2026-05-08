@@ -8,6 +8,9 @@
 //! should match to machine epsilon; stochastic workloads (Gillespie, bootstrap,
 //! Monte Carlo) match to statistical tolerance.
 //!
+//! Numeric values are sourced from [`groundspring::tol`] to prevent drift
+//! between the library and metalForge (resolves GAP-GS-006).
+//!
 //! # Tolerance tiers
 //!
 //! | Tier | Tolerance | Workloads |
@@ -17,7 +20,12 @@
 //! | Statistical | 0.01 | Gillespie, bootstrap/RAWR, Wright-Fisher, MC ET₀ |
 //! | Quantized | 0.25 | NPU int8 classification (round-trip error) |
 
+use groundspring::tol;
+
 /// Tolerance tier for cross-substrate comparison.
+///
+/// Numeric values delegate to [`groundspring::tol`] constants — the single
+/// source of truth for tolerance thresholds across the workspace.
 ///
 /// ```
 /// use groundspring_forge::tolerance::ToleranceTier;
@@ -43,10 +51,10 @@ impl ToleranceTier {
     #[must_use]
     pub const fn relative_tolerance(self) -> f64 {
         match self {
-            Self::Exact => 1e-12,
-            Self::Analytical => 1e-10,
-            Self::Statistical => 0.01,
-            Self::Quantized => 0.25,
+            Self::Exact => tol::EXACT,
+            Self::Analytical => tol::ANALYTICAL,
+            Self::Statistical => tol::STOCHASTIC,
+            Self::Quantized => tol::QUANTIZED,
         }
     }
 

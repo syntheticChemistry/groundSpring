@@ -26,11 +26,11 @@ for noise characterization and uncertainty quantification.
 - **Architecture:** 3-crate workspace (`groundspring` library, `groundspring-validate` binaries, `groundspring-forge` GPU/hardware dispatch)
 - **Communication:** JSON-RPC 2.0 over Unix domain sockets (behind `biomeos` feature)
 - **License:** AGPL-3.0-or-later
-- **Tests:** 1020+ Rust tests + 287 Python provenance tests
+- **Tests:** 965+ Rust tests + 287 Python provenance tests
 - **Coverage:** ≥92% library line coverage (`cargo llvm-cov --workspace --lib`)
 - **MSRV:** Rust 1.87 (2024 edition)
 - **Crate count:** 3 workspace crates
-- **Validation checks:** 395/395 PASS across 34 binaries
+- **Validation checks:** 395/395 PASS across 35 binaries
 - **barraCuda delegations:** 110 active (67 CPU + 43 GPU)
 
 ## Key Capabilities (JSON-RPC methods)

@@ -97,3 +97,27 @@ impl std::fmt::Display for RegimeLabel {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn regime_label_display() {
+        assert_eq!(format!("{}", RegimeLabel::Extended), "extended");
+        assert_eq!(format!("{}", RegimeLabel::Critical), "critical");
+        assert_eq!(format!("{}", RegimeLabel::Localized), "localized");
+    }
+
+    #[test]
+    fn regime_labels_are_distinct() {
+        assert_ne!(RegimeLabel::Extended, RegimeLabel::Critical);
+        assert_ne!(RegimeLabel::Critical, RegimeLabel::Localized);
+        assert_ne!(RegimeLabel::Extended, RegimeLabel::Localized);
+    }
+
+    #[test]
+    fn goe_and_poisson_are_distinct() {
+        assert!(GOE_R > POISSON_R);
+    }
+}

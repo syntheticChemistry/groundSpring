@@ -50,3 +50,27 @@ fn index_of_agreement_cpu(observed: &[f64], modeled: &[f64]) -> f64 {
     }
     1.0 - numerator / denominator
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn perfect_agreement_is_one() {
+        let a = [1.0, 2.0, 3.0, 4.0];
+        assert!((index_of_agreement(&a, &a) - 1.0).abs() < crate::tol::EXACT);
+    }
+
+    #[test]
+    fn empty_is_zero() {
+        assert_eq!(index_of_agreement(&[], &[]), 0.0);
+    }
+
+    #[test]
+    fn ia_between_zero_and_one() {
+        let obs = [1.0, 2.0, 3.0, 4.0, 5.0];
+        let model = [1.5, 2.3, 2.8, 4.2, 5.1];
+        let ia = index_of_agreement(&obs, &model);
+        assert!(ia > 0.0 && ia <= 1.0);
+    }
+}

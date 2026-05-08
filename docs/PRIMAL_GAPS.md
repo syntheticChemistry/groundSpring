@@ -5,7 +5,7 @@
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
 **Date:** April 27, 2026
-**Last audited:** April 27, 2026 (guideStone L3, 4 gaps resolved, 7 remaining — YAML/graph/verb alignment complete)
+**Last audited:** May 8, 2026 (guideStone L4, 5 gaps resolved, 6 remaining — tolerance unified, composition parity achieved)
 **License:** AGPL-3.0-or-later
 
 ---
@@ -88,14 +88,15 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 
 - **Primal:** groundSpring (self)
 - **Severity:** Low
-- **Status:** Active
+- **Status:** Resolved (May 8, 2026)
 - **Description:** `metalForge/forge/src/tolerance.rs` defines a
   `ToleranceTier` enum with numeric table that parallels
   `groundspring::tol` but uses a completely separate type hierarchy.
   Neither imports from the other. This creates a maintenance risk where
   tolerance tiers could drift between the library and forge.
-- **Action:** Either unify by importing `groundspring::tol` tiers in forge
-  or explicitly document the relationship.
+- **Resolution:** Unified — forge `ToleranceTier::relative_tolerance()` now
+  delegates to `groundspring::tol::{EXACT, ANALYTICAL, STOCHASTIC, QUANTIZED}`.
+  A new `tol::QUANTIZED` constant was added for the NPU int8 tier.
 
 ### GAP-GS-007: barraCuda Version Documentation Drift
 
@@ -105,7 +106,7 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 - **Description:** Active specs and deploy graphs referenced barraCuda
   v0.3.7 while path dependency resolves to v0.3.12.
 - **Resolution:** Updated all active graph STATUS headers and
-  `specs/BARRACUDA_REQUIREMENTS.md` to v0.3.12. Historical `tol.rs`
+  `specs/BARRACUDA_REQUIREMENTS.md` to v0.3.13. Historical `tol.rs`
   contract pins retain original version annotations (they document when
   the contract was established).
 
@@ -160,7 +161,8 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 |----|-------------|------------|------|
 | GAP-GS-004 | Niche YAML capability drift (8→16) | YAML + deploy graph + tower bootstrap synced | Apr 27, 2026 |
 | GAP-GS-005 | Deploy graph verb mismatches | All verbs fixed to match IPC contracts | Apr 27, 2026 |
-| GAP-GS-007 | barraCuda version refs (0.3.7→0.3.12) | Active specs/graphs updated | Apr 27, 2026 |
+| GAP-GS-006 | metalForge tolerance duplication | Unified via `groundspring::tol` delegation | May 8, 2026 |
+| GAP-GS-007 | barraCuda version refs (0.3.7→0.3.13) | Active specs/graphs updated | Apr 27, 2026 |
 | GAP-GS-010 | compute_capabilities() wrong capability | Fixed to `compute.capabilities` | Apr 27, 2026 |
 
 ---

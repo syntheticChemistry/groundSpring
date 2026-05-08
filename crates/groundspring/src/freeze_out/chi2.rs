@@ -119,3 +119,43 @@ fn chi2_analysis_cpu(
         p_value: f64::NAN,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn perfect_prediction_has_zero_chi2() {
+        let obs = [1.0, 2.0, 3.0, 4.0];
+        let pred = [1.0, 2.0, 3.0, 4.0];
+        let result = chi2_analysis(&obs, &pred, 1.0, 2).unwrap();
+        assert_eq!(result.chi2_total, 0.0);
+        assert_eq!(result.dof, 2);
+        assert!(result.residuals.iter().all(|&r| r == 0.0));
+    }
+
+    #[test]
+    fn known_chi2_value() {
+        let obs = [1.0, 2.0, 3.0];
+        let pred = [1.1, 2.0, 2.8];
+        let result = chi2_analysis(&obs, &pred, 0.1, 1).unwrap();
+        assert!((result.chi2_total - 5.0).abs() < crate::tol::EXACT);
+        assert_eq!(result.dof, 2);
+    }
+
+    #[test]
+    fn length_mismatch_returns_error() {
+        let obs = [1.0, 2.0];
+        let pred = [1.0];
+        assert!(chi2_analysis(&obs, &pred, 1.0, 1).is_err());
+    }
+
+    #[test]
+    fn pulls_are_residuals_over_sigma() {
+        let obs = [10.0];
+        let pred = [8.0];
+        let sigma = 2.0;
+        let result = chi2_analysis(&obs, &pred, sigma, 0).unwrap();
+        assert!((result.pulls[0] - 1.0).abs() < crate::tol::EXACT);
+    }
+}

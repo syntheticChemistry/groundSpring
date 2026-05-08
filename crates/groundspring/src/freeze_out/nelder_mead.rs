@@ -142,3 +142,56 @@ fn nelder_mead_multi_start_gpu(
         converged_count,
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::freeze_out::{GridFitConfig, GridFitResult};
+
+    #[test]
+    fn nelder_mead_without_gpu_returns_none() {
+        let cfg = GridFitConfig {
+            observed: &[155.0, 150.0, 140.0],
+            mu_b: &[0.0, 100.0, 200.0],
+            sigma: 2.0,
+            t0_lo: 150.0,
+            t0_hi: 160.0,
+            t0_step: 1.0,
+            k2_lo: 0.001,
+            k2_hi: 0.02,
+            k2_step: 0.001,
+        };
+        let coarse = GridFitResult {
+            t0: 155.0,
+            kappa2: 0.01,
+            chi_squared: 5.0,
+            chi2_per_dof: 5.0,
+        };
+        let result = nelder_mead_multi_start(&cfg, &coarse, 4).unwrap();
+        if !cfg!(feature = "barracuda-gpu") {
+            assert!(result.is_none());
+        }
+    }
+
+    #[test]
+    fn nelder_mead_validates_lengths() {
+        let cfg = GridFitConfig {
+            observed: &[1.0],
+            mu_b: &[1.0, 2.0],
+            sigma: 1.0,
+            t0_lo: 1.0,
+            t0_hi: 2.0,
+            t0_step: 0.5,
+            k2_lo: 0.0,
+            k2_hi: 0.1,
+            k2_step: 0.05,
+        };
+        let coarse = GridFitResult {
+            t0: 1.5,
+            kappa2: 0.05,
+            chi_squared: 1.0,
+            chi2_per_dof: 1.0,
+        };
+        assert!(nelder_mead_multi_start(&cfg, &coarse, 1).is_err());
+    }
+}

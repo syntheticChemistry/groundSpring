@@ -1,26 +1,26 @@
 # groundSpring Node Atomic Pipeline
 # Node = Tower + ToadStool — science validation with GPU compute.
 #
-# This graph runs all 28 experiments through ToadStool GPU dispatch,
+# This graph runs all 35 experiments through ToadStool GPU dispatch,
 # compares against CPU references, and reports parity.
 # Tower provides secure inter-primal communication (BearDog encryption,
 # Songbird TLS). ToadStool provides barracuda GPU dispatch.
 #
 # STATUS: V124 (April 27, 2026) — barraCuda v0.3.12, measurement domain niche
 # Atomic: Node (Tower + ToadStool)
-# Experiments: 32 (347 validation checks)
+# Experiments: 35 (395 validation checks)
 # Substrates: CPU (reference) + GPU (barracuda dispatch, f64-capable device)
 # Precision: WgpuDevice::new_f64_capable with fallback, DF64 strategy wired
 
 [graph]
 id = "groundspring_node_atomic"
-description = "Node atomic: 35-experiment validation through ToadStool S155b GPU dispatch"
+description = "Node atomic: 35-experiment validation through ToadStool GPU dispatch"
 coordination = "Parallel"
 
 [graph.metadata]
 toadstool_pin = "S158+"
 toadstool_commit = "bfe7977b"
-groundspring_version = "V124"
+groundspring_version = "V125"
 target_node = "eastgate"
 domain = "measurement"
 
@@ -64,7 +64,7 @@ params = { check_gpu = true, check_barracuda = true }
 timeout_ms = 30000
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# PHASE 3: VALIDATION DISPATCH (28 experiments, parallel where possible)
+# PHASE 3: VALIDATION DISPATCH (35 experiments, parallel where possible)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 [[nodes]]
@@ -77,7 +77,7 @@ name = "capability_call"
 
 [nodes.operation.params]
 capability = "measurement.parity_check"
-params = { experiments = "all", mode = "barracuda-gpu", expected_checks = 292 }
+params = { experiments = "all", mode = "barracuda-gpu", expected_checks = 395 }
 
 [nodes.constraints]
 timeout_ms = 600000

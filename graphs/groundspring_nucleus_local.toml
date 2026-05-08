@@ -33,7 +33,7 @@ coordination = "Sequential"
 [graph.metadata]
 toadstool_pin = "S158+"
 toadstool_commit = "bfe7977b"
-groundspring_version = "V124"
+groundspring_version = "V125"
 target_node = "eastgate"
 precision_strategy = "f64-capable with DF64 fallback"
 domain = "measurement"
@@ -165,6 +165,14 @@ capability = "registry.register"
 params = { primal = "groundspring", capabilities = [
     "measurement.noise_decomposition",
     "measurement.anderson_validation",
+    "measurement.bootstrap",
+    "measurement.rarefaction",
+    "measurement.drift",
+    "measurement.band_edge",
+    "measurement.rare_biosphere",
+    "measurement.gillespie",
+    "measurement.bistable",
+    "measurement.quasispecies",
     "measurement.parity_check",
     "measurement.et0_propagation",
     "measurement.regime_classification",
@@ -173,7 +181,7 @@ params = { primal = "groundspring", capabilities = [
     "measurement.freeze_out",
     "health.liveness",
     "health.readiness",
-], family_id = "groundspring", version = "V123" }
+], family_id = "groundspring", version = "V125" }
 
 [nodes.constraints]
 timeout_ms = 10000
@@ -265,7 +273,7 @@ name = "capability_call"
 
 [nodes.operation.params]
 capability = "provenance.session_create"
-params = { agent = "groundspring", experiment_id = "nucleus_local_bootstrap", version = "V123", family_id = "groundspring" }
+params = { agent = "groundspring", experiment_id = "nucleus_local_bootstrap", version = "V125", family_id = "groundspring" }
 
 [nodes.constraints]
 timeout_ms = 10000

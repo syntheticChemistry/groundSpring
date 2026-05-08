@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: April 27, 2026 (V124 — 965+ tests, ≥92% library coverage, 0 clippy, 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later. guideStone Level 3 (bare scaffold + IPC wiring). 16 capabilities synced across YAML/graphs/code. All deploy graph verbs reconciled. barraCuda v0.3.12. V124: deep debt + tolerance hardening + guideStone L3. V123: cross-ecosystem absorption + provenance. V122: cast evolution + module extraction. V121: deep debt + ecosystem absorption.)
+**Last updated**: May 8, 2026 (V125 — 965+ tests, ≥92% library coverage, 0 clippy, 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later. guideStone Level 4 (bare + NUCLEUS composition parity). 16 capabilities synced across YAML/graphs/code. All deploy graph verbs reconciled. barraCuda v0.3.13. V125: deep debt evolution + L4 + sporePrint notebooks. V124: deep debt + tolerance hardening + guideStone L3. V123: cross-ecosystem absorption + provenance. V122: cast evolution + module extraction. V121: deep debt + ecosystem absorption.)
 
 ## Experiment Register
 
@@ -887,7 +887,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_V121_BARRACUDA_TOADSTOOL_DEEP_DEBT_HANDOFF_MAR23_2026.md` (V121 tolerance centralization, provenance hardening, barraCuda v0.3.7 sync) + `GROUNDSPRING_V120_BARRACUDA_TOADSTOOL_DEEP_AUDIT_HANDOFF_MAR23_2026.md` (V120 dispatch refactor, forbid unsafe)
+Active: `wateringHole/handoffs/GROUNDSPRING_V125_DEEP_EVOLUTION_L4_HANDOFF_MAY08_2026.md` (V125 guideStone L4, deep debt evolution, tolerance unification, 29 new test modules, sporePrint notebooks, barraCuda v0.3.13)
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

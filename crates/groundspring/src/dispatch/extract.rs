@@ -58,3 +58,51 @@ pub(super) fn extract_usize(
     usize::try_from(v)
         .map_err(|_| DispatchError::InvalidParam(format!("{key} too large for usize")))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn extract_f64_array_ok() {
+        let v = serde_json::json!({"data": [1.0, 2.0, 3.0]});
+        let arr = extract_f64_array(&v, "data").unwrap();
+        assert_eq!(arr, vec![1.0, 2.0, 3.0]);
+    }
+
+    #[test]
+    fn extract_f64_array_missing() {
+        let v = serde_json::json!({});
+        assert!(extract_f64_array(&v, "data").is_err());
+    }
+
+    #[test]
+    fn extract_f64_uses_default() {
+        let v = serde_json::json!({});
+        assert_eq!(extract_f64(&v, "x", 42.0), 42.0);
+    }
+
+    #[test]
+    fn extract_f64_overrides_default() {
+        let v = serde_json::json!({"x": 7.5});
+        assert_eq!(extract_f64(&v, "x", 42.0), 7.5);
+    }
+
+    #[test]
+    fn require_f64_missing() {
+        let v = serde_json::json!({});
+        assert!(require_f64(&v, "x").is_err());
+    }
+
+    #[test]
+    fn require_f64_present() {
+        let v = serde_json::json!({"x": 3.14});
+        assert!((require_f64(&v, "x").unwrap() - 3.14).abs() < 1e-10);
+    }
+
+    #[test]
+    fn extract_usize_default() {
+        let v = serde_json::json!({});
+        assert_eq!(extract_usize(&v, "n", 100).unwrap(), 100);
+    }
+}

@@ -76,3 +76,42 @@ pub(super) fn health_readiness() -> Value {
         "uptime_seconds": uptime_secs(),
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn health_check_is_healthy() {
+        init_start_time();
+        let v = health_check();
+        assert_eq!(v["status"], "healthy");
+    }
+
+    #[test]
+    fn capability_list_has_domain() {
+        let v = capability_list();
+        assert!(v["domain"].is_string());
+        assert!(v["capabilities"].is_array());
+    }
+
+    #[test]
+    fn lifecycle_status_has_version() {
+        init_start_time();
+        let v = lifecycle_status();
+        assert!(v["version"].is_string());
+    }
+
+    #[test]
+    fn liveness_is_alive() {
+        let v = health_liveness();
+        assert_eq!(v["status"], "alive");
+    }
+
+    #[test]
+    fn readiness_is_ready() {
+        init_start_time();
+        let v = health_readiness();
+        assert_eq!(v["status"], "ready");
+    }
+}

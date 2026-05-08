@@ -63,3 +63,23 @@ pub fn compute_capabilities(socket: &Path) -> Result<String> {
     let args = serde_json::json!({ "family_id": FAMILY_ID });
     capability_call_value(socket, "compute.capabilities", &args)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn merge_compute_fields_injects_op_and_family() {
+        let mut v = serde_json::json!({"data": [1, 2, 3]});
+        merge_compute_fields(&mut v, "lyapunov_averaged");
+        assert_eq!(v["op"], "lyapunov_averaged");
+        assert_eq!(v["family_id"], FAMILY_ID);
+    }
+
+    #[test]
+    fn merge_compute_fields_on_non_object_is_noop() {
+        let mut v = serde_json::json!([1, 2, 3]);
+        merge_compute_fields(&mut v, "test");
+        assert!(v.is_array());
+    }
+}

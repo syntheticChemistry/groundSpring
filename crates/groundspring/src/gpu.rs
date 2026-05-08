@@ -126,3 +126,26 @@ pub fn get_device_f64_safe() -> Option<Arc<WgpuDevice>> {
         None
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn get_device_does_not_panic() {
+        let _ = get_device();
+    }
+
+    #[test]
+    fn gpu_disabled_env_returns_none() {
+        let result = get_device_with_env(|k| {
+            if k == "GROUNDSPRING_GPU" { Some("0".into()) } else { None }
+        });
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn smoke_tol_is_reasonable() {
+        assert!(F64_REDUCTION_SMOKE_TOL > 0.0 && F64_REDUCTION_SMOKE_TOL < 0.1);
+    }
+}

@@ -96,3 +96,28 @@ pub fn deregister_capabilities(socket: &Path) -> Result<usize> {
     }
     Ok(deregistered)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn measurement_capabilities_non_empty() {
+        assert!(!MEASUREMENT_CAPABILITIES.is_empty());
+    }
+
+    #[test]
+    fn measurement_domain_is_measurement() {
+        assert_eq!(MEASUREMENT_DOMAIN, "measurement");
+    }
+
+    #[test]
+    fn mappings_cover_all_capabilities() {
+        for &cap in MEASUREMENT_CAPABILITIES {
+            assert!(
+                MEASUREMENT_MAPPINGS.iter().any(|(_, method)| *method == cap),
+                "capability {cap} not found in mappings"
+            );
+        }
+    }
+}

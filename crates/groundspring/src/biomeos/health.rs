@@ -50,3 +50,14 @@ pub fn health(socket: &Path) -> Result<()> {
         "Neural API did not respond to any known health method".to_string(),
     ))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn health_on_nonexistent_socket_returns_error() {
+        let path = std::path::Path::new("/tmp/nonexistent_groundspring_test.sock");
+        assert!(health(path).is_err());
+    }
+}

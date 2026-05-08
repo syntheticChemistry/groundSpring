@@ -182,3 +182,52 @@ fn mbe_cpu(observed: &[f64], modeled: &[f64]) -> f64 {
         .sum::<f64>()
         / usize_f64(n)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn rmse_perfect() {
+        assert_eq!(rmse(&[1.0, 2.0, 3.0], &[1.0, 2.0, 3.0]), 0.0);
+    }
+
+    #[test]
+    fn rmse_known_value() {
+        let r = rmse(&[0.0, 0.0], &[1.0, 1.0]);
+        assert!((r - 1.0).abs() < crate::tol::EXACT);
+    }
+
+    #[test]
+    fn rmse_empty() {
+        assert_eq!(rmse(&[], &[]), 0.0);
+    }
+
+    #[test]
+    fn mae_perfect() {
+        assert_eq!(mae(&[1.0, 2.0], &[1.0, 2.0]), 0.0);
+    }
+
+    #[test]
+    fn mae_known_value() {
+        let m = mae(&[0.0, 0.0], &[2.0, 4.0]);
+        assert!((m - 3.0).abs() < crate::tol::EXACT);
+    }
+
+    #[test]
+    fn mbe_overestimate_positive() {
+        let b = mbe(&[1.0, 2.0], &[3.0, 4.0]);
+        assert!((b - 2.0).abs() < crate::tol::EXACT);
+    }
+
+    #[test]
+    fn mbe_underestimate_negative() {
+        let b = mbe(&[3.0, 4.0], &[1.0, 2.0]);
+        assert!((b - (-2.0)).abs() < crate::tol::EXACT);
+    }
+
+    #[test]
+    fn mbe_empty() {
+        assert_eq!(mbe(&[], &[]), 0.0);
+    }
+}

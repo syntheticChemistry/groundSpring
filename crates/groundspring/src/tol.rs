@@ -100,6 +100,14 @@ pub const STOCHASTIC: f64 = 0.01;
 /// Validated: `validate_weather`, `validate_et0_anderson`.
 pub const EQUILIBRIUM: f64 = 0.1;
 
+/// Quantized inference — NPU int8 round-trip quantization error.
+///
+/// Provenance: AKD1000 int8 DMA classification quantizes f64→int8→f64;
+/// round-trip error envelope is ~25%. Used exclusively by metalForge
+/// for NPU cross-substrate comparison.
+/// Validated: `validate_metalforge_cross_substrate`, `validate_npu_anderson`.
+pub const QUANTIZED: f64 = 0.25;
+
 /// Spectral reconstruction RMSE (Tikhonov regularized inversion).
 ///
 /// Provenance: Tikhonov regularization trades bias for stability;
@@ -165,3 +173,46 @@ pub const UPSTREAM_SPECTRAL_ALMOST_MATHIEU: f64 = EXACT;
 /// Contract: barraCuda v0.3.7, gap-based band detection.
 /// Validated: `validate_band_edge`.
 pub const UPSTREAM_SPECTRAL_BANDS: f64 = ANALYTICAL;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tiers_are_strictly_ordered() {
+        assert!(DETERMINISM < STRICT);
+        assert!(STRICT < EXACT);
+        assert!(EXACT < ANALYTICAL);
+        assert!(ANALYTICAL < INTEGRATION);
+        assert!(INTEGRATION < CDF_APPROX);
+        assert!(CDF_APPROX < ROUNDTRIP);
+        assert!(ROUNDTRIP < RECONSTRUCTION);
+        assert!(RECONSTRUCTION < LITERATURE);
+        assert!(LITERATURE < DECOMPOSITION);
+        assert!(DECOMPOSITION < STOCHASTIC);
+        assert!(STOCHASTIC < NORM_2PCT);
+        assert!(NORM_2PCT < EQUILIBRIUM);
+        assert!(EQUILIBRIUM < QUANTIZED);
+    }
+
+    #[test]
+    fn upstream_pins_match_base_tiers() {
+        assert_eq!(UPSTREAM_SPECTRAL_EIGH, ANALYTICAL);
+        assert_eq!(UPSTREAM_BIO_MULTINOMIAL, DETERMINISM);
+        assert_eq!(UPSTREAM_OPTIMIZE_BRENT, ANALYTICAL);
+        assert_eq!(UPSTREAM_SPECTRAL_ANDERSON, LITERATURE);
+        assert_eq!(UPSTREAM_SPECTRAL_ALMOST_MATHIEU, EXACT);
+        assert_eq!(UPSTREAM_SPECTRAL_BANDS, ANALYTICAL);
+    }
+
+    #[test]
+    fn all_tiers_are_positive() {
+        for &t in &[
+            DETERMINISM, STRICT, EXACT, ANALYTICAL, INTEGRATION, CDF_APPROX,
+            ROUNDTRIP, RECONSTRUCTION, LITERATURE, DECOMPOSITION, STOCHASTIC,
+            NORM_2PCT, EQUILIBRIUM, QUANTIZED,
+        ] {
+            assert!(t > 0.0);
+        }
+    }
+}

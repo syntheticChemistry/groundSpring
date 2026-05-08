@@ -47,18 +47,21 @@ pub fn discover_uid() -> String {
         }
     }
 
-    log::warn!(
+    tracing::warn!(
         "UID discovery failed ($UID unset, /proc/self/status unreadable, \
          `id -u` unavailable). Set $UID or $BIOMEOS_SOCKET_DIR to override."
     );
-    log::warn!("Attempting /run/user/ enumeration as last resort.");
-    if let Ok(entries) = std::fs::read_dir("/run/user") {
-        for entry in entries.flatten() {
-            if let Some(name) = entry.file_name().to_str()
-                && name.chars().all(|c| c.is_ascii_digit())
-            {
-                log::warn!("Using discovered UID {name} from /run/user/");
-                return name.to_string();
+    #[cfg(target_os = "linux")]
+    {
+        tracing::warn!("Attempting /run/user/ enumeration as last resort.");
+        if let Ok(entries) = std::fs::read_dir("/run/user") {
+            for entry in entries.flatten() {
+                if let Some(name) = entry.file_name().to_str()
+                    && name.chars().all(|c| c.is_ascii_digit())
+                {
+                    tracing::warn!("Using discovered UID {name} from /run/user/");
+                    return name.to_string();
+                }
             }
         }
     }
