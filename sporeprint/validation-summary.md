@@ -1,7 +1,7 @@
 +++
 title = "groundSpring Validation Summary"
-description = "Measurement noise and uncertainty — 965 tests, 35 experiments, guideStone Level 3, 5 notebooks"
-date = 2026-05-07
+description = "Measurement noise and uncertainty — 965+ tests, 35 experiments, guideStone Level 4, 5 notebooks, 2 composition crates"
+date = 2026-05-08
 
 [taxonomies]
 primals = ["barracuda", "toadstool", "beardog", "songbird", "nestgate"]
@@ -15,13 +15,15 @@ springs = ["groundspring", "hotspring", "wetspring", "neuralspring", "airspring"
 - **395/395 validation checks** (340 core + 55 NUCLEUS)
 - **29/29 Python baselines** with math parity proven
 - **110 barraCuda delegations** (67 CPU + 43 GPU)
-- **guideStone Level 3** — bare + IPC wired
+- **guideStone Level 4** — bare + NUCLEUS composition parity (Tower + Node + Nest + cross-atomic)
+- **2 composition experiment crates** — exp094 (NUCLEUS parity replication) + exp095 (measurement niche parity)
+- **6 registry sync tests** — capability_registry.toml cross-validated against primalSpring canonical (389 methods)
 - **16 measurement capabilities** synced (niche, YAML, deploy graphs)
 - **Zero** unsafe blocks, production mocks, hardcoded addresses, `#[allow]` attrs
 
 ## Key Validation Binaries
 
-- `groundspring_guidestone` — 5 bare properties + 6 NUCLEUS additive IPC checks
+- `groundspring_guidestone` — 5 bare properties + Layer 2-4 NUCLEUS composition (Tower/Node/Nest/cross-atomic)
 - `validate_all` — meta-runner for all 29 Python-parity validators (exit-code protocol)
 - `bench_gpu_vs_kokkos` — three-mode GPU benchmark (default → barraCuda CPU → GPU)
 
@@ -78,7 +80,7 @@ Publication-grade Python baselines — each experiment as a live, executable not
 | Workload | Purpose |
 |----------|---------|
 | `gs-validate-all` | Run all 29 Rust validators |
-| `gs-guidestone` | Run guideStone Level 3 check |
+| `gs-guidestone` | Run guideStone Level 4 check |
 | `gs-bench-gpu` | Three-mode GPU benchmark |
 | `gs-python-baselines` | Execute 29 Python baselines for provenance |
 

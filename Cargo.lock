@@ -133,7 +133,7 @@ checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 
 [[package]]
 name = "barracuda"
-version = "0.3.12"
+version = "0.3.13"
 dependencies = [
  "blake3",
  "bytemuck",
@@ -832,6 +832,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "groundspring-exp094"
+version = "0.1.0"
+dependencies = [
+ "primalspring",
+ "serde_json",
+]
+
+[[package]]
+name = "groundspring-exp095"
+version = "0.1.0"
+dependencies = [
+ "groundspring",
+ "primalspring",
+ "serde_json",
+]
+
+[[package]]
 name = "groundspring-forge"
 version = "0.1.0"
 dependencies = [
@@ -1347,7 +1364,7 @@ dependencies = [
 
 [[package]]
 name = "primalspring"
-version = "0.9.24"
+version = "0.9.25"
 dependencies = [
  "base64",
  "blake3",

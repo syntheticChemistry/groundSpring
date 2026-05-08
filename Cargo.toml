@@ -7,6 +7,8 @@ members = [
     "crates/groundspring",
     "crates/groundspring-validate",
     "metalForge/forge",
+    "experiments/exp094_composition_parity",
+    "experiments/exp095_measurement_niche",
 ]
 
 [workspace.package]

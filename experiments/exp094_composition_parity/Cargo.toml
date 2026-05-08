@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+[package]
+name = "groundspring-exp094"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+description = "NUCLEUS composition parity — replicates primalSpring exp094 for groundSpring niche"
+
+[[bin]]
+name = "exp094_composition_parity"
+path = "src/main.rs"
+
+[dependencies]
+primalspring = { path = "../../../primalSpring/ecoPrimal" }
+serde_json = "1"
+
+[lints]
+workspace = true

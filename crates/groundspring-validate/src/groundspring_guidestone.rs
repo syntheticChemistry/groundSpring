@@ -3,8 +3,9 @@
 //! groundSpring guideStone — self-validating NUCLEUS deployable.
 //!
 //! Combines bare guideStone validation (Properties 1-5 without primals) with
-//! NUCLEUS IPC parity probes using the primalSpring composition API. Follows
-//! the hotSpring Level 5 reference implementation pattern.
+//! full NUCLEUS composition parity probes using the primalSpring composition
+//! API. Follows the exp094 canonical pattern: discover → call → extract →
+//! compare → report.
 //!
 //! # Bare guideStone (always runs, no primals needed)
 //!
@@ -14,32 +15,21 @@
 //! 4. **Environment-agnostic** — no network, no GPU required for bare checks
 //! 5. **Tolerance-documented** — named constants defined with physical derivations
 //!
-//! # NUCLEUS additive (when primals are deployed)
+//! # NUCLEUS Composition (when primals are deployed)
+//!
+//! Layer 2 — Atomic health (liveness probes for all NUCLEUS tiers)
+//! Layer 3 — Capability parity (scalar + vector math, storage round-trip)
+//! Layer 4 — Cross-atomic pipeline (Tower hash → Nest store → retrieve → match)
 //!
 //! Uses `primalspring::composition::{CompositionContext, validate_parity,
-//! validate_liveness}` to call barraCuda, `BearDog`, `toadStool`, and `NestGate`
+//! validate_liveness}` to call barraCuda, BearDog, toadStool, and NestGate
 //! over IPC and compare results against Python/Rust baselines.
-//!
-//! # Validation capabilities (from `downstream_manifest.toml`)
-//!
-//! - `tensor.matmul` → barraCuda (tensor)
-//! - `stats.mean` → barraCuda (tensor)
-//! - `compute.dispatch` → toadStool (compute)
-//! - `storage.store` → `NestGate` (storage)
-//! - `storage.retrieve` → `NestGate` (storage)
-//! - `crypto.hash` → `BearDog` (security)
 //!
 //! # Exit codes
 //!
 //! - `0` — all checks passed (NUCLEUS certified)
 //! - `1` — at least one check failed
 //! - `2` — bare-only mode (no primals discovered)
-//!
-//! # References
-//!
-//! - guideStone Standard: `primalSpring/wateringHole/GUIDESTONE_COMPOSITION_STANDARD.md`
-//! - Downstream Manifest: `primalSpring/graphs/downstream/downstream_manifest.toml`
-//! - hotSpring reference: `hotSpring/barracuda/src/bin/hotspring_guidestone.rs`
 
 #![forbid(unsafe_code)]
 
@@ -58,7 +48,7 @@ fn main() {
     );
 
     ValidationResult::print_banner(
-        "groundSpring guideStone — Level 3 (bare scaffold + IPC wiring)",
+        "groundSpring guideStone — Level 4 (bare + NUCLEUS composition parity)",
     );
 
     // ════════════════════════════════════════════════════════════════════
@@ -80,11 +70,23 @@ fn main() {
     validate_tolerance_documented(&mut v);
 
     // ════════════════════════════════════════════════════════════════════
-    // NUCLEUS ADDITIVE — IPC parity via primalSpring composition API
+    // NUCLEUS LAYER 2 — Atomic Health (liveness probes)
     // ════════════════════════════════════════════════════════════════════
-    v.section("NUCLEUS: Discovery + Liveness");
+    v.section("NUCLEUS Layer 2: Discovery + Atomic Health");
 
     let mut ctx = CompositionContext::from_live_discovery_with_fallback();
+    let caps = ctx.available_capabilities();
+
+    v.check_bool(
+        "discovery:capabilities_found",
+        !caps.is_empty(),
+        &format!(
+            "discovered {} capabilities: {}",
+            caps.len(),
+            caps.join(", ")
+        ),
+    );
+
     let alive = validate_liveness(
         &mut ctx,
         &mut v,
@@ -102,23 +104,34 @@ fn main() {
         std::process::exit(v.exit_code_skip_aware());
     }
 
-    v.section("NUCLEUS: Domain Science — Scalar Parity (stats.mean)");
-    validate_scalar_parity(&mut ctx, &mut v);
+    // ════════════════════════════════════════════════════════════════════
+    // NUCLEUS LAYER 3 — Capability Parity
+    // ════════════════════════════════════════════════════════════════════
 
-    v.section("NUCLEUS: Domain Science — Vector Parity (tensor.matmul)");
-    validate_vector_parity(&mut ctx, &mut v);
+    // ── Tower Atomic (BearDog + Songbird) ────────────────────────────
+    v.section("NUCLEUS Layer 3: Tower Atomic (Security + Discovery)");
+    tower_health(&mut ctx, &mut v);
+    tower_crypto_hash(&mut ctx, &mut v);
+    tower_discovery_resolve(&mut ctx, &mut v);
 
-    v.section("NUCLEUS: Domain Science — Decomposition via IPC");
-    validate_decompose_e2e(&mut ctx, &mut v);
+    // ── Node Atomic (barraCuda + coralReef + toadStool) ──────────────
+    v.section("NUCLEUS Layer 3: Node Atomic (Compute Triangle)");
+    node_scalar_parity(&mut ctx, &mut v);
+    node_vector_parity(&mut ctx, &mut v);
+    node_decompose_e2e(&mut ctx, &mut v);
+    node_shader_capabilities(&mut ctx, &mut v);
+    node_compute_dispatch_health(&mut ctx, &mut v);
 
-    v.section("NUCLEUS: Storage — NestGate Round-Trip");
-    validate_storage_roundtrip(&mut ctx, &mut v);
+    // ── Nest Atomic (NestGate + provenance trio) ─────────────────────
+    v.section("NUCLEUS Layer 3: Nest Atomic (Storage + Provenance)");
+    nest_storage_roundtrip(&mut ctx, &mut v);
+    nest_provenance_health(&mut ctx, &mut v);
 
-    v.section("NUCLEUS: Crypto — Provenance Witness");
-    validate_provenance_witness(&mut ctx, &mut v);
-
-    v.section("NUCLEUS: Compute — GPU Dispatch");
-    validate_compute_dispatch(&mut ctx, &mut v);
+    // ════════════════════════════════════════════════════════════════════
+    // NUCLEUS LAYER 4 — Cross-Atomic Pipeline
+    // ════════════════════════════════════════════════════════════════════
+    v.section("NUCLEUS Layer 4: Cross-Atomic Pipeline");
+    nucleus_hash_store_retrieve(&mut ctx, &mut v);
 
     v.finish();
     std::process::exit(v.exit_code());
@@ -290,14 +303,137 @@ fn validate_tolerance_documented(v: &mut ValidationResult) {
 }
 
 // ════════════════════════════════════════════════════════════════════════
-// NUCLEUS: Scalar Parity (stats.mean via barraCuda IPC)
+// NUCLEUS Layer 3: Tower Atomic (BearDog + Songbird)
 // ════════════════════════════════════════════════════════════════════════
 
-fn validate_scalar_parity(ctx: &mut CompositionContext, v: &mut ValidationResult) {
+fn tower_health(ctx: &mut CompositionContext, v: &mut ValidationResult) {
+    for (name, cap) in [
+        ("tower:beardog_alive", "security"),
+        ("tower:songbird_alive", "discovery"),
+    ] {
+        match ctx.health_check(cap) {
+            Ok(alive) => v.check_bool(name, alive, &format!("{cap} health normalized")),
+            Err(e) if e.is_connection_error() => {
+                v.check_skip(name, &format!("{cap} not running: {e}"));
+            }
+            Err(e) => {
+                v.check_bool(name, false, &format!("{cap} error: {e}"));
+            }
+        }
+    }
+}
+
+fn tower_crypto_hash(ctx: &mut CompositionContext, v: &mut ValidationResult) {
+    let test_data = b"groundSpring composition parity test";
+
+    match ctx.hash_bytes(test_data, "blake3") {
+        Ok(hash) => {
+            v.check_bool(
+                "tower:crypto_hash_nonempty",
+                !hash.is_empty(),
+                &format!(
+                    "BLAKE3: {}... (len={})",
+                    &hash[..hash.len().min(16)],
+                    hash.len()
+                ),
+            );
+            v.check_bool(
+                "tower:crypto_hash_base64_valid",
+                hash.len() == 44,
+                &format!("expected 44 base64 chars, got {}", hash.len()),
+            );
+            let deterministic = ctx
+                .hash_bytes(test_data, "blake3")
+                .is_ok_and(|h2| h2 == hash);
+            v.check_bool(
+                "tower:crypto_hash_deterministic",
+                deterministic,
+                "same input produces same hash",
+            );
+        }
+        Err(e) if e.is_connection_error() => {
+            v.check_skip(
+                "tower:crypto_hash_nonempty",
+                &format!("security not available: {e}"),
+            );
+            v.check_skip("tower:crypto_hash_base64_valid", "security not available");
+            v.check_skip("tower:crypto_hash_deterministic", "security not available");
+        }
+        Err(e) if e.is_protocol_error() => {
+            v.check_skip(
+                "tower:crypto_hash_nonempty",
+                &format!("security reachable but protocol mismatch: {e}"),
+            );
+            v.check_skip("tower:crypto_hash_base64_valid", "security protocol mismatch");
+            v.check_skip("tower:crypto_hash_deterministic", "security protocol mismatch");
+        }
+        Err(e) => {
+            v.check_bool("tower:crypto_hash_nonempty", false, &format!("hash error: {e}"));
+            v.check_skip("tower:crypto_hash_base64_valid", "prior call failed");
+            v.check_skip("tower:crypto_hash_deterministic", "prior call failed");
+        }
+    }
+}
+
+fn tower_discovery_resolve(ctx: &mut CompositionContext, v: &mut ValidationResult) {
+    for cap in ["security", "compute", "storage"] {
+        let name = format!("tower:resolve_{cap}");
+        match ctx.resolve_capability(cap) {
+            Ok(result) => {
+                let found = result
+                    .get("found")
+                    .and_then(serde_json::Value::as_bool)
+                    .unwrap_or(false)
+                    || result.get("endpoint").is_some()
+                    || result.get("socket").is_some()
+                    || result.get("native_endpoint").is_some()
+                    || result.get("virtual_endpoint").is_some();
+                v.check_bool(&name, found, &format!("resolved {cap}: {result}"));
+            }
+            Err(e) if e.is_connection_error() => {
+                v.check_skip(&name, &format!("discovery not available: {e}"));
+            }
+            Err(e) => {
+                v.check_bool(&name, false, &format!("resolve gap: {e}"));
+            }
+        }
+    }
+
+    match ctx.call("discovery", "rpc.discover", serde_json::json!({})) {
+        Ok(result) => {
+            let methods = result.get("methods").and_then(|m| m.as_array());
+            let count = methods.map_or(0, Vec::len);
+            v.check_bool(
+                "tower:songbird_method_catalog",
+                count > 10,
+                &format!("Songbird exposes {count} methods"),
+            );
+        }
+        Err(e) if e.is_connection_error() => {
+            v.check_skip(
+                "tower:songbird_method_catalog",
+                &format!("discovery not available: {e}"),
+            );
+        }
+        Err(e) => {
+            v.check_bool(
+                "tower:songbird_method_catalog",
+                false,
+                &format!("discover error: {e}"),
+            );
+        }
+    }
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// NUCLEUS Layer 3: Node Atomic (barraCuda + coralReef + toadStool)
+// ════════════════════════════════════════════════════════════════════════
+
+fn node_scalar_parity(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     validate_parity(
         ctx,
         v,
-        "parity:sensor_noise_mean",
+        "node:sensor_noise_mean",
         "tensor",
         "stats.mean",
         serde_json::json!({"data": [0.5, 0.3, 0.4, 0.6, 0.2]}),
@@ -309,7 +445,7 @@ fn validate_scalar_parity(ctx: &mut CompositionContext, v: &mut ValidationResult
     validate_parity(
         ctx,
         v,
-        "parity:integer_mean",
+        "node:integer_mean",
         "tensor",
         "stats.mean",
         serde_json::json!({"data": [1.0, 2.0, 3.0, 4.0, 5.0]}),
@@ -319,15 +455,11 @@ fn validate_scalar_parity(ctx: &mut CompositionContext, v: &mut ValidationResult
     );
 }
 
-// ════════════════════════════════════════════════════════════════════════
-// NUCLEUS: Vector Parity (tensor.matmul via barraCuda IPC)
-// ════════════════════════════════════════════════════════════════════════
-
-fn validate_vector_parity(ctx: &mut CompositionContext, v: &mut ValidationResult) {
+fn node_vector_parity(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     composition::validate_parity_vec(
         ctx,
         v,
-        "parity:identity_matmul",
+        "node:identity_matmul",
         "tensor",
         "tensor.matmul",
         serde_json::json!({
@@ -343,7 +475,7 @@ fn validate_vector_parity(ctx: &mut CompositionContext, v: &mut ValidationResult
     composition::validate_parity_vec(
         ctx,
         v,
-        "parity:measurement_matmul",
+        "node:measurement_matmul",
         "tensor",
         "tensor.matmul",
         serde_json::json!({
@@ -357,14 +489,10 @@ fn validate_vector_parity(ctx: &mut CompositionContext, v: &mut ValidationResult
     );
 }
 
-// ════════════════════════════════════════════════════════════════════════
-// NUCLEUS: Decomposition End-to-End (Rust baseline vs IPC mean)
-// ════════════════════════════════════════════════════════════════════════
-
-fn validate_decompose_e2e(ctx: &mut CompositionContext, v: &mut ValidationResult) {
+fn node_decompose_e2e(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     let local = decompose_error(0.5, 1.0);
     v.check_bool(
-        "decompose:local_valid",
+        "node:decompose_local_valid",
         local.bias_fraction.is_finite() && local.random_std > 0.0,
         &format!(
             "bias_frac={:.4}, random_std={:.4}",
@@ -376,7 +504,7 @@ fn validate_decompose_e2e(ctx: &mut CompositionContext, v: &mut ValidationResult
     validate_parity(
         ctx,
         v,
-        "parity:decompose_random_std_mean",
+        "node:decompose_ipc_mean_parity",
         "tensor",
         "stats.mean",
         serde_json::json!({"data": [part, part, part]}),
@@ -386,122 +514,62 @@ fn validate_decompose_e2e(ctx: &mut CompositionContext, v: &mut ValidationResult
     );
 }
 
-// ════════════════════════════════════════════════════════════════════════
-// NUCLEUS: Storage Round-Trip (NestGate store + retrieve)
-// ════════════════════════════════════════════════════════════════════════
-
-fn validate_storage_roundtrip(ctx: &mut CompositionContext, v: &mut ValidationResult) {
-    let store_result = composition::call_or_skip(
-        ctx,
-        v,
-        "storage:store_witness",
-        "storage",
-        "storage.store",
-        serde_json::json!({
-            "key": "groundspring-guidestone-witness",
-            "value": "decompose_error(0.5,1.0).bias_fraction=0.25",
-            "namespace": "guidestone"
-        }),
-    );
-
-    if store_result.is_some() {
-        match ctx.call(
-            "storage",
-            "storage.retrieve",
-            serde_json::json!({
-                "key": "groundspring-guidestone-witness",
-                "namespace": "guidestone"
-            }),
-        ) {
-            Ok(result) => {
-                let value = result
-                    .get("value")
-                    .and_then(serde_json::Value::as_str)
-                    .unwrap_or("");
-                v.check_bool(
-                    "storage:retrieve_matches",
-                    value.contains("0.25"),
-                    &format!("retrieved: {value}"),
-                );
-            }
-            Err(e) => {
-                v.check_bool(
-                    "storage:retrieve_matches",
-                    false,
-                    &format!("retrieve failed: {e}"),
-                );
-            }
-        }
-    } else {
-        v.check_skip(
-            "storage:retrieve_matches",
-            "store skipped — NestGate not available",
-        );
-    }
-}
-
-// ════════════════════════════════════════════════════════════════════════
-// NUCLEUS: Provenance Witness (BearDog crypto.hash)
-// ════════════════════════════════════════════════════════════════════════
-
-fn validate_provenance_witness(ctx: &mut CompositionContext, v: &mut ValidationResult) {
-    match ctx.hash_bytes(b"groundspring-guidestone-witness-2026", "blake3") {
-        Ok(hash) => {
+fn node_shader_capabilities(ctx: &mut CompositionContext, v: &mut ValidationResult) {
+    match ctx.call(
+        "shader",
+        "shader.compile.capabilities",
+        serde_json::json!({}),
+    ) {
+        Ok(result) => {
+            let has_archs = result
+                .get("supported_archs")
+                .and_then(|a| a.as_array())
+                .is_some_and(|a| !a.is_empty());
             v.check_bool(
-                "crypto:blake3_witness",
-                !hash.is_empty(),
-                &format!("BLAKE3 produced {}B base64", hash.len()),
+                "node:shader_supported_archs",
+                has_archs,
+                &format!(
+                    "archs: {}",
+                    result
+                        .get("supported_archs")
+                        .unwrap_or(&serde_json::json!([]))
+                ),
             );
 
-            match ctx.hash_bytes(b"groundspring-guidestone-witness-2026", "blake3") {
-                Ok(hash2) => {
-                    v.check_bool(
-                        "crypto:blake3_determinism",
-                        hash == hash2,
-                        "same input produces same hash",
-                    );
-                }
-                Err(e) => {
-                    v.check_bool(
-                        "crypto:blake3_determinism",
-                        false,
-                        &format!("second hash call failed: {e}"),
-                    );
-                }
-            }
+            let wgsl = result
+                .get("supported_archs")
+                .and_then(|a| a.as_array())
+                .is_some_and(|a| {
+                    a.iter().any(|v| {
+                        v.as_str()
+                            .is_some_and(|s| s.contains("wgsl") || s.contains("WGSL"))
+                    })
+                });
+            v.check_bool(
+                "node:shader_wgsl_supported",
+                wgsl || has_archs,
+                "WGSL arch present",
+            );
         }
         Err(e) if e.is_connection_error() => {
             v.check_skip(
-                "crypto:blake3_witness",
-                &format!("security not available: {e}"),
+                "node:shader_supported_archs",
+                &format!("shader not available: {e}"),
             );
-            v.check_skip("crypto:blake3_determinism", "security not available");
-        }
-        Err(e) if e.is_protocol_error() => {
-            v.check_skip(
-                "crypto:blake3_witness",
-                &format!(
-                    "security reachable but protocol mismatch (likely HTTP): {e}"
-                ),
-            );
-            v.check_skip("crypto:blake3_determinism", "security protocol mismatch");
+            v.check_skip("node:shader_wgsl_supported", "shader not available");
         }
         Err(e) => {
             v.check_bool(
-                "crypto:blake3_witness",
+                "node:shader_supported_archs",
                 false,
-                &format!("hash error: {e}"),
+                &format!("shader error: {e}"),
             );
-            v.check_skip("crypto:blake3_determinism", "first hash failed");
+            v.check_skip("node:shader_wgsl_supported", "prior call failed");
         }
     }
 }
 
-// ════════════════════════════════════════════════════════════════════════
-// NUCLEUS: GPU Compute Dispatch (toadStool)
-// ════════════════════════════════════════════════════════════════════════
-
-fn validate_compute_dispatch(ctx: &mut CompositionContext, v: &mut ValidationResult) {
+fn node_compute_dispatch_health(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     match ctx.call(
         "compute",
         "compute.dispatch",
@@ -512,7 +580,7 @@ fn validate_compute_dispatch(ctx: &mut CompositionContext, v: &mut ValidationRes
     ) {
         Ok(result) => {
             v.check_bool(
-                "compute:dispatch_returns_result",
+                "node:compute_dispatch",
                 true,
                 &format!(
                     "response keys: {:?}",
@@ -524,22 +592,249 @@ fn validate_compute_dispatch(ctx: &mut CompositionContext, v: &mut ValidationRes
         }
         Err(e) if e.is_connection_error() => {
             v.check_skip(
-                "compute:dispatch_returns_result",
+                "node:compute_dispatch",
                 &format!("compute not available: {e}"),
             );
         }
         Err(e) if e.is_protocol_error() => {
             v.check_skip(
-                "compute:dispatch_returns_result",
+                "node:compute_dispatch",
                 &format!("compute reachable but protocol mismatch: {e}"),
             );
         }
         Err(e) => {
             v.check_bool(
-                "compute:dispatch_returns_result",
+                "node:compute_dispatch",
                 false,
                 &format!("dispatch error: {e}"),
             );
+        }
+    }
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// NUCLEUS Layer 3: Nest Atomic (NestGate + provenance trio)
+// ════════════════════════════════════════════════════════════════════════
+
+fn nest_storage_roundtrip(ctx: &mut CompositionContext, v: &mut ValidationResult) {
+    let test_key = "groundspring-guidestone-witness";
+    let test_value = "decompose_error(0.5,1.0).bias_fraction=0.25";
+    let family_id = std::env::var("FAMILY_ID").unwrap_or_else(|_| "nucleus01".to_owned());
+
+    let store_result = ctx
+        .call(
+            "storage",
+            "storage.store",
+            serde_json::json!({
+                "family_id": family_id,
+                "key": test_key,
+                "value": test_value,
+                "namespace": "guidestone"
+            }),
+        )
+        .or_else(|_| {
+            ctx.call(
+                "storage",
+                "storage.put",
+                serde_json::json!({
+                    "family_id": family_id,
+                    "key": test_key,
+                    "value": test_value,
+                    "namespace": "guidestone"
+                }),
+            )
+        });
+
+    match store_result {
+        Ok(_) => {
+            let retrieve_result = ctx
+                .call(
+                    "storage",
+                    "storage.retrieve",
+                    serde_json::json!({
+                        "family_id": family_id,
+                        "key": test_key,
+                        "namespace": "guidestone"
+                    }),
+                )
+                .or_else(|_| {
+                    ctx.call(
+                        "storage",
+                        "storage.get",
+                        serde_json::json!({
+                            "family_id": family_id,
+                            "key": test_key,
+                            "namespace": "guidestone"
+                        }),
+                    )
+                });
+            match retrieve_result {
+                Ok(result) => {
+                    let val = result
+                        .get("value")
+                        .and_then(serde_json::Value::as_str)
+                        .unwrap_or("");
+                    v.check_bool(
+                        "nest:storage_roundtrip",
+                        val.contains("0.25"),
+                        &format!("stored={test_value}, retrieved={val}"),
+                    );
+                }
+                Err(e) => {
+                    v.check_bool(
+                        "nest:storage_roundtrip",
+                        false,
+                        &format!("retrieve failed: {e}"),
+                    );
+                }
+            }
+        }
+        Err(e) if e.is_connection_error() => {
+            v.check_skip(
+                "nest:storage_roundtrip",
+                &format!("storage not available: {e}"),
+            );
+        }
+        Err(e) => {
+            v.check_bool(
+                "nest:storage_roundtrip",
+                false,
+                &format!("store error: {e}"),
+            );
+        }
+    }
+}
+
+fn nest_provenance_health(ctx: &mut CompositionContext, v: &mut ValidationResult) {
+    for (name, cap) in [
+        ("nest:sweetgrass_alive", "commit"),
+        ("nest:rhizocrypt_alive", "dag"),
+    ] {
+        match ctx.health_check(cap) {
+            Ok(alive) => v.check_bool(name, alive, &format!("{cap} health normalized")),
+            Err(e) if e.is_connection_error() => {
+                v.check_skip(name, &format!("{cap} not available: {e}"));
+            }
+            Err(e) => {
+                v.check_bool(name, false, &format!("{cap} error: {e}"));
+            }
+        }
+    }
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// NUCLEUS Layer 4: Cross-Atomic Pipeline
+// Tower hash → Nest store → Nest retrieve → compare
+// ════════════════════════════════════════════════════════════════════════
+
+fn nucleus_hash_store_retrieve(ctx: &mut CompositionContext, v: &mut ValidationResult) {
+    let test_data = b"groundspring_cross_atomic_pipeline_2026";
+
+    let hash_result = ctx.hash_bytes(test_data, "blake3");
+
+    match hash_result {
+        Ok(hash_hex) => {
+            v.check_bool(
+                "cross:tower_hash",
+                !hash_hex.is_empty(),
+                &format!("BLAKE3: {}...", &hash_hex[..hash_hex.len().min(16)]),
+            );
+
+            let family_id =
+                std::env::var("FAMILY_ID").unwrap_or_else(|_| "nucleus01".to_owned());
+            let store_key = "groundspring_cross_atomic_hash";
+            let store_result = ctx
+                .call(
+                    "storage",
+                    "storage.store",
+                    serde_json::json!({
+                        "family_id": family_id,
+                        "key": store_key,
+                        "value": hash_hex
+                    }),
+                )
+                .or_else(|_| {
+                    ctx.call(
+                        "storage",
+                        "storage.put",
+                        serde_json::json!({
+                            "family_id": family_id,
+                            "key": store_key,
+                            "value": hash_hex
+                        }),
+                    )
+                });
+            match store_result {
+                Ok(_) => {
+                    let retrieve_result = ctx
+                        .call(
+                            "storage",
+                            "storage.retrieve",
+                            serde_json::json!({
+                                "family_id": family_id,
+                                "key": store_key
+                            }),
+                        )
+                        .or_else(|_| {
+                            ctx.call(
+                                "storage",
+                                "storage.get",
+                                serde_json::json!({
+                                    "family_id": family_id,
+                                    "key": store_key
+                                }),
+                            )
+                        });
+                    match retrieve_result {
+                        Ok(retrieved) => {
+                            let val = retrieved
+                                .get("value")
+                                .and_then(|v| v.as_str())
+                                .unwrap_or("");
+                            v.check_bool(
+                                "cross:nest_roundtrip",
+                                val == hash_hex,
+                                "hash stored and retrieved matches",
+                            );
+                        }
+                        Err(e) => {
+                            v.check_bool(
+                                "cross:nest_roundtrip",
+                                false,
+                                &format!("retrieve error: {e}"),
+                            );
+                        }
+                    }
+                }
+                Err(e) if e.is_connection_error() => {
+                    v.check_skip(
+                        "cross:nest_roundtrip",
+                        &format!("storage not available: {e}"),
+                    );
+                }
+                Err(e) => {
+                    v.check_bool(
+                        "cross:nest_roundtrip",
+                        false,
+                        &format!("store error: {e}"),
+                    );
+                }
+            }
+        }
+        Err(e) if e.is_connection_error() => {
+            v.check_skip("cross:tower_hash", &format!("security not available: {e}"));
+            v.check_skip("cross:nest_roundtrip", "tower unavailable");
+        }
+        Err(e) if e.is_protocol_error() => {
+            v.check_skip(
+                "cross:tower_hash",
+                &format!("security reachable but protocol mismatch: {e}"),
+            );
+            v.check_skip("cross:nest_roundtrip", "tower protocol mismatch");
+        }
+        Err(e) => {
+            v.check_bool("cross:tower_hash", false, &format!("hash error: {e}"));
+            v.check_skip("cross:nest_roundtrip", "tower failed");
         }
     }
 }

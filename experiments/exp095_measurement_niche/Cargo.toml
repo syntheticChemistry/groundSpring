@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+[package]
+name = "groundspring-exp095"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+description = "Measurement science niche parity — domain-specific NUCLEUS validation for groundSpring"
+
+[[bin]]
+name = "exp095_measurement_niche"
+path = "src/main.rs"
+
+[dependencies]
+groundspring = { path = "../../crates/groundspring", default-features = false }
+primalspring = { path = "../../../primalSpring/ecoPrimal" }
+serde_json = "1"
+
+[lints]
+workspace = true
