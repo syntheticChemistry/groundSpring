@@ -18,8 +18,7 @@ const GS_REGISTRY: &str = include_str!("../../../capability_registry.toml");
 
 /// primalSpring's canonical capability registry (389 methods).
 /// Path: primalSpring/config/capability_registry.toml
-const PS_REGISTRY: &str =
-    include_str!("../../../../primalSpring/config/capability_registry.toml");
+const PS_REGISTRY: &str = include_str!("../../../../primalSpring/config/capability_registry.toml");
 
 fn extract_methods_from_primalspring_registry(toml_str: &str) -> Vec<String> {
     let mut methods = Vec::new();
@@ -60,10 +59,7 @@ fn groundspring_registry_is_valid_toml() {
         !GS_REGISTRY.is_empty(),
         "groundSpring capability_registry.toml is empty"
     );
-    assert!(
-        GS_REGISTRY.contains("[primal]"),
-        "missing [primal] section"
-    );
+    assert!(GS_REGISTRY.contains("[primal]"), "missing [primal] section");
     assert!(
         GS_REGISTRY.contains("[[tools]]"),
         "missing [[tools]] entries"

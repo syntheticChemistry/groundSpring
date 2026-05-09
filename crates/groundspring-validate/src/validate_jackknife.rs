@@ -11,7 +11,11 @@
 //! - Bazavov et al. (2025) Phys Rev D 111, 094508
 //! - Quenouille (1956) Biometrika 43:353-360
 
-#![expect(clippy::cast_precision_loss, clippy::cast_possible_truncation)]
+#![expect(
+    clippy::cast_precision_loss,
+    clippy::cast_possible_truncation,
+    reason = "sample counts and indices converted for jackknife statistics"
+)]
 
 use groundspring::jackknife::{
     block_jackknife_variance, jackknife_bias, jackknife_mean_variance,

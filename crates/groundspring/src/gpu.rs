@@ -139,7 +139,11 @@ mod tests {
     #[test]
     fn gpu_disabled_env_returns_none() {
         let result = get_device_with_env(|k| {
-            if k == "GROUNDSPRING_GPU" { Some("0".into()) } else { None }
+            if k == "GROUNDSPRING_GPU" {
+                Some("0".into())
+            } else {
+                None
+            }
         });
         assert!(result.is_none());
     }

@@ -115,7 +115,9 @@ mod tests {
     fn mappings_cover_all_capabilities() {
         for &cap in MEASUREMENT_CAPABILITIES {
             assert!(
-                MEASUREMENT_MAPPINGS.iter().any(|(_, method)| *method == cap),
+                MEASUREMENT_MAPPINGS
+                    .iter()
+                    .any(|(_, method)| *method == cap),
                 "capability {cap} not found in mappings"
             );
         }

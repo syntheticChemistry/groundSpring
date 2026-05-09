@@ -143,7 +143,11 @@ fn niche_parity(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     let anderson_data = [0.12, 0.15, 0.11, 0.14, 0.13, 0.16, 0.10, 0.17];
     let n = anderson_data.len() as f64;
     let mean = anderson_data.iter().sum::<f64>() / n;
-    let variance = anderson_data.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / (n - 1.0);
+    let variance = anderson_data
+        .iter()
+        .map(|x| (x - mean).powi(2))
+        .sum::<f64>()
+        / (n - 1.0);
     let expected_std = variance.sqrt();
 
     validate_parity(
@@ -189,25 +193,22 @@ fn niche_parity(ctx: &mut CompositionContext, v: &mut ValidationResult) {
 fn main() {
     ValidationResult::new("groundSpring Exp095 — Measurement Science Niche Parity")
         .with_provenance("exp095_measurement_niche", "2026-05-08")
-        .run(
-            "NUCLEUS base + measurement science domain parity",
-            |v| {
-                let mut ctx = CompositionContext::from_live_discovery_with_fallback();
-                let caps = ctx.available_capabilities();
+        .run("NUCLEUS base + measurement science domain parity", |v| {
+            let mut ctx = CompositionContext::from_live_discovery_with_fallback();
+            let caps = ctx.available_capabilities();
 
-                v.section("Discovery");
-                v.check_bool(
-                    "capabilities_found",
-                    !caps.is_empty(),
-                    &format!(
-                        "discovered {} capabilities: {}",
-                        caps.len(),
-                        caps.join(", ")
-                    ),
-                );
+            v.section("Discovery");
+            v.check_bool(
+                "capabilities_found",
+                !caps.is_empty(),
+                &format!(
+                    "discovered {} capabilities: {}",
+                    caps.len(),
+                    caps.join(", ")
+                ),
+            );
 
-                nucleus_base(&mut ctx, v);
-                niche_parity(&mut ctx, v);
-            },
-        );
+            nucleus_base(&mut ctx, v);
+            niche_parity(&mut ctx, v);
+        });
 }

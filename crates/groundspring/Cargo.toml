@@ -22,6 +22,9 @@ nautilus = ["dep:bingocube-nautilus"]
 biomeos = ["dep:serde_json", "dep:tracing", "dep:tracing-subscriber"]
 npu = ["dep:akida-driver"]
 tarpc-ipc = ["dep:tarpc", "dep:tokio", "dep:serde"]
+certification = ["dep:primalspring", "dep:serde_json"]
+validation = ["certification"]
+unibin = ["certification", "validation", "dep:clap"]
 
 [dependencies]
 log = "0.4"
@@ -31,7 +34,9 @@ bingocube-nautilus = { path = "../../../primalTools/bingoCube/nautilus", optiona
 akida-driver = { path = "../../../../primals/toadStool/crates/neuromorphic/akida-driver", optional = true }
 wgpu = { version = "28", optional = true, default-features = false, features = ["wgsl", "vulkan-portability"] }
 bytemuck = { version = "1", optional = true, features = ["derive"] }
+primalspring = { path = "../../../primalSpring/ecoPrimal", optional = true }
 serde_json = { version = "1", optional = true }
+clap = { version = "4", optional = true, features = ["derive"] }
 tracing = { version = "0.1", optional = true }
 tracing-subscriber = { version = "0.3", optional = true, features = ["fmt", "env-filter"] }
 serde = { version = "1", optional = true, features = ["derive"] }
@@ -42,6 +47,11 @@ tokio = { version = "1", optional = true, features = ["rt", "net"] }
 name = "groundspring"
 path = "src/bin/groundspring_primal.rs"
 required-features = ["biomeos"]
+
+[[bin]]
+name = "groundspring_unibin"
+path = "src/bin/groundspring_unibin.rs"
+required-features = ["unibin"]
 
 [dev-dependencies]
 proptest = "1"

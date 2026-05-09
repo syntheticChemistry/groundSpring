@@ -208,9 +208,20 @@ mod tests {
     #[test]
     fn all_tiers_are_positive() {
         for &t in &[
-            DETERMINISM, STRICT, EXACT, ANALYTICAL, INTEGRATION, CDF_APPROX,
-            ROUNDTRIP, RECONSTRUCTION, LITERATURE, DECOMPOSITION, STOCHASTIC,
-            NORM_2PCT, EQUILIBRIUM, QUANTIZED,
+            DETERMINISM,
+            STRICT,
+            EXACT,
+            ANALYTICAL,
+            INTEGRATION,
+            CDF_APPROX,
+            ROUNDTRIP,
+            RECONSTRUCTION,
+            LITERATURE,
+            DECOMPOSITION,
+            STOCHASTIC,
+            NORM_2PCT,
+            EQUILIBRIUM,
+            QUANTIZED,
         ] {
             assert!(t > 0.0);
         }

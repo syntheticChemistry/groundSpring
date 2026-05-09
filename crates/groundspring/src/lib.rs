@@ -145,6 +145,12 @@ mod ipc_error;
 #[cfg(feature = "tarpc-ipc")]
 pub mod ipc;
 
+#[cfg(feature = "certification")]
+pub mod certification;
+
+#[cfg(feature = "validation")]
+pub mod validation;
+
 /// Re-export of the Nautilus Shell evolutionary reservoir computing crate.
 ///
 /// The Nautilus Shell (`bingoCube/nautilus`) is a feed-forward reservoir that

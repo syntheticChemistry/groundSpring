@@ -34,18 +34,15 @@
 #![forbid(unsafe_code)]
 
 use primalspring::checksums;
-use primalspring::composition::{
-    self, CompositionContext, validate_liveness, validate_parity,
-};
+use primalspring::composition::{self, CompositionContext, validate_liveness, validate_parity};
 use primalspring::tolerances;
 use primalspring::validation::ValidationResult;
 
 use groundspring::decompose::decompose_error;
 
 fn main() {
-    let mut v = ValidationResult::new(
-        "groundSpring guideStone — Measurement Science Certification",
-    );
+    let mut v =
+        ValidationResult::new("groundSpring guideStone — Measurement Science Certification");
 
     ValidationResult::print_banner(
         "groundSpring guideStone — Level 4 (bare + NUCLEUS composition parity)",
@@ -94,12 +91,8 @@ fn main() {
     );
 
     if alive == 0 {
-        eprintln!(
-            "[guideStone] No NUCLEUS primals discovered — bare certification only."
-        );
-        eprintln!(
-            "[guideStone] Deploy from plasmidBin ecobins and set FAMILY_ID to test IPC."
-        );
+        eprintln!("[guideStone] No NUCLEUS primals discovered — bare certification only.");
+        eprintln!("[guideStone] Deploy from plasmidBin ecobins and set FAMILY_ID to test IPC.");
         v.finish();
         std::process::exit(v.exit_code_skip_aware());
     }
@@ -279,10 +272,7 @@ fn validate_tolerance_documented(v: &mut ValidationResult) {
 
     v.check_bool(
         "tolerance:ordering_correct",
-        tol_det < tol_exact
-            && tol_exact < tol_anal
-            && tol_anal < tol_lit
-            && tol_lit < tol_decomp,
+        tol_det < tol_exact && tol_exact < tol_anal && tol_anal < tol_lit && tol_lit < tol_decomp,
         "DETERMINISM < EXACT < ANALYTICAL < LITERATURE < DECOMPOSITION",
     );
 
@@ -364,11 +354,21 @@ fn tower_crypto_hash(ctx: &mut CompositionContext, v: &mut ValidationResult) {
                 "tower:crypto_hash_nonempty",
                 &format!("security reachable but protocol mismatch: {e}"),
             );
-            v.check_skip("tower:crypto_hash_base64_valid", "security protocol mismatch");
-            v.check_skip("tower:crypto_hash_deterministic", "security protocol mismatch");
+            v.check_skip(
+                "tower:crypto_hash_base64_valid",
+                "security protocol mismatch",
+            );
+            v.check_skip(
+                "tower:crypto_hash_deterministic",
+                "security protocol mismatch",
+            );
         }
         Err(e) => {
-            v.check_bool("tower:crypto_hash_nonempty", false, &format!("hash error: {e}"));
+            v.check_bool(
+                "tower:crypto_hash_nonempty",
+                false,
+                &format!("hash error: {e}"),
+            );
             v.check_skip("tower:crypto_hash_base64_valid", "prior call failed");
             v.check_skip("tower:crypto_hash_deterministic", "prior call failed");
         }
@@ -584,9 +584,7 @@ fn node_compute_dispatch_health(ctx: &mut CompositionContext, v: &mut Validation
                 true,
                 &format!(
                     "response keys: {:?}",
-                    result
-                        .as_object()
-                        .map(|o| o.keys().collect::<Vec<_>>())
+                    result.as_object().map(|o| o.keys().collect::<Vec<_>>())
                 ),
             );
         }
@@ -740,8 +738,7 @@ fn nucleus_hash_store_retrieve(ctx: &mut CompositionContext, v: &mut ValidationR
                 &format!("BLAKE3: {}...", &hash_hex[..hash_hex.len().min(16)]),
             );
 
-            let family_id =
-                std::env::var("FAMILY_ID").unwrap_or_else(|_| "nucleus01".to_owned());
+            let family_id = std::env::var("FAMILY_ID").unwrap_or_else(|_| "nucleus01".to_owned());
             let store_key = "groundspring_cross_atomic_hash";
             let store_result = ctx
                 .call(
@@ -813,11 +810,7 @@ fn nucleus_hash_store_retrieve(ctx: &mut CompositionContext, v: &mut ValidationR
                     );
                 }
                 Err(e) => {
-                    v.check_bool(
-                        "cross:nest_roundtrip",
-                        false,
-                        &format!("store error: {e}"),
-                    );
+                    v.check_bool("cross:nest_roundtrip", false, &format!("store error: {e}"));
                 }
             }
         }

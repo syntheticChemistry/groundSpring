@@ -362,8 +362,7 @@ fn nucleus_hash_store_retrieve(ctx: &mut CompositionContext, v: &mut ValidationR
                 &format!("BLAKE3: {}...", &hash_hex[..hash_hex.len().min(16)]),
             );
 
-            let family_id =
-                std::env::var("FAMILY_ID").unwrap_or_else(|_| "nucleus01".to_owned());
+            let family_id = std::env::var("FAMILY_ID").unwrap_or_else(|_| "nucleus01".to_owned());
             let store_key = "gs_exp094_cross_atomic_hash";
             let store_result = ctx
                 .call(
@@ -421,11 +420,7 @@ fn nucleus_hash_store_retrieve(ctx: &mut CompositionContext, v: &mut ValidationR
                     );
                 }
                 Err(e) => {
-                    v.check_bool(
-                        "cross_nest_roundtrip",
-                        false,
-                        &format!("store error: {e}"),
-                    );
+                    v.check_bool("cross_nest_roundtrip", false, &format!("store error: {e}"));
                 }
             }
         }

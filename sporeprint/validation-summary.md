@@ -1,7 +1,7 @@
 +++
 title = "groundSpring Validation Summary"
-description = "Measurement noise and uncertainty — 965+ tests, 35 experiments, guideStone Level 4, 5 notebooks, 2 composition crates"
-date = 2026-05-08
+description = "Measurement noise and uncertainty — 1,006+ tests, 35 experiments, guideStone Level 4, Eukaryotic UniBin, 5 notebooks, 10 validation scenarios"
+date = 2026-05-09
 
 [taxonomies]
 primals = ["barracuda", "toadstool", "beardog", "songbird", "nestgate"]
@@ -10,20 +10,25 @@ springs = ["groundspring", "hotspring", "wetspring", "neuralspring", "airspring"
 
 ## Status
 
-- **965+ tests** passing, 0 failed (146s full suite)
+- **1,006+ tests** passing, 0 failed
 - **35 experiments** across 10 scientific domains
+- **10 validation scenarios** in ScenarioRegistry (9 Tier 1, 1 Tier 2)
 - **395/395 validation checks** (340 core + 55 NUCLEUS)
 - **29/29 Python baselines** with math parity proven
 - **110 barraCuda delegations** (67 CPU + 43 GPU)
-- **guideStone Level 4** — bare + NUCLEUS composition parity (Tower + Node + Nest + cross-atomic)
-- **2 composition experiment crates** — exp094 (NUCLEUS parity replication) + exp095 (measurement niche parity)
-- **6 registry sync tests** — capability_registry.toml cross-validated against primalSpring canonical (389 methods)
-- **16 measurement capabilities** synced (niche, YAML, deploy graphs)
-- **Zero** unsafe blocks, production mocks, hardcoded addresses, `#[allow]` attrs
+- **guideStone Level 4** → Tier 2 target (eukaryotic UniBin)
+- **certification/ organelle** — Properties 1-5 (bare) + Layers 2-4 (NUCLEUS)
+- **groundspring_unibin** — single binary: certify / validate / status / version
+- **src/ipc/ tree** — per-primal modules (barraCuda, ToadStool, NestGate, BearDog, Songbird)
+- **primalSpring v0.9.25 pinned** — CompositionContext, ScenarioMeta, ScenarioRegistry
+- **fossilRecord/** — 3 dated prokaryotic snapshots
+- **Zero** unsafe, bare `#[allow]`/`#[expect]` without reason, TODO/FIXME
 
 ## Key Validation Binaries
 
-- `groundspring_guidestone` — 5 bare properties + Layer 2-4 NUCLEUS composition (Tower/Node/Nest/cross-atomic)
+- `groundspring_unibin certify` — L0-L4 certification (supersedes groundspring_guidestone)
+- `groundspring_unibin validate --tier rust` — 9 Tier 1 scenarios (CI-safe, no IPC)
+- `groundspring_unibin validate --tier live` — Tier 2 NUCLEUS composition parity
 - `validate_all` — meta-runner for all 29 Python-parity validators (exit-code protocol)
 - `bench_gpu_vs_kokkos` — three-mode GPU benchmark (default → barraCuda CPU → GPU)
 

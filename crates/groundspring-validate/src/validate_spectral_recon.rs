@@ -11,7 +11,10 @@
 //! - Bazavov et al. (2025) arXiv 2501.12259
 //! - Tikhonov & Arsenin (1977)
 
-#![expect(clippy::cast_precision_loss)]
+#![expect(
+    clippy::cast_precision_loss,
+    reason = "usize index → f64 for chi-squared normalization"
+)]
 
 use groundspring::prng::Xorshift64;
 use groundspring::spectral_recon::{

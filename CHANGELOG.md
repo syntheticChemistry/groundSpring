@@ -4,6 +4,35 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V126 Eukaryotic UniBin Evolution — Interstadial Primordial Extinction (May 9, 2026)
+
+#### UniBin Consolidation (eukaryotic pattern from primalSpring v0.9.25)
+- **certification/ organelle**: Absorbed `groundspring_guidestone` binary into library module
+  (`certification/bare.rs` for Properties 1-5, `certification/composition.rs` for Layers 2-4).
+  `certify(max_layer)` is the new entry point.
+- **validation/scenarios/ registry**: 10 absorbed scenarios across 10 tracks with `ScenarioMeta`
+  (id, track, tier, provenance). `ScenarioRegistry` supports tier/track filtering.
+- **groundspring_unibin binary**: Single binary with `certify`, `validate`, `status`, `version`
+  subcommands. `--tier rust` for CI-safe Tier 1, `--tier live` for NUCLEUS Tier 2.
+- **fossilRecord/**: 3 dated prokaryotic snapshots — validate_binaries, guidestone, experiment_crates.
+
+#### IPC Tree Expansion
+- **src/ipc/ tree**: Expanded monolithic `ipc.rs` (270 lines) into per-primal module tree:
+  `ipc/barracuda.rs`, `ipc/toadstool.rs`, `ipc/nestgate.rs`, `ipc/beardog.rs`, `ipc/songbird.rs`,
+  `ipc/client.rs`, `ipc/discovery.rs`. Each primal has a dedicated IPC surface definition.
+- **PRIMAL_PROOF_IPC_MAPPING.md**: Documents 30+ `barracuda::` library calls mapped to JSON-RPC
+  method equivalents, plus the `primal-proof` transition path.
+
+#### Interstadial Compliance
+- **primalSpring v0.9.25 pinned**: Path dep resolves to v0.9.25 for `CompositionContext`,
+  `ScenarioMeta`, `ScenarioRegistry`, and certification engine API.
+- **Zero bare `#[expect]`**: Fixed 3 missing `reason` annotations in validate_spectral_recon,
+  validate_npu_anderson, validate_jackknife.
+- **Two-tier validation**: `docs/VALIDATION_TIERS.md` documents Tier 1 (Rust, CI-safe) and
+  Tier 2 (Live, NUCLEUS via `CompositionContext`).
+- **1,006+ tests**: Zero failures. `cargo fmt --check` clean, `cargo clippy --workspace --lib`
+  zero warnings.
+
 ### V125 guideStone Level 4 + Deep Debt Evolution (May 8, 2026)
 
 #### guideStone Level 4 — NUCLEUS Composition Parity

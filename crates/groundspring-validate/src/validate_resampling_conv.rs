@@ -120,13 +120,11 @@ fn run() -> i32 {
 
     h.check_true(
         "Bootstrap width converges (Gaussian)",
-        *boot_widths.last().unwrap_or(&f64::MAX)
-            <= boot_widths[0] * CONVERGENCE_FACTOR_GAUSSIAN,
+        *boot_widths.last().unwrap_or(&f64::MAX) <= boot_widths[0] * CONVERGENCE_FACTOR_GAUSSIAN,
     );
     h.check_true(
         "RAWR width converges (Gaussian)",
-        *rawr_widths.last().unwrap_or(&f64::MAX)
-            <= rawr_widths[0] * CONVERGENCE_FACTOR_GAUSSIAN,
+        *rawr_widths.last().unwrap_or(&f64::MAX) <= rawr_widths[0] * CONVERGENCE_FACTOR_GAUSSIAN,
     );
 
     let len = boot_widths.len();
