@@ -113,7 +113,7 @@ The `biomeos` module already routes to deployed primals via JSON-RPC:
 let mut ctx = CompositionContext::from_live_discovery_with_fallback();
 ctx.call("tensor", "stats.mean", json!({"data": [1.0, 2.0, 3.0]}));
 ctx.call("compute", "compute.dispatch", json!({...}));
-ctx.call("storage", "storage.store", json!({...}));
+ctx.call("storage", "storage.put", json!({...}));
 ctx.health_check("security");
 ```
 

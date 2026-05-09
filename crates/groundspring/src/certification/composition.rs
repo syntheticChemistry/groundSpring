@@ -31,8 +31,8 @@ pub fn certify_composition(v: &mut ValidationResult, max_layer: u8) {
     let alive = validate_liveness(&mut ctx, v, &["tensor", "compute", "storage", "security"]);
 
     if alive == 0 {
-        eprintln!("[guideStone] No NUCLEUS primals discovered — bare certification only.");
-        eprintln!("[guideStone] Deploy from plasmidBin ecobins and set FAMILY_ID to test IPC.");
+        tracing::warn!("No NUCLEUS primals discovered — bare certification only");
+        tracing::info!("Deploy from plasmidBin ecobins and set FAMILY_ID to test IPC");
         return;
     }
 

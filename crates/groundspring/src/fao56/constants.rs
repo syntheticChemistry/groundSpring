@@ -76,6 +76,10 @@ mod tests {
     }
 
     #[test]
+    #[expect(
+        clippy::assertions_on_constants,
+        reason = "compile-time verification that albedo is physically valid"
+    )]
     fn albedo_in_range() {
         assert!(ALBEDO > 0.0 && ALBEDO < 1.0);
     }

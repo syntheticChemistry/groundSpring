@@ -62,6 +62,7 @@ mod tests {
     }
 
     #[test]
+    #[expect(clippy::float_cmp, reason = "empty inputs return literal 0.0")]
     fn empty_is_zero() {
         assert_eq!(index_of_agreement(&[], &[]), 0.0);
     }

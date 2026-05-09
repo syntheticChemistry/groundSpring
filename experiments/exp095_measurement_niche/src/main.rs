@@ -9,7 +9,7 @@
 //!   - NUCLEUS base (Tower security, Node compute, Nest storage round-trip)
 //!   - Noise decomposition parity (local Rust baseline vs IPC stats.mean)
 //!   - Sensor noise vector parity (local baseline vs IPC matmul)
-//!   - Anderson localization scaling (local vs IPC std_dev parity)
+//!   - Anderson localization scaling (local vs IPC `std_dev` parity)
 //!   - Cross-atomic: hash decomposition result → store → retrieve → match
 //!
 //! Environment:
@@ -141,6 +141,10 @@ fn niche_parity(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     v.section("Niche — Anderson Localization Scaling");
 
     let anderson_data = [0.12, 0.15, 0.11, 0.14, 0.13, 0.16, 0.10, 0.17];
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "small array length fits in f64 mantissa"
+    )]
     let n = anderson_data.len() as f64;
     let mean = anderson_data.iter().sum::<f64>() / n;
     let variance = anderson_data

@@ -4,6 +4,47 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V127 Deep Debt Cleanup + Docs Alignment (May 9, 2026)
+
+#### Logging Unification
+- **`log` → `tracing`**: Migrated 11 `log::` calls across 5 files (resilience, provenance, server, registration, health) to `tracing::`
+- **Removed `log` crate** dependency entirely — zero `log::` calls remain
+- **`eprintln!` in library** (`certification/composition.rs`) → `tracing::warn!`/`tracing::info!`
+- **`tracing` added** to `certification` feature gate in Cargo.toml
+
+#### Clippy Zero-Warning on All Targets
+- Fixed 5 `clippy::unwrap_used` errors in freeze_out test modules
+- Fixed 3 unused variable warnings in stats/agreement/coefficient.rs
+- Fixed 12 `clippy::float_cmp` warnings in test assertions
+- Fixed 20+ `clippy::assertions_on_constants` in constant-verification tests
+- Fixed 2 collapsible-if and 1 manual-assert in registry_sync.rs
+- Fixed 3 `clippy::doc_markdown` warnings (backtick formatting)
+- Fixed 1 `clippy::cast_precision_loss` in exp095
+- Result: `cargo clippy --workspace --all-targets` = **0 warnings, 0 errors**
+
+#### Hardcoding Evolution
+- `validate_nestgate_ncbi.rs`: `"localhost"` → named `DEFAULT_LOOPBACK` constant
+- All `/run/user/` patterns verified behind `#[cfg(target_os = "linux")]`
+
+#### Documentation Alignment
+- All docs aligned to V127 / 1,099 tests / barraCuda v0.3.13
+- Fixed README: barraCuda v0.3.7 → v0.3.13, Exp 034 → 035, wateringHole V123 → V127
+- Fixed CONTEXT.md: "100% Rust" → "Rust library + validators, Python baselines"
+- Fixed CONTROL_EXPERIMENT_STATUS.md: header to V127, test counts, handoff references
+- Fixed STUDY.md: "twenty-eight experiments" → "thirty-five experiments"
+- Fixed liu.md: `rawr_mean` delegation status updated (S66)
+- Fixed PRIMAL_PROOF_IPC_MAPPING.md: `storage.store` → `storage.put`
+- Fixed fossilRecord/README.md: handoff filename corrected
+- wateringHole/README.md: added 2 missing V125 handoffs to active table
+- New V127 handoff with upstream primal debt + downstream absorption patterns
+
+#### Quality
+- **1,099 tests**, 0 failed
+- **Zero** clippy warnings on all targets (lib + bin + test)
+- **Zero** `fmt` diff
+- **Zero** bare `#[allow]`/`#[expect]` without reason
+- **Zero** TODO/FIXME/HACK in Rust source
+
 ### V126 Eukaryotic UniBin Evolution — Interstadial Primordial Extinction (May 9, 2026)
 
 #### UniBin Consolidation (eukaryotic pattern from primalSpring v0.9.25)

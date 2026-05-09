@@ -1,6 +1,6 @@
 +++
 title = "groundSpring Validation Summary"
-description = "Measurement noise and uncertainty — 1,006+ tests, 35 experiments, guideStone Level 4, Eukaryotic UniBin, 5 notebooks, 10 validation scenarios"
+description = "Measurement noise and uncertainty — 1,099 tests, 35 experiments, guideStone Level 4, Eukaryotic UniBin, 5 notebooks, 10 validation scenarios"
 date = 2026-05-09
 
 [taxonomies]
@@ -10,7 +10,7 @@ springs = ["groundspring", "hotspring", "wetspring", "neuralspring", "airspring"
 
 ## Status
 
-- **1,006+ tests** passing, 0 failed
+- **1,099 tests** passing, 0 failed, 0 clippy warnings on all targets
 - **35 experiments** across 10 scientific domains
 - **10 validation scenarios** in ScenarioRegistry (9 Tier 1, 1 Tier 2)
 - **395/395 validation checks** (340 core + 55 NUCLEUS)

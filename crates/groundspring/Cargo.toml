@@ -22,12 +22,11 @@ nautilus = ["dep:bingocube-nautilus"]
 biomeos = ["dep:serde_json", "dep:tracing", "dep:tracing-subscriber"]
 npu = ["dep:akida-driver"]
 tarpc-ipc = ["dep:tarpc", "dep:tokio", "dep:serde"]
-certification = ["dep:primalspring", "dep:serde_json"]
+certification = ["dep:primalspring", "dep:serde_json", "dep:tracing"]
 validation = ["certification"]
 unibin = ["certification", "validation", "dep:clap"]
 
 [dependencies]
-log = "0.4"
 thiserror = "2"
 barracuda = { path = "../../../../primals/barraCuda/crates/barracuda", optional = true, default-features = false }
 bingocube-nautilus = { path = "../../../primalTools/bingoCube/nautilus", optional = true }

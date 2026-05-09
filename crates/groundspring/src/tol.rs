@@ -179,6 +179,10 @@ mod tests {
     use super::*;
 
     #[test]
+    #[expect(
+        clippy::assertions_on_constants,
+        reason = "compile-time verification that tolerance tiers are correctly ordered"
+    )]
     fn tiers_are_strictly_ordered() {
         assert!(DETERMINISM < STRICT);
         assert!(STRICT < EXACT);
@@ -196,6 +200,10 @@ mod tests {
     }
 
     #[test]
+    #[expect(
+        clippy::float_cmp,
+        reason = "upstream aliases must be exactly equal to their base tier"
+    )]
     fn upstream_pins_match_base_tiers() {
         assert_eq!(UPSTREAM_SPECTRAL_EIGH, ANALYTICAL);
         assert_eq!(UPSTREAM_BIO_MULTINOMIAL, DETERMINISM);

@@ -46,8 +46,8 @@ pub fn register_capabilities(socket: &Path) -> Result<usize> {
         "version": env!("CARGO_PKG_VERSION"),
     });
     match capability_call_value(socket, "capability.register", &domain_args) {
-        Ok(_) => log::info!("registered measurement domain"),
-        Err(e) => log::warn!("domain registration failed (non-fatal): {e}"),
+        Ok(_) => tracing::info!("registered measurement domain"),
+        Err(e) => tracing::warn!("domain registration failed (non-fatal): {e}"),
     }
 
     // Phase 2: Individual capability registration
@@ -63,7 +63,7 @@ pub fn register_capabilities(socket: &Path) -> Result<usize> {
         match capability_call_value(socket, "capability.register", &args) {
             Ok(_) => registered += 1,
             Err(e) => {
-                log::warn!("failed to register {cap}: {e}");
+                tracing::warn!("failed to register {cap}: {e}");
             }
         }
     }

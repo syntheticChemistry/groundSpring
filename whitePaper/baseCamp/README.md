@@ -3,9 +3,9 @@
 **Purpose**: Per-faculty research briefings for groundSpring noise characterization
 reproductions and extensions.
 
-**Last Updated**: May 8, 2026
+**Last Updated**: May 9, 2026
 
-**Validation Summary**: V125 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+**. 965+ Rust tests + 287 Python provenance tests. ≥92% library line coverage. **guideStone Level 4** (bare + NUCLEUS composition parity) — `groundspring_guidestone` binary with 5 bare properties + 6 NUCLEUS additive IPC parity checks. 2 composition experiment crates. 16 measurement capabilities synced across niche YAML, deploy graphs, and tower bootstrap. All deploy graph verbs reconciled. `cargo deny check` PASS, `cargo clippy --workspace` clean, workspace-level `deny` for `unwrap_used`/`expect_used`. All 35 experiments PASS. **29/29 mathematical parity proven**. Zero clippy (pedantic + nursery), zero unsafe, zero TODO, zero unwrap/expect in production code. 10 domains, 41 modules. 34 notebooks (5 sporePrint + 29 baselines) live on primals.eco.
+**Validation Summary**: V127 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+**. 1,099 Rust tests + 287 Python provenance tests. ≥92% library line coverage. **guideStone Level 4** → Tier 2 target. Eukaryotic UniBin (`certification/` organelle, `validation/scenarios/` registry, `groundspring_unibin` binary). `src/ipc/` per-primal tree. Unified `tracing` logging, `log` crate removed. Zero clippy warnings on all targets (pedantic + nursery), zero unsafe, zero bare `#[allow]`/`#[expect]` without reason. All 35 experiments PASS. **29/29 mathematical parity proven**. 10 domains, 41 modules. 34 notebooks (5 sporePrint + 29 baselines) live on primals.eco.
 
 ---
 

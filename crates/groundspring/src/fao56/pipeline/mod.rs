@@ -35,6 +35,10 @@ mod tests {
     use super::*;
 
     #[test]
+    #[expect(
+        clippy::assertions_on_constants,
+        reason = "compile-time verification that RH bounds are physically valid"
+    )]
     fn rh_clamp_bounds_are_physical() {
         assert!(RH_MIN_FLOOR_PCT >= 0.0);
         assert!(RH_MAX_CEIL_PCT <= 100.0);
@@ -42,6 +46,10 @@ mod tests {
     }
 
     #[test]
+    #[expect(
+        clippy::assertions_on_constants,
+        reason = "compile-time verification that wind speed floor is positive"
+    )]
     fn wind_speed_floor_is_positive() {
         assert!(WIND_SPEED_FLOOR_KMH > 0.0);
     }

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-//! Registry cross-sync test — validates groundSpring's capability_registry.toml
+//! Registry cross-sync test — validates groundSpring's `capability_registry.toml`
 //! against primalSpring's canonical 389-method capability registry.
 //!
 //! Phase 60 universal target #2: every spring must test its methods against
@@ -17,7 +17,7 @@
 const GS_REGISTRY: &str = include_str!("../../../capability_registry.toml");
 
 /// primalSpring's canonical capability registry (389 methods).
-/// Path: primalSpring/config/capability_registry.toml
+/// Path: `primalSpring/config/capability_registry.toml`
 const PS_REGISTRY: &str = include_str!("../../../../primalSpring/config/capability_registry.toml");
 
 fn extract_methods_from_primalspring_registry(toml_str: &str) -> Vec<String> {
@@ -42,12 +42,12 @@ fn extract_tools_from_groundspring_registry(toml_str: &str) -> Vec<String> {
     let mut tools = Vec::new();
     for line in toml_str.lines() {
         let trimmed = line.trim();
-        if let Some(name) = trimmed.strip_prefix("name = \"") {
-            if let Some(name) = name.strip_suffix('"') {
-                if name.contains('.') {
-                    tools.push(name.to_string());
-                }
-            }
+        if let Some(name) = trimmed
+            .strip_prefix("name = \"")
+            .and_then(|n| n.strip_suffix('"'))
+            .filter(|n| n.contains('.'))
+        {
+            tools.push(name.to_string());
         }
     }
     tools
@@ -146,11 +146,10 @@ fn groundspring_methods_use_known_domains() {
     let gs_tools = extract_tools_from_groundspring_registry(GS_REGISTRY);
     for tool in &gs_tools {
         let domain = tool.split('.').next().unwrap_or("");
-        if !canonical_domains.contains(domain) && domain != "measurement" {
-            panic!(
-                "groundSpring tool '{tool}' uses domain '{domain}' which is not in the canonical registry. \
-                 Known domains: {canonical_domains:?}"
-            );
-        }
+        assert!(
+            canonical_domains.contains(domain) || domain == "measurement",
+            "groundSpring tool '{tool}' uses domain '{domain}' which is not in the canonical registry. \
+             Known domains: {canonical_domains:?}"
+        );
     }
 }

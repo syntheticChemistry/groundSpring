@@ -818,7 +818,6 @@ dependencies = [
  "bingocube-nautilus",
  "bytemuck",
  "clap",
- "log",
  "primalspring",
  "proptest",
  "serde",

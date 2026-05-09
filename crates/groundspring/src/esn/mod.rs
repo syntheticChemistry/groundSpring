@@ -117,6 +117,10 @@ mod tests {
     }
 
     #[test]
+    #[expect(
+        clippy::assertions_on_constants,
+        reason = "compile-time verification that GOE and Poisson constants are distinct"
+    )]
     fn goe_and_poisson_are_distinct() {
         assert!(GOE_R > POISSON_R);
     }

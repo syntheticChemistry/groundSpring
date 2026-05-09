@@ -60,17 +60,21 @@ pub(super) fn coefficient_of_efficiency_gpu(observed: &[f64], modeled: &[f64]) -
 mod tests {
     #[test]
     fn perfect_model_has_efficiency_one() {
-        let obs = [1.0, 2.0, 3.0, 4.0];
         #[cfg(not(feature = "barracuda"))]
-        assert!((super::coefficient_of_efficiency(&obs, &obs) - 1.0).abs() < crate::tol::EXACT);
+        {
+            let obs = [1.0, 2.0, 3.0, 4.0];
+            assert!((super::coefficient_of_efficiency(&obs, &obs) - 1.0).abs() < crate::tol::EXACT);
+        }
     }
 
     #[test]
     fn mean_model_has_efficiency_zero() {
-        let obs = [1.0, 2.0, 3.0, 4.0];
-        let mean_model = [2.5, 2.5, 2.5, 2.5];
         #[cfg(not(feature = "barracuda"))]
-        assert!(super::coefficient_of_efficiency(&obs, &mean_model).abs() < crate::tol::EXACT);
+        {
+            let obs = [1.0, 2.0, 3.0, 4.0];
+            let mean_model = [2.5, 2.5, 2.5, 2.5];
+            assert!(super::coefficient_of_efficiency(&obs, &mean_model).abs() < crate::tol::EXACT);
+        }
     }
 
     #[test]

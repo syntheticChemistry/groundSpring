@@ -22,11 +22,11 @@ for noise characterization and uncertainty quantification.
 
 ## Technical Facts
 
-- **Language:** 100% Rust, zero C dependencies (`cargo-deny` enforced)
+- **Language:** Rust library + validators, Python Phase 0 baselines + notebooks. Zero C dependencies (`cargo-deny` enforced)
 - **Architecture:** 3-crate workspace (`groundspring` library, `groundspring-validate` binaries, `groundspring-forge` GPU/hardware dispatch)
 - **Communication:** JSON-RPC 2.0 over Unix domain sockets (behind `biomeos` feature)
 - **License:** AGPL-3.0-or-later
-- **Tests:** 1,006+ Rust tests + 287 Python provenance tests
+- **Tests:** 1,099 Rust tests + 287 Python provenance tests
 - **Coverage:** ≥92% library line coverage (`cargo llvm-cov --workspace --lib`)
 - **MSRV:** Rust 1.87 (2024 edition)
 - **Crate count:** 3 workspace crates

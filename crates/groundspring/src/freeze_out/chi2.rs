@@ -125,6 +125,8 @@ mod tests {
     use super::*;
 
     #[test]
+    #[expect(clippy::unwrap_used, reason = "test assertions on known-valid inputs")]
+    #[expect(clippy::float_cmp, reason = "identical inputs produce exact zero")]
     fn perfect_prediction_has_zero_chi2() {
         let obs = [1.0, 2.0, 3.0, 4.0];
         let pred = [1.0, 2.0, 3.0, 4.0];
@@ -135,6 +137,7 @@ mod tests {
     }
 
     #[test]
+    #[expect(clippy::unwrap_used, reason = "test assertions on known-valid inputs")]
     fn known_chi2_value() {
         let obs = [1.0, 2.0, 3.0];
         let pred = [1.1, 2.0, 2.8];
@@ -151,6 +154,7 @@ mod tests {
     }
 
     #[test]
+    #[expect(clippy::unwrap_used, reason = "test assertions on known-valid inputs")]
     fn pulls_are_residuals_over_sigma() {
         let obs = [10.0];
         let pred = [8.0];

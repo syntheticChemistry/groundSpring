@@ -223,7 +223,7 @@ pub fn resilient_call<T, E: std::fmt::Display + std::fmt::Debug>(
             return Ok(val);
         }
         Err(e) => {
-            log::debug!("resilient_call attempt 0 failed: {e}");
+            tracing::debug!("resilient_call attempt 0 failed: {e}");
             e
         }
     };
@@ -236,7 +236,7 @@ pub fn resilient_call<T, E: std::fmt::Display + std::fmt::Debug>(
                 return Ok(val);
             }
             Err(e) => {
-                log::debug!("resilient_call attempt {attempt} failed: {e}");
+                tracing::debug!("resilient_call attempt {attempt} failed: {e}");
                 last_error = e;
             }
         }

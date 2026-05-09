@@ -486,7 +486,7 @@ Phase 0: 7/7 PASS (Python). Phase 1: 9/9 PASS (Rust, 7 CPU + 2 NPU live).
 
 ## 23. Extended Cross-Domain Synthesis
 
-The twenty-eight experiments span nine domains and three hardware substrates,
+The thirty-five experiments span ten domains and three hardware substrates,
 but share a single framework: decompose error into correctable bias and
 irreducible noise, then propagate that uncertainty through coupled systems.
 

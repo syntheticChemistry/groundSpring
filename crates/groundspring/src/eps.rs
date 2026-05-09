@@ -52,6 +52,10 @@ mod tests {
     }
 
     #[test]
+    #[expect(
+        clippy::assertions_on_constants,
+        reason = "compile-time verification that epsilon constants are positive"
+    )]
     fn constants_are_positive() {
         assert!(SAFE_DIV > 0.0);
         assert!(SSA_FLOOR > 0.0);
@@ -61,6 +65,10 @@ mod tests {
     }
 
     #[test]
+    #[expect(
+        clippy::assertions_on_constants,
+        reason = "compile-time verification of epsilon ordering"
+    )]
     fn strict_is_stricter_than_safe() {
         assert!(SAFE_DIV_STRICT < SAFE_DIV);
     }

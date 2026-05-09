@@ -100,7 +100,7 @@ where
     E: std::fmt::Display,
 {
     if let Err(e) = handle_connection(stream, &handler) {
-        log::error!("connection error: {e}");
+        tracing::error!("connection error: {e}");
     }
 }
 

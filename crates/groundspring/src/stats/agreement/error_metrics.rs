@@ -188,6 +188,10 @@ mod tests {
     use super::*;
 
     #[test]
+    #[expect(
+        clippy::float_cmp,
+        reason = "identical inputs produce exact zero — no FP arithmetic"
+    )]
     fn rmse_perfect() {
         assert_eq!(rmse(&[1.0, 2.0, 3.0], &[1.0, 2.0, 3.0]), 0.0);
     }
@@ -199,11 +203,16 @@ mod tests {
     }
 
     #[test]
+    #[expect(clippy::float_cmp, reason = "empty inputs return literal 0.0")]
     fn rmse_empty() {
         assert_eq!(rmse(&[], &[]), 0.0);
     }
 
     #[test]
+    #[expect(
+        clippy::float_cmp,
+        reason = "identical inputs produce exact zero — no FP arithmetic"
+    )]
     fn mae_perfect() {
         assert_eq!(mae(&[1.0, 2.0], &[1.0, 2.0]), 0.0);
     }
@@ -227,6 +236,7 @@ mod tests {
     }
 
     #[test]
+    #[expect(clippy::float_cmp, reason = "empty inputs return literal 0.0")]
     fn mbe_empty() {
         assert_eq!(mbe(&[], &[]), 0.0);
     }

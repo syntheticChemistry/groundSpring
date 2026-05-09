@@ -7,7 +7,7 @@
 [![ecoBin](https://img.shields.io/badge/ecoBin-compliant-green.svg)](https://github.com/ecoPrimals/wateringHole/blob/main/ECOBIN_ARCHITECTURE_STANDARD.md)
 
 **Date**: May 9, 2026 | **License**: AGPL-3.0-or-later | **MSRV**: Rust 1.87 (2024 edition)
-**Status**: V126 — Eukaryotic UniBin evolution. 41 modules, 35 experiments, 1,006+ tests, 395/395 validation checks + 140 metalForge checks + 29 validator integration tests. **guideStone Level 4** → Tier 2 target. `certification/` organelle (L0-L4), `validation/scenarios/` registry (10 tracks, Tier 1/Tier 2), `groundspring_unibin` binary (certify/validate/status/version). `src/ipc/` tree with per-primal modules (barraCuda, ToadStool, NestGate, BearDog, Songbird). `PRIMAL_PROOF_IPC_MAPPING.md` documenting 30+ `barracuda::` → JSON-RPC mappings. primalSpring v0.9.25 pinned. `fossilRecord/` with 3 dated prokaryotic snapshots. Zero bare `#[allow]`/`#[expect]` without reason. Zero TODO/FIXME. barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+. 6 deploy graphs, 34 notebooks.
+**Status**: V127 — Deep debt cleanup + eukaryotic UniBin. 41 modules, 35 experiments, 1,099 tests (zero warnings, zero clippy errors on all targets), 395/395 validation checks + 140 metalForge checks + 29 validator integration tests. **guideStone Level 4** → Tier 2 target. `certification/` organelle (L0-L4), `validation/scenarios/` registry (10 tracks, Tier 1/Tier 2), `groundspring_unibin` binary (certify/validate/status/version). `src/ipc/` tree with per-primal modules (barraCuda, ToadStool, NestGate, BearDog, Songbird). Unified `tracing` logging (zero `log::` calls). primalSpring v0.9.25 pinned. `fossilRecord/` with 3 dated prokaryotic snapshots. Zero bare `#[allow]`/`#[expect]` without reason. Zero TODO/FIXME. barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+. 6 deploy graphs, 34 notebooks.
 
 **The gap between what models predict and what instruments measure.**
 
@@ -119,7 +119,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace                         # 1020+ tests, all PASS
+cargo test --workspace                         # 1,099 tests, all PASS
 cargo test --workspace --all-features          # all feature paths tested
 cargo test --workspace --features biomeos      # NUCLEUS client active
 cargo test --workspace --features barracuda-gpu # GPU dispatch active
@@ -274,7 +274,7 @@ Every spring contributes shaders that benefit the entire ecosystem through barra
 
 ```
 hotSpring (precision)  ─────┐
-  df64_core, Sturm tridiag, │    All absorbed into barraCuda v0.3.7
+  df64_core, Sturm tridiag, │    All absorbed into barraCuda v0.3.13
   stress_virial, CG kernels ├──► 784 WGSL shaders, f64-canonical
                              │    with f16/f32/f64/Df64 per hardware
 wetSpring (bio)  ────────────┤
@@ -369,7 +369,7 @@ groundSpring/
 │   ├── size_convergence/           # Exp 026: System-size convergence
 │   ├── vendor_parity/              # Exp 027: GPU vendor parity
 │   ├── npu_anderson/               # Exp 028: NPU Anderson regime classification
-│   └── et0_methods/                # Exp 034: Multi-method ET₀ cross-validation
+│   └── et0_methods/                # Exp 035: Multi-method ET₀ cross-validation
 ├── crates/
 │   ├── groundspring/               # Phase 1 Rust library (41 modules incl. rawr, esn, lanczos, tissue_anderson, biomeos, nestgate, npu, primal_names)
 │   └── groundspring-validate/      # 34 validation binaries (hotSpring pattern)
@@ -381,7 +381,7 @@ groundSpring/
 ├── graphs/                         # biomeOS pipeline graphs (deploy, Tower, Node, cross-substrate, validation)
 ├── niches/                         # BYOB niche YAML definitions (groundspring-measurement)
 ├── .github/workflows/ci.yml        # GitHub Actions CI
-├── wateringHole/                   # Handoff directory (V123 current)
+├── wateringHole/                   # Handoff directory (V127 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md      # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md   # GPU kernel gap analysis

@@ -107,16 +107,16 @@ pub fn run_lifecycle(socket: &Path, experiment_id: &str, result_json: &str) -> R
 
     let result_key = format!("{}/{experiment_id}", biomeos::FAMILY_ID);
     if let Err(e) = store_result(socket, &result_key, result_json) {
-        log::warn!("provenance store failed (non-fatal): {e}");
+        tracing::warn!("provenance store failed (non-fatal): {e}");
     }
 
     if let Err(e) = commit_session(socket, &session_id, result_json) {
-        log::warn!("provenance commit failed (non-fatal): {e}");
+        tracing::warn!("provenance commit failed (non-fatal): {e}");
     }
 
     let contribution = format!("measurement validation: {experiment_id}");
     if let Err(e) = record_attribution(socket, &session_id, &contribution) {
-        log::warn!("provenance attribution failed (non-fatal): {e}");
+        tracing::warn!("provenance attribution failed (non-fatal): {e}");
     }
 
     Ok(session_id)

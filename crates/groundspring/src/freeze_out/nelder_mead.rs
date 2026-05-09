@@ -167,6 +167,7 @@ mod tests {
             chi_squared: 5.0,
             chi2_per_dof: 5.0,
         };
+        #[expect(clippy::unwrap_used, reason = "test assertions on known-valid inputs")]
         let result = nelder_mead_multi_start(&cfg, &coarse, 4).unwrap();
         if !cfg!(feature = "barracuda-gpu") {
             assert!(result.is_none());

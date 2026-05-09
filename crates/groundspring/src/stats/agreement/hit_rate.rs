@@ -56,6 +56,7 @@ mod tests {
     }
 
     #[test]
+    #[expect(clippy::float_cmp, reason = "zero hits returns literal 0.0")]
     fn no_agreement() {
         let a = [1.0, 1.0];
         let b = [0.0, 0.0];
@@ -63,6 +64,7 @@ mod tests {
     }
 
     #[test]
+    #[expect(clippy::float_cmp, reason = "empty inputs return literal 0.0")]
     fn empty_slices() {
         assert_eq!(hit_rate(&[], &[], 0.5), 0.0);
     }

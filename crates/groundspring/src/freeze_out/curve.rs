@@ -92,6 +92,8 @@ mod tests {
     }
 
     #[test]
+    #[expect(clippy::unwrap_used, reason = "test assertions on known-valid inputs")]
+    #[expect(clippy::float_cmp, reason = "identical inputs produce exact zero")]
     fn chi_squared_perfect_is_zero() {
         let obs = [1.0, 2.0, 3.0];
         let pred = [1.0, 2.0, 3.0];

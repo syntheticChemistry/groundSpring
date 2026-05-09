@@ -45,7 +45,7 @@ Statistical Resampling Assessments." IEEE BIBM 2024.
 
 | Primitive | Status | Notes |
 |-----------|--------|-------|
-| Bootstrap resampling | `bootstrap_mean` delegated | RAWR in `bootstrap.rs`; `rawr_mean` no kernel yet |
+| Bootstrap resampling | `bootstrap_mean` + `rawr_mean` delegated | RAWR in `bootstrap.rs`; `rawr_mean` delegates to `barracuda::stats::rawr_mean` (S66) |
 | Parallel weighted draws | PRNG + rejection sampling | GPU embarrassingly parallel |
 | Percentile computation | CPU in groundSpring | GPU reduce for large samples |
 | Tree topology scoring | Partial (via wetSpring) | For phylogenetic application |
@@ -55,7 +55,7 @@ Statistical Resampling Assessments." IEEE BIBM 2024.
 | Tier | Validation | Status |
 |------|-----------|--------|
 | CPU | Python RAWR matches Rust RAWR | **DONE** (11/11 PASS, 7.3× faster) |
-| GPU | barracuda parallel RAWR matches CPU | `bootstrap_mean` delegated; `rawr_mean` no kernel yet |
+| GPU | barracuda parallel RAWR matches CPU | `bootstrap_mean` + `rawr_mean` delegated (S66) |
 | metalForge | Cross-substrate for large-N resampling | After GPU tier |
 
 ## Cross-Spring

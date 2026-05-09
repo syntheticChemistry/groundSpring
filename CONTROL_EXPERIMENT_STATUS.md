@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: May 8, 2026 (V125 — 965+ tests, ≥92% library coverage, 0 clippy, 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later. guideStone Level 4 (bare + NUCLEUS composition parity). 16 capabilities synced across YAML/graphs/code. All deploy graph verbs reconciled. barraCuda v0.3.13. V125: deep debt evolution + L4 + sporePrint notebooks. V124: deep debt + tolerance hardening + guideStone L3. V123: cross-ecosystem absorption + provenance. V122: cast evolution + module extraction. V121: deep debt + ecosystem absorption.)
+**Last updated**: May 9, 2026 (V127 — 1,099 tests, ≥92% library coverage, 0 clippy warnings on all targets, 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later. guideStone Level 4 (bare + NUCLEUS composition parity). Eukaryotic UniBin (`certification/`, `validation/scenarios/`, `groundspring_unibin`). `src/ipc/` per-primal tree. Unified `tracing` logging. barraCuda v0.3.13. primalSpring v0.9.25 pinned.)
 
 ## Experiment Register
 
@@ -46,16 +46,16 @@
 **Rust Phase 1 (core)**: 340/340 PASS across 30 validation binaries (340 core)
 **Rust Phase 1 (NUCLEUS)**: 55/55 PASS across 4 validation binaries (Exp 029–032, `--features biomeos`)
 **Total validation**: 395/395 PASS across 34 validation binaries
-**Rust tests**: 990+/990+ PASS (default workspace)
+**Rust tests**: 1,099 PASS (default workspace, zero warnings, zero clippy errors on all targets)
 **pytest**: 400 collected, 314 PASS + 19 skipped + 67 fail (Kokkos benchmark binary name issues — build-dependent)
 **Three-tier parity**: 102+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
-**BarraCUDA dispatch**: 110 active (67 CPU + 43 GPU) — barraCuda v0.3.7, toadStool S158+, coralReef Iteration 55+. `PrecisionRoutingAdvice` wired into 11 GPU dispatch paths via `get_device_f64_safe()`. tarpc 0.37, ops GPU-gated rewire, domain-esn feature, Rust 2024 unsafe model. coralReef sovereign dispatch path proven on Titan V
+**BarraCUDA dispatch**: 110 active (67 CPU + 43 GPU) — barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+. `PrecisionRoutingAdvice` wired into 11 GPU dispatch paths via `get_device_f64_safe()`. tarpc 0.37, ops GPU-gated rewire, domain-esn feature, Rust 2024 unsafe model. coralReef sovereign dispatch path proven on Titan V
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); compute.execute + compute.submit validated
 **metalForge workloads**: 30 (24 GPU + 2 NPU + 2 CPU-only), 140 checks
 **metalForge mixed-hardware**: `PCIe` topology, pipeline dispatch, NUCLEUS atomics, fallback chains
 **metalForge GPU routing**: f64 workloads → Titan V (Volta, 1:2 native f64), f32/quant → RTX 4070 / AKD1000
 **Paper 12**: `tissue_anderson` module — 18 unit tests + 29/29 validation checks + 4D Anderson + Wegner RG (V68)
-**Handoff**: V113 (GemmF64 transpose delegation, exit_code constants, RetryPolicy + CircuitBreaker, 4-format capability parsing) | V112 archived (OrExit, parse_benchmark, provenance trio) | V110 archived (cross-ecosystem absorption) | V109 archived (zero-panic validation, smart module refactoring, named physical constants)
+**Handoff**: V127 (deep debt, tracing unification, clippy zero-warning) | V126 (UniBin, IPC tree, fossilRecord, certification organelle) | V125 (deep debt evolution, L4, sporePrint notebooks) | V124 (deep debt + tolerance + guideStone L3)
 
 **Python checks**: ~160 across 28 experiments. **Rust validation checks**: 395 (340 core + 55 NUCLEUS). **metalForge + pipeline checks**: 140.
 

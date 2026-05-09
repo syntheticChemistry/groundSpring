@@ -27,13 +27,13 @@ pub fn health(socket: &Path) -> Result<()> {
             Ok(ref response) => match parse_rpc_dispatch(response) {
                 Ok(DispatchOutcome::Ok(_)) => return Ok(()),
                 Ok(ref outcome) if outcome.is_method_not_found() => {
-                    log::debug!("health {method}: method not found, trying next");
+                    tracing::debug!("health {method}: method not found, trying next");
                 }
                 Ok(DispatchOutcome::ApplicationError { message, .. }) => {
-                    log::debug!("health {method}: application error: {message}");
+                    tracing::debug!("health {method}: application error: {message}");
                 }
                 Ok(DispatchOutcome::ProtocolError { message, .. }) => {
-                    log::debug!("health {method}: protocol error: {message}");
+                    tracing::debug!("health {method}: protocol error: {message}");
                 }
                 Err(_) => {}
             },

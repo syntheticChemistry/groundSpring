@@ -21,7 +21,12 @@ use std::time::Duration;
 
 /// NestGate default HTTP port (used when `NESTGATE_HOST` is set without
 /// `NESTGATE_PORT`). Matches the NestGate primal's default listen address.
+///
+/// Overridable via `NESTGATE_PORT` env var.
 const NESTGATE_DEFAULT_PORT: u16 = 8090;
+
+/// Default loopback host for when only `NESTGATE_PORT` is set.
+const DEFAULT_LOOPBACK: &str = "127.0.0.1";
 
 /// Discover the `NestGate` URL via capability-based env chain.
 ///
@@ -56,7 +61,7 @@ fn nestgate_url() -> Result<String, String> {
     match (host, port) {
         (Some(h), Some(p)) => return Ok(format!("http://{h}:{p}")),
         (Some(h), None) => return Ok(format!("http://{h}:{NESTGATE_DEFAULT_PORT}")),
-        (None, Some(p)) => return Ok(format!("http://localhost:{p}")),
+        (None, Some(p)) => return Ok(format!("http://{DEFAULT_LOOPBACK}:{p}")),
         (None, None) => {}
     }
 
