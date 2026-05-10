@@ -40,6 +40,9 @@ for noise characterization and uncertainty quantification.
 - **Logging:** Unified `tracing` (zero `log::` calls)
 - **Fossil record:** `fossilRecord/` with 3 dated prokaryotic snapshots (validate binaries, guidestone, experiment crates)
 - **primalSpring:** v0.9.25 pinned for `CompositionContext`, `ScenarioMeta`, `ScenarioRegistry`
+- **Tier 4 IPC-first:** `barracuda` removed from default features; IPC via `CompositionContext` is the default; `local` feature for opt-in direct library linkage
+- **biomeOS v3.51:** `composition.status` (health/monitoring) + `method.register` (dynamic registration) absorbed
+- **skunkBat:** `security.audit_log` wired into all 6 deploy graphs (non-blocking, `fallback = "skip"`)
 
 ## Key Capabilities (JSON-RPC methods)
 

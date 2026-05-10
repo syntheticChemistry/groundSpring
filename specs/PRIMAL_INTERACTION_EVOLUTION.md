@@ -1,6 +1,6 @@
 # Primal Interaction Evolution
 
-**Last updated**: March 24, 2026 (V124 — capability-based discovery hardened, exit-code protocol (0/1/2), UID discovery 4-tier chain)
+**Last updated**: May 10, 2026 (V129 — Tier 4 IPC-first, biomeOS v3.51 absorbed, skunkBat audit logging, eukaryotic UniBin, `CompositionContext` default)
 
 This document tracks the evolution of groundSpring's interaction with the
 ecoPrimals ecosystem through biomeOS and the NUCLEUS Neural API, mirroring

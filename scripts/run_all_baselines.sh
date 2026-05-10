@@ -15,6 +15,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(dirname "$SCRIPT_DIR")"
 
 cd "$ROOT"
+export PYTHONPATH="$ROOT"
 
 TIMESTAMP="$(date -Iseconds)"
 LOG_DIR="$ROOT/data"
@@ -182,125 +183,125 @@ if command -v cargo &> /dev/null; then
 
     run_experiment \
         "Rust: Bias-Variance Decomposition" \
-        "cargo run --release --bin validate-decompose"
+        "cargo run --release --bin validate_decompose"
 
     run_experiment \
         "Rust: Rarefaction" \
-        "cargo run --release --bin validate-rarefaction"
+        "cargo run --release --bin validate_rarefaction"
 
     run_experiment \
         "Rust: Seismic Inversion" \
-        "cargo run --release --bin validate-seismic"
+        "cargo run --release --bin validate_seismic"
 
     run_experiment \
         "Rust: Weather Model-Observation Gap" \
-        "cargo run --release --bin validate-weather"
+        "cargo run --release --bin validate_weather"
 
     run_experiment \
         "Rust: FAO-56 Error Propagation" \
-        "cargo run --release --bin validate-fao56"
+        "cargo run --release --bin validate_fao56"
 
     run_experiment \
         "Rust: Signal Specificity" \
-        "cargo run --release --bin validate-signal-specificity"
+        "cargo run --release --bin validate_signal-specificity"
 
     run_experiment \
         "Rust: RAWR Resampling" \
-        "cargo run --release --bin validate-rawr"
+        "cargo run --release --bin validate_rawr"
 
     run_experiment \
         "Rust: Anderson Localization" \
-        "cargo run --release --bin validate-anderson"
+        "cargo run --release --bin validate_anderson"
 
     run_experiment \
         "Rust: Quasiperiodic Localization" \
-        "cargo run --release --bin validate-quasiperiodic"
+        "cargo run --release --bin validate_quasiperiodic"
 
     run_experiment \
         "Rust: Bistable Switching" \
-        "cargo run --release --bin validate-bistable"
+        "cargo run --release --bin validate_bistable"
 
     run_experiment \
         "Rust: Multi-Signal QS" \
-        "cargo run --release --bin validate-multisignal"
+        "cargo run --release --bin validate_multisignal"
 
     run_experiment \
         "Rust: Spin Chain Transport" \
-        "cargo run --release --bin validate-transport"
+        "cargo run --release --bin validate_transport"
 
     run_experiment \
         "Rust: Resampling Convergence" \
-        "cargo run --release --bin validate-resampling-conv"
+        "cargo run --release --bin validate_resampling-conv"
 
     run_experiment \
         "Rust: Drift vs Selection" \
-        "cargo run --release --bin validate-drift"
+        "cargo run --release --bin validate_drift"
 
     run_experiment \
         "Rust: Uncertainty Bridge" \
-        "cargo run --release --bin validate-uncertainty-bridge"
+        "cargo run --release --bin validate_uncertainty-bridge"
 
     run_experiment \
         "Rust: Rare Biosphere" \
-        "cargo run --release --bin validate-rare-biosphere"
+        "cargo run --release --bin validate_rare-biosphere"
 
     run_experiment \
         "Rust: Quasispecies Threshold" \
-        "cargo run --release --bin validate-quasispecies"
+        "cargo run --release --bin validate_quasispecies"
 
     run_experiment \
         "Rust: Band Edge" \
-        "cargo run --release --bin validate-band-edge"
+        "cargo run --release --bin validate_band-edge"
 
     run_experiment \
         "Rust: Jackknife Estimation" \
-        "cargo run --release --bin validate-jackknife"
+        "cargo run --release --bin validate_jackknife"
 
     run_experiment \
         "Rust: Freeze Out Inverse" \
-        "cargo run --release --bin validate-freeze-out"
+        "cargo run --release --bin validate_freeze-out"
 
     run_experiment \
         "Rust: Spectral Recon" \
-        "cargo run --release --bin validate-spectral-recon"
+        "cargo run --release --bin validate_spectral-recon"
 
     run_experiment \
         "Rust: ET0 Anderson Propagation" \
-        "cargo run --release --bin validate-et0-anderson"
+        "cargo run --release --bin validate_et0-anderson"
 
     run_experiment \
         "Rust: No-Till Sampling" \
-        "cargo run --release --bin validate-notill-sampling"
+        "cargo run --release --bin validate_notill-sampling"
 
     run_experiment \
         "Rust: Aggregate Stability" \
-        "cargo run --release --bin validate-aggregate-stability"
+        "cargo run --release --bin validate_aggregate-stability"
 
     run_experiment \
         "Rust: Precision Drift" \
-        "cargo run --release --bin validate-precision-drift"
+        "cargo run --release --bin validate_precision-drift"
 
     run_experiment \
         "Rust: Size Convergence" \
-        "cargo run --release --bin validate-size-convergence"
+        "cargo run --release --bin validate_size-convergence"
 
     run_experiment \
         "Rust: Vendor Parity" \
-        "cargo run --release --bin validate-vendor-parity"
+        "cargo run --release --bin validate_vendor-parity"
 
     run_experiment \
         "Rust: ET0 Methods" \
-        "cargo run --release --bin validate-et0-methods"
+        "cargo run --release --bin validate_et0-methods"
 
     run_experiment \
         "Rust: Tissue Anderson" \
-        "cargo run --release --bin validate-tissue-anderson"
+        "cargo run --release --bin validate_tissue-anderson"
 
     if [[ -e /dev/akida0 ]]; then
         cargo build --release --workspace --features npu 2>&1 | tail -1
         run_experiment \
             "Rust: NPU Anderson (--features npu)" \
-            "cargo run --release --bin validate-npu-anderson --features npu"
+            "cargo run --release --bin validate_npu-anderson --features npu"
     else
         echo ""
         echo "  [SKIP] Rust: NPU Anderson — /dev/akida0 not present"

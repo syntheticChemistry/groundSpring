@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: May 10, 2026 (V128 — Tier 4 IPC-first + river delta evolution)
+**Last Updated**: May 10, 2026 (V129 — docs evolution + primal/spring handoff)
 
 ## What This Is
 
@@ -18,6 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
+| V129 Docs Evolution + Primal Handoff | [GROUNDSPRING_V129_DOCS_EVOLUTION_PRIMAL_HANDOFF_MAY10_2026.md](handoffs/GROUNDSPRING_V129_DOCS_EVOLUTION_PRIMAL_HANDOFF_MAY10_2026.md) | May 10, 2026 | Deep debt audit (all clean), doc alignment (13 files, 1,101 tests, V129), stale test fix, primal team handoff (per-team guidance), spring team patterns to absorb, NUCLEUS deployment + foundation integration, remaining gaps inventory |
 | V128 Tier 4 IPC-First | [GROUNDSPRING_V128_TIER4_IPC_FIRST_HANDOFF_MAY10_2026.md](handoffs/GROUNDSPRING_V128_TIER4_IPC_FIRST_HANDOFF_MAY10_2026.md) | May 10, 2026 | Tier 4 IPC-first (`barracuda` removed from default, `local` feature added), biomeOS v3.51 `composition.status` + `method.register`, skunkBat audit logging in all 6 deploy graphs, CI cross-sync against 400+ methods, CONTEXT.md rewritten for eukaryotic UniBin |
 | V127 Deep Debt Evolution | [GROUNDSPRING_V127_DEEP_DEBT_EVOLUTION_HANDOFF_MAY09_2026.md](handoffs/GROUNDSPRING_V127_DEEP_DEBT_EVOLUTION_HANDOFF_MAY09_2026.md) | May 9, 2026 | Deep debt cleanup, tracing unification, clippy zero-warning on all targets, upstream primal debt review, downstream absorption patterns, doc alignment to 1,101 tests |
 | V126 Interstadial UniBin | [GROUNDSPRING_V126_INTERSTADIAL_UNIBIN_HANDOFF_MAY09_2026.md](handoffs/GROUNDSPRING_V126_INTERSTADIAL_UNIBIN_HANDOFF_MAY09_2026.md) | May 9, 2026 | Eukaryotic UniBin (certification/ organelle, validation/scenarios/ registry, groundspring_unibin binary), src/ipc/ tree (per-primal modules), PRIMAL_PROOF_IPC_MAPPING.md, fossilRecord/, two-tier validation, primalSpring v0.9.25 pin, 1,006+ tests |

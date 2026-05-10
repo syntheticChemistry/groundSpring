@@ -62,57 +62,57 @@ EXPERIMENTS = [
     {
         "name": "Sensor Noise (Exp 001)",
         "python": [sys.executable, "control/sensor_noise/sensor_noise_decomposition.py"],
-        "rust_bin": "validate-decompose",
+        "rust_bin": "validate_decompose",
     },
     {
         "name": "Error Propagation (Exp 003)",
         "python": [sys.executable, "control/error_propagation/error_propagation_fao56.py"],
-        "rust_bin": "validate-fao56",
+        "rust_bin": "validate_fao56",
     },
     {
         "name": "Seismic Inversion (Exp 005)",
         "python": [sys.executable, "control/seismic/seismic_inversion.py"],
-        "rust_bin": "validate-seismic",
+        "rust_bin": "validate_seismic",
     },
     {
         "name": "RAWR Resampling (Exp 007)",
         "python": [sys.executable, "control/rawr_resampling/rawr_resampling.py"],
-        "rust_bin": "validate-rawr",
+        "rust_bin": "validate_rawr",
     },
     {
         "name": "Anderson Localization (Exp 008)",
         "python": [sys.executable, "control/anderson_localization/anderson_localization.py"],
-        "rust_bin": "validate-anderson",
+        "rust_bin": "validate_anderson",
     },
     {
         "name": "Spin Chain Transport (Exp 012)",
         "python": [sys.executable, "control/spin_transport/spin_chain_transport.py"],
-        "rust_bin": "validate-transport",
+        "rust_bin": "validate_transport",
     },
     {
         "name": "Jackknife Estimation (Exp 019)",
         "python": [sys.executable, "control/jackknife_estimation/jackknife_estimation.py"],
-        "rust_bin": "validate-jackknife",
+        "rust_bin": "validate_jackknife",
     },
     {
         "name": "Freeze Out Inverse (Exp 020)",
         "python": [sys.executable, "control/freeze_out_inverse/freeze_out_inverse.py"],
-        "rust_bin": "validate-freeze-out",
+        "rust_bin": "validate_freeze-out",
     },
     {
         "name": "Spectral Recon (Exp 021)",
         "python": [sys.executable, "control/spectral_recon/spectral_recon.py"],
-        "rust_bin": "validate-spectral-recon",
+        "rust_bin": "validate_spectral-recon",
     },
     {
         "name": "Precision Drift (Exp 025)",
         "python": [sys.executable, "control/precision_drift/precision_drift.py"],
-        "rust_bin": "validate-precision-drift",
+        "rust_bin": "validate_precision-drift",
     },
     {
         "name": "ET₀ Methods (Exp 035)",
         "python": [sys.executable, "control/et0_methods/et0_methods.py"],
-        "rust_bin": "validate-et0-methods",
+        "rust_bin": "validate_et0-methods",
     },
 ]
 

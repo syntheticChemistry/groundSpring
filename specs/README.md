@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
-**Last Updated**: May 9, 2026
-**Status**: V127 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 110 delegations (67 CPU + 43 GPU) — 1,101 Rust tests, 287 Python tests, 140 metalForge checks, 29 validator exit-code integration tests, 35 experiments, 41 modules. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). barraCuda v0.3.13. guideStone Level 4 (bare + NUCLEUS composition parity). Eukaryotic UniBin. Unified `tracing` logging. Zero clippy warnings on all targets.
+**Last Updated**: May 10, 2026
+**Status**: V129 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 110 delegations (67 CPU + 43 GPU) — 1,101 Rust tests, 287 Python tests, 140 metalForge checks, 29 validator exit-code integration tests, 35 experiments, 41 modules. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). barraCuda v0.3.13. guideStone Level 4 (bare + NUCLEUS composition parity). Tier 4 IPC-first. Eukaryotic UniBin. biomeOS v3.51 absorbed. skunkBat audit logging. Unified `tracing` logging. Zero clippy warnings on all targets.
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -49,7 +49,7 @@
 | Exp 030 | Real NCBI 16S — rare biosphere detection on real/synthetic NCBI metagenomes (NUCLEUS) |
 | Exp 031 | NUCLEUS Stack — full primal validation: Tower + Node + Squirrel + Nest |
 | Exp 032 | IRIS Seismic — IRIS FDSN station geometry + travel times via NestGate (NUCLEUS) |
-| Barracuda | 110 delegations (67 CPU + 43 GPU) — barraCuda v0.3.7. GPU grid adapters + batch APIs. 140 metalForge checks. PrecisionRoutingAdvice wired |
+| Barracuda | 110 delegations (67 CPU + 43 GPU) — barraCuda v0.3.13. Tier 4 IPC-first. GPU grid adapters + batch APIs. 140 metalForge checks. PrecisionRoutingAdvice wired |
 | NUCLEUS | biomeOS Neural API live: Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) |
 | Performance | 11.5× faster than Python (excl. LAPACK-bound); 5.1× overall |
 | Faculty | Bazavov, Waters, Liu, Kachkovskiy, R. Anderson, Dolson, Gonzales |

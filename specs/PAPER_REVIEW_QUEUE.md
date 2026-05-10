@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: March 24, 2026 (V124)
+**Last Updated**: May 10, 2026 (V129)
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---
@@ -43,16 +43,14 @@
 | 33 | Cytokine Anderson Lattice (Paper 12) | Immunological | — | 29/29 | Tissue 2D/3D + barrier disruption + dimensional duality (Exp 033) |
 | 34 | Multi-Method ET₀ Cross-Validation | Hydrology (ET₀) | 15/15 | 19/19 | 5-method comparison: PM, Hargreaves, Makkink, Turc, Hamon (Exp 035) |
 
-**Phase 0**: ~276 checks (Python, 29 experiments). **Phase 1**: 395/395 PASS (Rust, 34 experiments). **Speedup**: 11.6× median (excl. LAPACK-bound), 51.2× peak (seismic).
+**Phase 0**: ~276 checks (Python, 29 experiments). **Phase 1**: 395/395 PASS (Rust, 35 experiments / 34 binaries). **Speedup**: 11.5× median (excl. LAPACK-bound), 47.7× peak (Sturm tridiag).
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs (Exp 029–033 have no Python baseline).
-**V97 fresh validation**: 395/395 checks (34 binaries), 824+ workspace tests, 100+ three-tier parity tests.
-**GPU dispatch (V31–V95)**: 16 modules wired for `barracuda-gpu` — freeze_out, band_structure, seismic, quasispecies, rare_biosphere, stats::metrics, stats::agreement, stats::correlation, gillespie, drift, fao56, almost_mathieu, anderson, tissue_anderson, jackknife, bootstrap. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed). 110 delegations (67 CPU + 43 GPU). V95: Exp 023/024 promoted Partial→Wired via `multinomial_sample_batch`.
-**V66 stats Tier A**: MAE, NSE/R² wired to `FusedMapReduceF64` GPU path. Bistable batch ODE via `BatchedOdeRK4F64`. Papers 1-5 stats fully GPU-capable.
-**V67 hydrology GPU**: `McEt0PropagateGpu` + `SeasonalPipelineF64` + `BatchedMultinomialGpu` API fix (3 call sites).
-**V68 spectral GPU**: `anderson_4d` + `wegner_block_4d` (tissue immunology). `lbfgs_numerical` post-grid refinement.
-**Three-tier parity (V43→V69)**: 30/30 PROVEN (default = barracuda-CPU = barracuda-GPU). GPU tier: 76 checks. metalForge dispatch: 30/30 workloads, 187 checks.
+**Current (V129)**: 395/395 checks, 1,101 Rust workspace tests, 287 Python tests, 140 metalForge checks.
+**Tier 4 IPC-first (V128)**: `barracuda` removed from default features; IPC via `CompositionContext` is the default. `local` feature for opt-in library linkage.
+**GPU dispatch**: 16 modules wired for `barracuda-gpu` — 110 delegations (67 CPU + 43 GPU), barraCuda v0.3.13, toadStool S158+. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed).
+**Three-tier parity**: 30/30 PROVEN (default = barracuda-CPU = barracuda-GPU). metalForge: 140 checks.
 **Exp 015** bridges Papers 22-24 (Sub-thesis 06): sensor noise → Anderson ξ → QS regime uncertainty.
-**Cross-spring shader evolution**: `hotSpring` precision shaders (f64 fused-reduce, Cholesky) and `wetSpring` bio shaders (Gillespie, ODE, multinomial) both feed `groundSpring` GPU tier via `ToadStool` unidirectional streaming.
+**Cross-spring shader evolution**: `hotSpring` precision shaders and `wetSpring` bio shaders feed `groundSpring` GPU tier via `ToadStool` unidirectional streaming.
 
 ---
 

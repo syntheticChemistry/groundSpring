@@ -20,6 +20,19 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 - **baseCamp README**: Updated to V128, added Tier 4 IPC-first status, biomeOS v3.51 absorption, skunkBat wiring
 - **`cargo fmt` applied** to coefficient.rs expect attribute formatting
 
+#### Documentation Sweep (13+ files)
+- **Root docs**: CONTEXT.md (added Tier 4/biomeOS v3.51/skunkBat), CONTRIBUTING.md (V129), SECURITY.md (V129, 1,101 tests), CONTROL_EXPERIMENT_STATUS.md (V129, May 10)
+- **Specs**: README.md (V129, barraCuda v0.3.13), PAPER_REVIEW_QUEUE.md (V129, consolidated summary), PRIMAL_INTERACTION_EVOLUTION.md (V129)
+- **WhitePaper**: baseCamp/README.md (V129, 4-phase validation chain), experiments/README.md (1,101 tests, guideStone L4, Tier 4, v0.3.13)
+- **Other**: PRIMAL_GAPS.md (V129), sporeprint/validation-summary.md (May 10, Tier 4/biomeOS/skunkBat)
+
+#### Script Fixes
+- **Binary naming**: Fixed hyphenated `validate-*` → `validate_*` in 6 scripts (158 replacements) to match Cargo.toml bin names
+- **PYTHONPATH**: Added `export PYTHONPATH="$ROOT"` to `run_all_baselines.sh` for `control.tolerances` import resolution
+
+#### Primal/Spring Handoff
+- **Created**: `GROUNDSPRING_V129_DOCS_EVOLUTION_PRIMAL_HANDOFF_MAY10_2026.md` — per-team guidance for all 8+ primals, patterns to absorb for spring teams, NUCLEUS deployment integration, remaining gaps inventory
+
 #### Downstream Review
 - **projectNUCLEUS** (gardens/): operational stack with Tower + Node + Nest + provenance graphs
 - **foundation** (gardens/): validated scientific lineage — threads 6 (Ag) and 7 (Anderson) use groundSpring workloads (`gs-validate-all`, `gs-guidestone`, `gs-bench-gpu`, `gs-python-baselines`)

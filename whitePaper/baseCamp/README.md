@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: May 10, 2026
 
-**Validation Summary**: V128 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+**. 1,101 Rust tests + 287 Python provenance tests. ≥92% library line coverage. **guideStone Level 4**. Tier 4 IPC-first (`barracuda` removed from default features). Eukaryotic UniBin (`certification/` organelle, `validation/scenarios/` registry, `groundspring_unibin` binary). `src/ipc/` per-primal tree. biomeOS v3.51 `composition.status` + `method.register` absorbed. skunkBat `security.audit_log` in all 6 deploy graphs. Unified `tracing` logging. Zero clippy warnings on all targets (pedantic + nursery), zero unsafe, zero bare `#[allow]`/`#[expect]` without reason. All 35 experiments PASS. **29/29 mathematical parity proven**. 10 domains, 41 modules. 34 notebooks (5 sporePrint + 29 baselines) live on primals.eco.
+**Validation Summary**: V129 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+**. 1,101 Rust tests + 287 Python provenance tests. ≥92% library line coverage. **guideStone Level 4**. Tier 4 IPC-first (`barracuda` removed from default features). Eukaryotic UniBin (`certification/` organelle, `validation/scenarios/` registry, `groundspring_unibin` binary). `src/ipc/` per-primal tree. biomeOS v3.51 `composition.status` + `method.register` absorbed. skunkBat `security.audit_log` in all 6 deploy graphs. Unified `tracing` logging. Zero clippy warnings on all targets (pedantic + nursery), zero unsafe, zero bare `#[allow]`/`#[expect]` without reason. All 35 experiments PASS. **29/29 mathematical parity proven**. 10 domains, 41 modules. 34 notebooks (5 sporePrint + 29 baselines) live on primals.eco.
 
 ---
 
@@ -23,11 +23,18 @@ reproductions and extensions.
 
 ## Validation Chain
 
-Following the Write → Absorb → Lean cycle:
+The evolution path for each peer-reviewed result:
 
 ```
-Python baseline → BarraCUDA CPU → BarraCUDA GPU → metalForge cross-substrate
+Phase 0: Python baseline (control/)     → peer-reviewed paper reproduced
+Phase 1: Rust validation (validate_*)   → 11.5× faster, mathematical parity
+Phase 2: barraCuda GPU (--features barracuda-gpu) → GPU dispatch, metalForge cross-substrate
+Phase 3: Primal IPC (CompositionContext) → NUCLEUS composition, sovereign deploy
 ```
+
+**Tier 4 IPC-first (V128):** The default build no longer links `barracuda` directly.
+All 110 delegations route through `CompositionContext` IPC by default. Direct
+library linkage is available via `--features local` for development/benchmarking.
 
 Each faculty extension paper is validated at three tiers:
 
@@ -36,6 +43,7 @@ Each faculty extension paper is validated at three tiers:
 | 1: CPU | `cargo test` + validation binary | Rust matches Python baseline |
 | 2: GPU | `barracuda` feature + GPU adapter | GPU matches CPU within tolerance |
 | 3: metalForge | Mixed hardware dispatch | Cross-substrate agreement |
+| 4: NUCLEUS | `CompositionContext` IPC | Sovereign deploy via biomeOS Neural API |
 
 ## Faculty Briefings
 
@@ -54,7 +62,7 @@ Each faculty extension paper is validated at three tiers:
 | Exp 001 (sensor noise) | Waters → **Exp 006** (signal specificity) | wetSpring (bio sensing) |
 | Exp 003 (error propagation) | Liu → **Exp 007** (RAWR bootstrap) | neuralSpring (confidence) |
 | Exp 005 (seismic inversion) | Bazavov → **Exp 019** (jackknife), **Exp 020** (freeze-out), **Exp 021** (spectral recon) | hotSpring (lattice QCD) |
-| All 34 experiments | Kachkovskiy → **Exp 008** + **Exp 009** + **Exp 015** (uncertainty bridge) | hotSpring (spectral theory) |
+| All 35 experiments | Kachkovskiy → **Exp 008** + **Exp 009** + **Exp 015** (uncertainty bridge) | hotSpring (spectral theory) |
 | Exp 009 (quasiperiodic) | Kachkovskiy → **Almost-Mathieu** (Aubry-André) | hotSpring (spectral theory) |
 | Exp 001 + 006 | Waters → **Exp 010** (bistable switching) | wetSpring (QS bifurcation) |
 | Exp 006 + 010 | Waters → **Exp 011** (multi-signal QS) | wetSpring (dual-signal integration) |

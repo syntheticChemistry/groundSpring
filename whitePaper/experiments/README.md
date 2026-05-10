@@ -5,15 +5,16 @@
 > (Phase 0), a Rust validation (Phase 1), and a barracuda delegation path
 > (Phase 2+).
 
-**Total**: 395/395 validation checks across 35 experiments, 10 domains. 965+ Rust tests + 287 Python provenance tests + 29 validator exit-code integration tests.
+**Total**: 395/395 validation checks across 35 experiments, 10 domains. 1,101 Rust tests + 287 Python provenance tests + 29 validator exit-code integration tests.
 **Core**: 340/340 checks across 29 experiments (no feature flags).
 **NUCLEUS**: 55 checks across 4 experiments (Exp 029–032, `--features biomeos`).
 **guideStone**: Level 4 (bare + NUCLEUS composition parity) — `groundspring_guidestone` binary with 5 bare properties + 6 NUCLEUS additive IPC parity checks + 2 composition experiment crates.
+**Tier 4 IPC-first**: `barracuda` removed from default features; IPC via `CompositionContext` is the default build.
 **Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across 28 benchmarked experiments.
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs.
 **Coverage**: ≥92% library line coverage (`cargo llvm-cov --workspace --lib`). Zero clippy warnings (pedantic + nursery, -D warnings). Zero unsafe. Zero TODO/FIXME. All files < 1000 lines. Zero panicking public APIs — all library entry points return `Result`. Zero unwrap/expect in production code.
 **barraCuda**: 110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+. `PrecisionRoutingAdvice` wired into 21 GPU dispatch paths. `DeviceCapabilities` adopted (V120).
-**NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) with sovereign fallback. guideStone L3 wired via `primalspring` composition API with BLAKE3 checksums + IPC parity framework.
+**NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) with sovereign fallback. guideStone L4 via `primalspring` composition API with BLAKE3 checksums + IPC parity framework.
 **Modules**: 41 (including `esn`, `lanczos`, `linalg`, `error`, `jackknife`, `freeze_out`, `spectral_recon`, `wdm`, `npu`, `biomeos`, `nestgate`, `drift`, `tissue_anderson`, `niche`, `primal_names`, `ipc`, `rawr`).
 **metalForge**: 30 workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed), 140 metalForge checks, 5+ substrates, architecture-aware routing, `PCIe` topology, GPU→NPU PCIe bypass, pipeline dispatch, NUCLEUS atomics.
 **Baseline integrity**: All 29 benchmark JSONs verified — provenance fields (including `python_version`, `numpy_version`), hex commit hashes, UTF-8. Python CI coverage enforced at 90%.
@@ -66,10 +67,10 @@ Each experiment is validated at three levels:
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
 Current status: **CPU complete** (340/340 core + 55 NUCLEUS = 395 total),
-**110 active delegations (67 CPU + 43 GPU) — toadStool S158+, barraCuda v0.3.12**.
+**110 active delegations (67 CPU + 43 GPU) — toadStool S158+, barraCuda v0.3.13**. Tier 4 IPC-first (V128).
 **NUCLEUS**: biomeOS Neural API live — 4 experiments exercise Tower, Node, Squirrel, Nest
 with sovereign fallback. All delegations use sovereign fallback.
-35/35 experiments validated. 1020+ Rust tests + 287 Python tests.
+35/35 experiments validated. 1,101 Rust tests + 287 Python tests.
 **bench_cpu_vs_gpu**: Dedicated binary for CPU vs GPU performance comparison across 6 workloads.
 **metalForge tier**: groundspring-forge crate with live hardware validation
 (RTX 4070, Titan V, AKD1000 NPU). 5 validation binaries, 140 metalForge checks, 5+ substrates.

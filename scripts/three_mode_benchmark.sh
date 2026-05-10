@@ -19,39 +19,39 @@ ROOT="$(dirname "$SCRIPT_DIR")"
 cd "$ROOT"
 
 BINS=(
-    validate-decompose
-    validate-rarefaction
-    validate-seismic
-    validate-weather
-    validate-fao56
-    validate-signal-specificity
-    validate-rawr
-    validate-anderson
-    validate-quasiperiodic
-    validate-bistable
-    validate-multisignal
-    validate-transport
-    validate-resampling-conv
-    validate-drift
-    validate-uncertainty-bridge
-    validate-rare-biosphere
-    validate-quasispecies
-    validate-band-edge
-    validate-jackknife
-    validate-freeze-out
-    validate-spectral-recon
-    validate-et0-anderson
-    validate-notill-sampling
-    validate-aggregate-stability
-    validate-precision-drift
-    validate-size-convergence
-    validate-vendor-parity
-    validate-et0-methods
-    validate-tissue-anderson
+    validate_decompose
+    validate_rarefaction
+    validate_seismic
+    validate_weather
+    validate_fao56
+    validate_signal-specificity
+    validate_rawr
+    validate_anderson
+    validate_quasiperiodic
+    validate_bistable
+    validate_multisignal
+    validate_transport
+    validate_resampling-conv
+    validate_drift
+    validate_uncertainty-bridge
+    validate_rare-biosphere
+    validate_quasispecies
+    validate_band-edge
+    validate_jackknife
+    validate_freeze-out
+    validate_spectral-recon
+    validate_et0-anderson
+    validate_notill-sampling
+    validate_aggregate-stability
+    validate_precision-drift
+    validate_size-convergence
+    validate_vendor-parity
+    validate_et0-methods
+    validate_tissue-anderson
 )
 
 # NPU binary: requires --features npu and physical NPU hardware (/dev/akida0)
-NPU_BINS=(validate-npu-anderson)
+NPU_BINS=(validate_npu-anderson)
 
 MODES=("default" "barracuda" "barracuda-gpu")
 FEATURES=("" "--features barracuda" "--features barracuda-gpu")

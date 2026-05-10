@@ -1,7 +1,7 @@
 +++
 title = "groundSpring Validation Summary"
 description = "Measurement noise and uncertainty — 1,101 tests, 35 experiments, guideStone Level 4, Eukaryotic UniBin, 5 notebooks, 10 validation scenarios"
-date = 2026-05-09
+date = 2026-05-10
 
 [taxonomies]
 primals = ["barracuda", "toadstool", "beardog", "songbird", "nestgate"]
@@ -16,7 +16,10 @@ springs = ["groundspring", "hotspring", "wetspring", "neuralspring", "airspring"
 - **395/395 validation checks** (340 core + 55 NUCLEUS)
 - **29/29 Python baselines** with math parity proven
 - **110 barraCuda delegations** (67 CPU + 43 GPU)
-- **guideStone Level 4** → Tier 2 target (eukaryotic UniBin)
+- **guideStone Level 4** (eukaryotic UniBin)
+- **Tier 4 IPC-first** — `barracuda` removed from default features; IPC via `CompositionContext` default
+- **biomeOS v3.51** — `composition.status` + `method.register` absorbed
+- **skunkBat** — `security.audit_log` wired in all 6 deploy graphs
 - **certification/ organelle** — Properties 1-5 (bare) + Layers 2-4 (NUCLEUS)
 - **groundspring_unibin** — single binary: certify / validate / status / version
 - **src/ipc/ tree** — per-primal modules (barraCuda, ToadStool, NestGate, BearDog, Songbird)
