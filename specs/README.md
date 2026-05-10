@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: May 9, 2026
-**Status**: V127 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 110 delegations (67 CPU + 43 GPU) — 1,099 Rust tests, 287 Python tests, 140 metalForge checks, 29 validator exit-code integration tests, 35 experiments, 41 modules. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). barraCuda v0.3.13. guideStone Level 4 (bare + NUCLEUS composition parity). Eukaryotic UniBin. Unified `tracing` logging. Zero clippy warnings on all targets.
+**Status**: V127 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 110 delegations (67 CPU + 43 GPU) — 1,101 Rust tests, 287 Python tests, 140 metalForge checks, 29 validator exit-code integration tests, 35 experiments, 41 modules. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). barraCuda v0.3.13. guideStone Level 4 (bare + NUCLEUS composition parity). Eukaryotic UniBin. Unified `tracing` logging. Zero clippy warnings on all targets.
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -15,7 +15,7 @@
 | Phase 4 (NUCLEUS) | 55/55 PASS — 4 NUCLEUS validation binaries (Exp 029–032) |
 | Total Validation | 395/395 PASS across 35 experiments (34 binaries; Exp 034 combined with 033) |
 | Mathematical Parity | 29/29 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
-| Rust tests | 1,099 across all feature gates + 287 Python |
+| Rust tests | 1,101 across all feature gates + 287 Python |
 | metalForge | 2 production WGSL shaders (anderson_lyapunov, anderson_lyapunov_f32) |
 | Exp 001 | Sensor noise decomposition — EC5 bias-dominated, CS616 mixed |
 | Exp 002 | Observation gap ERA5 vs station — methodology validated |

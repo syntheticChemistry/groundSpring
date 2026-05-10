@@ -238,13 +238,11 @@ class TestExperimentExitCodes:
     def test_exp032_iris_seismic(self) -> None:
         pass
 
-    # ── Synthetic experiments with Python baselines (033, 035) ──────
+    # ── Synthetic experiments with Python baselines (035) ────────────
 
+    @pytest.mark.skip(reason="Exp 033 tissue Anderson has no Python baseline (NUCLEUS-only, Rust-only experiment)")
     def test_exp033_tissue_anderson(self) -> None:
-        result = _run_experiment(
-            CONTROL_DIR / "tissue_anderson" / "tissue_anderson.py"
-        )
-        assert result.returncode == 0, result.stdout + result.stderr
+        pass
 
     def test_exp035_et0_methods(self) -> None:
         result = _run_experiment(

@@ -30,7 +30,7 @@ for noise characterization and uncertainty quantification.
 - **IPC tree:** `src/ipc/` with per-primal modules (`barracuda.rs`, `toadstool.rs`, `nestgate.rs`, `beardog.rs`, `songbird.rs`)
 - **Communication:** JSON-RPC 2.0 over Unix domain sockets (behind `biomeos` feature); `tarpc` IPC (behind `tarpc-ipc` feature)
 - **License:** AGPL-3.0-or-later
-- **Tests:** 1,099 Rust tests + 287 Python provenance tests
+- **Tests:** 1,101 Rust tests + 287 Python provenance tests
 - **Clippy:** Zero warnings on all targets (lib + bin + test), pedantic + nursery
 - **Coverage:** ≥92% library line coverage (`cargo llvm-cov --workspace --lib`)
 - **MSRV:** Rust 1.87 (2024 edition)

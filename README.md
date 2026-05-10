@@ -7,7 +7,7 @@
 [![ecoBin](https://img.shields.io/badge/ecoBin-compliant-green.svg)](https://github.com/ecoPrimals/wateringHole/blob/main/ECOBIN_ARCHITECTURE_STANDARD.md)
 
 **Date**: May 10, 2026 | **License**: AGPL-3.0-or-later | **MSRV**: Rust 1.87 (2024 edition)
-**Status**: V128 — Tier 4 IPC-first + river delta evolution. 41 modules, 35 experiments, 1,099 tests (zero warnings, zero clippy errors on all targets), 395/395 validation checks + 140 metalForge checks + 29 validator integration tests. **guideStone Level 4**. `barracuda` removed from default features — IPC-first via `CompositionContext`. `local` feature enables direct library linkage. `composition.status` and `method.register` absorbed from biomeOS v3.51. skunkBat `security.audit_log` wired into all 6 deploy graphs (JH-5). CI cross-sync: 16 `measurement.*` methods validated against canonical 403. `certification/` organelle (L0-L4), `validation/scenarios/` registry (10 tracks, Tier 1/Tier 2), `groundspring_unibin` binary (certify/validate/status/version). `src/ipc/` tree with per-primal modules (barraCuda, ToadStool, NestGate, BearDog, Songbird). Unified `tracing` logging (zero `log::` calls). primalSpring v0.9.25 pinned. `fossilRecord/` with 3 dated prokaryotic snapshots. Zero bare `#[allow]`/`#[expect]` without reason. Zero TODO/FIXME. barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+. 6 deploy graphs, 34 notebooks.
+**Status**: V128 — Tier 4 IPC-first + river delta evolution. 41 modules, 35 experiments, 1,101 tests (zero warnings, zero clippy errors on all targets), 395/395 validation checks + 140 metalForge checks + 29 validator integration tests. **guideStone Level 4**. `barracuda` removed from default features — IPC-first via `CompositionContext`. `local` feature enables direct library linkage. `composition.status` and `method.register` absorbed from biomeOS v3.51. skunkBat `security.audit_log` wired into all 6 deploy graphs (JH-5). CI cross-sync: 16 `measurement.*` methods validated against canonical 403. `certification/` organelle (L0-L4), `validation/scenarios/` registry (10 tracks, Tier 1/Tier 2), `groundspring_unibin` binary (certify/validate/status/version). `src/ipc/` tree with per-primal modules (barraCuda, ToadStool, NestGate, BearDog, Songbird). Unified `tracing` logging (zero `log::` calls). primalSpring v0.9.25 pinned. `fossilRecord/` with 3 dated prokaryotic snapshots. Zero bare `#[allow]`/`#[expect]` without reason. Zero TODO/FIXME. barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+. 6 deploy graphs, 34 notebooks.
 
 **The gap between what models predict and what instruments measure.**
 
@@ -119,7 +119,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace                         # 1,099 tests, all PASS
+cargo test --workspace                         # 1,101 tests, all PASS
 cargo test --workspace --all-features          # all feature paths tested
 cargo test --workspace --features biomeos      # NUCLEUS client active
 cargo test --workspace --features barracuda-gpu # GPU dispatch active

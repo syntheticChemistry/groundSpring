@@ -5,7 +5,7 @@
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
 **Date:** April 27, 2026
-**Last audited:** May 9, 2026 (guideStone L4, eukaryotic UniBin, IPC tree, unified tracing, 1,099 tests, zero clippy on all targets)
+**Last audited:** May 9, 2026 (guideStone L4, eukaryotic UniBin, IPC tree, unified tracing, 1,101 tests, zero clippy on all targets)
 **License:** AGPL-3.0-or-later
 
 ---

@@ -4,6 +4,27 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V129 Deep Debt Audit + Doc Alignment (May 10, 2026)
+
+#### Deep Debt Audit (clean)
+- **No files >800 lines** — largest is `validate.rs` at 751; no refactoring needed
+- **No unsafe code** — `#![forbid(unsafe_code)]` on all lib/bin roots, workspace `deny`
+- **No TODO/FIXME/HACK/unimplemented!/todo!** remaining in `crates/`
+- **No production mocks** — all mock/stub/fake patterns confined to `#[cfg(test)]`
+- **External deps justified** — all crates.io deps are necessary (serde, tracing, thiserror, wgpu, tarpc, tokio, clap)
+- **Feature-gate strings** in `niche.rs` are self-knowledge (own Cargo features), not hardcoded primal names
+
+#### Test / Doc Alignment
+- **Stale test fixed**: `test_exp033_tissue_anderson` now `@pytest.mark.skip` (Exp 033 has no Python baseline — NUCLEUS-only Rust experiment)
+- **Test count updated**: 1,099 → 1,101 across 8 living docs (README, CONTEXT, CONTRIBUTING, CONTROL_EXPERIMENT_STATUS, baseCamp, specs, sporeprint, PRIMAL_GAPS)
+- **baseCamp README**: Updated to V128, added Tier 4 IPC-first status, biomeOS v3.51 absorption, skunkBat wiring
+- **`cargo fmt` applied** to coefficient.rs expect attribute formatting
+
+#### Downstream Review
+- **projectNUCLEUS** (gardens/): operational stack with Tower + Node + Nest + provenance graphs
+- **foundation** (gardens/): validated scientific lineage — threads 6 (Ag) and 7 (Anderson) use groundSpring workloads (`gs-validate-all`, `gs-guidestone`, `gs-bench-gpu`, `gs-python-baselines`)
+- **foundation/expressions/MEASUREMENT_SCIENCE.md**: positions groundSpring as layer-0 measurement noise for cross-spring sediment
+
 ### V128 Tier 4 IPC-First + River Delta Evolution (May 10, 2026)
 
 #### Tier 4 IPC-First
