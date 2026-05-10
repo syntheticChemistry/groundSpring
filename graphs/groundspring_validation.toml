@@ -188,6 +188,26 @@ params = { session_id = "${PROVENANCE_SESSION_ID}", summary = "${PARITY_RESULTS_
 timeout_ms = 10000
 fallback = "skip"
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 7b: AUDIT — forward validation result to skunkBat (JH-5)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "audit_validation_event"
+depends_on = ["provenance_commit"]
+output = "audit_event_logged"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "security.audit_log"
+params = { event = "validation.complete", primal = "groundspring", experiment_id = "${EXPERIMENT_ID}", family_id = "${FAMILY_ID}", details = { parity_result = "${PARITY_RESULTS_JSON}" } }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"
+
 [[nodes]]
 id = "provenance_attribute"
 depends_on = ["provenance_commit"]

@@ -185,3 +185,23 @@ params = { session_id = "${PROVENANCE_SESSION_ID}", contribution = "Cross-substr
 [nodes.constraints]
 timeout_ms = 10000
 fallback = "skip"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 7: AUDIT — forward cross-substrate results to skunkBat (JH-5)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "audit_cross_substrate"
+depends_on = ["provenance_attribute"]
+output = "audit_event_logged"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "security.audit_log"
+params = { event = "validation.cross_substrate", primal = "groundspring", family_id = "${FAMILY_ID}", details = { substrates = ["cpu", "gpu", "npu"], run_id = "${RUN_ID}" } }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"

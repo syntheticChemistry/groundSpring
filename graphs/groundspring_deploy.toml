@@ -127,6 +127,34 @@ timeout_ms = 20000
 fallback = "skip"
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 2b: SKUNKBAT — audit logging and defensive security (optional)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "germinate_skunkbat"
+depends_on = ["germinate_beardog", "germinate_songbird"]
+output = "skunkbat_genesis"
+capabilities = ["defense"]
+
+[nodes.primal]
+by_capability = "defense"
+
+[nodes.operation]
+name = "start"
+
+[nodes.operation.params]
+mode = "server"
+family_id = "${FAMILY_ID}"
+
+[nodes.operation.environment]
+BIOMEOS_SOCKET_DIR = "${XDG_RUNTIME_DIR}/biomeos"
+FAMILY_ID = "${FAMILY_ID}"
+
+[nodes.constraints]
+timeout_ms = 15000
+fallback = "skip"
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # PHASE 3: GROUNDSPRING — measurement validation provider
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -220,6 +248,26 @@ name = "capability_call"
 [nodes.operation.params]
 capability = "storage.put"
 params = { key = "groundspring:niche:deploy:${TIMESTAMP}", value = "${GROUNDSPRING_GENESIS_JSON}", family_id = "groundspring" }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 6: AUDIT — forward deploy events to skunkBat (JH-5)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "audit_deploy_event"
+depends_on = ["germinate_skunkbat", "validate_groundspring_atomic"]
+output = "audit_event_logged"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "security.audit_log"
+params = { event = "niche.deploy", primal = "groundspring", version = "V128", family_id = "${FAMILY_ID}", details = { capabilities_registered = 16, deploy_graph = "groundspring_deploy" } }
 
 [nodes.constraints]
 timeout_ms = 10000

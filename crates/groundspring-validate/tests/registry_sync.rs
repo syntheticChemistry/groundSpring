@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 //! Registry cross-sync test — validates groundSpring's `capability_registry.toml`
-//! against primalSpring's canonical 389-method capability registry.
+//! against primalSpring's canonical 403-method capability registry.
 //!
 //! Phase 60 universal target #2: every spring must test its methods against
 //! primalSpring's `config/capability_registry.toml`.
@@ -16,7 +16,7 @@
 /// groundSpring's own capability registry.
 const GS_REGISTRY: &str = include_str!("../../../capability_registry.toml");
 
-/// primalSpring's canonical capability registry (389 methods).
+/// primalSpring's canonical capability registry (403 methods).
 /// Path: `primalSpring/config/capability_registry.toml`
 const PS_REGISTRY: &str = include_str!("../../../../primalSpring/config/capability_registry.toml");
 
@@ -132,6 +132,28 @@ fn groundspring_measurement_domain_is_niche_scoped() {
     assert!(
         gs_tools.iter().all(|t| t.starts_with("measurement.")),
         "all groundSpring tools must use the measurement domain prefix"
+    );
+}
+
+#[test]
+fn canonical_registry_method_count() {
+    let canonical_methods = extract_methods_from_primalspring_registry(PS_REGISTRY);
+    assert!(
+        canonical_methods.len() >= 400,
+        "canonical registry has {} methods — expected ≥400 (current: 403 per handoff, \
+         400 extracted from TOML). Update if primalSpring adds new methods.",
+        canonical_methods.len()
+    );
+}
+
+#[test]
+fn groundspring_registry_tool_count() {
+    let gs_tools = extract_tools_from_groundspring_registry(GS_REGISTRY);
+    assert_eq!(
+        gs_tools.len(),
+        16,
+        "groundSpring should register exactly 16 measurement.* tools, found {}",
+        gs_tools.len()
     );
 }
 

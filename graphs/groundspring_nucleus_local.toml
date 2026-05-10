@@ -326,3 +326,23 @@ params = { session_id = "${PROVENANCE_SESSION_ID}", contribution = "NUCLEUS loca
 [nodes.constraints]
 timeout_ms = 10000
 fallback = "skip"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 8: AUDIT — forward NUCLEUS bootstrap to skunkBat (JH-5)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "audit_nucleus_bootstrap"
+depends_on = ["provenance_attribute"]
+output = "audit_event_logged"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "security.audit_log"
+params = { event = "nucleus.bootstrap", primal = "groundspring", family_id = "${FAMILY_ID}", details = { node_id = "eastgate", atomics = ["tower", "node", "nest"] } }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"

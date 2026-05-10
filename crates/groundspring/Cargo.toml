@@ -14,7 +14,8 @@ repository.workspace = true
 workspace = true
 
 [features]
-default = ["barracuda"]
+default = []
+local = ["barracuda"]
 barracuda = ["dep:barracuda"]
 prng-xoshiro-default = []
 barracuda-gpu = ["barracuda", "barracuda/gpu", "barracuda/domain-esn", "dep:wgpu", "dep:bytemuck"]

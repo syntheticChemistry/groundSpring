@@ -78,6 +78,7 @@ mod tests {
     }
 
     #[test]
+    #[expect(clippy::float_cmp, reason = "exact zero return for empty-slice edge case")]
     fn empty_returns_zero() {
         #[cfg(not(feature = "barracuda"))]
         assert_eq!(super::coefficient_of_efficiency(&[], &[]), 0.0);

@@ -75,6 +75,49 @@ pub fn register_capabilities(socket: &Path) -> Result<usize> {
     Ok(registered)
 }
 
+/// Register groundSpring's methods with biomeOS v3.51 `method.register`.
+///
+/// Unlike [`register_capabilities`] which uses the older `capability.register`
+/// endpoint, this calls `method.register` (GAP-09) to dynamically register
+/// `measurement.*` methods into the semantic routing layer. biomeOS extracts
+/// the `measurement` domain and registers each operation for direct IPC routing.
+///
+/// # Errors
+///
+/// Returns `Err` if the socket is unavailable or `method.register` is not
+/// supported by the running biomeOS version.
+pub fn register_methods(socket: &Path) -> Result<usize> {
+    let socket_path = server::socket_path();
+    let socket_str = socket_path.to_string_lossy().to_string();
+
+    let methods: Vec<&str> = MEASUREMENT_CAPABILITIES.to_vec();
+
+    let params = serde_json::json!({
+        "primal": FAMILY_ID,
+        "transport": socket_str,
+        "methods": methods,
+        "source": "groundspring.startup",
+    });
+
+    let request = super::protocol::build_request("method.register", &params);
+    let response = super::transport::rpc_call(socket, &request)?;
+    let result = super::protocol::extract_rpc_result(&response)?;
+
+    let registered = result["registered"]
+        .as_u64()
+        .unwrap_or(0)
+        .try_into()
+        .unwrap_or(0);
+
+    if registered > 0 {
+        tracing::info!("method.register: {registered} methods registered via biomeOS v3.51");
+    } else {
+        tracing::warn!("method.register returned 0 registered methods");
+    }
+
+    Ok(registered)
+}
+
 /// Deregister groundSpring's capabilities from the NUCLEUS.
 ///
 /// Called during graceful shutdown so the NUCLEUS knows this provider
@@ -121,5 +164,11 @@ mod tests {
                 "capability {cap} not found in mappings"
             );
         }
+    }
+
+    #[test]
+    fn register_methods_on_nonexistent_socket_returns_error() {
+        let path = std::path::Path::new("/tmp/nonexistent_groundspring_test.sock");
+        assert!(register_methods(path).is_err());
     }
 }

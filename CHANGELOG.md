@@ -4,6 +4,30 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V128 Tier 4 IPC-First + River Delta Evolution (May 10, 2026)
+
+#### Tier 4 IPC-First
+- **`barracuda` removed from default features**: `default = []` (was `default = ["barracuda"]`). IPC-first is now the default — all 284 `barracuda::` references compile out when feature is off
+- **`local` feature added**: Enables `barracuda` direct library linkage for local compute. `cargo build -p groundspring --features local` for library path
+- **IPC mapping updated**: `PRIMAL_PROOF_IPC_MAPPING.md` reflects Tier 4 transition
+
+#### biomeOS v3.51 Absorption
+- **`composition.status`**: New `CompositionStatus` struct and `composition_status()` function in `biomeos::health` — returns `{ active_users, primal_health, resource_pressure }` for adaptive monitoring
+- **`method.register`**: New `register_methods()` in `biomeos::registration` — registers 16 `measurement.*` methods via biomeOS v3.51 GAP-09 dynamic registration endpoint
+
+#### skunkBat Audit Logging (JH-5)
+- **All 6 deploy graphs wired**: `security.audit_log` nodes added to `groundspring_deploy`, `groundspring_validation`, `groundspring_cross_substrate`, `groundspring_nucleus_local`, `groundspring_tower_bootstrap`, `groundspring_nucleus_node`
+- **Fallback = skip**: Audit logging is non-blocking — graphs proceed even if skunkBat is unavailable
+
+#### CI Cross-Sync
+- **Method count validated**: Registry sync tests updated for canonical 403 methods (was 389)
+- **Tool count test added**: Validates exactly 16 `measurement.*` tools in groundSpring registry
+
+#### Documentation Alignment
+- **CONTEXT.md rewritten**: Reflects eukaryotic UniBin architecture — `certification/`, `validation/scenarios/`, `groundspring_unibin`, `src/ipc/` tree, `fossilRecord/`, correct method names matching `capability_registry.toml`
+- **README.md**: V128 status, IPC-first feature flags, biomeOS v3.51, skunkBat wiring
+- **CHANGELOG.md**: V128 entry
+
 ### V127 Deep Debt Cleanup + Docs Alignment (May 9, 2026)
 
 #### Logging Unification

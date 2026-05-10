@@ -23,31 +23,45 @@ for noise characterization and uncertainty quantification.
 ## Technical Facts
 
 - **Language:** Rust library + validators, Python Phase 0 baselines + notebooks. Zero C dependencies (`cargo-deny` enforced)
-- **Architecture:** 3-crate workspace (`groundspring` library, `groundspring-validate` binaries, `groundspring-forge` GPU/hardware dispatch)
-- **Communication:** JSON-RPC 2.0 over Unix domain sockets (behind `biomeos` feature)
+- **Architecture:** 5-crate workspace (`groundspring` library, `groundspring-validate` binaries, `groundspring-forge` GPU/hardware dispatch, `exp094_composition_parity`, `exp095_measurement_niche`)
+- **Eukaryotic UniBin:** Single binary (`groundspring_unibin`) with `certify`, `validate`, `status`, `version` subcommands via `clap`
+- **Certification organelle:** `certification/` module — Properties 1-5 (bare, Tier 1) + Layers 2-4 (NUCLEUS composition, Tier 2)
+- **Validation scenarios:** `validation/scenarios/` registry — 10 tracks with `ScenarioMeta` (id, track, tier, provenance)
+- **IPC tree:** `src/ipc/` with per-primal modules (`barracuda.rs`, `toadstool.rs`, `nestgate.rs`, `beardog.rs`, `songbird.rs`)
+- **Communication:** JSON-RPC 2.0 over Unix domain sockets (behind `biomeos` feature); `tarpc` IPC (behind `tarpc-ipc` feature)
 - **License:** AGPL-3.0-or-later
 - **Tests:** 1,099 Rust tests + 287 Python provenance tests
+- **Clippy:** Zero warnings on all targets (lib + bin + test), pedantic + nursery
 - **Coverage:** ≥92% library line coverage (`cargo llvm-cov --workspace --lib`)
 - **MSRV:** Rust 1.87 (2024 edition)
-- **Crate count:** 3 workspace crates
 - **Validation checks:** 395/395 PASS across 35 binaries
-- **barraCuda delegations:** 110 active (67 CPU + 43 GPU)
+- **guideStone:** Level 4 (bare + NUCLEUS composition parity)
+- **barraCuda delegations:** 110 active (67 CPU + 43 GPU) — `barracuda` is `optional = true`, feature-gated
+- **Logging:** Unified `tracing` (zero `log::` calls)
+- **Fossil record:** `fossilRecord/` with 3 dated prokaryotic snapshots (validate binaries, guidestone, experiment crates)
+- **primalSpring:** v0.9.25 pinned for `CompositionContext`, `ScenarioMeta`, `ScenarioRegistry`
 
 ## Key Capabilities (JSON-RPC methods)
 
 When running as a biomeOS primal (`--features biomeos`), groundSpring exposes
-16 `measurement.*` methods via JSON-RPC:
+16 `measurement.*` methods via JSON-RPC (registered in `capability_registry.toml`):
 
-- `measurement.decompose` — Bias-variance decomposition
-- `measurement.rmse`, `measurement.mbe` — Agreement metrics
-- `measurement.hit_rate` — Precipitation occurrence detection
-- `measurement.rarefaction` — Taxonomic rarefaction curves
-- `measurement.diversity` — Shannon/Simpson diversity indices
-- `measurement.bootstrap` — Confidence interval estimation
-- `measurement.anderson` — Anderson localization diagnostics
-- `measurement.seismic` — Travel time and source inversion
-- `measurement.gillespie` — Stochastic chemical kinetics
-- Plus NestGate data pipeline methods (NCBI, NOAA GHCND, IRIS FDSN)
+- `measurement.noise_decomposition` — Bias-variance error decomposition (RMSE, MBE, R², IA)
+- `measurement.anderson_validation` — Anderson localization Lyapunov exponent
+- `measurement.bootstrap` — Confidence interval estimation (mean, median, std)
+- `measurement.rarefaction` — Multinomial rarefaction for sequencing noise
+- `measurement.drift` — Drift vs selection (Wright-Fisher, Kimura)
+- `measurement.rare_biosphere` — Rare biosphere detection (Chao1)
+- `measurement.gillespie` — Stochastic chemical kinetics (SSA)
+- `measurement.bistable` — Bistable phenotypic switching (c-di-GMP)
+- `measurement.quasispecies` — Eigen quasispecies error threshold
+- `measurement.band_edge` — Band structure of periodic tight-binding chains
+- `measurement.parity_check` — Cross-substrate parity validation (CPU vs GPU)
+- `measurement.et0_propagation` — FAO-56 Penman-Monteith ET₀ uncertainty
+- `measurement.freeze_out` — Freeze-out chi-squared fitting
+- `measurement.regime_classification` — ESN-based regime classification
+- `measurement.spectral_features` — Spectral function reconstruction (Tikhonov)
+- `measurement.uncertainty_budget` — Multi-source uncertainty budget
 
 ## What This Does NOT Do
 
@@ -63,6 +77,7 @@ When running as a biomeOS primal (`--features biomeos`), groundSpring exposes
 - [barraCuda](https://github.com/ecoPrimals/barraCuda) — GPU math primitives (consumed via feature flags)
 - [toadStool](https://github.com/ecoPrimals/toadStool) — hardware discovery and compute orchestration
 - [coralReef](https://github.com/ecoPrimals/coralReef) — sovereign GPU compiler
+- [primalSpring](https://github.com/ecoPrimals/primalSpring) — ecosystem intermediary, certification/validation patterns
 - [hotSpring](https://github.com/syntheticChemistry/hotSpring) — thermal simulation (cross-spring shader source)
 - [wetSpring](https://github.com/syntheticChemistry/wetSpring) — microbiome ecology (cross-spring bio shaders)
 - [airSpring](https://github.com/syntheticChemistry/airSpring) — atmospheric science (FAO-56 source)
@@ -72,7 +87,8 @@ When running as a biomeOS primal (`--features biomeos`), groundSpring exposes
 groundSpring is built using AI-assisted constrained evolution. Rust's compiler
 constraints (ownership, lifetimes, type system) reshape the fitness landscape and
 drive specialization. The evolution path is: Python baseline → Rust validation →
-GPU acceleration (barraCuda) → sovereign pipeline (coralReef/toadStool). Every
-tolerance is a named constant with documented provenance. Every validation binary
-follows the hotSpring pattern: hardcoded expected values, explicit PASS/FAIL per
-check, exit 0 on all pass / exit 1 on any failure.
+GPU acceleration (barraCuda) → sovereign pipeline (coralReef/toadStool) →
+eukaryotic UniBin (certification + validation scenarios). Every tolerance is a
+named constant with documented provenance. Every validation binary follows the
+hotSpring pattern: hardcoded expected values, explicit PASS/FAIL per check,
+exit 0 on all pass / exit 1 on any failure.

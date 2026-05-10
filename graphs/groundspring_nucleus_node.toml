@@ -101,3 +101,23 @@ params = { format = "json", include_timing = true, include_tolerances = true }
 
 [nodes.constraints]
 timeout_ms = 30000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 5: AUDIT — forward node validation to skunkBat (JH-5)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[nodes]]
+id = "audit_node_validation"
+depends_on = ["parity_certificate"]
+output = "audit_event_logged"
+
+[nodes.operation]
+name = "capability_call"
+
+[nodes.operation.params]
+capability = "security.audit_log"
+params = { event = "validation.node_atomic", primal = "groundspring", family_id = "${FAMILY_ID}", details = { experiments = 35, checks = 395 } }
+
+[nodes.constraints]
+timeout_ms = 10000
+fallback = "skip"

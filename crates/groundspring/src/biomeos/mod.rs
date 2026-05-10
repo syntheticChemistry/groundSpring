@@ -51,13 +51,13 @@ mod transport;
 
 pub use compute::{compute_capabilities, compute_execute, compute_submit};
 pub use discovery::{auto_connect, discover_socket, is_nucleus_available};
-pub use health::health;
+pub use health::{CompositionStatus, composition_status, health};
 pub use interaction::{
     DiscoveredPrimal, direct_primal_rpc, discover_by_capability, discover_primals,
     dispatch_capabilities, dispatch_result, dispatch_submit, primal_health, proprioception,
     topology,
 };
-pub use registration::{deregister_capabilities, register_capabilities};
+pub use registration::{deregister_capabilities, register_capabilities, register_methods};
 pub use routing::{capability_call, capability_call_typed, direct_rpc_call};
 pub use storage::{storage_get, storage_put};
 

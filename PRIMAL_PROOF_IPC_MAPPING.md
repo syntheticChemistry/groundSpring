@@ -1,7 +1,7 @@
 # groundSpring — Primal-Proof IPC Mapping
 
-**Date**: May 9, 2026
-**groundSpring**: V126 (eukaryotic evolution)
+**Date**: May 10, 2026
+**groundSpring**: V128 (Tier 4 IPC-first)
 **barraCuda**: v0.3.13
 **primalSpring**: v0.9.25
 
@@ -14,9 +14,9 @@ equivalent JSON-RPC method name, enabling the transition from in-process
 library linkage to sovereign NUCLEUS deployment where barraCuda runs as a
 separate ecobin.
 
-groundSpring's `barracuda` Cargo feature gate (currently `default = ["barracuda"]`)
-is the transitional pattern: when enabled, calls go through the library; when
-disabled, calls route through IPC via `CompositionContext`.
+groundSpring's `barracuda` Cargo feature gate has been flipped to IPC-first:
+`default = []` (Tier 4). The `local` feature enables direct library linkage.
+When `barracuda` is off, calls route through IPC via `CompositionContext`.
 
 ---
 
@@ -77,20 +77,20 @@ disabled, calls route through IPC via `CompositionContext`.
 
 ```toml
 [features]
-default = ["barracuda"]         # Library path (current default)
-barracuda = ["dep:barracuda"]   # Direct library linkage
-# Future: when IPC-first becomes default
-# default = []                  # IPC-only via CompositionContext
-# barracuda = ["dep:barracuda"] # Opt-in library linkage
+default = []                    # IPC-first (Tier 4) — no library coupling
+local = ["barracuda"]           # Opt-in library linkage for local compute
+barracuda = ["dep:barracuda"]   # Direct library linkage (enabled by `local`)
+barracuda-gpu = ["barracuda", "barracuda/gpu", ...]  # GPU path
 ```
 
 ### Transition Path
 
-1. **Current (V126)**: `barracuda` is default. Library calls are direct.
-   IPC path exists via `biomeos` module for NUCLEUS validation.
-2. **Next**: Add `primal-proof` feature (from healthSpring pattern) that
-   runs both library and IPC paths in parallel, comparing results.
-3. **Target**: Flip default to IPC-only. Library becomes opt-in fallback.
+1. **V126**: `barracuda` was default. Library calls were direct.
+2. **V128 (current)**: IPC-first. `barracuda` removed from `default`.
+   `local` feature enables library linkage. All 284 `barracuda::` references
+   are behind `#[cfg(feature = "barracuda")]`; IPC fallback paths active
+   when the feature is off. `CompositionContext` routes through biomeOS.
+3. **Next**: Wire `primal-proof` parallel validation (library vs IPC comparison).
 
 ---
 

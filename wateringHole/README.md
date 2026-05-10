@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: May 9, 2026 (V127 — Deep debt cleanup + eukaryotic UniBin evolution)
+**Last Updated**: May 10, 2026 (V128 — Tier 4 IPC-first + river delta evolution)
 
 ## What This Is
 
@@ -18,6 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
+| V128 Tier 4 IPC-First | [GROUNDSPRING_V128_TIER4_IPC_FIRST_HANDOFF_MAY10_2026.md](handoffs/GROUNDSPRING_V128_TIER4_IPC_FIRST_HANDOFF_MAY10_2026.md) | May 10, 2026 | Tier 4 IPC-first (`barracuda` removed from default, `local` feature added), biomeOS v3.51 `composition.status` + `method.register`, skunkBat audit logging in all 6 deploy graphs, CI cross-sync against 400+ methods, CONTEXT.md rewritten for eukaryotic UniBin |
 | V127 Deep Debt Evolution | [GROUNDSPRING_V127_DEEP_DEBT_EVOLUTION_HANDOFF_MAY09_2026.md](handoffs/GROUNDSPRING_V127_DEEP_DEBT_EVOLUTION_HANDOFF_MAY09_2026.md) | May 9, 2026 | Deep debt cleanup, tracing unification, clippy zero-warning on all targets, upstream primal debt review, downstream absorption patterns, doc alignment to 1,099 tests |
 | V126 Interstadial UniBin | [GROUNDSPRING_V126_INTERSTADIAL_UNIBIN_HANDOFF_MAY09_2026.md](handoffs/GROUNDSPRING_V126_INTERSTADIAL_UNIBIN_HANDOFF_MAY09_2026.md) | May 9, 2026 | Eukaryotic UniBin (certification/ organelle, validation/scenarios/ registry, groundspring_unibin binary), src/ipc/ tree (per-primal modules), PRIMAL_PROOF_IPC_MAPPING.md, fossilRecord/, two-tier validation, primalSpring v0.9.25 pin, 1,006+ tests |
 | V125 Deep Evolution L4 | [GROUNDSPRING_V125_DEEP_EVOLUTION_L4_HANDOFF_MAY08_2026.md](handoffs/GROUNDSPRING_V125_DEEP_EVOLUTION_L4_HANDOFF_MAY08_2026.md) | May 8, 2026 | guideStone Level 4 (bare + NUCLEUS composition parity), deep debt evolution (tolerance unification, tracing migration, platform guards, 29 new test modules), 2 composition crates, sporePrint notebooks, foundation/sporeGarden integration, barraCuda v0.3.13 |
