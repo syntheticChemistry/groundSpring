@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: May 11, 2026 (V133 — 1,101 tests, ≥92% library coverage, 0 clippy warnings on all targets, 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later. guideStone Level 4 (modular `guidestone/` layers). Bootstrap doctest fixed. Benchmark coverage 11→28 experiments. 76 script binary name fixes. Tier 4 IPC-first. Eukaryotic UniBin. `src/ipc/` per-primal tree + skunkBat IPC module. biomeOS v3.51. barraCuda v0.3.13. primalSpring v0.9.25. Kokkos parity documented.)
+**Last updated**: May 11, 2026 (V135 — 1,125 tests, ≥92% library coverage, 0 clippy warnings on all targets, 0 fmt diff, license AGPL-3.0-or-later. guideStone Level 4. LTEE B2 (Wiser 2013) + B1 (Barrick 2009) reproductions complete — unblocks `lithoSpore` modules 1+2. `stats::model_selection` (AIC/BIC). Modular validate harness. Self-knowledge dispatch. `bytemuck` optional in metalForge. Tier 4 IPC-first. barraCuda v0.3.13. primalSpring v0.9.25.)
 
 ## Experiment Register
 

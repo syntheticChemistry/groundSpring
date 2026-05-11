@@ -1,13 +1,13 @@
 {
-  "generated": "2026-05-07T13:00:00Z",
+  "generated": "2026-05-11T19:00:00Z",
   "spring": "groundSpring",
-  "version": "V125",
-  "total_tests": 965,
+  "version": "V135",
+  "total_tests": 1125,
   "total_failed": 0,
   "total_ignored": 0,
   "suite_time_seconds": 146.0,
   "crates": {
-    "groundspring": {"tests": 611, "time_s": 22.5},
+    "groundspring": {"tests": 674, "time_s": 22.6},
     "groundspring-validate": {"tests": 138, "time_s": 0.2},
     "groundspring-forge": {"tests": 30, "time_s": 0.0}
   },

@@ -7,7 +7,7 @@
 [![ecoBin](https://img.shields.io/badge/ecoBin-compliant-green.svg)](https://github.com/ecoPrimals/wateringHole/blob/main/ECOBIN_ARCHITECTURE_STANDARD.md)
 
 **Date**: May 11, 2026 | **License**: AGPL-3.0-or-later | **MSRV**: Rust 1.87 (2024 edition)
-**Status**: V133 — Deep Debt V2 (nucleus.rs panic→fallback, NPU bench wired, correctness-field fix, run_all_baselines Phase 2 coverage, foundation workload paths). 41 modules, 35 experiments, 1,101 tests (zero warnings, zero clippy errors on all targets), 395/395 validation checks + 138 metalForge checks + 29 validator integration tests. **guideStone Level 4**. `barracuda` optional everywhere (`groundspring` + `metalForge`), IPC-first via `CompositionContext`. `local` feature enables direct library linkage. `composition.status` and `method.register` absorbed from biomeOS v3.51. skunkBat `security.audit_log` wired into all 6 deploy graphs (JH-5). CI cross-sync: 16 `measurement.*` methods validated against canonical 413. plasmidBin binary: 1.1M stripped (LTO). Foundation Thread 7 (Anderson Mathematics) seeded: 18/18 targets PASS. `certification/` organelle (L0-L4), `validation/scenarios/` registry (10 tracks, Tier 1/Tier 2), `groundspring_unibin` binary (certify/validate/status/version). `src/ipc/` tree with per-primal modules (barraCuda, ToadStool, NestGate, BearDog, Songbird). Unified `tracing` logging (zero `log::` calls). primalSpring v0.9.25 pinned. `fossilRecord/` with 3 dated prokaryotic snapshots. Zero bare `#[allow]`/`#[expect]` without reason. Zero TODO/FIXME. barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+. 6 deploy graphs, 34 notebooks.
+**Status**: V135 — Deep Debt Evolution + LTEE Reproductions (modular validate harness, self-knowledge dispatch, dep decoupling, LTEE B2 Wiser 2013 + B1 Barrick 2009). 41 modules, 35 experiments + 2 LTEE control baselines, **1,125 tests** (zero warnings, zero clippy errors on all targets), 395/395 validation checks + 138 metalForge checks + 29 validator integration tests. **guideStone Level 4**. `barracuda` optional everywhere (`groundspring` + `metalForge`), IPC-first via `CompositionContext`. `local` feature enables direct library linkage. `stats::model_selection` (AIC/BIC), `stats::regression::{fit_power_law, fit_hyperbolic}`, `fit_all` now 6 models. LTEE B2 (Exp 036): power-law fitness dynamics — unblocks `lithoSpore` module 1. LTEE B1 (Exp 037): neutral mutation accumulation — unblocks `lithoSpore` module 2. `validate/` split into `sink.rs` + `harness.rs` + `mod.rs` (750L → 3 modules). `dispatch::normalize_method` uses `primal_names::SELF_ID` (no hardcoding). `bytemuck` optional in metalForge. Zero unsafe (`#![forbid(unsafe_code)]`), zero mocks in production, zero `.unwrap()` in library code. plasmidBin binary: 1.1M stripped (LTO). Foundation Thread 7 (Anderson Mathematics) seeded: 18/18 targets PASS. `certification/` organelle (L0-L4), `validation/scenarios/` registry (10 tracks, Tier 1/Tier 2), `groundspring_unibin` binary (certify/validate/status/version). primalSpring v0.9.25 pinned. barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+. 6 deploy graphs, 34 notebooks.
 
 **The gap between what models predict and what instruments measure.**
 
@@ -80,7 +80,8 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | `stats::metrics` | mean, std_dev, sample_std_dev, percentile | **GPU dispatched** (mean via SumReduceF64, std_dev via VarianceReduceF64) + CPU delegated |
 | `stats::correlation` | Pearson/Spearman correlation, covariance | **GPU dispatched** (pearson_r via CorrelationF64, covariance via CovarianceF64) + CPU delegated |
 | `stats::distributions` | norm_cdf, norm_ppf, χ² | 3 CPU delegated |
-| `stats::regression` | Linear, quadratic, exponential, logarithmic fits | 4 CPU delegated |
+| `stats::regression` | Linear, quadratic, exponential, logarithmic, power-law, hyperbolic fits; `fit_all` (6 models) | 6 CPU delegated |
+| `stats::model_selection` | AIC, BIC, RSS, `compare_models` — information-criterion model selection | N/A |
 | `decompose` | Bias-variance decomposition, noise floor | CPU-only (scalar) |
 | `fao56` | FAO-56 Penman-Monteith equation chain | **Absorbed** (barracuda `Op::Fao56Et0`) + **GPU batch** (BatchedElementwiseF64) |
 | `prng` | Xorshift64 PRNG, Box-Muller normal | B (DefaultRng aligned) |
@@ -96,7 +97,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | `drift` | Wright-Fisher fixation, Kimura fixation probability, neutral diversity trajectory | **CPU delegated** (kimura_fixation_prob S70+) + **GPU batch** (WrightFisherGpu) |
 | `cast` | Centralized numeric casts with documented safety | N/A |
 | `kinetics` | Hill + Monod kinetics (shared bistable + multi-signal) | A Lean (barracuda::stats::hill, monod) |
-| `validate` | Generic Write harness (hotSpring pattern) | N/A |
+| `validate` | Modular validation harness: `sink` (trait + stdout/null/NDJSON) + `harness` (check methods + summary) — hotSpring pattern | N/A |
 | `rare_biosphere` | Chao1, detection power/threshold, abundance-occupancy, singleton fraction | **GPU-ready** (V31 dispatch) |
 | `quasispecies` | Eigen error threshold, master frequency, Wright-Fisher mutation simulation | **GPU-ready** (V31 dispatch) |
 | `band_structure` | Transfer matrix, band edge detection, count bands, periodic Hamiltonian | **GPU-ready** (V31 dispatch) |
@@ -119,7 +120,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace                         # 1,101 tests, all PASS
+cargo test --workspace                         # 1,125 tests, all PASS
 cargo test --workspace --all-features          # all feature paths tested
 cargo test --workspace --features biomeos      # NUCLEUS client active
 cargo test --workspace --features barracuda-gpu # GPU dispatch active
@@ -443,5 +444,8 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 | V123 | Mar 24 | Cross-ecosystem absorption + provenance, 1020+ tests, 41 modules |
 | V124 | Apr 27 | guideStone L3, 16 caps synced, 6 deploy graphs, deep debt + tolerance hardening, 965+ tests |
 | V125 | May 8 | guideStone L4, deep debt evolution, tolerance unification, 29 new test modules, composition crates, sporePrint notebooks |
+| V131 | May 11 | Deep debt evolution + docs cleanup + handoffs, 1,101 tests |
+| V134 | May 11 | LTEE B2 (Wiser 2013 power-law fitness) + B1 (Barrick 2009 neutral mutation), 1,119 tests |
+| V135 | May 11 | Deep debt: modular validate harness, self-knowledge dispatch, dep decoupling, 1,125 tests |
 
 Part of [ecoPrimals](https://github.com/syntheticChemistry) · [wateringHole](https://github.com/ecoPrimals/wateringHole) · AGPL-3.0-or-later

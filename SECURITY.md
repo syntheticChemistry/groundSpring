@@ -23,7 +23,7 @@ security posture derives from the ecoPrimals sovereign stack:
 - **IPC isolation**: JSON-RPC 2.0 over Unix domain sockets with
   capability-based discovery. No shared memory, no global state.
 - **Deterministic validation**: Fixed seeds, named tolerances, provenance
-  tracing. All 1,101 tests are rerun-identical.
+  tracing. All 1,125 tests are rerun-identical.
 - **NDJSON output hardening**: Structured validation output (NDJSON sink)
   escapes all string fields per RFC 8259 to prevent JSON injection.
 
