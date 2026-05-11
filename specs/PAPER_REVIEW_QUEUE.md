@@ -432,3 +432,22 @@ dispatch use hotSpring's shared metalForge infrastructure.
 - Papers 20-21 (R. Anderson) share barracuda bio ops with wetSpring
 - The common thread: **extracting reliable conclusions from noisy measurements**
 - **All 28 papers use open data and open systems. Zero proprietary dependencies.**
+
+---
+
+## LTEE GuideStone Queue (Barrick/Lenski)
+
+Targeted paper reproductions for the LTEE Targeted GuideStone artifact — a USB-deployable
+validation subsystem of projectNUCLEUS. See `infra/whitePaper/gen4/architecture/GUIDESTONE_LTEE.md`
+and `infra/whitePaper/attsi/non-anon/contact/barrick/PAPER_REVIEW_AND_SPRING_TARGETS.md`.
+
+| ID | Paper | What to Reproduce | Exp | Status |
+|----|-------|-------------------|-----|--------|
+| B1 | Barrick et al. 2009 "Genome evolution" *Nature* | Drift vs selection: neutral mutation rate as null model; Barrick data as empirical test of fixation theory | TBD | QUEUED |
+| B2 | Wiser et al. 2013 "Long-term dynamics" *Science* | Jackknife + AIC/BIC model selection across power-law, hyperbolic, logarithmic fitness models | TBD | QUEUED |
+| B3 | Good et al. 2017 "Dynamics of molecular evolution" *Nature* | Clonal interference statistics: when multiple beneficial mutations compete, fixation probability changes | TBD | QUEUED |
+| B4 | Blount et al. 2008/2012 Citrate innovation | Rare event statistics: probability framework for potentiating mutation cascades | TBD | QUEUED |
+| B6 | "Measuring the burden of hundreds of BioBricks" 2024 *Nat Comms* | Anderson Wc analogy: burden = disorder potential; statistical distribution across 301 plasmids | TBD | QUEUED |
+| B7 | Tenaillon et al. 2016 "Tempo and mode" *Nature* | Epistasis quantification across 264 genomes; statistical tests for parallel evolution significance | TBD | QUEUED |
+| B8 | Barrick & Waters 2025 "Phages use contingency loci" *bioRxiv* | Bet-hedging statistics: phase variation rates as stochastic switching models | TBD | QUEUED |
+| B9 | DFE Evolution in LTEE 2024 *Science* | DFE fitting: parameter estimation for gamma/exponential/lognormal DFE models across generations | TBD | QUEUED |
