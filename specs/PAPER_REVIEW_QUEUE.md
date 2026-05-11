@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: May 10, 2026 (V129)
+**Last Updated**: May 11, 2026 (V133)
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---
@@ -45,10 +45,10 @@
 
 **Phase 0**: ~276 checks (Python, 29 experiments). **Phase 1**: 395/395 PASS (Rust, 35 experiments / 34 binaries). **Speedup**: 11.5× median (excl. LAPACK-bound), 47.7× peak (Sturm tridiag).
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs (Exp 029–033 have no Python baseline).
-**Current (V129)**: 395/395 checks, 1,101 Rust workspace tests, 287 Python tests, 140 metalForge checks.
+**Current (V133)**: 395/395 checks, 1,101 Rust workspace tests, 287 Python tests, 138 metalForge checks.
 **Tier 4 IPC-first (V128)**: `barracuda` removed from default features; IPC via `CompositionContext` is the default. `local` feature for opt-in library linkage.
 **GPU dispatch**: 16 modules wired for `barracuda-gpu` — 110 delegations (67 CPU + 43 GPU), barraCuda v0.3.13, toadStool S158+. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed).
-**Three-tier parity**: 30/30 PROVEN (default = barracuda-CPU = barracuda-GPU). metalForge: 140 checks.
+**Three-tier parity**: 30/30 PROVEN (default = barracuda-CPU = barracuda-GPU). metalForge: 138 checks.
 **Exp 015** bridges Papers 22-24 (Sub-thesis 06): sensor noise → Anderson ξ → QS regime uncertainty.
 **Cross-spring shader evolution**: `hotSpring` precision shaders and `wetSpring` bio shaders feed `groundSpring` GPU tier via `ToadStool` unidirectional streaming.
 

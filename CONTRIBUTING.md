@@ -109,7 +109,7 @@ scripts/             Automation (baselines, benchmarks)
 ### Rust
 
 ```bash
-cargo test --workspace                         # 1,101 tests, all PASS (V132)
+cargo test --workspace                         # 1,101 tests, all PASS (V133)
 cargo test --workspace --all-features          # all feature paths tested
 cargo test --workspace --features biomeos      # biomeos tests (NUCLEUS client active)
 cargo test --workspace --features barracuda-gpu # GPU dispatch active
@@ -159,7 +159,7 @@ cargo run --bin validate_size_convergence
 cargo run --bin validate_vendor_parity
 cargo run --bin validate_npu_anderson
 
-# metalForge live hardware validation (140 checks, 5 substrates)
+# metalForge live hardware validation (138 checks, 5 substrates)
 cargo run --bin validate_metalforge_inventory
 cargo run --bin validate_metalforge_gpu
 cargo run --bin validate_metalforge_cross_substrate

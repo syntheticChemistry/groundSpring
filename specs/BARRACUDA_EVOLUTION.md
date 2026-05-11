@@ -2,7 +2,7 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: May 11, 2026 (V132 — 110 delegations (67 CPU + 43 GPU), 1,101 tests,
+**Last updated**: May 11, 2026 (V133 — 110 delegations (67 CPU + 43 GPU), 1,101 tests,
 barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+. guideStone Level 4.
 V131: guidestone modular refactor (833→128L), doctest fix, benchmark coverage 11→28 experiments,
 76 script binary name fixes, Kokkos parity documentation.
@@ -44,7 +44,7 @@ dispatch blocks: `freeze_out::grid_fit_2d` (2D parallel grid),
 `quasispecies::quasispecies_simulation` (batched Wright-Fisher via
 `barracuda::ops::bio::wright_fisher_simulate`), `rare_biosphere::abundance_occupancy`
 and `tier_detection_rate` (batched multinomial via `barracuda::ops::bio`).
-140 metalForge checks, 5+ discovered substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). 110 active barracuda delegations (67 CPU + 43 GPU), barraCuda v0.3.7, toadStool S158+. V59: jackknife GPU promoted (S71 `jackknife_mean_f64.wgsl`), HargreavesBatchGpu (S71 `hargreaves_batch_f64.wgsl`).
+138 metalForge checks, 5+ discovered substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). 110 active barracuda delegations (67 CPU + 43 GPU), barraCuda v0.3.7, toadStool S158+. V59: jackknife GPU promoted (S71 `jackknife_mean_f64.wgsl`), HargreavesBatchGpu (S71 `hargreaves_batch_f64.wgsl`).
 These dispatch blocks compile only with `--features barracuda-gpu` and call
 expected barracuda functions — ToadStool absorbs them to activate GPU paths.
 
@@ -470,11 +470,11 @@ between Rust and Kokkos is tracked in two tiers:
 
 | Tier | Binary | Parity Level | Status |
 |------|--------|-------------|--------|
-| **CPU** | `bench_kokkos_parity` | **Value parity** — algorithmic match (same sizes, seeds, Xorshift64) | Proven via `scripts/compare_kokkos_rust.py` |
+| **CPU** | `bench_kokkos_parity` | **Value parity** — algorithmic match (same sizes, seeds, Xorshift64) | Proven via `kokkos_baseline/scripts/compare_kokkos_rust.py` |
 | **GPU** | `bench_gpu_vs_kokkos` | **Timing/wiring only** — numerical output differs due to PRNG seed stride mismatch | Known gap (Phase 2b) |
 
 **CPU Kokkos parity** uses the same Xorshift64 PRNG and `base_seed + r`
-per-realization scheme as the Kokkos reference. `compare_kokkos_rust.py`
+per-realization scheme as the Kokkos reference. `kokkos_baseline/scripts/compare_kokkos_rust.py`
 reports absolute value diffs (not yet gated on thresholds — open evolution item).
 
 **GPU Kokkos parity** diverges because `barracuda::spectral::lyapunov_averaged`
@@ -483,7 +483,7 @@ while Kokkos and the CPU path use `base_seed + r`. This is expected until
 PRNG alignment (Phase 2b) lands.
 
 **Remaining Kokkos gaps:**
-- `compare_kokkos_rust.py` should assert tolerance thresholds and exit non-zero on mismatch
+- `kokkos_baseline/scripts/compare_kokkos_rust.py` should assert tolerance thresholds and exit non-zero on mismatch
 - GPU seed stride alignment blocked on PRNG Phase 2b
 - 67 pytest failures from Kokkos benchmark binary naming are a test discovery issue, not a parity issue
 

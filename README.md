@@ -47,7 +47,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | 010: Bistable Phenotypic Switching | Biological | PASS | 10/10 PASS | Fernandez 2020 PNAS bifurcation |
 | 011: Multi-Signal QS Integration | Biological | PASS | 9/9 PASS | Srivastava 2011 dual-signal integration |
 | 012: Spin Chain Transport | Mathematics | 18/18 PASS | 18/18 PASS | Kachkovskiy 2016 wavepacket MSD, transport exponent |
-| 013: Resampling Convergence | Statistics | 8/8 PASS | 8/8 PASS | Lee & Liu 2024 bootstrap convergence |
+| 013: Resampling Convergence | Statistics | 10/10 PASS | 8/8 PASS | Lee & Liu 2024 bootstrap convergence |
 | 014: Drift vs Selection | Biological | 7/7 PASS | 7/7 PASS | R. Anderson 2022 Wright-Fisher, Kimura fixation |
 | 015: Uncertainty Bridge | Cross-domain | 8/8 PASS | 8/8 PASS | Sensor noise → Anderson ξ propagation |
 | 016: Rare Biosphere | Biological | 11/11 PASS | 12/12 PASS | Sequencing depth determines rare taxa signal boundary |

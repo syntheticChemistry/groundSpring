@@ -1,11 +1,11 @@
 # groundSpring Primal Composition Gaps
 
-**Spring:** groundSpring V132
+**Spring:** groundSpring V133
 **Proto-nucleate:** `downstream_manifest.toml` (spring_name = "groundspring")
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
 **Date:** April 27, 2026
-**Last audited:** May 11, 2026 (V132 — modular guidestone, doctest fix, benchmark 28-exp coverage, 76 script fixes. guideStone L4, Tier 4 IPC-first, eukaryotic UniBin, biomeOS v3.51, skunkBat IPC, 1,101 tests, zero clippy)
+**Last audited:** May 11, 2026 (V133 — modular guidestone, doctest fix, benchmark 28-exp coverage, 76 script fixes. guideStone L4, Tier 4 IPC-first, eukaryotic UniBin, biomeOS v3.51, skunkBat IPC, 1,101 tests, zero clippy)
 **License:** AGPL-3.0-or-later
 
 ---

@@ -6,7 +6,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 | Version | Supported |
 |---------|-----------|
-| V132+ (current) | Yes |
+| V133+ (current) | Yes |
 
 ## Security Model
 

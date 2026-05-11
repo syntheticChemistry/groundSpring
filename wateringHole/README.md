@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: May 11, 2026 (V132 — deep debt evolution, guidestone modular refactor, benchmark 28-experiment coverage)
+**Last Updated**: May 11, 2026 (V133 — deep debt evolution, guidestone modular refactor, benchmark 28-experiment coverage)
 
 ## What This Is
 
@@ -18,6 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
+| V133 Deep Debt V2 + Primal Handoff | [GROUNDSPRING_V133_DEEP_DEBT_PRIMAL_HANDOFF_MAY11_2026.md](handoffs/GROUNDSPRING_V133_DEEP_DEBT_PRIMAL_HANDOFF_MAY11_2026.md) | May 11, 2026 | River Delta complete: metalForge barracuda decoupling (pollster, wgpu vulkan), plasmidBin 1.1M refresh, Foundation Thread 7 (18/18), nucleus.rs panic→fallback, benchmark correctness, run_all_baselines Phase 2, NUCLEUS TOML shell-defaults, upstream gaps (NestGate, PRNG 2b, coralReef shader), patterns for springs |
 | V131 Deep Debt Evolution | [GROUNDSPRING_V131_DEEP_DEBT_EVOLUTION_HANDOFF_MAY11_2026.md](handoffs/GROUNDSPRING_V131_DEEP_DEBT_EVOLUTION_HANDOFF_MAY11_2026.md) | May 11, 2026 | Modular guidestone (833→128L), doctest fix, benchmark 28-exp coverage, 76 script binary name fixes, Kokkos parity docs, test_three_tier_parity.py fix (27→29 bins), fossilRecord README corrected, foundation THREAD_INDEX bug fix, per-team guidance, patterns for springs to absorb |
 | V129 Docs Evolution + Primal Handoff | [GROUNDSPRING_V129_DOCS_EVOLUTION_PRIMAL_HANDOFF_MAY10_2026.md](handoffs/GROUNDSPRING_V129_DOCS_EVOLUTION_PRIMAL_HANDOFF_MAY10_2026.md) | May 10, 2026 | Deep debt audit (all clean), doc alignment (13 files, 1,101 tests, V129), stale test fix, primal team handoff (per-team guidance), spring team patterns to absorb, NUCLEUS deployment + foundation integration, remaining gaps inventory |
 | V128 Tier 4 IPC-First | [GROUNDSPRING_V128_TIER4_IPC_FIRST_HANDOFF_MAY10_2026.md](handoffs/GROUNDSPRING_V128_TIER4_IPC_FIRST_HANDOFF_MAY10_2026.md) | May 10, 2026 | Tier 4 IPC-first (`barracuda` removed from default, `local` feature added), biomeOS v3.51 `composition.status` + `method.register`, skunkBat audit logging in all 6 deploy graphs, CI cross-sync against 400+ methods, CONTEXT.md rewritten for eukaryotic UniBin |

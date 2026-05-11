@@ -19,6 +19,14 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 #### Foundation/NUCLEUS
 - **NUCLEUS workload TOML**: `$SPRINGS_ROOT` (non-expandable) replaced with `${SPRINGS_ROOT:-<default>}` shell-default pattern matching foundation convention.
 
+#### Docs Cleanup (V133 sweep)
+- 12 living docs bumped V132→V133 (CONTRIBUTING, SECURITY, CONTROL_EXPERIMENT_STATUS, specs/README, specs/PAPER_REVIEW_QUEUE, specs/PRIMAL_INTERACTION_EVOLUTION, specs/BARRACUDA_EVOLUTION, docs/PRIMAL_GAPS, docs/VALIDATION_TIERS, whitePaper/baseCamp/README, whitePaper/experiments/README, wateringHole/README).
+- Fixed `140 metalForge checks` → `138` across all living docs (METHODOLOGY, BARRACUDA_REQUIREMENTS, baseCamp, experiments, specs/README, PAPER_REVIEW_QUEUE, BARRACUDA_EVOLUTION).
+- Fixed Exp 013 Python check count in root README: was `8/8`, corrected to `10/10` (matches CONTROL_EXPERIMENT_STATUS and validation code).
+- Fixed `compare_kokkos_rust.py` path references in BARRACUDA_EVOLUTION to `kokkos_baseline/scripts/`.
+- Fixed notebook 02 experiment count from 28 to 29.
+- Created V133 handoff: `GROUNDSPRING_V133_DEEP_DEBT_PRIMAL_HANDOFF_MAY11_2026.md` — includes upstream primal gaps (NestGate P1, PRNG 2b, coralReef shader), patterns for other springs (modular guidestone, metalForge decoupling, foundation seeding), NUCLEUS composition patterns, and deep debt audit certificate.
+
 ### V132 River Delta Evolution — Tier 4 + plasmidBin + Foundation (May 11, 2026)
 
 #### Tier 4: metalForge barracuda Decoupling
