@@ -1,0 +1,51 @@
+{
+  "_source": "groundSpring Experiment 038 — LTEE Clonal Interference (Good et al. 2017)",
+  "_doi": "10.1038/nature24287",
+  "_references": [
+    "Good BH, McDonald MJ, Barrick JE, Lenski RE, Desai MM (2017) The dynamics of molecular evolution over 60,000 generations. Nature 551:45-50",
+    "Desai MM, Fisher DS (2007) Beneficial Mutation-Selection Balance and the Effect of Linkage on Positive Selection. Genetics 176:1759-1798",
+    "Gerrish PJ, Lenski RE (1998) The fate of competing beneficial mutations in an asexual population. Genetica 102/103:127-144"
+  ],
+  "_provenance": {
+    "generated_by": "Synthetic clonal interference simulation using Wright-Fisher model with multiple concurrent beneficial mutations",
+    "data_origin": "Synthetic data reproducing the clonal interference regime described by Good et al. 2017 and Desai & Fisher 2007 theory",
+    "real_data_accession": "N/A (synthetic from published parameter regime; real LTEE metagenomic data at SRA PRJNA380528 for future Tier 2)",
+    "prng_algorithm": "xorshift64 (Marsaglia 2003)",
+    "baseline_commit": "53a4728",
+    "baseline_date": "2026-05-11",
+    "validation_script": "control/ltee_clonal_interference/ltee_clonal_interference.py",
+    "command": "python3 control/ltee_clonal_interference/ltee_clonal_interference.py",
+    "python_version": "3.11",
+    "numpy_version": "1.24"
+  },
+  "_description": "Reproduce the clonal interference analysis from Good et al. (2017): in large asexual populations, multiple beneficial mutations arise simultaneously and compete for fixation. The key result is that the fixation probability of a beneficial mutation decreases relative to the neutral expectation (1/N) as population size increases, because of competition from other contemporaneous beneficials. We simulate Wright-Fisher populations at multiple sizes with a constant supply of beneficial mutations and measure effective fixation probability vs the Desai-Fisher theoretical prediction.",
+  "_groundspring_question": "How does clonal interference affect the dynamics of adaptation in large asexual populations? What is the effective fixation probability of a beneficial mutation when competing clones are present?",
+  "_cross_spring": "lithoSpore module 3 (clonal-dynamics), hotSpring B2 (fitness landscape), groundSpring B1 (neutral fixation baseline)",
+  "_ltee_guidestone": {
+    "module": 3,
+    "paper_id": "B3",
+    "litho_module": "ltee-clonal",
+    "blocks": "Pillar 4 lithoSpore expansion"
+  },
+  "model": {
+    "_description": "Simulate Wright-Fisher populations at 4 population sizes. Each generation: mutations arise at rate U_b per genome per generation. Beneficial mutations have selective advantage s drawn from exponential distribution. Track lineages to fixation. Compare observed fixation probability to neutral (1/N) and Desai-Fisher clonal interference prediction.",
+    "pop_sizes": [100, 1000, 10000, 100000],
+    "n_generations": 5000,
+    "beneficial_mutation_rate": 1e-4,
+    "mean_selective_advantage": 0.01,
+    "n_replicates": 20,
+    "seed": 2017,
+    "_theory_note": "In the clonal interference regime (N * U_b >> 1), the Desai-Fisher (2007) prediction is that the rate of adaptation v ~ s * (2 * ln(N*s) * s / ln(s / U_b))^(1/2), and the effective fixation probability of a single beneficial mutation is much less than 2*s (the Haldane sieve for non-interfering mutations)."
+  },
+  "expected_results": {
+    "fixation_prob_decreases_with_N": true,
+    "fixation_prob_above_neutral_for_all_N": true,
+    "clonal_interference_ratio_N1000_vs_N100": [0.3, 0.9],
+    "mean_fitness_increases_all_sizes": true,
+    "adaptation_rate_scales_sublinearly_with_N": true,
+    "adaptation_rate_ratio_N100000_vs_N10000": [1.0, 100.0],
+    "_adaptation_note": "Compare within interference regime (N*U_b >= 1). N=100 is mutation-limited; ratio across regimes is not meaningful for sublinearity test.",
+    "haldane_sieve_exceeded_at_small_N": true,
+    "deterministic_with_seed": true
+  }
+}

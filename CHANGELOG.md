@@ -4,6 +4,23 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V136 Primal Composition Sprint — B3 LTEE + tarpc Parity + coralReef IPC + Doc Reconciliation (May 11, 2026)
+
+#### LTEE B3: Good et al. 2017 Clonal Interference Dynamics (Exp 038)
+- **Python baseline**: `control/ltee_clonal_interference/ltee_clonal_interference.py` — Wright-Fisher simulation with clonal interference at 4 population sizes (100, 1K, 10K, 100K). 7/7 checks PASS.
+- **Rust validator**: `validate_ltee_clonal` binary — parallel implementation using `Xorshift64` PRNG with Poisson/exponential/binomial sampling. 7/7 checks PASS.
+- **Key result**: Fixation probability monotonically decreases with N (clonal interference), log-fitness adaptation rate scales sublinearly within the interference regime (ratio 9.0 for 10× N increase). Small-N fixation approaches Haldane sieve (2s).
+- **Artifacts**: `expected_values.json` → `lithoSpore` module 3 (`ltee-clonal`). Provenance registry updated (30 benchmarks).
+
+#### IPC Surface Completion
+- **tarpc `GroundSpringScience`**: Added 8 missing measurement methods (`uncertainty_budget`, `spectral_features`, `drift`, `band_edge`, `rare_biosphere`, `gillespie`, `bistable`, `quasispecies`). Trait now covers all 16 `niche::CAPABILITIES`.
+- **coralReef IPC stub**: New `ipc/coralreef.rs` with `ShaderCompile` trait (`compile_wgsl`, `targets`, `validate`). Awaiting coralReef SM rebuild to activate.
+
+#### Doc Reconciliation
+- **PAPER_REVIEW_QUEUE**: LTEE B1/B2 status → COMPLETE (was STARTED). Duplicate `#` numbering fixed. Stale `v0.3.7` → `v0.3.13`, `1020+`/`990+` → `1,125`, `376/376` → `395/395`.
+- **Version sweep**: Remaining V133 → V135 in `PRIMAL_GAPS.md`, `VALIDATION_TIERS.md`, `PRIMAL_INTERACTION_EVOLUTION.md`, `SECURITY.md`. Stale `1,101` → `1,125` in `CONTEXT.md`, `CONTROL_EXPERIMENT_STATUS.md`, `specs/README.md`, `whitePaper/experiments/README.md`.
+- **barraCuda version**: `v0.3.7` → `v0.3.13` in `BARRACUDA_EVOLUTION.md`, `CROSS_SPRING_EVOLUTION.md`, `ABSORPTION_MANIFEST.md`, `CROSS_SPRING_SHADER_EVOLUTION.md`.
+
 ### V135 Deep Debt Evolution — Modular Harness + Dep Decoupling + Self-Knowledge (May 11, 2026)
 
 #### Structural Refactoring

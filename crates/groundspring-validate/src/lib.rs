@@ -170,7 +170,7 @@ mod tests {
         reason = "registry test is necessarily long — one entry per benchmark JSON"
     )]
     fn provenance_registry_completeness() {
-        const EXPECTED_BENCHMARKS: usize = 29;
+        const EXPECTED_BENCHMARKS: usize = 30;
 
         let benchmarks: &[(&str, &str)] = &[
             (
@@ -300,6 +300,12 @@ mod tests {
             (
                 "et0_methods",
                 include_str!("../../../control/et0_methods/benchmark_et0_methods.json"),
+            ),
+            (
+                "ltee_clonal",
+                include_str!(
+                    "../../../control/ltee_clonal_interference/benchmark_ltee_clonal.json"
+                ),
             ),
         ];
 

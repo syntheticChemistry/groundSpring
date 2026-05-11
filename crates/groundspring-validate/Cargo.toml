@@ -193,6 +193,10 @@ name = "validate_ltee_neutral"
 path = "src/validate_ltee_neutral.rs"
 
 [[bin]]
+name = "validate_ltee_clonal"
+path = "src/validate_ltee_clonal.rs"
+
+[[bin]]
 name = "groundspring_guidestone"
 path = "src/groundspring_guidestone.rs"
 required-features = ["guidestone"]

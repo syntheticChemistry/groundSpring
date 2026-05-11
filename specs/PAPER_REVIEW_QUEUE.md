@@ -27,8 +27,8 @@
 | 14 | Eco-evolutionary noise threshold | Evolutionary dynamics | 9/9 | 6/6 | Eigen's error threshold predicts mutation-driven information collapse (Dolson 2023) |
 | 18 | Band edge structure | Mathematical physics | 8/8 | 10/10 | Transfer matrix reproduces tight-binding band-gap structure (Filonov-Kachkovskiy 2018) |
 | 19 | Jackknife error estimation | Statistics/Error Estimation | 9/9 | 9/9 | Subpercent precision error bars (Bazavov 2025 Phys Rev D 111, 094508) |
-| 20 | Freeze-out inverse problem | Inverse Problems | 8/8 | 8/8 | Inferring freeze-out conditions from heavy ion data (Bazavov 2016 Phys Rev D 93, 014512) |
-| 21 | Spectral function reconstruction | Inverse Problems/Spectral Reconstruction | 8/8 | 8/8 | Signal recovery from incomplete/noisy lattice data (Bazavov 2025 arXiv 2501.12259) |
+| 25a | Freeze-out inverse problem | Inverse Problems | 8/8 | 8/8 | Inferring freeze-out conditions from heavy ion data (Bazavov 2016 Phys Rev D 93, 014512) |
+| 25b | Spectral function reconstruction | Inverse Problems/Spectral Reconstruction | 8/8 | 8/8 | Signal recovery from incomplete/noisy lattice data (Bazavov 2025 arXiv 2501.12259) |
 | 22 | ET₀ → Anderson uncertainty propagation | Cross-spring (FAO-56 × Anderson) | 7/7 | 7/7 | Humidity uncertainty propagates through water balance to localization length; ξ_CV/ET₀_CV ≥ 0.5 |
 | 23 | No-till vs tilled 16S sampling design | Cross-spring (Rarefaction × Ecology) | 7/7 | 7/7 | No-till saturates later (~1500 reads) vs tilled (~800); higher diversity demands deeper sampling |
 | 24 | Aggregate stability measurement noise | Cross-spring (WSA × Anderson) | 8/8 | 8/8 | Bias-variance decomposition distinguishes tilled vs no-till Anderson regimes under measurement noise |
@@ -45,7 +45,7 @@
 
 **Phase 0**: ~276 checks (Python, 29 experiments). **Phase 1**: 395/395 PASS (Rust, 35 experiments / 34 binaries). **Speedup**: 11.5× median (excl. LAPACK-bound), 47.7× peak (Sturm tridiag).
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs (Exp 029–033 have no Python baseline).
-**Current (V135)**: 395/395 checks, 1,125 Rust workspace tests, 287 Python tests, 138 metalForge checks. LTEE B2 (Exp 036) + B1 (Exp 037) STARTED.
+**Current (V135)**: 395/395 checks, 1,125 Rust workspace tests, 287 Python tests, 138 metalForge checks. LTEE B2 (Exp 036, 10/10 Rust PASS) + B1 (Exp 037, 8/8 Rust PASS) COMPLETE — unblocks `lithoSpore` modules 1+2.
 **Tier 4 IPC-first (V128)**: `barracuda` removed from default features; IPC via `CompositionContext` is the default. `local` feature for opt-in library linkage.
 **GPU dispatch**: 16 modules wired for `barracuda-gpu` — 110 delegations (67 CPU + 43 GPU), barraCuda v0.3.13, toadStool S158+. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed).
 **Three-tier parity**: 30/30 PROVEN (default = barracuda-CPU = barracuda-GPU). metalForge: 138 checks.
@@ -277,7 +277,7 @@ Write → Absorb → Lean cycle:
 | 33 | Tissue Anderson 4D + Wegner RG | **29/29** | **Wired** (V68 `anderson_4d` + `wegner_block_4d`) | Workload | 4D Anderson + RG GPU |
 
 **CPU tier**: 395/395 PASS across 34 validation binaries.
-**Barracuda**: 110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.7, toadStool S158+, coralReef Iteration 55+. **Performance**: 11.6× faster than Python (excl. LAPACK-bound); 5.1× overall; 53.5× peak (seismic). **Tests**: 1020+ default-feature Rust tests + 287 Python provenance. 100+ three-tier parity tests (100% delegation coverage). `PrecisionRoutingAdvice` wired.
+**Barracuda**: 110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+. **Performance**: 11.6× faster than Python (excl. LAPACK-bound); 5.1× overall; 53.5× peak (seismic). **Tests**: 1,125 default-feature Rust tests + 287 Python provenance. 100+ three-tier parity tests (100% delegation coverage). `PrecisionRoutingAdvice` wired.
 **Mathematical parity**: 29/29 PROVEN. Generate reports: `python3 scripts/parity_report.py` and `python3 scripts/bench_rust_vs_python.py`.
 **Three-tier parity**: 100+ parity tests validate CPU ↔ barracuda-CPU equivalence (100% delegation coverage).
 **GPU tier**: 15 modules wired with `#[cfg(feature = "barracuda-gpu")]` — stats Tier A complete (MAE, NSE, R²), bistable batch ODE, McEt0PropagateGpu, SeasonalPipelineF64, 4D Anderson + Wegner RG, L-BFGS refinement. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only). GPU grid adapters (seismic, freeze-out). 936 tests pass. 11 GPU dispatch paths runtime smoke test + three-tier parity (V97).
@@ -365,11 +365,11 @@ Papers 1-11, 14, 15, 16, 18, 20, 21, 22, 23, 24, 33 — **fully wired** with act
 
 ## Hardware Evolution: CPU → GPU → metalForge
 
-### Tier 1: BarraCUDA CPU (current — 376/376 PASS)
+### Tier 1: BarraCUDA CPU (current — 395/395 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
-110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.7, toadStool S158+. 11.5× faster than Python (excl. LAPACK-bound).
-990+ Rust workspace tests + 287 Python provenance tests. 29/29 mathematical parity proven. 100+ three-tier parity tests (100% delegation coverage).
+110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.13, toadStool S158+. 11.5× faster than Python (excl. LAPACK-bound).
+1,125 Rust workspace tests + 287 Python provenance tests. 29/29 mathematical parity proven. 100+ three-tier parity tests (100% delegation coverage).
 395/395 validation checks across 34 experiments (V113, zero-debt audit certified).
 All 34 experiments validated. GPU stats dispatch (mean, std_dev, rmse, mbe, mae, nse, r², pearson_r). L-BFGS post-grid refinement (V68). 14 CPU vs GPU parity tests. CPU vs GPU benchmark binary.
 
@@ -443,9 +443,9 @@ and `infra/whitePaper/attsi/non-anon/contact/barrick/PAPER_REVIEW_AND_SPRING_TAR
 
 | ID | Paper | What to Reproduce | Exp | Status |
 |----|-------|-------------------|-----|--------|
-| B1 | Barrick et al. 2009 "Genome evolution" *Nature* | Drift vs selection: neutral mutation rate as null model; Barrick data as empirical test of fixation theory | 037 | **STARTED** — Python 8/8 PASS, Rust 8/8 PASS (V134) |
-| B2 | Wiser et al. 2013 "Long-term dynamics" *Science* | Jackknife + AIC/BIC model selection across power-law, hyperbolic, logarithmic fitness models | 036 | **STARTED** — Python 9/9 PASS, Rust 10/10 PASS (V134) |
-| B3 | Good et al. 2017 "Dynamics of molecular evolution" *Nature* | Clonal interference statistics: when multiple beneficial mutations compete, fixation probability changes | TBD | QUEUED |
+| B1 | Barrick et al. 2009 "Genome evolution" *Nature* | Drift vs selection: neutral mutation rate as null model; Barrick data as empirical test of fixation theory | 037 | **COMPLETE** — Python 8/8 PASS, Rust 8/8 PASS (V134). `expected_values.json` → `lithoSpore` module 2 (`ltee-mutation`) |
+| B2 | Wiser et al. 2013 "Long-term dynamics" *Science* | Jackknife + AIC/BIC model selection across power-law, hyperbolic, logarithmic fitness models | 036 | **COMPLETE** — Python 9/9 PASS, Rust 10/10 PASS (V134). `expected_values.json` → `lithoSpore` module 1 (`ltee-fitness`) |
+| B3 | Good et al. 2017 "Dynamics of molecular evolution" *Nature* | Clonal interference statistics: when multiple beneficial mutations compete, fixation probability changes | 038 | **COMPLETE** — Python 7/7 PASS, Rust 7/7 PASS (V136). `expected_values.json` → `lithoSpore` module 3 (`ltee-clonal`) |
 | B4 | Blount et al. 2008/2012 Citrate innovation | Rare event statistics: probability framework for potentiating mutation cascades | TBD | QUEUED |
 | B6 | "Measuring the burden of hundreds of BioBricks" 2024 *Nat Comms* | Anderson Wc analogy: burden = disorder potential; statistical distribution across 301 plasmids | TBD | QUEUED |
 | B7 | Tenaillon et al. 2016 "Tempo and mode" *Nature* | Epistasis quantification across 264 genomes; statistical tests for parallel evolution significance | TBD | QUEUED |

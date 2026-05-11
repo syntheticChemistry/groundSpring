@@ -20,6 +20,7 @@
 //! - [`beardog`] — Cryptographic operations via BearDog
 //! - [`songbird`] — Network discovery and mesh via Songbird
 //! - [`skunkbat`] — Audit logging via skunkBat (JH-5)
+//! - [`coralreef`] — Sovereign shader compilation via coralReef (stub — awaiting SM rebuild)
 //!
 //! # Semantic method naming
 //!
@@ -35,6 +36,7 @@
 
 pub mod barracuda;
 pub mod beardog;
+pub mod coralreef;
 pub mod nestgate;
 pub mod skunkbat;
 pub mod songbird;
@@ -81,6 +83,34 @@ pub trait GroundSpringScience {
 
     /// ESN regime classification.
     async fn regime_classification(eigenvalues: Vec<f64>) -> Result<String, String>;
+
+    /// Uncertainty budget decomposition.
+    async fn uncertainty_budget(data: Vec<f64>, params: String) -> Result<String, String>;
+
+    /// Spectral function feature extraction.
+    async fn spectral_features(correlator: Vec<f64>, params: String) -> Result<String, String>;
+
+    /// Wright-Fisher drift simulation.
+    async fn drift(params: String) -> Result<String, String>;
+
+    /// Transfer-matrix band edge structure.
+    async fn band_edge(potential: Vec<f64>, params: String) -> Result<String, String>;
+
+    /// Rare biosphere signal detection.
+    async fn rare_biosphere(counts: Vec<u64>, params: String) -> Result<String, String>;
+
+    /// Gillespie SSA trajectory simulation.
+    async fn gillespie(
+        synthesis_rates: Vec<f64>,
+        degradation_rate: f64,
+        params: String,
+    ) -> Result<String, String>;
+
+    /// Bistable phenotypic switching simulation.
+    async fn bistable(params: String) -> Result<String, String>;
+
+    /// Quasispecies error threshold analysis.
+    async fn quasispecies(sigma: f64, params: String) -> Result<String, String>;
 }
 
 #[cfg(test)]
