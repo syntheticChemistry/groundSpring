@@ -4,6 +4,27 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V135 Deep Debt Evolution — Modular Harness + Dep Decoupling + Self-Knowledge (May 11, 2026)
+
+#### Structural Refactoring
+- **`validate.rs` split**: 750L monolith → `validate/mod.rs` + `validate/sink.rs` + `validate/harness.rs`. Sinks (trait + stdout/null/NDJSON impls) in `sink.rs`, harness (check methods + summary) in `harness.rs`, tests + re-exports in `mod.rs`. Public API unchanged. Prevents future growth past 800L threshold.
+
+#### Self-Knowledge Evolution
+- **`dispatch/mod.rs`**: Eliminated hardcoded `"groundspring."` legacy prefix. `normalize_method()` now uses `primal_names::SELF_ID` for self-prefix stripping — if the crate's `SELF_ID` changes, dispatch automatically follows. `"barracuda."` legacy prefix retained for backward compatibility with pre-v0.3.7 callers.
+
+#### Dependency Decoupling
+- **`metalForge/forge/Cargo.toml`**: `bytemuck` made `optional = true` (was unconditional). Only the `validate_metalforge_titan_v` binary uses `bytemuck` for GPU buffer slicing; all other forge binaries and the core library now build without it. Titan V binary gated via `required-features = ["bytemuck"]`.
+
+#### Audit Results (Clean State)
+- **Unsafe**: ZERO `unsafe` blocks. All crates `#![forbid(unsafe_code)]`.
+- **Mocks**: ZERO mocks in production code. ZERO `todo!()` / `unimplemented!()`.
+- **TODOs/FIXMEs**: ZERO markers in any Rust source.
+- **Dead code**: Two `expect(dead_code)` sites — both appropriate conditional compilation (`IpcResult<T>` without `tarpc-ipc`, `ApplicationError::code` without test).
+- **`.unwrap()` in library**: ZERO occurrences outside `#[cfg(test)]` and doc examples.
+- **Large files**: ZERO files > 800L (largest was 750L, now split).
+- **Hardcoding**: All env-discoverable via `primal_names` + env-var fallback chains. `roles` module is discovery vocabulary, not primal-knowledge violation.
+- Test count: **1,125** (up from 1,119). Zero clippy warnings.
+
 ### V134 LTEE Reproductions — B2 + B1 (Ecosystem Critical Path) (May 11, 2026)
 
 #### LTEE B2: Wiser 2013 Power-Law Fitness Dynamics (Exp 036)

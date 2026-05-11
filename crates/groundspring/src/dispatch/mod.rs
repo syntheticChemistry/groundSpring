@@ -29,14 +29,6 @@ use crate::error::DispatchError;
 
 pub use lifecycle::init_start_time;
 
-/// Known legacy prefixes that older callers may prepend to method names.
-///
-/// `normalize_method` strips these so both `"groundspring.measurement.bootstrap"`
-/// and `"measurement.bootstrap"` route to the same handler.
-///
-/// Absorbed from barraCuda v0.3.7 / wetSpring V132 `normalize_method()` pattern.
-const LEGACY_PREFIXES: &[&str] = &["groundspring.", "barracuda."];
-
 /// Strip legacy primal-name prefixes from a JSON-RPC method name.
 ///
 /// The ecosystem Semantic Method Naming Standard uses bare `domain.operation`
@@ -44,15 +36,21 @@ const LEGACY_PREFIXES: &[&str] = &["groundspring.", "barracuda."];
 /// primal name (`"groundspring.measurement.bootstrap"`). This function
 /// normalizes both forms to the canonical bare name.
 ///
-/// Returns the input unchanged if no legacy prefix is found.
+/// Uses [`primal_names::SELF_ID`](crate::primal_names::SELF_ID) for the
+/// self-prefix (no hardcoding). The `"barracuda."` legacy prefix is retained
+/// for backward compatibility with pre-v0.3.7 callers that routed compute
+/// methods through the barraCuda namespace.
 ///
-/// Absorbed from barraCuda v0.3.7 / wetSpring V132.
+/// Returns the input unchanged if no known prefix is found.
 #[must_use]
 pub fn normalize_method(method: &str) -> &str {
-    for prefix in LEGACY_PREFIXES {
-        if let Some(stripped) = method.strip_prefix(prefix) {
+    if let Some(rest) = method.strip_prefix(crate::primal_names::SELF_ID) {
+        if let Some(stripped) = rest.strip_prefix('.') {
             return stripped;
         }
+    }
+    if let Some(stripped) = method.strip_prefix("barracuda.") {
+        return stripped;
     }
     method
 }
