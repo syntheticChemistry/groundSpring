@@ -4,6 +4,21 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V133 Deep Debt V2 — Robustness + Benchmark Correctness + Coverage (May 11, 2026)
+
+#### Robustness
+- **`metalForge/forge/src/nucleus.rs`**: Replaced `panic!` in `discover_uid()` with `tracing::error!` + graceful fallback to UID `"0"`. No production code panics remain.
+
+#### Benchmark Correctness
+- **`bench_rust_vs_python.py`**: `python_pass` and `rust_pass` fields were hardcoded `True` — now reflect actual subprocess exit codes across all trials.
+- **`bench_barracuda_cpu_vs_python.py`**: `NPU_EXPERIMENTS` was defined but never executed. Now wired into `main()` with hardware detection (`/dev/akida0` check).
+
+#### Script Coverage
+- **`run_all_baselines.sh`**: Added Phase 2 section covering `validate_all` aggregator, `groundspring_guidestone` (guidestone feature), and 4 biomeOS validators (`validate_real_ghcnd_et0`, `validate_real_ncbi_16s`, `validate_nucleus_stack`, `validate_iris_seismic`) with graceful socket detection.
+
+#### Foundation/NUCLEUS
+- **NUCLEUS workload TOML**: `$SPRINGS_ROOT` (non-expandable) replaced with `${SPRINGS_ROOT:-<default>}` shell-default pattern matching foundation convention.
+
 ### V132 River Delta Evolution — Tier 4 + plasmidBin + Foundation (May 11, 2026)
 
 #### Tier 4: metalForge barracuda Decoupling

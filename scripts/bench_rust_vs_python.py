@@ -264,11 +264,15 @@ def main() -> int:
         py_times = []
         rs_times = []
 
+        py_pass_all = True
+        rs_pass_all = True
         for trial in range(n_trials):
-            py_t, _py_ok = time_command(exp["python"], ROOT, timeout=300)
-            rs_t, _rs_ok = time_command(rust_cmd, ROOT, timeout=300)
+            py_t, py_ok = time_command(exp["python"], ROOT, timeout=300)
+            rs_t, rs_ok = time_command(rust_cmd, ROOT, timeout=300)
             py_times.append(py_t)
             rs_times.append(rs_t)
+            py_pass_all = py_pass_all and py_ok
+            rs_pass_all = rs_pass_all and rs_ok
             print(f"  Trial {trial+1}: Python={py_t:.3f}s, Rust={rs_t:.3f}s")
 
         py_median = sorted(py_times)[n_trials // 2]
@@ -280,8 +284,8 @@ def main() -> int:
             python_s=py_median,
             rust_s=rs_median,
             speedup=speedup,
-            python_pass=True,
-            rust_pass=True,
+            python_pass=py_pass_all,
+            rust_pass=rs_pass_all,
         ))
 
     # Summary table

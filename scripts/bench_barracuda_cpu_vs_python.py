@@ -284,6 +284,34 @@ def main() -> int:
     print(f"\n  {n_all_pass}/{len(results)} experiments: all three tiers PASS")
     print(f"{'=' * 78}")
 
+    # NPU experiments (require /dev/akida0 hardware)
+    npu_device = Path("/dev/akida0")
+    if npu_device.exists():
+        print(f"\n{'=' * 78}")
+        print("  NPU EXPERIMENTS (hardware detected)")
+        print(f"{'=' * 78}")
+        for exp in NPU_EXPERIMENTS:
+            print(f"\n--- {exp['name']} ---")
+            py_ok, py_s = timed_run(exp["python"])
+            print(f"  Python:         {py_s:7.3f}s {'PASS' if py_ok else 'FAIL'}")
+
+            rs_cmd = ["cargo", "run", "--release", "--bin", exp["rust_bin"],
+                       "--features", "npu"]
+            rs_ok, rs_s = timed_run(rs_cmd)
+            print(f"  Rust (NPU):     {rs_s:7.3f}s {'PASS' if rs_ok else 'FAIL'}")
+
+            results.append(TierBench(
+                name=exp["name"],
+                python_s=py_s,
+                rust_pure_s=rs_s,
+                rust_barracuda_s=rs_s,
+                python_pass=py_ok,
+                rust_pure_pass=rs_ok,
+                rust_barracuda_pass=rs_ok,
+            ))
+    else:
+        print(f"\n  [SKIP] NPU experiments — /dev/akida0 not present")
+
     cert = {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "title": "groundSpring Python vs barraCuda CPU Delegation Benchmark",

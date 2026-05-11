@@ -306,6 +306,40 @@ if command -v cargo &> /dev/null; then
         echo ""
         echo "  [SKIP] Rust: NPU Anderson — /dev/akida0 not present"
     fi
+
+    echo ""
+    echo "╔══════════════════════════════════════════════════════════════╗"
+    echo "║  PHASE 2: Aggregator + GuideStone + biomeOS Validators     ║"
+    echo "╚══════════════════════════════════════════════════════════════╝"
+
+    run_experiment \
+        "Rust: Validate All (aggregator)" \
+        "cargo run --release --bin validate_all"
+
+    cargo build --release -p groundspring-validate --features guidestone 2>&1 | tail -1
+    run_experiment \
+        "Rust: GuideStone Certification" \
+        "cargo run --release --bin groundspring_guidestone --features guidestone"
+
+    # biomeOS validators require live primal sockets — skip gracefully
+    if [[ -S "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/biomeos/nestgate.sock" ]]; then
+        cargo build --release -p groundspring-validate --features biomeos 2>&1 | tail -1
+        run_experiment \
+            "Rust: Real GHCND ET0 (--features biomeos)" \
+            "cargo run --release --bin validate_real_ghcnd_et0 --features biomeos"
+        run_experiment \
+            "Rust: Real NCBI 16S (--features biomeos)" \
+            "cargo run --release --bin validate_real_ncbi_16s --features biomeos"
+        run_experiment \
+            "Rust: NUCLEUS Stack (--features biomeos)" \
+            "cargo run --release --bin validate_nucleus_stack --features biomeos"
+        run_experiment \
+            "Rust: IRIS Seismic (--features biomeos)" \
+            "cargo run --release --bin validate_iris_seismic --features biomeos"
+    else
+        echo ""
+        echo "  [SKIP] biomeOS validators — no live primal sockets detected"
+    fi
 else
     echo "  [SKIP] cargo not found — Rust validation skipped"
 fi

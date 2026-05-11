@@ -14,11 +14,7 @@
 /// 2. `/proc/self/status` `Uid:` field (Linux only)
 /// 3. `id -u` command (portable POSIX fallback)
 /// 4. Enumerate `/run/user/` directory entries
-///
-/// # Panics
-///
-/// Panics if all four discovery methods fail. Callers should prefer
-/// setting `$UID` or `$BIOMEOS_SOCKET_DIR` to avoid this path.
+/// 5. Falls back to `"0"` with a warning (never panics)
 #[must_use]
 pub fn discover_uid() -> String {
     if let Ok(uid) = std::env::var("UID")
@@ -65,7 +61,11 @@ pub fn discover_uid() -> String {
             }
         }
     }
-    panic!("Cannot discover UID. Set $UID or $BIOMEOS_SOCKET_DIR environment variable.");
+    tracing::error!(
+        "Cannot discover UID. Set $UID or $BIOMEOS_SOCKET_DIR environment variable. \
+         Falling back to UID 0."
+    );
+    String::from("0")
 }
 
 /// Discover the biomeOS socket directory.
