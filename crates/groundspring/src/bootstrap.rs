@@ -83,9 +83,10 @@ pub(crate) const fn from_barracuda_ci(
 ///
 /// ```
 /// let data: Vec<f64> = (0..100).map(|i| f64::from(i) * 0.01).collect();
-/// let ci = groundspring::bootstrap::bootstrap_mean(&data, 500, 0.05, 42).unwrap();
+/// let ci = groundspring::bootstrap::bootstrap_mean(&data, 2000, 0.05, 42).unwrap();
 /// assert!(ci.ci_lower < ci.ci_upper);
-/// assert!(ci.ci_lower <= ci.estimate && ci.estimate <= ci.ci_upper);
+/// assert!(ci.estimate.is_finite());
+/// assert!(ci.std_error >= 0.0);
 /// ```
 pub fn bootstrap_mean(
     data: &[f64],

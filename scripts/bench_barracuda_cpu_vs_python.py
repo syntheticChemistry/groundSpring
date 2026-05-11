@@ -65,14 +65,29 @@ EXPERIMENTS = [
         "rust_bin": "validate_decompose",
     },
     {
+        "name": "Observation Gap (Exp 002)",
+        "python": [sys.executable, "control/observation_gap/observation_gap.py"],
+        "rust_bin": "validate_weather",
+    },
+    {
         "name": "Error Propagation (Exp 003)",
         "python": [sys.executable, "control/error_propagation/error_propagation_fao56.py"],
         "rust_bin": "validate_fao56",
     },
     {
+        "name": "Sequencing Noise (Exp 004)",
+        "python": [sys.executable, "control/sequencing_noise/sequencing_noise.py"],
+        "rust_bin": "validate_rarefaction",
+    },
+    {
         "name": "Seismic Inversion (Exp 005)",
         "python": [sys.executable, "control/seismic/seismic_inversion.py"],
         "rust_bin": "validate_seismic",
+    },
+    {
+        "name": "Signal Specificity (Exp 006)",
+        "python": [sys.executable, "control/signal_specificity/signal_specificity.py"],
+        "rust_bin": "validate_signal_specificity",
     },
     {
         "name": "RAWR Resampling (Exp 007)",
@@ -85,9 +100,54 @@ EXPERIMENTS = [
         "rust_bin": "validate_anderson",
     },
     {
+        "name": "Quasiperiodic (Exp 009)",
+        "python": [sys.executable, "control/quasiperiodic/quasiperiodic_localization.py"],
+        "rust_bin": "validate_quasiperiodic",
+    },
+    {
+        "name": "Bistable Switching (Exp 010)",
+        "python": [sys.executable, "control/bistable_switching/bistable_switching.py"],
+        "rust_bin": "validate_bistable",
+    },
+    {
+        "name": "Multi-Signal QS (Exp 011)",
+        "python": [sys.executable, "control/multisignal_qs/multisignal_qs.py"],
+        "rust_bin": "validate_multisignal",
+    },
+    {
         "name": "Spin Chain Transport (Exp 012)",
         "python": [sys.executable, "control/spin_transport/spin_chain_transport.py"],
         "rust_bin": "validate_transport",
+    },
+    {
+        "name": "Resampling Convergence (Exp 013)",
+        "python": [sys.executable, "control/resampling_convergence/resampling_convergence.py"],
+        "rust_bin": "validate_resampling_conv",
+    },
+    {
+        "name": "Drift vs Selection (Exp 014)",
+        "python": [sys.executable, "control/drift_selection/drift_selection.py"],
+        "rust_bin": "validate_drift",
+    },
+    {
+        "name": "Uncertainty Bridge (Exp 015)",
+        "python": [sys.executable, "control/uncertainty_bridge/uncertainty_bridge.py"],
+        "rust_bin": "validate_uncertainty_bridge",
+    },
+    {
+        "name": "Rare Biosphere (Exp 016)",
+        "python": [sys.executable, "control/rare_biosphere/rare_biosphere.py"],
+        "rust_bin": "validate_rare_biosphere",
+    },
+    {
+        "name": "Quasispecies Threshold (Exp 017)",
+        "python": [sys.executable, "control/quasispecies_threshold/quasispecies_threshold.py"],
+        "rust_bin": "validate_quasispecies",
+    },
+    {
+        "name": "Band Edge (Exp 018)",
+        "python": [sys.executable, "control/band_edge/band_edge.py"],
+        "rust_bin": "validate_band_edge",
     },
     {
         "name": "Jackknife Estimation (Exp 019)",
@@ -97,22 +157,57 @@ EXPERIMENTS = [
     {
         "name": "Freeze Out Inverse (Exp 020)",
         "python": [sys.executable, "control/freeze_out_inverse/freeze_out_inverse.py"],
-        "rust_bin": "validate_freeze-out",
+        "rust_bin": "validate_freeze_out",
     },
     {
         "name": "Spectral Recon (Exp 021)",
         "python": [sys.executable, "control/spectral_recon/spectral_recon.py"],
-        "rust_bin": "validate_spectral-recon",
+        "rust_bin": "validate_spectral_recon",
+    },
+    {
+        "name": "ET₀ Anderson Propagation (Exp 022)",
+        "python": [sys.executable, "control/et0_anderson_propagation/et0_anderson_propagation.py"],
+        "rust_bin": "validate_et0_anderson",
+    },
+    {
+        "name": "No-Till Sampling (Exp 023)",
+        "python": [sys.executable, "control/notill_sampling/notill_sampling.py"],
+        "rust_bin": "validate_notill_sampling",
+    },
+    {
+        "name": "Aggregate Stability (Exp 024)",
+        "python": [sys.executable, "control/aggregate_stability/aggregate_stability.py"],
+        "rust_bin": "validate_aggregate_stability",
     },
     {
         "name": "Precision Drift (Exp 025)",
         "python": [sys.executable, "control/precision_drift/precision_drift.py"],
-        "rust_bin": "validate_precision-drift",
+        "rust_bin": "validate_precision_drift",
+    },
+    {
+        "name": "Size Convergence (Exp 026)",
+        "python": [sys.executable, "control/size_convergence/size_convergence.py"],
+        "rust_bin": "validate_size_convergence",
+    },
+    {
+        "name": "Vendor Parity (Exp 027)",
+        "python": [sys.executable, "control/vendor_parity/vendor_parity.py"],
+        "rust_bin": "validate_vendor_parity",
     },
     {
         "name": "ET₀ Methods (Exp 035)",
         "python": [sys.executable, "control/et0_methods/et0_methods.py"],
-        "rust_bin": "validate_et0-methods",
+        "rust_bin": "validate_et0_methods",
+    },
+]
+
+# NPU experiment (requires /dev/akida0 + npu feature)
+NPU_EXPERIMENTS = [
+    {
+        "name": "NPU Anderson (Exp 028)",
+        "python": [sys.executable, "control/npu_anderson/npu_anderson.py"],
+        "rust_bin": "validate_npu_anderson",
+        "rust_features": ["npu"],
     },
 ]
 

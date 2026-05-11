@@ -2,17 +2,16 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: May 8, 2026 (V125 — 110 delegations (67 CPU + 43 GPU), 965+ tests,
-barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+. guideStone Level 4. V121: smart refactoring (biomeos 631→232,
-stats/agreement → directory), normalize_method(), 5-tier discovery, NdjsonSink, MSRV 1.87,
-workspace deny unwrap_used/expect_used, MCP capability_registry.toml, provenance trio lifecycle.
-V108: AGPL-3.0-or-later (SCYBORG trio), barracuda WelfordState CPU delegation for std_dev/mean_and_std_dev,
-tolerance centralization (tol::ANALYTICAL in tests), typed capability-based discovery, provenance enrichment.
-V107: release profile, enriched niche.rs, tolerance provenance citations, bare literal elimination.
-V105: `deny(expect_used/unwrap_used)`, freeze_out 4-module refactor, typed tarpc IPC, Result-based provenance.
-V104: 30+ named constants, capability-based discovery, measurement.* surface.
-V103: `biomeos/interaction` extraction, `eps::LOG_FLOOR` centralized.
-V102: niche deployment — UniBin, dispatch, deploy graph.
+**Last updated**: May 11, 2026 (V131 — 110 delegations (67 CPU + 43 GPU), 1,101 tests,
+barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+. guideStone Level 4.
+V131: guidestone modular refactor (833→128L), doctest fix, benchmark coverage 11→28 experiments,
+76 script binary name fixes, Kokkos parity documentation.
+V130: skunkBat IPC module, CI cross-sync 413, plasmidBin release ready.
+V129: deep debt audit clean, docs aligned, primal handoff.
+V128: Tier 4 IPC-first, biomeOS v3.51, skunkBat audit wiring.
+V127: deep debt cleanup, tracing unification, docs alignment.
+V121: smart refactoring (biomeos 631→232, stats/agreement → directory),
+normalize_method(), 5-tier discovery, NdjsonSink, MSRV 1.87.
 V98: upstream rewire to barraCuda `a898dee`, toadStool S130+, coralReef Iteration 10)
 
 ## Philosophy
@@ -462,6 +461,31 @@ these GPU kernels.
    `Op::Fao56Et0`; MC noise wrapper **absorbed S72**. Local shader removed V62.
 4. **PRNG alignment** — xorshift64 ↔ xoshiro128** produces different
    streams. Need to regenerate baselines after alignment.
+
+## Kokkos Parity Status
+
+The `kokkos_baseline/` directory provides a Kokkos C++ reference implementation
+for Anderson Lyapunov, mean/variance, Pearson r, and bootstrap mean. Parity
+between Rust and Kokkos is tracked in two tiers:
+
+| Tier | Binary | Parity Level | Status |
+|------|--------|-------------|--------|
+| **CPU** | `bench_kokkos_parity` | **Value parity** — algorithmic match (same sizes, seeds, Xorshift64) | Proven via `scripts/compare_kokkos_rust.py` |
+| **GPU** | `bench_gpu_vs_kokkos` | **Timing/wiring only** — numerical output differs due to PRNG seed stride mismatch | Known gap (Phase 2b) |
+
+**CPU Kokkos parity** uses the same Xorshift64 PRNG and `base_seed + r`
+per-realization scheme as the Kokkos reference. `compare_kokkos_rust.py`
+reports absolute value diffs (not yet gated on thresholds — open evolution item).
+
+**GPU Kokkos parity** diverges because `barracuda::spectral::lyapunov_averaged`
+uses `base_seed + r * 1000` per realization (see `anderson/mod.rs` line 168),
+while Kokkos and the CPU path use `base_seed + r`. This is expected until
+PRNG alignment (Phase 2b) lands.
+
+**Remaining Kokkos gaps:**
+- `compare_kokkos_rust.py` should assert tolerance thresholds and exit non-zero on mismatch
+- GPU seed stride alignment blocked on PRNG Phase 2b
+- 67 pytest failures from Kokkos benchmark binary naming are a test discovery issue, not a parity issue
 
 ## PRNG Alignment Roadmap
 

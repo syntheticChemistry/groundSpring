@@ -11,6 +11,8 @@
 //! eliminate the repeated boilerplate across binaries.
 
 pub mod accessors;
+#[cfg(feature = "guidestone")]
+pub mod guidestone;
 pub mod provenance;
 pub mod tolerances;
 pub use accessors::*;

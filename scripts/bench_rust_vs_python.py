@@ -82,7 +82,7 @@ EXPERIMENTS = [
     {
         "name": "Exp 006: Signal Specificity",
         "python": [sys.executable, "control/signal_specificity/signal_specificity.py"],
-        "rust_bin": "validate_signal-specificity",
+        "rust_bin": "validate_signal_specificity",
     },
     {
         "name": "Exp 007: RAWR Resampling",
@@ -117,7 +117,7 @@ EXPERIMENTS = [
     {
         "name": "Exp 013: Resampling Convergence",
         "python": [sys.executable, "control/resampling_convergence/resampling_convergence.py"],
-        "rust_bin": "validate_resampling-conv",
+        "rust_bin": "validate_resampling_conv",
     },
     {
         "name": "Exp 014: Drift vs Selection",
@@ -127,12 +127,12 @@ EXPERIMENTS = [
     {
         "name": "Exp 015: Uncertainty Bridge",
         "python": [sys.executable, "control/uncertainty_bridge/uncertainty_bridge.py"],
-        "rust_bin": "validate_uncertainty-bridge",
+        "rust_bin": "validate_uncertainty_bridge",
     },
     {
         "name": "Exp 016: Rare Biosphere",
         "python": [sys.executable, "control/rare_biosphere/rare_biosphere.py"],
-        "rust_bin": "validate_rare-biosphere",
+        "rust_bin": "validate_rare_biosphere",
     },
     {
         "name": "Exp 017: Quasispecies Threshold",
@@ -142,7 +142,7 @@ EXPERIMENTS = [
     {
         "name": "Exp 018: Band Edge",
         "python": [sys.executable, "control/band_edge/band_edge.py"],
-        "rust_bin": "validate_band-edge",
+        "rust_bin": "validate_band_edge",
     },
     {
         "name": "Exp 019: Jackknife Estimation",
@@ -152,54 +152,54 @@ EXPERIMENTS = [
     {
         "name": "Exp 020: Freeze Out Inverse",
         "python": [sys.executable, "control/freeze_out_inverse/freeze_out_inverse.py"],
-        "rust_bin": "validate_freeze-out",
+        "rust_bin": "validate_freeze_out",
     },
     {
         "name": "Exp 021: Spectral Recon",
         "python": [sys.executable, "control/spectral_recon/spectral_recon.py"],
-        "rust_bin": "validate_spectral-recon",
+        "rust_bin": "validate_spectral_recon",
     },
     {
         "name": "Exp 022: ET0 Anderson Propagation",
         "python": [sys.executable, "control/et0_anderson_propagation/et0_anderson_propagation.py"],
-        "rust_bin": "validate_et0-anderson",
+        "rust_bin": "validate_et0_anderson",
     },
     {
         "name": "Exp 023: No-Till Sampling",
         "python": [sys.executable, "control/notill_sampling/notill_sampling.py"],
-        "rust_bin": "validate_notill-sampling",
+        "rust_bin": "validate_notill_sampling",
     },
     {
         "name": "Exp 024: Aggregate Stability",
         "python": [sys.executable, "control/aggregate_stability/aggregate_stability.py"],
-        "rust_bin": "validate_aggregate-stability",
+        "rust_bin": "validate_aggregate_stability",
     },
     {
         "name": "Exp 025: Precision Drift",
         "python": [sys.executable, "control/precision_drift/precision_drift.py"],
-        "rust_bin": "validate_precision-drift",
+        "rust_bin": "validate_precision_drift",
     },
     {
         "name": "Exp 026: Size Convergence",
         "python": [sys.executable, "control/size_convergence/size_convergence.py"],
-        "rust_bin": "validate_size-convergence",
+        "rust_bin": "validate_size_convergence",
     },
     {
         "name": "Exp 027: Vendor Parity",
         "python": [sys.executable, "control/vendor_parity/vendor_parity.py"],
-        "rust_bin": "validate_vendor-parity",
+        "rust_bin": "validate_vendor_parity",
     },
     {
         "name": "Exp 028: NPU Anderson",
         "python": [sys.executable, "control/npu_anderson/npu_anderson.py"],
-        "rust_bin": "validate_npu-anderson",
+        "rust_bin": "validate_npu_anderson",
         "rust_features": ["npu"],
         "npu_required": True,
     },
     {
         "name": "Exp 035: Multi-Method ET₀",
         "python": [sys.executable, "control/et0_methods/et0_methods.py"],
-        "rust_bin": "validate_et0-methods",
+        "rust_bin": "validate_et0_methods",
     },
 ]
 

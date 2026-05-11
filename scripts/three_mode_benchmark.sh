@@ -24,34 +24,34 @@ BINS=(
     validate_seismic
     validate_weather
     validate_fao56
-    validate_signal-specificity
+    validate_signal_specificity
     validate_rawr
     validate_anderson
     validate_quasiperiodic
     validate_bistable
     validate_multisignal
     validate_transport
-    validate_resampling-conv
+    validate_resampling_conv
     validate_drift
-    validate_uncertainty-bridge
-    validate_rare-biosphere
+    validate_uncertainty_bridge
+    validate_rare_biosphere
     validate_quasispecies
-    validate_band-edge
+    validate_band_edge
     validate_jackknife
-    validate_freeze-out
-    validate_spectral-recon
-    validate_et0-anderson
-    validate_notill-sampling
-    validate_aggregate-stability
-    validate_precision-drift
-    validate_size-convergence
-    validate_vendor-parity
-    validate_et0-methods
-    validate_tissue-anderson
+    validate_freeze_out
+    validate_spectral_recon
+    validate_et0_anderson
+    validate_notill_sampling
+    validate_aggregate_stability
+    validate_precision_drift
+    validate_size_convergence
+    validate_vendor_parity
+    validate_et0_methods
+    validate_tissue_anderson
 )
 
 # NPU binary: requires --features npu and physical NPU hardware (/dev/akida0)
-NPU_BINS=(validate_npu-anderson)
+NPU_BINS=(validate_npu_anderson)
 
 MODES=("default" "barracuda" "barracuda-gpu")
 FEATURES=("" "--features barracuda" "--features barracuda-gpu")

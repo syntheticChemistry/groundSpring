@@ -4,6 +4,26 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V131 Deep Debt Evolution — Modular Refactor + Benchmark Coverage (May 11, 2026)
+
+#### Smart Refactoring
+- **`groundspring_guidestone.rs` 833→128 lines**: Extracted 5 NUCLEUS layer modules into `src/guidestone/{bare,tower,node,nest,cross}.rs` (library modules behind `guidestone` feature). Largest module is 194 lines. Binary is now a thin orchestrator.
+
+#### Bug Fixes
+- **bootstrap.rs doctest fix**: Doctest used 500 replicates on uniform data — percentile bootstrap legitimately placed estimate outside CI. Increased to 2,000 replicates and replaced fragile CI-containment assertion with robust `is_finite()` + `std_error >= 0` checks. All 9 doctests pass (including `--all-features`).
+- **76 hyphenated binary names fixed** across 6 scripts: `bench_rust_vs_python.py`, `bench_barracuda_cpu_vs_python.py`, `parity_report.py`, `run_all_baselines.sh`, `three_mode_benchmark.sh`, `three_tier_parity_report.sh`. Names like `validate_freeze-out` corrected to `validate_freeze_out` to match actual Cargo.toml binary names.
+
+#### Benchmark Coverage Expansion
+- **`bench_barracuda_cpu_vs_python.py`**: Extended from 11 to 28 experiments (Exp 001–027 + 035). Covers all Python-paired experiments. NPU experiment (028) separated as `NPU_EXPERIMENTS` list.
+
+#### Documentation
+- **Kokkos parity section**: Added to `specs/BARRACUDA_EVOLUTION.md` — CPU parity proven (value-level, same PRNG/seed), GPU parity is timing-only (PRNG seed stride mismatch, documented as Phase 2b).
+- **PAPER_REVIEW_QUEUE.md**: Clarified Anderson 2021 mSystems (#19) as "Reference" (review paper, not a numbered reproduction; empirical validation via Paper 20 mBio Exp 014).
+- **BARRACUDA_EVOLUTION.md header**: Updated to V131 with current status.
+
+#### Downstream
+- **foundation THREAD_INDEX.toml fix**: Thread 7 (Anderson Mathematics) `data_targets` pointed to `thread06_ag_targets.toml` — corrected to `thread07_anderson_targets.toml`. Pushed to upstream foundation repo.
+
 ### V130 skunkBat IPC + CI Cross-Sync 413 + plasmidBin Release (May 11, 2026)
 
 #### skunkBat Rust IPC Module

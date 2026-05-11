@@ -203,7 +203,7 @@ if command -v cargo &> /dev/null; then
 
     run_experiment \
         "Rust: Signal Specificity" \
-        "cargo run --release --bin validate_signal-specificity"
+        "cargo run --release --bin validate_signal_specificity"
 
     run_experiment \
         "Rust: RAWR Resampling" \
@@ -231,7 +231,7 @@ if command -v cargo &> /dev/null; then
 
     run_experiment \
         "Rust: Resampling Convergence" \
-        "cargo run --release --bin validate_resampling-conv"
+        "cargo run --release --bin validate_resampling_conv"
 
     run_experiment \
         "Rust: Drift vs Selection" \
@@ -239,11 +239,11 @@ if command -v cargo &> /dev/null; then
 
     run_experiment \
         "Rust: Uncertainty Bridge" \
-        "cargo run --release --bin validate_uncertainty-bridge"
+        "cargo run --release --bin validate_uncertainty_bridge"
 
     run_experiment \
         "Rust: Rare Biosphere" \
-        "cargo run --release --bin validate_rare-biosphere"
+        "cargo run --release --bin validate_rare_biosphere"
 
     run_experiment \
         "Rust: Quasispecies Threshold" \
@@ -251,7 +251,7 @@ if command -v cargo &> /dev/null; then
 
     run_experiment \
         "Rust: Band Edge" \
-        "cargo run --release --bin validate_band-edge"
+        "cargo run --release --bin validate_band_edge"
 
     run_experiment \
         "Rust: Jackknife Estimation" \
@@ -259,49 +259,49 @@ if command -v cargo &> /dev/null; then
 
     run_experiment \
         "Rust: Freeze Out Inverse" \
-        "cargo run --release --bin validate_freeze-out"
+        "cargo run --release --bin validate_freeze_out"
 
     run_experiment \
         "Rust: Spectral Recon" \
-        "cargo run --release --bin validate_spectral-recon"
+        "cargo run --release --bin validate_spectral_recon"
 
     run_experiment \
         "Rust: ET0 Anderson Propagation" \
-        "cargo run --release --bin validate_et0-anderson"
+        "cargo run --release --bin validate_et0_anderson"
 
     run_experiment \
         "Rust: No-Till Sampling" \
-        "cargo run --release --bin validate_notill-sampling"
+        "cargo run --release --bin validate_notill_sampling"
 
     run_experiment \
         "Rust: Aggregate Stability" \
-        "cargo run --release --bin validate_aggregate-stability"
+        "cargo run --release --bin validate_aggregate_stability"
 
     run_experiment \
         "Rust: Precision Drift" \
-        "cargo run --release --bin validate_precision-drift"
+        "cargo run --release --bin validate_precision_drift"
 
     run_experiment \
         "Rust: Size Convergence" \
-        "cargo run --release --bin validate_size-convergence"
+        "cargo run --release --bin validate_size_convergence"
 
     run_experiment \
         "Rust: Vendor Parity" \
-        "cargo run --release --bin validate_vendor-parity"
+        "cargo run --release --bin validate_vendor_parity"
 
     run_experiment \
         "Rust: ET0 Methods" \
-        "cargo run --release --bin validate_et0-methods"
+        "cargo run --release --bin validate_et0_methods"
 
     run_experiment \
         "Rust: Tissue Anderson" \
-        "cargo run --release --bin validate_tissue-anderson"
+        "cargo run --release --bin validate_tissue_anderson"
 
     if [[ -e /dev/akida0 ]]; then
         cargo build --release --workspace --features npu 2>&1 | tail -1
         run_experiment \
             "Rust: NPU Anderson (--features npu)" \
-            "cargo run --release --bin validate_npu-anderson --features npu"
+            "cargo run --release --bin validate_npu_anderson --features npu"
     else
         echo ""
         echo "  [SKIP] Rust: NPU Anderson — /dev/akida0 not present"
