@@ -107,6 +107,11 @@ pub const DEPENDENCIES: &[(&str, bool, &str)] = &[
         false,
         "data storage and NCBI/NOAA/IRIS providers (sovereign fallback to synthetic)",
     ),
+    (
+        crate::primal_names::roles::AUDIT,
+        false,
+        "audit event logging via skunkBat (JH-5, fallback: skip)",
+    ),
 ];
 
 /// Cost estimates for biomeOS Pathway Learner scheduling.
@@ -151,6 +156,7 @@ pub const CONSUMED_CAPABILITIES: &[&str] = &[
     "data.noaa_ghcnd",
     "data.iris_stations",
     "data.iris_events",
+    "security.audit_log",
 ];
 
 /// Number of barraCuda delegations (CPU + GPU).

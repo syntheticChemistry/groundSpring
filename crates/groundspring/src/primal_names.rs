@@ -71,6 +71,9 @@ pub mod roles {
     /// Squirrel AI assistant role.
     pub const ASSISTANT: &str = "squirrel";
 
+    /// skunkBat audit logging role (JH-5).
+    pub const AUDIT: &str = "skunkbat";
+
     // ─── Provenance Trio ─────
 
     /// rhizoCrypt — ephemeral DAG and working memory.

@@ -4,6 +4,29 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V130 skunkBat IPC + CI Cross-Sync 413 + plasmidBin Release (May 11, 2026)
+
+#### skunkBat Rust IPC Module
+- **New `src/ipc/skunkbat.rs`**: Full Rust IPC surface for `security.audit_log` — `emit_audit_event()`, `emit_validation_event()`, `emit_certification_event()`, `try_emit_audit_event()` (graceful discovery with fallback)
+- **`primal_names::roles::AUDIT`**: Added `"skunkbat"` constant for 5-tier socket discovery
+- **`niche::DEPENDENCIES`**: Added skunkBat as optional dependency (`fallback: skip`)
+- **`niche::CONSUMED_CAPABILITIES`**: Added `security.audit_log`
+- **Pattern**: Follows neuralSpring exemplar — direct JSON-RPC to skunkBat socket, Unix timestamp, structured event params
+
+#### CI Cross-Sync
+- **Registry sync updated**: Comments and assertions now reference 413 canonical methods (was 403)
+- **Assertion threshold**: `>= 401` (excludes 9 test_fixtures + 3 false_positives in TOML extraction)
+
+#### plasmidBin Release
+- **Release binary built**: `groundspring_unibin` (1.1MB, x86-64, stripped) — `version`, `status`, `certify`, `validate` subcommands verified
+- **plasmidBin manifest**: Updated tests (1050→1101), barracuda_depth (`calling`→`ipc-first`), description, note to V130
+- **NUCLEUS workload ready**: `groundspring-geochemistry-validation.toml` references `$SPRINGS_ROOT/groundSpring/target/release/groundspring_unibin validate`
+
+#### Foundation Seeding
+- **Thread 6 (ag)**: 18 sources already anchored in `foundation/data/sources/thread06_ag.toml`
+- **Thread 7 (Anderson)**: 18 targets already anchored in `foundation/data/targets/thread07_anderson_targets.toml`
+- **BLAKE3 hashes**: Pending — populated by `fetch_sources.sh` at download time
+
 ### V129 Deep Debt Audit + Doc Alignment (May 10, 2026)
 
 #### Deep Debt Audit (clean)

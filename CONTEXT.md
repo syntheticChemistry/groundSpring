@@ -27,7 +27,7 @@ for noise characterization and uncertainty quantification.
 - **Eukaryotic UniBin:** Single binary (`groundspring_unibin`) with `certify`, `validate`, `status`, `version` subcommands via `clap`
 - **Certification organelle:** `certification/` module — Properties 1-5 (bare, Tier 1) + Layers 2-4 (NUCLEUS composition, Tier 2)
 - **Validation scenarios:** `validation/scenarios/` registry — 10 tracks with `ScenarioMeta` (id, track, tier, provenance)
-- **IPC tree:** `src/ipc/` with per-primal modules (`barracuda.rs`, `toadstool.rs`, `nestgate.rs`, `beardog.rs`, `songbird.rs`)
+- **IPC tree:** `src/ipc/` with per-primal modules (`barracuda.rs`, `toadstool.rs`, `nestgate.rs`, `beardog.rs`, `songbird.rs`, `skunkbat.rs`)
 - **Communication:** JSON-RPC 2.0 over Unix domain sockets (behind `biomeos` feature); `tarpc` IPC (behind `tarpc-ipc` feature)
 - **License:** AGPL-3.0-or-later
 - **Tests:** 1,101 Rust tests + 287 Python provenance tests

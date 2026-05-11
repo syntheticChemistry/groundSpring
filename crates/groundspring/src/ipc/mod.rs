@@ -19,6 +19,7 @@
 //! - [`nestgate`] — Storage and live data pipelines via NestGate
 //! - [`beardog`] — Cryptographic operations via BearDog
 //! - [`songbird`] — Network discovery and mesh via Songbird
+//! - [`skunkbat`] — Audit logging via skunkBat (JH-5)
 //!
 //! # Semantic method naming
 //!
@@ -30,10 +31,12 @@
 //! - `data.*` — Live data pipelines (NCBI, NOAA, IRIS)
 //! - `crypto.*` — Cryptographic operations
 //! - `discovery.*` — Network and capability discovery
+//! - `security.*` — Audit logging and threat detection
 
 pub mod barracuda;
 pub mod beardog;
 pub mod nestgate;
+pub mod skunkbat;
 pub mod songbird;
 pub mod toadstool;
 
