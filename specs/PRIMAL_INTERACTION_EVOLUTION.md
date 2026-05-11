@@ -1,6 +1,6 @@
 # Primal Interaction Evolution
 
-**Last updated**: May 10, 2026 (V129 — Tier 4 IPC-first, biomeOS v3.51 absorbed, skunkBat audit logging, eukaryotic UniBin, `CompositionContext` default)
+**Last updated**: May 11, 2026 (V131 — Tier 4 IPC-first, biomeOS v3.51 absorbed, skunkBat IPC module, modular guidestone, eukaryotic UniBin, `CompositionContext` default)
 
 This document tracks the evolution of groundSpring's interaction with the
 ecoPrimals ecosystem through biomeOS and the NUCLEUS Neural API, mirroring

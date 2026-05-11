@@ -3,9 +3,9 @@
 **Purpose**: Per-faculty research briefings for groundSpring noise characterization
 reproductions and extensions.
 
-**Last Updated**: May 10, 2026
+**Last Updated**: May 11, 2026
 
-**Validation Summary**: V129 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+**. 1,101 Rust tests + 287 Python provenance tests. ≥92% library line coverage. **guideStone Level 4**. Tier 4 IPC-first (`barracuda` removed from default features). Eukaryotic UniBin (`certification/` organelle, `validation/scenarios/` registry, `groundspring_unibin` binary). `src/ipc/` per-primal tree. biomeOS v3.51 `composition.status` + `method.register` absorbed. skunkBat `security.audit_log` in all 6 deploy graphs. Unified `tracing` logging. Zero clippy warnings on all targets (pedantic + nursery), zero unsafe, zero bare `#[allow]`/`#[expect]` without reason. All 35 experiments PASS. **29/29 mathematical parity proven**. 10 domains, 41 modules. 34 notebooks (5 sporePrint + 29 baselines) live on primals.eco.
+**Validation Summary**: V131 — 395/395 validation checks (340 core + 55 NUCLEUS) + 140 metalForge checks, **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+**. 1,101 Rust tests + 287 Python provenance tests. ≥92% library line coverage. **guideStone Level 4**. Tier 4 IPC-first (`barracuda` removed from default features). Eukaryotic UniBin (`certification/` organelle, `validation/scenarios/` registry, `groundspring_unibin` binary). `src/ipc/` per-primal tree. biomeOS v3.51 `composition.status` + `method.register` absorbed. skunkBat `security.audit_log` in all 6 deploy graphs. Unified `tracing` logging. Zero clippy warnings on all targets (pedantic + nursery), zero unsafe, zero bare `#[allow]`/`#[expect]` without reason. All 35 experiments PASS. **29/29 mathematical parity proven**. 10 domains, 41 modules. 34 notebooks (5 sporePrint + 29 baselines) live on primals.eco.
 
 ---
 
@@ -17,7 +17,7 @@ reproductions and extensions.
 | Christopher Waters | MMG, MSU | Quorum sensing, c-di-GMP | **Exp 006** (30.5×), **Exp 010** (18.5×), **Exp 011** (46.2×) |
 | Kevin Liu | CMSE, MSU | Phylogenetics, statistical resampling | **Exp 007**: RAWR bootstrap (11/11 PASS, 7.3× faster) |
 | Ilya Kachkovskiy | Math, MSU | Anderson localization, spectral theory | **Exp 008** (29.9×), **Exp 009** (49.5× Sturm), **Exp 012** (spin chain), **Exp 018** (band edge 10/10) |
-| Rika Anderson | Biology, Carleton College | Deep subsurface microbiology | **Exp 014** (drift/selection), **Exp 016** (rare biosphere 10/10) |
+| Rika Anderson | Biology, Carleton College | Deep subsurface microbiology | **Exp 014** (drift/selection 7/7), **Exp 016** (rare biosphere 12/12) |
 | Emily Dolson | CSE, MSU | Eco-evolutionary dynamics | **Exp 017**: Quasispecies threshold (6/6 Rust) |
 | Andrea J. Gonzales | Pharmacology & Toxicology, MSU | Immunopharmacology, JAK/cytokine signaling | **Paper 12**: Exp 008 (2D/3D Anderson), Exp 012 (transport), Exp 015 (uncertainty), Exp 018 (band edge) → cytokine propagation |
 
@@ -32,7 +32,7 @@ Phase 2: barraCuda GPU (--features barracuda-gpu) → GPU dispatch, metalForge c
 Phase 3: Primal IPC (CompositionContext) → NUCLEUS composition, sovereign deploy
 ```
 
-**Tier 4 IPC-first (V128):** The default build no longer links `barracuda` directly.
+**Tier 4 IPC-first (V128+):** The default build no longer links `barracuda` directly.
 All 110 delegations route through `CompositionContext` IPC by default. Direct
 library linkage is available via `--features local` for development/benchmarking.
 

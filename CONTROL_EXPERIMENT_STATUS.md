@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: May 10, 2026 (V129 — 1,101 tests, ≥92% library coverage, 0 clippy warnings on all targets, 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later. guideStone Level 4. Tier 4 IPC-first (`barracuda` removed from defaults). Eukaryotic UniBin (`certification/`, `validation/scenarios/`, `groundspring_unibin`). `src/ipc/` per-primal tree. biomeOS v3.51 absorbed (`composition.status`, `method.register`). skunkBat `security.audit_log` in all 6 deploy graphs. Unified `tracing` logging. barraCuda v0.3.13. primalSpring v0.9.25 pinned.)
+**Last updated**: May 11, 2026 (V131 — 1,101 tests, ≥92% library coverage, 0 clippy warnings on all targets, 0 fmt diff, `cargo deny check` PASS, license AGPL-3.0-or-later. guideStone Level 4 (modular `guidestone/` layers). Bootstrap doctest fixed. Benchmark coverage 11→28 experiments. 76 script binary name fixes. Tier 4 IPC-first. Eukaryotic UniBin. `src/ipc/` per-primal tree + skunkBat IPC module. biomeOS v3.51. barraCuda v0.3.13. primalSpring v0.9.25. Kokkos parity documented.)
 
 ## Experiment Register
 

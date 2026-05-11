@@ -8,7 +8,7 @@
 **Total**: 395/395 validation checks across 35 experiments, 10 domains. 1,101 Rust tests + 287 Python provenance tests + 29 validator exit-code integration tests.
 **Core**: 340/340 checks across 29 experiments (no feature flags).
 **NUCLEUS**: 55 checks across 4 experiments (Exp 029–032, `--features biomeos`).
-**guideStone**: Level 4 (bare + NUCLEUS composition parity) — `groundspring_guidestone` binary with 5 bare properties + 6 NUCLEUS additive IPC parity checks + 2 composition experiment crates.
+**guideStone**: Level 4 (bare + NUCLEUS composition parity) — modular `guidestone/{bare,tower,node,nest,cross}.rs` layers (V131) with 5 bare properties + NUCLEUS additive IPC parity checks + 2 composition experiment crates.
 **Tier 4 IPC-first**: `barracuda` removed from default features; IPC via `CompositionContext` is the default build.
 **Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across 28 benchmarked experiments.
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs.

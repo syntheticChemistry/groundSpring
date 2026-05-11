@@ -9,29 +9,29 @@ These are not dead code — they are provenance evidence.
 
 ## Fossils
 
+Each subdirectory contains a `README.md` provenance marker documenting
+what the prokaryotic pattern looked like and what superseded it. The actual
+source code lives in its evolved location — fossils are provenance markers,
+not source copies.
+
 ### `validate_binaries_prokaryotic_may2026/`
 
-Snapshot of the 35 standalone validation binaries from
-`crates/groundspring-validate/src/`. These have been absorbed into
-`crates/groundspring/src/validation/scenarios/` as ScenarioMeta-tagged
-scenarios in the eukaryotic validation registry.
-
-**Superseded by**: `groundspring_unibin validate`
+Provenance marker for the 35 standalone validation binaries. The binaries
+still live at `crates/groundspring-validate/src/validate_*.rs` and are
+additionally accessible via `groundspring_unibin validate`.
 
 ### `guidestone_prokaryotic_may2026/`
 
-Snapshot of the standalone `groundspring_guidestone` binary. This has
-been absorbed into `crates/groundspring/src/certification/` as the
-certification organelle (L0-L4 layers).
-
-**Superseded by**: `groundspring_unibin certify`
+Provenance marker for the standalone `groundspring_guidestone` binary.
+The guidestone was refactored (V131) into modular layers at
+`crates/groundspring-validate/src/guidestone/{bare,tower,node,nest,cross}.rs`
+with a thin binary orchestrator. Also accessible via `groundspring_unibin certify`.
 
 ### `experiment_crates_prokaryotic_may2026/`
 
-Snapshot of standalone experiment crate entry points (`exp094`, `exp095`).
-These have been absorbed into validation scenarios with provenance metadata.
-
-**Superseded by**: `groundspring_unibin validate --track composition-parity`
+Provenance marker for standalone experiment crate entry points (`exp094`,
+`exp095`). These crates still exist at `experiments/` and are additionally
+registered as validation scenarios with provenance metadata.
 
 ## Provenance
 

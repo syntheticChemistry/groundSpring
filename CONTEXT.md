@@ -35,10 +35,10 @@ for noise characterization and uncertainty quantification.
 - **Coverage:** ≥92% library line coverage (`cargo llvm-cov --workspace --lib`)
 - **MSRV:** Rust 1.87 (2024 edition)
 - **Validation checks:** 395/395 PASS across 35 binaries
-- **guideStone:** Level 4 (bare + NUCLEUS composition parity)
+- **guideStone:** Level 4 (bare + NUCLEUS composition parity) — modular `guidestone/{bare,tower,node,nest,cross}.rs` layers
 - **barraCuda delegations:** 110 active (67 CPU + 43 GPU) — `barracuda` is `optional = true`, feature-gated
 - **Logging:** Unified `tracing` (zero `log::` calls)
-- **Fossil record:** `fossilRecord/` with 3 dated prokaryotic snapshots (validate binaries, guidestone, experiment crates)
+- **Fossil record:** `fossilRecord/` with 3 dated prokaryotic snapshot READMEs (provenance markers, no source copies)
 - **primalSpring:** v0.9.25 pinned for `CompositionContext`, `ScenarioMeta`, `ScenarioRegistry`
 - **Tier 4 IPC-first:** `barracuda` removed from default features; IPC via `CompositionContext` is the default; `local` feature for opt-in direct library linkage
 - **biomeOS v3.51:** `composition.status` (health/monitoring) + `method.register` (dynamic registration) absorbed

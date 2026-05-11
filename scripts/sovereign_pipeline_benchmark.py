@@ -111,12 +111,12 @@ def run_kokkos_baseline() -> TierResult | None:
 
 
 def run_rust_cpu() -> TierResult | None:
-    """Tier 2: Rust CPU (bench-kokkos-parity binary)."""
-    binary = ROOT / "target" / "release" / "bench-kokkos-parity"
+    """Tier 2: Rust CPU (bench_kokkos_parity binary)."""
+    binary = ROOT / "target" / "release" / "bench_kokkos_parity"
     if not binary.exists():
         try:
             subprocess.run(
-                ["cargo", "build", "--release", "--bin", "bench-kokkos-parity"],
+                ["cargo", "build", "--release", "--bin", "bench_kokkos_parity"],
                 capture_output=True, text=True, timeout=180, check=True,
                 cwd=str(ROOT),
             )
@@ -139,12 +139,12 @@ def run_rust_cpu() -> TierResult | None:
 
 def run_rust_gpu() -> TierResult | None:
     """Tier 3: Rust barraCuda GPU (WGSL shaders via wgpu)."""
-    binary = ROOT / "target" / "release" / "bench-gpu-vs-kokkos"
+    binary = ROOT / "target" / "release" / "bench_gpu_vs_kokkos"
     if not binary.exists():
         try:
             subprocess.run(
                 ["cargo", "build", "--release", "--features", "barracuda-gpu",
-                 "--bin", "bench-gpu-vs-kokkos"],
+                 "--bin", "bench_gpu_vs_kokkos"],
                 capture_output=True, text=True, timeout=180, check=True,
                 cwd=str(ROOT),
             )

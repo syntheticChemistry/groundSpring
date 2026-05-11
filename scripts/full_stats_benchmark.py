@@ -479,14 +479,14 @@ def main() -> None:
     # Pre-build all binaries
     print("  Building release binaries...")
     subprocess.run(
-        ["cargo", "build", "--release", "--bin", "bench-kokkos-parity",
-         "--bin", "bench-gpu-vs-kokkos"],
+        ["cargo", "build", "--release", "--bin", "bench_kokkos_parity",
+         "--bin", "bench_gpu_vs_kokkos"],
         capture_output=True, text=True, timeout=300, check=False,
         cwd=str(ROOT),
     )
     subprocess.run(
         ["cargo", "build", "--release", "--features", "barracuda-gpu",
-         "--bin", "bench-gpu-vs-kokkos"],
+         "--bin", "bench_gpu_vs_kokkos"],
         capture_output=True, text=True, timeout=300, check=False,
         cwd=str(ROOT),
     )
@@ -499,9 +499,9 @@ def main() -> None:
         ("Tier 1: Kokkos",     "Kokkos CUDA (fp64)",
          [str(ROOT / "kokkos_baseline" / "build" / "kokkos_baseline")]),
         ("Tier 2: Rust CPU",   "Rust CPU (pure Rust fp64)",
-         [str(ROOT / "target" / "release" / "bench-kokkos-parity")]),
+         [str(ROOT / "target" / "release" / "bench_kokkos_parity")]),
         ("Tier 3: Rust GPU",   "BarraCuda WGSL (DF64/fp64)",
-         [str(ROOT / "target" / "release" / "bench-gpu-vs-kokkos")]),
+         [str(ROOT / "target" / "release" / "bench_gpu_vs_kokkos")]),
     ]
 
     # Multi-run collection

@@ -32,53 +32,55 @@ ROOT = Path(__file__).resolve().parent.parent
 CONTROL_DIR = ROOT / "control"
 
 VALIDATE_BINS = [
-    "validate-decompose",
-    "validate-rarefaction",
-    "validate-seismic",
-    "validate-weather",
-    "validate-fao56",
-    "validate-signal-specificity",
-    "validate-rawr",
-    "validate-anderson",
-    "validate-quasiperiodic",
-    "validate-bistable",
-    "validate-multisignal",
-    "validate-transport",
-    "validate-resampling-conv",
-    "validate-drift",
-    "validate-uncertainty-bridge",
-    "validate-rare-biosphere",
-    "validate-quasispecies",
-    "validate-band-edge",
-    "validate-jackknife",
-    "validate-freeze-out",
-    "validate-spectral-recon",
-    "validate-et0-anderson",
-    "validate-notill-sampling",
-    "validate-aggregate-stability",
-    "validate-precision-drift",
-    "validate-size-convergence",
-    "validate-vendor-parity",
+    "validate_decompose",
+    "validate_rarefaction",
+    "validate_seismic",
+    "validate_weather",
+    "validate_fao56",
+    "validate_signal_specificity",
+    "validate_rawr",
+    "validate_anderson",
+    "validate_quasiperiodic",
+    "validate_bistable",
+    "validate_multisignal",
+    "validate_transport",
+    "validate_resampling_conv",
+    "validate_drift",
+    "validate_uncertainty_bridge",
+    "validate_rare_biosphere",
+    "validate_quasispecies",
+    "validate_band_edge",
+    "validate_jackknife",
+    "validate_freeze_out",
+    "validate_spectral_recon",
+    "validate_et0_anderson",
+    "validate_notill_sampling",
+    "validate_aggregate_stability",
+    "validate_precision_drift",
+    "validate_size_convergence",
+    "validate_vendor_parity",
+    "validate_et0_methods",
+    "validate_tissue_anderson",
 ]
 
 PYTHON_EXPERIMENTS = [
-    ("sensor_noise", "sensor_noise_decomposition.py", "validate-decompose"),
-    ("observation_gap", "observation_gap.py", "validate-weather"),
-    ("seismic", "seismic_inversion.py", "validate-seismic"),
-    ("signal_specificity", "signal_specificity.py", "validate-signal-specificity"),
-    ("rawr_resampling", "rawr_resampling.py", "validate-rawr"),
-    ("anderson_localization", "anderson_localization.py", "validate-anderson"),
-    ("quasiperiodic", "quasiperiodic_localization.py", "validate-quasiperiodic"),
-    ("bistable_switching", "bistable_switching.py", "validate-bistable"),
-    ("multisignal_qs", "multisignal_qs.py", "validate-multisignal"),
-    ("spin_transport", "spin_chain_transport.py", "validate-transport"),
-    ("drift_selection", "drift_selection.py", "validate-drift"),
-    ("rare_biosphere", "rare_biosphere.py", "validate-rare-biosphere"),
-    ("quasispecies_threshold", "quasispecies_threshold.py", "validate-quasispecies"),
-    ("band_edge", "band_edge.py", "validate-band-edge"),
-    ("jackknife_estimation", "jackknife_estimation.py", "validate-jackknife"),
-    ("freeze_out_inverse", "freeze_out_inverse.py", "validate-freeze-out"),
-    ("spectral_recon", "spectral_recon.py", "validate-spectral-recon"),
+    ("sensor_noise", "sensor_noise_decomposition.py", "validate_decompose"),
+    ("observation_gap", "observation_gap.py", "validate_weather"),
+    ("seismic", "seismic_inversion.py", "validate_seismic"),
+    ("signal_specificity", "signal_specificity.py", "validate_signal_specificity"),
+    ("rawr_resampling", "rawr_resampling.py", "validate_rawr"),
+    ("anderson_localization", "anderson_localization.py", "validate_anderson"),
+    ("quasiperiodic", "quasiperiodic_localization.py", "validate_quasiperiodic"),
+    ("bistable_switching", "bistable_switching.py", "validate_bistable"),
+    ("multisignal_qs", "multisignal_qs.py", "validate_multisignal"),
+    ("spin_transport", "spin_chain_transport.py", "validate_transport"),
+    ("drift_selection", "drift_selection.py", "validate_drift"),
+    ("rare_biosphere", "rare_biosphere.py", "validate_rare_biosphere"),
+    ("quasispecies_threshold", "quasispecies_threshold.py", "validate_quasispecies"),
+    ("band_edge", "band_edge.py", "validate_band_edge"),
+    ("jackknife_estimation", "jackknife_estimation.py", "validate_jackknife"),
+    ("freeze_out_inverse", "freeze_out_inverse.py", "validate_freeze_out"),
+    ("spectral_recon", "spectral_recon.py", "validate_spectral_recon"),
 ]
 
 
@@ -137,7 +139,7 @@ def _run_validation_binary(bin_name: str) -> tuple[int, str, float]:
 
 
 class TestRustValidationGreen:
-    """All 27 Rust validation binaries must pass in default mode."""
+    """All 29 Rust validation binaries must pass in default mode."""
 
     @pytest.mark.parametrize("bin_name", VALIDATE_BINS)
     def test_validation_binary_passes(self, bin_name: str) -> None:
@@ -174,12 +176,12 @@ def _run_binary_with_features(bin_name: str, features: str) -> tuple[int, str, f
 
 
 TIER_BINARIES = [
-    "validate-decompose",
-    "validate-anderson",
-    "validate-rarefaction",
-    "validate-weather",
-    "validate-drift",
-    "validate-rawr",
+    "validate_decompose",
+    "validate_anderson",
+    "validate_rarefaction",
+    "validate_weather",
+    "validate_drift",
+    "validate_rawr",
 ]
 
 
@@ -295,7 +297,7 @@ class TestPythonBaselineXorshiftParity:
     """Python Xorshift64 baseline matches Rust values exactly.
 
     Runs baseline_runner.py (pure Python, same PRNG) and
-    bench-kokkos-parity (Rust CPU) and compares numerical output.
+    bench_kokkos_parity (Rust CPU) and compares numerical output.
     """
 
     def test_python_rust_values_match(self) -> None:
@@ -314,11 +316,11 @@ class TestPythonBaselineXorshiftParity:
         py_data = json.loads(py_result.stdout)
 
         rust_result = subprocess.run(
-            ["cargo", "run", "--release", "--bin", "bench-kokkos-parity"],
+            ["cargo", "run", "--release", "--bin", "bench_kokkos_parity"],
             capture_output=True, text=True, timeout=180,
             check=False, cwd=str(ROOT),
         )
-        assert rust_result.returncode == 0, "Rust bench-kokkos-parity failed"
+        assert rust_result.returncode == 0, "Rust bench_kokkos_parity failed"
 
         output = rust_result.stdout
         marker = "=== JSON Benchmark Output ==="

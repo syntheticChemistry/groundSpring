@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
-**Last Updated**: May 10, 2026
-**Status**: V129 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 110 delegations (67 CPU + 43 GPU) — 1,101 Rust tests, 287 Python tests, 140 metalForge checks, 29 validator exit-code integration tests, 35 experiments, 41 modules. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). barraCuda v0.3.13. guideStone Level 4 (bare + NUCLEUS composition parity). Tier 4 IPC-first. Eukaryotic UniBin. biomeOS v3.51 absorbed. skunkBat audit logging. Unified `tracing` logging. Zero clippy warnings on all targets.
+**Last Updated**: May 11, 2026
+**Status**: V131 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 395/395 PASS (340 core + 55 NUCLEUS), 110 delegations (67 CPU + 43 GPU) — 1,101 Rust tests, 287 Python tests, 140 metalForge checks, 29 validator exit-code integration tests, 35 experiments, 41 modules. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). barraCuda v0.3.13. guideStone Level 4 (bare + NUCLEUS composition parity). Tier 4 IPC-first. Eukaryotic UniBin. biomeOS v3.51 absorbed. skunkBat audit logging. Unified `tracing` logging. Zero clippy warnings on all targets.
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -11,7 +11,7 @@
 | Metric | Value |
 |--------|-------|
 | Phase 0 (Python) | 29/29 experiments PASS across 9 scientific domains (~290 checks) |
-| Phase 1 (Rust) | 395/395 PASS — 35 validation binaries (340 core + 55 NUCLEUS) |
+| Phase 1 (Rust) | 395/395 PASS — 34 validation binaries + `validate_all` (340 core + 55 NUCLEUS) |
 | Phase 4 (NUCLEUS) | 55/55 PASS — 4 NUCLEUS validation binaries (Exp 029–032) |
 | Total Validation | 395/395 PASS across 35 experiments (34 binaries; Exp 034 combined with 033) |
 | Mathematical Parity | 29/29 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
