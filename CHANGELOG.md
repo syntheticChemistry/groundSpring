@@ -4,6 +4,28 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V132 River Delta Evolution — Tier 4 + plasmidBin + Foundation (May 11, 2026)
+
+#### Tier 4: metalForge barracuda Decoupling
+- **`metalForge/forge/Cargo.toml`**: `barracuda` now `optional = true`, gated behind `barracuda-gpu` feature. `pollster` replaces `barracuda::device::test_pool::tokio_block_on` for async wgpu futures. `wgpu` gains `vulkan` backend feature for standalone GPU probing.
+- **`harness.rs`**: `check_gpu_resilient` gated behind `#[cfg(feature = "barracuda-gpu")]`.
+- **`probe.rs` + `validate_metalforge_titan_v.rs`**: All `barracuda::device::test_pool::tokio_block_on` calls replaced with `pollster::block_on`.
+- **Result**: `cargo check --workspace` succeeds without barraCuda source tree present.
+
+#### barracuda-gpu Feature Fix
+- **`crates/groundspring/Cargo.toml`**: Added `barracuda/domain-genomics` to `barracuda-gpu` feature. Without it, `gillespie.rs` and `drift/mod.rs` failed to resolve `barracuda::ops::bio` (gated behind `domain-genomics` in barraCuda).
+
+#### plasmidBin Release Binary Refresh
+- **Rebuilt** `groundspring_unibin`: 1.1M stripped (was 1.3M from March 28). LTO + codegen-units=1.
+- **Placed** in `infra/plasmidBin/springs/` (both `groundspring` and `groundspring_unibin`).
+- **BLAKE3**: `f6fb35332d600eca56988bc53c288bbbd5c8317e04fb23fe24f11718991e2e69`
+
+#### Foundation Thread 7 Seeding
+- **`foundation/validation/anderson-20260511/`**: Full dated validation run with PROVENANCE_MANIFEST.md + braid.json.
+- **18/18 targets PASS**: Anderson localization, almost-Mathieu critical coupling, Hofstadter butterfly, freeze-out, spectral reconstruction, tissue Anderson 3D, NUCLEUS composition parity.
+- **`foundation/data/targets/thread07_anderson_targets.toml`**: Now committed and tracked (was untracked).
+- **`validation/README.md`**: Updated run table with Thread 6 (airSpring) and Thread 7 (groundSpring).
+
 ### V131 Deep Debt Evolution — Modular Refactor + Benchmark Coverage (May 11, 2026)
 
 #### Smart Refactoring

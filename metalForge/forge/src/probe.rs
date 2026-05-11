@@ -60,9 +60,7 @@ fn probe_gpus_inner() -> Vec<Substrate> {
         ..Default::default()
     });
 
-    let adapters = barracuda::device::test_pool::tokio_block_on(
-        instance.enumerate_adapters(wgpu::Backends::all()),
-    );
+    let adapters = pollster::block_on(instance.enumerate_adapters(wgpu::Backends::all()));
     let mut gpus = Vec::new();
 
     for (idx, adapter) in adapters.into_iter().enumerate() {

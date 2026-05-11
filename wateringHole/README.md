@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: May 11, 2026 (V131 — deep debt evolution, guidestone modular refactor, benchmark 28-experiment coverage)
+**Last Updated**: May 11, 2026 (V132 — deep debt evolution, guidestone modular refactor, benchmark 28-experiment coverage)
 
 ## What This Is
 

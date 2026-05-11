@@ -11,16 +11,18 @@ description = "Hardware discovery and cross-substrate dispatch for groundSpring"
 
 [features]
 default = []
-barracuda-gpu = ["groundspring/barracuda-gpu"]
+barracuda-gpu = ["groundspring/barracuda-gpu", "dep:barracuda"]
 npu = ["groundspring/npu"]
 biomeos = ["groundspring/biomeos"]
 
 [dependencies]
 tracing = "0.1"
+pollster = "0.4"
 groundspring = { path = "../../crates/groundspring" }
-barracuda = { path = "../../../../primals/barraCuda/crates/barracuda", default-features = false, features = ["gpu"] }
+barracuda = { path = "../../../../primals/barraCuda/crates/barracuda", optional = true, default-features = false, features = ["gpu"] }
 wgpu = { version = "28", default-features = false, features = [
     "wgsl",
+    "vulkan",
     "vulkan-portability",
 ] }
 bytemuck = { version = "1", features = ["derive"] }

@@ -40,9 +40,12 @@ for noise characterization and uncertainty quantification.
 - **Logging:** Unified `tracing` (zero `log::` calls)
 - **Fossil record:** `fossilRecord/` with 3 dated prokaryotic snapshot READMEs (provenance markers, no source copies)
 - **primalSpring:** v0.9.25 pinned for `CompositionContext`, `ScenarioMeta`, `ScenarioRegistry`
-- **Tier 4 IPC-first:** `barracuda` removed from default features; IPC via `CompositionContext` is the default; `local` feature for opt-in direct library linkage
+- **Tier 4 IPC-first:** `barracuda` optional everywhere (`groundspring` + `metalForge`); IPC via `CompositionContext` is the default; `local` feature for opt-in direct library linkage; workspace builds clean without barraCuda source tree
+- **metalForge decoupled:** GPU probing uses `pollster` (not barracuda); `barracuda-gpu` feature-gates hardware-specific APIs
 - **biomeOS v3.51:** `composition.status` (health/monitoring) + `method.register` (dynamic registration) absorbed
 - **skunkBat:** `security.audit_log` wired into all 6 deploy graphs (non-blocking, `fallback = "skip"`)
+- **plasmidBin:** 1.1M stripped release binary in `infra/plasmidBin/springs/`
+- **Foundation Thread 7:** Anderson Mathematics 18/18 targets PASS (dated run `anderson-20260511`)
 
 ## Key Capabilities (JSON-RPC methods)
 

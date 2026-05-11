@@ -70,16 +70,14 @@ fn cpu_reference_gamma() -> f64 {
 }
 
 fn probe_f64_pipeline(adapter: &wgpu::Adapter) -> bool {
-    let Ok((dev64, _q64)) = barracuda::device::test_pool::tokio_block_on(adapter.request_device(
-        &wgpu::DeviceDescriptor {
-            label: Some("probe-f64"),
-            required_features: wgpu::Features::SHADER_F64,
-            required_limits: wgpu::Limits::default(),
-            memory_hints: wgpu::MemoryHints::Performance,
-            experimental_features: wgpu::ExperimentalFeatures::default(),
-            trace: wgpu::Trace::default(),
-        },
-    )) else {
+    let Ok((dev64, _q64)) = pollster::block_on(adapter.request_device(&wgpu::DeviceDescriptor {
+        label: Some("probe-f64"),
+        required_features: wgpu::Features::SHADER_F64,
+        required_limits: wgpu::Limits::default(),
+        memory_hints: wgpu::MemoryHints::Performance,
+        experimental_features: wgpu::ExperimentalFeatures::default(),
+        trace: wgpu::Trace::default(),
+    })) else {
         return false;
     };
 
@@ -253,22 +251,21 @@ fn run_gpu_compute(adapter: &wgpu::Adapter, gpu_name: &str, h: &mut Harness, cpu
 
     let f64_works = has_f64_feature && probe_f64_pipeline(adapter);
 
-    let (device, queue) = match barracuda::device::test_pool::tokio_block_on(
-        adapter.request_device(&wgpu::DeviceDescriptor {
+    let (device, queue) =
+        match pollster::block_on(adapter.request_device(&wgpu::DeviceDescriptor {
             label: Some("compute-f32"),
             required_features: wgpu::Features::empty(),
             required_limits: wgpu::Limits::default(),
             memory_hints: wgpu::MemoryHints::Performance,
             experimental_features: wgpu::ExperimentalFeatures::default(),
             trace: wgpu::Trace::default(),
-        }),
-    ) {
-        Ok(pair) => pair,
-        Err(e) => {
-            println!("    SKIP: f32 device creation failed: {e}");
-            return;
-        }
-    };
+        })) {
+            Ok(pair) => pair,
+            Err(e) => {
+                println!("    SKIP: f32 device creation failed: {e}");
+                return;
+            }
+        };
 
     let Some(pipeline) = try_create_pipeline(&device, SHADER_F32, "anderson-f32") else {
         h.check(&format!("{gpu_name}: f32 shader compilation"), false);
@@ -364,9 +361,7 @@ fn main() {
         ..Default::default()
     });
 
-    let adapters = barracuda::device::test_pool::tokio_block_on(
-        instance.enumerate_adapters(wgpu::Backends::all()),
-    );
+    let adapters = pollster::block_on(instance.enumerate_adapters(wgpu::Backends::all()));
     let mut gpu_adapters: Vec<_> = adapters
         .into_iter()
         .filter(|a| {

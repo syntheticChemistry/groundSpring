@@ -7,6 +7,7 @@
 //! pass/fail, exit code 0 (all pass) / 1 (any failure).
 
 /// Maximum GPU device-lost retries before giving up.
+#[cfg(feature = "barracuda-gpu")]
 const GPU_RETRY_LIMIT: u32 = 2;
 
 /// Lightweight pass/fail harness for validation binaries.
@@ -49,6 +50,7 @@ impl Harness {
     /// Calls `gpu_fn` up to `GPU_RETRY_LIMIT` + 1 times; if the closure
     /// returns `Err(e)` where `e.is_device_lost()`, retries silently.
     /// Other errors and the final retry result become a FAIL check.
+    #[cfg(feature = "barracuda-gpu")]
     pub fn check_gpu_resilient<F>(&mut self, name: &str, mut gpu_fn: F)
     where
         F: FnMut() -> Result<bool, barracuda::error::BarracudaError>,
