@@ -1,0 +1,58 @@
+{
+  "_source": "groundSpring Experiment 036 — LTEE Fitness Dynamics (Wiser 2013)",
+  "_doi": "10.1126/science.1243357",
+  "_references": [
+    "Wiser MJ, Ribeck N, Lenski RE (2013) Long-Term Dynamics of Adaptation in Asexual Populations. Science 342(6164):1364-1367",
+    "Lenski RE, Rose MR, Simpson SC, Tadler SC (1991) Long-Term Experimental Evolution in E. coli I. Adaptation and Divergence During 2,000 Generations. Am Nat 138:1315-1341",
+    "Barrick JE, Yu DS, Yoon SH, et al. (2009) Genome evolution and adaptation in a long-term experiment with E. coli. Nature 461:1243-1247"
+  ],
+  "_provenance": {
+    "generated_by": "Synthetic LTEE fitness trajectories using published parameter estimates from Wiser 2013 Table S1",
+    "data_origin": "Synthetic data mimicking 12 LTEE population fitness trajectories; parameters derived from published power-law fits",
+    "real_data_accession": "N/A (synthetic from published parameters; real LTEE data at https://github.com/wiser/LTEE-fitness-data for future Tier 2)",
+    "prng_algorithm": "xorshift64 (Marsaglia 2003)",
+    "baseline_commit": "06b7e76",
+    "baseline_date": "2026-05-11",
+    "validation_script": "control/ltee_fitness_dynamics/ltee_fitness_dynamics.py",
+    "command": "python3 control/ltee_fitness_dynamics/ltee_fitness_dynamics.py",
+    "python_version": "3.11",
+    "numpy_version": "1.24",
+    "scipy_version": "1.11"
+  },
+  "_description": "Reproduce Wiser et al. (2013) model selection analysis: fit power-law, hyperbolic, and logarithmic models to LTEE fitness trajectories, then rank by AIC/BIC. The power-law model should win (unbounded fitness increase), matching the paper's central result.",
+  "_groundspring_question": "Do LTEE fitness trajectories follow a power law (unbounded adaptation) or approach an asymptote (diminishing returns)? The answer has implications for Anderson disorder models of fitness landscapes.",
+  "_cross_spring": "lithoSpore module 1 (power-law fitness), hotSpring B2 (Anderson disorder analogy for fitness landscape)",
+  "_ltee_guidestone": {
+    "module": 1,
+    "paper_id": "B2",
+    "litho_module": "ltee-fitness",
+    "blocks": "Pillar 4 exit gate (2+ modules PASS at Tier 1)"
+  },
+  "model": {
+    "_description": "Generate 12 synthetic LTEE population fitness trajectories using power-law parameters typical of published fits. Fit three competing models and select by AIC/BIC.",
+    "n_populations": 12,
+    "generations": [0, 500, 1000, 1500, 2000, 5000, 10000, 15000, 20000, 30000, 40000, 50000],
+    "power_law_params": {
+      "_note": "w(t) = (1 + alpha * t)^beta; approximate values from Wiser 2013 Table S1 population means",
+      "alpha": 6.25e-4,
+      "beta": 0.505
+    },
+    "noise_sigma": 0.02,
+    "seed": 42,
+    "n_jackknife_resamples": 12,
+    "confidence": 0.95
+  },
+  "expected_results": {
+    "best_model_aic": "power_law",
+    "best_model_bic": "power_law",
+    "power_law_r_squared_min": 0.98,
+    "hyperbolic_r_squared_min": 0.90,
+    "logarithmic_r_squared_min": 0.85,
+    "power_law_exponent_range": [0.40, 0.70],
+    "aic_power_law_less_than_hyperbolic": true,
+    "bic_power_law_less_than_hyperbolic": true,
+    "jackknife_exponent_se_max": 0.10,
+    "all_populations_fitness_increasing": true,
+    "deterministic": true
+  }
+}

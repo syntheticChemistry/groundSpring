@@ -45,13 +45,14 @@ pub struct NonlinearFit {
 }
 
 pub use linear::fit_linear;
-pub use nonlinear::{fit_exponential, fit_logarithmic};
+pub use nonlinear::{fit_exponential, fit_hyperbolic, fit_logarithmic, fit_power_law};
 pub use quadratic::fit_quadratic;
 
-/// Fit all four models and return those that converge.
+/// Fit all six models and return those that converge.
 ///
-/// Runs [`fit_linear`], [`fit_quadratic`], [`fit_exponential`], and
-/// [`fit_logarithmic`] on the same data, collecting any that succeed.
+/// Runs [`fit_linear`], [`fit_quadratic`], [`fit_exponential`],
+/// [`fit_logarithmic`], [`fit_power_law`], and [`fit_hyperbolic`]
+/// on the same data, collecting any that succeed.
 /// Useful for automated model comparison and best-fit selection.
 ///
 /// When the `barracuda` feature is enabled, delegates to
@@ -90,6 +91,8 @@ pub fn fit_all(xs: &[f64], ys: &[f64]) -> Vec<NonlinearFit> {
         fit_quadratic(xs, ys),
         fit_exponential(xs, ys),
         fit_logarithmic(xs, ys),
+        fit_power_law(xs, ys),
+        fit_hyperbolic(xs, ys),
     ]
     .into_iter()
     .flatten()

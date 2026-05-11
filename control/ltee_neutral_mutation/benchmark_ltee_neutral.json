@@ -1,0 +1,61 @@
+{
+  "_source": "groundSpring Experiment 037 — LTEE Neutral Mutation Dynamics (Barrick 2009)",
+  "_doi": "10.1038/nature08480",
+  "_references": [
+    "Barrick JE, Yu DS, Yoon SH, Jeong H, Oh TK, Schneider D, Lenski RE, Kim JF (2009) Genome evolution and adaptation in a long-term experiment with E. coli. Nature 461:1243-1247",
+    "Kimura M (1983) The Neutral Theory of Molecular Evolution. Cambridge University Press",
+    "Ewens WJ (2004) Mathematical Population Genetics I. Theoretical Introduction. Springer"
+  ],
+  "_provenance": {
+    "generated_by": "Synthetic neutral mutation data using Kimura fixation theory and Wright-Fisher drift",
+    "data_origin": "Synthetic data mimicking LTEE neutral mutation accumulation; rate derived from Barrick 2009 Table 1",
+    "real_data_accession": "N/A (synthetic from published mutation rates; real LTEE genome data at NCBI PRJNA294072 for future Tier 2)",
+    "prng_algorithm": "xorshift64 (Marsaglia 2003)",
+    "baseline_commit": "06b7e76",
+    "baseline_date": "2026-05-11",
+    "validation_script": "control/ltee_neutral_mutation/ltee_neutral_mutation.py",
+    "command": "python3 control/ltee_neutral_mutation/ltee_neutral_mutation.py",
+    "python_version": "3.11",
+    "numpy_version": "1.24"
+  },
+  "_description": "Reproduce the neutral mutation accumulation analysis from Barrick et al. (2009). Under strict neutrality (s=0), mutation fixation probability = 1/N and accumulation rate = genomic mutation rate μ. Drift dominates for |s| < 1/N. This establishes the null model against which adaptive mutations in the LTEE are detected.",
+  "_groundspring_question": "Does the observed mutation accumulation in the LTEE match the neutral expectation (molecular clock)? Departures from neutrality identify adaptive evolution — the signal that Wiser (2013) B2 quantifies via fitness trajectories.",
+  "_cross_spring": "lithoSpore module 2 (mutation accumulation), neuralSpring B1 (LSTM prediction)",
+  "_ltee_guidestone": {
+    "module": 2,
+    "paper_id": "B1",
+    "litho_module": "ltee-mutation",
+    "blocks": "lithoSpore module 2"
+  },
+  "model": {
+    "_description": "Wright-Fisher neutral fixation: simulate mutation accumulation over 20,000 generations in populations of size N. Compare observed fixation rate against Kimura neutral theory (fixation prob = 1/(2N) for diploid, 1/N for haploid E. coli).",
+    "population_size": 500000,
+    "genomic_mutation_rate": 8.9e-4,
+    "n_generations": 20000,
+    "n_replicates": 12,
+    "selection_coefficient": 0.0,
+    "seed": 42
+  },
+  "expected_results": {
+    "fixation_probability_neutral": {
+      "_note": "For haploid with N=500000, fixation prob per new mutation = 1/N = 2e-6",
+      "expected": 2e-6,
+      "tolerance_factor": 5.0
+    },
+    "molecular_clock_linear": true,
+    "accumulation_rate_per_generation": {
+      "_note": "μ * (1/N) * N = μ = 8.9e-4 substitutions per generation (for neutral mutations)",
+      "expected": 8.9e-4,
+      "tolerance_factor": 3.0
+    },
+    "kimura_fixation_analytical_match": {
+      "tolerance": 0.01
+    },
+    "drift_dominates_for_small_s": {
+      "_note": "At s = 1/N, Kimura formula (4Ns convention) gives ~4x neutral rate — still drift-dominated vs selection-dominated at s >> 1/N",
+      "s_threshold": 2e-6,
+      "fixation_prob_within_factor": 5.0
+    },
+    "deterministic": true
+  }
+}

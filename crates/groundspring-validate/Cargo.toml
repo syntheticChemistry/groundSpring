@@ -185,6 +185,14 @@ name = "bench_gpu_vs_kokkos"
 path = "src/bench_gpu_vs_kokkos.rs"
 
 [[bin]]
+name = "validate_ltee_fitness"
+path = "src/validate_ltee_fitness.rs"
+
+[[bin]]
+name = "validate_ltee_neutral"
+path = "src/validate_ltee_neutral.rs"
+
+[[bin]]
 name = "groundspring_guidestone"
 path = "src/groundspring_guidestone.rs"
 required-features = ["guidestone"]

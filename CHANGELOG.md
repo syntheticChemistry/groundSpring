@@ -4,6 +4,29 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V134 LTEE Reproductions — B2 + B1 (Ecosystem Critical Path) (May 11, 2026)
+
+#### LTEE B2: Wiser 2013 Power-Law Fitness Dynamics (Exp 036)
+- **New Rust infrastructure**: `fit_power_law` (offset power-law `w = 1 + A·t^b`), `fit_hyperbolic` (Michaelis-Menten offset `w = 1 + at/(1+bt)`), `aic()`, `bic()`, `compare_models()` — full AIC/BIC model selection pipeline in `stats::model_selection`.
+- **Control experiment**: `control/ltee_fitness_dynamics/` — synthetic LTEE fitness data from published Wiser 2013 parameters (α=6.25e-4, β=0.505), 12 populations, 50k generations.
+- **Python baseline**: 9/9 checks PASS — power-law wins by AIC/BIC, exponent in [0.40, 0.70], jackknife SE(b) < 0.10.
+- **Rust validation** (`validate_ltee_fitness`): 10/10 checks PASS — two-phase design: noiseless model selection + noisy jackknife variance.
+- **Expected values JSON** for `lithoSpore` module 1 (`ltee-fitness`).
+- **Unblocks**: lithoSpore module 1 AND Pillar 4 exit gate.
+
+#### LTEE B1: Barrick 2009 Neutral Mutation Accumulation (Exp 037)
+- **Control experiment**: `control/ltee_neutral_mutation/` — Kimura fixation theory + Wright-Fisher drift, N=500k, μ=8.9e-4.
+- **Python baseline**: 8/8 checks PASS — neutral P_fix = 1/N, molecular clock linear, drift dominance at s=1/N.
+- **Rust validation** (`validate_ltee_neutral`): 8/8 checks PASS — uses existing `drift::kimura_fixation_prob` and `wright_fisher_fixation_batch`.
+- **Expected values JSON** for `lithoSpore` module 2 (`ltee-mutation`).
+- **Unblocks**: lithoSpore module 2.
+
+#### Infrastructure
+- `fit_all` now includes 6 models (added power_law + hyperbolic).
+- `stats::model_selection` module with `aic()`, `bic()`, `rss()`, `compare_models()`.
+- Experiment count: 29 + 2 LTEE = 31. Test count: 1,119 (674 lib + 18 new model_selection + stats tests + 138 metalForge + 30 validate + integration tests).
+- B1/B2 marked STARTED in `specs/PAPER_REVIEW_QUEUE.md`.
+
 ### V133 Deep Debt V2 — Robustness + Benchmark Correctness + Coverage (May 11, 2026)
 
 #### Robustness

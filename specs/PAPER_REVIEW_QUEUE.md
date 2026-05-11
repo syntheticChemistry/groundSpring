@@ -443,8 +443,8 @@ and `infra/whitePaper/attsi/non-anon/contact/barrick/PAPER_REVIEW_AND_SPRING_TAR
 
 | ID | Paper | What to Reproduce | Exp | Status |
 |----|-------|-------------------|-----|--------|
-| B1 | Barrick et al. 2009 "Genome evolution" *Nature* | Drift vs selection: neutral mutation rate as null model; Barrick data as empirical test of fixation theory | TBD | QUEUED |
-| B2 | Wiser et al. 2013 "Long-term dynamics" *Science* | Jackknife + AIC/BIC model selection across power-law, hyperbolic, logarithmic fitness models | TBD | QUEUED |
+| B1 | Barrick et al. 2009 "Genome evolution" *Nature* | Drift vs selection: neutral mutation rate as null model; Barrick data as empirical test of fixation theory | 037 | **STARTED** — Python 8/8 PASS, Rust 8/8 PASS (V134) |
+| B2 | Wiser et al. 2013 "Long-term dynamics" *Science* | Jackknife + AIC/BIC model selection across power-law, hyperbolic, logarithmic fitness models | 036 | **STARTED** — Python 9/9 PASS, Rust 10/10 PASS (V134) |
 | B3 | Good et al. 2017 "Dynamics of molecular evolution" *Nature* | Clonal interference statistics: when multiple beneficial mutations compete, fixation probability changes | TBD | QUEUED |
 | B4 | Blount et al. 2008/2012 Citrate innovation | Rare event statistics: probability framework for potentiating mutation cascades | TBD | QUEUED |
 | B6 | "Measuring the burden of hundreds of BioBricks" 2024 *Nat Comms* | Anderson Wc analogy: burden = disorder potential; statistical distribution across 301 plasmids | TBD | QUEUED |
