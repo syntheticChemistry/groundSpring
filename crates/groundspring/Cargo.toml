@@ -15,8 +15,11 @@ workspace = true
 
 [features]
 default = []
+# Opt-in direct library linkage to barraCuda (bypasses IPC; for development/benchmarking).
 local = ["barracuda"]
 barracuda = ["dep:barracuda"]
+# Reserved: when activated, switches default PRNG from Xorshift64 to xoshiro128**.
+# Requires full stochastic experiment rebaseline (GAP-GS-011). Currently a no-op.
 prng-xoshiro-default = []
 barracuda-gpu = ["barracuda", "barracuda/gpu", "barracuda/domain-esn", "barracuda/domain-genomics", "dep:wgpu", "dep:bytemuck"]
 nautilus = ["dep:bingocube-nautilus"]
@@ -24,6 +27,8 @@ biomeos = ["dep:serde_json", "dep:tracing", "dep:tracing-subscriber"]
 npu = ["dep:akida-driver"]
 tarpc-ipc = ["dep:tarpc", "dep:tokio", "dep:serde"]
 certification = ["dep:primalspring", "dep:serde_json", "dep:tracing"]
+# Alias: `validation` and `certification` are synonymous. Both exist for semantic clarity
+# in downstream feature gates (e.g. `required-features = ["validation"]` on validator bins).
 validation = ["certification"]
 unibin = ["certification", "validation", "dep:clap"]
 

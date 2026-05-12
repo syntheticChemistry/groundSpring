@@ -201,6 +201,26 @@ EXPERIMENTS = [
         "python": [sys.executable, "control/et0_methods/et0_methods.py"],
         "rust_bin": "validate_et0_methods",
     },
+    {
+        "name": "Exp 036: LTEE Fitness B2 (Wiser 2013)",
+        "python": [sys.executable, "control/ltee_fitness_dynamics/ltee_fitness_dynamics.py"],
+        "rust_bin": "validate_ltee_fitness",
+    },
+    {
+        "name": "Exp 037: LTEE Neutral B1 (Barrick 2009)",
+        "python": [sys.executable, "control/ltee_neutral_mutation/ltee_neutral_mutation.py"],
+        "rust_bin": "validate_ltee_neutral",
+    },
+    {
+        "name": "Exp 038: LTEE Clonal B3 (Good 2017)",
+        "python": [sys.executable, "control/ltee_clonal_interference/ltee_clonal_interference.py"],
+        "rust_bin": "validate_ltee_clonal",
+    },
+    {
+        "name": "Exp 039: LTEE Citrate B4 (Blount 2008/2012)",
+        "python": [sys.executable, "control/ltee_citrate_innovation/ltee_citrate_innovation.py"],
+        "rust_bin": "validate_ltee_citrate",
+    },
 ]
 
 # ── Rust-only experiments (029-034) ──────────────────────────────────────

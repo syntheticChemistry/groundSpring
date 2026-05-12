@@ -199,6 +199,26 @@ EXPERIMENTS = [
         "python": [sys.executable, "control/et0_methods/et0_methods.py"],
         "rust_bin": "validate_et0_methods",
     },
+    {
+        "name": "LTEE Fitness B2 (Exp 036)",
+        "python": [sys.executable, "control/ltee_fitness_dynamics/ltee_fitness_dynamics.py"],
+        "rust_bin": "validate_ltee_fitness",
+    },
+    {
+        "name": "LTEE Neutral B1 (Exp 037)",
+        "python": [sys.executable, "control/ltee_neutral_mutation/ltee_neutral_mutation.py"],
+        "rust_bin": "validate_ltee_neutral",
+    },
+    {
+        "name": "LTEE Clonal B3 (Exp 038)",
+        "python": [sys.executable, "control/ltee_clonal_interference/ltee_clonal_interference.py"],
+        "rust_bin": "validate_ltee_clonal",
+    },
+    {
+        "name": "LTEE Citrate B4 (Exp 039)",
+        "python": [sys.executable, "control/ltee_citrate_innovation/ltee_citrate_innovation.py"],
+        "rust_bin": "validate_ltee_citrate",
+    },
 ]
 
 # NPU experiment (requires /dev/akida0 + npu feature)

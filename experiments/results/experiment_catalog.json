@@ -1,7 +1,7 @@
 {
   "generated": "2026-05-12T13:00:00Z",
   "spring": "groundSpring",
-  "total_experiments": 39,
+  "total_experiments": 38,
   "total_validation_checks": 427,
   "core_checks": 340,
   "nucleus_checks": 55,

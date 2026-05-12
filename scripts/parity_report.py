@@ -245,6 +245,30 @@ EXPERIMENTS = [
         "python": [sys.executable, "control/et0_methods/et0_methods.py"],
         "rust_bin": "validate_et0_methods",
     },
+    {
+        "name": "Exp 036: LTEE Fitness B2",
+        "benchmark": "control/ltee_fitness_dynamics/benchmark_ltee_fitness.json",
+        "python": [sys.executable, "control/ltee_fitness_dynamics/ltee_fitness_dynamics.py"],
+        "rust_bin": "validate_ltee_fitness",
+    },
+    {
+        "name": "Exp 037: LTEE Neutral B1",
+        "benchmark": "control/ltee_neutral_mutation/benchmark_ltee_neutral.json",
+        "python": [sys.executable, "control/ltee_neutral_mutation/ltee_neutral_mutation.py"],
+        "rust_bin": "validate_ltee_neutral",
+    },
+    {
+        "name": "Exp 038: LTEE Clonal B3",
+        "benchmark": "control/ltee_clonal_interference/benchmark_ltee_clonal.json",
+        "python": [sys.executable, "control/ltee_clonal_interference/ltee_clonal_interference.py"],
+        "rust_bin": "validate_ltee_clonal",
+    },
+    {
+        "name": "Exp 039: LTEE Citrate B4",
+        "benchmark": "control/ltee_citrate_innovation/benchmark_ltee_citrate.json",
+        "python": [sys.executable, "control/ltee_citrate_innovation/ltee_citrate_innovation.py"],
+        "rust_bin": "validate_ltee_citrate",
+    },
 ]
 
 
