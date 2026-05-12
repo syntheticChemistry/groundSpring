@@ -2,7 +2,7 @@
 
 **Date**: May 10, 2026
 **groundSpring**: V128 (Tier 4 IPC-first)
-**barraCuda**: v0.3.13
+**barraCuda**: v0.4.0
 **primalSpring**: v0.9.25
 
 ---

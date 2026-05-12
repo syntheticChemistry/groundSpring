@@ -2,8 +2,8 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: May 12, 2026 (V138 — 110 delegations (67 CPU + 43 GPU), 1,130 tests,
-barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+. guideStone Level 4.
+**Last updated**: May 12, 2026 (V138 — 110 delegations (67 CPU + 43 GPU), 1,123 tests,
+barraCuda v0.4.0, toadStool S158+, coralReef Iteration 55+. guideStone Level 4.
 V131: guidestone modular refactor (833→128L), doctest fix, benchmark coverage 11→28 experiments,
 76 script binary name fixes, Kokkos parity documentation.
 V130: skunkBat IPC module, CI cross-sync 413, plasmidBin release ready.
@@ -44,7 +44,7 @@ dispatch blocks: `freeze_out::grid_fit_2d` (2D parallel grid),
 `quasispecies::quasispecies_simulation` (batched Wright-Fisher via
 `barracuda::ops::bio::wright_fisher_simulate`), `rare_biosphere::abundance_occupancy`
 and `tier_detection_rate` (batched multinomial via `barracuda::ops::bio`).
-138 metalForge checks, 5+ discovered substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). 110 active barracuda delegations (67 CPU + 43 GPU), barraCuda v0.3.13, toadStool S158+. V59: jackknife GPU promoted (S71 `jackknife_mean_f64.wgsl`), HargreavesBatchGpu (S71 `hargreaves_batch_f64.wgsl`).
+138 metalForge checks, 5+ discovered substrates, architecture-aware routing (f64→Titan V, f32→RTX 4070). 110 active barracuda delegations (67 CPU + 43 GPU), barraCuda v0.4.0, toadStool S158+. V59: jackknife GPU promoted (S71 `jackknife_mean_f64.wgsl`), HargreavesBatchGpu (S71 `hargreaves_batch_f64.wgsl`).
 These dispatch blocks compile only with `--features barracuda-gpu` and call
 expected barracuda functions — ToadStool absorbs them to activate GPU paths.
 

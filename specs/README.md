@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: May 12, 2026
-**Status**: V138 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 427/427 PASS (340 core + 55 NUCLEUS + 32 LTEE), 110 delegations (67 CPU + 43 GPU) — 1,130 Rust tests, 287 Python tests, 138 metalForge checks, 29 validator exit-code integration tests, 39 experiments (including 4 LTEE reproductions B1–B4), 41 modules. LTEE B1 (Barrick 2009) + B2 (Wiser 2013) + B3 (Good 2017) + B4 (Blount 2008/2012) reproductions complete — unblocks `lithoSpore` modules 1–4. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). barraCuda v0.3.13. guideStone Level 4 (bare + NUCLEUS composition parity). Tier 4 IPC-first. Zero clippy warnings on all targets. Zero unsafe.
+**Status**: V138 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 427/427 PASS (340 core + 55 NUCLEUS + 32 LTEE), 110 delegations (67 CPU + 43 GPU) — 1,123 Rust tests, 287 Python tests, 138 metalForge checks, 29 validator exit-code integration tests, 39 experiments (including 4 LTEE reproductions B1–B4), 41 modules. LTEE B1 (Barrick 2009) + B2 (Wiser 2013) + B3 (Good 2017) + B4 (Blount 2008/2012) reproductions complete — unblocks `lithoSpore` modules 1–4. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). barraCuda v0.4.0. guideStone Level 4 (bare + NUCLEUS composition parity). Tier 4 IPC-first. Zero clippy warnings on all targets. Zero unsafe.
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -16,7 +16,7 @@
 | LTEE (B1–B4) | 32/32 PASS — 4 LTEE validation binaries (Exp 036–039) |
 | Total Validation | 427/427 PASS across 39 experiments (38 binaries; Exp 034 combined with 033) |
 | Mathematical Parity | 29/29 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
-| Rust tests | 1,130 across all feature gates + 287 Python |
+| Rust tests | 1,123 across all feature gates + 287 Python |
 | metalForge | 2 production WGSL shaders (anderson_lyapunov, anderson_lyapunov_f32) |
 | Exp 001 | Sensor noise decomposition — EC5 bias-dominated, CS616 mixed |
 | Exp 002 | Observation gap ERA5 vs station — methodology validated |
@@ -50,7 +50,7 @@
 | Exp 030 | Real NCBI 16S — rare biosphere detection on real/synthetic NCBI metagenomes (NUCLEUS) |
 | Exp 031 | NUCLEUS Stack — full primal validation: Tower + Node + Squirrel + Nest |
 | Exp 032 | IRIS Seismic — IRIS FDSN station geometry + travel times via NestGate (NUCLEUS) |
-| Barracuda | 110 delegations (67 CPU + 43 GPU) — barraCuda v0.3.13. Tier 4 IPC-first. GPU grid adapters + batch APIs. 138 metalForge checks. PrecisionRoutingAdvice wired |
+| Barracuda | 110 delegations (67 CPU + 43 GPU) — barraCuda v0.4.0. Tier 4 IPC-first. GPU grid adapters + batch APIs. 138 metalForge checks. PrecisionRoutingAdvice wired |
 | NUCLEUS | biomeOS Neural API live: Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS) |
 | Performance | 11.5× faster than Python (excl. LAPACK-bound); 5.1× overall |
 | Faculty | Bazavov, Waters, Liu, Kachkovskiy, R. Anderson, Dolson, Gonzales |

@@ -5,7 +5,7 @@
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
 **Date:** April 27, 2026
-**Last audited:** May 12, 2026 (V138 — LTEE B1–B4 reproductions complete (4/4), modular validate harness, self-knowledge dispatch, dep decoupling. guideStone L4, Tier 4 IPC-first, 1,130 tests, zero clippy, zero unsafe)
+**Last audited:** May 12, 2026 (V138 — LTEE B1–B4 reproductions complete (4/4), modular validate harness, self-knowledge dispatch, dep decoupling. guideStone L4, Tier 4 IPC-first, 1,123 tests, zero clippy, zero unsafe)
 **License:** AGPL-3.0-or-later
 
 ---
@@ -109,7 +109,7 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 - **Description:** Active specs and deploy graphs referenced barraCuda
   v0.3.7 while path dependency resolves to v0.3.12.
 - **Resolution:** Updated all active graph STATUS headers and
-  `specs/BARRACUDA_REQUIREMENTS.md` to v0.3.13. Historical `tol.rs`
+  `specs/BARRACUDA_REQUIREMENTS.md` to v0.4.0. Historical `tol.rs`
   contract pins retain original version annotations (they document when
   the contract was established).
 

@@ -6,8 +6,8 @@
 [![Rust](https://img.shields.io/badge/rust-2024_edition-orange.svg)](https://www.rust-lang.org/)
 [![ecoBin](https://img.shields.io/badge/ecoBin-compliant-green.svg)](https://github.com/ecoPrimals/wateringHole/blob/main/ECOBIN_ARCHITECTURE_STANDARD.md)
 
-**Date**: May 11, 2026 | **License**: AGPL-3.0-or-later | **MSRV**: Rust 1.87 (2024 edition)
-**Status**: V135 — Deep Debt Evolution + LTEE Reproductions (modular validate harness, self-knowledge dispatch, dep decoupling, LTEE B2 Wiser 2013 + B1 Barrick 2009). 41 modules, 35 experiments + 2 LTEE control baselines, **1,125 tests** (zero warnings, zero clippy errors on all targets), 395/395 validation checks + 138 metalForge checks + 29 validator integration tests. **guideStone Level 4**. `barracuda` optional everywhere (`groundspring` + `metalForge`), IPC-first via `CompositionContext`. `local` feature enables direct library linkage. `stats::model_selection` (AIC/BIC), `stats::regression::{fit_power_law, fit_hyperbolic}`, `fit_all` now 6 models. LTEE B2 (Exp 036): power-law fitness dynamics — unblocks `lithoSpore` module 1. LTEE B1 (Exp 037): neutral mutation accumulation — unblocks `lithoSpore` module 2. `validate/` split into `sink.rs` + `harness.rs` + `mod.rs` (750L → 3 modules). `dispatch::normalize_method` uses `primal_names::SELF_ID` (no hardcoding). `bytemuck` optional in metalForge. Zero unsafe (`#![forbid(unsafe_code)]`), zero mocks in production, zero `.unwrap()` in library code. plasmidBin binary: 1.1M stripped (LTO). Foundation Thread 7 (Anderson Mathematics) seeded: 18/18 targets PASS. `certification/` organelle (L0-L4), `validation/scenarios/` registry (10 tracks, Tier 1/Tier 2), `groundspring_unibin` binary (certify/validate/status/version). primalSpring v0.9.25 pinned. barraCuda v0.3.13, toadStool S158+, coralReef Iteration 55+. 6 deploy graphs, 34 notebooks.
+**Date**: May 12, 2026 | **License**: AGPL-3.0-or-later | **MSRV**: Rust 1.87 (2024 edition)
+**Status**: V138 — LTEE B1–B4 complete (4/4), `--format json` on all 38 validation binaries, Tier 4 IPC-first. 41 modules, 39 experiments (including 4 LTEE reproductions), **1,123 tests** (zero warnings, zero clippy errors on all targets), 427/427 validation checks + 138 metalForge checks + 29 validator integration tests. **guideStone Level 4**. `barracuda` optional everywhere (`groundspring` + `metalForge`), IPC-first via `CompositionContext`. `local` feature for opt-in library linkage. LTEE B2 (Exp 036, Wiser 2013): power-law fitness → `lithoSpore` module 1. B1 (Exp 037, Barrick 2009): neutral mutation → module 2. B3 (Exp 038, Good 2017): clonal interference → module 3. B4 (Exp 039, Blount 2008/2012): citrate innovation → module 4. All have `expected_values.json` for lithoSpore ingestion. Zero unsafe (`#![forbid(unsafe_code)]`), zero mocks in production, zero `.unwrap()` in library code. plasmidBin binary: 1.1M stripped (LTO). Foundation Threads 5+7 seeded. `certification/` organelle (L0-L4), `validation/scenarios/` registry (10 tracks, Tier 1/Tier 2), `groundspring_unibin` binary (certify/validate/status/version). primalSpring v0.9.25 pinned. barraCuda v0.4.0, toadStool S158+, coralReef Iteration 55+. 6 deploy graphs, 34 notebooks.
 
 **The gap between what models predict and what instruments measure.**
 
@@ -120,7 +120,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 ### Rust Phase 1
 
 ```bash
-cargo test --workspace                         # 1,125 tests, all PASS
+cargo test --workspace                         # 1,123 tests, all PASS
 cargo test --workspace --all-features          # all feature paths tested
 cargo test --workspace --features biomeos      # NUCLEUS client active
 cargo test --workspace --features barracuda-gpu # GPU dispatch active
@@ -275,7 +275,7 @@ Every spring contributes shaders that benefit the entire ecosystem through barra
 
 ```
 hotSpring (precision)  ─────┐
-  df64_core, Sturm tridiag, │    All absorbed into barraCuda v0.3.13
+  df64_core, Sturm tridiag, │    All absorbed into barraCuda v0.4.0
   stress_virial, CG kernels ├──► 784 WGSL shaders, f64-canonical
                              │    with f16/f32/f64/Df64 per hardware
 wetSpring (bio)  ────────────┤

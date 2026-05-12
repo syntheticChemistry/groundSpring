@@ -30,13 +30,13 @@ for noise characterization and uncertainty quantification.
 - **IPC tree:** `src/ipc/` with per-primal modules (`barracuda.rs`, `toadstool.rs`, `nestgate.rs`, `beardog.rs`, `songbird.rs`, `skunkbat.rs`)
 - **Communication:** JSON-RPC 2.0 over Unix domain sockets (behind `biomeos` feature); `tarpc` IPC (behind `tarpc-ipc` feature)
 - **License:** AGPL-3.0-or-later
-- **Tests:** 1,130 Rust tests + 287 Python provenance tests
+- **Tests:** 1,123 Rust tests + 287 Python provenance tests
 - **Clippy:** Zero warnings on all targets (lib + bin + test), pedantic + nursery
 - **Coverage:** ≥92% library line coverage (`cargo llvm-cov --workspace --lib`)
 - **MSRV:** Rust 1.87 (2024 edition)
 - **Validation checks:** 427/427 PASS across 38 binaries
 - **guideStone:** Level 4 (bare + NUCLEUS composition parity) — modular `guidestone/{bare,tower,node,nest,cross}.rs` layers
-- **barraCuda delegations:** 110 active (67 CPU + 43 GPU) — `barracuda` is `optional = true`, feature-gated
+- **barraCuda delegations:** 110 active (67 CPU + 43 GPU) — `barracuda` is `optional = true`, feature-gated (v0.4.0)
 - **Logging:** Unified `tracing` (zero `log::` calls)
 - **Fossil record:** `fossilRecord/` with 3 dated prokaryotic snapshot READMEs (provenance markers, no source copies)
 - **primalSpring:** v0.9.25 pinned for `CompositionContext`, `ScenarioMeta`, `ScenarioRegistry`

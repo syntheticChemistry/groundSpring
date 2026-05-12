@@ -2,7 +2,7 @@
 
 **Date**: May 8, 2026
 **groundSpring HEAD**: V125
-**barraCuda**: v0.3.13
+**barraCuda**: v0.4.0
 
 ---
 

@@ -53,7 +53,7 @@ All 4 `expected_values.json` files are validated and ready for lithoSpore BLAKE3
 - whitePaper/README.md, whitePaper/baseCamp/README.md, whitePaper/experiments/README.md
 - wateringHole/README.md
 
-Counts aligned: 39 experiments, 427 checks, 38 validation binaries, 1,130 tests, 31 benchmarks, 4 LTEE reproductions.
+Counts aligned: 39 experiments, 427 checks, 38 validation binaries, 1,123 tests, 31 benchmarks, 4 LTEE reproductions.
 
 ## Audit Findings (Clean)
 
@@ -117,7 +117,7 @@ All 4 LTEE `expected_values.json` files confirmed present and valid. Thread 5 (L
 ## Provenance
 
 - Commit: V138 (`3039f63` + docs sync)
-- Tests: 1,130 (zero failures)
+- Tests: 1,123 (zero failures)
 - Clippy: zero warnings on all targets
 - Benchmarks in provenance registry: 31
 - Validation binaries: 38 (`validate_*`) + `validate_all` + `groundspring_guidestone`
