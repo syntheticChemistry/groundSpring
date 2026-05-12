@@ -25,3 +25,18 @@ pub trait CryptoService {
     /// Compute a BLAKE3 hash of the payload.
     async fn hash_blake3(payload: Vec<u8>) -> Result<String, String>;
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tarpc_trait_compiles() {
+        fn _assert_service<T: CryptoService>() {}
+    }
+
+    #[test]
+    fn security_role_is_beardog() {
+        assert_eq!(crate::primal_names::roles::SECURITY, "beardog");
+    }
+}

@@ -22,6 +22,7 @@ FILES=(
     "crates/groundspring/src/ipc/coralreef.rs"
     "crates/groundspring-validate/src/groundspring_guidestone.rs"
     "crates/groundspring-validate/src/validate_ltee_clonal.rs"
+    "crates/groundspring-validate/src/validate_ltee_citrate.rs"
     "crates/groundspring-validate/src/tolerances.rs"
     "Cargo.toml"
     "deny.toml"

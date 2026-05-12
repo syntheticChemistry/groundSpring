@@ -40,3 +40,19 @@ pub trait DataPipeline {
     /// Fetch IRIS seismic station metadata.
     async fn iris_stations(params_json: String) -> Result<String, String>;
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tarpc_traits_compile() {
+        fn _assert_storage<T: StorageService>() {}
+        fn _assert_pipeline<T: DataPipeline>() {}
+    }
+
+    #[test]
+    fn storage_role_is_nestgate() {
+        assert_eq!(crate::primal_names::roles::STORAGE, "nestgate");
+    }
+}

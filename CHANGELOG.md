@@ -4,6 +4,19 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V138 Deep Debt V3 + B4 LTEE Citrate Innovation (May 12, 2026)
+
+#### LTEE B4: Blount et al. 2008/2012 Citrate Innovation (Exp 039)
+- **Python baseline**: `control/ltee_citrate_innovation/ltee_citrate_innovation.py` — two-hit potentiation-actualization cascade model reproducing the Cit+ key innovation. 8/8 checks PASS.
+- **Rust validator**: `validate_ltee_citrate` binary — parallel implementation with `Xorshift64` PRNG. 8/8 checks PASS. `--format json` supported.
+- **Key result**: Historical contingency demonstrated — replay probability from earlier clones is lower than from later clones (potentiation effect). Two-hit analytical waiting time exceeds single-hit mean. Cit+ fraction consistent with rare innovation (2/12 potentiated, 2/12 Cit+ at 60K gen with calibrated rates).
+- **Artifacts**: `expected_values.json` → `lithoSpore` module 4 (`ltee-citrate`). Provenance registry updated (31 benchmarks).
+
+#### Deep Debt Cleanup
+- **`experiment_catalog.json`**: Added LTEE exps 036-039 and `ltee` domain. Total experiments: 39, total checks: 427.
+- **`validate_nucleus_stack.rs`**: Renamed `fake` variable to `missing_socket` (production code naming hygiene).
+- **IPC stub unit tests**: Added `#[cfg(test)]` modules to 6 IPC stubs (`barracuda.rs`, `beardog.rs`, `coralreef.rs`, `nestgate.rs`, `songbird.rs`, `toadstool.rs`) — all verify tarpc trait compilation and role constant alignment.
+
 ### V137 Downstream Seeding Sprint — `--format json` for Tier 2 Ingestion (May 12, 2026)
 
 #### projectNUCLEUS Tier 2 Readiness

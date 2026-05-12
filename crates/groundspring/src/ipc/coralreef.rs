@@ -26,3 +26,18 @@ pub trait ShaderCompile {
     /// Validate a WGSL module without producing output.
     async fn validate(source: String) -> Result<String, String>;
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tarpc_trait_compiles() {
+        fn _assert_service<T: ShaderCompile>() {}
+    }
+
+    #[test]
+    fn compiler_role_is_coralreef() {
+        assert_eq!(crate::primal_names::roles::COMPILER, "coralreef");
+    }
+}

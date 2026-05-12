@@ -1,8 +1,8 @@
 {
   "generated": "2026-05-11T19:00:00Z",
   "spring": "groundSpring",
-  "total_experiments": 35,
-  "total_validation_checks": 395,
+  "total_experiments": 39,
+  "total_validation_checks": 427,
   "core_checks": 340,
   "nucleus_checks": 55,
   "math_parity_proven": "29/29",
@@ -61,6 +61,11 @@
       "experiments": ["033"],
       "count": 1,
       "focus": "Tissue Anderson localization (Paper 12, Gonzales)"
+    },
+    "ltee": {
+      "experiments": ["036", "037", "038", "039"],
+      "count": 4,
+      "focus": "LTEE reproductions: power-law fitness (B2), neutral mutation (B1), clonal interference (B3), citrate innovation (B4)"
     }
   },
   "experiments": [
@@ -97,6 +102,10 @@
     {"id": "031", "title": "NUCLEUS Stack", "domain": "cross_spring_nucleus", "python": null, "rust": "28/28", "speedup": "N/A"},
     {"id": "032", "title": "IRIS Seismic", "domain": "geological", "python": null, "rust": "12/12", "speedup": "live data"},
     {"id": "033", "title": "Tissue Anderson", "domain": "immunological", "python": null, "rust": "29/29", "speedup": "analytical"},
-    {"id": "035", "title": "Multi-Method ET0", "domain": "hydrology", "python": null, "rust": "19/19", "speedup": "delegated"}
+    {"id": "035", "title": "Multi-Method ET0", "domain": "hydrology", "python": null, "rust": "19/19", "speedup": "delegated"},
+    {"id": "036", "title": "LTEE Fitness Dynamics (Wiser 2013 B2)", "domain": "ltee", "python": "9/9", "rust": "10/10", "speedup": "N/A"},
+    {"id": "037", "title": "LTEE Neutral Mutation (Barrick 2009 B1)", "domain": "ltee", "python": "8/8", "rust": "8/8", "speedup": "N/A"},
+    {"id": "038", "title": "LTEE Clonal Interference (Good 2017 B3)", "domain": "ltee", "python": "7/7", "rust": "7/7", "speedup": "N/A"},
+    {"id": "039", "title": "LTEE Citrate Innovation (Blount 2008/2012 B4)", "domain": "ltee", "python": "8/8", "rust": "8/8", "speedup": "N/A"}
   ]
 }

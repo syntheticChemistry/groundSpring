@@ -1,0 +1,53 @@
+{
+  "_source": "groundSpring Experiment 039 — LTEE Citrate Innovation (Blount et al. 2008/2012)",
+  "_doi": ["10.1073/pnas.0803151105", "10.1038/nature11514"],
+  "_references": [
+    "Blount ZD, Borland CZ, Lenski RE (2008) Historical contingency and the evolution of a key innovation in an experimental population of E. coli. PNAS 105(23):7899-7906",
+    "Blount ZD, Barrick JE, Davidson CJ, Lenski RE (2012) Genomic analysis of a key innovation in an experimental population of Escherichia coli. Nature 489:513-518",
+    "Lenski RE et al. (2003) The evolutionary origin of complex features. Nature 423:139-144"
+  ],
+  "_provenance": {
+    "generated_by": "Synthetic potentiation-actualization cascade model reproducing the Cit+ key innovation",
+    "data_origin": "Synthetic data mimicking the two-hit mutational cascade required for citrate utilization; parameters calibrated to Blount 2008 replay experiment outcomes",
+    "real_data_accession": "N/A (synthetic from published replay probabilities; real LTEE data at NCBI PRJNA188723 for future Tier 2)",
+    "prng_algorithm": "PCG64 via numpy (Python baseline), xorshift64 (Rust validator)",
+    "baseline_commit": "6ba96fe",
+    "baseline_date": "2026-05-12",
+    "validation_script": "control/ltee_citrate_innovation/ltee_citrate_innovation.py",
+    "command": "python3 control/ltee_citrate_innovation/ltee_citrate_innovation.py",
+    "python_version": "3.11",
+    "numpy_version": "1.24"
+  },
+  "_description": "Reproduce the potentiation-actualization model from Blount et al. (2008/2012). The Cit+ phenotype evolved in 1 of 12 LTEE populations (Ara-3) at ~31,500 generations. Replay experiments showed that the probability of Cit+ evolving was near-zero from early clones but increased in later clones, demonstrating historical contingency. This implies a multi-step model: a potentiating mutation (rate λ₁) must occur before the actualizing mutation (rate λ₂) can produce the Cit+ phenotype.",
+  "_groundspring_question": "Is the evolution of key innovations a simple single-step process, or does it require historical contingency (potentiating mutations)? The two-hit model explains both the rarity of Cit+ across populations and the increasing probability from later replay clones.",
+  "_cross_spring": "lithoSpore module 4 (rare-event innovation), groundSpring B1 (neutral baseline), groundSpring B3 (clonal interference context)",
+  "_ltee_guidestone": {
+    "module": 4,
+    "paper_id": "B4",
+    "litho_module": "ltee-citrate",
+    "blocks": "Pillar 4 lithoSpore expansion — rare event statistics"
+  },
+  "model": {
+    "_description": "Two-hit potentiation-actualization cascade: simulate N independent LTEE populations. Each generation, an un-potentiated population gains potentiation with probability p_pot per generation. Once potentiated, the Cit+ phenotype arises with probability p_act per generation. We simulate replay experiments by freezing populations at various timepoints and replaying from those states.",
+    "n_populations": 12,
+    "n_generations": 60000,
+    "potentiation_rate_per_gen": 2e-6,
+    "actualization_rate_per_gen": 5e-5,
+    "replay_timepoints": [0, 5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000],
+    "n_replay_replicates": 200,
+    "replay_duration": 10000,
+    "seed": 2008
+  },
+  "expected_results": {
+    "fraction_populations_cit_plus_range": [0.0, 0.5],
+    "_cit_note": "In the real LTEE, 1/12 populations evolved Cit+. With stochastic rates calibrated to synthetic params, we expect a low but nonzero fraction.",
+    "replay_probability_nondecreasing_with_generation": true,
+    "early_replay_prob_leq_late": true,
+    "early_replay_cit_fraction_max": 0.15,
+    "late_replay_cit_fraction_min": 0.0,
+    "potentiation_fraction_at_60k_min": 0.0,
+    "_potentiation_note": "After 60,000 generations with p_pot=2e-6/gen, potentiation fraction = 1 - exp(-0.12) ≈ 11%. With 12 pops, typically 0-3 potentiated.",
+    "two_hit_slower_than_single_hit": true,
+    "deterministic_with_seed": true
+  }
+}

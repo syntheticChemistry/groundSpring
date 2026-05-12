@@ -28,3 +28,18 @@ pub trait ComputeDispatch {
     /// List available compute capabilities and hardware.
     async fn capabilities() -> Result<String, String>;
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tarpc_trait_compiles() {
+        fn _assert_service<T: ComputeDispatch>() {}
+    }
+
+    #[test]
+    fn compute_role_is_barracuda() {
+        assert_eq!(crate::primal_names::roles::COMPUTE, "barracuda");
+    }
+}

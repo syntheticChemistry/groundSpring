@@ -262,27 +262,27 @@ fn validate_local_compute(h: &mut ValidationHarness) {
 
 #[cfg(feature = "biomeos")]
 fn validate_sovereign_fallback(h: &mut ValidationHarness) {
-    let fake = std::env::temp_dir().join("groundspring_exp031_nonexistent.sock");
+    let missing_socket = std::env::temp_dir().join("groundspring_exp031_nonexistent.sock");
 
     h.check_true(
         "health() Err on missing socket",
-        biomeos::health(&fake).is_err(),
+        biomeos::health(&missing_socket).is_err(),
     );
     h.check_true(
         "storage_put() Err on missing socket",
-        biomeos::storage_put(&fake, "t", "{}").is_err(),
+        biomeos::storage_put(&missing_socket, "t", "{}").is_err(),
     );
     h.check_true(
         "storage_get() Err on missing socket",
-        biomeos::storage_get(&fake, "t").is_err(),
+        biomeos::storage_get(&missing_socket, "t").is_err(),
     );
     h.check_true(
         "compute_execute() Err on missing socket",
-        biomeos::compute_execute(&fake, "t", "{}").is_err(),
+        biomeos::compute_execute(&missing_socket, "t", "{}").is_err(),
     );
     h.check_true(
         "capability_call() Err on missing socket",
-        biomeos::capability_call(&fake, "data.x", "{}").is_err(),
+        biomeos::capability_call(&missing_socket, "data.x", "{}").is_err(),
     );
 
     let gamma = local_lyapunov(500, 2.0, 0.0, 10, 42);

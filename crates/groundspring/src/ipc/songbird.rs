@@ -26,3 +26,18 @@ pub trait DiscoveryService {
     /// Resolve the socket address for a specific primal.
     async fn resolve(primal_id: String) -> Result<String, String>;
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tarpc_trait_compiles() {
+        fn _assert_service<T: DiscoveryService>() {}
+    }
+
+    #[test]
+    fn discovery_role_is_songbird() {
+        assert_eq!(crate::primal_names::roles::DISCOVERY, "songbird");
+    }
+}

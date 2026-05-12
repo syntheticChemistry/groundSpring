@@ -24,3 +24,18 @@ pub trait OrchestrationService {
     /// List available compute substrates (GPU, NPU, CPU).
     async fn substrate_inventory() -> Result<String, String>;
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tarpc_trait_compiles() {
+        fn _assert_service<T: OrchestrationService>() {}
+    }
+
+    #[test]
+    fn compute_role_is_toadstool() {
+        assert_eq!(crate::primal_names::roles::COMPUTE, "toadstool");
+    }
+}
