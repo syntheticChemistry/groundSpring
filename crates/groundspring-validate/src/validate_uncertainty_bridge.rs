@@ -140,7 +140,7 @@ fn validate_sensor(
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Uncertainty Bridge");
+    let mut h = ValidationHarness::from_args("Rust Validation: Uncertainty Bridge");
     print_provenance_header(&bench, "Uncertainty Bridge");
 
     let sensor = &bench["sensor_noise"];

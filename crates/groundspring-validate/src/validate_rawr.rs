@@ -323,7 +323,7 @@ fn validate_determinism(h: &mut ValidationHarness, bench: &Value) {
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: RAWR Resampling");
+    let mut h = ValidationHarness::from_args("Rust Validation: RAWR Resampling");
 
     print_provenance_header(&bench, "RAWR Resampling");
 

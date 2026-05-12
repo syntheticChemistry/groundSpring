@@ -189,7 +189,7 @@ fn validate_diversity(
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: No-Till vs Tilled Sampling");
+    let mut h = ValidationHarness::from_args("Rust Validation: No-Till vs Tilled Sampling");
     print_provenance_header(&bench, "No-Till vs Tilled Sampling (Exp 023)");
 
     let communities = &bench["communities"];

@@ -5,7 +5,7 @@
 
 use std::io::{self, Write};
 
-use super::sink::{NullSink, StdoutSink, ValidationSink, WriteSink};
+use super::sink::{AutoSink, NullSink, StdoutSink, ValidationSink, WriteSink};
 
 /// Validation harness with independent pass/fail counters.
 ///
@@ -13,7 +13,7 @@ use super::sink::{NullSink, StdoutSink, ValidationSink, WriteSink};
 /// Use [`stdout`](Self::stdout) for terminal output,
 /// [`new`](Self::new) with a [`WriteSink`] for custom writers,
 /// or [`silent`](Self::silent) for zero-output programmatic use.
-pub struct ValidationHarness<S: ValidationSink = StdoutSink> {
+pub struct ValidationHarness<S: ValidationSink = AutoSink> {
     name: String,
     passes: u32,
     fails: u32,
@@ -29,6 +29,23 @@ impl ValidationHarness<StdoutSink> {
             passes: 0,
             fails: 0,
             sink: WriteSink::new(io::stdout()),
+        }
+    }
+}
+
+impl ValidationHarness<AutoSink> {
+    /// Create a harness that auto-selects text or JSON output.
+    ///
+    /// Inspects `std::env::args()` for `--format json` (or `--format=json`).
+    /// Default is human-readable text; JSON mode emits NDJSON for
+    /// projectNUCLEUS Tier 2 pipeline ingestion.
+    #[must_use]
+    pub fn from_args(name: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            passes: 0,
+            fails: 0,
+            sink: AutoSink::from_args(),
         }
     }
 }

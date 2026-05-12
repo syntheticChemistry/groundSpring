@@ -185,7 +185,7 @@ fn level_spacing_checks(harness: &mut ValidationHarness, n_eig: usize, alpha: f6
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut harness = ValidationHarness::stdout("Rust Validation: Quasiperiodic Localization");
+    let mut harness = ValidationHarness::from_args("Rust Validation: Quasiperiodic Localization");
 
     print_provenance_header(&bench, "Quasiperiodic Localization (Almost-Mathieu)");
 

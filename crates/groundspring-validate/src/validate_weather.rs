@@ -40,7 +40,7 @@ const BENCHMARK_OBS_GAP: &str =
 const DAYS_PER_YEAR: u32 = 365;
 
 fn run() -> i32 {
-    let mut h = ValidationHarness::stdout("Rust Validation: Weather Model-Observation Gap");
+    let mut h = ValidationHarness::from_args("Rust Validation: Weather Model-Observation Gap");
 
     println!("{}", "=".repeat(72));
     println!("groundSpring Rust Validation: Weather Model-Observation Gap");

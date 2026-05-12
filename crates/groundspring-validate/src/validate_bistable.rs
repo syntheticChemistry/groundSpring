@@ -110,7 +110,7 @@ fn validate_stochastic(h: &mut ValidationHarness, ctx: &SimCtx<'_>, exp: &Value)
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Bistable Switching");
+    let mut h = ValidationHarness::from_args("Rust Validation: Bistable Switching");
 
     print_provenance_header(&bench, "Bistable Phenotypic Switching");
 

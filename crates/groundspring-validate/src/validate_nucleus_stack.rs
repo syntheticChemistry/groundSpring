@@ -32,7 +32,7 @@ fn main() {
 
 #[cfg(feature = "biomeos")]
 fn run() -> i32 {
-    let mut h = ValidationHarness::stdout("Exp 031: NUCLEUS Stack Validation");
+    let mut h = ValidationHarness::from_args("Exp 031: NUCLEUS Stack Validation");
 
     println!("{}", "=".repeat(72));
     println!("  Exp 031: NUCLEUS Stack — Live Primal Interaction");

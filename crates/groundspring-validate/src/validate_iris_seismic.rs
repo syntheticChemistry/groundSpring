@@ -25,7 +25,7 @@ use groundspring_validate::{TOL_ANALYTICAL, TOL_GRID_MATCH};
 
 #[cfg(feature = "biomeos")]
 fn main() {
-    let mut h = ValidationHarness::stdout("Exp 032: IRIS Seismic via NUCLEUS");
+    let mut h = ValidationHarness::from_args("Exp 032: IRIS Seismic via NUCLEUS");
 
     println!("{}", "=".repeat(72));
     println!("  Exp 032: IRIS FDSN Seismic → Station Geometry + Travel Times");

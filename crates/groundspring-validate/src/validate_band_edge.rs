@@ -130,7 +130,7 @@ fn validate_proportionality_and_finite(
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Band Edge Structure");
+    let mut h = ValidationHarness::from_args("Rust Validation: Band Edge Structure");
 
     println!("{}", "=".repeat(72));
     println!("groundSpring Rust Validation: Band Edge (Exp 018)");

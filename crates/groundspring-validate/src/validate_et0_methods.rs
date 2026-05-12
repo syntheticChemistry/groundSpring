@@ -195,7 +195,7 @@ fn validate_seasonal_and_intermediates(
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut harness =
-        ValidationHarness::stdout("Rust Validation: Multi-Method ET₀ Cross-Validation");
+        ValidationHarness::from_args("Rust Validation: Multi-Method ET₀ Cross-Validation");
 
     print_provenance_header(&bench, "Multi-Method ET₀ Cross-Validation");
 

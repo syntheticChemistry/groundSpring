@@ -115,7 +115,7 @@ fn validate_state(h: &mut ValidationHarness, label: &str, ctx: &StateCtx<'_>) ->
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Aggregate Stability");
+    let mut h = ValidationHarness::from_args("Rust Validation: Aggregate Stability");
     print_provenance_header(&bench, "Aggregate Stability Noise (Exp 024)");
 
     let soil = &bench["soil_states"];

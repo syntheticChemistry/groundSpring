@@ -165,7 +165,7 @@ fn validate_noisy_recon(h: &mut ValidationHarness, ctx: &GridCtx, bench: &Value,
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Spectral Function Reconstruction");
+    let mut h = ValidationHarness::from_args("Rust Validation: Spectral Function Reconstruction");
 
     print_provenance_header(&bench, "Spectral Function Reconstruction");
 

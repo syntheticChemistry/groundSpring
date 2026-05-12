@@ -231,7 +231,7 @@ fn run_npu_checks(bench: &Value, h: &mut ValidationHarness) {
 
 fn main() {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Exp 028 — NPU Anderson Regime Classification");
+    let mut h = ValidationHarness::from_args("Exp 028 — NPU Anderson Regime Classification");
 
     print_provenance_header(&bench, "NPU Anderson Regime Classification");
     println!("--- CPU Classification ---\n");

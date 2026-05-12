@@ -50,7 +50,7 @@ fn synthetic_vacf_noisy(
 )]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut harness = ValidationHarness::stdout("Rust Validation: GPU Vendor Parity");
+    let mut harness = ValidationHarness::from_args("Rust Validation: GPU Vendor Parity");
 
     println!("{}", "=".repeat(72));
     println!("groundSpring Rust Validation: GPU Vendor Parity (Exp 027)");

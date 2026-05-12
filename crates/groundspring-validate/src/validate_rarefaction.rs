@@ -27,7 +27,7 @@ const BENCHMARK: &str =
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Rarefaction");
+    let mut h = ValidationHarness::from_args("Rust Validation: Rarefaction");
 
     #[expect(
         clippy::cast_possible_truncation,

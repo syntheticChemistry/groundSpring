@@ -227,7 +227,7 @@ fn validate_activated_states(
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Signal Specificity");
+    let mut h = ValidationHarness::from_args("Rust Validation: Signal Specificity");
 
     print_provenance_header(&bench, "Signal Specificity (c-di-GMP)");
 

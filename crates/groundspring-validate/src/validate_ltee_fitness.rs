@@ -49,7 +49,8 @@ fn generate_noisy_pop(gens: &[f64], alpha: f64, beta: f64, sigma: f64, seed: u64
 )]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: LTEE Fitness Dynamics (Wiser 2013 B2)");
+    let mut h =
+        ValidationHarness::from_args("Rust Validation: LTEE Fitness Dynamics (Wiser 2013 B2)");
     print_provenance_header(&bench, "LTEE Fitness Dynamics");
 
     let model = &bench["model"];

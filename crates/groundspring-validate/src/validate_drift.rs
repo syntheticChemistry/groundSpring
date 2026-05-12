@@ -30,7 +30,7 @@ const BENCHMARK: &str =
 )]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Drift vs Selection");
+    let mut h = ValidationHarness::from_args("Rust Validation: Drift vs Selection");
 
     print_provenance_header(&bench, "Drift vs Selection");
 

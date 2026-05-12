@@ -260,7 +260,7 @@ fn validate_sensitivity(
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: FAO-56 Error Propagation");
+    let mut h = ValidationHarness::from_args("Rust Validation: FAO-56 Error Propagation");
 
     print_provenance_header(&bench, "FAO-56 Error Propagation");
 

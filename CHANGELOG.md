@@ -4,6 +4,16 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V137 Downstream Seeding Sprint — `--format json` for Tier 2 Ingestion (May 12, 2026)
+
+#### projectNUCLEUS Tier 2 Readiness
+- **`--format json` on all 37 validation binaries**: New `AutoSink` enum in `validate/sink.rs` selects text (default) or NDJSON output at runtime via `--format json` CLI flag. `ValidationHarness::from_args()` constructor inspects process args. All 37 `validate_*` binaries upgraded. projectNUCLEUS can now ingest structured check results from any groundSpring binary.
+- **`AutoSink` pattern**: `AutoSink::Text(WriteSink<Stdout>)` | `AutoSink::Json(NdjsonSink<Stdout>)` — no trait objects, no allocation, no performance impact in text mode.
+- Default type parameter on `ValidationHarness` changed from `StdoutSink` to `AutoSink` for ergonomic bare-type usage in helper functions.
+
+#### Foundation
+- All 3 LTEE `expected_values.json` files confirmed present and valid for lithoSpore ingestion and foundation Thread 5/7 target validation.
+
 ### V136 Primal Composition Sprint — B3 LTEE + tarpc Parity + coralReef IPC + Doc Reconciliation (May 11, 2026)
 
 #### LTEE B3: Good et al. 2017 Clonal Interference Dynamics (Exp 038)

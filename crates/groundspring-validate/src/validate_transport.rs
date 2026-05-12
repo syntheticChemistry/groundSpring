@@ -103,7 +103,7 @@ fn validate_lyapunov(
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Spin Chain Transport");
+    let mut h = ValidationHarness::from_args("Rust Validation: Spin Chain Transport");
 
     println!("{}", "=".repeat(72));
     println!("groundSpring Rust Validation: Spin Chain Transport (Exp 012)");

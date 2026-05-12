@@ -24,7 +24,7 @@ const BENCHMARK: &str =
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Quasispecies Error Threshold");
+    let mut h = ValidationHarness::from_args("Rust Validation: Quasispecies Error Threshold");
 
     println!("{}", "=".repeat(72));
     println!("groundSpring Rust Validation: Quasispecies (Exp 017)");

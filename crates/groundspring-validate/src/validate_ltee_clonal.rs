@@ -185,7 +185,7 @@ fn run_replicates(
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout(
+    let mut h = ValidationHarness::from_args(
         "Rust Validation: LTEE Clonal Interference (Good et al. 2017 B3)",
     );
     print_provenance_header(&bench, "LTEE Clonal Interference");

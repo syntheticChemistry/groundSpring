@@ -120,7 +120,7 @@ fn validate_inversion(
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Seismic Inversion");
+    let mut h = ValidationHarness::from_args("Rust Validation: Seismic Inversion");
 
     print_provenance_header(&bench, "Seismic Wave Propagation");
 

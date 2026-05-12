@@ -25,7 +25,7 @@ const BENCHMARK: &str = include_str!("../../../control/sensor_noise/benchmark_se
 )]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Bias-Variance Decomposition");
+    let mut h = ValidationHarness::from_args("Rust Validation: Bias-Variance Decomposition");
 
     print_provenance_header(&bench, "Bias-Variance Decomposition");
 

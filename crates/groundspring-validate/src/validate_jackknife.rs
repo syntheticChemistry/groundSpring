@@ -175,7 +175,7 @@ fn validate_comparison_and_determinism(
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Jackknife Error Estimation");
+    let mut h = ValidationHarness::from_args("Rust Validation: Jackknife Error Estimation");
 
     print_provenance_header(&bench, "Jackknife Error Estimation");
 

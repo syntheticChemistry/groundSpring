@@ -24,7 +24,7 @@ mod harness;
 mod sink;
 
 pub use harness::ValidationHarness;
-pub use sink::{NdjsonSink, NullSink, StdoutSink, ValidationSink, WriteSink};
+pub use sink::{AutoSink, NdjsonSink, NullSink, StdoutSink, ValidationSink, WriteSink};
 
 #[cfg(test)]
 mod tests {

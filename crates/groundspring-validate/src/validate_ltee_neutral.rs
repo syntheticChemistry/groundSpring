@@ -25,7 +25,7 @@ fn main() {
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout(
+    let mut h = ValidationHarness::from_args(
         "Rust Validation: LTEE Neutral Mutation Dynamics (Barrick 2009 B1)",
     );
     print_provenance_header(&bench, "LTEE Neutral Mutation");

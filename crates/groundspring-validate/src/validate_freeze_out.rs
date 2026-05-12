@@ -215,7 +215,7 @@ fn validate_replicates_and_determinism(
 )]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Freeze-Out Inverse Problem");
+    let mut h = ValidationHarness::from_args("Rust Validation: Freeze-Out Inverse Problem");
 
     println!("{}", "=".repeat(72));
     println!("groundSpring Rust Validation: Freeze-Out (Exp 020)");

@@ -250,7 +250,7 @@ fn sensitivity_variance_fractions(fao: &Value, seed: u64) -> [f64; 4] {
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: ET₀ → Anderson Propagation");
+    let mut h = ValidationHarness::from_args("Rust Validation: ET₀ → Anderson Propagation");
     print_provenance_header(&bench, "ET₀ → Anderson Propagation (Exp 022)");
 
     let fao = &bench["fao56_inputs"];

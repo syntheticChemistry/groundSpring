@@ -188,7 +188,7 @@ fn thouless_and_localization(h: &mut ValidationHarness, gammas: &[(f64, f64)], e
 )]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Anderson Localization");
+    let mut h = ValidationHarness::from_args("Rust Validation: Anderson Localization");
 
     print_provenance_header(&bench, "Anderson Localization");
 

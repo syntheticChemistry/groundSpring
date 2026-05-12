@@ -48,7 +48,7 @@ fn synthetic_vacf_noisy(
 )]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Precision Drift");
+    let mut h = ValidationHarness::from_args("Rust Validation: Precision Drift");
     print_provenance_header(&bench, "f32 vs f64 Precision Drift (Exp 025)");
 
     let model = &bench["model"];

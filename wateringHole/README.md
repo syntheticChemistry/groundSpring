@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: May 11, 2026 (V136 — B3 LTEE clonal interference, tarpc parity, coralReef IPC stub, doc reconciliation)
+**Last Updated**: May 12, 2026 (V137 — `--format json` on all 37 validation binaries for Tier 2 projectNUCLEUS ingestion)
 
 ## What This Is
 
@@ -18,6 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
+| V137 Downstream Seeding | [GROUNDSPRING_V137_DOWNSTREAM_SEEDING_HANDOFF_MAY12_2026.md](handoffs/GROUNDSPRING_V137_DOWNSTREAM_SEEDING_HANDOFF_MAY12_2026.md) | May 12, 2026 | `--format json` on all 37 validation binaries via `AutoSink` + `from_args()`. projectNUCLEUS Tier 2 ingestion ready. Foundation 3/3 expected values confirmed. |
 | V136 Composition Sprint | [GROUNDSPRING_V136_COMPOSITION_SPRINT_HANDOFF_MAY11_2026.md](handoffs/GROUNDSPRING_V136_COMPOSITION_SPRINT_HANDOFF_MAY11_2026.md) | May 11, 2026 | LTEE B3 (Good 2017 clonal interference, Exp 038) 7/7 Py+Rust PASS. tarpc GroundSpringScience 8→16 methods (full niche parity). coralReef IPC stub. Doc reconciliation: LTEE COMPLETE, v0.3.13, 1,125 tests. lithoSpore modules 1-3 ready. |
 | V135 Docs Cleanup + LTEE + Deep Debt | [GROUNDSPRING_V135_DOCS_CLEANUP_LTEE_HANDOFF_MAY11_2026.md](handoffs/GROUNDSPRING_V135_DOCS_CLEANUP_LTEE_HANDOFF_MAY11_2026.md) | May 11, 2026 | LTEE B2 (Wiser 2013 power-law fitness, Exp 036) + B1 (Barrick 2009 neutral mutation, Exp 037) — unblocks lithoSpore modules 1+2. stats::model_selection (AIC/BIC). Modular validate harness. Self-knowledge dispatch. bytemuck optional. 15-file docs version sweep. Primal/spring team guidance. 1,125 tests. |
 | V133 Deep Debt V2 + Primal Handoff | [GROUNDSPRING_V133_DEEP_DEBT_PRIMAL_HANDOFF_MAY11_2026.md](handoffs/GROUNDSPRING_V133_DEEP_DEBT_PRIMAL_HANDOFF_MAY11_2026.md) | May 11, 2026 | River Delta complete: metalForge barracuda decoupling (pollster, wgpu vulkan), plasmidBin 1.1M refresh, Foundation Thread 7 (18/18), nucleus.rs panic→fallback, benchmark correctness, run_all_baselines Phase 2, NUCLEUS TOML shell-defaults, upstream gaps (NestGate, PRNG 2b, coralReef shader), patterns for springs |

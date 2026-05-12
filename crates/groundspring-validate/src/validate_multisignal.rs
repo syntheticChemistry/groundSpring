@@ -60,7 +60,7 @@ fn ic_from_json(model: &Value) -> [f64; 7] {
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Multi-Signal QS Integration");
+    let mut h = ValidationHarness::from_args("Rust Validation: Multi-Signal QS Integration");
 
     print_provenance_header(&bench, "Multi-Signal QS Integration");
 

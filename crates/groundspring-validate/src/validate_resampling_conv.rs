@@ -59,7 +59,7 @@ fn ci_width(data: &[f64], n_boot: usize, confidence: f64, seed: u64, use_rawr: b
 )]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Resampling Convergence");
+    let mut h = ValidationHarness::from_args("Rust Validation: Resampling Convergence");
 
     println!("{}", "=".repeat(72));
     println!("groundSpring Rust Validation: Resampling Convergence (Exp 013)");

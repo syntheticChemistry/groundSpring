@@ -154,3 +154,66 @@ impl<W: Write> ValidationSink for NdjsonSink<W> {
         self.write_json(&format!(r#"{{"type":"summary","text":"{t}"}}"#));
     }
 }
+
+/// Runtime-dispatch sink that selects text or NDJSON output based on
+/// `--format json` CLI flag. Used by [`ValidationHarness::from_args`].
+///
+/// Avoids trait objects by using an enum; projectNUCLEUS Tier 2 ingestion
+/// requires structured JSON output while CLI users keep the human-readable
+/// default.
+pub enum AutoSink {
+    /// Human-readable text output (default).
+    Text(WriteSink<io::Stdout>),
+    /// Machine-readable NDJSON output (`--format json`).
+    Json(NdjsonSink<io::Stdout>),
+}
+
+impl AutoSink {
+    /// Select sink based on process arguments.
+    ///
+    /// Recognises `--format json` (or `--format=json`). Anything else
+    /// (including no args) produces the text sink.
+    #[must_use]
+    pub fn from_args() -> Self {
+        let args: Vec<String> = std::env::args().collect();
+        let json_requested = args
+            .windows(2)
+            .any(|w| w[0] == "--format" && w[1] == "json")
+            || args.iter().any(|a| a == "--format=json");
+        if json_requested {
+            Self::Json(NdjsonSink::new(io::stdout()))
+        } else {
+            Self::Text(WriteSink::new(io::stdout()))
+        }
+    }
+}
+
+impl ValidationSink for AutoSink {
+    fn record_pass(&mut self, label: &str, detail: &str) {
+        match self {
+            Self::Text(s) => s.record_pass(label, detail),
+            Self::Json(s) => s.record_pass(label, detail),
+        }
+    }
+
+    fn record_fail(&mut self, label: &str, detail: &str) {
+        match self {
+            Self::Text(s) => s.record_fail(label, detail),
+            Self::Json(s) => s.record_fail(label, detail),
+        }
+    }
+
+    fn section(&mut self, name: &str) {
+        match self {
+            Self::Text(s) => s.section(name),
+            Self::Json(s) => s.section(name),
+        }
+    }
+
+    fn write_summary(&mut self, text: &str) {
+        match self {
+            Self::Text(s) => s.write_summary(text),
+            Self::Json(s) => s.write_summary(text),
+        }
+    }
+}

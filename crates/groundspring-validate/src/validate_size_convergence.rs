@@ -38,7 +38,7 @@ fn json_number_to_f64(v: &Value) -> f64 {
 )]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Size Convergence");
+    let mut h = ValidationHarness::from_args("Rust Validation: Size Convergence");
     print_provenance_header(
         &bench,
         "System-size Convergence for WDM Transport (Exp 026)",

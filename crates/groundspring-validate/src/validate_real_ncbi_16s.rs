@@ -30,7 +30,7 @@ fn main() {
     use groundspring::rarefaction;
     use groundspring::validate::ValidationHarness;
 
-    let mut h = ValidationHarness::stdout("Exp 030: Real NCBI 16S Diversity");
+    let mut h = ValidationHarness::from_args("Exp 030: Real NCBI 16S Diversity");
 
     println!("{}", "=".repeat(72));
     println!("  Exp 030: Real NCBI 16S Metagenomes → Rare Biosphere Detection");

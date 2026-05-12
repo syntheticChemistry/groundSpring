@@ -76,7 +76,7 @@ fn main() {
 }
 
 fn run() -> i32 {
-    let mut h = ValidationHarness::stdout("Exp 033-034: Tissue Anderson (Paper 12)");
+    let mut h = ValidationHarness::from_args("Exp 033-034: Tissue Anderson (Paper 12)");
 
     println!("{}", "=".repeat(72));
     println!("groundSpring Rust Validation: Tissue Anderson (Paper 12)");

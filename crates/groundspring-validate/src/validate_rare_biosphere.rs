@@ -172,7 +172,7 @@ fn validate_occupancy_and_singletons(h: &mut ValidationHarness, ctx: &OccupancyC
 
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::stdout("Rust Validation: Rare Biosphere");
+    let mut h = ValidationHarness::from_args("Rust Validation: Rare Biosphere");
 
     println!("{}", "=".repeat(72));
     println!("groundSpring Rust Validation: Rare Biosphere (Exp 016)");

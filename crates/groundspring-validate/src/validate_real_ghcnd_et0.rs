@@ -23,7 +23,7 @@ fn main() {
     use groundspring::fao56::{self, DailyWeatherInputs};
     use groundspring::validate::ValidationHarness;
 
-    let mut h = ValidationHarness::stdout("Exp 029: Real GHCND ET₀");
+    let mut h = ValidationHarness::from_args("Exp 029: Real GHCND ET₀");
 
     println!("{}", "=".repeat(72));
     println!("  Exp 029: Real GHCND Weather → Hargreaves vs Penman-Monteith ET₀");
