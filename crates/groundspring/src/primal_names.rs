@@ -62,6 +62,9 @@ pub mod roles {
     /// `ToadStool` compute orchestrator role.
     pub const COMPUTE: &str = "toadstool";
 
+    /// `barraCuda` GPU/NPU math primitives role.
+    pub const GPU_MATH: &str = "barracuda";
+
     /// coralReef sovereign shader compiler role.
     pub const COMPILER: &str = "coralreef";
 

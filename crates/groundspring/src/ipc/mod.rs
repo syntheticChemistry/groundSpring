@@ -14,20 +14,23 @@
 //! # Per-primal modules
 //!
 //! Each primal has a dedicated submodule defining its IPC surface:
-//! - [`barracuda`] — GPU/NPU compute dispatch via barraCuda
-//! - [`toadstool`] — Compute orchestration via ToadStool
-//! - [`nestgate`] — Storage and live data pipelines via NestGate
-//! - [`beardog`] — Cryptographic operations via BearDog
-//! - [`songbird`] — Network discovery and mesh via Songbird
-//! - [`skunkbat`] — Audit logging via skunkBat (JH-5)
-//! - [`coralreef`] — Sovereign shader compilation via coralReef (stub — awaiting SM rebuild)
+//! - [`barracuda`] — GPU/NPU compute dispatch via `barraCuda`
+//! - [`toadstool`] — Compute orchestration via `ToadStool`
+//! - [`nestgate`] — Storage and live data pipelines via `NestGate`
+//! - [`beardog`] — Cryptographic operations via `BearDog`
+//! - [`songbird`] — Network discovery and mesh via `Songbird`
+//! - [`skunkbat`] — Audit logging via `skunkBat` (JH-5)
+//! - [`coralreef`] — Sovereign shader compilation via `coralReef` (stub — awaiting SM rebuild)
 //!
 //! # Semantic method naming
 //!
 //! All methods follow `domain.operation` format per
 //! `SEMANTIC_METHOD_NAMING_STANDARD`:
-//! - `measurement.*` — groundSpring experiment capabilities
-//! - `compute.*` — GPU/NPU dispatch
+//! - `measurement.*` — `groundSpring` experiment capabilities
+//! - `compute.*` — GPU/NPU dispatch (`ToadStool` orchestration)
+//! - `toadstool.validate` — workload pre-flight validation (Tier 2, Pass 14)
+//! - `toadstool.list_workloads` — auto-discover available workloads (Tier 2)
+//! - `barracuda.precision.route` — precision tier advisory (Tier 2, Pass 14)
 //! - `storage.*` — Provenance and data
 //! - `data.*` — Live data pipelines (NCBI, NOAA, IRIS)
 //! - `crypto.*` — Cryptographic operations
@@ -49,9 +52,9 @@ pub use crate::ipc_error::{IpcError, IpcResult};
 pub use client::GroundSpringClient;
 pub use discovery::{discover_ipc_socket, tarpc_sock_name};
 
-/// groundSpring measurement capabilities exposed to the ecosystem.
+/// `groundSpring` measurement capabilities exposed to the ecosystem.
 ///
-/// These are the capabilities groundSpring registers with `biomeOS` for
+/// These are the capabilities `groundSpring` registers with `biomeOS` for
 /// other primals to discover and invoke at runtime.
 #[tarpc::service]
 pub trait GroundSpringScience {

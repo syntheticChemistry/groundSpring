@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: May 12, 2026 (V138 — B4 LTEE citrate, deep debt V3, IPC stub tests, 38 validation binaries, 427/427 checks)
+**Last Updated**: May 12, 2026 (V139 — Tier 2 wiring: toadstool.validate + barracuda.precision.route IPC, 38 validation binaries, 427/427 checks)
 
 ## What This Is
 
@@ -18,10 +18,10 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V138 Deep Debt + LTEE B4 | [GROUNDSPRING_V138_DEEP_DEBT_LTEE_B4_HANDOFF_MAY12_2026.md](handoffs/GROUNDSPRING_V138_DEEP_DEBT_LTEE_B4_HANDOFF_MAY12_2026.md) | May 12, 2026 | LTEE B4 (Blount 2008/2012 citrate, Exp 039) 8/8 Py+Rust PASS. Deep debt: catalog reconciled (38 exps, 427 checks), IPC stub tests (6 modules). 30+ docs synchronized to V138. lithoSpore modules 1–4 fully unblocked. |
+| V139 Tier 2 Wiring | [GROUNDSPRING_V139_TIER2_WIRING_HANDOFF_MAY12_2026.md](handoffs/GROUNDSPRING_V139_TIER2_WIRING_HANDOFF_MAY12_2026.md) | May 12, 2026 | Tier 2 IPC: `toadstool.validate` + `toadstool.list_workloads` + `barracuda.precision.route`. Fixed `roles::COMPUTE` assertion bug, added `roles::GPU_MATH`. |
 | lithoSpore LTEE Handoff | [GROUNDSPRING_LITHOSPORE_LTEE_HANDOFF_MAY12_2026.md](handoffs/GROUNDSPRING_LITHOSPORE_LTEE_HANDOFF_MAY12_2026.md) | May 12, 2026 | Targeted handoff for lithoSpore team spinup: B1–B4 artifact inventory, per-module ingestion guide, file paths, BLAKE3/JSON output instructions, PRNG notes. |
 
-**Archived**: V123–V137 handoffs (16 files) moved to `handoffs/archive/` — superseded by V138 + lithoSpore handoffs.
+**Archived**: V123–V138 handoffs (17 files) moved to `handoffs/archive/` — superseded by V139 + lithoSpore handoffs.
 
 ## Cross-Spring Documentation
 

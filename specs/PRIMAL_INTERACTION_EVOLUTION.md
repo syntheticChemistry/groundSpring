@@ -1,6 +1,6 @@
 # Primal Interaction Evolution
 
-**Last updated**: May 12, 2026 (V138 — Tier 4 IPC-first, LTEE B1–B4 COMPLETE (4/4), --format json on all 38 validation binaries, IPC stub tests, 1,123 tests)
+**Last updated**: May 12, 2026 (V139 — Tier 2 wiring: `toadstool.validate` + `toadstool.list_workloads` + `barracuda.precision.route` IPC. Tier 4 IPC-first, LTEE B1–B4 COMPLETE (4/4), --format json on all 38 validation binaries, 1,123 tests)
 
 This document tracks the evolution of groundSpring's interaction with the
 ecoPrimals ecosystem through biomeOS and the NUCLEUS Neural API, mirroring

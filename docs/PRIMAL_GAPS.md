@@ -5,7 +5,7 @@
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
 **Date:** April 27, 2026
-**Last audited:** May 12, 2026 (V138 — LTEE B1–B4 reproductions complete (4/4), modular validate harness, self-knowledge dispatch, dep decoupling. guideStone L4, Tier 4 IPC-first, 1,123 tests, zero clippy, zero unsafe)
+**Last audited:** May 12, 2026 (V139 — Tier 2 wiring: `toadstool.validate` + `barracuda.precision.route` IPC. LTEE B1–B4 complete. guideStone L4, Tier 4 IPC-first, 1,123 tests, zero clippy, zero unsafe)
 **License:** AGPL-3.0-or-later
 
 ---
@@ -167,6 +167,7 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 | GAP-GS-006 | metalForge tolerance duplication | Unified via `groundspring::tol` delegation | May 8, 2026 |
 | GAP-GS-007 | barraCuda version refs (0.3.7→0.3.13) | Active specs/graphs updated | Apr 27, 2026 |
 | GAP-GS-010 | compute_capabilities() wrong capability | Fixed to `compute.capabilities` | Apr 27, 2026 |
+| GAP-GS-012 | `barracuda.rs` test asserted `roles::COMPUTE == "barracuda"` (wrong — COMPUTE is `"toadstool"`) | Added `roles::GPU_MATH = "barracuda"`, fixed tests, added Tier 2 `precision_route` + `validate` + `list_workloads` | May 12, 2026 |
 
 ---
 
