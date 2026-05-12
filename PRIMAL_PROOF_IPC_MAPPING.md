@@ -1,7 +1,7 @@
 # groundSpring — Primal-Proof IPC Mapping
 
 **Date**: May 10, 2026
-**groundSpring**: V128 (Tier 4 IPC-first)
+**groundSpring**: V138 (Tier 4 IPC-first, LTEE B1-B4 complete, --format json on all 38 binaries)
 **barraCuda**: v0.4.0
 **primalSpring**: v0.9.25
 
@@ -86,7 +86,7 @@ barracuda-gpu = ["barracuda", "barracuda/gpu", ...]  # GPU path
 ### Transition Path
 
 1. **V126**: `barracuda` was default. Library calls were direct.
-2. **V128 (current)**: IPC-first. `barracuda` removed from `default`.
+2. **V138 (current)**: IPC-first. `barracuda` removed from `default`. LTEE B1-B4 complete. `--format json` on all 38 binaries. barraCuda v0.4.0.
    `local` feature enables library linkage. All 284 `barracuda::` references
    are behind `#[cfg(feature = "barracuda")]`; IPC fallback paths active
    when the feature is off. `CompositionContext` routes through biomeOS.

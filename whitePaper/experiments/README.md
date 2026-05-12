@@ -5,7 +5,7 @@
 > (Phase 0), a Rust validation (Phase 1), and a barracuda delegation path
 > (Phase 2+).
 
-**Total**: 427/427 validation checks across 39 experiments, 11 domains. 1,123 Rust tests + 287 Python provenance tests + 29 validator exit-code integration tests.
+**Total**: 427/427 validation checks across 38 experiments, 12 domains. 1,123 Rust tests + 287 Python provenance tests + 29 validator exit-code integration tests.
 **Core**: 340/340 checks across 29 experiments (no feature flags).
 **NUCLEUS**: 55 checks across 4 experiments (Exp 029–032, `--features biomeos`).
 **LTEE**: 32/32 checks across 4 experiments (Exp 036–039: B1 neutral mutation, B2 fitness dynamics, B3 clonal interference, B4 citrate innovation).
@@ -75,7 +75,7 @@ Current status: **CPU complete** (340/340 core + 55 NUCLEUS + 32 LTEE = 427 tota
 **110 active delegations (67 CPU + 43 GPU) — toadStool S158+, barraCuda v0.4.0**. Tier 4 IPC-first (V128).
 **NUCLEUS**: biomeOS Neural API live — 4 experiments exercise Tower, Node, Squirrel, Nest
 with sovereign fallback. **LTEE**: 4 reproductions (B1–B4) complete for `lithoSpore` modules 1–4.
-39/39 experiments validated. 1,123 Rust tests + 287 Python tests.
+38/38 experiments validated. 1,123 Rust tests + 287 Python tests.
 **bench_cpu_vs_gpu**: Dedicated binary for CPU vs GPU performance comparison across 6 workloads.
 **metalForge tier**: groundspring-forge crate with live hardware validation
 (RTX 4070, Titan V, AKD1000 NPU). 5 validation binaries, 138 metalForge checks, 5+ substrates.

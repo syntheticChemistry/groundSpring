@@ -39,7 +39,7 @@ All 4 `expected_values.json` files are validated and ready for lithoSpore BLAKE3
 
 ## Deep Debt Cleanup
 
-- **experiment_catalog.json**: Reconciled with LTEE exps 036-039. Total: 39 experiments, 427 checks, 11 domains.
+- **experiment_catalog.json**: Reconciled with LTEE exps 036-039. Total: 38 experiments, 427 checks, 12 domains.
 - **validate_nucleus_stack.rs**: Renamed `fake` → `missing_socket` (naming hygiene in validation code).
 - **IPC stub unit tests**: Added `#[cfg(test)]` modules to 6 IPC stubs (barracuda, beardog, coralreef, nestgate, songbird, toadstool) — all verify tarpc trait compilation and role constant alignment with `primal_names::roles::*`.
 
@@ -53,7 +53,7 @@ All 4 `expected_values.json` files are validated and ready for lithoSpore BLAKE3
 - whitePaper/README.md, whitePaper/baseCamp/README.md, whitePaper/experiments/README.md
 - wateringHole/README.md
 
-Counts aligned: 39 experiments, 427 checks, 38 validation binaries, 1,123 tests, 31 benchmarks, 4 LTEE reproductions.
+Counts aligned: 38 experiments, 427 checks, 38 validation binaries, 1,123 tests, 31 benchmarks, 4 LTEE reproductions.
 
 ## Audit Findings (Clean)
 

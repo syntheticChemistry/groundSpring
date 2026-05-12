@@ -2,7 +2,7 @@
 
 ## Abstract
 
-groundSpring systematically characterizes the gap between model predictions and real-world measurements across nine scientific domains: agricultural sensing, meteorology, microbiome biology, seismology, stochastic biochemistry, spectral theory, evolutionary dynamics, inverse problems, and precision/scale validation. Through thirty-five experiments (395 Phase 1 checks, 1020+ Rust tests + 287 Python tests, 110 active delegations (67 CPU + 43 GPU) — barraCuda v0.4.0), we demonstrate a unified framework for decomposing measurement error into correctable bias and irreducible noise. Key findings include: (1) soil moisture sensor bias accounts for 26-77% of total error depending on sensor/soil combination; (2) humidity sensor accuracy dominates FAO-56 ET0 uncertainty at 66% of total variance; (3) 16S taxonomic assignments stabilize above 5000 reads; (4) seismic source localization shows ±2km horizontal but ±8.5km depth uncertainty; (5) c-di-GMP signal-to-noise ratio increases monotonically with enzyme production rate; (6) RAWR bootstrap achieves comparable coverage to standard bootstrap with different weighting; (7) Lyapunov exponents increase monotonically with Anderson disorder strength; (8) Aubry-André metal-insulator transition at λ=2 in Almost-Mathieu; (9) bistable phenotypic switching with stochastic noise-induced transitions; and (10) multi-signal QS integration sharpens regulatory response; (11) uncertainty bridge: sensor noise propagates through Anderson disorder to localization length ξ, with CV(ξ) ranking preserved and bias correction minimal at saturated disorder; (12) rare biosphere detection depends critically on sequencing depth — Chao1 corrects undersampling, D*≈998 reads for 95% detection of rarest taxa; (13) Eigen's error threshold μ_c≈0.023 predicts the mutation rate above which genetic information collapses in finite populations; (14) transfer matrix method reproduces analytical band-gap structure in periodic tight-binding chains; (15) delete-one jackknife achieves subpercent variance estimation with bias correction and block-jackknife for correlated data; (16) chi-squared grid-search recovers freeze-out curve parameters from noisy observables; and (17) Tikhonov-regularized spectral reconstruction recovers peak location from noisy Euclidean correlator. Pure Rust implementations are **11.5× faster** than Python baselines excluding LAPACK-bound operations (29/29 mathematical parity proven). These results inform minimum sensor requirements for Penny Irrigation and establish the noise characterization primitives needed for neuralSpring's transfer learning and barracuda GPU acceleration.
+groundSpring systematically characterizes the gap between model predictions and real-world measurements across nine scientific domains: agricultural sensing, meteorology, microbiome biology, seismology, stochastic biochemistry, spectral theory, evolutionary dynamics, inverse problems, and precision/scale validation. Through thirty-eight experiments (427 Phase 1 checks, 1,123 Rust tests + 287 Python tests, 110 active delegations (67 CPU + 43 GPU) — barraCuda v0.4.0), we demonstrate a unified framework for decomposing measurement error into correctable bias and irreducible noise. Key findings include: (1) soil moisture sensor bias accounts for 26-77% of total error depending on sensor/soil combination; (2) humidity sensor accuracy dominates FAO-56 ET0 uncertainty at 66% of total variance; (3) 16S taxonomic assignments stabilize above 5000 reads; (4) seismic source localization shows ±2km horizontal but ±8.5km depth uncertainty; (5) c-di-GMP signal-to-noise ratio increases monotonically with enzyme production rate; (6) RAWR bootstrap achieves comparable coverage to standard bootstrap with different weighting; (7) Lyapunov exponents increase monotonically with Anderson disorder strength; (8) Aubry-André metal-insulator transition at λ=2 in Almost-Mathieu; (9) bistable phenotypic switching with stochastic noise-induced transitions; and (10) multi-signal QS integration sharpens regulatory response; (11) uncertainty bridge: sensor noise propagates through Anderson disorder to localization length ξ, with CV(ξ) ranking preserved and bias correction minimal at saturated disorder; (12) rare biosphere detection depends critically on sequencing depth — Chao1 corrects undersampling, D*≈998 reads for 95% detection of rarest taxa; (13) Eigen's error threshold μ_c≈0.023 predicts the mutation rate above which genetic information collapses in finite populations; (14) transfer matrix method reproduces analytical band-gap structure in periodic tight-binding chains; (15) delete-one jackknife achieves subpercent variance estimation with bias correction and block-jackknife for correlated data; (16) chi-squared grid-search recovers freeze-out curve parameters from noisy observables; and (17) Tikhonov-regularized spectral reconstruction recovers peak location from noisy Euclidean correlator. Pure Rust implementations are **11.5× faster** than Python baselines excluding LAPACK-bound operations (29/29 mathematical parity proven). These results inform minimum sensor requirements for Penny Irrigation and establish the noise characterization primitives needed for neuralSpring's transfer learning and barracuda GPU acceleration.
 
 ## 1. Introduction
 
@@ -194,7 +194,7 @@ Thouless coefficient C (γ ∝ W²/C): 103.9 (expected 60–140 for band center 
 
 ## 12. Cross-Domain Synthesis
 
-The thirty-five experiments share a common structure:
+The thirty-eight experiments share a common structure:
 
 | Concept | Exp 001 | Exp 003 | Exp 004 | Exp 005 | Exp 006 | Exp 008 | Exp 009 | Exp 010 | Exp 011 |
 |---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|
@@ -207,15 +207,15 @@ The framework — decompose error, identify the dominant source, quantify the no
 
 ## 13. Phase 1: Rust Validation
 
-All thirty-five experiments have been ported to idiomatic Rust in the `groundspring` crate.
+All thirty-eight experiments have been ported to idiomatic Rust in the `groundspring` crate.
 
 ### 13.1 Coverage
 
 | Metric | Value |
 |--------|-------|
 | Validation binaries | 33 (decompose, rarefaction, seismic, weather, fao56, signal-specificity, rawr, anderson, quasiperiodic, bistable, multisignal, transport, resampling-conv, drift, uncertainty-bridge, rare-biosphere, quasispecies, band-edge, jackknife, freeze-out, spectral-recon, et0-anderson, notill-sampling, aggregate-stability, precision-drift, size-convergence, vendor-parity, npu-anderson, ghcnd-et0, ncbi-rare-biosphere, nucleus-stack, iris-seismic, tissue-anderson) |
-| Total checks | 395/395 PASS |
-| Rust tests | 965+ across all feature gates |
+| Total checks | 427/427 PASS |
+| Rust tests | 1,123 across all feature gates |
 | Python baseline integrity tests | 287 |
 | Clippy warnings | 0 |
 | Rust vs Python | **11.5× faster** excl. LAPACK-bound (104s → 9s); 5.1× overall; Exp 009: 47.7× with Sturm tridiag |
@@ -486,7 +486,7 @@ Phase 0: 7/7 PASS (Python). Phase 1: 9/9 PASS (Rust, 7 CPU + 2 NPU live).
 
 ## 23. Extended Cross-Domain Synthesis
 
-The thirty-five experiments span ten domains and three hardware substrates,
+The thirty-eight experiments span twelve domains and three hardware substrates,
 but share a single framework: decompose error into correctable bias and
 irreducible noise, then propagate that uncertainty through coupled systems.
 
@@ -507,7 +507,7 @@ The evolution path — Python baseline → Rust validation → barracuda CPU →
 ## 24. Evolution Path
 
 - **Phase 0+**: Wire real NOAA CDO data for Exp 002; download IRIS waveforms for Exp 005
-- **Phase 2a (DONE)**: Tier A rewire — **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.4.0, toadStool S158+**. barracuda from `barraCuda` primal (`ecoPrimals/barraCuda/`). GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r) + batch GPU APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64, BootstrapMeanGpu). Rust is **11.5× faster** than Python (excl. LAPACK-bound; Exp 009: 47.7× from Sturm tridiag). 29/29 parity proven. 1020+ Rust tests, 395/395 checks, 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only), 100+ three-tier parity tests, 16 CPU vs GPU parity tests
+- **Phase 2a (DONE)**: Tier A rewire — **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.4.0, toadStool S158+**. barracuda from `barraCuda` primal (`ecoPrimals/barraCuda/`). GPU stats dispatch (mean, std_dev, rmse, mbe, pearson_r) + batch GPU APIs (GillespieGpu, WrightFisherGpu, BatchedElementwiseF64, BootstrapMeanGpu). Rust is **11.5× faster** than Python (excl. LAPACK-bound; Exp 009: 47.7× from Sturm tridiag). 29/29 parity proven. 1,123 Rust tests, 427/427 checks, 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only), 100+ three-tier parity tests, 16 CPU vs GPU parity tests
 - **Phase 2b**: Tier B adapt — PRNG alignment, grid-search dispatch, Gillespie GPU
 - **Phase 2c**: Tier C absorption — MC and multinomial kernels → barracuda; RAWR kernel
 - **Phase 3**: Full GPU pipeline, metalForge cross-substrate validation

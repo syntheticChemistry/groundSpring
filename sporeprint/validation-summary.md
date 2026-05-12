@@ -1,6 +1,6 @@
 +++
 title = "groundSpring Validation Summary"
-description = "Measurement noise and uncertainty — 1,123 tests, 39 experiments (incl. 4 LTEE B1–B4), guideStone Level 4, Eukaryotic UniBin, 5 notebooks, 10 validation scenarios"
+description = "Measurement noise and uncertainty — 1,123 tests, 38 experiments (34 core + 4 LTEE B1–B4), guideStone Level 4, Eukaryotic UniBin, 5 notebooks, 10 validation scenarios"
 date = 2026-05-11
 
 [taxonomies]
@@ -11,9 +11,9 @@ springs = ["groundspring", "hotspring", "wetspring", "neuralspring", "airspring"
 ## Status
 
 - **1,123 tests** passing, 0 failed, 0 clippy warnings on all targets
-- **35 experiments** across 10 scientific domains
+- **38 experiments** across 12 scientific domains
 - **10 validation scenarios** in ScenarioRegistry (9 Tier 1, 1 Tier 2)
-- **395/395 validation checks** (340 core + 55 NUCLEUS)
+- **427/427 validation checks** (340 core + 55 NUCLEUS + 32 LTEE)
 - **29/29 Python baselines** with math parity proven
 - **110 barraCuda delegations** (67 CPU + 43 GPU)
 - **guideStone Level 4** (eukaryotic UniBin)
@@ -41,7 +41,7 @@ springs = ["groundspring", "hotspring", "wetspring", "neuralspring", "airspring"
 |---|----------|-------|
 | 01 | Composition Validation | Deploy graphs, capabilities, guideStone, verb reconciliation |
 | 02 | Benchmark Comparison | Rust vs Python timing, three-mode GPU, delegation inventory |
-| 03 | Ecosystem Evidence | 35 experiments, domain distribution, gap resolution, security |
+| 03 | Ecosystem Evidence | 38 experiments, domain distribution, gap resolution, security |
 | 04 | Cross-Spring Connections | Primal consumption matrix, ecosystem flows, patterns pioneered |
 | 05 | Measurement Science Deep Dive | Five pillars, tolerance architecture, Anderson localization thread |
 

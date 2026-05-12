@@ -49,7 +49,7 @@ This means they work without primals running.
 |------|----------|
 | `composition_validation.json` | Deploy graphs, capabilities, guideStone status, verb reconciliation |
 | `test_suite_report.json` | Module-level test counts, timings, quality metrics |
-| `experiment_catalog.json` | All 35 experiments across 10 domains with speedups |
+| `experiment_catalog.json` | All 38 experiments across 12 domains with speedups |
 | `security_gaps.json` | Gap registry, security posture, tolerance system stats |
 | `cross_spring_matrix.json` | Primal consumption, ecosystem flows, patterns pioneered |
 | `benchmark_timing.json` | Rust vs Python, three-mode benchmarks, delegation inventory |

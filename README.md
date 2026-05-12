@@ -7,7 +7,7 @@
 [![ecoBin](https://img.shields.io/badge/ecoBin-compliant-green.svg)](https://github.com/ecoPrimals/wateringHole/blob/main/ECOBIN_ARCHITECTURE_STANDARD.md)
 
 **Date**: May 12, 2026 | **License**: AGPL-3.0-or-later | **MSRV**: Rust 1.87 (2024 edition)
-**Status**: V138 — LTEE B1–B4 complete (4/4), `--format json` on all 38 validation binaries, Tier 4 IPC-first. 41 modules, 39 experiments (including 4 LTEE reproductions), **1,123 tests** (zero warnings, zero clippy errors on all targets), 427/427 validation checks + 138 metalForge checks + 29 validator integration tests. **guideStone Level 4**. `barracuda` optional everywhere (`groundspring` + `metalForge`), IPC-first via `CompositionContext`. `local` feature for opt-in library linkage. LTEE B2 (Exp 036, Wiser 2013): power-law fitness → `lithoSpore` module 1. B1 (Exp 037, Barrick 2009): neutral mutation → module 2. B3 (Exp 038, Good 2017): clonal interference → module 3. B4 (Exp 039, Blount 2008/2012): citrate innovation → module 4. All have `expected_values.json` for lithoSpore ingestion. Zero unsafe (`#![forbid(unsafe_code)]`), zero mocks in production, zero `.unwrap()` in library code. plasmidBin binary: 1.1M stripped (LTO). Foundation Threads 5+7 seeded. `certification/` organelle (L0-L4), `validation/scenarios/` registry (10 tracks, Tier 1/Tier 2), `groundspring_unibin` binary (certify/validate/status/version). primalSpring v0.9.25 pinned. barraCuda v0.4.0, toadStool S158+, coralReef Iteration 55+. 6 deploy graphs, 34 notebooks.
+**Status**: V138 — LTEE B1–B4 complete (4/4), `--format json` on all 38 validation binaries, Tier 4 IPC-first. 41 modules, 38 experiments (34 core + 4 LTEE reproductions), **1,123 tests** (zero warnings, zero clippy errors on all targets), 427/427 validation checks + 138 metalForge checks + 29 validator integration tests. **guideStone Level 4**. `barracuda` optional everywhere (`groundspring` + `metalForge`), IPC-first via `CompositionContext`. `local` feature for opt-in library linkage. LTEE B2 (Exp 036, Wiser 2013): power-law fitness → `lithoSpore` module 1. B1 (Exp 037, Barrick 2009): neutral mutation → module 2. B3 (Exp 038, Good 2017): clonal interference → module 3. B4 (Exp 039, Blount 2008/2012): citrate innovation → module 4. All have `expected_values.json` for lithoSpore ingestion. Zero unsafe (`#![forbid(unsafe_code)]`), zero mocks in production, zero `.unwrap()` in library code. plasmidBin binary: 1.1M stripped (LTO). Foundation Threads 5+7 seeded. `certification/` organelle (L0-L4), `validation/scenarios/` registry (10 tracks, Tier 1/Tier 2), `groundspring_unibin` binary (certify/validate/status/version). primalSpring v0.9.25 pinned. barraCuda v0.4.0, toadStool S158+, coralReef Iteration 55+. 6 deploy graphs, 34 notebooks.
 
 **The gap between what models predict and what instruments measure.**
 
@@ -70,7 +70,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | 033: Tissue Anderson | Immunological (Paper 12) | — | 29/29 PASS | Cytokine Anderson lattice + geometry-aware drug scoring |
 | 035: ET₀ Methods | Agricultural (FAO-56) | 15/15 PASS | 19/19 PASS | 5-method ET₀ cross-validation: PM, Hargreaves, Makkink, Turc, Hamon |
 
-**Phase 1 total: 395/395 PASS across 35 validation binaries** (340 core + 55 NUCLEUS via `--features biomeos`). All public APIs return `Result` — zero panicking entry points.
+**Phase 1 total: 427/427 PASS across 38 validation binaries** (340 core + 55 NUCLEUS + 32 LTEE via `--features biomeos`). All public APIs return `Result` — zero panicking entry points.
 
 ## Library Modules
 
@@ -253,7 +253,7 @@ Run parity report: `python3 scripts/parity_report.py`
 | BarraCUDA CPU | 18.4 | +47% (dispatch overhead on small workloads) |
 | **BarraCUDA GPU** | **9.9** | **−21% (1.27× faster)** |
 
-### Workspace Test Benchmark (1020+ tests, release mode)
+### Workspace Test Benchmark (1,123 tests, release mode)
 
 | Mode | Wall time (s) | Δ vs local |
 |------|--------------|------------|
@@ -301,9 +301,9 @@ groundSpring (spectral)  ────┘
 ```
 Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardware)  →  Phase 4 (NUCLEUS)
   NumPy/SciPy         Pure safe Rust     BarraCUDA/ToadStool   metalForge dispatch    biomeOS Neural API
-  ✓ Complete          ✓ 395/395 PASS     ◐ 110 active          30 workloads           Tower+Node+Squirrel
-  11.5× slower        35/35 experiments    (67+43)              24 GPU + 2 NPU + 2 CPU-only         NestGate data pipes
-                      1020+ workspace tests                      PCIe topology          NUCLEUS atomics
+  ✓ Complete          ✓ 427/427 PASS     ◐ 110 active          30 workloads           Tower+Node+Squirrel
+  11.5× slower        38/38 experiments    (67+43)              24 GPU + 2 NPU + 2 CPU-only         NestGate data pipes
+                      1,123 workspace tests                      PCIe topology          NUCLEUS atomics
                                                                 Pipeline dispatch      Sovereign degradation
 
   Write locally    →  Hand off          →  Lean on upstream   →  Cross-substrate     →  Primal orchestration
@@ -373,7 +373,7 @@ groundSpring/
 │   └── et0_methods/                # Exp 035: Multi-method ET₀ cross-validation
 ├── crates/
 │   ├── groundspring/               # Phase 1 Rust library (41 modules incl. rawr, esn, lanczos, tissue_anderson, biomeos, nestgate, npu, primal_names)
-│   └── groundspring-validate/      # 34 validation binaries (hotSpring pattern)
+│   └── groundspring-validate/      # 38 validation binaries (hotSpring pattern)
 ├── metalForge/                     # Write → Absorb → Lean artifacts
 │   ├── forge/                      # groundspring-forge crate: hardware discovery, dispatch, topology, pipeline, atomics, remote
 │   ├── npu/akida/                  # AKD1000 NPU integration, HARDWARE.md

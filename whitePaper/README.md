@@ -8,7 +8,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 ### Status
 
-- Phase 0 baselines: **~375 quantitative checks passed** across 33 experiments, 11 domains.
+- Phase 0 baselines: **~375 quantitative checks passed** across 33 core experiments, 11 domains (+ 4 LTEE, 1 hydrology = 38 total).
 - Phase 1 Rust validation: **427/427 checks passed** across 38 validation binaries (340 core + 55 NUCLEUS + 32 LTEE).
 - LTEE reproductions: **B1–B4 COMPLETE** (Exp 036–039) — unblocks `lithoSpore` modules 1–4.
 - Mathematical parity: **29/29 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).

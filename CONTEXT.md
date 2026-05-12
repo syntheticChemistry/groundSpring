@@ -4,7 +4,7 @@
 
 groundSpring is a pure Rust scientific validation library and binary suite that
 characterizes the gap between what models predict and what instruments measure.
-It reproduces published results from 39 experiments across geochemistry, soil
+It reproduces published results from 38 experiments across geochemistry, soil
 physics, agricultural meteorology, mathematical physics, microbial ecology, and
 inverse problems. It is part of the ecoPrimals sovereign computing ecosystem — a
 collection of self-contained binaries that coordinate via JSON-RPC 2.0 over Unix

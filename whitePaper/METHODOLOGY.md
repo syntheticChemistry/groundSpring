@@ -170,7 +170,7 @@ Phase 1 ports each experiment's core algorithm to idiomatic Rust in the
 groundSpring follows the **Write → Absorb → Lean** cycle (hotSpring pattern):
 
 1. Write CPU implementations + production WGSL shaders (`metalForge/shaders/`)
-2. Validate CPU against Python baselines (395/395 checks)
+2. Validate CPU against Python baselines (427/427 checks)
 3. Hand off WGSL to ToadStool/BarraCUDA with binding layout documentation
 4. BarraCUDA absorbs as upstream op
 5. groundSpring rewires behind `#[cfg(feature = "barracuda")]`
@@ -198,7 +198,7 @@ Same as all ecoPrimals springs:
 ## Grand Total
 
 - **Phase 0 (Python)**: ~288 quantitative checks passed across 28 experiments, 9 domains.
-- **Phase 1 (Rust)**: 395/395 checks passed across 35 validation binaries (340 core + 55 NUCLEUS). 965+ Rust tests.
+- **Phase 1 (Rust)**: 427/427 checks passed across 38 validation binaries (340 core + 55 NUCLEUS + 32 LTEE). 1,123 Rust tests.
 - **Phase 2a (Barracuda)**: 110 delegations (67 CPU + 43 GPU) — barraCuda v0.4.0. 11.6× faster than Python (excl. LAPACK-bound). 29/29 parity proven. 965+ tests, ≥92% library coverage. runtime f64 smoke test + three-tier parity (V121).
 - **Phase 4 (NUCLEUS)**: biomeOS Neural API live — Tower + Node + Squirrel validated. NestGate data pipelines (NCBI, NOAA, IRIS). 4 NUCLEUS experiments (Exp 029–032).
 - **metalForge**: 5 live hardware binaries (RTX 4070, Titan V, AKD1000 NPU). 138 metalForge checks, 30 workloads, 5 substrates, architecture-aware routing, `PCIe` topology, GPU→NPU bypass, pipeline dispatch, NUCLEUS atomics (V113).

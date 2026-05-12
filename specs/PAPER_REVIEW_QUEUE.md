@@ -43,7 +43,7 @@
 | 33 | Cytokine Anderson Lattice (Paper 12) | Immunological | — | 29/29 | Tissue 2D/3D + barrier disruption + dimensional duality (Exp 033) |
 | 34 | Multi-Method ET₀ Cross-Validation | Hydrology (ET₀) | 15/15 | 19/19 | 5-method comparison: PM, Hargreaves, Makkink, Turc, Hamon (Exp 035) |
 
-**Phase 0**: ~276 checks (Python, 29 experiments). **Phase 1**: 427/427 PASS (Rust, 39 experiments / 38 binaries). **Speedup**: 11.5× median (excl. LAPACK-bound), 47.7× peak (Sturm tridiag).
+**Phase 0**: ~276 checks (Python, 29 experiments). **Phase 1**: 427/427 PASS (Rust, 38 experiments / 38 binaries). **Speedup**: 11.5× median (excl. LAPACK-bound), 47.7× peak (Sturm tridiag).
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs (Exp 029–033 have no Python baseline).
 **Current (V138)**: 427/427 checks, 1,123 Rust workspace tests, 287 Python tests, 138 metalForge checks. LTEE B1–B4 COMPLETE — unblocks `lithoSpore` modules 1–4.
 **LTEE summary**: B2 (Exp 036, 10/10), B1 (Exp 037, 8/8), B3 (Exp 038, 7/7), B4 (Exp 039, 8/8). All have `expected_values.json` + Rust validation binaries with `--format json`.
@@ -366,13 +366,13 @@ Papers 1-11, 14, 15, 16, 18, 20, 21, 22, 23, 24, 33 — **fully wired** with act
 
 ## Hardware Evolution: CPU → GPU → metalForge
 
-### Tier 1: BarraCUDA CPU (current — 395/395 PASS)
+### Tier 1: BarraCUDA CPU (current — 427/427 PASS)
 
 Pure safe Rust with optional `barracuda` feature gate delegation.
 110 active delegations (67 CPU + 43 GPU) — barraCuda v0.4.0, toadStool S158+. 11.5× faster than Python (excl. LAPACK-bound).
 1,123 Rust workspace tests + 287 Python provenance tests. 29/29 mathematical parity proven. 100+ three-tier parity tests (100% delegation coverage).
-427/427 validation checks across 39 experiments (38 binaries). LTEE B1–B4 (Exps 036–039) + 34 core experiments + Exp 035.
-All 39 experiments validated. GPU stats dispatch (mean, std_dev, rmse, mbe, mae, nse, r², pearson_r). L-BFGS post-grid refinement (V68). 14 CPU vs GPU parity tests. CPU vs GPU benchmark binary.
+427/427 validation checks across 38 experiments (38 binaries). LTEE B1–B4 (Exps 036–039) + 33 core experiments (001–033) + Exp 035.
+All 38 experiments validated. GPU stats dispatch (mean, std_dev, rmse, mbe, mae, nse, r², pearson_r). L-BFGS post-grid refinement (V68). 14 CPU vs GPU parity tests. CPU vs GPU benchmark binary.
 
 ### Tier 2: BarraCUDA GPU (36 GPU dispatch targets — V83)
 

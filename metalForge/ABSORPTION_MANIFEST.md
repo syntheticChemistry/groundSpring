@@ -179,9 +179,9 @@ Both Tier C shaders have been absorbed upstream and local copies removed (V62):
 ## Handoff Checklist (per shader)
 
 - [x] 110 active delegations (67 CPU + 43 GPU) verified, barraCuda `a898dee`, toadStool S158+, coralReef Iteration 55+
-- [x] CPU reference passes all validation checks (34 binaries, 936 tests)
+- [x] CPU reference passes all validation checks (38 binaries, 1,123 tests)
 - [x] All delegations use `#[cfg]` or `if let Ok` with CPU fallback always compiled
-- [x] Mathematical parity: 28/28 PROVEN (Python ⇌ Rust, `data/parity_report.json`)
+- [x] Mathematical parity: 29/29 PROVEN (Python ⇌ Rust, `data/parity_report.json`)
 - [x] Three-mode revalidation (local / barracuda / barracuda-gpu): all PASS, 0 warnings
 - [x] `cargo clippy -- -D warnings -W clippy::pedantic` PASS (default + barracuda modes)
 - [x] 97.25% line coverage (`cargo llvm-cov`, target 90%)

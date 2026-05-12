@@ -1,7 +1,7 @@
 # Cross-Spring Evolution: How ecoPrimals Primals Build on Each Other
 
 **Date**: May 8, 2026
-**groundSpring HEAD**: V125
+**groundSpring HEAD**: V138
 **barraCuda**: v0.4.0
 
 ---
