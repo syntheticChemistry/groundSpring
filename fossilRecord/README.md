@@ -36,6 +36,6 @@ registered as validation scenarios with provenance metadata.
 ## Provenance
 
 - **primalSpring**: v0.9.25 (Phase 60+ INTERSTADIAL)
-- **groundSpring**: V126 (eukaryotic evolution)
+- **groundSpring**: V138 (eukaryotic evolution, LTEE B1–B4 complete)
 - **Handoff**: `wateringHole/handoffs/GROUNDSPRING_V126_INTERSTADIAL_UNIBIN_HANDOFF_MAY09_2026.md`
 - **License**: AGPL-3.0-or-later

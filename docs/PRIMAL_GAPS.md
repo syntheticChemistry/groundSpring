@@ -1,11 +1,11 @@
 # groundSpring Primal Composition Gaps
 
-**Spring:** groundSpring V135
+**Spring:** groundSpring V138
 **Proto-nucleate:** `downstream_manifest.toml` (spring_name = "groundspring")
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
 **Date:** April 27, 2026
-**Last audited:** May 11, 2026 (V135 — LTEE B2+B1 reproductions, modular validate harness, self-knowledge dispatch, dep decoupling. guideStone L4, Tier 4 IPC-first, 1,125 tests, zero clippy, zero unsafe)
+**Last audited:** May 12, 2026 (V138 — LTEE B1–B4 reproductions complete (4/4), modular validate harness, self-knowledge dispatch, dep decoupling. guideStone L4, Tier 4 IPC-first, 1,130 tests, zero clippy, zero unsafe)
 **License:** AGPL-3.0-or-later
 
 ---

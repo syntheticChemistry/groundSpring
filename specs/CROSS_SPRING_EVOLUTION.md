@@ -1,6 +1,6 @@
 # Cross-Spring Shader Evolution
 
-**Last updated**: May 8, 2026 (V125 — 110 active delegations (67 CPU + 43 GPU), 965+ tests, three-tier parity proven: 29/29 at all 3 tiers, barraCuda v0.3.13, guideStone L4)
+**Last updated**: May 12, 2026 (V138 — 110 active delegations (67 CPU + 43 GPU), 1,130 tests, three-tier parity proven: 29/29 at all 3 tiers, barraCuda v0.3.13, guideStone L4)
 
 The ecoPrimals shader ecosystem evolved organically as each spring
 absorbed domain-specific knowledge, then shared it through barraCuda

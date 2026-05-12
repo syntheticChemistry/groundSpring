@@ -175,6 +175,27 @@ run_experiment \
 
 echo ""
 echo "╔══════════════════════════════════════════════════════════════╗"
+echo "║  LTEE REPRODUCTIONS: Python Baselines                      ║"
+echo "╚══════════════════════════════════════════════════════════════╝"
+
+run_experiment \
+    "Exp 036: LTEE Fitness Dynamics B2 (Python)" \
+    "python3 control/ltee_fitness_dynamics/ltee_fitness_dynamics.py"
+
+run_experiment \
+    "Exp 037: LTEE Neutral Mutation B1 (Python)" \
+    "python3 control/ltee_neutral_mutation/ltee_neutral_mutation.py"
+
+run_experiment \
+    "Exp 038: LTEE Clonal Interference B3 (Python)" \
+    "python3 control/ltee_clonal_interference/ltee_clonal_interference.py"
+
+run_experiment \
+    "Exp 039: LTEE Citrate Innovation B4 (Python)" \
+    "python3 control/ltee_citrate_innovation/ltee_citrate_innovation.py"
+
+echo ""
+echo "╔══════════════════════════════════════════════════════════════╗"
 echo "║  PHASE 1: Rust Validation Binaries                         ║"
 echo "╚══════════════════════════════════════════════════════════════╝"
 
@@ -296,6 +317,22 @@ if command -v cargo &> /dev/null; then
     run_experiment \
         "Rust: Tissue Anderson" \
         "cargo run --release --bin validate_tissue_anderson"
+
+    run_experiment \
+        "Rust: LTEE Fitness Dynamics B2" \
+        "cargo run --release --bin validate_ltee_fitness"
+
+    run_experiment \
+        "Rust: LTEE Neutral Mutation B1" \
+        "cargo run --release --bin validate_ltee_neutral"
+
+    run_experiment \
+        "Rust: LTEE Clonal Interference B3" \
+        "cargo run --release --bin validate_ltee_clonal"
+
+    run_experiment \
+        "Rust: LTEE Citrate Innovation B4" \
+        "cargo run --release --bin validate_ltee_citrate"
 
     if [[ -e /dev/akida0 ]]; then
         cargo build --release --workspace --features npu 2>&1 | tail -1

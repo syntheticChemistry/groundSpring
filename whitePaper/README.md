@@ -8,8 +8,9 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 ### Status
 
-- Phase 0 baselines: **~375 quantitative checks passed** across 29 experiments, 9 domains.
-- Phase 1 Rust validation: **395/395 checks passed** across 34 validation binaries (340 core + 55 NUCLEUS).
+- Phase 0 baselines: **~375 quantitative checks passed** across 33 experiments, 11 domains.
+- Phase 1 Rust validation: **427/427 checks passed** across 38 validation binaries (340 core + 55 NUCLEUS + 32 LTEE).
+- LTEE reproductions: **B1–B4 COMPLETE** (Exp 036–039) — unblocks `lithoSpore` modules 1–4.
 - Mathematical parity: **29/29 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.6× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.4× from Sturm tridiag**.
 - V124: Deep debt resolution + tolerance hardening — `eps` module public with `SAFE_DIV_STRICT`, all bare float literals named, NDJSON injection hardening (RFC 8259), `validate_all` exit-code disambiguation, capability-based NestGate discovery, UID discovery chain (4-tier, no hardcoded fallback), 29 validator integration tests, CI `validate-all` job, 5 clippy fixes. March 24, 2026.

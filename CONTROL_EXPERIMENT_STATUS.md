@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: May 11, 2026 (V135 — 1,125 tests, ≥92% library coverage, 0 clippy warnings on all targets, 0 fmt diff, license AGPL-3.0-or-later. guideStone Level 4. LTEE B2 (Wiser 2013) + B1 (Barrick 2009) reproductions complete — unblocks `lithoSpore` modules 1+2. `stats::model_selection` (AIC/BIC). Modular validate harness. Self-knowledge dispatch. `bytemuck` optional in metalForge. Tier 4 IPC-first. barraCuda v0.3.13. primalSpring v0.9.25.)
+**Last updated**: May 12, 2026 (V138 — 1,130 tests, ≥92% library coverage, 0 clippy warnings on all targets, 0 fmt diff, license AGPL-3.0-or-later. guideStone Level 4. LTEE B1–B4 complete (4/4) — unblocks `lithoSpore` modules 1–4. 39 experiments, 427/427 checks, 38 validation binaries, `--format json` on all binaries. Tier 4 IPC-first. barraCuda v0.3.13. primalSpring v0.9.25.)
 
 ## Experiment Register
 

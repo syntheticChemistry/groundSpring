@@ -5,10 +5,11 @@
 > (Phase 0), a Rust validation (Phase 1), and a barracuda delegation path
 > (Phase 2+).
 
-**Total**: 395/395 validation checks across 35 experiments + 2 LTEE baselines, 10 domains. 1,125 Rust tests + 287 Python provenance tests + 29 validator exit-code integration tests.
+**Total**: 427/427 validation checks across 39 experiments, 11 domains. 1,130 Rust tests + 287 Python provenance tests + 29 validator exit-code integration tests.
 **Core**: 340/340 checks across 29 experiments (no feature flags).
 **NUCLEUS**: 55 checks across 4 experiments (Exp 029–032, `--features biomeos`).
-**guideStone**: Level 4 (bare + NUCLEUS composition parity) — modular `guidestone/{bare,tower,node,nest,cross}.rs` layers (V135) with 5 bare properties + NUCLEUS additive IPC parity checks + 2 composition experiment crates.
+**LTEE**: 32/32 checks across 4 experiments (Exp 036–039: B1 neutral mutation, B2 fitness dynamics, B3 clonal interference, B4 citrate innovation).
+**guideStone**: Level 4 (bare + NUCLEUS composition parity) — modular `guidestone/{bare,tower,node,nest,cross}.rs` layers (V138) with 5 bare properties + NUCLEUS additive IPC parity checks + 2 composition experiment crates.
 **Tier 4 IPC-first**: `barracuda` removed from default features; IPC via `CompositionContext` is the default build.
 **Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across 28 benchmarked experiments.
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs.
@@ -57,6 +58,10 @@
 | 032 | [IRIS Seismic](032_iris_seismic.md) | Geological (IRIS) | IRIS FDSN | — | 12/12 | NestGate live data |
 | 033 | [Tissue Anderson](033_tissue_anderson.md) | Immunological | Paper 12 (Gonzales) | — | 29/29 | Uses anderson GPU |
 | 035 | [Multi-Method ET₀](035_et0_methods.md) | Hydrology | FAO-56 + airSpring lineage | — | 19/19 PASS | 3 ET₀ methods delegated |
+| 036 | LTEE Fitness Dynamics (B2) | LTEE | Wiser et al. 2013 | 9/9 | 10/10 | N/A |
+| 037 | LTEE Neutral Mutation (B1) | LTEE | Barrick et al. 2009 | 8/8 | 8/8 | N/A |
+| 038 | LTEE Clonal Interference (B3) | LTEE | Good et al. 2017 | 7/7 | 7/7 | N/A |
+| 039 | LTEE Citrate Innovation (B4) | LTEE | Blount et al. 2008/2012 | 8/8 | 8/8 | N/A |
 
 ## Three-Tier Control Plan
 
@@ -66,11 +71,11 @@ Each experiment is validated at three levels:
 2. **GPU** — Barracuda GPU matches CPU within tolerance (`--features barracuda-gpu`)
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
-Current status: **CPU complete** (340/340 core + 55 NUCLEUS = 395 total),
+Current status: **CPU complete** (340/340 core + 55 NUCLEUS + 32 LTEE = 427 total),
 **110 active delegations (67 CPU + 43 GPU) — toadStool S158+, barraCuda v0.3.13**. Tier 4 IPC-first (V128).
 **NUCLEUS**: biomeOS Neural API live — 4 experiments exercise Tower, Node, Squirrel, Nest
-with sovereign fallback. All delegations use sovereign fallback.
-35/35 experiments validated. 1,125 Rust tests + 287 Python tests.
+with sovereign fallback. **LTEE**: 4 reproductions (B1–B4) complete for `lithoSpore` modules 1–4.
+39/39 experiments validated. 1,130 Rust tests + 287 Python tests.
 **bench_cpu_vs_gpu**: Dedicated binary for CPU vs GPU performance comparison across 6 workloads.
 **metalForge tier**: groundspring-forge crate with live hardware validation
 (RTX 4070, Titan V, AKD1000 NPU). 5 validation binaries, 138 metalForge checks, 5+ substrates.
