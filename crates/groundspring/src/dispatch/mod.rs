@@ -29,6 +29,10 @@ use crate::error::DispatchError;
 
 pub use lifecycle::init_start_time;
 
+/// Legacy prefix for pre-v0.3.7 callers that routed compute methods through
+/// the barraCuda namespace. Retained for backward compatibility.
+const LEGACY_COMPUTE_PREFIX: &str = "barracuda.";
+
 /// Strip legacy primal-name prefixes from a JSON-RPC method name.
 ///
 /// The ecosystem Semantic Method Naming Standard uses bare `domain.operation`
@@ -49,7 +53,7 @@ pub fn normalize_method(method: &str) -> &str {
             return stripped;
         }
     }
-    if let Some(stripped) = method.strip_prefix("barracuda.") {
+    if let Some(stripped) = method.strip_prefix(LEGACY_COMPUTE_PREFIX) {
         return stripped;
     }
     method

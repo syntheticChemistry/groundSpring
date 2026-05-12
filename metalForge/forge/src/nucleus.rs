@@ -68,19 +68,25 @@ pub fn discover_uid() -> String {
     String::from("0")
 }
 
-/// Discover the biomeOS socket directory.
+/// Socket directory name for `biomeOS` IPC mesh.
 ///
-/// Priority: `BIOMEOS_SOCKET_DIR` > `XDG_RUNTIME_DIR/biomeos` >
-/// `/run/user/<uid>/biomeos`. Never hardcodes a specific UID.
+/// Mirrors `groundspring::primal_names::BIOMEOS_SOCKET_DIR` — duplicated here
+/// because `metalForge/forge` is a separate crate with minimal dependencies.
+const BIOMEOS_DIR: &str = "biomeos";
+
+/// Discover the `biomeOS` socket directory.
+///
+/// Priority: `BIOMEOS_SOCKET_DIR` > `XDG_RUNTIME_DIR/{BIOMEOS_DIR}` >
+/// `/run/user/<uid>/{BIOMEOS_DIR}`. Never hardcodes a specific UID.
 #[must_use]
 pub fn biomeos_socket_dir() -> String {
     if let Ok(dir) = std::env::var("BIOMEOS_SOCKET_DIR") {
         return dir;
     }
     if let Ok(xdg) = std::env::var("XDG_RUNTIME_DIR") {
-        return format!("{xdg}/biomeos");
+        return format!("{xdg}/{BIOMEOS_DIR}");
     }
-    format!("/run/user/{}/biomeos", discover_uid())
+    format!("/run/user/{}/{BIOMEOS_DIR}", discover_uid())
 }
 
 /// Extended pass/fail harness for NUCLEUS validation binaries.
