@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: May 12, 2026 (V138)
+**Last Updated**: May 12, 2026 (V139)
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---
@@ -45,7 +45,7 @@
 
 **Phase 0**: ~276 checks (Python, 29 experiments). **Phase 1**: 427/427 PASS (Rust, 38 experiments / 38 binaries). **Speedup**: 11.5× median (excl. LAPACK-bound), 47.7× peak (Sturm tridiag).
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs (Exp 029–033 have no Python baseline).
-**Current (V138)**: 427/427 checks, 1,123 Rust workspace tests, 287 Python tests, 138 metalForge checks. LTEE B1–B4 COMPLETE — unblocks `lithoSpore` modules 1–4.
+**Current (V139)**: 427/427 checks, 1,123 Rust workspace tests, 287 Python tests, 138 metalForge checks. LTEE B1–B4 COMPLETE — unblocks `lithoSpore` modules 1–4. Tier 2 wired: `toadstool.validate` + `barracuda.precision.route`.
 **LTEE summary**: B2 (Exp 036, 10/10), B1 (Exp 037, 8/8), B3 (Exp 038, 7/7), B4 (Exp 039, 8/8). All have `expected_values.json` + Rust validation binaries with `--format json`.
 **Tier 4 IPC-first (V128)**: `barracuda` removed from default features; IPC via `CompositionContext` is the default. `local` feature for opt-in library linkage.
 **GPU dispatch**: 16 modules wired for `barracuda-gpu` — 110 delegations (67 CPU + 43 GPU), barraCuda v0.4.0, toadStool S158+. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed).

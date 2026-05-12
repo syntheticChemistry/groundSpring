@@ -9,7 +9,7 @@
 **Core**: 340/340 checks across 29 experiments (no feature flags).
 **NUCLEUS**: 55 checks across 4 experiments (Exp 029–032, `--features biomeos`).
 **LTEE**: 32/32 checks across 4 experiments (Exp 036–039: B1 neutral mutation, B2 fitness dynamics, B3 clonal interference, B4 citrate innovation).
-**guideStone**: Level 4 (bare + NUCLEUS composition parity) — modular `guidestone/{bare,tower,node,nest,cross}.rs` layers (V138) with 5 bare properties + NUCLEUS additive IPC parity checks + 2 composition experiment crates.
+**guideStone**: Level 4 (bare + NUCLEUS composition parity) — modular `guidestone/{bare,tower,node,nest,cross}.rs` layers (V139) with 5 bare properties + NUCLEUS additive IPC parity checks + 2 composition experiment crates.
 **Tier 4 IPC-first**: `barracuda` removed from default features; IPC via `CompositionContext` is the default build.
 **Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across 28 benchmarked experiments.
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs.

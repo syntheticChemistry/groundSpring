@@ -1,7 +1,7 @@
 +++
 title = "groundSpring Validation Summary"
 description = "Measurement noise and uncertainty — 1,123 tests, 38 experiments (34 core + 4 LTEE B1–B4), guideStone Level 4, Eukaryotic UniBin, 5 notebooks, 10 validation scenarios"
-date = 2026-05-11
+date = 2026-05-12
 
 [taxonomies]
 primals = ["barracuda", "toadstool", "beardog", "songbird", "nestgate"]

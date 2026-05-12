@@ -1,6 +1,6 @@
 # groundSpring Primal Composition Gaps
 
-**Spring:** groundSpring V138
+**Spring:** groundSpring V139
 **Proto-nucleate:** `downstream_manifest.toml` (spring_name = "groundspring")
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
@@ -47,7 +47,7 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
   shader compilation through `shader.*` capability.
 - **Action:** Wire when coralReef API stabilizes. Track via
   `specs/BARRACUDA_EVOLUTION.md`.
-- **V136–V138 progress:** IPC stub created (`ipc/coralreef.rs`) with
+- **V136–V139 progress:** IPC stub created (`ipc/coralreef.rs`) with
   `ShaderCompile` tarpc trait (`compile_wgsl`, `targets`, `validate`).
   Awaiting coralReef SM rebuild to activate.
 
