@@ -1,0 +1,20 @@
+# LTEE B1 (Barrick 2009) — Neutral Mutation Tolerances
+# lithoSpore module 2: ltee-mutation
+# groundSpring Exp 037
+
+[meta]
+paper = "Barrick et al. 2009"
+paper_id = "B1"
+experiment = "037_ltee_neutral_mutation"
+litho_module = 2
+spring = "groundSpring"
+
+[tolerances]
+# Kimura fixation probability: u_fix ≈ 1/(2*Ne) within 10%
+kimura_fixation_rel = 0.10
+# Mutation rate: mu ≈ 8.9e-11 per bp per generation
+mutation_rate_rel = 0.10
+# Poisson accumulation: |observed - expected| / expected < 10%
+poisson_accumulation_rel = 0.10
+# Clock signal R² (linear fit of neutral mutations over time)
+clock_r2_min = 0.95

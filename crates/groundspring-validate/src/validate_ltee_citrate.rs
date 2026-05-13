@@ -171,9 +171,7 @@ fn run() -> i32 {
     }
 
     // Check 2: Replay probability non-decreasing
-    let non_decreasing = replay_probs
-        .windows(2)
-        .all(|w| w[0].1 <= w[1].1 + 0.01);
+    let non_decreasing = replay_probs.windows(2).all(|w| w[0].1 <= w[1].1 + 0.01);
     h.check_true(
         "Replay probability non-decreasing with generation",
         non_decreasing,

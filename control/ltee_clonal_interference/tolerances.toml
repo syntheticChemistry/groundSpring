@@ -1,0 +1,20 @@
+# LTEE B3 (Good 2017) — Clonal Interference Tolerances
+# lithoSpore module 3: ltee-clonal
+# groundSpring Exp 038
+
+[meta]
+paper = "Good et al. 2017"
+paper_id = "B3"
+experiment = "038_ltee_clonal_interference"
+litho_module = 3
+spring = "groundSpring"
+
+[tolerances]
+# Mean beneficial mutation rate: s_mean ≈ 0.01
+beneficial_effect_rel = 0.15
+# Clonal interference detection: multiple lineages competing
+interference_detected = true
+# Wright-Fisher simulation: allele frequency drift within 20%
+allele_freq_rel = 0.20
+# Fixation probability deviation from neutral: > 2x enrichment
+fixation_enrichment_min = 2.0

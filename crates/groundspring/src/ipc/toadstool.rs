@@ -35,10 +35,9 @@ pub trait OrchestrationService {
 
     /// List workloads available for dispatch.
     ///
-    /// Returns an array of workload descriptors discovered from the
-    /// configured workload directories.
-    /// Upstream: `toadstool.list_workloads` (Pass 14, S245+).
-    async fn list_workloads() -> Result<String, String>;
+    /// `filter` selects which workloads to return: `"active"`, `"all"`, or
+    /// `"ready"`. Upstream: `toadstool.list_workloads` (Pass 14, S245+).
+    async fn list_workloads(filter: String) -> Result<String, String>;
 }
 
 /// Validate a workload via `ToadStool` JSON-RPC before dispatch.
@@ -72,7 +71,7 @@ pub fn validate_workload(
 
 /// List available workloads via `ToadStool` JSON-RPC.
 ///
-/// Sends a `toadstool.list_workloads` call to the discovered `ToadStool` socket.
+/// `filter` selects which workloads to return (`"active"`, `"all"`, `"ready"`).
 ///
 /// # Errors
 ///
@@ -80,11 +79,14 @@ pub fn validate_workload(
 #[cfg(feature = "biomeos")]
 pub fn list_workloads(
     socket: &std::path::Path,
+    filter: &str,
 ) -> crate::biomeos::Result<serde_json::Value> {
     let request = serde_json::json!({
         "jsonrpc": "2.0",
         "method": "toadstool.list_workloads",
-        "params": {},
+        "params": {
+            "filter": filter,
+        },
         "id": 1
     })
     .to_string();
@@ -128,18 +130,19 @@ pub fn try_validate_workload(
 /// Attempt to discover `ToadStool` and list available workloads.
 ///
 /// Returns `Ok(None)` if `ToadStool` is not available (graceful degradation).
+/// Defaults to `"active"` filter if no specific filter is needed.
 ///
 /// # Errors
 ///
 /// Returns `BiomeOsError` if the IPC call fails after successful discovery.
 #[cfg(feature = "biomeos")]
-pub fn try_list_workloads() -> crate::biomeos::Result<Option<serde_json::Value>> {
+pub fn try_list_workloads(filter: &str) -> crate::biomeos::Result<Option<serde_json::Value>> {
     crate::primal_names::discover_socket(crate::primal_names::roles::COMPUTE).map_or_else(
         || {
             tracing::debug!("ToadStool not discovered — workload listing skipped");
             Ok(None)
         },
-        |socket| list_workloads(&socket).map(Some),
+        |socket| list_workloads(&socket, filter).map(Some),
     )
 }
 

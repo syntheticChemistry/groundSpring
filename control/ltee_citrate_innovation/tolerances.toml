@@ -1,0 +1,21 @@
+# LTEE B4 (Blount 2008/2012) — Citrate Innovation Tolerances
+# lithoSpore module 4: ltee-citrate
+# groundSpring Exp 039
+
+[meta]
+paper = "Blount et al. 2008, 2012"
+paper_id = "B4"
+experiment = "039_ltee_citrate_innovation"
+litho_module = 4
+spring = "groundSpring"
+
+[tolerances]
+# Potentiation probability: rare (< 5% of populations)
+potentiation_max_frac = 0.05
+# Actualization given potentiation: rare two-hit cascade
+actualization_max_frac = 0.10
+# Two-hit cascade mean generations: 20,000-40,000
+two_hit_mean_gen_min = 15000
+two_hit_mean_gen_max = 50000
+# Analytical vs empirical agreement within 25%
+analytical_empirical_rel = 0.25

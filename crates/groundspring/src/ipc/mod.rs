@@ -20,7 +20,7 @@
 //! - [`beardog`] — Cryptographic operations via `BearDog`
 //! - [`songbird`] — Network discovery and mesh via `Songbird`
 //! - [`skunkbat`] — Audit logging via `skunkBat` (JH-5)
-//! - [`coralreef`] — Sovereign shader compilation via `coralReef` (stub — awaiting SM rebuild)
+//! - [`coralreef`] — Sovereign shader compilation via `coralReef` (FECS Sprint 7)
 //!
 //! # Semantic method naming
 //!

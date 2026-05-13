@@ -1,0 +1,22 @@
+# LTEE B2 (Wiser 2013) — Fitness Dynamics Tolerances
+# lithoSpore module 1: ltee-fitness
+# groundSpring Exp 036
+
+[meta]
+paper = "Wiser et al. 2013"
+paper_id = "B2"
+experiment = "036_ltee_fitness_dynamics"
+litho_module = 1
+spring = "groundSpring"
+
+[tolerances]
+# Power-law exponent: alpha ≈ 0.505 (Wiser Table 2)
+power_law_alpha_abs = 0.05
+# Hyperbolic asymptote: K ≈ 12.29
+hyperbolic_K_rel = 0.01
+# AIC/BIC model selection: power-law should win (lower AIC)
+model_selection = "power_law_wins"
+# Jackknife SE for alpha
+jackknife_se_alpha_max = 0.05
+# Fitness trajectory R² (power-law fit to 50k gen data)
+power_law_r2_min = 0.99

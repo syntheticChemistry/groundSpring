@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: May 12, 2026 (V139 — Tier 2 wiring: toadstool.validate + barracuda.precision.route IPC, 38 validation binaries, 427/427 checks)
+**Last Updated**: May 13, 2026 (V140 — Tier 2 convergence wave. coralReef wired, list_workloads filter aligned, LTEE tolerances.toml shipped, plasmidBin validated)
 
 ## What This Is
 
@@ -18,11 +18,9 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V139 Upstream Ecosystem | [GROUNDSPRING_V139_UPSTREAM_ECOSYSTEM_HANDOFF_MAY12_2026.md](handoffs/GROUNDSPRING_V139_UPSTREAM_ECOSYSTEM_HANDOFF_MAY12_2026.md) | May 12, 2026 | Full ecosystem handoff: per-primal guidance, spring team patterns, lithoSpore/foundation/NUCLEUS integration, composition patterns, open gaps. |
-| V139 Tier 2 Wiring | [GROUNDSPRING_V139_TIER2_WIRING_HANDOFF_MAY12_2026.md](handoffs/GROUNDSPRING_V139_TIER2_WIRING_HANDOFF_MAY12_2026.md) | May 12, 2026 | Tier 2 IPC details: `toadstool.validate` + `toadstool.list_workloads` + `barracuda.precision.route`. |
-| lithoSpore LTEE Handoff | [GROUNDSPRING_LITHOSPORE_LTEE_HANDOFF_MAY12_2026.md](handoffs/GROUNDSPRING_LITHOSPORE_LTEE_HANDOFF_MAY12_2026.md) | May 12, 2026 | Targeted handoff for lithoSpore team spinup: B1–B4 artifact inventory, per-module ingestion guide, file paths, BLAKE3/JSON output instructions, PRNG notes. |
+| V140 Tier 2 Convergence | [GROUNDSPRING_V140_TIER2_CONVERGENCE_HANDOFF_MAY13_2026.md](handoffs/GROUNDSPRING_V140_TIER2_CONVERGENCE_HANDOFF_MAY13_2026.md) | May 13, 2026 | Tier 2 convergence wave response: coralReef wired, list_workloads filter aligned, LTEE tolerances.toml, plasmidBin validated, 2 upstream gaps surfaced. |
 
-**Archived**: V123–V138 handoffs (17 files) moved to `handoffs/archive/` — superseded by V139 + lithoSpore handoffs.
+**Archived**: V123–V139 handoffs (20 files) moved to `handoffs/archive/`.
 
 ## Cross-Spring Documentation
 

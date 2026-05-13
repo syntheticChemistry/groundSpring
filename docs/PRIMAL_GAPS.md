@@ -1,11 +1,11 @@
 # groundSpring Primal Composition Gaps
 
-**Spring:** groundSpring V139
+**Spring:** groundSpring V140
 **Proto-nucleate:** `downstream_manifest.toml` (spring_name = "groundspring")
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
 **Date:** April 27, 2026
-**Last audited:** May 12, 2026 (V139 — Tier 2 wiring: `toadstool.validate` + `barracuda.precision.route` IPC. LTEE B1–B4 complete. guideStone L4, Tier 4 IPC-first, 1,123 tests, zero clippy, zero unsafe)
+**Last audited:** May 13, 2026 (V140 — Tier 2 convergence wave. `toadstool.validate` + `toadstool.list_workloads` (filter param aligned) + `barracuda.precision.route` IPC. coralReef `shader.compile.wgsl` wired (FECS Sprint 7). LTEE B1–B4 complete with `tolerances.toml`. guideStone L4, Tier 4 IPC-first, 1,123 tests, zero clippy, zero unsafe)
 **License:** AGPL-3.0-or-later
 
 ---
@@ -35,21 +35,18 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 - **Action:** Add Squirrel when neuralSpring native inference matures.
   No blocker in groundSpring code.
 
-### GAP-GS-002: coralReef Not Wired
+### GAP-GS-002: coralReef Shader IPC
 
 - **Primal:** coralReef
 - **Severity:** Low
-- **Status:** Deferred
-- **Description:** coralReef (sovereign shader compiler) is listed in
-  `depends_on` in the downstream manifest but is not wired via IPC.
-  barraCuda currently handles shader compilation internally. When
-  coralReef's JSON-RPC compile API stabilizes, groundSpring should route
-  shader compilation through `shader.*` capability.
-- **Action:** Wire when coralReef API stabilizes. Track via
-  `specs/BARRACUDA_EVOLUTION.md`.
-- **V136–V139 progress:** IPC stub created (`ipc/coralreef.rs`) with
-  `ShaderCompile` tarpc trait (`compile_wgsl`, `targets`, `validate`).
-  Awaiting coralReef SM rebuild to activate.
+- **Status:** Resolved (May 13, 2026)
+- **Description:** coralReef (sovereign shader compiler) was listed in
+  `depends_on` but not wired via IPC. coralReef FECS stability proof
+  shipped (Sprint 7, 4,790 tests).
+- **Resolution:** Wired `shader.compile.wgsl` IPC in `ipc/coralreef.rs`
+  with params aligned to upstream contract (`source`, `target`,
+  `sm_version`). Added biomeOS JSON-RPC helpers (`compile_wgsl`,
+  `try_compile_wgsl`) with graceful degradation.
 
 ### GAP-GS-003: TensorSession Not Adopted
 
@@ -156,6 +153,27 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 - **Action:** Coordinate with barraCuda team. Execute rebaseline when
   PRNG migration is ecosystem-wide priority.
 
+### GAP-GS-013: primalSpring LIVE_SCIENCE_API.md `precision.route` Status Contradiction
+
+- **Primal:** primalSpring (documentation)
+- **Severity:** Low
+- **Status:** Surface upstream
+- **Description:** `primalSpring/docs/LIVE_SCIENCE_API.md` line 184 lists
+  `barracuda.precision.route` as **NOT IMPLEMENTED**, but the Tier 2
+  Convergence Wave blurb (May 13, 2026) says **IMPLEMENTED (649 tests)**.
+  One of these is stale. groundSpring's wire assumes IMPLEMENTED.
+- **Action:** Handback to primalSpring for doc reconciliation.
+
+### GAP-GS-014: DOWNSTREAM_PATTERN_GUIDE Missing groundSpring B4
+
+- **Primal:** primalSpring (documentation)
+- **Severity:** Low
+- **Status:** Surface upstream
+- **Description:** `primalSpring/docs/DOWNSTREAM_PATTERN_GUIDE.md` lists
+  groundSpring LTEE as "B1-B3 DONE" with 1,125 tests. Actual: B1-B4
+  DONE (Exp 039 citrate innovation), 1,123 tests.
+- **Action:** Handback to primalSpring for doc update.
+
 ---
 
 ## Resolved Gaps
@@ -167,7 +185,8 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 | GAP-GS-006 | metalForge tolerance duplication | Unified via `groundspring::tol` delegation | May 8, 2026 |
 | GAP-GS-007 | barraCuda version refs (0.3.7→0.3.13) | Active specs/graphs updated | Apr 27, 2026 |
 | GAP-GS-010 | compute_capabilities() wrong capability | Fixed to `compute.capabilities` | Apr 27, 2026 |
-| GAP-GS-012 | `barracuda.rs` test asserted `roles::COMPUTE == "barracuda"` (wrong — COMPUTE is `"toadstool"`) | Added `roles::GPU_MATH = "barracuda"`, fixed tests, added Tier 2 `precision_route` + `validate` + `list_workloads` | May 12, 2026 |
+| GAP-GS-002 | coralReef not wired via IPC | Wired `shader.compile.wgsl` with upstream-aligned params + biomeOS helpers | May 13, 2026 |
+| GAP-GS-012 | `barracuda.rs` test asserted `roles::COMPUTE == "barracuda"` | Added `roles::GPU_MATH`, fixed tests, Tier 2 methods | May 12, 2026 |
 
 ---
 
