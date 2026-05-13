@@ -18,7 +18,8 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V140 Tier 2 Convergence | [GROUNDSPRING_V140_TIER2_CONVERGENCE_HANDOFF_MAY13_2026.md](handoffs/GROUNDSPRING_V140_TIER2_CONVERGENCE_HANDOFF_MAY13_2026.md) | May 13, 2026 | Tier 2 convergence wave response: coralReef wired, list_workloads filter aligned, LTEE tolerances.toml, plasmidBin validated, 2 upstream gaps surfaced. |
+| V140 Deep Debt + Evolution | [GROUNDSPRING_V140_DEEP_DEBT_EVOLUTION_HANDOFF_MAY13_2026.md](handoffs/GROUNDSPRING_V140_DEEP_DEBT_EVOLUTION_HANDOFF_MAY13_2026.md) | May 13, 2026 | Full deep debt audit: zero debt across all criteria, audit question responses (benchmarks, papers, datasets), complete IPC surface, upstream gaps, niche posture. |
+| V140 Tier 2 Convergence | [GROUNDSPRING_V140_TIER2_CONVERGENCE_HANDOFF_MAY13_2026.md](handoffs/GROUNDSPRING_V140_TIER2_CONVERGENCE_HANDOFF_MAY13_2026.md) | May 13, 2026 | Tier 2 convergence: coralReef wired, list_workloads filter, tolerances.toml, plasmidBin validated. |
 
 **Archived**: V123–V139 handoffs (20 files) moved to `handoffs/archive/`.
 
