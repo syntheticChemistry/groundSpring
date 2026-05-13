@@ -11,6 +11,7 @@
 //! - `compute.execute` — synchronous dispatch
 //! - `compute.submit` — async job submission
 //! - `compute.capabilities` — hardware/capability enumeration
+//! - `compute.device.enumerate` — Phase D `LocalDeviceFactory` device listing (S254)
 //! - `toadstool.validate` — workload pre-flight validation (Tier 2, Pass 14)
 //! - `toadstool.list_workloads` — auto-discover available workloads (Tier 2, Pass 14)
 
@@ -38,6 +39,12 @@ pub trait OrchestrationService {
     /// `filter` selects which workloads to return: `"active"`, `"all"`, or
     /// `"ready"`. Upstream: `toadstool.list_workloads` (Pass 14, S245+).
     async fn list_workloads(filter: String) -> Result<String, String>;
+
+    /// Enumerate locally available compute devices via Phase D `LocalDeviceFactory`.
+    ///
+    /// Returns device descriptors including vendor, driver, DRM node, and
+    /// compute capabilities. Upstream: `compute.device.enumerate` (S254).
+    async fn device_enumerate() -> Result<String, String>;
 }
 
 /// Validate a workload via `ToadStool` JSON-RPC before dispatch.
@@ -92,6 +99,41 @@ pub fn list_workloads(
     .to_string();
     let response = crate::biomeos::raw_rpc_call(socket, &request)?;
     parse_jsonrpc_response(&response)
+}
+
+/// Enumerate locally available compute devices via `ToadStool` Phase D factory.
+///
+/// Returns device descriptors discovered by `LocalDeviceFactory` (AMD DRM,
+/// NVIDIA VFIO, etc.). Upstream: `compute.device.enumerate` (S254).
+///
+/// # Errors
+///
+/// Returns `BiomeOsError` if `ToadStool` is not discovered or the IPC call fails.
+#[cfg(feature = "biomeos")]
+pub fn device_enumerate(socket: &std::path::Path) -> crate::biomeos::Result<serde_json::Value> {
+    let request = serde_json::json!({
+        "jsonrpc": "2.0",
+        "method": "compute.device.enumerate",
+        "params": {},
+        "id": 1
+    })
+    .to_string();
+    let response = crate::biomeos::raw_rpc_call(socket, &request)?;
+    parse_jsonrpc_response(&response)
+}
+
+/// Attempt to discover `ToadStool` and enumerate compute devices.
+///
+/// Returns `Ok(None)` if `ToadStool` is not available (graceful degradation).
+#[cfg(feature = "biomeos")]
+pub fn try_device_enumerate() -> crate::biomeos::Result<Option<serde_json::Value>> {
+    crate::primal_names::discover_socket(crate::primal_names::roles::COMPUTE).map_or_else(
+        || {
+            tracing::debug!("ToadStool not discovered — device enumeration skipped");
+            Ok(None)
+        },
+        |socket| device_enumerate(&socket).map(Some),
+    )
 }
 
 /// Extract `result` or `error` from a JSON-RPC 2.0 response.

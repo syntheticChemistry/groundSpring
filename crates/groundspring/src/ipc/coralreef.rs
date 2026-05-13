@@ -88,6 +88,80 @@ pub fn try_compile_wgsl(
     )
 }
 
+/// List available shader compilation targets via `coralReef` JSON-RPC.
+///
+/// Returns targets supported by the discovered `coralReef` instance
+/// (e.g. `"ptx"`, `"spirv"`, ISA variants).
+///
+/// # Errors
+///
+/// Returns `BiomeOsError` if `coralReef` is not discovered or the IPC call fails.
+#[cfg(feature = "biomeos")]
+pub fn shader_targets(socket: &std::path::Path) -> crate::biomeos::Result<serde_json::Value> {
+    let request = serde_json::json!({
+        "jsonrpc": "2.0",
+        "method": "shader.targets",
+        "params": {},
+        "id": 1
+    })
+    .to_string();
+    let response = crate::biomeos::raw_rpc_call(socket, &request)?;
+    parse_jsonrpc_response(&response)
+}
+
+/// Attempt to discover `coralReef` and list shader targets.
+///
+/// Returns `Ok(None)` if `coralReef` is not available (graceful degradation).
+#[cfg(feature = "biomeos")]
+pub fn try_shader_targets() -> crate::biomeos::Result<Option<serde_json::Value>> {
+    crate::primal_names::discover_socket(crate::primal_names::roles::COMPILER).map_or_else(
+        || {
+            tracing::debug!("coralReef not discovered — shader targets skipped");
+            Ok(None)
+        },
+        |socket| shader_targets(&socket).map(Some),
+    )
+}
+
+/// Validate a WGSL module via `coralReef` JSON-RPC without producing output.
+///
+/// Useful for pre-flight checks before compilation.
+///
+/// # Errors
+///
+/// Returns `BiomeOsError` if `coralReef` is not discovered or the IPC call fails.
+#[cfg(feature = "biomeos")]
+pub fn validate_shader(
+    socket: &std::path::Path,
+    source: &str,
+) -> crate::biomeos::Result<serde_json::Value> {
+    let request = serde_json::json!({
+        "jsonrpc": "2.0",
+        "method": "shader.validate",
+        "params": {
+            "source": source,
+        },
+        "id": 1
+    })
+    .to_string();
+    let response = crate::biomeos::raw_rpc_call(socket, &request)?;
+    parse_jsonrpc_response(&response)
+}
+
+/// Attempt to discover `coralReef` and validate a WGSL module.
+///
+/// Returns `Ok(None)` if `coralReef` is not available (graceful degradation).
+#[cfg(feature = "biomeos")]
+pub fn try_validate_shader(source: &str) -> crate::biomeos::Result<Option<serde_json::Value>> {
+    crate::primal_names::discover_socket(crate::primal_names::roles::COMPILER).map_or_else(
+        || {
+            tracing::debug!("coralReef not discovered — shader validation skipped");
+            Ok(None)
+        },
+        |socket| validate_shader(&socket, source).map(Some),
+    )
+}
+
 /// Extract `result` or `error` from a JSON-RPC 2.0 response.
 #[cfg(feature = "biomeos")]
 fn parse_jsonrpc_response(response: &str) -> crate::biomeos::Result<serde_json::Value> {

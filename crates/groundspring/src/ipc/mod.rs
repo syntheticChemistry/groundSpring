@@ -20,7 +20,7 @@
 //! - [`beardog`] — Cryptographic operations via `BearDog`
 //! - [`songbird`] — Network discovery and mesh via `Songbird`
 //! - [`skunkbat`] — Audit logging via `skunkBat` (JH-5)
-//! - [`coralreef`] — Sovereign shader compilation via `coralReef` (FECS Sprint 7)
+//! - [`coralreef`] — Sovereign shader compilation via `coralReef` (FECS Sprint 7, full surface)
 //!
 //! # Semantic method naming
 //!
@@ -30,7 +30,11 @@
 //! - `compute.*` — GPU/NPU dispatch (`ToadStool` orchestration)
 //! - `toadstool.validate` — workload pre-flight validation (Tier 2, Pass 14)
 //! - `toadstool.list_workloads` — auto-discover available workloads (Tier 2)
+//! - `compute.device.enumerate` — Phase D `LocalDeviceFactory` device listing (S254)
 //! - `barracuda.precision.route` — precision tier advisory (Tier 2, Pass 14)
+//! - `shader.compile.wgsl` — sovereign WGSL compilation (FECS Sprint 7)
+//! - `shader.targets` — list compilation targets
+//! - `shader.validate` — WGSL module pre-flight validation
 //! - `storage.*` — Provenance and data
 //! - `data.*` — Live data pipelines (NCBI, NOAA, IRIS)
 //! - `crypto.*` — Cryptographic operations

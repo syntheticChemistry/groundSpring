@@ -5,7 +5,7 @@
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
 **Date:** April 27, 2026
-**Last audited:** May 13, 2026 (V140 — Tier 2 convergence wave. `toadstool.validate` + `toadstool.list_workloads` (filter param aligned) + `barracuda.precision.route` IPC. coralReef `shader.compile.wgsl` wired (FECS Sprint 7). LTEE B1–B4 complete with `tolerances.toml`. guideStone L4, Tier 4 IPC-first, 1,123 tests, zero clippy, zero unsafe)
+**Last audited:** May 13, 2026 (V140 — Niche atomic deepening. Full coralReef surface: `shader.compile.wgsl` + `shader.targets` + `shader.validate`. Phase D `compute.device.enumerate` wired. `toadstool.validate` + `toadstool.list_workloads` + `barracuda.precision.route`. LTEE B1–B4 with `tolerances.toml`. guideStone L4, Tier 4 IPC-first, 1,123 tests, zero clippy, zero unsafe)
 **License:** AGPL-3.0-or-later
 
 ---
@@ -43,10 +43,10 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 - **Description:** coralReef (sovereign shader compiler) was listed in
   `depends_on` but not wired via IPC. coralReef FECS stability proof
   shipped (Sprint 7, 4,790 tests).
-- **Resolution:** Wired `shader.compile.wgsl` IPC in `ipc/coralreef.rs`
-  with params aligned to upstream contract (`source`, `target`,
-  `sm_version`). Added biomeOS JSON-RPC helpers (`compile_wgsl`,
-  `try_compile_wgsl`) with graceful degradation.
+- **Resolution:** Wired full `coralReef` surface in `ipc/coralreef.rs`:
+  `shader.compile.wgsl` (params: `source`, `target`, `sm_version`),
+  `shader.targets`, `shader.validate`. All with biomeOS JSON-RPC
+  helpers and `try_*` graceful degradation.
 
 ### GAP-GS-003: TensorSession Not Adopted
 
