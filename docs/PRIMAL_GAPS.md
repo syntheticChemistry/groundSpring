@@ -1,11 +1,11 @@
 # groundSpring Primal Composition Gaps
 
-**Spring:** groundSpring V140
+**Spring:** groundSpring V141
 **Proto-nucleate:** `downstream_manifest.toml` (spring_name = "groundspring")
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
 **Date:** April 27, 2026
-**Last audited:** May 13, 2026 (V140 — Niche atomic deepening. Full coralReef surface: `shader.compile.wgsl` + `shader.targets` + `shader.validate`. Phase D `compute.device.enumerate` wired. `toadstool.validate` + `toadstool.list_workloads` + `barracuda.precision.route`. LTEE B1–B4 with `tolerances.toml`. guideStone L4, Tier 4 IPC-first, 1,123 tests, zero clippy, zero unsafe)
+**Last audited:** May 13, 2026 (V141 — Wire hygiene + lithoSpore ingestion + NestGate pipeline. BearDog base64 `message` convention verified, JSON-RPC helpers added. NestGate CAS (`content.put`/`content.get`) + `data.noaa_ghcnd` wired. BLAKE3 ingestion manifest for B1-B4. NOAA GHCND pipeline scaffolded)
 **License:** AGPL-3.0-or-later
 
 ---

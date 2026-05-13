@@ -1,0 +1,104 @@
+# lithoSpore Ingestion Manifest — groundSpring B1-B4
+#
+# This manifest documents the BLAKE3-anchored expected values for
+# lithoSpore module ingestion. Each module maps to an LTEE reproduction
+# with Python baseline + Rust validation + tolerances.
+#
+# Ingestion: lithoSpore fetch_and_hash.sh pulls expected_values.json,
+# verifies BLAKE3, and registers with NestGate content storage.
+#
+# Generated: May 13, 2026 (groundSpring V140)
+
+[meta]
+spring = "groundSpring"
+version = "V140"
+total_modules = 4
+all_complete = true
+
+# --- Module 1: ltee-fitness (B2 Wiser 2013) ---
+
+[modules.ltee_fitness]
+paper_id = "B2"
+paper = "Wiser et al. 2013"
+experiment = "036_ltee_fitness_dynamics"
+litho_module = "ltee-fitness"
+module_number = 1
+status = "COMPLETE"
+
+[modules.ltee_fitness.artifacts]
+expected_values = "control/ltee_fitness_dynamics/expected_values.json"
+expected_values_blake3 = "823e10325633f893828e57b061cff082de74478e95cde8069c3ad3ac9383bc73"
+tolerances = "control/ltee_fitness_dynamics/tolerances.toml"
+python_baseline = "control/ltee_fitness_dynamics/ltee_fitness_dynamics.py"
+rust_validator = "crates/groundspring-validate/src/validate_ltee_fitness.rs"
+benchmark_config = "control/ltee_fitness_dynamics/benchmark_ltee_fitness.json"
+
+[modules.ltee_fitness.checks]
+python = "9/9 PASS"
+rust = "10/10 PASS"
+
+# --- Module 2: ltee-mutation (B1 Barrick 2009) ---
+
+[modules.ltee_mutation]
+paper_id = "B1"
+paper = "Barrick et al. 2009"
+experiment = "037_ltee_neutral_mutation"
+litho_module = "ltee-mutation"
+module_number = 2
+status = "COMPLETE"
+
+[modules.ltee_mutation.artifacts]
+expected_values = "control/ltee_neutral_mutation/expected_values.json"
+expected_values_blake3 = "75c905f666446c3c081be39fd2ea96ef7c109db523f96b03eb25a0094cc299b2"
+tolerances = "control/ltee_neutral_mutation/tolerances.toml"
+python_baseline = "control/ltee_neutral_mutation/ltee_neutral_mutation.py"
+rust_validator = "crates/groundspring-validate/src/validate_ltee_neutral.rs"
+benchmark_config = "control/ltee_neutral_mutation/benchmark_ltee_neutral.json"
+
+[modules.ltee_mutation.checks]
+python = "8/8 PASS"
+rust = "8/8 PASS"
+
+# --- Module 3: ltee-clonal (B3 Good 2017) ---
+
+[modules.ltee_clonal]
+paper_id = "B3"
+paper = "Good et al. 2017"
+experiment = "038_ltee_clonal_interference"
+litho_module = "ltee-clonal"
+module_number = 3
+status = "COMPLETE"
+
+[modules.ltee_clonal.artifacts]
+expected_values = "control/ltee_clonal_interference/expected_values.json"
+expected_values_blake3 = "e0a1e4a454beac1e6f206b2b92248d16dfc1a80e9f6d2c22273f3114a358fc63"
+tolerances = "control/ltee_clonal_interference/tolerances.toml"
+python_baseline = "control/ltee_clonal_interference/ltee_clonal_interference.py"
+rust_validator = "crates/groundspring-validate/src/validate_ltee_clonal.rs"
+benchmark_config = "control/ltee_clonal_interference/benchmark_ltee_clonal.json"
+
+[modules.ltee_clonal.checks]
+python = "8/8 PASS"
+rust = "8/8 PASS"
+
+# --- Module 4: ltee-citrate (B4 Blount 2008/2012) ---
+
+[modules.ltee_citrate]
+paper_id = "B4"
+paper = "Blount et al. 2008, 2012"
+experiment = "039_ltee_citrate_innovation"
+litho_module = "ltee-citrate"
+module_number = 4
+status = "COMPLETE"
+
+[modules.ltee_citrate.artifacts]
+expected_values = "control/ltee_citrate_innovation/expected_values.json"
+expected_values_blake3 = "b380c73952c8c5ecc5104b43958be6e6c054c54206b06199f4b368021b156e02"
+tolerances = "control/ltee_citrate_innovation/tolerances.toml"
+python_baseline = "control/ltee_citrate_innovation/ltee_citrate_innovation.py"
+rust_validator = "crates/groundspring-validate/src/validate_ltee_citrate.rs"
+benchmark_config = "control/ltee_citrate_innovation/benchmark_ltee_citrate.json"
+
+[modules.ltee_citrate.checks]
+python = "8/8 PASS"
+rust = "8/8 PASS"

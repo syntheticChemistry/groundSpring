@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: May 13, 2026 (V140 — Tier 2 convergence wave. coralReef wired, list_workloads filter aligned, LTEE tolerances.toml shipped, plasmidBin validated)
+**Last Updated**: May 13, 2026 (V141 — Wire hygiene + lithoSpore BLAKE3 ingestion + NestGate pipeline. BearDog base64 `message` verified, NestGate CAS + GHCND wired, NOAA GHCND scaffolded)
 
 ## What This Is
 
@@ -18,10 +18,10 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V140 Deep Debt + Evolution | [GROUNDSPRING_V140_DEEP_DEBT_EVOLUTION_HANDOFF_MAY13_2026.md](handoffs/GROUNDSPRING_V140_DEEP_DEBT_EVOLUTION_HANDOFF_MAY13_2026.md) | May 13, 2026 | Full deep debt audit: zero debt across all criteria, audit question responses (benchmarks, papers, datasets), complete IPC surface, upstream gaps, niche posture. |
-| V140 Tier 2 Convergence | [GROUNDSPRING_V140_TIER2_CONVERGENCE_HANDOFF_MAY13_2026.md](handoffs/GROUNDSPRING_V140_TIER2_CONVERGENCE_HANDOFF_MAY13_2026.md) | May 13, 2026 | Tier 2 convergence: coralReef wired, list_workloads filter, tolerances.toml, plasmidBin validated. |
+| V141 Niche Convergence | [GROUNDSPRING_V141_NICHE_CONVERGENCE_HANDOFF_MAY13_2026.md](handoffs/GROUNDSPRING_V141_NICHE_CONVERGENCE_HANDOFF_MAY13_2026.md) | May 13, 2026 | Wire hygiene, lithoSpore BLAKE3 ingestion manifest, NestGate CAS + GHCND pipeline, BearDog JSON-RPC. |
 
-**Archived**: V123–V139 handoffs (20 files) moved to `handoffs/archive/`.
+**Archived**: V123–V140 handoffs moved to `handoffs/archive/`.
+
 
 ## Cross-Spring Documentation
 

@@ -1,0 +1,45 @@
+# NOAA GHCND NestGate Pipeline Exercise — groundSpring
+#
+# First real-dataset ingestion through NestGate CAS pipeline.
+# NOAA GHCND daily weather observations are the easiest public CSV
+# dataset to ingest (public domain, well-documented, deterministic).
+#
+# Pipeline: NestGate data.noaa_ghcnd → validate → content.put (BLAKE3)
+#
+# Status: SCAFFOLDED (awaiting NestGate deployment)
+
+[meta]
+name = "NOAA GHCND Pipeline Exercise"
+experiment_id = 40
+spring = "groundSpring"
+pipeline = "NestGate CAS"
+status = "SCAFFOLDED"
+created = "2026-05-13"
+
+[source]
+provider = "NOAA"
+dataset = "GHCND"
+format = "CSV"
+license = "public domain"
+docs = "https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily"
+
+[query]
+station_id = "USW00094728"
+station_name = "Central Park, New York, NY"
+start_date = "2024-01-01"
+end_date = "2024-12-31"
+elements = "TMAX,TMIN,PRCP,SNOW,SNWD"
+
+[validation]
+min_records = 360
+max_missing_days = 10
+tmax_range_c = [-20.0, 45.0]
+tmin_range_c = [-30.0, 35.0]
+prcp_range_mm = [0.0, 300.0]
+tmax_gt_tmin = true
+
+[nestgate]
+method = "data.noaa_ghcnd"
+storage_method = "content.put"
+family_id = "groundspring.noaa_ghcnd.v1"
+provenance = "BLAKE3"

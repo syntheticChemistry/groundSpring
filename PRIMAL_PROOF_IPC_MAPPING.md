@@ -1,7 +1,7 @@
 # groundSpring — Primal-Proof IPC Mapping
 
-**Date**: May 10, 2026
-**groundSpring**: V140 (Tier 2 converged: toadstool.validate + toadstool.list_workloads + barracuda.precision.route + shader.compile.wgsl. Tier 4 IPC-first, LTEE B1-B4 complete with tolerances.toml, --format json on all 38 binaries)
+**Date**: May 13, 2026
+**groundSpring**: V141 (Tier 2 converged + BearDog base64 wire hygiene + NestGate CAS/GHCND wiring + lithoSpore BLAKE3 ingestion manifest + NOAA GHCND pipeline scaffolded)
 **barraCuda**: v0.4.0
 **primalSpring**: v0.9.25
 
@@ -86,26 +86,39 @@ barracuda-gpu = ["barracuda", "barracuda/gpu", ...]  # GPU path
 ### Transition Path
 
 1. **V126**: `barracuda` was default. Library calls were direct.
-2. **V140 (current)**: Tier 2 converged. `toadstool.validate`, `toadstool.list_workloads` (filter param), `barracuda.precision.route`, `shader.compile.wgsl` (coralReef FECS). `barracuda` removed from `default`. LTEE B1-B4 complete with `tolerances.toml`. `--format json` on all 38 binaries. barraCuda v0.4.0. `roles::GPU_MATH` added. Feature flags documented.
+2. **V140**: Tier 2 converged. `toadstool.validate`, `toadstool.list_workloads` (filter param), `barracuda.precision.route`, `shader.compile.wgsl` (coralReef FECS). `barracuda` removed from `default`. LTEE B1-B4 complete with `tolerances.toml`. `--format json` on all 38 binaries. barraCuda v0.4.0. `roles::GPU_MATH` added. Feature flags documented.
    `local` feature enables library linkage. All 284 `barracuda::` references
    are behind `#[cfg(feature = "barracuda")]`; IPC fallback paths active
    when the feature is off. `CompositionContext` routes through biomeOS.
-3. **Next**: Wire `primal-proof` parallel validation (library vs IPC comparison).
+3. **V141 (current)**: Wire hygiene (BearDog base64 `message` convention). NestGate CAS + GHCND pipeline wiring. BearDog JSON-RPC helpers (`crypto.sign`, `crypto.hash_blake3`, `crypto.seed_fingerprint`). lithoSpore BLAKE3 ingestion manifest for B1-B4.
+4. **Next**: Wire `primal-proof` parallel validation (library vs IPC comparison). Exercise NOAA GHCND pipeline when NestGate is deployed.
 
 ---
 
 ## IPC Routing via biomeos
 
-The `biomeos` module already routes to deployed primals via JSON-RPC:
+The `biomeos` module routes to deployed primals via JSON-RPC:
 
-| biomeos Function | JSON-RPC Path | Primal |
-|-----------------|--------------|--------|
-| `biomeos::compute_execute(op, params)` | `compute.execute` | barraCuda |
-| `biomeos::compute_submit(op, params)` | `compute.submit` | barraCuda |
-| `biomeos::compute_capabilities()` | `compute.capabilities` | barraCuda |
-| `biomeos::storage_get(key, fam)` | `storage.get` | NestGate |
-| `biomeos::storage_put(key, val, fam)` | `storage.put` | NestGate |
-| `biomeos::capability_call(cap, op, args)` | `capability.call` | Any |
+| biomeos Function | JSON-RPC Path | Primal | Notes |
+|-----------------|--------------|--------|-------|
+| `biomeos::compute_execute(op, params)` | `compute.execute` | barraCuda | |
+| `biomeos::compute_submit(op, params)` | `compute.submit` | barraCuda | |
+| `biomeos::compute_capabilities()` | `compute.capabilities` | barraCuda | |
+| `ipc::toadstool::validate_workload(...)` | `toadstool.validate` | ToadStool | Tier 2 Pass 14 |
+| `ipc::toadstool::list_workloads(...)` | `toadstool.list_workloads` | ToadStool | filter param |
+| `ipc::toadstool::device_enumerate(...)` | `compute.device.enumerate` | ToadStool | Phase D |
+| `ipc::barracuda::precision_route(...)` | `barracuda.precision.route` | barraCuda | Tier 2 |
+| `ipc::coralreef::compile_wgsl(...)` | `shader.compile.wgsl` | coralReef | FECS Sprint 7 |
+| `ipc::coralreef::shader_targets(...)` | `shader.targets` | coralReef | |
+| `ipc::coralreef::validate_shader(...)` | `shader.validate` | coralReef | |
+| `ipc::nestgate::content_put(...)` | `content.put` | NestGate | CAS storage |
+| `ipc::nestgate::content_get(...)` | `content.get` | NestGate | CAS retrieval |
+| `ipc::nestgate::noaa_ghcnd_fetch(...)` | `data.noaa_ghcnd` | NestGate | Pipeline exercise |
+| `ipc::beardog::crypto_sign(...)` | `crypto.sign` | BearDog | base64 `message` field |
+| `ipc::beardog::crypto_hash_blake3(...)` | `crypto.hash_blake3` | BearDog | |
+| `ipc::beardog::crypto_seed_fingerprint(...)` | `crypto.seed_fingerprint` | BearDog | Wave 102 |
+| `ipc::skunkbat::emit_audit_event(...)` | `security.audit_log` | skunkBat | JH-5 |
+| `biomeos::capability_call(cap, op, args)` | `capability.call` | Any | |
 
 ### CompositionContext routing (via primalSpring v0.9.25)
 

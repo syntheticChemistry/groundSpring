@@ -17,7 +17,7 @@
 //! - [`barracuda`] — GPU/NPU compute dispatch via `barraCuda`
 //! - [`toadstool`] — Compute orchestration via `ToadStool`
 //! - [`nestgate`] — Storage and live data pipelines via `NestGate`
-//! - [`beardog`] — Cryptographic operations via `BearDog`
+//! - [`beardog`] — Cryptographic operations via `BearDog` (base64 `message` wire convention)
 //! - [`songbird`] — Network discovery and mesh via `Songbird`
 //! - [`skunkbat`] — Audit logging via `skunkBat` (JH-5)
 //! - [`coralreef`] — Sovereign shader compilation via `coralReef` (FECS Sprint 7, full surface)
@@ -35,9 +35,13 @@
 //! - `shader.compile.wgsl` — sovereign WGSL compilation (FECS Sprint 7)
 //! - `shader.targets` — list compilation targets
 //! - `shader.validate` — WGSL module pre-flight validation
-//! - `storage.*` — Provenance and data
-//! - `data.*` — Live data pipelines (NCBI, NOAA, IRIS)
-//! - `crypto.*` — Cryptographic operations
+//! - `content.put` / `content.get` — `NestGate` CAS storage
+//! - `data.noaa_ghcnd` — NOAA daily weather pipeline (NestGate exercise)
+//! - `data.ncbi_search` / `data.ncbi_fetch` — NCBI sequence data
+//! - `data.iris_stations` — IRIS seismic station metadata
+//! - `crypto.sign` / `crypto.verify` — `BearDog` signing (base64 `message` field)
+//! - `crypto.hash_blake3` — `BearDog` BLAKE3 hashing
+//! - `crypto.seed_fingerprint` — `BearDog` PRNG seed fingerprinting (Wave 102)
 //! - `discovery.*` — Network and capability discovery
 //! - `security.*` — Audit logging and threat detection
 
