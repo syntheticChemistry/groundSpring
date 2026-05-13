@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: May 13, 2026 (V140)
+**Last Updated**: May 13, 2026 (V141)
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---
@@ -45,7 +45,7 @@
 
 **Phase 0**: ~276 checks (Python, 29 experiments). **Phase 1**: 427/427 PASS (Rust, 38 experiments / 38 binaries). **Speedup**: 11.5× median (excl. LAPACK-bound), 47.7× peak (Sturm tridiag).
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs (Exp 029–033 have no Python baseline).
-**Current (V140)**: 427/427 checks, 1,123 Rust workspace tests, 287 Python tests, 138 metalForge checks. LTEE B1–B4 COMPLETE — unblocks `lithoSpore` modules 1–4. Tier 2 converged: `toadstool.validate` + `toadstool.list_workloads` + `barracuda.precision.route` + `shader.compile.wgsl`. LTEE `tolerances.toml` shipped.
+**Current (V141)**: 427/427 checks, 1,123 Rust workspace tests, 287 Python tests, 138 metalForge checks. LTEE B1–B4 COMPLETE — unblocks `lithoSpore` modules 1–4. BLAKE3 ingestion manifest shipped (`control/LITHOSPORE_INGESTION_MANIFEST.toml`). 17 IPC methods across 7 primals. Wire hygiene verified (BearDog base64 `message`, skunkBat `security.audit_log`). NestGate CAS + GHCND pipeline wired. NOAA GHCND scaffold ready.
 **LTEE summary**: B2 (Exp 036, 10/10), B1 (Exp 037, 8/8), B3 (Exp 038, 7/7), B4 (Exp 039, 8/8). All have `expected_values.json` + Rust validation binaries with `--format json`.
 **Tier 4 IPC-first (V128)**: `barracuda` removed from default features; IPC via `CompositionContext` is the default. `local` feature for opt-in library linkage.
 **GPU dispatch**: 16 modules wired for `barracuda-gpu` — 110 delegations (67 CPU + 43 GPU), barraCuda v0.4.0, toadStool S158+. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed).

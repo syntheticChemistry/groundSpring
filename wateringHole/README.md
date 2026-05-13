@@ -18,6 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
+| V141 Deep Debt + Evolution | [GROUNDSPRING_V141_DEEP_DEBT_EVOLUTION_HANDOFF_MAY13_2026.md](handoffs/GROUNDSPRING_V141_DEEP_DEBT_EVOLUTION_HANDOFF_MAY13_2026.md) | May 13, 2026 | Zero deep debt audit: all criteria clean, audit question responses, 17 IPC methods, upstream gaps. |
 | V141 Niche Convergence | [GROUNDSPRING_V141_NICHE_CONVERGENCE_HANDOFF_MAY13_2026.md](handoffs/GROUNDSPRING_V141_NICHE_CONVERGENCE_HANDOFF_MAY13_2026.md) | May 13, 2026 | Wire hygiene, lithoSpore BLAKE3 ingestion manifest, NestGate CAS + GHCND pipeline, BearDog JSON-RPC. |
 
 **Archived**: V123–V140 handoffs moved to `handoffs/archive/`.
