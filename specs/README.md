@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
-**Last Updated**: May 12, 2026
-**Status**: V139 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 427/427 PASS (340 core + 55 NUCLEUS + 32 LTEE), 110 delegations (67 CPU + 43 GPU) — 1,123 Rust tests, 287 Python tests, 138 metalForge checks, 29 validator exit-code integration tests, 38 experiments (34 core + 4 LTEE reproductions B1–B4), 41 modules. LTEE B1 (Barrick 2009) + B2 (Wiser 2013) + B3 (Good 2017) + B4 (Blount 2008/2012) reproductions complete — unblocks `lithoSpore` modules 1–4. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). barraCuda v0.4.0. guideStone Level 4 (bare + NUCLEUS composition parity). Tier 4 IPC-first. Zero clippy warnings on all targets. Zero unsafe.
+**Last Updated**: May 13, 2026
+**Status**: V140 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 427/427 PASS (340 core + 55 NUCLEUS + 32 LTEE), 110 delegations (67 CPU + 43 GPU) — 1,123 Rust tests, 287 Python tests, 138 metalForge checks, 29 validator exit-code integration tests, 38 experiments (34 core + 4 LTEE reproductions B1–B4), 41 modules. LTEE B1 (Barrick 2009) + B2 (Wiser 2013) + B3 (Good 2017) + B4 (Blount 2008/2012) reproductions complete — unblocks `lithoSpore` modules 1–4. Three-tier parity proven: 29/29. License AGPL-3.0-or-later (SCYBORG trio). barraCuda v0.4.0. guideStone Level 4 (bare + NUCLEUS composition parity). Tier 4 IPC-first. Zero clippy warnings on all targets. Zero unsafe.
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---

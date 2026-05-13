@@ -1,7 +1,7 @@
 # LAN HPC Deployment Readiness Checklist
 
 **Date**: May 8, 2026
-**Status**: Eastgate NUCLEUS validated (V139 / guideStone L4), awaiting 10G Cat6a cables
+**Status**: Eastgate NUCLEUS validated (V140 / guideStone L4), awaiting 10G Cat6a cables
 
 ---
 

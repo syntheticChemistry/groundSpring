@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: May 12, 2026 (V139 — 1,123 tests, ≥92% library coverage, 0 clippy warnings on all targets, 0 fmt diff, license AGPL-3.0-or-later. guideStone Level 4. LTEE B1–B4 complete (4/4) — unblocks `lithoSpore` modules 1–4. 38 experiments, 427/427 checks, 38 validation binaries, `--format json` on all binaries. Tier 4 IPC-first. barraCuda v0.4.0. primalSpring v0.9.25.)
+**Last updated**: May 13, 2026 (V140 — 1,123 tests, ≥92% library coverage, 0 clippy warnings on all targets, 0 fmt diff, license AGPL-3.0-or-later. guideStone Level 4. LTEE B1–B4 complete (4/4) — unblocks `lithoSpore` modules 1–4. 38 experiments, 427/427 checks, 38 validation binaries, `--format json` on all binaries. Tier 4 IPC-first. barraCuda v0.4.0. primalSpring v0.9.25.)
 
 ## Experiment Register
 
@@ -461,7 +461,7 @@ Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classi
 | Rust doc test | 2 | Documentation example test |
 | Rust forge | 49 | groundspring-forge crate tests (incl. 14 V35 arch-aware routing) |
 | Rust biomeos | 32 | biomeOS client + integration tests (feature-gated) |
-| **Total Rust (default)** | **990+** | |
+| **Total Rust (default)** | **1,123** | |
 | **Total Rust (barracuda-gpu)** | **814** | |
 | **Total Python** | **375** | (+3 skipped) |
 | **Grand Total** | **1,182** | |
@@ -681,9 +681,9 @@ Each experiment is validated at three hardware tiers:
 | `cargo clippy --features barracuda` | PASS (0 warnings) |
 | `cargo clippy --features barracuda-gpu` | PASS (0 warnings) |
 | `cargo doc --no-deps` | PASS (0 warnings) |
-| `cargo test` | 990+/990+ PASS (default) |
+| `cargo test` | 1,123/1,123 PASS (default) |
 | `cargo test --features biomeos` | ~830 PASS |
-| `cargo test --features barracuda` | 990+/990+ PASS |
+| `cargo test --features barracuda` | 1,123/1,123 PASS |
 | `cargo test --features barracuda-gpu` | 814/814 PASS |
 | Validation binaries (local) | 427/427 PASS (38 binaries) |
 | Validation binaries (barracuda-gpu) | 427/427 PASS |

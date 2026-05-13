@@ -109,7 +109,7 @@ scripts/             Automation (baselines, benchmarks)
 ### Rust
 
 ```bash
-cargo test --workspace                         # 1,123 tests, all PASS (V139)
+cargo test --workspace                         # 1,123 tests, all PASS (V140)
 cargo test --workspace --all-features          # all feature paths tested
 cargo test --workspace --features biomeos      # biomeos tests (NUCLEUS client active)
 cargo test --workspace --features barracuda-gpu # GPU dispatch active

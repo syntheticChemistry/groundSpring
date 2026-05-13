@@ -3,9 +3,9 @@
 **Purpose**: Per-faculty research briefings for groundSpring noise characterization
 reproductions and extensions.
 
-**Last Updated**: May 12, 2026
+**Last Updated**: May 13, 2026
 
-**Validation Summary**: V139 — 427/427 validation checks (340 core + 55 NUCLEUS + 32 LTEE) + 138 metalForge checks, **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.4.0, toadStool S158+, coralReef Iteration 55+**. 1,123 Rust tests + 287 Python provenance tests. ≥92% library line coverage. **guideStone Level 4**. Tier 4 IPC-first. **Tier 2 wired**: `toadstool.validate` + `toadstool.list_workloads` + `barracuda.precision.route`. LTEE B1 (Barrick 2009) + B2 (Wiser 2013) + B3 (Good 2017) + B4 (Blount 2008/2012) reproductions complete — unblocks `lithoSpore` modules 1–4. `--format json` on all 38 validation binaries. Zero unsafe (`#![forbid(unsafe_code)]`), zero mocks in production, zero `.unwrap()` in library code. All 38 experiments PASS. **29/29 mathematical parity proven**. 12 domains, 41 modules.
+**Validation Summary**: V140 — 427/427 validation checks (340 core + 55 NUCLEUS + 32 LTEE) + 138 metalForge checks, **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.4.0, toadStool S158+, coralReef Iteration 55+**. 1,123 Rust tests + 287 Python provenance tests. ≥92% library line coverage. **guideStone Level 4**. Tier 4 IPC-first. **Tier 2 converged**: `toadstool.validate` + `toadstool.list_workloads` + `barracuda.precision.route` + `shader.compile.wgsl`. LTEE B1 (Barrick 2009) + B2 (Wiser 2013) + B3 (Good 2017) + B4 (Blount 2008/2012) reproductions complete — unblocks `lithoSpore` modules 1–4. `--format json` on all 38 validation binaries. Zero unsafe (`#![forbid(unsafe_code)]`), zero mocks in production, zero `.unwrap()` in library code. All 38 experiments PASS. **29/29 mathematical parity proven**. 12 domains, 41 modules.
 
 ---
 

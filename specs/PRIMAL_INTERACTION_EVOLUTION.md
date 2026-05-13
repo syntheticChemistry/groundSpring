@@ -1,6 +1,6 @@
 # Primal Interaction Evolution
 
-**Last updated**: May 12, 2026 (V139 — Tier 2 wiring: `toadstool.validate` + `toadstool.list_workloads` + `barracuda.precision.route` IPC. Tier 4 IPC-first, LTEE B1–B4 COMPLETE (4/4), --format json on all 38 validation binaries, 1,123 tests)
+**Last updated**: May 13, 2026 (V140 — Tier 2 wiring: `toadstool.validate` + `toadstool.list_workloads` + `barracuda.precision.route` IPC. Tier 4 IPC-first, LTEE B1–B4 COMPLETE (4/4), --format json on all 38 validation binaries, 1,123 tests)
 
 This document tracks the evolution of groundSpring's interaction with the
 ecoPrimals ecosystem through biomeOS and the NUCLEUS Neural API, mirroring
@@ -143,7 +143,7 @@ a primal is absent.
 - Direct health: 3/3 primals healthy (beardog v0.9.0, toadstool v0.1.0, squirrel)
 - NestGate: binary version mismatch (no `daemon` subcommand) — needs P1 rebuild
 - 40/40 NUCLEUS experiment checks PASS (Exp 029, 030, 031, 032)
-- 990+ unit/integration tests PASS (0 fail, `--features biomeos`)
+- 1,123 unit/integration tests PASS (0 fail, `--features biomeos`)
 
 ## Next Steps
 
