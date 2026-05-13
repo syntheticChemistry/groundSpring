@@ -91,7 +91,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 - [STUDY.md](STUDY.md) — Detailed results and analysis
 - [METHODOLOGY.md](METHODOLOGY.md) — Experimental design and validation approach
-- [experiments/](experiments/) — Per-experiment summaries (34 experiments, 10 domains)
+- [experiments/](experiments/) — Per-experiment summaries (38 experiments, 12 domains)
 - [baseCamp/](baseCamp/) — Per-faculty research briefings (Bazavov, Waters, Liu, Kachkovskiy, R. Anderson, Dolson, Gonzales)
 - [../wateringHole/CROSS_SPRING_SHADER_EVOLUTION.md](../wateringHole/CROSS_SPRING_SHADER_EVOLUTION.md) — Cross-spring shader provenance (S58–S93)
 - [../specs/BARRACUDA_EVOLUTION.md](../specs/BARRACUDA_EVOLUTION.md) — Module → GPU promotion mapping

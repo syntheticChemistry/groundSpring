@@ -1,7 +1,7 @@
 {
-  "generated": "2026-05-12T13:00:00Z",
+  "generated": "2026-05-13T20:00:00Z",
   "spring": "groundSpring",
-  "version": "V138",
+  "version": "V141",
   "rust_vs_python": {
     "overall_speedup": "5.1x",
     "excl_lapack_speedup": "11.6x",

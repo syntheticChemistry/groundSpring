@@ -2,7 +2,7 @@
 
 > groundSpring as a **validation science primal** in the biomeOS ecosystem.
 
-**Status**: V140 live (May 13, 2026) — NUCLEUS connection validated, --format json, LTEE B1-B4
+**Status**: V141 live (May 13, 2026) — 17 IPC methods across 7 primals, BLAKE3 ingestion manifest, NestGate CAS + GHCND wired, BearDog JSON-RPC, LTEE B1-B4
 
 ## Role
 

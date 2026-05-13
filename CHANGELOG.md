@@ -4,6 +4,42 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V141 Niche Convergence + Deep Debt Audit (May 13, 2026)
+
+#### Wire Hygiene (Audit item 3)
+- **BearDog**: Verified base64 `message` convention (not `data`). Added JSON-RPC helpers: `crypto_sign`, `crypto_hash_blake3`, `crypto_seed_fingerprint` (Wave 102). All with `try_*` graceful degradation.
+- **skunkBat**: Already uses `security.audit_log` (correct). Zero `defense.audit` references found.
+
+#### NestGate CAS + GHCND Pipeline
+- **NestGate IPC**: Added `content_put`/`content_get` JSON-RPC helpers for CAS storage. Added `noaa_ghcnd_fetch`/`try_noaa_ghcnd_fetch` for daily weather pipeline.
+- **NOAA GHCND scaffold**: `control/noaa_ghcnd/pipeline_config.toml` + `README.md`. Central Park 2024 daily TMAX/TMIN/PRCP. Status: SCAFFOLDED (awaiting NestGate deployment).
+
+#### lithoSpore BLAKE3 Ingestion
+- **`control/LITHOSPORE_INGESTION_MANIFEST.toml`**: BLAKE3 hashes for all B1-B4 `expected_values.json`, artifact paths, check counts. Ready for lithoSpore hash-and-verify ingestion.
+
+#### IPC Surface
+- **17 JSON-RPC methods across 7 primals**: ToadStool (3), barraCuda (1), coralReef (3), NestGate (3), BearDog (3), skunkBat (1), biomeOS (1).
+
+#### Deep Debt Audit
+- Zero TODO/FIXME/HACK in `.rs`. Zero unsafe. Zero `.unwrap()` in production. Zero files >800 LOC. Zero mocks. Zero hardcoded names. 100% pure Rust deps. All 12 feature flags documented.
+
+### V140 Tier 2 Convergence + Niche Atomic Deepening (May 13, 2026)
+
+- Full coralReef surface: `shader.compile.wgsl` + `shader.targets` + `shader.validate`.
+- Phase D `compute.device.enumerate` wired (toadStool S254 LocalDeviceFactory).
+- `toadstool.list_workloads` filter param aligned with upstream contract.
+- Cargo.toml feature flag documentation (semantic comments on all 12 flags).
+- Hardcoded `"barracuda."` prefix → `LEGACY_COMPUTE_PREFIX` constant.
+
+### V139 Deep Debt Resolution + Tier 2 IPC Wiring (May 12, 2026)
+
+- `toadstool.validate` + `toadstool.list_workloads` + `barracuda.precision.route` IPC wired.
+- `roles::GPU_MATH` constant added. `ipc/barracuda.rs` test bug fixed.
+- Documentation sweep: 1,123 test count reconciled across ~25 files. barraCuda v0.4.0 refs updated.
+- `experiment_catalog.json`: 39→38 total experiments corrected. Exp 035 `python: null` → `"PASS"`.
+- Clippy `map_or_else` + shared `parse_jsonrpc_response` refactoring.
+- Archived 9 stale scripts to `scripts/archive/`.
+
 ### V138 Deep Debt V3 + B4 LTEE Citrate Innovation (May 12, 2026)
 
 #### LTEE B4: Blount et al. 2008/2012 Citrate Innovation (Exp 039)
