@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: May 13, 2026 (V141 — Wire hygiene + lithoSpore BLAKE3 ingestion + NestGate pipeline. BearDog base64 `message` verified, NestGate CAS + GHCND wired, NOAA GHCND scaffolded)
+**Last Updated**: May 14, 2026 (V142 — Compute trio wave: `shader.compile.gemm` + `health.version` trio-consistent on barraCuda + coralReef. 20 IPC methods across 7 primals. 3 upstream gaps surfaced (GAP-GS-015/016/017))
 
 ## What This Is
 
@@ -18,10 +18,9 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V141 Deep Debt + Evolution | [GROUNDSPRING_V141_DEEP_DEBT_EVOLUTION_HANDOFF_MAY13_2026.md](handoffs/GROUNDSPRING_V141_DEEP_DEBT_EVOLUTION_HANDOFF_MAY13_2026.md) | May 13, 2026 | Zero deep debt audit: all criteria clean, audit question responses, 17 IPC methods, upstream gaps. |
-| V141 Niche Convergence | [GROUNDSPRING_V141_NICHE_CONVERGENCE_HANDOFF_MAY13_2026.md](handoffs/GROUNDSPRING_V141_NICHE_CONVERGENCE_HANDOFF_MAY13_2026.md) | May 13, 2026 | Wire hygiene, lithoSpore BLAKE3 ingestion manifest, NestGate CAS + GHCND pipeline, BearDog JSON-RPC. |
+| V142 Compute Trio Wave | [GROUNDSPRING_V142_COMPUTE_TRIO_WAVE_HANDOFF_MAY14_2026.md](handoffs/GROUNDSPRING_V142_COMPUTE_TRIO_WAVE_HANDOFF_MAY14_2026.md) | May 14, 2026 | Compute trio absorption: `shader.compile.gemm`, `health.version` (barraCuda + coralReef). 20 IPC methods, 3 upstream gaps surfaced. |
 
-**Archived**: V123–V140 handoffs moved to `handoffs/archive/`.
+**Archived**: V123–V141 handoffs moved to `handoffs/archive/`.
 
 
 ## Cross-Spring Documentation

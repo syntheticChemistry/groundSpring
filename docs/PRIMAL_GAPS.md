@@ -1,11 +1,11 @@
 # groundSpring Primal Composition Gaps
 
-**Spring:** groundSpring V141
+**Spring:** groundSpring V142
 **Proto-nucleate:** `downstream_manifest.toml` (spring_name = "groundspring")
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
 **Date:** April 27, 2026
-**Last audited:** May 13, 2026 (V141 — Wire hygiene + lithoSpore ingestion + NestGate pipeline. BearDog base64 `message` convention verified, JSON-RPC helpers added. NestGate CAS (`content.put`/`content.get`) + `data.noaa_ghcnd` wired. BLAKE3 ingestion manifest for B1-B4. NOAA GHCND pipeline scaffolded)
+**Last audited:** May 14, 2026 (V142 — Compute trio wave absorption. `shader.compile.gemm` (coralReef Sprint 11). `health.version` trio-consistent on barraCuda + coralReef. 20 IPC methods across 7 primals. sourDough internalization awareness. primalSpring `routing` module upstream bug surfaced)
 **License:** AGPL-3.0-or-later
 
 ---
@@ -39,14 +39,15 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 
 - **Primal:** coralReef
 - **Severity:** Low
-- **Status:** Resolved (May 13, 2026)
+- **Status:** Resolved (May 14, 2026 — compute trio wave)
 - **Description:** coralReef (sovereign shader compiler) was listed in
   `depends_on` but not wired via IPC. coralReef FECS stability proof
   shipped (Sprint 7, 4,790 tests).
-- **Resolution:** Wired full `coralReef` surface in `ipc/coralreef.rs`:
-  `shader.compile.wgsl` (params: `source`, `target`, `sm_version`),
-  `shader.targets`, `shader.validate`. All with biomeOS JSON-RPC
-  helpers and `try_*` graceful degradation.
+- **Resolution:** Full `coralReef` surface wired in `ipc/coralreef.rs`:
+  `shader.compile.wgsl` (source, target, sm_version),
+  `shader.compile.gemm` (m, n, k, precision, arch — Sprint 11 tensor-core),
+  `shader.targets`, `shader.validate`, `health.version` (trio-consistent).
+  All with biomeOS JSON-RPC helpers and `try_*` graceful degradation.
 
 ### GAP-GS-003: TensorSession Not Adopted
 
@@ -174,6 +175,41 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
   DONE (Exp 039 citrate innovation), 1,123 tests.
 - **Action:** Handback to primalSpring for doc update.
 
+### GAP-GS-015: primalSpring `routing` Module Visibility Bug
+
+- **Primal:** primalSpring
+- **Severity:** Medium (blocks `cargo check --workspace`)
+- **Status:** Surface upstream
+- **Description:** `primalSpring/ecoPrimal/src/coordination/mod.rs:315`
+  references `crate::composition::routing::capability_to_primal` but
+  `composition/mod.rs:42` declares `mod routing;` (private). This causes
+  `cargo check --workspace` to fail for any spring that depends on
+  `primalspring`. Discovered during V142 audit (May 14, 2026).
+- **Action:** Handback to primalSpring for visibility fix (`pub mod routing`
+  or re-export the function).
+
+### GAP-GS-016: plasmidBin Manifest Metadata Stale
+
+- **Primal:** plasmidBin (infra)
+- **Severity:** Low
+- **Status:** Surface upstream
+- **Description:** `infra/plasmidBin/manifest.toml` lists groundSpring
+  with `tests = 1050` (actual: 1,123), `latest = "0.1.0"` (stale).
+  `niche-groundspring` omits `skunkBat` while `atomics.nucleus` includes
+  it (10 primals). `barracuda_depth = "calling"` is unique and unclear.
+- **Action:** Handback to primalSpring for manifest reconciliation.
+
+### GAP-GS-017: wateringHole README Stale groundSpring Row
+
+- **Primal:** wateringHole (infra)
+- **Severity:** Low
+- **Status:** Surface upstream
+- **Description:** `infra/wateringHole/README.md` still lists groundSpring
+  as V135, 1,125 tests, "coralReef IPC, PRNG GPU alignment deferred".
+  Actual: V142, 1,123 tests, coralReef IPC fully wired (5 methods),
+  20 IPC methods across 7 primals.
+- **Action:** Handback to primalSpring for table refresh.
+
 ---
 
 ## Resolved Gaps
@@ -185,7 +221,7 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 | GAP-GS-006 | metalForge tolerance duplication | Unified via `groundspring::tol` delegation | May 8, 2026 |
 | GAP-GS-007 | barraCuda version refs (0.3.7→0.3.13) | Active specs/graphs updated | Apr 27, 2026 |
 | GAP-GS-010 | compute_capabilities() wrong capability | Fixed to `compute.capabilities` | Apr 27, 2026 |
-| GAP-GS-002 | coralReef not wired via IPC | Wired `shader.compile.wgsl` with upstream-aligned params + biomeOS helpers | May 13, 2026 |
+| GAP-GS-002 | coralReef not wired via IPC | Full surface: `compile.wgsl`, `compile.gemm`, `targets`, `validate`, `health.version` | May 14, 2026 |
 | GAP-GS-012 | `barracuda.rs` test asserted `roles::COMPUTE == "barracuda"` | Added `roles::GPU_MATH`, fixed tests, Tier 2 methods | May 12, 2026 |
 
 ---

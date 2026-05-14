@@ -15,8 +15,10 @@
 //! # Capability surface
 //!
 //! - `shader.compile.wgsl` — compile WGSL to target ISA (PTX, SPIR-V)
+//! - `shader.compile.gemm` — compile tensor-core GEMM kernel (SM80+ `mma.sync`)
 //! - `shader.targets` — list available compilation targets
 //! - `shader.validate` — validate a WGSL module without output
+//! - `health.version` — build identity for post-upgrade verification
 
 /// Sovereign shader compilation capabilities via `coralReef`.
 #[tarpc::service]
@@ -32,11 +34,28 @@ pub trait ShaderCompile {
         sm_version: u32,
     ) -> Result<String, String>;
 
+    /// Compile a tensor-core GEMM kernel for SM80+ `mma.sync` dispatch.
+    ///
+    /// Upstream: `shader.compile.gemm` (Sprint 11, tarpc + JSON-RPC).
+    async fn compile_gemm(
+        m: u32,
+        n: u32,
+        k: u32,
+        precision: String,
+        arch: String,
+    ) -> Result<String, String>;
+
     /// Query available shader compilation targets.
     async fn targets() -> Result<String, String>;
 
     /// Validate a WGSL module without producing output.
     async fn validate(source: String) -> Result<String, String>;
+
+    /// Build identity for post-upgrade verification.
+    ///
+    /// Returns session ID, build hash, version, and primal name.
+    /// Trio-consistent with `barraCuda` and `toadStool` `health.version`.
+    async fn health_version() -> Result<String, String>;
 }
 
 /// Compile a WGSL shader via `coralReef` JSON-RPC.
@@ -85,6 +104,95 @@ pub fn try_compile_wgsl(
             Ok(None)
         },
         |socket| compile_wgsl(&socket, source, target, sm_version).map(Some),
+    )
+}
+
+/// Compile a tensor-core GEMM kernel via `coralReef` JSON-RPC.
+///
+/// Requests `mma.sync` GEMM compilation for SM80+ targets with specified
+/// matrix dimensions and precision. Upstream: `shader.compile.gemm` (Sprint 11).
+///
+/// # Errors
+///
+/// Returns `BiomeOsError` if `coralReef` is not discovered or the IPC call fails.
+#[cfg(feature = "biomeos")]
+pub fn compile_gemm(
+    socket: &std::path::Path,
+    m: u32,
+    n: u32,
+    k: u32,
+    precision: &str,
+    arch: &str,
+) -> crate::biomeos::Result<serde_json::Value> {
+    let request = serde_json::json!({
+        "jsonrpc": "2.0",
+        "method": "shader.compile.gemm",
+        "params": {
+            "m": m,
+            "n": n,
+            "k": k,
+            "precision": precision,
+            "arch": arch,
+        },
+        "id": 1
+    })
+    .to_string();
+    let response = crate::biomeos::raw_rpc_call(socket, &request)?;
+    parse_jsonrpc_response(&response)
+}
+
+/// Attempt to discover `coralReef` and compile a GEMM kernel.
+///
+/// Returns `Ok(None)` if `coralReef` is not available (graceful degradation).
+#[cfg(feature = "biomeos")]
+pub fn try_compile_gemm(
+    m: u32,
+    n: u32,
+    k: u32,
+    precision: &str,
+    arch: &str,
+) -> crate::biomeos::Result<Option<serde_json::Value>> {
+    crate::primal_names::discover_socket(crate::primal_names::roles::COMPILER).map_or_else(
+        || {
+            tracing::debug!("coralReef not discovered — GEMM compilation skipped");
+            Ok(None)
+        },
+        |socket| compile_gemm(&socket, m, n, k, precision, arch).map(Some),
+    )
+}
+
+/// Query `coralReef` build identity via JSON-RPC.
+///
+/// Returns session ID, build hash, version, and primal name.
+/// Trio-consistent with `barraCuda` and `toadStool` `health.version`.
+///
+/// # Errors
+///
+/// Returns `BiomeOsError` if `coralReef` is not discovered or the IPC call fails.
+#[cfg(feature = "biomeos")]
+pub fn health_version(socket: &std::path::Path) -> crate::biomeos::Result<serde_json::Value> {
+    let request = serde_json::json!({
+        "jsonrpc": "2.0",
+        "method": "health.version",
+        "params": {},
+        "id": 1
+    })
+    .to_string();
+    let response = crate::biomeos::raw_rpc_call(socket, &request)?;
+    parse_jsonrpc_response(&response)
+}
+
+/// Attempt to discover `coralReef` and query build identity.
+///
+/// Returns `Ok(None)` if `coralReef` is not available (graceful degradation).
+#[cfg(feature = "biomeos")]
+pub fn try_health_version() -> crate::biomeos::Result<Option<serde_json::Value>> {
+    crate::primal_names::discover_socket(crate::primal_names::roles::COMPILER).map_or_else(
+        || {
+            tracing::debug!("coralReef not discovered — health.version skipped");
+            Ok(None)
+        },
+        |socket| health_version(&socket).map(Some),
     )
 }
 

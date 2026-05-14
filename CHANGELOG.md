@@ -4,6 +4,23 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V142 Compute Trio Wave Absorption (May 14, 2026)
+
+#### coralReef Deepening (v0.1.0, Sprint 11+12)
+- **`shader.compile.gemm`**: Tensor-core GEMM kernel compilation (SM80+ `mma.sync`). Accepts `{ m, n, k, precision, arch }`. JSON-RPC + `try_compile_gemm` graceful degradation.
+- **`health.version`** on coralReef: Trio-consistent build identity probe. JSON-RPC + `try_health_version`.
+
+#### barraCuda Deepening (v0.4.0, Sprint 69)
+- **`health.version`** on barraCuda: Trio-consistent version probe. Matches toadStool and coralReef surface for plasmidBin doctor and upgrade verification.
+
+#### IPC Surface
+- **20 JSON-RPC methods across 7 primals** (was 17): +`shader.compile.gemm`, +coralReef `health.version`, +barraCuda `health.version`.
+
+#### Upstream Gaps Surfaced
+- **GAP-GS-015**: primalSpring `routing` module private — blocks `cargo check --workspace`.
+- **GAP-GS-016**: plasmidBin manifest metadata stale (tests=1050, niche omits skunkBat).
+- **GAP-GS-017**: wateringHole README stale groundSpring row (V135).
+
 ### V141 Niche Convergence + Deep Debt Audit (May 13, 2026)
 
 #### Wire Hygiene (Audit item 3)

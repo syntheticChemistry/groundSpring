@@ -1,7 +1,7 @@
 # groundSpring — Primal-Proof IPC Mapping
 
 **Date**: May 13, 2026
-**groundSpring**: V141 (Tier 2 converged + BearDog base64 wire hygiene + NestGate CAS/GHCND wiring + lithoSpore BLAKE3 ingestion manifest + NOAA GHCND pipeline scaffolded)
+**groundSpring**: V142 (compute trio wave: `shader.compile.gemm` + `health.version` trio-consistent. BearDog base64 wire hygiene. NestGate CAS/GHCND. lithoSpore BLAKE3 manifest. 20 IPC methods across 7 primals)
 **barraCuda**: v0.4.0
 **primalSpring**: v0.9.25
 
@@ -90,8 +90,9 @@ barracuda-gpu = ["barracuda", "barracuda/gpu", ...]  # GPU path
    `local` feature enables library linkage. All 284 `barracuda::` references
    are behind `#[cfg(feature = "barracuda")]`; IPC fallback paths active
    when the feature is off. `CompositionContext` routes through biomeOS.
-3. **V141 (current)**: Wire hygiene (BearDog base64 `message` convention). NestGate CAS + GHCND pipeline wiring. BearDog JSON-RPC helpers (`crypto.sign`, `crypto.hash_blake3`, `crypto.seed_fingerprint`). lithoSpore BLAKE3 ingestion manifest for B1-B4.
-4. **Next**: Wire `primal-proof` parallel validation (library vs IPC comparison). Exercise NOAA GHCND pipeline when NestGate is deployed.
+3. **V141**: Wire hygiene (BearDog base64 `message` convention). NestGate CAS + GHCND pipeline wiring. BearDog JSON-RPC helpers (`crypto.sign`, `crypto.hash_blake3`, `crypto.seed_fingerprint`). lithoSpore BLAKE3 ingestion manifest for B1-B4.
+4. **V142 (current)**: Compute trio wave absorption. `shader.compile.gemm` (coralReef Sprint 11, tensor-core GEMM). `health.version` trio-consistent probe on both barraCuda (Sprint 69) and coralReef. 20 IPC methods across 7 primals.
+5. **Next**: Wire `primal-proof` parallel validation (library vs IPC comparison). Exercise NOAA GHCND pipeline when NestGate is deployed. sourDough deployment internalization (v0.3.0+).
 
 ---
 
@@ -109,8 +110,11 @@ The `biomeos` module routes to deployed primals via JSON-RPC:
 | `ipc::toadstool::device_enumerate(...)` | `compute.device.enumerate` | ToadStool | Phase D |
 | `ipc::barracuda::precision_route(...)` | `barracuda.precision.route` | barraCuda | Tier 2 |
 | `ipc::coralreef::compile_wgsl(...)` | `shader.compile.wgsl` | coralReef | FECS Sprint 7 |
+| `ipc::coralreef::compile_gemm(...)` | `shader.compile.gemm` | coralReef | Sprint 11, SM80+ mma.sync |
 | `ipc::coralreef::shader_targets(...)` | `shader.targets` | coralReef | |
 | `ipc::coralreef::validate_shader(...)` | `shader.validate` | coralReef | |
+| `ipc::coralreef::health_version(...)` | `health.version` | coralReef | Trio-consistent build ID |
+| `ipc::barracuda::health_version(...)` | `health.version` | barraCuda | Sprint 69, trio-consistent |
 | `ipc::nestgate::content_put(...)` | `content.put` | NestGate | CAS storage |
 | `ipc::nestgate::content_get(...)` | `content.get` | NestGate | CAS retrieval |
 | `ipc::nestgate::noaa_ghcnd_fetch(...)` | `data.noaa_ghcnd` | NestGate | Pipeline exercise |

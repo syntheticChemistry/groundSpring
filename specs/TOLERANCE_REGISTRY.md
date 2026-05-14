@@ -3,7 +3,7 @@
 > Complete inventory of named tolerance constants, epsilon guards, and
 > validation-specific thresholds used across groundSpring.
 >
-> **Last updated**: May 13, 2026 (V141 — tissue Anderson thresholds + resampling convergence
+> **Last updated**: May 13, 2026 (V142 — tissue Anderson thresholds + resampling convergence
 > heuristics documented. `TOLERANCE_REGISTRY.md` source path fixed. Previous: `eps::SAFE_DIV_STRICT`
 > added, all bare float literals in library/validation code replaced with named constants.
 > V123: `tol` module extracted to `tol.rs`, `eps` to `eps.rs`. V121: 13-tier `tol::`

@@ -20,7 +20,7 @@
 //! - [`beardog`] — Cryptographic operations via `BearDog` (base64 `message` wire convention)
 //! - [`songbird`] — Network discovery and mesh via `Songbird`
 //! - [`skunkbat`] — Audit logging via `skunkBat` (JH-5)
-//! - [`coralreef`] — Sovereign shader compilation via `coralReef` (FECS Sprint 7, full surface)
+//! - [`coralreef`] — Sovereign shader compilation via `coralReef` (FECS Sprint 7+, `compile.gemm`, `health.version`)
 //!
 //! # Semantic method naming
 //!
@@ -33,8 +33,10 @@
 //! - `compute.device.enumerate` — Phase D `LocalDeviceFactory` device listing (S254)
 //! - `barracuda.precision.route` — precision tier advisory (Tier 2, Pass 14)
 //! - `shader.compile.wgsl` — sovereign WGSL compilation (FECS Sprint 7)
+//! - `shader.compile.gemm` — tensor-core GEMM kernel compilation (Sprint 11)
 //! - `shader.targets` — list compilation targets
 //! - `shader.validate` — WGSL module pre-flight validation
+//! - `health.version` — trio-consistent build identity (barraCuda + coralReef + toadStool)
 //! - `content.put` / `content.get` — `NestGate` CAS storage
 //! - `data.noaa_ghcnd` — NOAA daily weather pipeline (NestGate exercise)
 //! - `data.ncbi_search` / `data.ncbi_fetch` — NCBI sequence data

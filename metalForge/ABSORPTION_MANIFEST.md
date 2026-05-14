@@ -6,7 +6,7 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: May 13, 2026 (V141 — 110 active delegations (67 CPU + 43 GPU), barraCuda v0.4.0, toadStool S158+, coralReef Iteration 55+, 1,123 tests, ≥92% library coverage, clippy pedantic+nursery clean. guideStone Level 4. V141: NestGate CAS + GHCND, BearDog JSON-RPC, BLAKE3 manifest. V140: LTEE B1–B4 complete, IPC stub tests, --format json. V137: AutoSink. V136: tarpc parity, coralReef IPC. V135: modular harness. Edition 2024)
+**Last updated**: May 13, 2026 (V142 — 110 active delegations (67 CPU + 43 GPU), barraCuda v0.4.0, toadStool S158+, coralReef Iteration 55+, 1,123 tests, ≥92% library coverage, clippy pedantic+nursery clean. guideStone Level 4. V142: NestGate CAS + GHCND, BearDog JSON-RPC, BLAKE3 manifest. V140: LTEE B1–B4 complete, IPC stub tests, --format json. V137: AutoSink. V136: tarpc parity, coralReef IPC. V135: modular harness. Edition 2024)
 
 ## Absorption Status Summary
 
