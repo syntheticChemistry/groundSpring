@@ -90,83 +90,72 @@ pub fn store_result(socket: &Path, key: &str, result_json: &str) -> Result<()> {
 
 /// Execute a complete provenance lifecycle for a validation run.
 ///
-/// Tries signal-elevated path first (Wave 17):
-/// 1. Start session
-/// 2. Store result via `nest.store` signal (collapses content.put + DAG + seal)
-/// 3. Commit via `nest.commit` signal (collapses dehydrate + sign + attribute)
+/// Prefers `nest.store` signal dispatch (Wave 17) which collapses the
+/// 4-step sequence into a single orchestrated call. Falls back to the
+/// legacy sequential pattern if signal dispatch is unavailable.
 ///
-/// Falls back to direct capability calls if signals are unavailable.
+/// Signal path: `dispatch("nest.store", { content, author, metadata })`
+/// Legacy path: session → store → commit → attribution (4 calls)
+///
+/// Each step gracefully degrades: if the trio is unavailable, the validation
+/// still succeeds locally.
 ///
 /// # Errors
 ///
-/// Returns `Err` if the first step (session creation) fails. Subsequent
-/// failures are logged but do not abort the lifecycle.
+/// Returns `Err` if session creation fails (both signal and legacy paths).
 pub fn run_lifecycle(socket: &Path, experiment_id: &str, result_json: &str) -> Result<String> {
+    #[cfg(feature = "biomeos")]
+    {
+        let metadata = serde_json::json!({
+            "experiment_id": experiment_id,
+            "agent": biomeos::FAMILY_ID,
+            "version": env!("CARGO_PKG_VERSION"),
+        });
+        match crate::ipc::nestgate::nest_store_dispatch(
+            result_json.as_bytes(),
+            Some(biomeos::FAMILY_ID),
+            Some(&metadata),
+        ) {
+            Ok(Some(result)) => {
+                let session_id = result
+                    .get("session_commit")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("signal-dispatched")
+                    .to_string();
+                tracing::info!(
+                    session_id = %session_id,
+                    "provenance lifecycle via nest.store signal"
+                );
+                return Ok(session_id);
+            }
+            Ok(None) | Err(_) => {
+                tracing::debug!("nest.store signal unavailable, using legacy provenance path");
+            }
+        }
+    }
+
+    run_lifecycle_legacy(socket, experiment_id, result_json)
+}
+
+/// Legacy 4-step provenance lifecycle (pre-Wave 17).
+fn run_lifecycle_legacy(socket: &Path, experiment_id: &str, result_json: &str) -> Result<String> {
     let session_id = start_session(socket, experiment_id)?;
 
     let result_key = format!("{}/{experiment_id}", biomeos::FAMILY_ID);
-
-    if try_signal_store(socket, &result_key, result_json, &session_id) {
-        tracing::info!("provenance stored via nest.store signal");
-    } else if let Err(e) = store_result(socket, &result_key, result_json) {
+    if let Err(e) = store_result(socket, &result_key, result_json) {
         tracing::warn!("provenance store failed (non-fatal): {e}");
     }
 
-    if try_signal_commit(socket, &session_id, result_json, experiment_id) {
-        tracing::info!("provenance committed via nest.commit signal");
-    } else {
-        if let Err(e) = commit_session(socket, &session_id, result_json) {
-            tracing::warn!("provenance commit failed (non-fatal): {e}");
-        }
+    if let Err(e) = commit_session(socket, &session_id, result_json) {
+        tracing::warn!("provenance commit failed (non-fatal): {e}");
+    }
 
-        let contribution = format!("measurement validation: {experiment_id}");
-        if let Err(e) = record_attribution(socket, &session_id, &contribution) {
-            tracing::warn!("provenance attribution failed (non-fatal): {e}");
-        }
+    let contribution = format!("measurement validation: {experiment_id}");
+    if let Err(e) = record_attribution(socket, &session_id, &contribution) {
+        tracing::warn!("provenance attribution failed (non-fatal): {e}");
     }
 
     Ok(session_id)
-}
-
-/// Try `nest.store` signal via `signal.dispatch` (Wave 17).
-///
-/// Collapses content.put + DAG event + spine seal into a single dispatch.
-/// Returns `true` on success, `false` if signal dispatch is unavailable.
-fn try_signal_store(socket: &Path, key: &str, value: &str, session_id: &str) -> bool {
-    let params = serde_json::json!({
-        "signal": "nest.store",
-        "params": {
-            "key": key,
-            "value": value,
-            "session_id": session_id,
-            "family_id": biomeos::FAMILY_ID,
-        },
-    });
-    let request = biomeos::protocol::build_request("signal.dispatch", &params);
-    biomeos::transport::rpc_call(socket, &request)
-        .and_then(|r| biomeos::protocol::extract_rpc_result(&r))
-        .is_ok()
-}
-
-/// Try `nest.commit` signal via `signal.dispatch` (Wave 17).
-///
-/// Collapses dehydrate + sign + store + commit + attribute into a single dispatch.
-/// Returns `true` on success, `false` if signal dispatch is unavailable.
-fn try_signal_commit(socket: &Path, session_id: &str, summary: &str, experiment_id: &str) -> bool {
-    let params = serde_json::json!({
-        "signal": "nest.commit",
-        "params": {
-            "session_id": session_id,
-            "summary": summary,
-            "agent": biomeos::FAMILY_ID,
-            "experiment_id": experiment_id,
-            "family_id": biomeos::FAMILY_ID,
-        },
-    });
-    let request = biomeos::protocol::build_request("signal.dispatch", &params);
-    biomeos::transport::rpc_call(socket, &request)
-        .and_then(|r| biomeos::protocol::extract_rpc_result(&r))
-        .is_ok()
 }
 
 #[cfg(test)]

@@ -1,12 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 ecoPrimals / Squirrel Team
 
-//! Capability registration with the NUCLEUS.
-//!
-//! Supports three registration paths (newest first):
-//! 1. `primal.announce` — Wave 17 signal API (`CompositionContext::announce()`)
-//! 2. `method.register` — biomeOS v3.51+
-//! 3. `capability.register` — legacy per-capability loop
+//! Capability registration with the NUCLEUS (`capability.register` / `capability.deregister`).
 
 use std::path::Path;
 
@@ -18,67 +13,12 @@ use super::{
     Result, server,
 };
 
-/// Register groundSpring via `primal.announce` (Wave 17) with fallback to
-/// legacy `capability.register`.
-///
-/// Tries `primal.announce` first (single RPC, registers primal + methods +
-/// transport). On failure (older biomeOS), falls back to `method.register`,
-/// then to the legacy per-capability loop.
-///
-/// # Errors
-///
-/// Returns `Err` only if all registration paths fail.
-pub fn announce_or_register(socket: &Path) -> Result<usize> {
-    let socket_path = server::socket_path();
-    let socket_str = socket_path.to_string_lossy().to_string();
-
-    let methods: Vec<&str> = MEASUREMENT_CAPABILITIES.to_vec();
-
-    let announce_params = serde_json::json!({
-        "primal": FAMILY_ID,
-        "socket": socket_str,
-        "methods": methods,
-        "lifecycle": { "state": "running" },
-    });
-
-    let request = super::protocol::build_request("primal.announce", &announce_params);
-    match super::transport::rpc_call(socket, &request) {
-        Ok(response) => {
-            if let Ok(result) = super::protocol::extract_rpc_result(&response) {
-                let registered = result["registered"]
-                    .as_u64()
-                    .unwrap_or(methods.len() as u64);
-                tracing::info!(
-                    count = registered,
-                    "registered via primal.announce (Wave 17)"
-                );
-                return Ok(registered as usize);
-            }
-            tracing::debug!("primal.announce returned unexpected result, trying method.register");
-        }
-        Err(_) => {
-            tracing::debug!("primal.announce not available, trying method.register");
-        }
-    }
-
-    match register_methods(socket) {
-        Ok(n) if n > 0 => return Ok(n),
-        Ok(_) | Err(_) => {
-            tracing::debug!("method.register unavailable, using legacy capability.register");
-        }
-    }
-
-    register_capabilities(socket)
-}
-
 /// Register groundSpring as a measurement provider with the NUCLEUS.
 ///
-/// Legacy two-phase registration following the Spring-as-Provider pattern:
+/// Two-phase registration following the Spring-as-Provider pattern:
 /// 1. Domain registration: `capability.register` with `measurement` domain
 ///    and semantic mappings
 /// 2. Individual capabilities: per-capability registration for direct routing
-///
-/// Prefer [`announce_or_register`] which tries `primal.announce` first.
 ///
 /// Returns the number of capabilities successfully registered.
 ///
@@ -176,6 +116,66 @@ pub fn register_methods(socket: &Path) -> Result<usize> {
     }
 
     Ok(registered)
+}
+
+/// Announce groundSpring to the NUCLEUS via `primal.announce`, falling back
+/// to the legacy `capability.register` + `method.register` pattern if the
+/// orchestrator does not support the announce protocol.
+///
+/// This implements the Wave 17 signal adoption standard: a single
+/// `primal.announce` call replaces the 3-call registration pattern.
+///
+/// # Errors
+///
+/// Returns `Err` if all registration paths fail.
+pub fn announce_or_register(socket: &Path) -> Result<usize> {
+    let socket_path = server::socket_path();
+    let socket_str = socket_path.to_string_lossy().to_string();
+
+    let methods: Vec<&str> = MEASUREMENT_CAPABILITIES.to_vec();
+
+    let announce_params = serde_json::json!({
+        "primal": FAMILY_ID,
+        "socket": socket_str,
+        "methods": methods,
+        "capabilities": [MEASUREMENT_DOMAIN],
+        "version": env!("CARGO_PKG_VERSION"),
+        "lifecycle": { "state": "running" },
+    });
+
+    let request = super::protocol::build_request("primal.announce", &announce_params);
+    match super::transport::rpc_call(socket, &request) {
+        Ok(response) => {
+            if let Ok(result) = super::protocol::extract_rpc_result(&response) {
+                let registered = result["methods_registered"]
+                    .as_u64()
+                    .or_else(|| result["registered"].as_u64())
+                    .unwrap_or(methods.len() as u64);
+                tracing::info!(
+                    count = registered,
+                    "primal.announce: registered via signal protocol"
+                );
+                return Ok(registered as usize);
+            }
+            tracing::info!("primal.announce accepted (no count in response)");
+            Ok(methods.len())
+        }
+        Err(e) => {
+            tracing::info!(
+                error = %e,
+                "primal.announce not available — falling back to legacy registration"
+            );
+            let cap_count = register_capabilities(socket).unwrap_or(0);
+            let method_count = register_methods(socket).unwrap_or(0);
+            let total = cap_count.max(method_count);
+            if total == 0 {
+                return Err(BiomeOsError::Registration(
+                    "announce and legacy registration both failed".to_string(),
+                ));
+            }
+            Ok(total)
+        }
+    }
 }
 
 /// Deregister groundSpring's capabilities from the NUCLEUS.

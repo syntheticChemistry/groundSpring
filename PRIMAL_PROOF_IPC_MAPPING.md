@@ -1,7 +1,7 @@
 # groundSpring — Primal-Proof IPC Mapping
 
 **Date**: May 13, 2026
-**groundSpring**: V143 (Wave 17 signal adoption: `primal.announce` + `nest.store`/`nest.commit` signals. 20 IPC methods across 7 primals. primalSpring 451-method registry synced)
+**groundSpring**: V143 (Wave 17 signal adoption: `primal.announce` registration + `nest.store` signal dispatch. 20 IPC methods + 2 signal paths across 7 primals)
 **barraCuda**: v0.4.0
 **primalSpring**: v0.9.25
 
@@ -91,9 +91,9 @@ barracuda-gpu = ["barracuda", "barracuda/gpu", ...]  # GPU path
    are behind `#[cfg(feature = "barracuda")]`; IPC fallback paths active
    when the feature is off. `CompositionContext` routes through biomeOS.
 3. **V141**: Wire hygiene (BearDog base64 `message` convention). NestGate CAS + GHCND pipeline wiring. BearDog JSON-RPC helpers (`crypto.sign`, `crypto.hash_blake3`, `crypto.seed_fingerprint`). lithoSpore BLAKE3 ingestion manifest for B1-B4.
-4. **V142**: Compute trio wave absorption. `shader.compile.gemm` (coralReef Sprint 11, tensor-core GEMM). `health.version` trio-consistent probe on both barraCuda (Sprint 69) and coralReef. 20 IPC methods across 7 primals.
-5. **V143 (current)**: Wave 17 signal adoption. `primal.announce` replaces multi-call registration. `nest.store` + `nest.commit` signals in provenance lifecycle. GAP-GS-015 confirmed fixed. primalSpring 451-method registry synced.
-6. **Next**: Wire `primal-proof` parallel validation. Exercise NOAA GHCND pipeline when NestGate is deployed. sourDough internalization (v0.3.0+). Identify additional `dispatch()` candidates beyond provenance.
+4. **V142**: Compute trio wave absorption. `shader.compile.gemm` (coralReef Sprint 11). `health.version` trio-consistent on barraCuda + coralReef. 20 IPC methods.
+5. **V143 (current)**: Wave 17 signal adoption. `primal.announce` registration (replaces 3-call pattern). `nest.store` signal dispatch (collapses 4-call provenance sequence). GAP-GS-015 resolved. 20 methods + 2 signal paths.
+6. **Next**: Wire `primal-proof` parallel validation. Exercise NOAA GHCND pipeline. `nest.commit` for session finalization. sourDough v0.3.0+ internalization.
 
 ---
 

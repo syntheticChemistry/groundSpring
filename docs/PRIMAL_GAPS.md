@@ -5,7 +5,7 @@
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
 **Date:** April 27, 2026
-**Last audited:** May 16, 2026 (V143 — Wave 17 signal adoption. `primal.announce` replaces registration loop. `nest.store` + `nest.commit` signals in provenance lifecycle. GAP-GS-015 confirmed fixed. 7 `#[expect]` lint fixes. 20 IPC methods across 7 primals. primalSpring 451-method registry synced)
+**Last audited:** May 16, 2026 (V143 — Wave 17 signal adoption. `primal.announce` registration. `nest.store` signal dispatch. GAP-GS-015 confirmed fixed. 20 IPC methods + 2 signal paths. `unfulfilled_lint_expectations` resolved)
 **License:** AGPL-3.0-or-later
 
 ---
@@ -181,11 +181,11 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 - **Severity:** Medium (blocks `cargo check --workspace`)
 - **Status:** Resolved (May 16, 2026 — Wave 17)
 - **Description:** `primalSpring/ecoPrimal/src/coordination/mod.rs:315`
-  references `crate::composition::routing::capability_to_primal` but
-  `composition/mod.rs:42` declares `mod routing;` (private).
-- **Resolution:** primalSpring Wave 17 re-exports `ALL_CAPS` and
-  `BTSP_EXTRA_CAPS` from `composition/mod.rs`. `cargo check --workspace`
-  now passes.
+  referenced `crate::composition::routing::capability_to_primal` but
+  `composition/mod.rs:42` declared `mod routing;` (private).
+- **Resolution:** primalSpring Wave 17 re-exports `ALL_CAPS`, `BTSP_EXTRA_CAPS`,
+  `capability_to_primal`, `capability_to_primal_typed`, `method_to_capability_domain`
+  from `composition/mod.rs`. `cargo check --workspace` passes. Verified May 16, 2026.
 
 ### GAP-GS-016: plasmidBin Manifest Metadata Stale
 
@@ -221,7 +221,7 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 | GAP-GS-007 | barraCuda version refs (0.3.7→0.3.13) | Active specs/graphs updated | Apr 27, 2026 |
 | GAP-GS-010 | compute_capabilities() wrong capability | Fixed to `compute.capabilities` | Apr 27, 2026 |
 | GAP-GS-002 | coralReef not wired via IPC | Full surface: `compile.wgsl`, `compile.gemm`, `targets`, `validate`, `health.version` | May 14, 2026 |
-| GAP-GS-015 | primalSpring routing module private | Resolved upstream in Wave 17 (re-export) | May 16, 2026 |
+| GAP-GS-015 | primalSpring `routing` module private | Re-exported via `composition/mod.rs`, workspace builds pass | May 16, 2026 |
 | GAP-GS-012 | `barracuda.rs` test asserted `roles::COMPUTE == "barracuda"` | Added `roles::GPU_MATH`, fixed tests, Tier 2 methods | May 12, 2026 |
 
 ---

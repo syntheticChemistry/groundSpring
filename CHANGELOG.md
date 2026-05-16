@@ -4,17 +4,21 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
-### V143 Neural API Signal Elevation — Wave 17 Adoption (May 16, 2026)
+### V143 Wave 17 Signal Adoption (May 16, 2026)
 
-#### Signal Adoption
-- **`primal.announce`**: New `announce_or_register()` in `biomeos/registration.rs`. Tries `primal.announce` (Wave 17) → `method.register` (biomeOS v3.51) → legacy `capability.register` loop. `groundspring_primal` server startup now uses `announce_or_register`.
-- **`nest.store` signal**: `try_signal_store()` in `provenance.rs`. Collapses content.put + DAG event + spine seal into single `signal.dispatch("nest.store", ...)`. Falls back to direct `storage.put`.
-- **`nest.commit` signal**: `try_signal_commit()` in `provenance.rs`. Collapses dehydrate + sign + store + commit + attribute. Falls back to `commit_session` + `record_attribution`.
-- **`biomeos::protocol` and `biomeos::transport`**: Promoted to `pub(crate)` for signal dispatch access from `provenance.rs`.
+#### Signal Registration (`primal.announce`)
+- **`biomeos::announce_or_register`**: Implements the Wave 17 registration standard. Sends a single `primal.announce` JSON-RPC call with `primal`, `socket`, `methods`, `capabilities`, `version`, `lifecycle.state`. Falls back to legacy N+1 `capability.register` + `method.register` if orchestrator doesn't support announce. Exported from `biomeos` module.
 
-#### Deep Debt
-- **7 unfulfilled `#[expect(clippy::too_many_lines)]`**: Changed to `#[allow(...)]` in 7 validation binaries where functions are no longer over the line limit.
-- **GAP-GS-015**: Confirmed fixed — `cargo check --workspace` passes against primalSpring Wave 17.
+#### Signal Dispatch (`nest.store`)
+- **`ipc::nestgate::nest_store_dispatch`**: Collapses `content.put` → `dag.event.append` → `spine.seal` → `braid.create` into a single `dispatch("nest.store", { content, author, metadata })` via `CompositionContext`. Falls back to raw `content.put` if signal dispatch unavailable.
+- **`provenance::run_lifecycle`**: Now prefers `nest.store` signal dispatch for the 4-step provenance lifecycle. Legacy sequential path preserved as fallback.
+
+#### Upstream Gap Resolved
+- **GAP-GS-015**: primalSpring `routing` module re-export confirmed. `cargo check --workspace` passes against primalSpring HEAD (Wave 17).
+
+#### Lint Cleanup
+- `validate_ltee_fitness.rs`: Removed stale `#[expect(clippy::too_many_lines)]` (function no longer triggers lint).
+- `validate_resampling_conv.rs`: Changed `#[expect]` → `#[allow]` to fix `unfulfilled_lint_expectations` error.
 
 ### V142 Compute Trio Wave Absorption (May 14, 2026)
 

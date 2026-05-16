@@ -7,7 +7,7 @@
 [![ecoBin](https://img.shields.io/badge/ecoBin-compliant-green.svg)](https://github.com/ecoPrimals/wateringHole/blob/main/ECOBIN_ARCHITECTURE_STANDARD.md)
 
 **Date**: May 13, 2026 | **License**: AGPL-3.0-or-later | **MSRV**: Rust 1.87 (2024 edition)
-**Status**: V143 — Neural API Signal Elevation (Wave 17). `primal.announce` adopted for registration (replaces multi-call `capability.register` loop). `nest.store` + `nest.commit` signals wired into provenance lifecycle (collapses 4-step sequence). GAP-GS-015 confirmed fixed (workspace builds). 7 unfulfilled `#[expect]` lint attributes resolved. **20 IPC methods across 7 primals**. primalSpring 451-method registry synced. Tier 4 IPC-first. 41 modules, 38 experiments, **1,123 tests** (zero clippy, zero fmt diff), 427/427 validation checks. **guideStone Level 4**. barraCuda v0.4.0, coralReef v0.1.0.
+**Status**: V143 — Wave 17 signal adoption. `primal.announce` registration (replaces 3-call pattern). `nest.store` signal dispatch for provenance lifecycle (collapses 4-call sequence). GAP-GS-015 confirmed fixed (`cargo check --workspace` passes). `unfulfilled_lint_expectations` resolved. **20 IPC methods + 2 signal dispatch paths across 7 primals**. **1,123 tests**, zero clippy, zero fmt diff. 427/427 checks + 138 metalForge + 29 integration. guideStone Level 4. Tier 4 IPC-first. LTEE B1-B4 → lithoSpore. barraCuda v0.4.0, coralReef v0.1.0, primalSpring v0.9.25.
 
 **The gap between what models predict and what instruments measure.**
 

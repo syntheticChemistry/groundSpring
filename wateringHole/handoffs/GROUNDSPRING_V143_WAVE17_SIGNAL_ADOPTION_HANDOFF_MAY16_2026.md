@@ -1,4 +1,4 @@
-# groundSpring V143 — Wave 17 Neural API Signal Adoption
+# groundSpring V143 — Wave 17 Signal Adoption
 
 **Date**: May 16, 2026
 **From**: groundSpring (cross-atomic validator, geoscience/measurement)
@@ -10,87 +10,102 @@
 
 ## What Changed
 
-### Signal Adoption
+### 1. `primal.announce` Registration (Wave 17)
 
-**`primal.announce` for registration** (replaces 3-call pattern):
+**Before** (legacy 3-call pattern):
+```
+capability.register(domain=measurement, caps=[16], mappings=...)
+capability.register(cap=measurement.noise_decomposition, ...)  × 16
+method.register(primal=groundspring, methods=[16], ...)
+```
+18+ RPC calls for startup registration.
 
-`announce_or_register()` in `biomeos/registration.rs` tries three paths:
-1. `primal.announce` (Wave 17, single RPC) — primal + methods + transport + lifecycle
-2. `method.register` (biomeOS v3.51) — fallback
-3. `capability.register` loop (legacy) — final fallback
+**After** (`announce_or_register`):
+```
+primal.announce(primal=groundspring, socket=..., methods=[16],
+                capabilities=[measurement], version=0.1.0,
+                lifecycle={state: running})
+```
+Single RPC call. Falls back to legacy pattern on older biomeOS.
 
-`groundspring_primal` server startup now uses `announce_or_register` instead of the legacy `register_capabilities` loop. Reduces N+1 RPCs to a single call on biomeOS v3.57+.
+**Implementation**: `biomeos::announce_or_register()` in `registration.rs`. Exported from `biomeos` module. Called from `groundspring_primal.rs` server startup.
 
-**`nest.store` signal for result storage** (collapses content.put + DAG + seal):
+### 2. `nest.store` Signal Dispatch (Wave 17)
 
-`try_signal_store()` in `provenance.rs` attempts `signal.dispatch("nest.store", ...)` before falling back to direct `storage.put`. Params: `{ key, value, session_id, family_id }`.
+**Before** (legacy 4-call provenance sequence in `run_lifecycle`):
+```
+provenance.session_create → storage.put → provenance.session_dehydrate → contribution.recordDehydration
+```
+4 sequential capability-routed RPC calls.
 
-**`nest.commit` signal for session finalization** (collapses dehydrate + sign + attribute):
+**After** (`nest.store` signal dispatch):
+```
+dispatch("nest.store", { content: <base64>, author: "groundspring", metadata: {...} })
+```
+Single signal dispatch. biomeOS executes the `nest_store.toml` graph: NestGate `content.put` → rhizoCrypt `dag.event.append` → loamSpine `spine.seal` → sweetGrass `braid.create`.
 
-`try_signal_commit()` in `provenance.rs` attempts `signal.dispatch("nest.commit", ...)` before falling back to sequential `commit_session` + `record_attribution`. Params: `{ session_id, summary, agent, experiment_id, family_id }`.
+**Implementation**: `ipc::nestgate::nest_store_dispatch()` with automatic fallback to `content.put` if `CompositionContext` signal dispatch is unavailable. `provenance::run_lifecycle()` now prefers signal path, with `run_lifecycle_legacy()` as fallback.
 
-### Signal Architecture
+### 3. GAP-GS-015 Resolved
 
-groundSpring's `measurement.*` domain operations remain as `ctx.call()` — they are direct capability calls, not composition sequences. Only orchestration workflows (registration, provenance lifecycle) use signals.
+`cargo check --workspace` passes against primalSpring HEAD (Wave 17). The `composition::routing` module items are now re-exported: `ALL_CAPS`, `BTSP_EXTRA_CAPS`, `capability_to_primal`, etc.
 
-| Pattern | Before (V142) | After (V143) |
-|---------|--------------|--------------|
-| Registration | `capability.register` × N | `primal.announce` (1 RPC) |
-| Result storage | `storage.put` | `nest.store` signal → `storage.put` fallback |
-| Session commit | `session_dehydrate` + `recordDehydration` | `nest.commit` signal → sequential fallback |
+### 4. Lint Cleanup
 
-### Deep Debt Resolved
-
-- **7 `#[expect(clippy::too_many_lines)]`** → `#[allow(...)]` in validation binaries where the lint no longer fires (Rust 2024 edition strictness).
-- **GAP-GS-015** confirmed fixed: `cargo check --workspace` passes with primalSpring Wave 17.
-- **`biomeos::protocol` + `biomeos::transport`** promoted to `pub(crate)` for signal dispatch access from `provenance.rs`.
-
----
-
-## Gap Status Update
-
-| ID | Status | Change |
-|----|--------|--------|
-| GAP-GS-015 | **Resolved** | Confirmed fixed in Wave 17 |
-| GAP-GS-001 | Not started | Squirrel (additive) |
-| GAP-GS-003 | Deferred | TensorSession |
-| GAP-GS-008 | Blocked upstream | Ionic runtime |
-| GAP-GS-009 | Blocked upstream | BTSP session crypto |
-| GAP-GS-011 | Tier B deferred | PRNG xoshiro128** |
-| GAP-GS-013 | Surface upstream | LIVE_SCIENCE_API contradiction |
-| GAP-GS-014 | Surface upstream | DOWNSTREAM_PATTERN_GUIDE stale |
-| GAP-GS-016 | Surface upstream | plasmidBin manifest stale |
-| GAP-GS-017 | Surface upstream | wateringHole README stale |
+- `validate_ltee_fitness.rs`: Stale `#[expect(clippy::too_many_lines)]` removed (function no longer triggers).
+- `validate_resampling_conv.rs`: `#[expect]` → `#[allow]` for `too_many_lines` to fix `unfulfilled_lint_expectations`.
 
 ---
 
-## Glacial Checkpoint Status
+## Signal Adoption Map
 
-Per upstream guidance, groundSpring's position:
+| Signal | groundSpring Usage | Status |
+|--------|-------------------|--------|
+| `nest.store` | LTEE provenance lifecycle (`run_lifecycle`) | **Wired** — dispatch + fallback |
+| `nest.commit` | Session finalization (server shutdown) | Candidate — next wave |
+| `primal.announce` | Server startup registration | **Wired** — announce + fallback |
+| `node.compute` | Not applicable (groundSpring is measurement, not compute-heavy) | N/A |
+| `tower.publish` | Not applicable (no signed result publication flow) | N/A |
+| `tower.authenticate` | Not applicable (no session authentication flow) | N/A |
 
-- [x] Pull primalSpring HEAD for 451-method registry sync
-- [x] Replace registration pattern with `ctx.announce()`
-- [x] Identify `nest.store` / `nest.commit` candidates in LTEE pipelines
-- [ ] LTEE B1-B3 → lithoSpore modules 1-3 handoff (CATHEDRAL owns pipeline)
-- [ ] Threads 5+7 → foundation maintenance
+groundSpring's statistical method APIs (`measurement.*`) remain as `ctx.call()` — only orchestration sequences collapse to signals.
+
+---
+
+## IPC + Signal Surface (V143)
+
+**20 JSON-RPC methods + 2 signal dispatch paths across 7 primals:**
+
+| Category | Methods |
+|----------|---------|
+| ToadStool (3) | `toadstool.validate`, `toadstool.list_workloads`, `compute.device.enumerate` |
+| barraCuda (2) | `barracuda.precision.route`, `health.version` |
+| coralReef (5) | `shader.compile.wgsl`, `shader.compile.gemm`, `shader.targets`, `shader.validate`, `health.version` |
+| NestGate (3) | `content.put`, `content.get`, `data.noaa_ghcnd` |
+| BearDog (3) | `crypto.sign`, `crypto.hash_blake3`, `crypto.seed_fingerprint` |
+| skunkBat (1) | `security.audit_log` |
+| biomeOS (1) | `capability.call` |
+| **Signals** (2) | `nest.store` (provenance lifecycle), `primal.announce` (registration) |
+
+---
+
+## Glacial Priorities (from audit)
+
+| Priority | Status |
+|----------|--------|
+| Pull primalSpring HEAD for 451-method registry sync | **Done** — builds clean |
+| Replace registration with `ctx.announce()` | **Done** — `announce_or_register` |
+| Identify `nest.store` / `nest.commit` candidates in LTEE pipelines | **Done** — `nest.store` wired in `run_lifecycle` |
+| LTEE B1-B3 → lithoSpore modules 1-3 handoff | In progress (CATHEDRAL pipeline) |
+| Threads 5+7 → foundation maintenance | Active |
 
 ---
 
 ## Verification
 
-- `cargo check --workspace`: **PASS** (GAP-GS-015 fixed)
-- `cargo clippy -p groundspring -p groundspring-validate -p groundspring-forge -- -D warnings`: **ZERO warnings**
+- `cargo check --workspace`: **PASS** (GAP-GS-015 fix confirmed)
+- `cargo clippy -p groundspring -p groundspring-validate -p groundspring-forge -- -D warnings`: **ZERO**
 - `cargo fmt --check`: **ZERO diff**
 - `cargo test -p groundspring -p groundspring-validate -p groundspring-forge`: **1,123 tests, ZERO failures**
-
----
-
-## For Delta Springs
-
-**Signal adoption reference**: groundSpring's pattern (announce with 3-tier fallback, signal-elevated provenance with individual-call fallback) is reusable. The key insight: domain-specific operations stay as `ctx.call()`, only orchestration sequences get `dispatch()`.
-
-**Provenance-heavy springs** (wetSpring, healthSpring): `nest.store` and `nest.commit` map directly to your session lifecycle patterns. See `provenance.rs` for the implementation.
-
-**Compute-heavy springs** (hotSpring, neuralSpring): `node.compute` signal maps to your toadStool → coralReef → barraCuda pipeline. Our implementation doesn't use that signal (measurement domain isn't pipeline-heavy).
 
 **1,123 tests, zero clippy, zero unsafe, zero fmt diff.**

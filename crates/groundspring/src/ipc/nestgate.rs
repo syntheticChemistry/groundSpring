@@ -16,6 +16,13 @@
 //! - `data.ncbi_search` / `data.ncbi_fetch` — NCBI sequence data
 //! - `data.iris_stations` / `data.iris_events` — IRIS seismic data
 //!
+//! # Signal dispatch (Wave 17)
+//!
+//! `nest.store` collapses `content.put` → `dag.event.append` → `spine.seal`
+//! → `braid.create` into a single graph-managed dispatch via
+//! [`nest_store_dispatch`]. Falls back to raw `content.put` if biomeOS
+//! signal dispatch is unavailable.
+//!
 //! # NestGate pipeline exercise (NOAA GHCND)
 //!
 //! The upstream audit identifies NOAA GHCND as the easiest real dataset
@@ -188,6 +195,80 @@ pub fn try_content_get(
         },
         |socket| content_get(&socket, key, family_id).map(Some),
     )
+}
+
+/// Dispatch a `nest.store` signal via `CompositionContext`.
+///
+/// Collapses `content.put` → `dag.event.append` → `spine.seal` → `braid.create`
+/// into a single signal dispatch. biomeOS manages the graph execution.
+/// Falls back to raw `content.put` if `CompositionContext` is unavailable.
+///
+/// Wave 17 signal adoption: provenance-heavy sequences collapse to one call.
+#[cfg(feature = "biomeos")]
+pub fn nest_store_dispatch(
+    content: &[u8],
+    author: Option<&str>,
+    metadata: Option<&serde_json::Value>,
+) -> crate::biomeos::Result<Option<serde_json::Value>> {
+    let mut params = serde_json::json!({
+        "content": base64_encode(content),
+    });
+    if let Some(a) = author {
+        params["author"] = serde_json::Value::String(a.to_string());
+    }
+    if let Some(m) = metadata {
+        params["metadata"] = m.clone();
+    }
+
+    let ctx_result = std::panic::catch_unwind(|| {
+        let mut ctx =
+            primalspring::composition::CompositionContext::from_live_discovery_with_fallback();
+        ctx.dispatch("nest.store", params.clone())
+    });
+
+    match ctx_result {
+        Ok(Ok(result)) => {
+            tracing::info!("nest.store signal dispatched successfully");
+            Ok(Some(result))
+        }
+        Ok(Err(e)) => {
+            tracing::debug!("nest.store signal failed ({e}), falling back to content.put");
+            let encoded = base64_encode(content);
+            let family_id = crate::biomeos::FAMILY_ID;
+            try_content_put(&encoded, &encoded, family_id)
+        }
+        Err(_) => {
+            tracing::debug!("CompositionContext unavailable, falling back to content.put");
+            let encoded = base64_encode(content);
+            let family_id = crate::biomeos::FAMILY_ID;
+            try_content_put(&encoded, &encoded, family_id)
+        }
+    }
+}
+
+#[cfg(feature = "biomeos")]
+fn base64_encode(data: &[u8]) -> String {
+    use std::fmt::Write;
+    let mut out = String::with_capacity(data.len() * 4 / 3 + 4);
+    const CHARS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    for chunk in data.chunks(3) {
+        let b0 = chunk[0] as usize;
+        let b1 = chunk.get(1).copied().unwrap_or(0) as usize;
+        let b2 = chunk.get(2).copied().unwrap_or(0) as usize;
+        let _ = out.write_char(CHARS[(b0 >> 2) & 0x3F] as char);
+        let _ = out.write_char(CHARS[((b0 << 4) | (b1 >> 4)) & 0x3F] as char);
+        if chunk.len() > 1 {
+            let _ = out.write_char(CHARS[((b1 << 2) | (b2 >> 6)) & 0x3F] as char);
+        } else {
+            out.push('=');
+        }
+        if chunk.len() > 2 {
+            let _ = out.write_char(CHARS[b2 & 0x3F] as char);
+        } else {
+            out.push('=');
+        }
+    }
+    out
 }
 
 /// Extract `result` or `error` from a JSON-RPC 2.0 response.

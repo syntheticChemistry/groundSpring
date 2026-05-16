@@ -41,13 +41,13 @@ mod compute;
 mod discovery;
 mod health;
 mod interaction;
-pub(crate) mod protocol;
+mod protocol;
 mod registration;
 pub mod resilience;
 mod routing;
 pub mod server;
 mod storage;
-pub(crate) mod transport;
+mod transport;
 
 pub use compute::{compute_capabilities, compute_execute, compute_submit};
 pub use discovery::{auto_connect, discover_socket, is_nucleus_available};

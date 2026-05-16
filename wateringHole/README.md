@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: May 16, 2026 (V143 — Wave 17 signal adoption: `primal.announce` + `nest.store`/`nest.commit` signals. GAP-GS-015 resolved. 20 IPC methods. primalSpring 451-method registry synced)
+**Last Updated**: May 16, 2026 (V143 — Wave 17 signal adoption: `primal.announce` registration + `nest.store` signal dispatch. GAP-GS-015 confirmed fixed. 20 IPC methods + 2 signal paths)
 
 ## What This Is
 
@@ -18,7 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V143 Wave 17 Signal Adoption | [GROUNDSPRING_V143_WAVE17_SIGNAL_ADOPTION_HANDOFF_MAY16_2026.md](handoffs/GROUNDSPRING_V143_WAVE17_SIGNAL_ADOPTION_HANDOFF_MAY16_2026.md) | May 16, 2026 | Neural API Signal Elevation: `primal.announce`, `nest.store`/`nest.commit` signals. GAP-GS-015 resolved. 7 lint fixes. |
+| V143 Wave 17 Signal Adoption | [GROUNDSPRING_V143_WAVE17_SIGNAL_ADOPTION_HANDOFF_MAY16_2026.md](handoffs/GROUNDSPRING_V143_WAVE17_SIGNAL_ADOPTION_HANDOFF_MAY16_2026.md) | May 16, 2026 | Wave 17: `primal.announce` registration, `nest.store` signal dispatch, GAP-GS-015 resolved. |
 
 **Archived**: V123–V142 handoffs moved to `handoffs/archive/`.
 
