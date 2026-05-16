@@ -24,7 +24,7 @@
     },
     "nestgate": {
       "role": "data + storage",
-      "capabilities_used": ["storage.put", "storage.get", "data.ncbi_search", "data.ncbi_fetch", "data.noaa_ghcnd", "data.iris_stations", "data.iris_events"],
+      "capabilities_used": ["content.put", "content.get", "data.ncbi_search", "data.ncbi_fetch", "data.noaa_ghcnd", "data.iris_stations", "data.iris_events"],
       "ipc_method": "HTTP API + JSON-RPC",
       "status": "validated",
       "note": "Live data pipelines for Exp 029-032"

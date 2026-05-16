@@ -37,7 +37,7 @@
     }
   },
   "metalforge": {
-    "total_checks": 140,
+    "total_checks": 138,
     "substrates": ["RTX 4070", "Titan V", "AKD1000 NPU", "CPU (Zen 4)", "CPU (Intel 12th)"],
     "workloads": 30,
     "gpu_workloads": 24,

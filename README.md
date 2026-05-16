@@ -7,7 +7,7 @@
 [![ecoBin](https://img.shields.io/badge/ecoBin-compliant-green.svg)](https://github.com/ecoPrimals/wateringHole/blob/main/ECOBIN_ARCHITECTURE_STANDARD.md)
 
 **Date**: May 16, 2026 | **License**: AGPL-3.0-or-later | **MSRV**: Rust 1.87 (2024 edition)
-**Status**: V145 — LTEE B6 BioBrick Burden reproduction (Anderson disorder analogy). Python 7/7 PASS, Rust 34/34 PASS. `lithoSpore` module 5 (`ltee-biobrick`). 5 LTEE reproductions complete (B1-B4, B6). **20 IPC methods + 3 signal dispatch paths across 7 primals**. **1,123 tests**, zero clippy, zero fmt diff. 427/427 checks + 138 metalForge + 29 integration. 39 experiments. guideStone Level 4. Tier 4 IPC-first. barraCuda v0.4.0, coralReef v0.1.0, primalSpring v0.9.25.
+**Status**: V145 — LTEE B6 BioBrick Burden reproduction (Anderson disorder analogy). Python 7/7 PASS, Rust 34/34 PASS. `lithoSpore` module 5 (`ltee-biobrick`). 5 LTEE reproductions complete (B1-B4, B6). **20 IPC methods + 3 signal dispatch paths across 7 primals**. **1,123 tests**, zero clippy, zero fmt diff. 461/461 checks + 138 metalForge + 29 integration. 39 experiments. guideStone Level 4. Tier 4 IPC-first. barraCuda v0.4.0, coralReef v0.1.0, primalSpring v0.9.25.
 
 **The gap between what models predict and what instruments measure.**
 
@@ -186,7 +186,7 @@ cargo run --features biomeos --bin validate_iris_seismic
 
 ```bash
 pip install -e ".[dev]"
-python3 -m pytest tests/ -v       # 29 experiments (287 tests)
+python3 -m pytest tests/ -v       # 39 experiments (294 tests)
 ruff check control/ tests/        # zero errors
 mypy control/ tests/              # zero errors
 ```
@@ -199,7 +199,7 @@ cargo llvm-cov --workspace --lib    # ≥92% library line coverage (target 90%)
 
 ## Performance: Rust vs Python
 
-Median of 3 trials across all 28 experiments (Feb 27, 2026). Generate full data: `python3 scripts/bench_rust_vs_python.py`.
+Median of 3 trials across all 39 experiments (Feb 27, 2026). Generate full data: `python3 scripts/bench_rust_vs_python.py`.
 
 | Experiment | Python (s) | Rust (s) | Speedup |
 |---|---|---|---|
@@ -237,7 +237,7 @@ Median of 3 trials across all 28 experiments (Feb 27, 2026). Generate full data:
 \* Exp 009/014: Rust custom QR/Wright-Fisher vs NumPy LAPACK/SciPy. Barracuda-gpu
 (Sturm tridiag from hotSpring S26) closes the gap: **47.7× speedup** for Exp 009.
 
-**Mathematical parity**: 29/29 PROVEN — both languages validate against the
+**Mathematical parity**: 39/39 PROVEN — both languages validate against the
 same shared benchmark JSONs. Generate report: `python3 scripts/parity_report.py`.
 
 Run benchmarks: `python3 scripts/bench_rust_vs_python.py`
@@ -245,7 +245,7 @@ Run parity report: `python3 scripts/parity_report.py`
 
 ## BarraCUDA Delegation Performance
 
-### Validation Binary Benchmark (29 binaries, release mode, March 8 2026)
+### Validation Binary Benchmark (39 binaries, release mode, March 8 2026)
 
 | Mode | Wall time (s) | Δ vs local |
 |------|--------------|------------|
@@ -301,8 +301,8 @@ groundSpring (spectral)  ────┘
 ```
 Phase 0 (Python)  →  Phase 1 (Rust)  →  Phase 2 (GPU)  →  Phase 3 (Hardware)  →  Phase 4 (NUCLEUS)
   NumPy/SciPy         Pure safe Rust     BarraCUDA/ToadStool   metalForge dispatch    biomeOS Neural API
-  ✓ Complete          ✓ 427/427 PASS     ◐ 110 active          30 workloads           Tower+Node+Squirrel
-  11.5× slower        38/38 experiments    (67+43)              24 GPU + 2 NPU + 2 CPU-only         NestGate data pipes
+  ✓ Complete          ✓ 461/461 PASS     ◐ 110 active          30 workloads           Tower+Node+Squirrel
+  11.5× slower        39/39 experiments    (67+43)              24 GPU + 2 NPU + 2 CPU-only         NestGate data pipes
                       1,123 workspace tests                      PCIe topology          NUCLEUS atomics
                                                                 Pipeline dispatch      Sovereign degradation
 
@@ -373,7 +373,7 @@ groundSpring/
 │   └── et0_methods/                # Exp 035: Multi-method ET₀ cross-validation
 ├── crates/
 │   ├── groundspring/               # Phase 1 Rust library (41 modules incl. rawr, esn, lanczos, tissue_anderson, biomeos, nestgate, npu, primal_names)
-│   └── groundspring-validate/      # 38 validation binaries (hotSpring pattern)
+│   └── groundspring-validate/      # 39 validation binaries (hotSpring pattern)
 ├── metalForge/                     # Write → Absorb → Lean artifacts
 │   ├── forge/                      # groundspring-forge crate: hardware discovery, dispatch, topology, pipeline, atomics, remote
 │   ├── npu/akida/                  # AKD1000 NPU integration, HARDWARE.md
@@ -382,7 +382,7 @@ groundSpring/
 ├── graphs/                         # biomeOS pipeline graphs (deploy, Tower, Node, cross-substrate, validation)
 ├── niches/                         # BYOB niche YAML definitions (groundspring-measurement)
 ├── .github/workflows/ci.yml        # GitHub Actions CI
-├── wateringHole/                   # Handoff directory (V143 current)
+├── wateringHole/                   # Handoff directory (V145 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md      # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md   # GPU kernel gap analysis

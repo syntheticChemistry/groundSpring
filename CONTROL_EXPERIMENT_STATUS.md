@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: May 16, 2026 (V145 — Wave 17 signal adoption. `primal.announce` registration + `nest.store` signal dispatch. GAP-GS-015 resolved. 7 stale lint suppressions removed. 1,123 tests, ≥92% library coverage, 0 clippy warnings, 0 fmt diff. guideStone Level 4. LTEE B1–B4, B6 complete → `lithoSpore` modules 1–5. 39 experiments, 461/461 checks, 39 validation binaries. 20 IPC methods + 2 signal dispatch paths across 7 primals. Tier 4 IPC-first. barraCuda v0.4.0. primalSpring v0.9.25.)
+**Last updated**: May 16, 2026 (V145 — LTEE B6 BioBrick Burden reproduction (Anderson disorder analogy). Wave 20 schema standardization: `capability.list` canonical envelope + `nest.commit` signal dispatch. 1,123 tests, ≥92% library coverage, 0 clippy warnings, 0 fmt diff. guideStone Level 4. LTEE B1–B4, B6 complete → `lithoSpore` modules 1–5. 39 experiments, 461/461 checks, 39 validation binaries. 20 IPC methods + 3 signal dispatch paths across 7 primals. Tier 4 IPC-first. barraCuda v0.4.0. primalSpring v0.9.25.)
 
 ## Experiment Register
 
@@ -57,7 +57,7 @@
 **Paper 12**: `tissue_anderson` module — 18 unit tests + 29/29 validation checks + 4D Anderson + Wegner RG (V68)
 **Handoff**: V127 (deep debt, tracing unification, clippy zero-warning) | V126 (UniBin, IPC tree, fossilRecord, certification organelle) | V125 (deep debt evolution, L4, sporePrint notebooks) | V124 (deep debt + tolerance + guideStone L3)
 
-**Python checks**: ~160 across 28 experiments. **Rust validation checks**: 395 (340 core + 55 NUCLEUS). **metalForge + pipeline checks**: 138.
+**Python checks**: ~160 across 28 experiments. **Rust validation checks**: 461 (340 core + 55 NUCLEUS + 66 LTEE). **metalForge + pipeline checks**: 138.
 
 ## Phase 0 — Python/NumPy/SciPy Baselines
 
@@ -565,7 +565,7 @@ Each experiment is validated at three hardware tiers:
 | **GPU** | `barracuda` feature + GPU adapter | GPU matches CPU within tolerance |
 | **metalForge** | Mixed hardware dispatch | Cross-substrate agreement |
 
-### Current Status (V119)
+### Current Status (V145)
 
 | # | Experiment | CPU | GPU | metalForge | GPU Status |
 |---|-----------|:---:|:---:|:----------:|------------|
@@ -602,7 +602,7 @@ Each experiment is validated at three hardware tiers:
 
 **CPU tier**: 461/461 PASS (39 binaries, complete)
 **GPU tier**: 27 of 34 papers have GPU wiring (79%). 110 delegations (67 CPU + 43 GPU). 30/30 metalForge parity.
-**V121**: Deep debt + ecosystem absorption (tolerance centralization, provenance hardening, MSRV 1.87, barraCuda v0.3.7). **V120**: Deep audit execution (dispatch refactored, forbid unsafe on 50 binaries, DeviceCapabilities). **V119**: Cross-ecosystem absorption. **V118**: RPC expansion (16 capabilities), 110 delegations (67 CPU + 43 GPU). barraCuda v0.3.7, toadStool S158+, coralReef Iteration 55+.
+**V121**: Deep debt + ecosystem absorption (tolerance centralization, provenance hardening, MSRV 1.87, barraCuda v0.4.0). **V120**: Deep audit execution (dispatch refactored, forbid unsafe on 50 binaries, DeviceCapabilities). **V119**: Cross-ecosystem absorption. **V118**: RPC expansion (16 capabilities), 110 delegations (67 CPU + 43 GPU). barraCuda v0.4.0, toadStool S158+, coralReef Iteration 55+.
 **metalForge tier**: 30 workloads, 138 checks. Exp 028 NPU 9/9 PASS (AKD1000 DMA). GPU→NPU→CPU pipeline dispatch validated.
 
 ### BarraCUDA Integration Status (V105 — toadStool S156+, coralReef Iteration 52+)
@@ -652,7 +652,7 @@ Each experiment is validated at three hardware tiers:
 
 ## Evolution Roadmap
 
-- **Phase 0**: Python/NumPy/SciPy baselines — **COMPLETE** (375 pytest checks across 28 experiments)
+- **Phase 0**: Python/NumPy/SciPy baselines — **COMPLETE** (375 pytest checks across 39 experiments)
 - **Phase 0+**: Real open data pipelines (NOAA CDO, IRIS waveforms) — **COMPLETE** (NUCLEUS Exp 029-032)
 - **Phase 1**: Rust CPU validation — **COMPLETE** (461/461 across 39 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
@@ -777,7 +777,7 @@ Unidirectional streaming reduces dispatch round-trips.
 | Exp 026 Size Convergence | 176ms | 111ms | **1.6×** |
 | Checks | 279/279 | 279/279 | 0 mismatches |
 
-**Three-Tier Parity**: 30/30 experiments PROVEN. See `data/three_tier_parity_report.json`.
+**Three-Tier Parity**: 39/39 experiments PROVEN. See `data/three_tier_parity_report.json`.
 
 ### Stage 4: metalForge Cross-System (CPU ↔ GPU ↔ NPU) — V84 VALIDATED
 
@@ -818,7 +818,8 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V79: Exp 035 + seismic delegation | 85 delegations (51 CPU + 34 GPU), 807 tests, barraCuda v0.3.3, toadStool S94b | Archived |
 | V80: Fused Ops + BarraCuda Catch-Up | 87 delegations (51 CPU + 36 GPU), 812 tests, barraCuda v0.3.3+, toadStool S94b | Archived |
 | V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `0bd401f`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
-| V119: deep audit + absorption | 110 delegations (67 CPU + 43 GPU), 1020+ tests, ≥92% coverage, publish hygiene, MSRV 1.85, provenance registry, cast parity, IPC isolation | **Current** |
+| V119: deep audit + absorption | 110 delegations (67 CPU + 43 GPU), 1020+ tests, ≥92% coverage, publish hygiene, MSRV 1.85, provenance registry, cast parity, IPC isolation | Archived |
+| V145: LTEE B6 BioBrick Burden + Wave 20 | 110 delegations (67 CPU + 43 GPU), 1,123 tests, 461/461 checks, 39 binaries, `capability.list` / `nest.commit`, lithoSpore B6 | **Current** |
 | V118: deep audit + RPC expansion | 110 delegations (67 CPU + 43 GPU), 960+ tests, 16 capabilities, 30 proptests, DefaultRng production migration, spectral_recon GPU GEMM, provenance hardening, CI Python 90% | Archived |
 | V116: typed error evolution | 102 delegations (61 CPU + 41 GPU), 960+ tests, `DispatchError`/`EsnError`/`ResilienceError<E>`, `ValidationSink`, Format C/D, `OnceLock` GPU probe, RAWR extraction, named dispatch constants | Archived |
 | V115: cross-ecosystem deep absorption | 102 delegations (61 CPU + 41 GPU), 930+ tests, safe_cast expansion, health probes, resilient_call, OrExit evolution, zero eprintln/expect/allow | Archived |
@@ -887,7 +888,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_V125_DEEP_EVOLUTION_L4_HANDOFF_MAY08_2026.md` (V125 guideStone L4, deep debt evolution, tolerance unification, 29 new test modules, sporePrint notebooks, barraCuda v0.4.0)
+Active: `wateringHole/handoffs/GROUNDSPRING_V144_WAVE20_SCHEMA_STANDARDIZATION_HANDOFF_MAY16_2026.md` (V144 Wave 20 schema standardization, `nest.commit` signal; barraCuda v0.4.0)
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

@@ -14,7 +14,7 @@ extend the work, what compute is needed, what new experiments result, and
 what primal wiring is required.
 
 All extensions build on the NestGate data pipeline validated in Exp 029-032
-and the NUCLEUS deploy graphs updated to V117.
+and the NUCLEUS deploy graphs (6 validated at V145).
 
 ---
 

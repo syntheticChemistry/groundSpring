@@ -1,17 +1,18 @@
 {
   "generated": "2026-05-16T15:00:00Z",
   "spring": "groundSpring",
+  "version": "V145",
   "total_experiments": 39,
   "nucleus_harnesses": ["exp094_composition_parity", "exp095_measurement_niche"],
-  "total_validation_checks": 427,
+  "total_validation_checks": 461,
   "core_checks": 340,
   "nucleus_checks": 55,
   "math_parity_proven": "29/29",
   "domains": {
     "measurement": {
-      "experiments": ["001", "002", "003", "015", "022", "024"],
-      "count": 6,
-      "focus": "Sensor noise, observation gap, error propagation, uncertainty bridge, ET0-Anderson, aggregate stability"
+      "experiments": ["001", "002", "015", "022", "024"],
+      "count": 5,
+      "focus": "Sensor noise, observation gap, uncertainty bridge, ET0-Anderson, aggregate stability"
     },
     "biological": {
       "experiments": ["004", "006", "010", "011", "014", "016", "017"],
@@ -34,8 +35,8 @@
       "focus": "Seismic wave propagation, IRIS live seismic"
     },
     "hydrology": {
-      "experiments": ["035"],
-      "count": 1,
+      "experiments": ["003", "035"],
+      "count": 2,
       "focus": "Multi-method ET0 (PM, Hargreaves, Makink, Turc, Hamon)"
     },
     "inverse_problems": {

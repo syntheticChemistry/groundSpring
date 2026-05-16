@@ -17,7 +17,7 @@
     "forge_hardware": 30,
     "validator_exit_codes": 29,
     "doctests": 11,
-    "validation_binaries": 35,
+    "validation_binaries": 39,
     "three_tier_parity": 41,
     "biomeos_nucleus": 28,
     "metalforge_gpu": 24,

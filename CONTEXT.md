@@ -50,7 +50,7 @@ for noise characterization and uncertainty quantification.
 ## Key Capabilities (JSON-RPC methods)
 
 When running as a biomeOS primal (`--features biomeos`), groundSpring exposes
-16 `measurement.*` methods via JSON-RPC (registered in `capability_registry.toml`):
+20 IPC methods via JSON-RPC (registered in `capability_registry.toml`):
 
 - `measurement.noise_decomposition` — Bias-variance error decomposition (RMSE, MBE, R², IA)
 - `measurement.anderson_validation` — Anderson localization Lyapunov exponent

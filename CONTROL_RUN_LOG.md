@@ -5,7 +5,7 @@ See [CONTROL_EXPERIMENT_STATUS.md](CONTROL_EXPERIMENT_STATUS.md) for the current
 
 > **Note**: V75+ runs are documented in CHANGELOG.md and per-version handoffs
 > in `wateringHole/handoffs/`. This log covers the structured run format used
-> through V74. Current status: V145, 1,123 lib tests (default), 461/461 checks, 110 delegations (67 CPU + 43 GPU), 20 IPC methods + 2 signal dispatch paths across 7 primals.
+> through V74. Current status: V145, 1,123 lib tests (default), 461/461 checks, 110 delegations (67 CPU + 43 GPU), 20 IPC methods + 3 signal dispatch paths across 7 primals.
 
 ## Run Log
 

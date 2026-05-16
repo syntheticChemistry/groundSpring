@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: May 16, 2026
-**Status**: V145 — Wave 17 signal adoption. 461/461 PASS (340 core + 55 NUCLEUS + 66 LTEE). 1,123 Rust tests, 287 Python tests, 138 metalForge checks, 29 integration tests. 39 experiments, 41 modules. 20 IPC methods + 2 signal dispatch paths across 7 primals. `primal.announce` + `nest.store` signals wired. BLAKE3 ingestion manifest for lithoSpore. LTEE B1–B4, B6. Three-tier parity: 29/29. barraCuda v0.4.0. guideStone Level 4. Tier 4 IPC-first. Zero clippy, zero unsafe.
+**Status**: V145 — Wave 17 signal adoption. 461/461 PASS (340 core + 55 NUCLEUS + 66 LTEE). 1,123 Rust tests, 287 Python tests, 138 metalForge checks, 29 integration tests. 39 experiments, 41 modules. 20 IPC methods + 3 signal dispatch paths across 7 primals. `primal.announce` + `nest.store` + `nest.commit` signals wired. BLAKE3 ingestion manifest for lithoSpore. LTEE B1–B4, B6. Three-tier parity: 29/29. barraCuda v0.4.0. guideStone Level 4. Tier 4 IPC-first. Zero clippy, zero unsafe.
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---

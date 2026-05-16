@@ -30,7 +30,7 @@
     "resolved_gaps": [
       {"id": "GAP-GS-004", "resolution": "Niche YAML synced 8→16 capabilities", "date": "2026-04-27"},
       {"id": "GAP-GS-005", "resolution": "Deploy graph verbs reconciled to IPC contracts", "date": "2026-04-27"},
-      {"id": "GAP-GS-007", "resolution": "barraCuda version refs updated to v0.3.12", "date": "2026-04-27"},
+      {"id": "GAP-GS-007", "resolution": "barraCuda version refs updated to v0.4.0", "date": "2026-04-27"},
       {"id": "GAP-GS-010", "resolution": "compute_capabilities() fixed to compute.capabilities", "date": "2026-04-27"}
     ]
   },

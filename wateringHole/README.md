@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: May 16, 2026 (V145 — Wave 20 schema standardization: `capability.list` canonical envelope, `nest.commit` signal dispatch, registry 452. 20 IPC methods + 3 signal paths)
+**Last Updated**: May 16, 2026 (V145 — LTEE B6 BioBrick Burden + science expansion. 5 LTEE reproductions, 39 experiments, 461/461 checks. 20 IPC methods + 3 signal paths)
 
 ## What This Is
 
@@ -18,9 +18,9 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V144 Wave 20 Schema Standardization | [GROUNDSPRING_V144_WAVE20_SCHEMA_STANDARDIZATION_HANDOFF_MAY16_2026.md](handoffs/GROUNDSPRING_V144_WAVE20_SCHEMA_STANDARDIZATION_HANDOFF_MAY16_2026.md) | May 16, 2026 | Wave 20: `capability.list` canonical envelope, `nest.commit` signal, registry 452. |
+| V145 Science Expansion | [GROUNDSPRING_V145_SCIENCE_EXPANSION_HANDOFF_MAY16_2026.md](handoffs/GROUNDSPRING_V145_SCIENCE_EXPANSION_HANDOFF_MAY16_2026.md) | May 16, 2026 | LTEE B6 BioBrick Burden, 5 lithoSpore modules, ecosystem handoff for primals + springs |
 
-**Archived**: V123–V143 handoffs moved to `handoffs/archive/`.
+**Archived**: V123–V144 handoffs moved to `handoffs/archive/`.
 
 
 ## Cross-Spring Documentation

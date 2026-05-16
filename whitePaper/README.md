@@ -14,7 +14,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - LTEE reproductions: **B1–B4, B6 COMPLETE** (Exp 036–039, 040) → `lithoSpore` modules 1–5.
 - Mathematical parity: **29/29 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.6× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.4× from Sturm tridiag**.
-- IPC surface: **20 JSON-RPC methods + 2 signal dispatch paths** across 7 primals.
+- IPC surface: **20 JSON-RPC methods + 3 signal dispatch paths** across 7 primals.
 - Wave 17 signal adoption: `primal.announce` (single-call registration), `nest.store` (provenance lifecycle collapse).
 - 1,123 tests, zero clippy, zero unsafe, zero mocks. guideStone Level 4. Tier 4 IPC-first.
 
