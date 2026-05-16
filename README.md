@@ -7,7 +7,7 @@
 [![ecoBin](https://img.shields.io/badge/ecoBin-compliant-green.svg)](https://github.com/ecoPrimals/wateringHole/blob/main/ECOBIN_ARCHITECTURE_STANDARD.md)
 
 **Date**: May 16, 2026 | **License**: AGPL-3.0-or-later | **MSRV**: Rust 1.87 (2024 edition)
-**Status**: V144 — Wave 20 schema standardization. `capability.list` canonical envelope (`primal`, `capabilities`, `count`). `nest.commit` signal dispatch for session finalization. Registry sync target 452 (`primal.list` added). **20 IPC methods + 3 signal dispatch paths across 7 primals**. **1,123 tests**, zero clippy, zero fmt diff. 427/427 checks + 138 metalForge + 29 integration. guideStone Level 4. Tier 4 IPC-first. LTEE B1-B4 → lithoSpore. barraCuda v0.4.0, coralReef v0.1.0, primalSpring v0.9.25.
+**Status**: V145 — LTEE B6 BioBrick Burden reproduction (Anderson disorder analogy). Python 7/7 PASS, Rust 34/34 PASS. `lithoSpore` module 5 (`ltee-biobrick`). 5 LTEE reproductions complete (B1-B4, B6). **20 IPC methods + 3 signal dispatch paths across 7 primals**. **1,123 tests**, zero clippy, zero fmt diff. 427/427 checks + 138 metalForge + 29 integration. 39 experiments. guideStone Level 4. Tier 4 IPC-first. barraCuda v0.4.0, coralReef v0.1.0, primalSpring v0.9.25.
 
 **The gap between what models predict and what instruments measure.**
 
@@ -70,7 +70,7 @@ Clean models (other springs) → Noisy measurements (groundSpring) → Adapted m
 | 033: Tissue Anderson | Immunological (Paper 12) | — | 29/29 PASS | Cytokine Anderson lattice + geometry-aware drug scoring |
 | 035: ET₀ Methods | Agricultural (FAO-56) | 15/15 PASS | 19/19 PASS | 5-method ET₀ cross-validation: PM, Hargreaves, Makkink, Turc, Hamon |
 
-**Phase 1 total: 427/427 PASS across 38 validation binaries** (340 core + 55 NUCLEUS + 32 LTEE via `--features biomeos`). All public APIs return `Result` — zero panicking entry points.
+**Phase 1 total: 461/461 PASS across 39 validation binaries** (340 core + 55 NUCLEUS + 34 LTEE B6 + 32 LTEE B1-B4 via `--features biomeos`). All public APIs return `Result` — zero panicking entry points.
 
 ## Library Modules
 
@@ -456,5 +456,6 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 | V142 | May 14 | Compute trio wave: `shader.compile.gemm`, `health.version`, 20 IPC methods |
 | V143 | May 16 | Wave 17 signal adoption: `primal.announce` + `nest.store` dispatch, GAP-GS-015 resolved |
 | V144 | May 16 | Wave 20 schema standardization: `capability.list` canonical envelope, `nest.commit` signal, registry 452 |
+| V145 | May 16 | LTEE B6 BioBrick Burden (Anderson disorder analogy): Python 7/7, Rust 34/34, lithoSpore module 5 |
 
 Part of [ecoPrimals](https://github.com/syntheticChemistry) · [wateringHole](https://github.com/ecoPrimals/wateringHole) · AGPL-3.0-or-later

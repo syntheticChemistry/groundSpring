@@ -1,7 +1,7 @@
 # LAN HPC Deployment Readiness Checklist
 
 **Date**: May 8, 2026
-**Status**: Eastgate NUCLEUS validated (V144 / guideStone L4), awaiting 10G Cat6a cables
+**Status**: Eastgate NUCLEUS validated (V145 / guideStone L4), awaiting 10G Cat6a cables
 
 ---
 
@@ -27,7 +27,7 @@
 ### V116 Validation Results
 
 - 1,123 Rust tests: ALL PASS (default + biomeos features)
-- 427/427 experiment checks: ALL PASS (340 core + 55 NUCLEUS + 32 LTEE)
+- 461/461 experiment checks: ALL PASS (340 core + 55 NUCLEUS + 66 LTEE)
 - 44 three-tier parity tests: ALL PASS
 - metalForge GPU: 11/11
 - metalForge spectral: 6/6

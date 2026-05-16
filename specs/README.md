@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: May 16, 2026
-**Status**: V144 — Wave 17 signal adoption. 427/427 PASS (340 core + 55 NUCLEUS + 32 LTEE). 1,123 Rust tests, 287 Python tests, 138 metalForge checks, 29 integration tests. 38 experiments, 41 modules. 20 IPC methods + 2 signal dispatch paths across 7 primals. `primal.announce` + `nest.store` signals wired. BLAKE3 ingestion manifest for lithoSpore. LTEE B1–B4. Three-tier parity: 29/29. barraCuda v0.4.0. guideStone Level 4. Tier 4 IPC-first. Zero clippy, zero unsafe.
+**Status**: V145 — Wave 17 signal adoption. 461/461 PASS (340 core + 55 NUCLEUS + 66 LTEE). 1,123 Rust tests, 287 Python tests, 138 metalForge checks, 29 integration tests. 39 experiments, 41 modules. 20 IPC methods + 2 signal dispatch paths across 7 primals. `primal.announce` + `nest.store` signals wired. BLAKE3 ingestion manifest for lithoSpore. LTEE B1–B4, B6. Three-tier parity: 29/29. barraCuda v0.4.0. guideStone Level 4. Tier 4 IPC-first. Zero clippy, zero unsafe.
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -11,10 +11,10 @@
 | Metric | Value |
 |--------|-------|
 | Phase 0 (Python) | 33/33 experiments PASS across 10 scientific domains (~330 checks) |
-| Phase 1 (Rust) | 427/427 PASS — 38 validation binaries + `validate_all` (340 core + 55 NUCLEUS + 32 LTEE) |
+| Phase 1 (Rust) | 461/461 PASS — 39 validation binaries + `validate_all` (340 core + 55 NUCLEUS + 66 LTEE) |
 | Phase 4 (NUCLEUS) | 55/55 PASS — 4 NUCLEUS validation binaries (Exp 029–032) |
-| LTEE (B1–B4) | 32/32 PASS — 4 LTEE validation binaries (Exp 036–039) |
-| Total Validation | 427/427 PASS across 38 experiments (38 binaries; no Exp 034) |
+| LTEE (B1–B4, B6) | 66/66 PASS — 5 LTEE validation binaries (Exp 036–039, 040) |
+| Total Validation | 461/461 PASS across 39 experiments (39 binaries; no Exp 034) |
 | Mathematical Parity | 29/29 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
 | Rust tests | 1,123 across all feature gates + 287 Python |
 | metalForge | 2 production WGSL shaders (anderson_lyapunov, anderson_lyapunov_f32) |

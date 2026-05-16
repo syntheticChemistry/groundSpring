@@ -9,7 +9,7 @@ that proves Python baselines can be faithfully ported to Rust and eventually
 promoted to GPU acceleration via the Write → Absorb → Lean cycle.
 
 ```
-control/             Python Phase 0 experiments (38 experiments across 12 domains)
+control/             Python Phase 0 experiments (39 experiments across 12 domains)
   common.py          Shared statistical primitives
   sensor_noise/      Exp 001: Bias-variance decomposition
   observation_gap/   Exp 002: Model-observation gap
@@ -70,7 +70,7 @@ crates/
     src/npu.rs             NPU integration for AKD1000 neuromorphic inference (behind npu feature)
     src/biomeos.rs         biomeOS Neural API client: socket discovery, capability routing (behind biomeos feature)
     src/nestgate.rs        NestGate data pipeline: NCBI/NOAA/IRIS providers, provenance (behind biomeos feature)
-  groundspring-validate/   38 validation binaries (hotSpring pattern, 4 NUCLEUS behind biomeos feature, 4 LTEE)
+  groundspring-validate/   39 validation binaries (hotSpring pattern, 4 NUCLEUS behind biomeos feature, 5 LTEE)
 metalForge/          Write → Absorb → Lean artifacts
   ABSORPTION_MANIFEST.md  Module-by-module absorption inventory
   shaders/                 Production WGSL shaders for ToadStool absorption
@@ -109,7 +109,7 @@ scripts/             Automation (baselines, benchmarks)
 ### Rust
 
 ```bash
-cargo test --workspace                         # 1,123 tests, all PASS (V144)
+cargo test --workspace                         # 1,123 tests, all PASS (V145)
 cargo test --workspace --all-features          # all feature paths tested
 cargo test --workspace --features biomeos      # biomeos tests (NUCLEUS client active)
 cargo test --workspace --features barracuda-gpu # GPU dispatch active

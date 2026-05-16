@@ -3,7 +3,7 @@
 Publication-grade Python baselines for groundSpring experiments.
 Each notebook is executable, self-contained, and produces charts for the website.
 
-**Coverage**: 29 core experiment baselines (Exp 001–029). Experiments 030–035 (NUCLEUS/live-data/hydrology) and 036–039 (LTEE B1–B4) have Python baselines in `control/` scripts rather than notebooks. Two NUCLEUS parity harnesses (`exp094`, `exp095`) are Rust-only validation crates.
+**Coverage**: 29 core experiment baselines (Exp 001–029). Experiments 030–035 (NUCLEUS/live-data/hydrology) and 036–039, 040 (LTEE B1–B4, B6) have Python baselines in `control/` scripts rather than notebooks. Two NUCLEUS parity harnesses (`exp094`, `exp095`) are Rust-only validation crates.
 
 | # | Notebook | Domain | Cells |
 |---|----------|--------|-------|

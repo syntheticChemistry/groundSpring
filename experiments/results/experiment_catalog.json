@@ -1,7 +1,7 @@
 {
   "generated": "2026-05-16T15:00:00Z",
   "spring": "groundSpring",
-  "total_experiments": 38,
+  "total_experiments": 39,
   "nucleus_harnesses": ["exp094_composition_parity", "exp095_measurement_niche"],
   "total_validation_checks": 427,
   "core_checks": 340,
@@ -64,9 +64,9 @@
       "focus": "Tissue Anderson localization (Paper 12, Gonzales)"
     },
     "ltee": {
-      "experiments": ["036", "037", "038", "039"],
-      "count": 4,
-      "focus": "LTEE reproductions: power-law fitness (B2), neutral mutation (B1), clonal interference (B3), citrate innovation (B4)"
+      "experiments": ["036", "037", "038", "039", "040"],
+      "count": 5,
+      "focus": "LTEE reproductions: power-law fitness (B2), neutral mutation (B1), clonal interference (B3), citrate innovation (B4), BioBrick burden (B6)"
     }
   },
   "experiments": [
@@ -108,6 +108,7 @@
     {"id": "036", "title": "LTEE Fitness Dynamics (Wiser 2013 B2)", "domain": "ltee", "python": "9/9", "rust": "10/10", "speedup": "N/A"},
     {"id": "037", "title": "LTEE Neutral Mutation (Barrick 2009 B1)", "domain": "ltee", "python": "8/8", "rust": "8/8", "speedup": "N/A"},
     {"id": "038", "title": "LTEE Clonal Interference (Good 2017 B3)", "domain": "ltee", "python": "7/7", "rust": "7/7", "speedup": "N/A"},
-    {"id": "039", "title": "LTEE Citrate Innovation (Blount 2008/2012 B4)", "domain": "ltee", "python": "8/8", "rust": "8/8", "speedup": "N/A"}
+    {"id": "039", "title": "LTEE Citrate Innovation (Blount 2008/2012 B4)", "domain": "ltee", "python": "8/8", "rust": "8/8", "speedup": "N/A"},
+    {"id": "040", "title": "LTEE BioBrick Burden (Nat Comms 2024 B6)", "domain": "ltee", "python": "7/7", "rust": "34/34", "speedup": "N/A"}
   ]
 }

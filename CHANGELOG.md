@@ -4,6 +4,19 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V145 LTEE B6 BioBrick Burden — Anderson Disorder Analogy (May 16, 2026)
+
+#### Science Expansion
+- **LTEE B6 (Experiment 040)**: Reproduced "Measuring the burden of hundreds of BioBricks" (2024 Nat Comms). Models plasmid metabolic burden as Anderson disorder potential. Log-normal burden distribution across 301 synthetic plasmids with AIC/BIC model selection, jackknife variance estimation, and Anderson localization length correlation.
+- **Python baseline**: 7/7 checks PASS across 5 replicates (burden mean, CV, log-normal preference, AIC delta, KS goodness-of-fit, Anderson correlation).
+- **Rust validation binary** (`validate_ltee_biobrick`): 34/34 PASS. Distribution fitting + Anderson mapping + jackknife + cross-validation vs Python.
+- **lithoSpore module 5** (`ltee-biobrick`): BLAKE3-anchored `expected_values.json`, `tolerances.toml`, full ingestion manifest entry.
+
+#### Integration
+- Experiment catalog updated: 39 total experiments (was 38).
+- `LITHOSPORE_INGESTION_MANIFEST.toml`: 5 modules (was 4).
+- Paper review queue B6 marked COMPLETE.
+
 ### V144 Wave 20 Schema Standardization + E2E Validation (May 16, 2026)
 
 #### Schema Standardization

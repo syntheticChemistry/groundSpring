@@ -1,11 +1,11 @@
 # groundSpring Primal Composition Gaps
 
-**Spring:** groundSpring V144
+**Spring:** groundSpring V145
 **Proto-nucleate:** `downstream_manifest.toml` (spring_name = "groundspring")
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
 **Date:** April 27, 2026
-**Last audited:** May 16, 2026 (V144 — Wave 20 schema standardization. `capability.list` canonical envelope. `nest.commit` signal dispatch. Registry 452. 20 IPC methods + 3 signal paths)
+**Last audited:** May 16, 2026 (V145 — Wave 20 schema standardization. `capability.list` canonical envelope. `nest.commit` signal dispatch. Registry 452. 20 IPC methods + 3 signal paths)
 **License:** AGPL-3.0-or-later
 
 ---
@@ -171,8 +171,8 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 - **Severity:** Low
 - **Status:** Surface upstream
 - **Description:** `primalSpring/docs/DOWNSTREAM_PATTERN_GUIDE.md` lists
-  groundSpring LTEE as "B1-B3 DONE" with 1,125 tests. Actual: B1-B4
-  DONE (Exp 039 citrate innovation), 1,123 tests.
+  groundSpring LTEE as "B1-B3 DONE" with 1,125 tests. Actual: B1-B4, B6
+  DONE (Exp 039 citrate innovation; Exp 040 BioBrick burden), 1,123 tests.
 - **Action:** Handback to primalSpring for doc update.
 
 ### GAP-GS-015: primalSpring `routing` Module Visibility Bug

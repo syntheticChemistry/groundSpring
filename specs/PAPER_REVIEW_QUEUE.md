@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: May 16, 2026 (V144)
+**Last Updated**: May 16, 2026 (V145)
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---
@@ -45,7 +45,7 @@
 
 **Phase 0**: ~276 checks (Python, 29 experiments). **Phase 1**: 427/427 PASS (Rust, 38 experiments / 38 binaries). **Speedup**: 11.5× median (excl. LAPACK-bound), 47.7× peak (Sturm tridiag).
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs (Exp 029–033 have no Python baseline).
-**Current (V144, May 16)**: 427/427 checks, 1,123 Rust tests, 287 Python tests, 138 metalForge checks. LTEE B1–B4 COMPLETE → `lithoSpore` modules 1–4 with BLAKE3 manifest. 20 IPC methods + 2 signal dispatch paths across 7 primals. Wave 17: `primal.announce` registration + `nest.store` provenance signal. GAP-GS-015 resolved. NestGate CAS + GHCND pipeline wired.
+**Current (V145, May 16)**: 461/461 checks, 1,123 Rust tests, 294 Python tests, 138 metalForge checks. LTEE B1–B4, B6 COMPLETE → `lithoSpore` modules 1–5 with BLAKE3 manifest. 20 IPC methods + 3 signal dispatch paths across 7 primals. 39 experiments (39 binaries). Wave 20 schema standardization.
 **LTEE summary**: B2 (Exp 036, 10/10), B1 (Exp 037, 8/8), B3 (Exp 038, 7/7), B4 (Exp 039, 8/8). All have `expected_values.json` + Rust validation binaries with `--format json`.
 **Tier 4 IPC-first (V128)**: `barracuda` removed from default features; IPC via `CompositionContext` is the default. `local` feature for opt-in library linkage.
 **GPU dispatch**: 16 modules wired for `barracuda-gpu` — 110 delegations (67 CPU + 43 GPU), barraCuda v0.4.0, toadStool S158+. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed).
@@ -449,7 +449,7 @@ and `infra/whitePaper/attsi/non-anon/contact/barrick/PAPER_REVIEW_AND_SPRING_TAR
 | B3 | Good et al. 2017 "Dynamics of molecular evolution" *Nature* | Clonal interference statistics: when multiple beneficial mutations compete, fixation probability changes | 038 | **COMPLETE** — Python 7/7 PASS, Rust 7/7 PASS (V136). `expected_values.json` → `lithoSpore` module 3 (`ltee-clonal`) |
 | B4 | Blount et al. 2008/2012 Citrate innovation | Rare event statistics: potentiation-actualization cascade model for key innovation | 039 | **COMPLETE** — Python 8/8 PASS, Rust 8/8 PASS (V138). `expected_values.json` → `lithoSpore` module 4 (`ltee-citrate`) |
 | B5 | Leonard et al. 2024 "Symbiont PK/PD" | *healthSpring domain* — colonization dynamics, production kinetics, PK model | — | healthSpring V63 |
-| B6 | "Measuring the burden of hundreds of BioBricks" 2024 *Nat Comms* | Anderson Wc analogy: burden = disorder potential; statistical distribution across 301 plasmids | TBD | QUEUED |
+| B6 | "Measuring the burden of hundreds of BioBricks" 2024 *Nat Comms* | Anderson Wc analogy: burden = disorder potential; statistical distribution across 301 plasmids | 040 | **COMPLETE** — Python 7/7 PASS, Rust 34/34 PASS (V145). `expected_values.json` → `lithoSpore` module 5 (`ltee-biobrick`) |
 | B7 | Tenaillon et al. 2016 "Tempo and mode" *Nature* | Epistasis quantification across 264 genomes; statistical tests for parallel evolution significance | TBD | QUEUED |
 | B8 | Barrick & Waters 2025 "Phages use contingency loci" *bioRxiv* | Bet-hedging statistics: phase variation rates as stochastic switching models | TBD | QUEUED |
 | B9 | DFE Evolution in LTEE 2024 *Science* | DFE fitting: parameter estimation for gamma/exponential/lognormal DFE models across generations | TBD | QUEUED |

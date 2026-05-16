@@ -201,6 +201,10 @@ name = "validate_ltee_citrate"
 path = "src/validate_ltee_citrate.rs"
 
 [[bin]]
+name = "validate_ltee_biobrick"
+path = "src/validate_ltee_biobrick.rs"
+
+[[bin]]
 name = "groundspring_guidestone"
 path = "src/groundspring_guidestone.rs"
 required-features = ["guidestone"]

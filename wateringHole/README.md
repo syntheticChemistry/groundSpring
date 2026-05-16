@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: May 16, 2026 (V144 — Wave 20 schema standardization: `capability.list` canonical envelope, `nest.commit` signal dispatch, registry 452. 20 IPC methods + 3 signal paths)
+**Last Updated**: May 16, 2026 (V145 — Wave 20 schema standardization: `capability.list` canonical envelope, `nest.commit` signal dispatch, registry 452. 20 IPC methods + 3 signal paths)
 
 ## What This Is
 

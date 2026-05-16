@@ -1,4 +1,4 @@
-# lithoSpore Ingestion Manifest — groundSpring B1-B4
+# lithoSpore Ingestion Manifest — groundSpring B1-B4, B6
 #
 # This manifest documents the BLAKE3-anchored expected values for
 # lithoSpore module ingestion. Each module maps to an LTEE reproduction
@@ -7,12 +7,12 @@
 # Ingestion: lithoSpore fetch_and_hash.sh pulls expected_values.json,
 # verifies BLAKE3, and registers with NestGate content storage.
 #
-# Generated: May 13, 2026 (groundSpring V140)
+# Generated: May 16, 2026 (groundSpring V145)
 
 [meta]
 spring = "groundSpring"
-version = "V140"
-total_modules = 4
+version = "V145"
+total_modules = 5
 all_complete = true
 
 # --- Module 1: ltee-fitness (B2 Wiser 2013) ---
@@ -102,3 +102,25 @@ benchmark_config = "control/ltee_citrate_innovation/benchmark_ltee_citrate.json"
 [modules.ltee_citrate.checks]
 python = "8/8 PASS"
 rust = "8/8 PASS"
+
+# --- Module 5: ltee-biobrick (B6 Nat Comms 2024) ---
+
+[modules.ltee_biobrick]
+paper_id = "B6"
+paper = "Measuring the burden of hundreds of BioBricks (2024) Nat Comms"
+experiment = "040_ltee_biobrick_burden"
+litho_module = "ltee-biobrick"
+module_number = 5
+status = "COMPLETE"
+
+[modules.ltee_biobrick.artifacts]
+expected_values = "control/ltee_biobrick_burden/expected_values.json"
+expected_values_blake3 = "05f4b8c14fe48cd009829f103f0c1be17b4f0df73c9b0314e0bcb5741dec7ec7"
+tolerances = "control/ltee_biobrick_burden/tolerances.toml"
+python_baseline = "control/ltee_biobrick_burden/ltee_biobrick_burden.py"
+rust_validator = "crates/groundspring-validate/src/validate_ltee_biobrick.rs"
+benchmark_config = "control/ltee_biobrick_burden/benchmark_ltee_biobrick.json"
+
+[modules.ltee_biobrick.checks]
+python = "7/7 PASS"
+rust = "34/34 PASS"

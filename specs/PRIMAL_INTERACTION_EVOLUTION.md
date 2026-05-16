@@ -1,6 +1,6 @@
 # Primal Interaction Evolution
 
-**Last updated**: May 16, 2026 (V144 — 20 IPC methods + 2 signal dispatch paths across 7 primals: ToadStool (validate, list_workloads, device.enumerate), barraCuda (precision.route), coralReef (compile.wgsl, targets, validate), NestGate (content.put/get, data.noaa_ghcnd), BearDog (crypto.sign/hash_blake3/seed_fingerprint), skunkBat (security.audit_log), biomeOS (capability.call). Tier 4 IPC-first, LTEE B1–B4 COMPLETE with BLAKE3 ingestion manifest, 1,123 tests)
+**Last updated**: May 16, 2026 (V145 — 20 IPC methods + 2 signal dispatch paths across 7 primals: ToadStool (validate, list_workloads, device.enumerate), barraCuda (precision.route), coralReef (compile.wgsl, targets, validate), NestGate (content.put/get, data.noaa_ghcnd), BearDog (crypto.sign/hash_blake3/seed_fingerprint), skunkBat (security.audit_log), biomeOS (capability.call). Tier 4 IPC-first, LTEE B1–B4, B6 COMPLETE with BLAKE3 ingestion manifest, 1,123 tests)
 
 This document tracks the evolution of groundSpring's interaction with the
 ecoPrimals ecosystem through biomeOS and the NUCLEUS Neural API, mirroring

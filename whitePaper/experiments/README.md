@@ -5,11 +5,11 @@
 > (Phase 0), a Rust validation (Phase 1), and a barracuda delegation path
 > (Phase 2+).
 
-**Total**: 427/427 validation checks across 38 experiments, 12 domains. 1,123 Rust tests + 287 Python provenance tests + 29 validator exit-code integration tests.
+**Total**: 461/461 validation checks across 39 experiments, 12 domains. 1,123 Rust tests + 287 Python provenance tests + 29 validator exit-code integration tests.
 **Core**: 340/340 checks across 29 experiments (no feature flags).
 **NUCLEUS**: 55 checks across 4 experiments (Exp 029–032, `--features biomeos`).
-**LTEE**: 32/32 checks across 4 experiments (Exp 036–039: B1 neutral mutation, B2 fitness dynamics, B3 clonal interference, B4 citrate innovation).
-**guideStone**: Level 4 (bare + NUCLEUS composition parity) — modular `guidestone/{bare,tower,node,nest,cross}.rs` layers (V144) with 5 bare properties + NUCLEUS additive IPC parity checks + 2 composition experiment crates.
+**LTEE**: 66/66 checks across 5 experiments (Exp 036–039: B2 fitness dynamics, B1 neutral mutation, B3 clonal interference, B4 citrate innovation; Exp 040: B6 BioBrick burden).
+**guideStone**: Level 4 (bare + NUCLEUS composition parity) — modular `guidestone/{bare,tower,node,nest,cross}.rs` layers (V145) with 5 bare properties + NUCLEUS additive IPC parity checks + 2 composition experiment crates.
 **Tier 4 IPC-first**: `barracuda` removed from default features; IPC via `CompositionContext` is the default build.
 **Rust vs Python**: 11.5× faster (excl. LAPACK-bound), 5.1× overall across 28 benchmarked experiments.
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs.
@@ -62,6 +62,7 @@
 | 037 | LTEE Neutral Mutation (B1) | LTEE | Barrick et al. 2009 | 8/8 | 8/8 | N/A |
 | 038 | LTEE Clonal Interference (B3) | LTEE | Good et al. 2017 | 7/7 | 7/7 | N/A |
 | 039 | LTEE Citrate Innovation (B4) | LTEE | Blount et al. 2008/2012 | 8/8 | 8/8 | N/A |
+| 040 | LTEE BioBrick Burden (B6) | LTEE | Nature Communications 2024 | PASS | 34/34 | N/A |
 
 ## Three-Tier Control Plan
 
@@ -71,11 +72,11 @@ Each experiment is validated at three levels:
 2. **GPU** — Barracuda GPU matches CPU within tolerance (`--features barracuda-gpu`)
 3. **metalForge** — Cross-substrate (GPU + NPU + CPU) agreement
 
-Current status: **CPU complete** (340/340 core + 55 NUCLEUS + 32 LTEE = 427 total),
+Current status: **CPU complete** (340/340 core + 55 NUCLEUS + 66 LTEE = 461 total),
 **110 active delegations (67 CPU + 43 GPU) — toadStool S158+, barraCuda v0.4.0**. Tier 4 IPC-first (V128).
 **NUCLEUS**: biomeOS Neural API live — 4 experiments exercise Tower, Node, Squirrel, Nest
-with sovereign fallback. **LTEE**: 4 reproductions (B1–B4) complete for `lithoSpore` modules 1–4.
-38/38 experiments validated. 1,123 Rust tests + 287 Python tests.
+with sovereign fallback. **LTEE**: 5 reproductions (B1–B4, B6) complete for `lithoSpore` modules 1–5.
+39/39 experiments validated. 1,123 Rust tests + 287 Python tests.
 **bench_cpu_vs_gpu**: Dedicated binary for CPU vs GPU performance comparison across 6 workloads.
 **metalForge tier**: groundspring-forge crate with live hardware validation
 (RTX 4070, Titan V, AKD1000 NPU). 5 validation binaries, 138 metalForge checks, 5+ substrates.

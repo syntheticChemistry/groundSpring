@@ -1,0 +1,17 @@
+# LTEE B6: BioBrick Burden — Anderson Disorder Analogy
+# lithoSpore ingestion tolerances for ltee-biobrick module
+
+[tolerances]
+burden_mean_abs = 0.02
+burden_cv_abs = 0.15
+delta_aic_min = 10.0
+ks_alpha = 0.05
+anderson_correlation_min = 0.85
+jk_mu_abs = 0.05
+jk_sigma_abs = 0.05
+
+[provenance]
+paper = "Measuring the burden of hundreds of BioBricks (2024) Nat Comms"
+paper_id = "B6"
+experiment_id = "040"
+spring = "groundSpring"

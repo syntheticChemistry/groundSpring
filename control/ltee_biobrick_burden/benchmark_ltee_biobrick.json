@@ -1,0 +1,43 @@
+{
+  "_source": "groundSpring Experiment 040 — LTEE BioBrick Burden (B6)",
+  "_provenance": {
+    "generated_by": "Synthetic BioBrick burden data from log-normal distribution approximating empirical shape from the 2024 Nat Comms paper",
+    "data_origin": "Synthetic 301-plasmid burden values; distribution parameters estimated from paper figures",
+    "real_data_accession": "N/A (synthetic; real data via supplementary tables of the original paper for future Tier 2)",
+    "prng_algorithm": "xorshift64 (Marsaglia 2003)",
+    "baseline_commit": "V145",
+    "baseline_date": "2026-05-16",
+    "validation_script": "control/ltee_biobrick_burden/ltee_biobrick_burden.py",
+    "command": "python3 control/ltee_biobrick_burden/ltee_biobrick_burden.py",
+    "rust_validator": "validate_ltee_biobrick"
+  },
+  "experiment_id": "040",
+  "title": "LTEE BioBrick Burden — Anderson Disorder Analogy (B6)",
+  "paper": "Measuring the burden of hundreds of BioBricks defines an evolutionary limit on constructability (2024) Nat Comms",
+  "description": "Models plasmid burden as Anderson disorder potential. Each BioBrick introduces a metabolic cost (burden) that reduces host growth rate. The distribution of burdens across 301 standardized BioBricks follows statistics analogous to disorder potentials in condensed-matter localization theory.",
+  "method": "Burden is measured as relative growth-rate reduction: burden_i = 1 - (growth_plasmid_i / growth_control). The distribution of burdens across N plasmids is fitted to (1) normal, (2) log-normal, and (3) exponential models using MLE + AIC/BIC model selection. The Anderson analogy maps burden → disorder W, growth_rate → wavefunction amplitude, and plasmid interactions → hopping integrals.",
+  "n_plasmids": 301,
+  "control_growth_rate": 1.0,
+  "burden_distribution": {
+    "model": "log-normal",
+    "mu": -2.3,
+    "sigma": 0.8,
+    "note": "Synthetic parameters approximating the empirical distribution shape from the paper. Real data shows right-skewed burden distribution with most plasmids having small burden and a heavy tail."
+  },
+  "seed": 20240601,
+  "replicates": 5,
+  "anderson_mapping": {
+    "disorder_strength_W": 0.15,
+    "effective_dimension": 1,
+    "lattice_size": 301,
+    "note": "Maps burden magnitude to disorder strength W in 1D Anderson model. Localization length xi = 105/(W^2) at band center for 1D."
+  },
+  "thresholds": {
+    "aic_delta_model_selection": 10.0,
+    "burden_mean_range": [0.05, 0.25],
+    "burden_cv_range": [0.5, 2.0],
+    "lognormal_aic_preferred": true,
+    "anderson_localization_correlation": 0.85,
+    "ks_test_alpha": 0.05
+  }
+}

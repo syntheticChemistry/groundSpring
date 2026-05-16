@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: May 16, 2026 (V144 — Wave 17 signal adoption. `primal.announce` registration + `nest.store` signal dispatch. GAP-GS-015 resolved. 7 stale lint suppressions removed. 1,123 tests, ≥92% library coverage, 0 clippy warnings, 0 fmt diff. guideStone Level 4. LTEE B1–B4 complete → `lithoSpore` modules 1–4. 38 experiments, 427/427 checks, 38 validation binaries. 20 IPC methods + 2 signal dispatch paths across 7 primals. Tier 4 IPC-first. barraCuda v0.4.0. primalSpring v0.9.25.)
+**Last updated**: May 16, 2026 (V145 — Wave 17 signal adoption. `primal.announce` registration + `nest.store` signal dispatch. GAP-GS-015 resolved. 7 stale lint suppressions removed. 1,123 tests, ≥92% library coverage, 0 clippy warnings, 0 fmt diff. guideStone Level 4. LTEE B1–B4, B6 complete → `lithoSpore` modules 1–5. 39 experiments, 461/461 checks, 39 validation binaries. 20 IPC methods + 2 signal dispatch paths across 7 primals. Tier 4 IPC-first. barraCuda v0.4.0. primalSpring v0.9.25.)
 
 ## Experiment Register
 
@@ -45,7 +45,7 @@
 **Python Phase 0**: All 29 experiments with Python baselines passing
 **Rust Phase 1 (core)**: 340/340 PASS across 30 validation binaries (340 core)
 **Rust Phase 1 (NUCLEUS)**: 55/55 PASS across 4 validation binaries (Exp 029–032, `--features biomeos`)
-**Total validation**: 427/427 PASS across 38 validation binaries
+**Total validation**: 461/461 PASS across 39 validation binaries
 **Rust tests**: 1,123 PASS (default workspace, zero warnings, zero clippy errors on all targets)
 **pytest**: 400 collected, 314 PASS + 19 skipped + 67 fail (Kokkos benchmark binary name issues — build-dependent)
 **Three-tier parity**: 102+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
@@ -600,7 +600,7 @@ Each experiment is validated at three hardware tiers:
 | 29-32 | NUCLEUS sovereign experiments | **55/55 PASS** | — | Sovereign | Real data (NOAA/NCBI/IRIS) |
 | 33 | Tissue Anderson 4D + Wegner RG | **29/29 PASS** | **Wired** | Workload | `anderson_4d` + `wegner_block_4d` (V68) |
 
-**CPU tier**: 427/427 PASS (38 binaries, complete)
+**CPU tier**: 461/461 PASS (39 binaries, complete)
 **GPU tier**: 27 of 34 papers have GPU wiring (79%). 110 delegations (67 CPU + 43 GPU). 30/30 metalForge parity.
 **V121**: Deep debt + ecosystem absorption (tolerance centralization, provenance hardening, MSRV 1.87, barraCuda v0.3.7). **V120**: Deep audit execution (dispatch refactored, forbid unsafe on 50 binaries, DeviceCapabilities). **V119**: Cross-ecosystem absorption. **V118**: RPC expansion (16 capabilities), 110 delegations (67 CPU + 43 GPU). barraCuda v0.3.7, toadStool S158+, coralReef Iteration 55+.
 **metalForge tier**: 30 workloads, 138 checks. Exp 028 NPU 9/9 PASS (AKD1000 DMA). GPU→NPU→CPU pipeline dispatch validated.
@@ -654,7 +654,7 @@ Each experiment is validated at three hardware tiers:
 
 - **Phase 0**: Python/NumPy/SciPy baselines — **COMPLETE** (375 pytest checks across 28 experiments)
 - **Phase 0+**: Real open data pipelines (NOAA CDO, IRIS waveforms) — **COMPLETE** (NUCLEUS Exp 029-032)
-- **Phase 1**: Rust CPU validation — **COMPLETE** (427/427 across 38 binaries)
+- **Phase 1**: Rust CPU validation — **COMPLETE** (461/461 across 39 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
 - **Phase 1c**: Paper queue experiments — **COMPLETE** (Exp 001-033: all domains)
 - **Phase 2a**: Tier A rewire — **COMPLETE** — 110 active delegations (67 CPU + 43 GPU), toadStool S156+. PrecisionRoutingAdvice wired (V101) PrecisionRoutingAdvice wired (V101)
@@ -685,8 +685,8 @@ Each experiment is validated at three hardware tiers:
 | `cargo test --features biomeos` | ~830 PASS |
 | `cargo test --features barracuda` | 1,123/1,123 PASS |
 | `cargo test --features barracuda-gpu` | 814/814 PASS |
-| Validation binaries (local) | 427/427 PASS (38 binaries) |
-| Validation binaries (barracuda-gpu) | 427/427 PASS |
+| Validation binaries (local) | 461/461 PASS (39 binaries) |
+| Validation binaries (barracuda-gpu) | 461/461 PASS |
 | `python3 -m pytest tests/` | 314/400 PASS + 19 skipped (67 fail: Kokkos benchmark binaries — build-dependent, not baseline errors) |
 | Library line coverage | ≥92% (cargo-llvm-cov --workspace --lib) |
 | Unsafe code | Forbidden (workspace lint + `#![forbid(unsafe_code)]` on all 50 binaries) |
@@ -793,13 +793,13 @@ Unidirectional streaming reduces dispatch round-trips.
 
 **V68 tier checks**: 30/30 workload parity, 138 total checks.
 
-### Complete Progression (38 experiments)
+### Complete Progression (39 experiments)
 
 ```
 Python (interpreted)     107.1s   ─── math correctness (open data + open systems)
   │  5.2× faster
 Rust (compiled)           20.5s   ─── pure safe Rust, same math (28/28 parity)
-  │  ~0% overhead                     427/427 validation checks (38 experiments)
+  │  ~0% overhead                     461/461 validation checks (39 experiments)
 barracuda-CPU             22.8s   ─── delegation proves portability (30/30 parity)
   │  2.2× faster                     110 delegations (67 CPU + 43 GPU)
 barracuda-GPU              9.8s   ─── GPU proves the math is truly portable

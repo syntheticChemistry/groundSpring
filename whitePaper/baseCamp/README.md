@@ -5,7 +5,7 @@ reproductions and extensions.
 
 **Last Updated**: May 16, 2026
 
-**Validation Summary**: V144 — 427/427 validation checks (340 core + 55 NUCLEUS + 32 LTEE) + 138 metalForge checks, **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.4.0, toadStool S158+, coralReef Iteration 55+**. 1,123 Rust tests + 287 Python provenance tests. ≥92% library line coverage. **guideStone Level 4**. Tier 4 IPC-first. **20 IPC methods + 2 signal dispatch paths across 7 primals** (ToadStool, barraCuda, coralReef, NestGate, BearDog, skunkBat, biomeOS). LTEE B1–B4 complete with BLAKE3 ingestion manifest → `lithoSpore` modules 1–4. NestGate CAS (`content.put`/`content.get`) + `data.noaa_ghcnd` pipeline wired. BearDog crypto JSON-RPC (`crypto.sign`, `crypto.hash_blake3`, `crypto.seed_fingerprint`). NOAA GHCND pipeline scaffolded. `--format json` on all 38 validation binaries. Zero unsafe, zero mocks in production, zero `.unwrap()` in library code. All 38 experiments PASS. **29/29 mathematical parity proven**. 12 domains, 41 modules.
+**Validation Summary**: V145 — 461/461 validation checks (340 core + 55 NUCLEUS + 66 LTEE) + 138 metalForge checks, **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.4.0, toadStool S158+, coralReef Iteration 55+**. 1,123 Rust tests + 287 Python provenance tests. ≥92% library line coverage. **guideStone Level 4**. Tier 4 IPC-first. **20 IPC methods + 2 signal dispatch paths across 7 primals** (ToadStool, barraCuda, coralReef, NestGate, BearDog, skunkBat, biomeOS). LTEE B1–B4, B6 complete with BLAKE3 ingestion manifest → `lithoSpore` modules 1–5. NestGate CAS (`content.put`/`content.get`) + `data.noaa_ghcnd` pipeline wired. BearDog crypto JSON-RPC (`crypto.sign`, `crypto.hash_blake3`, `crypto.seed_fingerprint`). NOAA GHCND pipeline scaffolded. `--format json` on all 39 validation binaries. Zero unsafe, zero mocks in production, zero `.unwrap()` in library code. All 39 experiments PASS. **29/29 mathematical parity proven**. 12 domains, 41 modules.
 
 ---
 
@@ -62,7 +62,7 @@ Each faculty extension paper is validated at three tiers:
 | Exp 001 (sensor noise) | Waters → **Exp 006** (signal specificity) | wetSpring (bio sensing) |
 | Exp 003 (error propagation) | Liu → **Exp 007** (RAWR bootstrap) | neuralSpring (confidence) |
 | Exp 005 (seismic inversion) | Bazavov → **Exp 019** (jackknife), **Exp 020** (freeze-out), **Exp 021** (spectral recon) | hotSpring (lattice QCD) |
-| All 38 experiments | Kachkovskiy → **Exp 008** + **Exp 009** + **Exp 015** (uncertainty bridge) | hotSpring (spectral theory) |
+| All 39 experiments | Kachkovskiy → **Exp 008** + **Exp 009** + **Exp 015** (uncertainty bridge) | hotSpring (spectral theory) |
 | Exp 009 (quasiperiodic) | Kachkovskiy → **Almost-Mathieu** (Aubry-André) | hotSpring (spectral theory) |
 | Exp 001 + 006 | Waters → **Exp 010** (bistable switching) | wetSpring (QS bifurcation) |
 | Exp 006 + 010 | Waters → **Exp 011** (multi-signal QS) | wetSpring (dual-signal integration) |

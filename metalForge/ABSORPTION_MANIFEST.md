@@ -6,7 +6,7 @@
 > baselines, hand off via `wateringHole/handoffs/`, ToadStool absorbs as
 > GPU ops, groundSpring rewires to upstream and deletes local code.
 
-**Last updated**: May 16, 2026 (V144 — Wave 17 signal adoption. 110 active delegations (67 CPU + 43 GPU), barraCuda v0.4.0. 20 IPC methods + 2 signal paths. `primal.announce` + `nest.store` signals. 1,123 tests, ≥92% library coverage, clippy clean. guideStone Level 4. Tier 4 IPC-first)
+**Last updated**: May 16, 2026 (V145 — Wave 17 signal adoption. 110 active delegations (67 CPU + 43 GPU), barraCuda v0.4.0. 20 IPC methods + 2 signal paths. `primal.announce` + `nest.store` signals. 1,123 tests, ≥92% library coverage, clippy clean. guideStone Level 4. Tier 4 IPC-first)
 
 ## Absorption Status Summary
 
