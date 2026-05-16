@@ -4,6 +4,18 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V143 Neural API Signal Elevation — Wave 17 Adoption (May 16, 2026)
+
+#### Signal Adoption
+- **`primal.announce`**: New `announce_or_register()` in `biomeos/registration.rs`. Tries `primal.announce` (Wave 17) → `method.register` (biomeOS v3.51) → legacy `capability.register` loop. `groundspring_primal` server startup now uses `announce_or_register`.
+- **`nest.store` signal**: `try_signal_store()` in `provenance.rs`. Collapses content.put + DAG event + spine seal into single `signal.dispatch("nest.store", ...)`. Falls back to direct `storage.put`.
+- **`nest.commit` signal**: `try_signal_commit()` in `provenance.rs`. Collapses dehydrate + sign + store + commit + attribute. Falls back to `commit_session` + `record_attribution`.
+- **`biomeos::protocol` and `biomeos::transport`**: Promoted to `pub(crate)` for signal dispatch access from `provenance.rs`.
+
+#### Deep Debt
+- **7 unfulfilled `#[expect(clippy::too_many_lines)]`**: Changed to `#[allow(...)]` in 7 validation binaries where functions are no longer over the line limit.
+- **GAP-GS-015**: Confirmed fixed — `cargo check --workspace` passes against primalSpring Wave 17.
+
 ### V142 Compute Trio Wave Absorption (May 14, 2026)
 
 #### coralReef Deepening (v0.1.0, Sprint 11+12)

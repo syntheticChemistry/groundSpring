@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: May 14, 2026 (V142 — Compute trio wave: `shader.compile.gemm` + `health.version` trio-consistent on barraCuda + coralReef. 20 IPC methods across 7 primals. 3 upstream gaps surfaced (GAP-GS-015/016/017))
+**Last Updated**: May 16, 2026 (V143 — Wave 17 signal adoption: `primal.announce` + `nest.store`/`nest.commit` signals. GAP-GS-015 resolved. 20 IPC methods. primalSpring 451-method registry synced)
 
 ## What This Is
 
@@ -18,9 +18,9 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V142 Compute Trio Wave | [GROUNDSPRING_V142_COMPUTE_TRIO_WAVE_HANDOFF_MAY14_2026.md](handoffs/GROUNDSPRING_V142_COMPUTE_TRIO_WAVE_HANDOFF_MAY14_2026.md) | May 14, 2026 | Compute trio absorption: `shader.compile.gemm`, `health.version` (barraCuda + coralReef). 20 IPC methods, 3 upstream gaps surfaced. |
+| V143 Wave 17 Signal Adoption | [GROUNDSPRING_V143_WAVE17_SIGNAL_ADOPTION_HANDOFF_MAY16_2026.md](handoffs/GROUNDSPRING_V143_WAVE17_SIGNAL_ADOPTION_HANDOFF_MAY16_2026.md) | May 16, 2026 | Neural API Signal Elevation: `primal.announce`, `nest.store`/`nest.commit` signals. GAP-GS-015 resolved. 7 lint fixes. |
 
-**Archived**: V123–V141 handoffs moved to `handoffs/archive/`.
+**Archived**: V123–V142 handoffs moved to `handoffs/archive/`.
 
 
 ## Cross-Spring Documentation

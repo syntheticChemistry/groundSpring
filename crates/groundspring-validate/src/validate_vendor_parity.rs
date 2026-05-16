@@ -44,10 +44,7 @@ fn synthetic_vacf_noisy(
         .collect()
 }
 
-#[expect(
-    clippy::too_many_lines,
-    reason = "validation harness with multiple WDM vendor parity checks"
-)]
+#[allow(clippy::too_many_lines)]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut harness = ValidationHarness::from_args("Rust Validation: GPU Vendor Parity");

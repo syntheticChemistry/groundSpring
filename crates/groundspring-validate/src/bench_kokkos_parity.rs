@@ -15,10 +15,7 @@ use groundspring::prng::Xorshift64;
 use groundspring::stats::{mean, pearson_r, std_dev};
 use groundspring_validate::OrExit;
 
-#[expect(
-    clippy::too_many_lines,
-    reason = "benchmark harness: three workload sections"
-)]
+#[allow(clippy::too_many_lines)]
 fn main() {
     println!("groundSpring Rust Tier 2 Baseline");
     println!("  Backend: CPU (default features)\n");

@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: May 13, 2026
-**Status**: V142 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 427/427 PASS (340 core + 55 NUCLEUS + 32 LTEE), 110 delegations (67 CPU + 43 GPU) — 1,123 Rust tests, 287 Python tests, 138 metalForge checks, 29 validator exit-code integration tests, 38 experiments (34 core + 4 LTEE reproductions B1–B4), 41 modules. 17 IPC methods across 7 primals. BLAKE3 ingestion manifest for lithoSpore. NestGate CAS + GHCND pipeline wired. BearDog JSON-RPC. NOAA GHCND scaffolded. Three-tier parity: 29/29. barraCuda v0.4.0. guideStone Level 4. Tier 4 IPC-first. Zero clippy, zero unsafe.
+**Status**: V143 — Phase 0 + Phase 1 + Phase 2a + Phase 4 (NUCLEUS) — 427/427 PASS (340 core + 55 NUCLEUS + 32 LTEE), 110 delegations (67 CPU + 43 GPU) — 1,123 Rust tests, 287 Python tests, 138 metalForge checks, 29 validator exit-code integration tests, 38 experiments (34 core + 4 LTEE reproductions B1–B4), 41 modules. 17 IPC methods across 7 primals. BLAKE3 ingestion manifest for lithoSpore. NestGate CAS + GHCND pipeline wired. BearDog JSON-RPC. NOAA GHCND scaffolded. Three-tier parity: 29/29. barraCuda v0.4.0. guideStone Level 4. Tier 4 IPC-first. Zero clippy, zero unsafe.
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---

@@ -25,10 +25,7 @@ struct BenchResult {
     elapsed_us: f64,
 }
 
-#[expect(
-    clippy::too_many_lines,
-    reason = "benchmark harness: three workload sections + JSON output"
-)]
+#[allow(clippy::too_many_lines)]
 fn main() {
     let gpu_active = groundspring::gpu_available();
 

@@ -84,8 +84,8 @@ fn cmd_server() -> ExitCode {
     info!(path = %socket_path.display(), "listening");
 
     if let Some(neural_socket) = biomeos::auto_connect() {
-        info!("Neural API found, registering capabilities");
-        match biomeos::register_capabilities(&neural_socket) {
+        info!("Neural API found, registering via announce");
+        match biomeos::announce_or_register(&neural_socket) {
             Ok(n) => info!(count = n, "registered capabilities"),
             Err(e) => warn!(error = %e, "registration failed (non-fatal)"),
         }

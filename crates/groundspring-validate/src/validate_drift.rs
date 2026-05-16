@@ -20,10 +20,7 @@ use groundspring_validate::{
 const BENCHMARK: &str =
     include_str!("../../../control/drift_selection/benchmark_drift_selection.json");
 
-#[expect(
-    clippy::too_many_lines,
-    reason = "validation harness with neutral + selection sweep checks"
-)]
+#[allow(clippy::too_many_lines)]
 #[expect(
     clippy::expect_used,
     reason = "validation harness: malformed benchmark config is a fatal infrastructure error"

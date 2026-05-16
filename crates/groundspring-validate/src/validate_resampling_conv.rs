@@ -53,10 +53,7 @@ fn ci_width(data: &[f64], n_boot: usize, confidence: f64, seed: u64, use_rawr: b
     r.ci_upper - r.ci_lower
 }
 
-#[expect(
-    clippy::too_many_lines,
-    reason = "validation harness with multiple convergence check sections"
-)]
+#[allow(clippy::too_many_lines)]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::from_args("Rust Validation: Resampling Convergence");

@@ -43,10 +43,7 @@ fn generate_noisy_pop(gens: &[f64], alpha: f64, beta: f64, sigma: f64, seed: u64
         .collect()
 }
 
-#[expect(
-    clippy::too_many_lines,
-    reason = "validation harness with two-phase model selection + jackknife"
-)]
+#[allow(clippy::too_many_lines)]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut h =

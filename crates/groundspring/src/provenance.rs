@@ -90,13 +90,12 @@ pub fn store_result(socket: &Path, key: &str, result_json: &str) -> Result<()> {
 
 /// Execute a complete provenance lifecycle for a validation run.
 ///
-/// 1. Start session → 2. Store result → 3. Commit session → 4. Record attribution.
+/// Tries signal-elevated path first (Wave 17):
+/// 1. Start session
+/// 2. Store result via `nest.store` signal (collapses content.put + DAG + seal)
+/// 3. Commit via `nest.commit` signal (collapses dehydrate + sign + attribute)
 ///
-/// Each step gracefully degrades: if the trio is unavailable, the validation
-/// still succeeds locally. Returns the session ID on full success, or the
-/// first error encountered.
-///
-/// Absorbed from primalSpring V0.3.0 `RootPulse` session lifecycle pattern.
+/// Falls back to direct capability calls if signals are unavailable.
 ///
 /// # Errors
 ///
@@ -106,20 +105,68 @@ pub fn run_lifecycle(socket: &Path, experiment_id: &str, result_json: &str) -> R
     let session_id = start_session(socket, experiment_id)?;
 
     let result_key = format!("{}/{experiment_id}", biomeos::FAMILY_ID);
-    if let Err(e) = store_result(socket, &result_key, result_json) {
+
+    if try_signal_store(socket, &result_key, result_json, &session_id) {
+        tracing::info!("provenance stored via nest.store signal");
+    } else if let Err(e) = store_result(socket, &result_key, result_json) {
         tracing::warn!("provenance store failed (non-fatal): {e}");
     }
 
-    if let Err(e) = commit_session(socket, &session_id, result_json) {
-        tracing::warn!("provenance commit failed (non-fatal): {e}");
-    }
+    if try_signal_commit(socket, &session_id, result_json, experiment_id) {
+        tracing::info!("provenance committed via nest.commit signal");
+    } else {
+        if let Err(e) = commit_session(socket, &session_id, result_json) {
+            tracing::warn!("provenance commit failed (non-fatal): {e}");
+        }
 
-    let contribution = format!("measurement validation: {experiment_id}");
-    if let Err(e) = record_attribution(socket, &session_id, &contribution) {
-        tracing::warn!("provenance attribution failed (non-fatal): {e}");
+        let contribution = format!("measurement validation: {experiment_id}");
+        if let Err(e) = record_attribution(socket, &session_id, &contribution) {
+            tracing::warn!("provenance attribution failed (non-fatal): {e}");
+        }
     }
 
     Ok(session_id)
+}
+
+/// Try `nest.store` signal via `signal.dispatch` (Wave 17).
+///
+/// Collapses content.put + DAG event + spine seal into a single dispatch.
+/// Returns `true` on success, `false` if signal dispatch is unavailable.
+fn try_signal_store(socket: &Path, key: &str, value: &str, session_id: &str) -> bool {
+    let params = serde_json::json!({
+        "signal": "nest.store",
+        "params": {
+            "key": key,
+            "value": value,
+            "session_id": session_id,
+            "family_id": biomeos::FAMILY_ID,
+        },
+    });
+    let request = biomeos::protocol::build_request("signal.dispatch", &params);
+    biomeos::transport::rpc_call(socket, &request)
+        .and_then(|r| biomeos::protocol::extract_rpc_result(&r))
+        .is_ok()
+}
+
+/// Try `nest.commit` signal via `signal.dispatch` (Wave 17).
+///
+/// Collapses dehydrate + sign + store + commit + attribute into a single dispatch.
+/// Returns `true` on success, `false` if signal dispatch is unavailable.
+fn try_signal_commit(socket: &Path, session_id: &str, summary: &str, experiment_id: &str) -> bool {
+    let params = serde_json::json!({
+        "signal": "nest.commit",
+        "params": {
+            "session_id": session_id,
+            "summary": summary,
+            "agent": biomeos::FAMILY_ID,
+            "experiment_id": experiment_id,
+            "family_id": biomeos::FAMILY_ID,
+        },
+    });
+    let request = biomeos::protocol::build_request("signal.dispatch", &params);
+    biomeos::transport::rpc_call(socket, &request)
+        .and_then(|r| biomeos::protocol::extract_rpc_result(&r))
+        .is_ok()
 }
 
 #[cfg(test)]

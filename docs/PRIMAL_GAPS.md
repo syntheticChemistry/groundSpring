@@ -1,11 +1,11 @@
 # groundSpring Primal Composition Gaps
 
-**Spring:** groundSpring V142
+**Spring:** groundSpring V143
 **Proto-nucleate:** `downstream_manifest.toml` (spring_name = "groundspring")
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
 **Date:** April 27, 2026
-**Last audited:** May 14, 2026 (V142 — Compute trio wave absorption. `shader.compile.gemm` (coralReef Sprint 11). `health.version` trio-consistent on barraCuda + coralReef. 20 IPC methods across 7 primals. sourDough internalization awareness. primalSpring `routing` module upstream bug surfaced)
+**Last audited:** May 16, 2026 (V143 — Wave 17 signal adoption. `primal.announce` replaces registration loop. `nest.store` + `nest.commit` signals in provenance lifecycle. GAP-GS-015 confirmed fixed. 7 `#[expect]` lint fixes. 20 IPC methods across 7 primals. primalSpring 451-method registry synced)
 **License:** AGPL-3.0-or-later
 
 ---
@@ -179,14 +179,13 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 
 - **Primal:** primalSpring
 - **Severity:** Medium (blocks `cargo check --workspace`)
-- **Status:** Surface upstream
+- **Status:** Resolved (May 16, 2026 — Wave 17)
 - **Description:** `primalSpring/ecoPrimal/src/coordination/mod.rs:315`
   references `crate::composition::routing::capability_to_primal` but
-  `composition/mod.rs:42` declares `mod routing;` (private). This causes
-  `cargo check --workspace` to fail for any spring that depends on
-  `primalspring`. Discovered during V142 audit (May 14, 2026).
-- **Action:** Handback to primalSpring for visibility fix (`pub mod routing`
-  or re-export the function).
+  `composition/mod.rs:42` declares `mod routing;` (private).
+- **Resolution:** primalSpring Wave 17 re-exports `ALL_CAPS` and
+  `BTSP_EXTRA_CAPS` from `composition/mod.rs`. `cargo check --workspace`
+  now passes.
 
 ### GAP-GS-016: plasmidBin Manifest Metadata Stale
 
@@ -222,6 +221,7 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 | GAP-GS-007 | barraCuda version refs (0.3.7→0.3.13) | Active specs/graphs updated | Apr 27, 2026 |
 | GAP-GS-010 | compute_capabilities() wrong capability | Fixed to `compute.capabilities` | Apr 27, 2026 |
 | GAP-GS-002 | coralReef not wired via IPC | Full surface: `compile.wgsl`, `compile.gemm`, `targets`, `validate`, `health.version` | May 14, 2026 |
+| GAP-GS-015 | primalSpring routing module private | Resolved upstream in Wave 17 (re-export) | May 16, 2026 |
 | GAP-GS-012 | `barracuda.rs` test asserted `roles::COMPUTE == "barracuda"` | Added `roles::GPU_MATH`, fixed tests, Tier 2 methods | May 12, 2026 |
 
 ---

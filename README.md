@@ -7,7 +7,7 @@
 [![ecoBin](https://img.shields.io/badge/ecoBin-compliant-green.svg)](https://github.com/ecoPrimals/wateringHole/blob/main/ECOBIN_ARCHITECTURE_STANDARD.md)
 
 **Date**: May 13, 2026 | **License**: AGPL-3.0-or-later | **MSRV**: Rust 1.87 (2024 edition)
-**Status**: V142 — Compute trio wave absorption. `shader.compile.gemm` (coralReef Sprint 11, tensor-core GEMM). `health.version` trio-consistent probe wired on both barraCuda (Sprint 69) and coralReef. **20 IPC methods across 7 primals**. sourDough deployment internalization tracked. 3 new upstream gaps surfaced (GAP-GS-015/016/017). Tier 4 IPC-first. 41 modules, 38 experiments (34 core + 4 LTEE reproductions), **1,123 tests** (zero clippy, zero fmt diff), 427/427 validation checks + 138 metalForge checks + 29 validator integration tests. **guideStone Level 4**. LTEE B1-B4 complete → lithoSpore modules 1-4 with BLAKE3-anchored ingestion manifest. Zero unsafe, zero mocks, zero `.unwrap()` in library code. plasmidBin binary: 1.1M stripped. barraCuda v0.4.0, coralReef v0.1.0, primalSpring v0.9.25.
+**Status**: V143 — Neural API Signal Elevation (Wave 17). `primal.announce` adopted for registration (replaces multi-call `capability.register` loop). `nest.store` + `nest.commit` signals wired into provenance lifecycle (collapses 4-step sequence). GAP-GS-015 confirmed fixed (workspace builds). 7 unfulfilled `#[expect]` lint attributes resolved. **20 IPC methods across 7 primals**. primalSpring 451-method registry synced. Tier 4 IPC-first. 41 modules, 38 experiments, **1,123 tests** (zero clippy, zero fmt diff), 427/427 validation checks. **guideStone Level 4**. barraCuda v0.4.0, coralReef v0.1.0.
 
 **The gap between what models predict and what instruments measure.**
 
