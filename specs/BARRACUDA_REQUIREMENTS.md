@@ -1,6 +1,6 @@
 # groundSpring — BarraCUDA Requirements
 
-**Last Updated**: May 13, 2026 (V143 — 110 delegations (67 CPU + 43 GPU), 41 modules, barraCuda v0.4.0. LTEE B1-B4 complete, --format json on all 38 binaries)
+**Last Updated**: May 16, 2026 (V143 — 110 delegations (67 CPU + 43 GPU), 41 modules, barraCuda v0.4.0. LTEE B1-B4 complete, --format json on all 38 binaries)
 **Purpose**: GPU kernel requirements, gap analysis, and evolution priorities
 
 ---

@@ -2,7 +2,7 @@
 
 > Semantic capabilities for the biomeOS capability registry.
 
-**Status**: V143 (May 13, 2026)
+**Status**: V143 (May 16, 2026)
 **Domain**: `measurement`
 
 ## Capabilities Provided
@@ -211,6 +211,18 @@ through the `compute` capability when biomeOS routing is enabled.
 ### `storage.put` / `storage.get` (discovered at runtime)
 
 Benchmark JSON storage and provenance tracking via content-addressed storage.
+
+### `nest.store` signal dispatch (Wave 17)
+
+Collapses `content.put` → `dag.event.append` → `spine.seal` → `braid.create`
+into a single `dispatch("nest.store", { content, author, metadata })`. Used for
+LTEE provenance lifecycle. biomeOS manages the graph execution.
+
+### `primal.announce` signal (Wave 17)
+
+Single-call registration replacing `capability.register` + `method.register`.
+groundSpring calls `primal.announce` at server startup with all 16 measurement
+capabilities, falling back to legacy registration on older biomeOS.
 
 ---
 

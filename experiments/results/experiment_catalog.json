@@ -1,7 +1,8 @@
 {
-  "generated": "2026-05-12T13:00:00Z",
+  "generated": "2026-05-16T15:00:00Z",
   "spring": "groundSpring",
   "total_experiments": 38,
+  "nucleus_harnesses": ["exp094_composition_parity", "exp095_measurement_niche"],
   "total_validation_checks": 427,
   "core_checks": 340,
   "nucleus_checks": 55,

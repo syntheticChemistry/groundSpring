@@ -8,35 +8,17 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 ### Status
 
+**Current (V143, May 16, 2026)**:
 - Phase 0 baselines: **~375 quantitative checks passed** across 33 core experiments, 11 domains (+ 4 LTEE, 1 hydrology = 38 total).
 - Phase 1 Rust validation: **427/427 checks passed** across 38 validation binaries (340 core + 55 NUCLEUS + 32 LTEE).
-- LTEE reproductions: **B1–B4 COMPLETE** (Exp 036–039) — unblocks `lithoSpore` modules 1–4.
+- LTEE reproductions: **B1–B4 COMPLETE** (Exp 036–039) → `lithoSpore` modules 1–4.
 - Mathematical parity: **29/29 PROVEN** (Python ⇌ Rust against shared benchmark JSONs).
 - Performance: **11.6× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.4× from Sturm tridiag**.
-- V124: Deep debt resolution + tolerance hardening — `eps` module public with `SAFE_DIV_STRICT`, all bare float literals named, NDJSON injection hardening (RFC 8259), `validate_all` exit-code disambiguation, capability-based NestGate discovery, UID discovery chain (4-tier, no hardcoded fallback), 29 validator integration tests, CI `validate-all` job, 5 clippy fixes. March 24, 2026.
-- V123: Cast evolution + module extraction (`lib.rs` 607→182, `validate/lib.rs` 769→226, 20+ bare `as` casts→named helpers, `cast` module promoted to `pub`, `eps::SSA_FLOOR` unconditional, `deny.toml` cleaned), March 24, 2026.
-- V121: Deep debt + ecosystem absorption (tolerance centralization, provenance hardening, benchmark JSON round-trip test, `#[allow]` → `#[expect]`, barraCuda v0.3.7 doc sync, MSRV 1.87), March 23, 2026.
-- V120: Deep audit execution (dispatch refactored into 4 submodules, `#![forbid(unsafe_code)]` on all 50 binaries, `DeviceCapabilities`, release-mode CI), March 23, 2026.
-- V119: Cross-ecosystem absorption (publish = false, MSRV 1.85, provenance registry, cast parity, IPC isolation), March 22, 2026.
-- V118: RPC expansion (16 capabilities), 110 delegations (67 CPU + 43 GPU), March 19, 2026.
-- V117: All-features compilation fixed (tarpc-ipc), `cargo deny` modernised, PRNG feature-gated, 960+ tests.
-- V116: Typed error evolution — `DispatchError`, `EsnError`, `ResilienceError<E>`; `ValidationSink` trait; Format C/D capability parsing; `OnceLock` GPU probe cache; RAWR extracted to `rawr.rs`; dispatch defaults named with provenance.
-- V115: API evolution (`assert!` → `Result`), CI hardening, ecoBin compliance. V113: GemmF64 transpose, RetryPolicy + CircuitBreaker.
-- V110: Cross-ecosystem absorption — `#[expect(reason)]` migration (95 files, zero `#[allow()]`), `control/tolerances.py` (full Python tolerance mirror, 28 constants), structured tracing in primal binary, toadStool `compute.dispatch.*` direct dispatch (3 methods), dual-format capability parsing (neuralSpring S156 compat), `deny.toml`, aarch64 cross-compile CI. 912+ tests, 0 clippy, 0 fmt diff.
-- V110: Zero-panic validation binaries (28 converted to Result-based), smart module refactoring (regression/fao56/pipeline/validate-lib), named physical constants, Python deps pinned.
-- V108: License corrected to AGPL-3.0-or-later (SCYBORG trio), barracuda WelfordState CPU delegation, tolerance centralization, typed capability-based discovery, Python provenance enrichment.
-- V107: Release profile, enriched niche.rs, tolerance provenance citations, bare literal elimination, feature-gated spectral constants.
-- V106: primal_names module (wetSpring V119 pattern), typed BiomeOsError enum, zero hardcoded primal strings.
-- V105: Panic-free production (`#![deny(expect_used, unwrap_used)]`), freeze_out 4-module refactor, typed IPC client.
-- V103: Deep debt audit — named constants with provenance, `biomeos/interaction` extraction, `eps::LOG_FLOOR` and `TOL_ET0` centralized, tissue-anderson thresholds documented (Paper 12), zero clippy (pedantic + nursery). 936 tests (all feature gates).
-- V102: Niche deployment via biomeOS graph composition.
-- V101: DRY evolution + capability-based discovery.
-- V100: Deep debt audit — build-breaking path fix, silent fallback elimination, tolerance provenance, capability-based health. barraCuda v0.3.5, toadStool S130+, coralReef Iteration 10.
-- V99: First live NUCLEUS connection — adaptive health probing, direct primal discovery, biomeOS protocol version handling.
-- V98: Upstream rewire — barraCuda `a898dee`, toadStool S130+, coralReef Iteration 10. Three-tier parity intact.
-- V97: GPU smoke test + three-tier parity proven: 29/29 validation binaries PASS at default CPU, barracuda-CPU, and barracuda-GPU tiers. 102 delegations (61 CPU + 41 GPU). 936 Rust tests. All quality gates pass.
-- V95: coralReef push buffer breakthrough — sovereign GPU dispatch on Titan V.
-- V94: Ecosystem sync + Shannon delegation. 3 large modules refactored (rarefaction, drift, tissue_anderson). FFT wired via `Fft1DF64`.
+- IPC surface: **20 JSON-RPC methods + 2 signal dispatch paths** across 7 primals.
+- Wave 17 signal adoption: `primal.announce` (single-call registration), `nest.store` (provenance lifecycle collapse).
+- 1,123 tests, zero clippy, zero unsafe, zero mocks. guideStone Level 4. Tier 4 IPC-first.
+
+**Version history** (see CHANGELOG.md for details): V94–V124 (Mar 2026): GPU parity, module extraction, tolerance hardening, cast evolution, capability-based discovery, NUCLEUS live connection, primal_names, panic-free production. V125–V131 (Apr–May 2026): UniBin, skunkBat IPC, CI cross-sync, plasmidBin, deploy graphs, guideStone modularization. V134–V138 (May 2026): LTEE B1–B4 reproductions, downstream seeding, `--format json`. V139–V142 (May 2026): Tier 2 IPC convergence (20 methods), NestGate CAS, BearDog crypto, NOAA GHCND, BLAKE3 manifest, compute trio wave. V143 (May 16): Wave 17 signal adoption.
 - V91: Complete ecosystem rewire. 100 delegations (59 CPU + 41 GPU). 807 Rust tests. 91.55% coverage. Zero TODO/FIXME/unsafe/unwrap in production. All files < 1000 lines. 21 benchmark workloads. Cross-spring shader evolution documented.
 
 ### Key Results

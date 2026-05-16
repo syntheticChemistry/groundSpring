@@ -6,7 +6,7 @@
 [![Rust](https://img.shields.io/badge/rust-2024_edition-orange.svg)](https://www.rust-lang.org/)
 [![ecoBin](https://img.shields.io/badge/ecoBin-compliant-green.svg)](https://github.com/ecoPrimals/wateringHole/blob/main/ECOBIN_ARCHITECTURE_STANDARD.md)
 
-**Date**: May 13, 2026 | **License**: AGPL-3.0-or-later | **MSRV**: Rust 1.87 (2024 edition)
+**Date**: May 16, 2026 | **License**: AGPL-3.0-or-later | **MSRV**: Rust 1.87 (2024 edition)
 **Status**: V143 — Wave 17 signal adoption. `primal.announce` registration (replaces 3-call pattern). `nest.store` signal dispatch for provenance lifecycle (collapses 4-call sequence). GAP-GS-015 confirmed fixed (`cargo check --workspace` passes). `unfulfilled_lint_expectations` resolved. **20 IPC methods + 2 signal dispatch paths across 7 primals**. **1,123 tests**, zero clippy, zero fmt diff. 427/427 checks + 138 metalForge + 29 integration. guideStone Level 4. Tier 4 IPC-first. LTEE B1-B4 → lithoSpore. barraCuda v0.4.0, coralReef v0.1.0, primalSpring v0.9.25.
 
 **The gap between what models predict and what instruments measure.**
@@ -382,7 +382,7 @@ groundSpring/
 ├── graphs/                         # biomeOS pipeline graphs (deploy, Tower, Node, cross-substrate, validation)
 ├── niches/                         # BYOB niche YAML definitions (groundspring-measurement)
 ├── .github/workflows/ci.yml        # GitHub Actions CI
-├── wateringHole/                   # Handoff directory (V127 current)
+├── wateringHole/                   # Handoff directory (V143 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md      # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md   # GPU kernel gap analysis
@@ -446,6 +446,14 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 | V125 | May 8 | guideStone L4, deep debt evolution, tolerance unification, 29 new test modules, composition crates, sporePrint notebooks |
 | V131 | May 11 | Deep debt evolution + docs cleanup + handoffs, 1,101 tests |
 | V134 | May 11 | LTEE B2 (Wiser 2013 power-law fitness) + B1 (Barrick 2009 neutral mutation), 1,119 tests |
-| V135 | May 11 | Deep debt: modular validate harness, self-knowledge dispatch, dep decoupling, 1,125 tests |
+| V135 | May 11 | Deep debt: modular validate harness, self-knowledge dispatch, dep decoupling, 1,123 tests |
+| V136 | May 11 | B3 (Lenski clonal interference) + B4 (Blount Cit+ innovation), tarpc parity, coralReef IPC stub |
+| V137 | May 12 | Downstream seeding: `--format json` on all 38 binaries, foundation `expected_values.json` |
+| V138 | May 12 | LTEE B4 calibration + Python NameError fix + Rust 2024 keyword fix |
+| V139 | May 13 | Tier 2 IPC convergence: `toadstool.validate`, `barracuda.precision.route`, 17 methods |
+| V140 | May 13 | Niche convergence: NestGate CAS, BearDog crypto, NOAA GHCND, BLAKE3 manifest |
+| V141 | May 13 | Wire hygiene + lithoSpore ingestion manifest + deep debt audit |
+| V142 | May 14 | Compute trio wave: `shader.compile.gemm`, `health.version`, 20 IPC methods |
+| V143 | May 16 | Wave 17 signal adoption: `primal.announce` + `nest.store` dispatch, GAP-GS-015 resolved |
 
 Part of [ecoPrimals](https://github.com/syntheticChemistry) · [wateringHole](https://github.com/ecoPrimals/wateringHole) · AGPL-3.0-or-later

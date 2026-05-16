@@ -17,8 +17,9 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 - **GAP-GS-015**: primalSpring `routing` module re-export confirmed. `cargo check --workspace` passes against primalSpring HEAD (Wave 17).
 
 #### Lint Cleanup
-- `validate_ltee_fitness.rs`: Removed stale `#[expect(clippy::too_many_lines)]` (function no longer triggers lint).
-- `validate_resampling_conv.rs`: Changed `#[expect]` → `#[allow]` to fix `unfulfilled_lint_expectations` error.
+- Removed stale `clippy::too_many_lines` suppressions from **7 validate binaries**: `bench_gpu_vs_kokkos`, `bench_kokkos_parity`, `validate_drift`, `validate_real_ncbi_16s`, `validate_resampling_conv`, `validate_size_convergence`, `validate_vendor_parity`. Functions no longer exceed the 100-line clippy threshold after incremental refactoring.
+- `validate_ltee_fitness.rs`: Removed stale `#[expect(clippy::too_many_lines)]`.
+- `validate_precision_drift.rs`: Retains legitimate `#[expect]` (210-line `run()` function).
 
 ### V142 Compute Trio Wave Absorption (May 14, 2026)
 

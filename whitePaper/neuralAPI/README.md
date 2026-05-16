@@ -2,7 +2,7 @@
 
 > groundSpring as a **validation science primal** in the biomeOS ecosystem.
 
-**Status**: V143 live (May 13, 2026) — 17 IPC methods across 7 primals, BLAKE3 ingestion manifest, NestGate CAS + GHCND wired, BearDog JSON-RPC, LTEE B1-B4
+**Status**: V143 live (May 16, 2026) — 20 IPC methods + 2 signal dispatch paths across 7 primals. Wave 17 signal adoption: `primal.announce` (single-call registration), `nest.store` (provenance lifecycle collapse). BLAKE3 ingestion manifest, NestGate CAS + GHCND wired, BearDog JSON-RPC, LTEE B1-B4
 
 ## Role
 
