@@ -16,12 +16,16 @@
 //! - `data.ncbi_search` / `data.ncbi_fetch` — NCBI sequence data
 //! - `data.iris_stations` / `data.iris_events` — IRIS seismic data
 //!
-//! # Signal dispatch (Wave 17)
+//! # Signal dispatch (Wave 17 + Wave 20)
 //!
 //! `nest.store` collapses `content.put` → `dag.event.append` → `spine.seal`
 //! → `braid.create` into a single graph-managed dispatch via
 //! [`nest_store_dispatch`]. Falls back to raw `content.put` if biomeOS
 //! signal dispatch is unavailable.
+//!
+//! `nest.commit` (Wave 20) collapses `event.append` → `crypto.sign` →
+//! `content.put` → `session.commit` → `braid.create` via
+//! [`nest_commit_dispatch`]. Used for LTEE session finalization.
 //!
 //! # NestGate pipeline exercise (NOAA GHCND)
 //!
@@ -242,6 +246,42 @@ pub fn nest_store_dispatch(
             let encoded = base64_encode(content);
             let family_id = crate::biomeos::FAMILY_ID;
             try_content_put(&encoded, &encoded, family_id)
+        }
+    }
+}
+
+/// Dispatch a `nest.commit` signal via `CompositionContext`.
+///
+/// Collapses `event.append` → `crypto.sign` → `content.put` →
+/// `session.commit` → `braid.create` into a single signal dispatch.
+/// biomeOS manages the graph execution (sequential, 5 primals).
+///
+/// Wave 20 signal adoption: session finalization via signal dispatch.
+/// Falls back to legacy `provenance.session_dehydrate` if unavailable.
+#[cfg(feature = "biomeos")]
+pub fn nest_commit_dispatch(session_id: &str) -> crate::biomeos::Result<Option<serde_json::Value>> {
+    let params = serde_json::json!({
+        "session_id": session_id,
+    });
+
+    let ctx_result = std::panic::catch_unwind(|| {
+        let mut ctx =
+            primalspring::composition::CompositionContext::from_live_discovery_with_fallback();
+        ctx.dispatch("nest.commit", params.clone())
+    });
+
+    match ctx_result {
+        Ok(Ok(result)) => {
+            tracing::info!(session_id = %session_id, "nest.commit signal dispatched");
+            Ok(Some(result))
+        }
+        Ok(Err(e)) => {
+            tracing::debug!("nest.commit signal failed ({e}), falling back to legacy dehydrate");
+            Ok(None)
+        }
+        Err(_) => {
+            tracing::debug!("CompositionContext unavailable for nest.commit");
+            Ok(None)
         }
     }
 }

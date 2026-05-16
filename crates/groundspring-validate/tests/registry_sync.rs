@@ -140,9 +140,9 @@ fn canonical_registry_method_count() {
     let canonical_methods = extract_methods_from_primalspring_registry(PS_REGISTRY);
     assert!(
         canonical_methods.len() >= 401,
-        "canonical registry has {} methods — expected ≥401 (current: 413 per handoff, \
-         ~401 production methods extracted from TOML, excludes test_fixtures/false_positives). \
-         Update if primalSpring adds new methods.",
+        "canonical registry has {} methods — expected ≥401 (current: 452 per Wave 20, \
+         ~401+ production methods extracted from TOML, excludes test_fixtures/false_positives). \
+         New in Wave 20: primal.list. Update if primalSpring adds new methods.",
         canonical_methods.len()
     );
 }

@@ -1,7 +1,7 @@
-# Paper Extension Roadmap — groundSpring V143
+# Paper Extension Roadmap — groundSpring V144
 
 **Date:** May 8, 2026
-**Version:** V143
+**Version:** V144
 **Prerequisite:** Local NUCLEUS on eastGate, NestGate data pipeline validated
 
 ---

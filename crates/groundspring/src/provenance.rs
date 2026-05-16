@@ -39,14 +39,36 @@ pub fn start_session(socket: &Path, experiment_id: &str) -> Result<String> {
 
 /// Commit (dehydrate) a provenance session after validation completes.
 ///
-/// Calls `provenance.session_dehydrate` which triggers rhizoCrypt to
-/// dehydrate the session, `LoamSpine` to append to permanent storage,
-/// and sweetGrass to record attribution.
+/// Prefers `nest.commit` signal dispatch (Wave 20) which collapses
+/// `event.append` → `crypto.sign` → `content.put` → `session.commit` →
+/// `braid.create` into a single orchestrated call. Falls back to
+/// legacy `provenance.session_dehydrate` if signal dispatch unavailable.
 ///
 /// # Errors
 ///
 /// Returns `Err` if the Provenance Trio is unavailable.
 pub fn commit_session(socket: &Path, session_id: &str, summary_json: &str) -> Result<String> {
+    #[cfg(feature = "biomeos")]
+    {
+        match crate::ipc::nestgate::nest_commit_dispatch(session_id) {
+            Ok(Some(result)) => {
+                let commit_id = result
+                    .get("session_commit")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("signal-committed")
+                    .to_string();
+                tracing::info!(
+                    session_id = %session_id,
+                    "session committed via nest.commit signal"
+                );
+                return Ok(commit_id);
+            }
+            Ok(None) | Err(_) => {
+                tracing::debug!("nest.commit signal unavailable, using legacy dehydrate");
+            }
+        }
+    }
+
     let params = serde_json::json!({
         "session_id": session_id,
         "summary": summary_json,

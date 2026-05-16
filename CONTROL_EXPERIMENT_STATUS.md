@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: May 16, 2026 (V143 — Wave 17 signal adoption. `primal.announce` registration + `nest.store` signal dispatch. GAP-GS-015 resolved. 7 stale lint suppressions removed. 1,123 tests, ≥92% library coverage, 0 clippy warnings, 0 fmt diff. guideStone Level 4. LTEE B1–B4 complete → `lithoSpore` modules 1–4. 38 experiments, 427/427 checks, 38 validation binaries. 20 IPC methods + 2 signal dispatch paths across 7 primals. Tier 4 IPC-first. barraCuda v0.4.0. primalSpring v0.9.25.)
+**Last updated**: May 16, 2026 (V144 — Wave 17 signal adoption. `primal.announce` registration + `nest.store` signal dispatch. GAP-GS-015 resolved. 7 stale lint suppressions removed. 1,123 tests, ≥92% library coverage, 0 clippy warnings, 0 fmt diff. guideStone Level 4. LTEE B1–B4 complete → `lithoSpore` modules 1–4. 38 experiments, 427/427 checks, 38 validation binaries. 20 IPC methods + 2 signal dispatch paths across 7 primals. Tier 4 IPC-first. barraCuda v0.4.0. primalSpring v0.9.25.)
 
 ## Experiment Register
 

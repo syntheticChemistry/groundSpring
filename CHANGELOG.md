@@ -4,6 +4,19 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V144 Wave 20 Schema Standardization + E2E Validation (May 16, 2026)
+
+#### Schema Standardization
+- **`capability.list` canonical envelope**: Added `"primal"` and `"count"` fields to the `capability.list` JSON-RPC response per Wave 20 standard. Downstream consumers (`projectNUCLEUS`, `projectFOUNDATION`) expect `{ "capabilities": [...], "count": N, "primal": "..." }`. groundSpring's `domain` field is retained as an allowed extra.
+- Updated test `capability_list_has_canonical_envelope` to verify the Wave 20 contract: `primal` string, `count` u64, `count` matches array length.
+
+#### Signal Dispatch (`nest.commit`)
+- **`ipc::nestgate::nest_commit_dispatch`**: Collapses `event.append` → `crypto.sign` → `content.put` → `session.commit` → `braid.create` into a single `dispatch("nest.commit", { session_id })` via `CompositionContext`. Falls back to `None` if signal dispatch unavailable.
+- **`provenance::commit_session`**: Now prefers `nest.commit` signal dispatch for session dehydration, falling back to legacy `provenance.session_dehydrate` capability call.
+
+#### Registry Sync
+- Updated registry cross-check test comment to reference 452 methods (Wave 20: `primal.list` added).
+
 ### V143 Wave 17 Signal Adoption (May 16, 2026)
 
 #### Signal Registration (`primal.announce`)

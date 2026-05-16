@@ -1,11 +1,11 @@
 # groundSpring Primal Composition Gaps
 
-**Spring:** groundSpring V143
+**Spring:** groundSpring V144
 **Proto-nucleate:** `downstream_manifest.toml` (spring_name = "groundspring")
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
 **Date:** April 27, 2026
-**Last audited:** May 16, 2026 (V143 — Wave 17 signal adoption. `primal.announce` registration. `nest.store` signal dispatch. GAP-GS-015 confirmed fixed. 20 IPC methods + 2 signal paths. `unfulfilled_lint_expectations` resolved)
+**Last audited:** May 16, 2026 (V144 — Wave 20 schema standardization. `capability.list` canonical envelope. `nest.commit` signal dispatch. Registry 452. 20 IPC methods + 3 signal paths)
 **License:** AGPL-3.0-or-later
 
 ---

@@ -33,10 +33,15 @@ pub(super) fn health_check() -> Value {
 }
 
 /// `capability.list` — advertise the measurement domain and capabilities.
+///
+/// Wave 20 canonical envelope: `capabilities` (string array), `count`,
+/// `primal` are required. Extra fields (`domain`) are allowed.
 pub(super) fn capability_list() -> Value {
     serde_json::json!({
+        "primal": crate::biomeos::FAMILY_ID,
         "domain": crate::biomeos::MEASUREMENT_DOMAIN,
         "capabilities": crate::biomeos::MEASUREMENT_CAPABILITIES,
+        "count": crate::biomeos::MEASUREMENT_CAPABILITIES.len(),
     })
 }
 
@@ -89,10 +94,14 @@ mod tests {
     }
 
     #[test]
-    fn capability_list_has_domain() {
+    fn capability_list_has_canonical_envelope() {
         let v = capability_list();
         assert!(v["domain"].is_string());
         assert!(v["capabilities"].is_array());
+        assert!(v["primal"].is_string(), "Wave 20: primal field required");
+        let count = v["count"].as_u64().expect("Wave 20: count must be u64");
+        let caps = v["capabilities"].as_array().unwrap();
+        assert_eq!(count as usize, caps.len(), "count must match array length");
     }
 
     #[test]
