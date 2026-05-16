@@ -32,7 +32,6 @@ fn json_number_to_f64(v: &Value) -> f64 {
         .or_exit("JSON value must be numeric")
 }
 
-#[allow(clippy::too_many_lines)]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::from_args("Rust Validation: Size Convergence");

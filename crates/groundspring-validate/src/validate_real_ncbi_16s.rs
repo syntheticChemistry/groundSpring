@@ -21,7 +21,6 @@ compile_error!("Exp 030 requires --features biomeos");
 #[cfg(feature = "biomeos")]
 #[expect(
     clippy::cast_precision_loss,
-    clippy::too_many_lines,
     reason = "validation binary with sequential checks"
 )]
 fn main() {

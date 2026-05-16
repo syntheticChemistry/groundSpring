@@ -25,7 +25,6 @@ struct BenchResult {
     elapsed_us: f64,
 }
 
-#[allow(clippy::too_many_lines)]
 fn main() {
     let gpu_active = groundspring::gpu_available();
 

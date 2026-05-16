@@ -44,7 +44,6 @@ fn synthetic_vacf_noisy(
         .collect()
 }
 
-#[allow(clippy::too_many_lines)]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut harness = ValidationHarness::from_args("Rust Validation: GPU Vendor Parity");
