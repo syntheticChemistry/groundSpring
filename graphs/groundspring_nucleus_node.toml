@@ -6,7 +6,7 @@
 # Tower provides secure inter-primal communication (BearDog encryption,
 # Songbird TLS). ToadStool provides barracuda GPU dispatch.
 #
-# STATUS: V124 (April 27, 2026) — barraCuda v0.3.12, measurement domain niche
+# STATUS: V145 (May 17, 2026) — barraCuda v0.4.0, nest.commit signal, measurement domain niche
 # Atomic: Node (Tower + ToadStool)
 # Experiments: 35 (395 validation checks)
 # Substrates: CPU (reference) + GPU (barracuda dispatch, f64-capable device)

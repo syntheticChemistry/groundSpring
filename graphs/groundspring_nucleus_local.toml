@@ -20,7 +20,7 @@
 #   Exp 005 (seismic)        — nestgate.iris_stations/iris_events → NMSZ data
 #   Exp 023 (no-till 16S)    — nestgate.ncbi_search → no-till vs tilled 16S
 #
-# STATUS: V124 (April 27, 2026) — barraCuda v0.3.12, measurement domain niche
+# STATUS: V145 (May 17, 2026) — barraCuda v0.4.0, nest.commit signal, measurement domain niche
 # Target: Eastgate (local, single machine)
 #
 # Run: biomeos deploy graphs/groundspring_nucleus_local.toml
@@ -304,7 +304,8 @@ output = "provenance_committed"
 name = "capability_call"
 
 [nodes.operation.params]
-capability = "provenance.session_dehydrate"
+capability = "nest.commit"
+fallback_capability = "provenance.session_dehydrate"
 params = { session_id = "${PROVENANCE_SESSION_ID}", summary = "${NUCLEUS_HEALTH_JSON}", agent = "groundspring", family_id = "groundspring" }
 
 [nodes.constraints]

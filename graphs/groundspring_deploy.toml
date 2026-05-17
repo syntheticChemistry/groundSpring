@@ -8,7 +8,7 @@
 # Composable: other graphs can reference this as a sub-graph via depends_on.
 # biomeOS orchestrates germination order; Songbird provides IPC mesh.
 #
-# STATUS: V124 (April 27, 2026)
+# STATUS: V145 (May 17, 2026) — barraCuda v0.4.0, nest.commit signal
 # Run: biomeos deploy graphs/groundspring_deploy.toml
 #      biomeos niche deploy groundspring-measurement
 
