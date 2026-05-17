@@ -4,8 +4,8 @@
 **Proto-nucleate:** `downstream_manifest.toml` (spring_name = "groundspring")
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
-**Date:** April 27, 2026
-**Last audited:** May 16, 2026 (V145 — Wave 20 schema standardization. `capability.list` canonical envelope. `nest.commit` signal dispatch. Registry 452. 20 IPC methods + 3 signal paths)
+**Date:** April 27, 2026 (initial)
+**Last audited:** May 17, 2026 (V145 — Wave 20 schema standardization. `capability.list` canonical envelope. `nest.commit` signal dispatch. Registry 452. 20 IPC methods + 3 signal paths. Hardcoded primal names evolved to `roles::*` constants. B7 deferred to Tier 2)
 **License:** AGPL-3.0-or-later
 
 ---

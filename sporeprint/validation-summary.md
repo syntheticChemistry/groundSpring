@@ -1,7 +1,7 @@
 +++
 title = "groundSpring Validation Summary"
 description = "Measurement noise and uncertainty — 1,123 tests, 39 experiments (34 core + 5 LTEE B1–B4, B6), guideStone Level 4, Eukaryotic UniBin, 5 notebooks, 10 validation scenarios"
-date = 2026-05-13
+date = 2026-05-17
 
 [taxonomies]
 primals = ["barracuda", "toadstool", "beardog", "songbird", "nestgate"]
@@ -32,7 +32,7 @@ springs = ["groundspring", "hotspring", "wetspring", "neuralspring", "airspring"
 - `groundspring_unibin certify` — L0-L4 certification (supersedes groundspring_guidestone)
 - `groundspring_unibin validate --tier rust` — 9 Tier 1 scenarios (CI-safe, no IPC)
 - `groundspring_unibin validate --tier live` — Tier 2 NUCLEUS composition parity
-- `validate_all` — meta-runner for all 29 Python-parity validators (exit-code protocol)
+- `validate_all` — meta-runner for all 39 validation binaries (exit-code protocol)
 - `bench_gpu_vs_kokkos` — three-mode GPU benchmark (default → barraCuda CPU → GPU)
 
 ## sporePrint Notebooks (5)
@@ -87,7 +87,7 @@ Publication-grade Python baselines — each experiment as a live, executable not
 
 | Workload | Purpose |
 |----------|---------|
-| `gs-validate-all` | Run all 29 Rust validators |
+| `gs-validate-all` | Run all 39 Rust validators |
 | `gs-guidestone` | Run guideStone Level 4 check |
 | `gs-bench-gpu` | Three-mode GPU benchmark |
 | `gs-python-baselines` | Execute 29 Python baselines for provenance |

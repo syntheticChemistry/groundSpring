@@ -43,10 +43,10 @@
 | 33 | Cytokine Anderson Lattice (Paper 12) | Immunological | — | 29/29 | Tissue 2D/3D + barrier disruption + dimensional duality (Exp 033) |
 | 34 | Multi-Method ET₀ Cross-Validation | Hydrology (ET₀) | 15/15 | 19/19 | 5-method comparison: PM, Hargreaves, Makkink, Turc, Hamon (Exp 035) |
 
-**Phase 0**: ~276 checks (Python, 29 experiments). **Phase 1**: 427/427 PASS (Rust, 38 experiments / 38 binaries). **Speedup**: 11.5× median (excl. LAPACK-bound), 47.7× peak (Sturm tridiag).
+**Phase 0**: ~276 checks (Python, 29 experiments). **Phase 1**: 461/461 PASS (Rust, 39 experiments / 39 binaries). **Speedup**: 11.5× median (excl. LAPACK-bound), 47.7× peak (Sturm tridiag).
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs (Exp 029–033 have no Python baseline).
-**Current (V145, May 16)**: 461/461 checks, 1,123 Rust tests, 294 Python tests, 138 metalForge checks. LTEE B1–B4, B6 COMPLETE → `lithoSpore` modules 1–5 with BLAKE3 manifest. 20 IPC methods + 3 signal dispatch paths across 7 primals. 39 experiments (39 binaries). Wave 20 schema standardization.
-**LTEE summary**: B2 (Exp 036, 10/10), B1 (Exp 037, 8/8), B3 (Exp 038, 7/7), B4 (Exp 039, 8/8). All have `expected_values.json` + Rust validation binaries with `--format json`.
+**Current (V145, May 17)**: 461/461 checks, 1,123 Rust tests, 294 Python tests, 138 metalForge checks. LTEE B1–B4, B6 COMPLETE → `lithoSpore` modules 1–5 with BLAKE3 manifest. 20 IPC methods + 3 signal dispatch paths across 7 primals. 39 experiments (39 binaries). Wave 20 schema standardization. B7 deferred to Tier 2 (requires real 264-genome data from SRA PRJNA294072).
+**LTEE summary**: B2 (Exp 036, 10/10), B1 (Exp 037, 8/8), B3 (Exp 038, 7/7), B4 (Exp 039, 8/8), B6 (Exp 040, 34/34). All have `expected_values.json` + Rust validation binaries with `--format json`.
 **Tier 4 IPC-first (V128)**: `barracuda` removed from default features; IPC via `CompositionContext` is the default. `local` feature for opt-in library linkage.
 **GPU dispatch**: 16 modules wired for `barracuda-gpu` — 110 delegations (67 CPU + 43 GPU), barraCuda v0.4.0, toadStool S158+. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed).
 **Three-tier parity**: 30/30 PROVEN (default = barracuda-CPU = barracuda-GPU). metalForge: 138 checks.
@@ -450,6 +450,6 @@ and `infra/whitePaper/attsi/non-anon/contact/barrick/PAPER_REVIEW_AND_SPRING_TAR
 | B4 | Blount et al. 2008/2012 Citrate innovation | Rare event statistics: potentiation-actualization cascade model for key innovation | 039 | **COMPLETE** — Python 8/8 PASS, Rust 8/8 PASS (V138). `expected_values.json` → `lithoSpore` module 4 (`ltee-citrate`) |
 | B5 | Leonard et al. 2024 "Symbiont PK/PD" | *healthSpring domain* — colonization dynamics, production kinetics, PK model | — | healthSpring V63 |
 | B6 | "Measuring the burden of hundreds of BioBricks" 2024 *Nat Comms* | Anderson Wc analogy: burden = disorder potential; statistical distribution across 301 plasmids | 040 | **COMPLETE** — Python 7/7 PASS, Rust 34/34 PASS (V145). `expected_values.json` → `lithoSpore` module 5 (`ltee-biobrick`) |
-| B7 | Tenaillon et al. 2016 "Tempo and mode" *Nature* | Epistasis quantification across 264 genomes; statistical tests for parallel evolution significance | TBD | QUEUED |
+| B7 | Tenaillon et al. 2016 "Tempo and mode" *Nature* | Epistasis quantification across 264 genomes; statistical tests for parallel evolution significance | TBD | DEFERRED — Tier 2 (requires real 264-genome data from SRA PRJNA294072; synthetic parallelism statistics not meaningful) |
 | B8 | Barrick & Waters 2025 "Phages use contingency loci" *bioRxiv* | Bet-hedging statistics: phase variation rates as stochastic switching models | TBD | QUEUED |
 | B9 | DFE Evolution in LTEE 2024 *Science* | DFE fitting: parameter estimation for gamma/exponential/lognormal DFE models across generations | TBD | QUEUED |

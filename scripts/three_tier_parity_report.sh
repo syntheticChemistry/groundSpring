@@ -9,7 +9,8 @@
 #   Tier 2: barracuda-CPU (Rust + barracuda CPU delegations)
 #   Tier 3: barracuda-GPU (Rust + barracuda CPU + GPU delegations)
 #
-# Each tier runs the same 29 validation binaries and records pass/total.
+# Each tier runs the 29 barraCuda-delegating validation binaries (of 39 total).
+# LTEE, NUCLEUS, NPU, and live-data validators are excluded (no delegations).
 # Parity = all three tiers produce identical pass counts for every experiment.
 #
 # Usage:

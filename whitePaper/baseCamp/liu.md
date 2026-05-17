@@ -64,7 +64,7 @@ Statistical Resampling Assessments." IEEE BIBM 2024.
   RAWR, tree confidence). groundSpring adds the error propagation perspective.
 - **neuralSpring**: Confidence estimation methods transfer to ML uncertainty.
 
-## V114 Extension Roadmap
+## Extension Roadmap (historical — written at V114)
 
 ### V115 Capabilities
 

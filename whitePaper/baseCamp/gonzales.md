@@ -89,7 +89,7 @@ compromised.
 | Paper 06 → 12 | Dimensional duality: tillage collapse (3D→2D) vs barrier promotion (2D→3D) — both validated by Exp 008 |
 | Paper 11 → 12 | Nautilus Shell edge detection identifies phase boundaries in disorder sweeps — DriftAction steers treatment optimization |
 
-## V114 Extension Roadmap
+## Extension Roadmap (historical — written at V114)
 
 ### V115 Capabilities
 

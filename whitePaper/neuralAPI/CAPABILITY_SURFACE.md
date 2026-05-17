@@ -218,6 +218,13 @@ Collapses `content.put` → `dag.event.append` → `spine.seal` → `braid.creat
 into a single `dispatch("nest.store", { content, author, metadata })`. Used for
 LTEE provenance lifecycle. biomeOS manages the graph execution.
 
+### `nest.commit` signal dispatch (Wave 20)
+
+Collapses `event.append` → `crypto.sign` → `content.put` → `session.commit` →
+`braid.create` into a single `dispatch("nest.commit", { session_id, author })`.
+Used for session finalization in LTEE provenance chains. Falls back to
+`provenance.session_dehydrate` on older biomeOS.
+
 ### `primal.announce` signal (Wave 17)
 
 Single-call registration replacing `capability.register` + `method.register`.

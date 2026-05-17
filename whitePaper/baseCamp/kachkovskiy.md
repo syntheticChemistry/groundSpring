@@ -93,7 +93,7 @@ of 2d periodic elliptic operators." Acta Math 221:59-80.
 - **Shared kernel**: Lanczos eigensolve is needed by both hotSpring (nuclear EOS)
   and groundSpring (Anderson model). Joint priority.
 
-## V114 Extension Roadmap
+## Extension Roadmap (historical — written at V114)
 
 ### V115 Capabilities
 

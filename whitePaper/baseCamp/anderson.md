@@ -79,7 +79,7 @@ Biosphere." mSystems 6:e00731-21.
   groundSpring adds drift-vs-selection decomposition.
 - **Shared with wetSpring**: Rarefaction (Exp 004), Bray-Curtis, Shannon diversity
 
-## V114 Extension Roadmap
+## Extension Roadmap (historical — written at V114)
 
 ### V115 Capabilities
 

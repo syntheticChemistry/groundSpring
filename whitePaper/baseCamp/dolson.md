@@ -58,7 +58,7 @@ Python baseline (Exp 017)
         → metalForge (mixed substrate for large populations)
 ```
 
-## V114 Extension Roadmap
+## Extension Roadmap (historical — written at V114)
 
 ### V115 Capabilities
 

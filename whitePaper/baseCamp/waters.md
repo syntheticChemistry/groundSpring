@@ -78,7 +78,7 @@ Quorum Sensing in the Control of vpsT and aphA." J Bacteriology 193:6331-41.
   cooperation game theory). groundSpring adds the noise quantification layer.
 - **Shared with wetSpring**: Experiments 020, 022, 032-037 (Waters ODE/QS work)
 
-## V114 Extension Roadmap
+## Extension Roadmap (historical — written at V114)
 
 ### V115 Capabilities
 

@@ -77,7 +77,7 @@ QCD." arXiv 2501.12259.
   inverse problem primitives for lattice QCD.
 - **Shared kernel need**: Grid-search and Cholesky are shared with seismic (Exp 005).
 
-## V114 Extension Roadmap
+## Extension Roadmap (historical — written at V114)
 
 ### V115 Capabilities
 

@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: May 16, 2026 (V145 — LTEE B6 BioBrick Burden + science expansion. 5 LTEE reproductions, 39 experiments, 461/461 checks. 20 IPC methods + 3 signal paths)
+**Last Updated**: May 17, 2026 (V145 — docs sweep + deep debt resolution. 5 LTEE reproductions, 39 experiments, 461/461 checks, 1,123 tests, 294 Python. 20 IPC + 3 signals. Zero code debt)
 
 ## What This Is
 
@@ -18,9 +18,9 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| V145 Science Expansion | [GROUNDSPRING_V145_SCIENCE_EXPANSION_HANDOFF_MAY16_2026.md](handoffs/GROUNDSPRING_V145_SCIENCE_EXPANSION_HANDOFF_MAY16_2026.md) | May 16, 2026 | LTEE B6 BioBrick Burden, 5 lithoSpore modules, ecosystem handoff for primals + springs |
+| V145 Docs + Debt | [GROUNDSPRING_V145_DOCS_DEBT_HANDOFF_MAY17_2026.md](handoffs/GROUNDSPRING_V145_DOCS_DEBT_HANDOFF_MAY17_2026.md) | May 17, 2026 | Docs sweep, deep debt resolution, role constants evolution, B7 deferral, handoff for primals + springs |
 
-**Archived**: V123–V144 handoffs moved to `handoffs/archive/`.
+**Archived**: V123–V145 (science expansion) handoffs moved to `handoffs/archive/`.
 
 
 ## Cross-Spring Documentation
