@@ -2,14 +2,15 @@
 
 //! NUCLEUS Layer 3: Tower Atomic — BearDog (security) + Songbird (discovery).
 
+use groundspring::primal_names::roles;
 use primalspring::composition::CompositionContext;
 use primalspring::validation::ValidationResult;
 
 /// Liveness probes for Tower primal pair.
 pub fn tower_health(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     for (name, cap) in [
-        ("tower:beardog_alive", "security"),
-        ("tower:songbird_alive", "discovery"),
+        ("tower:beardog_alive", roles::SECURITY),
+        ("tower:songbird_alive", roles::DISCOVERY),
     ] {
         match ctx.health_check(cap) {
             Ok(alive) => v.check_bool(name, alive, &format!("{cap} health normalized")),
@@ -88,7 +89,7 @@ pub fn tower_crypto_hash(ctx: &mut CompositionContext, v: &mut ValidationResult)
 
 /// Capability resolution via Songbird discovery.
 pub fn tower_discovery_resolve(ctx: &mut CompositionContext, v: &mut ValidationResult) {
-    for cap in ["security", "compute", "storage"] {
+    for cap in [roles::SECURITY, roles::COMPUTE, roles::STORAGE] {
         let name = format!("tower:resolve_{cap}");
         match ctx.resolve_capability(cap) {
             Ok(result) => {
@@ -111,7 +112,7 @@ pub fn tower_discovery_resolve(ctx: &mut CompositionContext, v: &mut ValidationR
         }
     }
 
-    match ctx.call("discovery", "rpc.discover", serde_json::json!({})) {
+    match ctx.call(roles::DISCOVERY, "rpc.discover", serde_json::json!({})) {
         Ok(result) => {
             let methods = result.get("methods").and_then(|m| m.as_array());
             let count = methods.map_or(0, Vec::len);

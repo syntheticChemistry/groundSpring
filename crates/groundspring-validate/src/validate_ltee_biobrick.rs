@@ -131,7 +131,11 @@ fn anderson_correlation(burdens: &[f64], w_scale: f64, n_quantiles: usize) -> f6
 
     for q in 1..=n_quantiles {
         let frac = usize_f64(q) / usize_f64(n_quantiles);
-        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+        #[allow(
+            clippy::cast_possible_truncation,
+            clippy::cast_sign_loss,
+            reason = "quantile index from f64 fraction — value is always in [0, n)"
+        )]
         let idx = (frac * usize_f64(n)) as usize;
         let idx = idx.min(n - 1);
         let b = burdens[idx];

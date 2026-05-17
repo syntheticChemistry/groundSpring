@@ -63,8 +63,11 @@ pub fn certify_composition(v: &mut ValidationResult, max_layer: u8) {
 /// Tower atomic health — BearDog (security) and Songbird (discovery) liveness.
 pub fn tower_health(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     for (name, cap) in [
-        ("tower:beardog_alive", "security"),
-        ("tower:songbird_alive", "discovery"),
+        ("tower:beardog_alive", crate::primal_names::roles::SECURITY),
+        (
+            "tower:songbird_alive",
+            crate::primal_names::roles::DISCOVERY,
+        ),
     ] {
         match ctx.health_check(cap) {
             Ok(alive) => v.check_bool(name, alive, &format!("{cap} health normalized")),
@@ -166,7 +169,11 @@ pub fn tower_discovery_resolve(ctx: &mut CompositionContext, v: &mut ValidationR
         }
     }
 
-    match ctx.call("discovery", "rpc.discover", serde_json::json!({})) {
+    match ctx.call(
+        crate::primal_names::roles::DISCOVERY,
+        "rpc.discover",
+        serde_json::json!({}),
+    ) {
         Ok(result) => {
             let methods = result.get("methods").and_then(|m| m.as_array());
             let count = methods.map_or(0, Vec::len);
