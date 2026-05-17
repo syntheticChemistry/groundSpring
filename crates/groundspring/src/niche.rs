@@ -242,7 +242,7 @@ pub static OPERATION_DEPENDENCIES: &[OperationDeps] = &[
             "day_of_year",
         ],
         optional_inputs: &["elevation", "rhmax", "rhmin"],
-        calls: &["data.noaa_ghcnd"],
+        calls: &[],
     },
     OperationDeps {
         capability: "measurement.regime_classification",

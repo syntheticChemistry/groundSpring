@@ -49,6 +49,7 @@
 **Rust tests**: 1,123 PASS (default workspace, zero warnings, zero clippy errors on all targets)
 **pytest**: 294 PASS (29 baseline experiments; Kokkos benchmark tests excluded — build-dependent binary naming)
 **Three-tier parity**: 102+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
+**Cross-tier parity**: 34/34 experiments with Python baselines have `expected_values.json` consumed by Rust validators (29 core + 5 LTEE). lithoSpore pattern adopted
 **BarraCUDA dispatch**: 110 active (67 CPU + 43 GPU) — barraCuda v0.4.0, toadStool S158+, coralReef Iteration 55+. `PrecisionRoutingAdvice` wired into 11 GPU dispatch paths via `get_device_f64_safe()`. tarpc 0.37, ops GPU-gated rewire, domain-esn feature, Rust 2024 unsafe model. coralReef sovereign dispatch path proven on Titan V
 **NUCLEUS**: biomeOS Neural API live — Tower, Node, Squirrel validated; NestGate data pipelines (NCBI, NOAA, IRIS); compute.execute + compute.submit validated
 **metalForge workloads**: 30 (24 GPU + 2 NPU + 2 CPU-only), 138 checks
