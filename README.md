@@ -455,7 +455,7 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 | V141 | May 13 | Wire hygiene + lithoSpore ingestion manifest + deep debt audit |
 | V142 | May 14 | Compute trio wave: `shader.compile.gemm`, `health.version`, 20 IPC methods |
 | V143 | May 16 | Wave 17 signal adoption: `primal.announce` + `nest.store` dispatch, GAP-GS-015 resolved |
-| V144 | May 16 | Wave 20 schema standardization: `capability.list` canonical envelope, `nest.commit` signal, registry 452 |
+| V144 | May 16 | Wave 20 schema standardization: `capability.list` canonical envelope, `nest.commit` signal, registry 445 |
 | V145 | May 16 | LTEE B6 BioBrick Burden (Anderson disorder analogy): Python 7/7, Rust 34/34, lithoSpore module 5 |
 
 Part of [ecoPrimals](https://github.com/syntheticChemistry) · [wateringHole](https://github.com/ecoPrimals/wateringHole) · AGPL-3.0-or-later

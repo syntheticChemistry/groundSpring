@@ -4,7 +4,7 @@
 **From**: groundSpring
 **To**: primalSpring (coordination), delta springs, upstream primals
 **Version**: V145 (hardcoded-names evolution + docs cleanup)
-**Registry**: 452 methods
+**Registry**: 445 methods
 
 ---
 
@@ -58,7 +58,7 @@
 | Primals wired | 7 |
 | guideStone Level | 4 |
 | Deploy graphs | 6 |
-| Registry sync | 452 |
+| Registry sync | 445 |
 | barraCuda version | v0.4.0 |
 | primalSpring version | v0.9.25 |
 | Unsafe code | 0 |

@@ -5,7 +5,7 @@
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
 **Date:** April 27, 2026 (initial)
-**Last audited:** May 17, 2026 (V145 — Wave 20 PM lithoSpore absorption. Stability tier awareness confirmed (16 `measurement.*` names canonical). Degradation behavior documented (`docs/DEGRADATION_BEHAVIOR.md`). Cross-tier parity: 5/5 LTEE + 29/29 core experiments have Python + Rust + `expected_values.json`. Niche ET0 dependency metadata corrected. `resilient_call` unwired noted. Registry 452. 20 IPC methods + 3 signal paths)
+**Last audited:** May 17, 2026 (V145 — Wave 20 PM lithoSpore absorption. Stability tier awareness confirmed (16 `measurement.*` names canonical). Degradation behavior documented (`docs/DEGRADATION_BEHAVIOR.md`). Cross-tier parity: 5/5 LTEE + 29/29 core experiments have Python + Rust + `expected_values.json`. Niche ET0 dependency metadata corrected. `resilient_call` unwired noted. Registry 445. 20 IPC methods + 3 signal paths)
 **License:** AGPL-3.0-or-later
 
 ---
