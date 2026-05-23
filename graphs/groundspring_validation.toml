@@ -18,6 +18,9 @@ toadstool_pin = "S158+"
 toadstool_commit = "bfe7977b"
 groundspring_version = "V145"
 target_node = "eastgate"
+secure_by_default = true
+transport = "uds_only"
+trust_model = "MethodGate"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # PHASE 1: ENSURE PREREQUISITES

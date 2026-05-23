@@ -6,8 +6,8 @@
 [![Rust](https://img.shields.io/badge/rust-2024_edition-orange.svg)](https://www.rust-lang.org/)
 [![ecoBin](https://img.shields.io/badge/ecoBin-compliant-green.svg)](https://github.com/ecoPrimals/wateringHole/blob/main/ECOBIN_ARCHITECTURE_STANDARD.md)
 
-**Date**: May 16, 2026 | **License**: AGPL-3.0-or-later | **MSRV**: Rust 1.87 (2024 edition)
-**Status**: V145 — LTEE B6 BioBrick Burden reproduction (Anderson disorder analogy). Python 7/7 PASS, Rust 34/34 PASS. `lithoSpore` module 5 (`ltee-biobrick`). 5 LTEE reproductions complete (B1-B4, B6). **20 IPC methods + 3 signal dispatch paths across 7 primals**. **1,123 tests**, zero clippy, zero fmt diff. 461/461 checks + 138 metalForge + 29 integration. 39 experiments. guideStone Level 4. Tier 4 IPC-first. barraCuda v0.4.0, coralReef v0.1.0, primalSpring v0.9.25.
+**Date**: May 23, 2026 | **License**: AGPL-3.0-or-later | **MSRV**: Rust 1.87 (2024 edition)
+**Status**: V146 — Wave 46 absorption: registry sync 458 methods, Dark Forest gate on 6 deploy graphs, primalSpring v0.9.27. 5 LTEE reproductions (B1-B4, B6). **20 IPC methods + 3 signal dispatch paths across 7 primals**. **1,123 tests**, zero clippy, zero fmt diff. 461/461 checks + 138 metalForge + 29 integration. 39 experiments. guideStone Level 4. Tier 4 IPC-first. barraCuda v0.4.0, coralReef v0.1.0, primalSpring v0.9.27.
 
 **The gap between what models predict and what instruments measure.**
 

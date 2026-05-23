@@ -5,7 +5,7 @@
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
 **Date:** April 27, 2026 (initial)
-**Last audited:** May 17, 2026 (V145 — Wave 20 PM lithoSpore absorption. Stability tier awareness confirmed (16 `measurement.*` names canonical). Degradation behavior documented (`docs/DEGRADATION_BEHAVIOR.md`). Cross-tier parity: 5/5 LTEE + 29/29 core experiments have Python + Rust + `expected_values.json`. Niche ET0 dependency metadata corrected. `resilient_call` unwired noted. Registry 445. 20 IPC methods + 3 signal paths)
+**Last audited:** May 23, 2026 (V146 — Wave 46 absorption. Registry cross-sync raised to 458 (primalSpring v0.9.27). Dark Forest gate metadata on all 6 deploy graphs. primalSpring pin v0.9.27. 20 IPC methods + 3 signal paths)
 **License:** AGPL-3.0-or-later
 
 ---
@@ -208,6 +208,19 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
   Actual: V142, 1,123 tests, coralReef IPC fully wired (5 methods),
   20 IPC methods across 7 primals.
 - **Action:** Handback to primalSpring for table refresh.
+
+---
+
+## Audit Trail
+
+### Wave 46 absorption (May 23, 2026)
+- Registry cross-sync raised from ≥401 to **≥458** (primalSpring v0.9.27)
+- Dark Forest gate metadata on all 6 deploy graphs: `secure_by_default = true`, `transport = "uds_only"`, `trust_model = "MethodGate"`
+- primalSpring pin v0.9.27 across all active docs
+- Ionic contract (GAP-GS-008): Ready upstream, not adopted locally (blocked on BearDog `crypto.sign_contract`)
+- BLAKE3 backfill (FN-1): Applies to projectFOUNDATION `data/sources/` TOMLs (10/25 ecosystem-wide). groundSpring LTEE manifest already BLAKE3-anchored.
+- Cross-tier L3 parity (WS-9): wetSpring-led. groundSpring compliant (5/5 LTEE + 29 core have Py + Rust + expected_values).
+- Tier 4 guidestone rewiring (G column): Dark Forest gate resolved. Scenario expansion toward 49-scenario upstream surface is next evolution.
 
 ---
 

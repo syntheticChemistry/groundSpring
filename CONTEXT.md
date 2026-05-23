@@ -39,7 +39,7 @@ for noise characterization and uncertainty quantification.
 - **barraCuda delegations:** 110 active (67 CPU + 43 GPU) — `barracuda` is `optional = true`, feature-gated (v0.4.0)
 - **Logging:** Unified `tracing` (zero `log::` calls)
 - **Fossil record:** `fossilRecord/` with 3 dated prokaryotic snapshot READMEs (provenance markers, no source copies)
-- **primalSpring:** v0.9.25 pinned for `CompositionContext`, `ScenarioMeta`, `ScenarioRegistry`
+- **primalSpring:** v0.9.27 pinned for `CompositionContext`, `ScenarioMeta`, `ScenarioRegistry`
 - **Tier 4 IPC-first:** `barracuda` optional everywhere (`groundspring` + `metalForge`); IPC via `CompositionContext` is the default; `local` feature for opt-in direct library linkage; workspace builds clean without barraCuda source tree
 - **metalForge decoupled:** GPU probing uses `pollster` (not barracuda); `barracuda-gpu` feature-gates hardware-specific APIs
 - **biomeOS v3.51:** `composition.status` (health/monitoring) + `method.register` (dynamic registration) absorbed

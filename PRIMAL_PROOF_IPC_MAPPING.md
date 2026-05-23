@@ -3,7 +3,7 @@
 **Date**: May 16, 2026
 **groundSpring**: V145 (Wave 20 schema standardization: `capability.list` canonical envelope, `nest.commit` signal dispatch. 20 IPC methods + 3 signal dispatch paths across 7 primals)
 **barraCuda**: v0.4.0
-**primalSpring**: v0.9.25
+**primalSpring**: v0.9.27
 
 ---
 
@@ -126,7 +126,7 @@ The `biomeos` module routes to deployed primals via JSON-RPC:
 | `ipc::skunkbat::emit_audit_event(...)` | `security.audit_log` | skunkBat | JH-5 |
 | `biomeos::capability_call(cap, op, args)` | `capability.call` | Any | |
 
-### CompositionContext routing (via primalSpring v0.9.25)
+### CompositionContext routing (via primalSpring v0.9.27)
 
 ```rust
 let mut ctx = CompositionContext::from_live_discovery_with_fallback();

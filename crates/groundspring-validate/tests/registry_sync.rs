@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 //! Registry cross-sync test — validates groundSpring's `capability_registry.toml`
-//! against primalSpring's canonical 413-method capability registry.
+//! against primalSpring's canonical 458-method capability registry (Wave 46).
 //!
 //! Phase 60 universal target #2: every spring must test its methods against
 //! primalSpring's `config/capability_registry.toml`.
@@ -16,7 +16,7 @@
 /// groundSpring's own capability registry.
 const GS_REGISTRY: &str = include_str!("../../../capability_registry.toml");
 
-/// primalSpring's canonical capability registry (413 methods).
+/// primalSpring's canonical capability registry (458 methods, Wave 46).
 /// Path: `primalSpring/config/capability_registry.toml`
 const PS_REGISTRY: &str = include_str!("../../../../primalSpring/config/capability_registry.toml");
 
@@ -139,10 +139,9 @@ fn groundspring_measurement_domain_is_niche_scoped() {
 fn canonical_registry_method_count() {
     let canonical_methods = extract_methods_from_primalspring_registry(PS_REGISTRY);
     assert!(
-        canonical_methods.len() >= 401,
-        "canonical registry has {} methods — expected ≥401 (current: 452 per Wave 20, \
-         ~401+ production methods extracted from TOML, excludes test_fixtures/false_positives). \
-         New in Wave 20: primal.list. Update if primalSpring adds new methods.",
+        canonical_methods.len() >= 458,
+        "canonical registry has {} methods — expected ≥458 (Wave 46, primalSpring v0.9.27). \
+         Update threshold when primalSpring adds new methods.",
         canonical_methods.len()
     );
 }

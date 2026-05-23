@@ -23,7 +23,7 @@ springs = ["groundspring", "hotspring", "wetspring", "neuralspring", "airspring"
 - **certification/ organelle** — Properties 1-5 (bare) + Layers 2-4 (NUCLEUS)
 - **groundspring_unibin** — single binary: certify / validate / status / version
 - **src/ipc/ tree** — per-primal modules (barraCuda, ToadStool, NestGate, BearDog, Songbird)
-- **primalSpring v0.9.25 pinned** — CompositionContext, ScenarioMeta, ScenarioRegistry
+- **primalSpring v0.9.27 pinned** — CompositionContext, ScenarioMeta, ScenarioRegistry
 - **fossilRecord/** — consolidated to dedicated repo (breadcrumb in-tree)
 - **Zero** unsafe, bare `#[allow]`/`#[expect]` without reason, TODO/FIXME
 

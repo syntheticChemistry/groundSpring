@@ -60,7 +60,7 @@
 | Deploy graphs | 6 |
 | Registry sync | 445 |
 | barraCuda version | v0.4.0 |
-| primalSpring version | v0.9.25 |
+| primalSpring version | v0.9.27 |
 | Unsafe code | 0 |
 | Clippy warnings | 0 |
 | Production mocks | 0 |

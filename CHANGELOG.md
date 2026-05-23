@@ -4,6 +4,18 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V146 Wave 46 Absorption — Dark Forest Gate + Registry 458 (May 23, 2026)
+
+#### Registry Sync
+- Registry cross-sync test threshold raised from ≥401 to **≥458** (primalSpring v0.9.27, Wave 46). Comments updated from 413/452 to 458.
+
+#### Deploy Graph Evolution (Dark Forest Gate)
+- All 6 deploy graphs now carry Dark Forest metadata: `secure_by_default = true`, `transport = "uds_only"`, `trust_model = "MethodGate"`. Clears the "G column PENDING" scorecard item.
+- `groundspring_version` bumped to V145 in all graphs (was V125 in 5/6).
+
+#### Dependency Alignment
+- primalSpring pin references updated from v0.9.25 to **v0.9.27** across all active documentation.
+
 ### V145 LTEE B6 BioBrick Burden — Anderson Disorder Analogy (May 16, 2026)
 
 #### Science Expansion

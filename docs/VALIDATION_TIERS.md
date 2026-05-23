@@ -1,7 +1,7 @@
 # groundSpring Validation Tiers
 
 **Date**: May 16, 2026
-**primalSpring**: v0.9.25 | **groundSpring**: V145
+**primalSpring**: v0.9.27 | **groundSpring**: V145
 
 ---
 

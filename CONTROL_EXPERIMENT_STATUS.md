@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: May 16, 2026 (V145 — LTEE B6 BioBrick Burden reproduction (Anderson disorder analogy). Wave 20 schema standardization: `capability.list` canonical envelope + `nest.commit` signal dispatch. 1,123 tests, ≥92% library coverage, 0 clippy warnings, 0 fmt diff. guideStone Level 4. LTEE B1–B4, B6 complete → `lithoSpore` modules 1–5. 39 experiments, 461/461 checks, 39 validation binaries. 20 IPC methods + 3 signal dispatch paths across 7 primals. Tier 4 IPC-first. barraCuda v0.4.0. primalSpring v0.9.25.)
+**Last updated**: May 16, 2026 (V145 — LTEE B6 BioBrick Burden reproduction (Anderson disorder analogy). Wave 20 schema standardization: `capability.list` canonical envelope + `nest.commit` signal dispatch. 1,123 tests, ≥92% library coverage, 0 clippy warnings, 0 fmt diff. guideStone Level 4. LTEE B1–B4, B6 complete → `lithoSpore` modules 1–5. 39 experiments, 461/461 checks, 39 validation binaries. 20 IPC methods + 3 signal dispatch paths across 7 primals. Tier 4 IPC-first. barraCuda v0.4.0. primalSpring v0.9.27.)
 
 ## Experiment Register
 

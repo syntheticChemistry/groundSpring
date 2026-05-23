@@ -18,9 +18,12 @@ description = "groundSpring measurement provider atop Tower Atomic"
 coordination = "Sequential"
 
 [graph.metadata]
-groundspring_version = "V125"
+groundspring_version = "V145"
 domain = "measurement"
 target_node = "eastgate"
+secure_by_default = true
+transport = "uds_only"
+trust_model = "MethodGate"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # PHASE 1: TOWER ATOMIC — BearDog (security) + Songbird (discovery)

@@ -33,9 +33,12 @@ coordination = "Sequential"
 [graph.metadata]
 toadstool_pin = "S158+"
 toadstool_commit = "bfe7977b"
-groundspring_version = "V125"
+groundspring_version = "V145"
 target_node = "eastgate"
 precision_strategy = "f64-capable with DF64 fallback"
+secure_by_default = true
+transport = "uds_only"
+trust_model = "MethodGate"
 domain = "measurement"
 
 # ═══════════════════════════════════════════════════════════════════════════════
