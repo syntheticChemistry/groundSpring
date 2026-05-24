@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: May 23, 2026 (V146 — Wave 46 absorption + ironGate deployment prep. Registry 458, Dark Forest gate, primalSpring v0.9.27. Post-primordial covalent gate phase.)
+**Last Updated**: May 23, 2026 (V146 — Wave 46 absorption + eastGate deployment prep. Registry 458, Dark Forest gate, primalSpring v0.9.27. Post-primordial covalent gate phase.)
 
 ## What This Is
 
@@ -18,10 +18,9 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| Gate Deploy | [GROUNDSPRING_GATE_DEPLOYMENT_MAY23_2026.md](handoffs/GROUNDSPRING_GATE_DEPLOYMENT_MAY23_2026.md) | May 23, 2026 | ironGate deployment status, proto-nucleate composition, multi-domain validation plan |
-| V145 Docs + Debt | [GROUNDSPRING_V145_DOCS_DEBT_HANDOFF_MAY17_2026.md](handoffs/GROUNDSPRING_V145_DOCS_DEBT_HANDOFF_MAY17_2026.md) | May 17, 2026 | Docs sweep, deep debt resolution, role constants evolution, B7 deferral, handoff for primals + springs |
+| Gate Deploy | [GROUNDSPRING_GATE_DEPLOYMENT_MAY23_2026.md](handoffs/GROUNDSPRING_GATE_DEPLOYMENT_MAY23_2026.md) | May 23, 2026 | eastGate deployment status, proto-nucleate composition, multi-domain validation plan |
 
-**Archived**: V123–V145 (science expansion) handoffs moved to `handoffs/archive/`.
+**Archived**: V123–V145 handoffs moved to `handoffs/archive/`.
 
 
 ## Cross-Spring Documentation

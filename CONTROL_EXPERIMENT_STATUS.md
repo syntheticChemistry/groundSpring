@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: May 16, 2026 (V145 — LTEE B6 BioBrick Burden reproduction (Anderson disorder analogy). Wave 20 schema standardization: `capability.list` canonical envelope + `nest.commit` signal dispatch. 1,123 tests, ≥92% library coverage, 0 clippy warnings, 0 fmt diff. guideStone Level 4. LTEE B1–B4, B6 complete → `lithoSpore` modules 1–5. 39 experiments, 461/461 checks, 39 validation binaries. 20 IPC methods + 3 signal dispatch paths across 7 primals. Tier 4 IPC-first. barraCuda v0.4.0. primalSpring v0.9.27.)
+**Last updated**: May 23, 2026 (V146 — Wave 46 absorption + eastGate deployment prep. Registry 458 (primalSpring v0.9.27). Dark Forest gate on 6 deploy graphs. Gate deployment scenario (11 scenarios). 1,123 tests, ≥92% library coverage, 0 clippy warnings, 0 fmt diff. guideStone Level 4. LTEE B1–B4, B6 complete → `lithoSpore` modules 1–5. 39 experiments, 461/461 checks, 39 validation binaries. 20 IPC methods + 3 signal dispatch paths across 7 primals. Tier 4 IPC-first. barraCuda v0.4.0. primalSpring v0.9.27.)
 
 ## Experiment Register
 
@@ -42,12 +42,12 @@
 | 034 | Geometry-Aware Drug Scoring | Immunological (drug repurposing) | — | (combined with 033) |
 | 035 | Multi-Method ET₀ Cross-Validation | Hydrology (ET₀ methods) | 15/15 PASS | 19/19 PASS |
 
-**Python Phase 0**: All 29 experiments with Python baselines passing (294 pytest PASS)
+**Python Phase 0**: All 29 experiments with Python baselines passing (455 pytest collected, 392 PASS + 23 skip + 29 exit-code integration + 11 GPU-hardware)
 **Rust Phase 1 (core)**: 340/340 PASS across 30 validation binaries (340 core)
 **Rust Phase 1 (NUCLEUS)**: 55/55 PASS across 4 validation binaries (Exp 029–032, `--features biomeos`)
 **Total validation**: 461/461 PASS across 39 validation binaries
 **Rust tests**: 1,123 PASS (default workspace, zero warnings, zero clippy errors on all targets)
-**pytest**: 294 PASS (29 baseline experiments; Kokkos benchmark tests excluded — build-dependent binary naming)
+**pytest**: 455 collected (392 PASS, 23 skip [GPU hardware], 29 exit-code integration [require cargo build], 11 GPU parity [require hardware])
 **Three-tier parity**: 102+ tests — CPU vs barracuda-CPU vs barracuda-GPU proven
 **Cross-tier parity**: 34/34 experiments with Python baselines have `expected_values.json` consumed by Rust validators (29 core + 5 LTEE). lithoSpore pattern adopted
 **BarraCUDA dispatch**: 110 active (67 CPU + 43 GPU) — barraCuda v0.4.0, toadStool S158+, coralReef Iteration 55+. `PrecisionRoutingAdvice` wired into 11 GPU dispatch paths via `get_device_f64_safe()`. tarpc 0.37, ops GPU-gated rewire, domain-esn feature, Rust 2024 unsafe model. coralReef sovereign dispatch path proven on Titan V
@@ -653,7 +653,7 @@ Each experiment is validated at three hardware tiers:
 
 ## Evolution Roadmap
 
-- **Phase 0**: Python/NumPy/SciPy baselines — **COMPLETE** (294 pytest PASS across 29 baseline experiments + 5 LTEE controls)
+- **Phase 0**: Python/NumPy/SciPy baselines — **COMPLETE** (455 pytest collected across 29 baseline experiments + 5 LTEE controls)
 - **Phase 0+**: Real open data pipelines (NOAA CDO, IRIS waveforms) — **COMPLETE** (NUCLEUS Exp 029-032)
 - **Phase 1**: Rust CPU validation — **COMPLETE** (461/461 across 39 binaries)
 - **Phase 1b**: metalForge production WGSL — **COMPLETE** (2 shaders, 261 combined lines)
@@ -688,7 +688,7 @@ Each experiment is validated at three hardware tiers:
 | `cargo test --features barracuda-gpu` | 814/814 PASS |
 | Validation binaries (local) | 461/461 PASS (39 binaries) |
 | Validation binaries (barracuda-gpu) | 461/461 PASS |
-| `python3 -m pytest tests/` | 294 PASS (Kokkos benchmark tests excluded — build-dependent binary naming) |
+| `python3 -m pytest tests/` | 455 collected (392 PASS, 23 skip, 29 exit-code, 11 GPU) |
 | Library line coverage | ≥92% (cargo-llvm-cov --workspace --lib) |
 | Unsafe code | Forbidden (workspace lint + `#![forbid(unsafe_code)]` on all 50 binaries) |
 | Max file size | 388 lines (all < 1000) |
@@ -889,7 +889,7 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V7: Deep Audit + Proptest | Deep debt, proptest, Python quality, coverage | Archived |
 | V1–V6 | Initial evolution through complete rewiring | Archived (shared wateringHole) |
 
-Active: `wateringHole/handoffs/GROUNDSPRING_V145_SCIENCE_EXPANSION_HANDOFF_MAY16_2026.md` (V145 LTEE B6, 5 lithoSpore modules, Wave 20 schema, 3 signal dispatch paths)
+Active: `wateringHole/handoffs/GROUNDSPRING_GATE_DEPLOYMENT_MAY23_2026.md` (V146 eastGate deployment, proto-nucleate composition, multi-domain validation)
 Archive: `wateringHole/handoffs/archive/`
 
 See `metalForge/ABSORPTION_MANIFEST.md` for detailed absorption inventory.

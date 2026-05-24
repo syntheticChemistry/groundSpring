@@ -11,7 +11,7 @@ groundSpring Phase 0 (Python), Phase 1 (Rust), and Phase 2a (barracuda CPU) are 
 
 - 461/461 validation checks across 39 binaries (340 core + 55 NUCLEUS + 66 LTEE)
 - 41 library modules: stats, decompose, fao56, prng, rarefaction, seismic, gillespie, bootstrap, anderson, almost_mathieu, bistable, multisignal, kinetics, transport, drift, rare_biosphere, quasispecies, band_structure, jackknife, freeze_out, spectral_recon, wdm, biomeos, nestgate, esn, lanczos, linalg, error, tissue_anderson, niche, primal_names, ipc, rawr (+cast, validate, npu, dispatch, tol, eps, gpu)
-- 1,123 Rust tests + 287 Python tests. 0 clippy warnings (pedantic + nursery). ≥92% library line coverage. 110 delegations (67 CPU + 43 GPU) — barraCuda v0.4.0. 138 metalForge checks. biomeOS Neural API live (V145). `PrecisionRoutingAdvice` wired into 11 GPU dispatch paths.
+- 1,123 Rust tests + 455 Python tests. 0 clippy warnings (pedantic + nursery). ≥92% library line coverage. 110 delegations (67 CPU + 43 GPU) — barraCuda v0.4.0. 138 metalForge checks. biomeOS Neural API live (V146). `PrecisionRoutingAdvice` wired into 11 GPU dispatch paths.
 - Two feature gates: `barracuda` (67 active CPU delegations) and `barracuda-gpu` (43 GPU delegations including Sturm tridiag, tikhonov solve, detect_bands, BatchedMultinomialGpu). Three-mode CI validates all configurations.
 - 110 delegations (67 CPU + 43 GPU; includes GPU grid adapters, GPU stats dispatch, batch APIs, regression suite, kimura, jackknife, fao56_et0, thornthwaite_et0, thornthwaite_heat_index, fit_all, chao1, error_threshold, detection_power, detection_threshold, bootstrap_mean, shannon — barraCuda v0.4.0)
 - 2 production WGSL shaders in `metalForge/shaders/` (261 combined lines)

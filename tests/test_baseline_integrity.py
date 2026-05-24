@@ -26,7 +26,7 @@ REQUIRED_PROVENANCE_FIELDS = {
     "real_data_accession",
 }
 
-SKIP_DIRS = {"__pycache__", "common.py"}
+SKIP_DIRS = {"__pycache__", "common.py", "noaa_ghcnd"}
 
 
 def _experiment_dirs() -> list[Path]:

@@ -26,11 +26,11 @@ for noise characterization and uncertainty quantification.
 - **Architecture:** 5-crate workspace (`groundspring` library, `groundspring-validate` binaries, `groundspring-forge` GPU/hardware dispatch, `exp094_composition_parity`, `exp095_measurement_niche`)
 - **Eukaryotic UniBin:** Single binary (`groundspring_unibin`) with `certify`, `validate`, `status`, `version` subcommands via `clap`
 - **Certification organelle:** `certification/` module — Properties 1-5 (bare, Tier 1) + Layers 2-4 (NUCLEUS composition, Tier 2)
-- **Validation scenarios:** `validation/scenarios/` registry — 10 tracks with `ScenarioMeta` (id, track, tier, provenance)
+- **Validation scenarios:** `validation/scenarios/` registry — 11 scenarios across 10 tracks with `ScenarioMeta` (id, track, tier, provenance)
 - **IPC tree:** `src/ipc/` with per-primal modules (`barracuda.rs`, `toadstool.rs`, `nestgate.rs`, `beardog.rs`, `songbird.rs`, `skunkbat.rs`)
 - **Communication:** JSON-RPC 2.0 over Unix domain sockets (behind `biomeos` feature); `tarpc` IPC (behind `tarpc-ipc` feature)
 - **License:** AGPL-3.0-or-later
-- **Tests:** 1,123 Rust tests + 294 Python provenance tests
+- **Tests:** 1,123 Rust tests + 455 Python provenance tests
 - **Clippy:** Zero warnings on all targets (lib + bin + test), pedantic + nursery
 - **Coverage:** ≥92% library line coverage (`cargo llvm-cov --workspace --lib`)
 - **MSRV:** Rust 1.87 (2024 edition)

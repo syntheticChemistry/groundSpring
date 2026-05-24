@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
 **Last Updated**: May 16, 2026
-**Status**: V145 — Wave 17 signal adoption. 461/461 PASS (340 core + 55 NUCLEUS + 66 LTEE). 1,123 Rust tests, 287 Python tests, 138 metalForge checks, 29 integration tests. 39 experiments, 41 modules. 20 IPC methods + 3 signal dispatch paths across 7 primals. `primal.announce` + `nest.store` + `nest.commit` signals wired. BLAKE3 ingestion manifest for lithoSpore. LTEE B1–B4, B6. Three-tier parity: 29/29. barraCuda v0.4.0. guideStone Level 4. Tier 4 IPC-first. Zero clippy, zero unsafe.
+**Status**: V146 — Wave 46 absorption + eastGate deployment. 461/461 PASS (340 core + 55 NUCLEUS + 66 LTEE). 1,123 Rust tests, 294 Python tests, 138 metalForge checks, 29 integration tests. 39 experiments, 41 modules. 20 IPC methods + 3 signal dispatch paths across 7 primals. Registry 458. Dark Forest gate. BLAKE3 ingestion manifest for lithoSpore. LTEE B1–B4, B6. Three-tier parity: 29/29. barraCuda v0.4.0. guideStone Level 4. Tier 4 IPC-first. Zero clippy, zero unsafe.
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---
@@ -16,7 +16,7 @@
 | LTEE (B1–B4, B6) | 66/66 PASS — 5 LTEE validation binaries (Exp 036–039, 040) |
 | Total Validation | 461/461 PASS across 39 experiments (39 binaries; no Exp 034) |
 | Mathematical Parity | 29/29 PROVEN (Python ⇌ Rust against shared benchmark JSONs) |
-| Rust tests | 1,123 across all feature gates + 287 Python |
+| Rust tests | 1,123 across all feature gates + 455 Python |
 | metalForge | 2 production WGSL shaders (anderson_lyapunov, anderson_lyapunov_f32) |
 | Exp 001 | Sensor noise decomposition — EC5 bias-dominated, CS616 mixed |
 | Exp 002 | Observation gap ERA5 vs station — methodology validated |

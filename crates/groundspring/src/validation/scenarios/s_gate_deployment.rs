@@ -19,7 +19,7 @@ pub const SCENARIO: Scenario = Scenario {
         tier: Tier::Live,
         provenance_crate: "groundspring",
         provenance_date: "2026-05-23",
-        description: "Proto-nucleate IPC liveness — 6 required primals for ironGate composition",
+        description: "Proto-nucleate IPC liveness — 6 required primals for eastGate composition",
     },
     run: run_scenario,
 };

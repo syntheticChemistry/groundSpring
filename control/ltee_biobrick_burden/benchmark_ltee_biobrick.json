@@ -1,11 +1,12 @@
 {
   "_source": "groundSpring Experiment 040 — LTEE BioBrick Burden (B6)",
+  "_doi": "10.1038/s41467-024-50639-9",
   "_provenance": {
     "generated_by": "Synthetic BioBrick burden data from log-normal distribution approximating empirical shape from the 2024 Nat Comms paper",
     "data_origin": "Synthetic 301-plasmid burden values; distribution parameters estimated from paper figures",
     "real_data_accession": "N/A (synthetic; real data via supplementary tables of the original paper for future Tier 2)",
     "prng_algorithm": "xorshift64 (Marsaglia 2003)",
-    "baseline_commit": "V145",
+    "baseline_commit": "7acb74d",
     "baseline_date": "2026-05-16",
     "validation_script": "control/ltee_biobrick_burden/ltee_biobrick_burden.py",
     "command": "python3 control/ltee_biobrick_burden/ltee_biobrick_burden.py",

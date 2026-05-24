@@ -1,9 +1,9 @@
-# groundSpring Gate Deployment Status — ironGate (May 23, 2026)
+# groundSpring Gate Deployment Status — eastGate (May 23, 2026)
 
 **Spring**: groundSpring V146
-**Gate**: ironGate
-**Hardware**: i9-14900K, RTX 5070, 96GB DDR5
-**Co-residents**: primalSpring (coordinator), ludoSpring
+**Gate**: eastGate
+**Hardware**: i9-12900, RTX 4070, Akida NPU, 64GB DDR5
+**Co-residents**: primalSpring (coordinator), neuralSpring
 **NUCLEUS Composition**: `groundspring_proto_nucleate` (from `downstream_manifest.toml`)
 **Status**: READY FOR LIVE VALIDATION
 
@@ -90,14 +90,15 @@ Other gate residents (primalSpring, ludoSpring) can discover and call groundSpri
 
 ### What Needs Live Validation
 
-- [ ] NUCLEUS launcher starts 6 required primals on ironGate hardware
+- [ ] NUCLEUS launcher starts 6 required primals on eastGate hardware
 - [ ] GuideStone discovers primals via Songbird and validates IPC parity
 - [ ] `crypto.sign` produces valid Ed25519 signatures from BearDog
 - [ ] `barracuda.precision.route` returns precision strategy for `stats.mean`
 - [ ] `content.put` + `content.get` roundtrip succeeds via NestGate
 - [ ] `nest.store` signal dispatch collapses multi-call provenance chain
-- [ ] Multi-spring contention: groundSpring + ludoSpring concurrent on same NUCLEUS
+- [ ] Multi-spring contention: groundSpring + neuralSpring concurrent on same NUCLEUS
 - [ ] `toadstool.validate` confirms workload viability for measurement domain
+- [ ] Akida NPU discovery via `compute.device.enumerate` (eastGate unique hardware)
 
 ### Gaps Found (handback to primalSpring)
 
@@ -109,18 +110,19 @@ Other gate residents (primalSpring, ludoSpring) can discover and call groundSpri
 
 ---
 
-## Multi-Domain Composition Notes (ironGate)
+## Multi-Domain Composition Notes (eastGate)
 
-ironGate hosts 3 springs:
+eastGate hosts 3 springs:
 - **primalSpring**: Coordinator — 49 scenarios, registry validation, graph orchestration
-- **ludoSpring**: Pure composition — game events, tower signals, meta-tier heavy
+- **neuralSpring**: ML inference — Squirrel pipeline, weight persistence, NestGate heavy
 - **groundSpring**: Measurement — Node + Nest balanced, science-local math
 
 Expected interaction patterns:
-- All three register with Songbird (separate capability domains: `coordination.*`, `game.*`, `measurement.*`)
+- All three register with Songbird (separate capability domains: `coordination.*`, `inference.*`, `measurement.*`)
 - No capability name collisions (domains are disjoint)
 - Socket namespace: each spring uses its own UDS path under `/run/user/$UID/biomeos/`
-- Resource contention risk: barraCuda GPU (RTX 5070) shared between ludoSpring game compute and groundSpring measurement dispatch
+- Resource contention risk: barraCuda GPU (RTX 4070) shared between neuralSpring ML inference and groundSpring measurement dispatch
+- NPU opportunity: Akida NPU available for int8-quantized workloads (neuralSpring primary consumer, groundSpring optional)
 
 ---
 
@@ -133,6 +135,6 @@ Expected interaction patterns:
 - [x] GuideStone Level 4 (self-validating)
 - [x] `try_*` wrappers for graceful degradation (primals absent → `Ok(None)`)
 - [x] plasmidBin binaries present (13/13 in `primals/x86_64-unknown-linux-musl/`)
-- [ ] Live composition deployed and validated on ironGate
-- [ ] Multi-spring concurrent validation (with ludoSpring)
+- [ ] Live composition deployed and validated on eastGate
+- [ ] Multi-spring concurrent validation (with neuralSpring)
 - [ ] handoff posted to wateringHole confirming live status
