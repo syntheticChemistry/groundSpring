@@ -222,6 +222,15 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 - Cross-tier L3 parity (WS-9): wetSpring-led. groundSpring compliant (5/5 LTEE + 29 core have Py + Rust + expected_values).
 - Tier 4 guidestone rewiring (G column): Dark Forest gate resolved. Scenario expansion toward 49-scenario upstream surface is next evolution.
 
+### Post-Primordial Covalent Gate (May 23, 2026)
+- **Gate assignment**: ironGate (i9-14900K, RTX 5070, 96GB DDR5) with primalSpring + ludoSpring
+- **Proto-nucleate composition**: 6 primals (beardog, songbird, coralreef, toadstool, barracuda, nestgate)
+- **Handoff posted**: `GROUNDSPRING_GATE_DEPLOYMENT_MAY23_2026.md`
+- **Gaps surfaced upstream**:
+  - `NUCLEUS_SPRING_ALIGNMENT.md` shows groundSpring at V135/gS 0 (actual: V146/gS L4)
+  - Audit blurb references `fetch_primals.sh --all` but infra uses `fetch.sh`
+  - Proto-nucleate `validation_capabilities` uses abstract names (`storage.store`) vs actual wire names (`content.put`) — routing layer handles, but documentation gap
+
 ---
 
 ## Resolved Gaps

@@ -15,6 +15,7 @@ mod s_decompose;
 mod s_drift;
 mod s_fao56;
 mod s_freeze_out;
+mod s_gate_deployment;
 mod s_jackknife;
 mod s_rarefaction;
 mod s_seismic;
@@ -34,6 +35,7 @@ pub fn build_registry() -> registry::ScenarioRegistry {
     reg.register(s_drift::SCENARIO);
     reg.register(s_jackknife::SCENARIO);
     reg.register(s_composition_parity::SCENARIO);
+    reg.register(s_gate_deployment::SCENARIO);
 
     reg
 }
