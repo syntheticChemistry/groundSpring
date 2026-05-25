@@ -4,6 +4,16 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V146 Wave 50 Covalent HPC (May 25, 2026)
+
+#### Cross-Gate Data Staging
+- New deploy graph: `groundspring_nest_sync.toml` — stages LTEE artifacts from eastGate NestGate to ironGate via Songbird mesh. Content-addressed, BLAKE3-verified, skip-existing conflict resolution.
+- Cross-gate degradation behavior documented in `docs/DEGRADATION_BEHAVIOR.md`.
+
+#### Documentation
+- `DEGRADATION_BEHAVIOR.md`: Updated to V146 with eastGate 12/12 NUCLEUS status. Added cross-gate degradation table for covalent HPC scenarios.
+- PRIMAL_GAPS: Wave 50 audit trail.
+
 ### V146 Wave 48 Covalent Mesh Sound-Off (May 25, 2026)
 
 #### Gate Deployment

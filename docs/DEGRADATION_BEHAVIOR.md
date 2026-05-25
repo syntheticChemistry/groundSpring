@@ -1,7 +1,8 @@
 # groundSpring — IPC Degradation Behavior
 
-**Date**: May 17, 2026
-**Version**: V145
+**Date**: May 25, 2026
+**Version**: V146
+**Gate**: eastGate (12/12 NUCLEUS ALIVE, Songbird federation :7700)
 **Pattern**: `has_capability()` before `call()`. Never gate science behind primal availability.
 **Reference**: `infra/wateringHole/PROVENANCE_TRIO_INTEGRATION_GUIDE.md`
 
@@ -80,4 +81,21 @@ When signals are available, no hard gates exist.
 |-----|-------------|--------|
 | `resilient_call` unwired | `biomeos/resilience.rs` defines `resilient_call` with retry/circuit-breaker but no IPC module calls it | Deferred — current `try_*` pattern sufficient for enrichment calls |
 | Songbird client missing | `ipc/songbird.rs` defines only `tarpc::service` trait; no JSON-RPC client or `try_*` wrapper | Low — Songbird discovery uses env vars / socket probing instead |
-| `et0_propagation` dependency metadata | `OPERATION_DEPENDENCIES` previously claimed `data.noaa_ghcnd` — handler is purely local | Fixed this cycle |
+| `et0_propagation` dependency metadata | `OPERATION_DEPENDENCIES` previously claimed `data.noaa_ghcnd` — handler is purely local | Fixed (V145) |
+
+---
+
+## Cross-Gate Degradation (Wave 50 Covalent HPC)
+
+When running in a meshed multi-gate environment (Songbird TCP :7700):
+
+| Scenario | Behavior |
+|----------|----------|
+| Remote gate unreachable | `discovery.peers` returns empty; `capability.call` falls back to local gate | 
+| Remote NestGate down | `nest.sync` graph skips replication; local artifacts remain authoritative |
+| Cross-subnet peers | Requires router config or TURN relay; Songbird logs unreachable peers as `warn!` |
+| Remote barraCuda busy | `toadstool.compute` yields to gate owner; local CPU fallback activates |
+
+**Key rule**: Cross-gate is always enrichment. Local science never depends on
+remote gate availability. The `nest.sync` graph is for backup staging, not
+correctness.

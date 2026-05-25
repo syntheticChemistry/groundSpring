@@ -231,6 +231,12 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
   - Audit blurb references `fetch_primals.sh --all` but infra uses `fetch.sh`
   - Proto-nucleate `validation_capabilities` uses abstract names (`storage.store`) vs actual wire names (`content.put`) — routing layer handles, but documentation gap
 
+### Wave 50 Covalent HPC (May 25, 2026)
+- **Post-primordial mandate**: CLEAN — zero `target/release/` primal references in tools/scripts
+- **NUCLEUS**: 12/12 ALIVE on eastGate via plasmidBin musl binaries
+- **nest.sync graph**: `graphs/groundspring_nest_sync.toml` for cross-gate LTEE artifact staging
+- **Cross-gate degradation**: Documented in `DEGRADATION_BEHAVIOR.md` — remote is always enrichment, local science never depends on remote gate
+
 ---
 
 ## Resolved Gaps

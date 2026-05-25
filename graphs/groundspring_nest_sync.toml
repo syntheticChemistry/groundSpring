@@ -1,0 +1,75 @@
+# groundSpring Nest Sync Graph — Cross-Gate Data Staging
+#
+# Stages LTEE results and provenance artifacts from eastGate NestGate
+# to a remote NestGate on ironGate via Songbird mesh routing.
+#
+# Wave 50: covalent HPC data dependency staging.
+#
+# Prerequisites:
+#   - NUCLEUS running on eastGate (12/12 ALIVE)
+#   - Songbird TCP federation active (port 7700)
+#   - SONGBIRD_PEERS includes ironGate address
+#
+# Run: biomeos deploy graphs/groundspring_nest_sync.toml
+#
+# STATUS: V146 (May 25, 2026) — Wave 50 covalent HPC
+
+[graph]
+id = "groundspring_nest_sync"
+description = "Cross-gate data staging: eastGate → ironGate NestGate backup"
+version = "1.0.0"
+coordination = "sequential"
+
+[graph.metadata]
+groundspring_version = "V146"
+domain = "measurement"
+source_gate = "eastGate"
+target_gate = "ironGate"
+secure_by_default = true
+transport = "uds_only"
+trust_model = "MethodGate"
+pattern = "nest_sync"
+
+[[nodes]]
+id = "discover_remote_nestgate"
+description = "Locate NestGate on ironGate via Songbird mesh"
+capability = "discovery.peers"
+operation = "resolve"
+
+[nodes.params]
+target_capability = "storage.store"
+target_gate = "ironGate"
+
+[[nodes]]
+id = "enumerate_local_artifacts"
+description = "List LTEE expected_values.json and provenance artifacts"
+capability = "content.list"
+depends_on = ["discover_remote_nestgate"]
+
+[nodes.params]
+prefix = "ltee/"
+include_metadata = true
+
+[[nodes]]
+id = "sync_artifacts"
+description = "Replicate content-addressed artifacts to remote NestGate"
+capability = "nest.sync"
+depends_on = ["enumerate_local_artifacts"]
+
+[nodes.params]
+source = "local"
+target = "ironGate"
+strategy = "content-addressed"
+conflict_resolution = "skip-existing"
+verify_blake3 = true
+
+[[nodes]]
+id = "verify_sync"
+description = "Confirm BLAKE3 hashes match on both gates"
+capability = "content.verify"
+depends_on = ["sync_artifacts"]
+
+[nodes.params]
+source_gate = "eastGate"
+target_gate = "ironGate"
+prefix = "ltee/"
