@@ -1,7 +1,7 @@
 +++
 title = "groundSpring Validation Summary"
-description = "Measurement noise and uncertainty — 1,123 tests, 39 experiments (34 core + 5 LTEE B1–B4, B6), guideStone Level 4, Eukaryotic UniBin, 5 notebooks, 10 validation scenarios"
-date = 2026-05-17
+description = "Measurement noise and uncertainty — 1,123 tests, 39 experiments (34 core + 5 LTEE B1–B4, B6), guideStone Level 4, Eukaryotic UniBin, 5 notebooks, 11 validation scenarios"
+date = 2026-05-25
 
 [taxonomies]
 primals = ["barracuda", "toadstool", "beardog", "songbird", "nestgate"]
@@ -12,14 +12,14 @@ springs = ["groundspring", "hotspring", "wetspring", "neuralspring", "airspring"
 
 - **1,123 tests** passing, 0 failed, 0 clippy warnings on all targets
 - **39 experiments** across 12 scientific domains
-- **10 validation scenarios** in ScenarioRegistry (9 Tier 1, 1 Tier 2)
+- **11 validation scenarios** in ScenarioRegistry (9 Tier 1, 2 Tier 2)
 - **461/461 validation checks** (340 core + 55 NUCLEUS + 66 LTEE)
 - **29/29 Python baselines** with math parity proven
 - **110 barraCuda delegations** (67 CPU + 43 GPU)
 - **guideStone Level 4** (eukaryotic UniBin)
 - **Tier 4 IPC-first** — `barracuda` removed from default features; IPC via `CompositionContext` default
-- **biomeOS v3.51** — `composition.status` + `method.register` absorbed
-- **skunkBat** — `security.audit_log` wired in all 6 deploy graphs
+- **biomeOS v3.75** — `composition.status` + `method.register` + cross-gate `capability.call` routing
+- **skunkBat** — `security.audit_log` wired in all 7 deploy graphs
 - **certification/ organelle** — Properties 1-5 (bare) + Layers 2-4 (NUCLEUS)
 - **groundspring_unibin** — single binary: certify / validate / status / version
 - **src/ipc/ tree** — per-primal modules (barraCuda, ToadStool, NestGate, BearDog, Songbird)

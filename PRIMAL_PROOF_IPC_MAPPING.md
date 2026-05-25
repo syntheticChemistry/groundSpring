@@ -1,6 +1,6 @@
 # groundSpring — Primal-Proof IPC Mapping
 
-**Date**: May 16, 2026
+**Date**: May 25, 2026
 **groundSpring**: V146 (Wave 46 absorption: registry 458, Dark Forest gate, eastGate deployment. 20 IPC methods + 3 signal dispatch paths across 7 primals)
 **barraCuda**: v0.4.0
 **primalSpring**: v0.9.27
@@ -94,8 +94,8 @@ barracuda-gpu = ["barracuda", "barracuda/gpu", ...]  # GPU path
 4. **V142**: Compute trio wave absorption. `shader.compile.gemm` (coralReef Sprint 11). `health.version` trio-consistent on barraCuda + coralReef. 20 IPC methods.
 5. **V143**: Wave 17 signal adoption. `primal.announce` registration. `nest.store` signal dispatch. GAP-GS-015 resolved. 20 methods + 2 signal paths.
 6. **V145**: Wave 20 schema standardization. `capability.list` canonical envelope (`primal`, `count`). `nest.commit` signal dispatch for session finalization. Registry sync 452. 20 methods + 3 signal paths.
-7. **V146 (current)**: Wave 46 absorption. Registry sync 458 (primalSpring v0.9.27). Dark Forest gate metadata on deploy graphs. Gate deployment scenario. eastGate assignment.
-7. **Next**: Wire `primal-proof` parallel validation. Exercise NOAA GHCND pipeline. `--provenance-dir` for foundation workloads. sourDough v0.3.0+.
+7. **V146 (current)**: Wave 50 covalent HPC. Registry sync 458 (primalSpring v0.9.27). Dark Forest gate on 7 deploy graphs. Gate deployment scenario (11 total). eastGate 12/12 NUCLEUS ALIVE. `groundspring_nest_sync.toml` cross-gate staging. Cross-gate degradation documented.
+8. **Next**: Wire `primal-proof` parallel validation. Exercise NOAA GHCND pipeline. `--provenance-dir` for foundation workloads. sourDough v0.3.0+.
 
 ---
 

@@ -194,6 +194,10 @@ run_experiment \
     "Exp 039: LTEE Citrate Innovation B4 (Python)" \
     "python3 control/ltee_citrate_innovation/ltee_citrate_innovation.py"
 
+run_experiment \
+    "Exp 040: LTEE BioBrick Burden B6 (Python)" \
+    "python3 control/ltee_biobrick_burden/ltee_biobrick_burden.py"
+
 echo ""
 echo "╔══════════════════════════════════════════════════════════════╗"
 echo "║  PHASE 1: Rust Validation Binaries                         ║"
@@ -333,6 +337,10 @@ if command -v cargo &> /dev/null; then
     run_experiment \
         "Rust: LTEE Citrate Innovation B4" \
         "cargo run --release --bin validate_ltee_citrate"
+
+    run_experiment \
+        "Rust: LTEE BioBrick Burden B6" \
+        "cargo run --release --bin validate_ltee_biobrick"
 
     if [[ -e /dev/akida0 ]]; then
         cargo build --release --workspace --features npu 2>&1 | tail -1

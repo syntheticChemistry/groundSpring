@@ -269,6 +269,12 @@ EXPERIMENTS = [
         "python": [sys.executable, "control/ltee_citrate_innovation/ltee_citrate_innovation.py"],
         "rust_bin": "validate_ltee_citrate",
     },
+    {
+        "name": "Exp 040: LTEE BioBrick B6",
+        "benchmark": "control/ltee_biobrick_burden/benchmark_ltee_biobrick.json",
+        "python": [sys.executable, "control/ltee_biobrick_burden/ltee_biobrick_burden.py"],
+        "rust_bin": "validate_ltee_biobrick",
+    },
 ]
 
 

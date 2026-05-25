@@ -221,6 +221,11 @@ EXPERIMENTS = [
         "python": [sys.executable, "control/ltee_citrate_innovation/ltee_citrate_innovation.py"],
         "rust_bin": "validate_ltee_citrate",
     },
+    {
+        "name": "Exp 040: LTEE BioBrick B6 (Anderson 2024)",
+        "python": [sys.executable, "control/ltee_biobrick_burden/ltee_biobrick_burden.py"],
+        "rust_bin": "validate_ltee_biobrick",
+    },
 ]
 
 # ── Rust-only experiments (029-034) ──────────────────────────────────────

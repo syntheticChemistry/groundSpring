@@ -1,6 +1,6 @@
 # groundSpring Primal Composition Gaps
 
-**Spring:** groundSpring V145
+**Spring:** groundSpring V146
 **Proto-nucleate:** `downstream_manifest.toml` (spring_name = "groundspring")
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement

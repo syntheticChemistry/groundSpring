@@ -43,6 +43,11 @@ const CORE_BINARIES: &[&str] = &[
     "validate_vendor_parity",
     "validate_tissue_anderson",
     "validate_et0_methods",
+    "validate_ltee_fitness",
+    "validate_ltee_neutral",
+    "validate_ltee_clonal",
+    "validate_ltee_citrate",
+    "validate_ltee_biobrick",
 ];
 
 /// Hardware-dependent binaries — skipped (not failed) only when the binary

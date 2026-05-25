@@ -162,7 +162,7 @@ mod tests {
 
     /// Provenance registry completeness test (neuralSpring V120 pattern).
     ///
-    /// Verifies all 29 benchmark JSONs are present and parseable at compile
+    /// Verifies all 32 benchmark JSONs are present and parseable at compile
     /// time. If a benchmark is added or removed, update `EXPECTED_BENCHMARKS`.
     #[test]
     #[expect(
@@ -170,7 +170,7 @@ mod tests {
         reason = "registry test is necessarily long — one entry per benchmark JSON"
     )]
     fn provenance_registry_completeness() {
-        const EXPECTED_BENCHMARKS: usize = 31;
+        const EXPECTED_BENCHMARKS: usize = 32;
 
         let benchmarks: &[(&str, &str)] = &[
             (
@@ -311,6 +311,12 @@ mod tests {
                 "ltee_citrate",
                 include_str!(
                     "../../../control/ltee_citrate_innovation/benchmark_ltee_citrate.json"
+                ),
+            ),
+            (
+                "ltee_biobrick",
+                include_str!(
+                    "../../../control/ltee_biobrick_burden/benchmark_ltee_biobrick.json"
                 ),
             ),
         ];

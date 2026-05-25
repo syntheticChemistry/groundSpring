@@ -10,8 +10,17 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 - New deploy graph: `groundspring_nest_sync.toml` — stages LTEE artifacts from eastGate NestGate to ironGate via Songbird mesh. Content-addressed, BLAKE3-verified, skip-existing conflict resolution.
 - Cross-gate degradation behavior documented in `docs/DEGRADATION_BEHAVIOR.md`.
 
-#### Documentation
-- `DEGRADATION_BEHAVIOR.md`: Updated to V146 with eastGate 12/12 NUCLEUS status. Added cross-gate degradation table for covalent HPC scenarios.
+#### Documentation & Debt Sweep
+- Swept all root/spec docs to V146: README, CONTEXT, CONTROL_EXPERIMENT_STATUS, specs/, whitePaper/, metalForge/, sporeprint.
+- Fixed graph count (6 → 7), scenario count (10 → 11), Python test count (294/375 → 455), biomeOS version (v3.51 → v3.75) across 20+ documents.
+- README hardware table corrected: 32GB DDR5 (was 64GB), removed Titan V (biomeGate, not eastGate).
+- Added LTEE B6 (`validate_ltee_biobrick`) to `run_all_baselines.sh`, `parity_report.py`, `bench_rust_vs_python.py`, `bench_barracuda_cpu_vs_python.py`.
+- Updated `validate_all.rs` CORE_BINARIES: 28 → 33 (added 5 LTEE validators).
+- Updated `provenance_registry_completeness`: 31 → 32 benchmarks (added `ltee_biobrick`).
+- Added `gate-deployment-validation` to `docs/VALIDATION_TIERS.md` Tier 2 table.
+- Notebook `01-composition-validation.ipynb`: 7 graphs, 11 scenarios, V146 provenance, `groundspring_unibin` reproduce command.
+- Gate deployment handoff updated with Wave 50 nest.sync status and checklist items.
+- Batch version-stamp sweep: specs/ headers May 16 → May 25, V145 → V146.
 - PRIMAL_GAPS: Wave 50 audit trail.
 
 ### V146 Wave 48 Covalent Mesh Sound-Off (May 25, 2026)

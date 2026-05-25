@@ -1,6 +1,6 @@
 # groundSpring — Paper Review Queue
 
-**Last Updated**: May 16, 2026 (V145)
+**Last Updated**: May 25, 2026 (V146)
 **Purpose**: Track papers for reproduction/review, ordered by priority
 
 ---
@@ -45,7 +45,7 @@
 
 **Phase 0**: ~276 checks (Python, 29 experiments). **Phase 1**: 461/461 PASS (Rust, 39 experiments / 39 binaries). **Speedup**: 11.5× median (excl. LAPACK-bound), 47.7× peak (Sturm tridiag).
 **Mathematical Parity**: 29/29 PROVEN — Python and Rust both pass against shared benchmark JSONs (Exp 029–033 have no Python baseline).
-**Current (V145, May 17)**: 461/461 checks, 1,123 Rust tests, 294 Python tests, 138 metalForge checks. LTEE B1–B4, B6 COMPLETE → `lithoSpore` modules 1–5 with BLAKE3 manifest. 20 IPC methods + 3 signal dispatch paths across 7 primals. 39 experiments (39 binaries). Wave 20 schema standardization. B7 deferred to Tier 2 (requires real 264-genome data from SRA PRJNA294072).
+**Current (V146, May 25)**: 461/461 checks, 1,123 Rust tests, 455 Python tests, 138 metalForge checks. LTEE B1–B4, B6 COMPLETE → `lithoSpore` modules 1–5 with BLAKE3 manifest. 20 IPC methods + 3 signal dispatch paths across 7 primals. 39 experiments (39 binaries). eastGate 12/12 NUCLEUS ALIVE. B7 deferred to Tier 2 (requires real 264-genome data from SRA PRJNA294072).
 **LTEE summary**: B2 (Exp 036, 10/10), B1 (Exp 037, 8/8), B3 (Exp 038, 7/7), B4 (Exp 039, 8/8), B6 (Exp 040, 34/34). All have `expected_values.json` + Rust validation binaries with `--format json`.
 **Tier 4 IPC-first (V128)**: `barracuda` removed from default features; IPC via `CompositionContext` is the default. `local` feature for opt-in library linkage.
 **GPU dispatch**: 16 modules wired for `barracuda-gpu` — 110 delegations (67 CPU + 43 GPU), barraCuda v0.4.0, toadStool S158+. 30 metalForge workloads (24 GPU + 2 NPU + 2 CPU-only + 2 mixed).

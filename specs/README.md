@@ -1,7 +1,7 @@
 # groundSpring Specifications
 
-**Last Updated**: May 16, 2026
-**Status**: V146 — Wave 46 absorption + eastGate deployment. 461/461 PASS (340 core + 55 NUCLEUS + 66 LTEE). 1,123 Rust tests, 294 Python tests, 138 metalForge checks, 29 integration tests. 39 experiments, 41 modules. 20 IPC methods + 3 signal dispatch paths across 7 primals. Registry 458. Dark Forest gate. BLAKE3 ingestion manifest for lithoSpore. LTEE B1–B4, B6. Three-tier parity: 29/29. barraCuda v0.4.0. guideStone Level 4. Tier 4 IPC-first. Zero clippy, zero unsafe.
+**Last Updated**: May 25, 2026
+**Status**: V146 — Wave 50 covalent HPC. eastGate 12/12 NUCLEUS ALIVE. 461/461 PASS (340 core + 55 NUCLEUS + 66 LTEE). 1,123 Rust tests, 455 Python tests, 138 metalForge checks, 29 integration tests. 39 experiments, 41 modules. 20 IPC methods + 3 signal dispatch paths across 7 primals. Registry 458. 7 deploy graphs, 11 scenarios. BLAKE3 ingestion manifest for lithoSpore. LTEE B1–B4, B6. Three-tier parity: 29/29. barraCuda v0.4.0. guideStone Level 4. Tier 4 IPC-first. Zero clippy, zero unsafe.
 **Domain**: Measurement noise, inverse problems, sensing systems, uncertainty quantification
 
 ---

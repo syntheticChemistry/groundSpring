@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: May 25, 2026 (V146 — Wave 48 covalent mesh sound-off. eastGate operational. Registry 458, Dark Forest gate, primalSpring v0.9.27.)
+**Last Updated**: May 25, 2026 (V146 — Wave 50 covalent HPC. eastGate 12/12 NUCLEUS ALIVE. 7 deploy graphs, 11 scenarios. Registry 458, primalSpring v0.9.27. Cross-gate nest.sync.)
 
 ## What This Is
 
@@ -18,7 +18,7 @@ prioritize absorption, evolve primitives, and validate GPU parity.
 
 | Version | File | Date | Scope |
 |---------|------|------|-------|
-| Gate Deploy | [GROUNDSPRING_GATE_DEPLOYMENT_MAY23_2026.md](handoffs/GROUNDSPRING_GATE_DEPLOYMENT_MAY23_2026.md) | May 23, 2026 | eastGate deployment status, proto-nucleate composition, multi-domain validation plan |
+| Gate Deploy | [GROUNDSPRING_GATE_DEPLOYMENT_MAY23_2026.md](handoffs/GROUNDSPRING_GATE_DEPLOYMENT_MAY23_2026.md) | May 25, 2026 | eastGate 12/12 NUCLEUS ALIVE, Wave 50 nest.sync cross-gate, multi-domain validation plan |
 
 **Archived**: V123–V145 handoffs moved to `handoffs/archive/`.
 

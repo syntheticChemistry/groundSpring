@@ -219,6 +219,11 @@ EXPERIMENTS = [
         "python": [sys.executable, "control/ltee_citrate_innovation/ltee_citrate_innovation.py"],
         "rust_bin": "validate_ltee_citrate",
     },
+    {
+        "name": "LTEE BioBrick B6 (Exp 040)",
+        "python": [sys.executable, "control/ltee_biobrick_burden/ltee_biobrick_burden.py"],
+        "rust_bin": "validate_ltee_biobrick",
+    },
 ]
 
 # NPU experiment (requires /dev/akida0 + npu feature)

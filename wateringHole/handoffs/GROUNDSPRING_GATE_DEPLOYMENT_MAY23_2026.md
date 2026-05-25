@@ -4,8 +4,8 @@
 **Gate**: eastGate
 **Hardware**: i9-12900, RTX 4070 + Akida NPU, 32GB DDR5
 **Co-residents**: primalSpring (coordinator), airSpring
-**NUCLEUS Composition**: Full NUCLEUS (13 primals) + `groundspring_cell.toml` overlay
-**Status**: OPERATIONAL — covalent mesh sound-off complete
+**NUCLEUS Composition**: Full NUCLEUS (12/12 primals ALIVE) + `groundspring_cell.toml` overlay
+**Status**: OPERATIONAL — Wave 50 covalent HPC, cross-gate nest.sync staged
 
 ---
 
@@ -81,11 +81,14 @@ Other gate residents (primalSpring, ludoSpring) can discover and call groundSpri
 
 ### What Works
 
-- All 6 deploy graphs carry Dark Forest gate metadata (`secure_by_default`, `uds_only`, `MethodGate`)
+- All 7 deploy graphs carry Dark Forest gate metadata (`secure_by_default`, `uds_only`, `MethodGate`)
+- `groundspring_nest_sync.toml` — cross-gate LTEE artifact staging (eastGate → ironGate backup)
 - Registry cross-sync at 458 methods (primalSpring v0.9.27)
 - 20 IPC methods wired across 7 primals with `try_*` graceful degradation
 - 3 signal dispatch paths (`nest.store`, `nest.commit`, `primal.announce`)
+- 11 validation scenarios (9 Tier 1 + 2 Tier 2 including `gate-deployment-validation`)
 - GuideStone Level 4 self-validation (bare + NUCLEUS layers)
+- Cross-gate degradation documented — local science independent of remote gate availability
 - All IPC uses runtime discovery — no hardcoded socket paths
 
 ### What Needs Live Validation
@@ -139,5 +142,7 @@ Expected interaction patterns:
 - [x] Cell graph: `plasmidBin/cells/groundspring_cell.toml`
 - [x] Songbird federation port 7700 (cross-gate LAN discovery)
 - [x] Covalent mesh sound-off complete (Wave 48)
+- [x] Cross-gate nest.sync graph deployed (Wave 50 — eastGate → ironGate LTEE backup)
+- [x] Cross-gate degradation behavior documented
 - [ ] Live `capability.call` cross-gate verified (eastGate → biomeGate physics, southGate biology)
 - [ ] Multi-spring concurrent validation (with airSpring on eastGate)

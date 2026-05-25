@@ -1,7 +1,7 @@
 # groundSpring Validation Tiers
 
-**Date**: May 16, 2026
-**primalSpring**: v0.9.27 | **groundSpring**: V145
+**Date**: May 25, 2026
+**primalSpring**: v0.9.27 | **groundSpring**: V146
 
 ---
 
@@ -73,6 +73,7 @@ groundspring_unibin certify --layer 4
 | ID | Track | Provenance |
 |----|-------|-----------|
 | nucleus-composition-parity | composition-parity | exp094_composition_parity |
+| gate-deployment-validation | composition-parity | groundspring (Wave 46+) |
 
 ### Graceful Degradation
 

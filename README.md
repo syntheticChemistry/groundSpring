@@ -7,7 +7,7 @@
 [![ecoBin](https://img.shields.io/badge/ecoBin-compliant-green.svg)](https://github.com/ecoPrimals/wateringHole/blob/main/ECOBIN_ARCHITECTURE_STANDARD.md)
 
 **Date**: May 25, 2026 | **License**: AGPL-3.0-or-later | **MSRV**: Rust 1.87 (2024 edition)
-**Status**: V146 — eastGate operational (Wave 48 covalent mesh). Registry 458. Dark Forest gate. 5 LTEE reproductions (B1-B4, B6). **20 IPC methods + 3 signal dispatch paths across 7 primals**. **1,123 tests**, zero clippy, zero fmt diff. 461/461 checks + 138 metalForge + 29 integration. 39 experiments. guideStone Level 4. Tier 4 IPC-first. barraCuda v0.4.0, coralReef v0.1.0, primalSpring v0.9.27.
+**Status**: V146 — eastGate 12/12 NUCLEUS ALIVE (Wave 50 covalent HPC). Registry 458. 7 deploy graphs, 11 scenarios. 5 LTEE reproductions (B1-B4, B6). **20 IPC methods + 3 signal dispatch paths across 7 primals**. **1,123 Rust + 455 Python tests**, zero clippy, zero fmt diff. 461/461 checks + 138 metalForge + 29 integration. 39 experiments. guideStone Level 4. Tier 4 IPC-first. biomeOS v3.75. barraCuda v0.4.0, coralReef v0.1.0, primalSpring v0.9.27.
 
 **The gap between what models predict and what instruments measure.**
 
@@ -186,7 +186,7 @@ cargo run --features biomeos --bin validate_iris_seismic
 
 ```bash
 pip install -e ".[dev]"
-python3 -m pytest tests/ -v       # 39 experiments (294 tests)
+python3 -m pytest tests/ -v       # 39 experiments (455 tests)
 ruff check control/ tests/        # zero errors
 mypy control/ tests/              # zero errors
 ```
@@ -382,7 +382,7 @@ groundSpring/
 ├── graphs/                         # biomeOS pipeline graphs (deploy, Tower, Node, cross-substrate, validation)
 ├── niches/                         # BYOB niche YAML definitions (groundspring-measurement)
 ├── .github/workflows/ci.yml        # GitHub Actions CI
-├── wateringHole/                   # Handoff directory (V145 current)
+├── wateringHole/                   # Handoff directory (V146 current)
 ├── specs/
 │   ├── BARRACUDA_EVOLUTION.md      # Module → GPU promotion mapping + PRNG roadmap
 │   ├── BARRACUDA_REQUIREMENTS.md   # GPU kernel gap analysis
@@ -406,10 +406,9 @@ Same as all ecoPrimals springs:
 
 | Component | Specification |
 |-----------|--------------|
-| CPU | Intel i9-12900K (16C/24T, 5.2 GHz) |
-| RAM | 64 GB DDR5-4800 |
+| CPU | Intel i9-12900 (16C/24T, 5.2 GHz) |
+| RAM | 32 GB DDR5-4800 |
 | GPU | NVIDIA GeForce RTX 4070 (12 GB VRAM) |
-| GPU | NVIDIA Titan V (12 GB HBM2) |
 | NPU | BrainChip AKD1000 (80 NPs, 10 MB SRAM, PCIe 2.0 x1) |
 | Storage | 1 TB NVMe SSD |
 | OS | Pop!_OS 22.04 (Ubuntu-based) |
@@ -457,5 +456,6 @@ AGPL-3.0-or-later — See [LICENSE](LICENSE)
 | V143 | May 16 | Wave 17 signal adoption: `primal.announce` + `nest.store` dispatch, GAP-GS-015 resolved |
 | V144 | May 16 | Wave 20 schema standardization: `capability.list` canonical envelope, `nest.commit` signal, registry 445 |
 | V145 | May 16 | LTEE B6 BioBrick Burden (Anderson disorder analogy): Python 7/7, Rust 34/34, lithoSpore module 5 |
+| V146 | May 25 | Wave 50 covalent HPC: eastGate 12/12 ALIVE, 7 deploy graphs, 11 scenarios, nest.sync cross-gate, 455 Python tests |
 
 Part of [ecoPrimals](https://github.com/syntheticChemistry) · [wateringHole](https://github.com/ecoPrimals/wateringHole) · AGPL-3.0-or-later

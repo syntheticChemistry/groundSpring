@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: May 23, 2026 (V146 — Wave 46 absorption + eastGate deployment prep. Registry 458 (primalSpring v0.9.27). Dark Forest gate on 6 deploy graphs. Gate deployment scenario (11 scenarios). 1,123 tests, ≥92% library coverage, 0 clippy warnings, 0 fmt diff. guideStone Level 4. LTEE B1–B4, B6 complete → `lithoSpore` modules 1–5. 39 experiments, 461/461 checks, 39 validation binaries. 20 IPC methods + 3 signal dispatch paths across 7 primals. Tier 4 IPC-first. barraCuda v0.4.0. primalSpring v0.9.27.)
+**Last updated**: May 25, 2026 (V146 — Wave 50 covalent HPC. eastGate 12/12 NUCLEUS ALIVE. Registry 458 (primalSpring v0.9.27). Dark Forest gate on 7 deploy graphs. 11 scenarios. 1,123 tests, ≥92% library coverage, 0 clippy warnings, 0 fmt diff. guideStone Level 4. LTEE B1–B4, B6 complete → `lithoSpore` modules 1–5. 39 experiments, 461/461 checks, 39 validation binaries. 20 IPC methods + 3 signal dispatch paths across 7 primals. Tier 4 IPC-first. barraCuda v0.4.0. primalSpring v0.9.27.)
 
 ## Experiment Register
 
@@ -464,8 +464,8 @@ Ports Exp 028 NPU Anderson regime classification. Verifies int8 quantized classi
 | Rust biomeos | 32 | biomeOS client + integration tests (feature-gated) |
 | **Total Rust (default)** | **1,123** | |
 | **Total Rust (barracuda-gpu)** | **814** | |
-| **Total Python** | **375** | (+3 skipped) |
-| **Grand Total** | **1,182** | |
+| **Total Python** | **455** | (+3 skipped) |
+| **Grand Total** | **1,578** | |
 
 
 ## Run Log
@@ -566,7 +566,7 @@ Each experiment is validated at three hardware tiers:
 | **GPU** | `barracuda` feature + GPU adapter | GPU matches CPU within tolerance |
 | **metalForge** | Mixed hardware dispatch | Cross-substrate agreement |
 
-### Current Status (V145)
+### Current Status (V146)
 
 | # | Experiment | CPU | GPU | metalForge | GPU Status |
 |---|-----------|:---:|:---:|:----------:|------------|
@@ -820,7 +820,8 @@ metalForge                        ─── cross-system: GPU → NPU → CPU pe
 | V80: Fused Ops + BarraCuda Catch-Up | 87 delegations (51 CPU + 36 GPU), 812 tests, barraCuda v0.3.3+, toadStool S94b | Archived |
 | V81: Modern Rewire + coralReef | 88 delegations (51 CPU + 37 GPU), 812+ tests, barraCuda `0bd401f`, toadStool S94b, coralReef (390 tests), 27/27 cross-spring | Archived |
 | V119: deep audit + absorption | 110 delegations (67 CPU + 43 GPU), 1020+ tests, ≥92% coverage, publish hygiene, MSRV 1.85, provenance registry, cast parity, IPC isolation | Archived |
-| V145: LTEE B6 BioBrick Burden + Wave 20 | 110 delegations (67 CPU + 43 GPU), 1,123 tests, 461/461 checks, 39 binaries, `capability.list` / `nest.commit`, lithoSpore B6 | **Current** |
+| V146: Wave 50 covalent HPC | eastGate 12/12 NUCLEUS ALIVE. 7 deploy graphs, 11 scenarios. 1,123 Rust + 455 Python tests, 461/461 checks, 39 experiments. Registry 458. Cross-gate nest.sync. biomeOS v3.75 | **Current** |
+| V145: LTEE B6 BioBrick Burden + Wave 20 | 110 delegations (67 CPU + 43 GPU), 1,123 tests, 461/461 checks, 39 binaries, `capability.list` / `nest.commit`, lithoSpore B6 | Archived |
 | V118: deep audit + RPC expansion | 110 delegations (67 CPU + 43 GPU), 960+ tests, 16 capabilities, 30 proptests, DefaultRng production migration, spectral_recon GPU GEMM, provenance hardening, CI Python 90% | Archived |
 | V116: typed error evolution | 102 delegations (61 CPU + 41 GPU), 960+ tests, `DispatchError`/`EsnError`/`ResilienceError<E>`, `ValidationSink`, Format C/D, `OnceLock` GPU probe, RAWR extraction, named dispatch constants | Archived |
 | V115: cross-ecosystem deep absorption | 102 delegations (61 CPU + 41 GPU), 930+ tests, safe_cast expansion, health probes, resilient_call, OrExit evolution, zero eprintln/expect/allow | Archived |
