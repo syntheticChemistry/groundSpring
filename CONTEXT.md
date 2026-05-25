@@ -88,6 +88,18 @@ When running as a biomeOS primal (`--features biomeos`), groundSpring exposes
 - [wetSpring](https://github.com/syntheticChemistry/wetSpring) — microbiome ecology (cross-spring bio shaders)
 - [airSpring](https://github.com/syntheticChemistry/airSpring) — atmospheric science (FAO-56 source)
 
+## Gate Deployment
+
+| Field | Value |
+|-------|-------|
+| **Gate** | pending — declare your gate |
+| **Composition** | Node Atomic (6 primals) |
+| **NUCLEUS status** | pending |
+| **Songbird federation** | port 7700 |
+| **LAN mesh** | ready when NUCLEUS deployed |
+| **Cell graph** | `plasmidBin/cells/groundspring_cell.toml` |
+| **Launch** | `SONGBIRD_FEDERATION_PORT=7700 ./tools/nucleus_launcher.sh start` then `./tools/cell_launcher.sh groundspring start` |
+
 ## Design Philosophy
 
 groundSpring is built using AI-assisted constrained evolution. Rust's compiler
