@@ -3,7 +3,7 @@
 **Spring**: groundSpring V146
 **Gate**: eastGate
 **Hardware**: i9-12900, RTX 4070 + Akida NPU, 32GB DDR5
-**Co-residents**: primalSpring (coordinator), neuralSpring
+**Co-residents**: primalSpring (coordinator), airSpring
 **NUCLEUS Composition**: Full NUCLEUS (13 primals) + `groundspring_cell.toml` overlay
 **Status**: OPERATIONAL — covalent mesh sound-off complete
 
@@ -96,7 +96,7 @@ Other gate residents (primalSpring, ludoSpring) can discover and call groundSpri
 - [ ] `barracuda.precision.route` returns precision strategy for `stats.mean`
 - [ ] `content.put` + `content.get` roundtrip succeeds via NestGate
 - [ ] `nest.store` signal dispatch collapses multi-call provenance chain
-- [ ] Multi-spring contention: groundSpring + neuralSpring concurrent on same NUCLEUS
+- [ ] Multi-spring contention: groundSpring + airSpring concurrent on same NUCLEUS
 - [ ] `toadstool.validate` confirms workload viability for measurement domain
 - [ ] Akida NPU discovery via `compute.device.enumerate` (eastGate unique hardware)
 
@@ -114,15 +114,15 @@ Other gate residents (primalSpring, ludoSpring) can discover and call groundSpri
 
 eastGate hosts 3 springs:
 - **primalSpring**: Coordinator — 49 scenarios, registry validation, graph orchestration
-- **neuralSpring**: ML inference — Squirrel pipeline, weight persistence, NestGate heavy
+- **airSpring**: Agriculture — FAO-56 equations, ecological validation, Node + Nest balanced
 - **groundSpring**: Measurement — Node + Nest balanced, science-local math
 
 Expected interaction patterns:
-- All three register with Songbird (separate capability domains: `coordination.*`, `inference.*`, `measurement.*`)
+- All three register with Songbird (separate capability domains: `coordination.*`, `agriculture.*`, `measurement.*`)
 - No capability name collisions (domains are disjoint)
 - Socket namespace: each spring uses its own UDS path under `/run/user/$UID/biomeos/`
-- Resource contention risk: barraCuda GPU (RTX 4070) shared between neuralSpring ML inference and groundSpring measurement dispatch
-- NPU opportunity: Akida NPU available for int8-quantized workloads (neuralSpring primary consumer, groundSpring optional)
+- Resource contention risk: barraCuda GPU (RTX 4070) shared between airSpring agricultural compute and groundSpring measurement dispatch
+- NPU opportunity: Akida NPU available for int8-quantized workloads (optional for both domain springs)
 
 ---
 
@@ -140,4 +140,4 @@ Expected interaction patterns:
 - [x] Songbird federation port 7700 (cross-gate LAN discovery)
 - [x] Covalent mesh sound-off complete (Wave 48)
 - [ ] Live `capability.call` cross-gate verified (eastGate → biomeGate physics, southGate biology)
-- [ ] Multi-spring concurrent validation (with neuralSpring on eastGate)
+- [ ] Multi-spring concurrent validation (with airSpring on eastGate)

@@ -7,7 +7,7 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 ### V146 Wave 48 Covalent Mesh Sound-Off (May 25, 2026)
 
 #### Gate Deployment
-- **eastGate declared**: i9-12900, RTX 4070 + Akida NPU, 32GB DDR5. Shared NUCLEUS with primalSpring (coordinator) and neuralSpring.
+- **eastGate declared**: i9-12900, RTX 4070 + Akida NPU, 32GB DDR5. Shared NUCLEUS with primalSpring (coordinator) and airSpring.
 - CONTEXT.md `## Gate Deployment` section populated with operational status.
 - Cell graph: `plasmidBin/cells/groundspring_cell.toml` (NUCLEUS base + geoscience domain + petalTongue live).
 - Songbird TCP federation port 7700 for cross-gate LAN discovery.

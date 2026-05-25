@@ -223,7 +223,7 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 - Tier 4 guidestone rewiring (G column): Dark Forest gate resolved. Scenario expansion toward 49-scenario upstream surface is next evolution.
 
 ### Post-Primordial Covalent Gate (May 23, 2026)
-- **Gate assignment**: eastGate (i9-12900, RTX 4070, Akida NPU) with primalSpring + neuralSpring
+- **Gate assignment**: eastGate (i9-12900, RTX 4070, Akida NPU) with primalSpring + airSpring
 - **Proto-nucleate composition**: 6 primals (beardog, songbird, coralreef, toadstool, barracuda, nestgate)
 - **Handoff posted**: `GROUNDSPRING_GATE_DEPLOYMENT_MAY23_2026.md`
 - **Gaps surfaced upstream**:

@@ -99,7 +99,7 @@ When running as a biomeOS primal (`--features biomeos`), groundSpring exposes
 | **Songbird federation** | port 7700 |
 | **LAN mesh** | covalently linked (eastGate ↔ ironGate, southGate, biomeGate) |
 | **Cell graph** | `plasmidBin/cells/groundspring_cell.toml` |
-| **Co-residents** | primalSpring (coordinator), neuralSpring |
+| **Co-residents** | primalSpring (coordinator), airSpring |
 | **Launch** | `SONGBIRD_FEDERATION_PORT=7700 ./tools/nucleus_launcher.sh start` then `./tools/cell_launcher.sh groundspring start` |
 
 ## Design Philosophy
