@@ -4,6 +4,19 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V146 Wave 48 Covalent Mesh Sound-Off (May 25, 2026)
+
+#### Gate Deployment
+- **eastGate declared**: i9-12900, RTX 4070 + Akida NPU, 32GB DDR5. Shared NUCLEUS with primalSpring (coordinator) and neuralSpring.
+- CONTEXT.md `## Gate Deployment` section populated with operational status.
+- Cell graph: `plasmidBin/cells/groundspring_cell.toml` (NUCLEUS base + geoscience domain + petalTongue live).
+- Songbird TCP federation port 7700 for cross-gate LAN discovery.
+- biomeOS v3.75 cross-gate `capability.call` routing available.
+
+#### Documentation
+- biomeOS version updated (v3.51 → v3.75).
+- Handoff updated with operational status and Wave 48 checklist.
+
 ### V146 Wave 46 Absorption — Dark Forest Gate + Registry 458 (May 23, 2026)
 
 #### Registry Sync

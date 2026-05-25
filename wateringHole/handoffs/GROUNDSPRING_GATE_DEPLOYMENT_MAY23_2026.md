@@ -1,11 +1,11 @@
-# groundSpring Gate Deployment Status — eastGate (May 23, 2026)
+# groundSpring Gate Deployment Status — eastGate (May 25, 2026)
 
 **Spring**: groundSpring V146
 **Gate**: eastGate
-**Hardware**: i9-12900, RTX 4070, Akida NPU, 64GB DDR5
+**Hardware**: i9-12900, RTX 4070 + Akida NPU, 32GB DDR5
 **Co-residents**: primalSpring (coordinator), neuralSpring
-**NUCLEUS Composition**: `groundspring_proto_nucleate` (from `downstream_manifest.toml`)
-**Status**: READY FOR LIVE VALIDATION
+**NUCLEUS Composition**: Full NUCLEUS (13 primals) + `groundspring_cell.toml` overlay
+**Status**: OPERATIONAL — covalent mesh sound-off complete
 
 ---
 
@@ -135,6 +135,9 @@ Expected interaction patterns:
 - [x] GuideStone Level 4 (self-validating)
 - [x] `try_*` wrappers for graceful degradation (primals absent → `Ok(None)`)
 - [x] plasmidBin binaries present (13/13 in `primals/x86_64-unknown-linux-musl/`)
-- [ ] Live composition deployed and validated on eastGate
-- [ ] Multi-spring concurrent validation (with neuralSpring)
-- [ ] handoff posted to wateringHole confirming live status
+- [x] Gate declared: eastGate (shared NUCLEUS with primalSpring)
+- [x] Cell graph: `plasmidBin/cells/groundspring_cell.toml`
+- [x] Songbird federation port 7700 (cross-gate LAN discovery)
+- [x] Covalent mesh sound-off complete (Wave 48)
+- [ ] Live `capability.call` cross-gate verified (eastGate → biomeGate physics, southGate biology)
+- [ ] Multi-spring concurrent validation (with neuralSpring on eastGate)

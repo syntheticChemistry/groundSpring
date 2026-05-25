@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: May 23, 2026 (V146 — Wave 46 absorption + eastGate deployment prep. Registry 458, Dark Forest gate, primalSpring v0.9.27. Post-primordial covalent gate phase.)
+**Last Updated**: May 25, 2026 (V146 — Wave 48 covalent mesh sound-off. eastGate operational. Registry 458, Dark Forest gate, primalSpring v0.9.27.)
 
 ## What This Is
 

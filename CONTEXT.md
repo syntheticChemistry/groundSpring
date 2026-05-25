@@ -42,7 +42,7 @@ for noise characterization and uncertainty quantification.
 - **primalSpring:** v0.9.27 pinned for `CompositionContext`, `ScenarioMeta`, `ScenarioRegistry`
 - **Tier 4 IPC-first:** `barracuda` optional everywhere (`groundspring` + `metalForge`); IPC via `CompositionContext` is the default; `local` feature for opt-in direct library linkage; workspace builds clean without barraCuda source tree
 - **metalForge decoupled:** GPU probing uses `pollster` (not barracuda); `barracuda-gpu` feature-gates hardware-specific APIs
-- **biomeOS v3.51:** `composition.status` (health/monitoring) + `method.register` (dynamic registration) absorbed
+- **biomeOS v3.75:** `composition.status` (health/monitoring) + `method.register` (dynamic registration) + `capability.call` cross-gate routing via Songbird mesh
 - **skunkBat:** `security.audit_log` wired into all 6 deploy graphs (non-blocking, `fallback = "skip"`)
 - **plasmidBin:** 1.1M stripped release binary in `infra/plasmidBin/springs/`
 - **Foundation Thread 7:** Anderson Mathematics 18/18 targets PASS (dated run `anderson-20260511`)
@@ -92,12 +92,14 @@ When running as a biomeOS primal (`--features biomeos`), groundSpring exposes
 
 | Field | Value |
 |-------|-------|
-| **Gate** | pending — declare your gate |
-| **Composition** | Node Atomic (6 primals) |
-| **NUCLEUS status** | pending |
+| **Gate** | eastGate |
+| **Hardware** | i9-12900, RTX 4070 + Akida NPU, 32GB DDR5 |
+| **Composition** | Full NUCLEUS (13 primals via plasmidBin) |
+| **NUCLEUS status** | operational (shared with primalSpring) |
 | **Songbird federation** | port 7700 |
-| **LAN mesh** | ready when NUCLEUS deployed |
+| **LAN mesh** | covalently linked (eastGate ↔ ironGate, southGate, biomeGate) |
 | **Cell graph** | `plasmidBin/cells/groundspring_cell.toml` |
+| **Co-residents** | primalSpring (coordinator), neuralSpring |
 | **Launch** | `SONGBIRD_FEDERATION_PORT=7700 ./tools/nucleus_launcher.sh start` then `./tools/cell_launcher.sh groundspring start` |
 
 ## Design Philosophy
