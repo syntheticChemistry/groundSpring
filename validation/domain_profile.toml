@@ -1,0 +1,145 @@
+# Domain Profile: LTEE Evolutionary Biology
+# Covers fitness trajectories, mutation accumulation, allele dynamics,
+# citrate innovation, biobrick burden, genomic resequencing, and
+# Anderson QS population models.
+
+[profile]
+id = "ltee-evolutionary-biology"
+version = "1.0.0"
+domain = "evolutionary-biology"
+subdomain = ["long-term-evolution", "population-genetics", "experimental-evolution"]
+tools = ["breseq", "R", "Python"]
+methods = ["mutation-accumulation", "competition-assay", "whole-genome-resequencing"]
+
+[translation]
+# Domain concepts → computation mappings
+
+[[translation.entity_groups]]
+name = "fitness_trajectories"
+domain_description = "Relative fitness over 82,500 generations (power-law model)"
+computation = "Nonlinear regression (Nelder-Mead + AIC/BIC selection)"
+modules = ["module1_fitness"]
+
+[[translation.entity_groups]]
+name = "mutation_rate"
+domain_description = "Genome-wide point mutation and IS-element insertion rates"
+computation = "SNP/indel accumulation per genome per generation"
+modules = ["module2_mutations"]
+
+[[translation.entity_groups]]
+name = "allele_frequency"
+domain_description = "Competing-clade dynamics and fixation probabilities"
+computation = "Allele frequency trajectory analysis (Good 2017 replication)"
+modules = ["module3_alleles"]
+
+[[translation.entity_groups]]
+name = "citrate_innovation"
+domain_description = "Cit+ potentiation window and two-hit model (Blount 2008/2012)"
+computation = "Historical contingency and replay probability analysis"
+modules = ["module4_citrate"]
+
+[[translation.entity_groups]]
+name = "biobrick_burden"
+domain_description = "Synthetic biology fitness cost (Burden 2024)"
+computation = "Growth rate comparison with/without plasmid load"
+modules = ["module5_biobricks"]
+
+[[translation.entity_groups]]
+name = "genomic_resequencing"
+domain_description = "Whole-genome resequencing across populations (Tenaillon 2016)"
+computation = "breseq variant calling and cross-population comparison"
+modules = ["module6_breseq"]
+
+[[translation.entity_groups]]
+name = "anderson_population"
+domain_description = "Quorum sensing and population dynamics models"
+computation = "ODE integration of Anderson QS network"
+modules = ["module7_anderson"]
+
+[derivation]
+# How LTEE output artifacts are produced from raw data
+
+[[derivation.pipeline]]
+name = "fitness_curve_fit"
+description = "Power-law, hyperbolic, and logarithmic model fits to relative fitness data"
+input = "expected_values.json (fitness time series)"
+output = "model_fits.json"
+tool = "lithoSpore Tier 2 (pure Rust)"
+
+[[derivation.pipeline]]
+name = "mutation_accumulation"
+description = "Per-generation mutation rates from Barrick 2009 SNP/indel tables"
+input = "expected_values.json (mutation counts)"
+output = "accumulation_rates.json"
+tool = "lithoSpore Tier 2 (pure Rust)"
+
+[[derivation.pipeline]]
+name = "breseq_comparison"
+description = "Variant calling comparison across LTEE populations"
+input = "breseq output directories"
+output = "cross_population_summary.json"
+tool = "breseq + lithoSpore Tier 2"
+
+[audit]
+# Validation checks applicable to this domain
+
+[[audit.checks]]
+name = "data_completeness"
+description = "All 7 LTEE module datasets present with expected structure"
+applies_to = "all"
+
+[[audit.checks]]
+name = "golden_value_parity"
+description = "Tier 2 Rust output matches Tier 1 Python golden values within tolerance"
+applies_to = "all"
+
+[[audit.checks]]
+name = "generation_range"
+description = "Data spans expected generation range (0–82,500 for fitness/mutations)"
+applies_to = ["module1_fitness", "module2_mutations"]
+
+[[audit.checks]]
+name = "fixation_probability"
+description = "Computed fixation rates within expected biological range"
+applies_to = ["module3_alleles"]
+
+[[audit.checks]]
+name = "potentiation_window"
+description = "Cit+ potentiation timing consistent with Blount 2012 two-hit model"
+applies_to = ["module4_citrate"]
+
+[[audit.checks]]
+name = "cross_tier_parity"
+description = "Tier 1 (Python) and Tier 2 (Rust) produce statistically identical results"
+applies_to = "all"
+
+[figures]
+auto_generate = false
+
+[[figures.plot]]
+name = "fitness_power_law"
+module = "module1_fitness"
+type = "1d_line"
+x_axis = "Generation"
+y_axis = "Relative fitness"
+
+[[figures.plot]]
+name = "mutation_accumulation"
+module = "module2_mutations"
+type = "1d_scatter"
+x_axis = "Generation"
+y_axis = "Cumulative mutations"
+
+[[figures.plot]]
+name = "allele_trajectories"
+module = "module3_alleles"
+type = "1d_multi_line"
+x_axis = "Generation"
+y_axis = "Allele frequency"
+
+[[figures.plot]]
+name = "citrate_timeline"
+module = "module4_citrate"
+type = "1d_line"
+x_axis = "Generation"
+y_axis = "Cit+ fraction"
