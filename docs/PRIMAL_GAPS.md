@@ -5,7 +5,7 @@
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
 **Date:** April 27, 2026 (initial)
-**Last audited:** May 23, 2026 (V146 — Wave 46 absorption. Registry cross-sync raised to 458 (primalSpring v0.9.27). Dark Forest gate metadata on all 6 deploy graphs. primalSpring pin v0.9.27. 20 IPC methods + 3 signal paths)
+**Last audited:** May 30, 2026 (V146 — Wave 63 river delta. Squirrel provider.register wired. domain_profile.toml (measurement-uncertainty). CONTEXT.md clean. 7 deploy graphs, 11 scenarios. Temporal sync tooling verified.)
 **License:** AGPL-3.0-or-later
 
 ---
@@ -236,6 +236,15 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 - **NUCLEUS**: 12/12 ALIVE on eastGate via plasmidBin musl binaries
 - **nest.sync graph**: `graphs/groundspring_nest_sync.toml` for cross-gate LTEE artifact staging
 - **Cross-gate degradation**: Documented in `DEGRADATION_BEHAVIOR.md` — remote is always enrichment, local science never depends on remote gate
+
+### Wave 63 River Delta (May 30, 2026)
+- **CONTEXT.md**: Clean — discarded stale local edit (6→7 graphs revert). No drift.
+- **domain_profile.toml**: Created `domain_profile.toml` (measurement-uncertainty) for pseudoSpore emission. Existing `validation/domain_profile.toml` covers LTEE only.
+- **Squirrel composition**: Wired `register_with_squirrel()` in `biomeos/registration.rs` — calls `provider.register` with measurement capabilities, graceful fallback if Squirrel offline.
+- **Temporal sync**: `infra/wateringHole/scripts/cascade-pull.sh --source temporal` verified present and functional.
+- **No `composition_nucleus.sh`**: groundSpring never had one (clean).
+- **No `target/release/` hardcodes**: groundSpring already clean (verified Wave 50).
+- **Remaining**: Squirrel MCP server currently offline — live validation deferred until Squirrel is healthy. primalTools/bingoCube repo not cloned locally (optional `nautilus` feature).
 
 ---
 

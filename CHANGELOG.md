@@ -4,6 +4,22 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V146 Wave 63 River Delta (May 30, 2026)
+
+#### Squirrel Composition Integration
+- New: `register_with_squirrel()` in `biomeos/registration.rs` — registers groundSpring's 16 `measurement.*` capabilities with Squirrel AI coordinator via `provider.register` JSON-RPC. Graceful fallback if Squirrel offline.
+- Socket discovery: `SQUIRREL_SOCKET` env var → `$XDG_RUNTIME_DIR/biomeos/squirrel.sock` → `/run/user/{uid}/biomeos/squirrel.sock`.
+
+#### pseudoSpore Domain Profile
+- New: `domain_profile.toml` (root) — measurement-uncertainty domain profile covering 8 entity groups (sensor noise, observation gap, error propagation, inverse problems, Anderson localization, population dynamics, calibration datasets, signal processing). Enables `litho emit-pseudospore --spring groundSpring`.
+- Existing `validation/domain_profile.toml` unchanged (LTEE-specific for lithoSpore emission).
+
+#### Wave 63 Compliance
+- CONTEXT.md: discarded stale local edit (was reverting graph count 7→6); no actual drift.
+- Temporal sync: `cascade-pull.sh --source temporal` verified present in `infra/wateringHole`.
+- No `composition_nucleus.sh` (never had one — clean).
+- No `target/release/` hardcodes (verified Wave 50 — clean).
+
 ### V146 Wave 50 Covalent HPC (May 25, 2026)
 
 #### Cross-Gate Data Staging

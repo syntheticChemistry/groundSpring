@@ -200,6 +200,97 @@ pub fn deregister_capabilities(socket: &Path) -> Result<usize> {
     Ok(deregistered)
 }
 
+/// Register groundSpring as an AI-routable provider with Squirrel.
+///
+/// Squirrel's `provider.register` enables AI coordination routing to
+/// groundSpring's measurement capabilities. Unlike NUCLEUS registration
+/// (which handles IPC routing), Squirrel registration enables AI workload
+/// routing via the Model Context Protocol coordination layer.
+///
+/// Discovery: looks for `SQUIRREL_SOCKET` env var, then falls back to
+/// `$XDG_RUNTIME_DIR/biomeos/squirrel.sock`.
+///
+/// # Errors
+///
+/// Returns `Err` if the Squirrel socket is unavailable. This is non-fatal
+/// for normal operation (graceful degradation — AI routing unavailable).
+pub fn register_with_squirrel() -> Result<()> {
+    let squirrel_socket = discover_squirrel_socket()?;
+    let socket_path = server::socket_path();
+    let socket_str = socket_path.to_string_lossy().to_string();
+
+    let methods: Vec<&str> = MEASUREMENT_CAPABILITIES.to_vec();
+
+    let params = serde_json::json!({
+        "provider_id": FAMILY_ID,
+        "socket": socket_str,
+        "capabilities": methods,
+        "version": env!("CARGO_PKG_VERSION"),
+        "domain": MEASUREMENT_DOMAIN,
+        "priority": 128_u8,
+    });
+
+    let request = super::protocol::build_request("provider.register", &params);
+    match super::transport::rpc_call(&squirrel_socket, &request) {
+        Ok(response) => {
+            if super::protocol::extract_rpc_result(&response).is_ok() {
+                tracing::info!(
+                    provider_id = FAMILY_ID,
+                    capabilities = methods.len(),
+                    "registered with Squirrel AI coordinator"
+                );
+                Ok(())
+            } else {
+                tracing::warn!("Squirrel provider.register returned error in response");
+                Err(BiomeOsError::Registration(
+                    "Squirrel provider.register rejected".to_string(),
+                ))
+            }
+        }
+        Err(e) => {
+            tracing::debug!(error = %e, "Squirrel not available — AI routing disabled");
+            Err(e)
+        }
+    }
+}
+
+/// Discover the Squirrel UDS path.
+fn discover_squirrel_socket() -> Result<std::path::PathBuf> {
+    if let Ok(path) = std::env::var("SQUIRREL_SOCKET") {
+        let p = std::path::PathBuf::from(path);
+        if p.exists() {
+            return Ok(p);
+        }
+    }
+
+    let biomeos_dir = if let Ok(xdg) = std::env::var("XDG_RUNTIME_DIR") {
+        std::path::PathBuf::from(xdg).join("biomeos")
+    } else {
+        #[cfg(target_os = "linux")]
+        {
+            if let Ok(meta) = std::fs::metadata("/proc/self") {
+                use std::os::unix::fs::MetadataExt;
+                std::path::PathBuf::from(format!("/run/user/{}/biomeos", meta.uid()))
+            } else {
+                std::env::temp_dir().join("biomeos")
+            }
+        }
+        #[cfg(not(target_os = "linux"))]
+        {
+            std::env::temp_dir().join("biomeos")
+        }
+    };
+
+    let default_path = biomeos_dir.join("squirrel.sock");
+    if default_path.exists() {
+        return Ok(default_path);
+    }
+
+    Err(BiomeOsError::Discovery(
+        "Squirrel socket not found (set SQUIRREL_SOCKET or ensure squirrel is running)".to_string(),
+    ))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

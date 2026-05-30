@@ -1,0 +1,161 @@
+# Domain Profile: Measurement Noise & Uncertainty Quantification
+# groundSpring — primary domain profile for pseudoSpore emission
+#
+# Covers sensor noise characterization, inverse problems, error propagation,
+# calibration datasets, and statistical validation across 12 scientific domains.
+
+[profile]
+id = "measurement-uncertainty"
+version = "1.0.0"
+domain = "geoscience"
+subdomain = [
+    "measurement-noise",
+    "uncertainty-quantification",
+    "inverse-problems",
+    "calibration",
+    "error-propagation",
+]
+tools = ["Rust", "Python", "barraCuda GPU"]
+methods = [
+    "bias-variance-decomposition",
+    "monte-carlo-propagation",
+    "bootstrap-resampling",
+    "jackknife-estimation",
+    "anderson-localization",
+    "rarefaction-analysis",
+    "nelder-mead-optimization",
+]
+
+[translation]
+# Domain concepts → computation mappings
+
+[[translation.entity_groups]]
+name = "sensor_noise"
+domain_description = "Bias-variance decomposition for heteroscedastic measurement arrays"
+computation = "Welford online statistics + Pythagorean identity validation"
+modules = ["decompose", "stats"]
+
+[[translation.entity_groups]]
+name = "observation_gap"
+domain_description = "Model-observation discrepancy quantification (weather, seismic)"
+computation = "Agreement metrics (Willmott d, NSE, RMSE, KGE) with bootstrapped CI"
+modules = ["stats/agreement", "bootstrap"]
+
+[[translation.entity_groups]]
+name = "error_propagation"
+domain_description = "FAO-56 evapotranspiration uncertainty via Monte Carlo"
+computation = "Parameter sensitivity analysis + seasonal pipeline integration"
+modules = ["fao56", "fao56/pipeline"]
+
+[[translation.entity_groups]]
+name = "inverse_problems"
+domain_description = "Seismic inversion, spectral reconstruction, freeze-out fitting"
+computation = "L-BFGS, Nelder-Mead, Lanczos tridiagonalization"
+modules = ["seismic", "spectral_recon", "freeze_out", "lanczos"]
+
+[[translation.entity_groups]]
+name = "anderson_localization"
+domain_description = "1D/2D/tissue Anderson localization transition characterization"
+computation = "Transfer matrix method + finite-size scaling + IPR analysis"
+modules = ["anderson", "tissue_anderson"]
+
+[[translation.entity_groups]]
+name = "population_dynamics"
+domain_description = "Quasispecies error catastrophe, drift/selection, rare biosphere"
+computation = "Gillespie SSA, resampling convergence, diversity indices"
+modules = ["quasispecies", "drift", "rare_biosphere", "gillespie", "rarefaction"]
+
+[[translation.entity_groups]]
+name = "calibration_datasets"
+domain_description = "NPU/GPU/CPU cross-substrate calibration and precision drift"
+computation = "Vendor parity analysis, size convergence, precision routing"
+modules = ["metalForge", "npu"]
+
+[[translation.entity_groups]]
+name = "signal_processing"
+domain_description = "Signal specificity, band-edge localization, spin transport"
+computation = "Spectral analysis, tight-binding models, transfer matrices"
+modules = ["band_structure", "transport", "multisignal"]
+
+[derivation]
+# How measurement artifacts are produced
+
+[[derivation.pipeline]]
+name = "three_tier_parity"
+description = "Python baseline → Rust validation → GPU delegation, all within tolerance"
+input = "benchmark_*.json (expected values from Python Phase 0)"
+output = "validation results (exit code 0 = PASS)"
+tool = "groundspring_unibin validate"
+
+[[derivation.pipeline]]
+name = "metalforge_calibration"
+description = "Cross-substrate GPU/NPU/CPU measurement calibration"
+input = "metalForge workload descriptors"
+output = "calibration certificates (tolerance validation)"
+tool = "metalForge forge validators"
+
+[[derivation.pipeline]]
+name = "composition_validation"
+description = "NUCLEUS deploy graph and IPC contract validation"
+input = "graphs/*.toml + capability_registry.toml"
+output = "composition_validation.json"
+tool = "groundspring_unibin certify"
+
+[audit]
+# Validation checks for this domain
+
+[[audit.checks]]
+name = "three_tier_parity"
+description = "All 29 Python baselines matched by Rust within stated tolerances"
+applies_to = "all"
+
+[[audit.checks]]
+name = "determinism"
+description = "100 repeated runs produce identical output (fixed-seed PRNG)"
+applies_to = "all"
+
+[[audit.checks]]
+name = "gpu_delegation_parity"
+description = "barraCuda GPU results match CPU within epsilon (110 delegations)"
+applies_to = ["metalForge", "stats"]
+
+[[audit.checks]]
+name = "cross_substrate_calibration"
+description = "RTX 4070 + Akida NPU produce results within tolerance of CPU reference"
+applies_to = ["metalForge", "npu"]
+
+[[audit.checks]]
+name = "composition_ipc_parity"
+description = "Live NUCLEUS IPC methods produce identical results to local library"
+applies_to = ["biomeos"]
+
+[figures]
+auto_generate = false
+
+[[figures.plot]]
+name = "bias_variance_surface"
+module = "decompose"
+type = "2d_heatmap"
+x_axis = "Sample size"
+y_axis = "Noise level"
+
+[[figures.plot]]
+name = "agreement_scatter"
+module = "stats/agreement"
+type = "1d_scatter"
+x_axis = "Observed"
+y_axis = "Predicted"
+
+[[figures.plot]]
+name = "localization_transition"
+module = "anderson"
+type = "1d_line"
+x_axis = "Disorder strength (W/t)"
+y_axis = "Localization length"
+
+[[figures.plot]]
+name = "et0_propagation"
+module = "fao56"
+type = "1d_envelope"
+x_axis = "Day of year"
+y_axis = "ET₀ (mm/day)"

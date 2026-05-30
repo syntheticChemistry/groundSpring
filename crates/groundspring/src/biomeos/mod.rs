@@ -59,6 +59,7 @@ pub use interaction::{
 };
 pub use registration::{
     announce_or_register, deregister_capabilities, register_capabilities, register_methods,
+    register_with_squirrel,
 };
 pub use routing::{capability_call, capability_call_typed, direct_rpc_call};
 pub use storage::{storage_get, storage_put};
