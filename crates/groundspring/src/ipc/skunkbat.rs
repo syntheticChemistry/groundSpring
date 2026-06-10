@@ -51,15 +51,7 @@ pub fn emit_audit_event(
     })
     .to_string();
     let response = crate::biomeos::raw_rpc_call(socket, &request)?;
-    let parsed: serde_json::Value = serde_json::from_str(&response)
-        .map_err(|e| crate::biomeos::BiomeOsError::Protocol(format!("invalid JSON: {e}")))?;
-    if let Some(result) = parsed.get("result") {
-        Ok(result.clone())
-    } else if let Some(err) = parsed.get("error") {
-        Err(crate::biomeos::BiomeOsError::Protocol(err.to_string()))
-    } else {
-        Ok(parsed)
-    }
+    crate::biomeos::protocol::extract_rpc_result(&response)
 }
 
 /// Emit a validation audit event (convenience wrapper).

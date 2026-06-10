@@ -41,26 +41,9 @@ pub fn socket_path() -> PathBuf {
         return PathBuf::from(dir).join(filename);
     }
 
-    if let Ok(xdg) = std::env::var("XDG_RUNTIME_DIR") {
-        let dir = PathBuf::from(xdg).join(crate::primal_names::BIOMEOS_SOCKET_DIR);
-        if dir.is_dir() || std::fs::create_dir_all(&dir).is_ok() {
-            return dir.join(filename);
-        }
-    }
-
-    #[cfg(target_os = "linux")]
-    {
-        use std::os::unix::fs::MetadataExt;
-        if let Ok(meta) = std::fs::metadata("/proc/self") {
-            let dir = PathBuf::from(format!(
-                "/run/user/{}/{}",
-                meta.uid(),
-                crate::primal_names::BIOMEOS_SOCKET_DIR
-            ));
-            if dir.is_dir() || std::fs::create_dir_all(&dir).is_ok() {
-                return dir.join(filename);
-            }
-        }
+    let dir = super::discovery::biomeos_runtime_dir();
+    if dir.is_dir() || std::fs::create_dir_all(&dir).is_ok() {
+        return dir.join(filename);
     }
 
     std::env::temp_dir().join(filename)
@@ -150,7 +133,8 @@ where
         }
     };
 
-    let mut response_bytes = response.to_string().into_bytes();
+    let mut response_bytes =
+        serde_json::to_vec(&response).unwrap_or_else(|_| response.to_string().into_bytes());
     response_bytes.push(b'\n');
 
     let writer = reader.get_mut();

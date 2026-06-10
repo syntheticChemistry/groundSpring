@@ -82,7 +82,7 @@ pub fn compile_wgsl(
     })
     .to_string();
     let response = crate::biomeos::raw_rpc_call(socket, &request)?;
-    parse_jsonrpc_response(&response)
+    crate::biomeos::protocol::extract_rpc_result(&response)
 }
 
 /// Attempt to discover `coralReef` and compile a WGSL shader.
@@ -138,7 +138,7 @@ pub fn compile_gemm(
     })
     .to_string();
     let response = crate::biomeos::raw_rpc_call(socket, &request)?;
-    parse_jsonrpc_response(&response)
+    crate::biomeos::protocol::extract_rpc_result(&response)
 }
 
 /// Attempt to discover `coralReef` and compile a GEMM kernel.
@@ -179,7 +179,7 @@ pub fn health_version(socket: &std::path::Path) -> crate::biomeos::Result<serde_
     })
     .to_string();
     let response = crate::biomeos::raw_rpc_call(socket, &request)?;
-    parse_jsonrpc_response(&response)
+    crate::biomeos::protocol::extract_rpc_result(&response)
 }
 
 /// Attempt to discover `coralReef` and query build identity.
@@ -214,7 +214,7 @@ pub fn shader_targets(socket: &std::path::Path) -> crate::biomeos::Result<serde_
     })
     .to_string();
     let response = crate::biomeos::raw_rpc_call(socket, &request)?;
-    parse_jsonrpc_response(&response)
+    crate::biomeos::protocol::extract_rpc_result(&response)
 }
 
 /// Attempt to discover `coralReef` and list shader targets.
@@ -253,7 +253,7 @@ pub fn validate_shader(
     })
     .to_string();
     let response = crate::biomeos::raw_rpc_call(socket, &request)?;
-    parse_jsonrpc_response(&response)
+    crate::biomeos::protocol::extract_rpc_result(&response)
 }
 
 /// Attempt to discover `coralReef` and validate a WGSL module.
@@ -268,17 +268,6 @@ pub fn try_validate_shader(source: &str) -> crate::biomeos::Result<Option<serde_
         },
         |socket| validate_shader(&socket, source).map(Some),
     )
-}
-
-/// Extract `result` or `error` from a JSON-RPC 2.0 response.
-#[cfg(feature = "biomeos")]
-fn parse_jsonrpc_response(response: &str) -> crate::biomeos::Result<serde_json::Value> {
-    let parsed: serde_json::Value = serde_json::from_str(response)
-        .map_err(|e| crate::biomeos::BiomeOsError::Protocol(format!("invalid JSON: {e}")))?;
-    if let Some(err) = parsed.get("error") {
-        return Err(crate::biomeos::BiomeOsError::Protocol(err.to_string()));
-    }
-    Ok(parsed.get("result").cloned().unwrap_or(parsed))
 }
 
 #[cfg(test)]

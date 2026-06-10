@@ -73,7 +73,7 @@ pub fn validate_workload(
     })
     .to_string();
     let response = crate::biomeos::raw_rpc_call(socket, &request)?;
-    parse_jsonrpc_response(&response)
+    crate::biomeos::protocol::extract_rpc_result(&response)
 }
 
 /// List available workloads via `ToadStool` JSON-RPC.
@@ -98,7 +98,7 @@ pub fn list_workloads(
     })
     .to_string();
     let response = crate::biomeos::raw_rpc_call(socket, &request)?;
-    parse_jsonrpc_response(&response)
+    crate::biomeos::protocol::extract_rpc_result(&response)
 }
 
 /// Enumerate locally available compute devices via `ToadStool` Phase D factory.
@@ -119,7 +119,7 @@ pub fn device_enumerate(socket: &std::path::Path) -> crate::biomeos::Result<serd
     })
     .to_string();
     let response = crate::biomeos::raw_rpc_call(socket, &request)?;
-    parse_jsonrpc_response(&response)
+    crate::biomeos::protocol::extract_rpc_result(&response)
 }
 
 /// Attempt to discover `ToadStool` and enumerate compute devices.
@@ -134,17 +134,6 @@ pub fn try_device_enumerate() -> crate::biomeos::Result<Option<serde_json::Value
         },
         |socket| device_enumerate(&socket).map(Some),
     )
-}
-
-/// Extract `result` or `error` from a JSON-RPC 2.0 response.
-#[cfg(feature = "biomeos")]
-fn parse_jsonrpc_response(response: &str) -> crate::biomeos::Result<serde_json::Value> {
-    let parsed: serde_json::Value = serde_json::from_str(response)
-        .map_err(|e| crate::biomeos::BiomeOsError::Protocol(format!("invalid JSON: {e}")))?;
-    if let Some(err) = parsed.get("error") {
-        return Err(crate::biomeos::BiomeOsError::Protocol(err.to_string()));
-    }
-    Ok(parsed.get("result").cloned().unwrap_or(parsed))
 }
 
 /// Attempt to discover `ToadStool` and validate a workload.

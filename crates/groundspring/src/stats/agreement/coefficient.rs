@@ -13,8 +13,17 @@ use crate::cast::usize_f64;
 /// Computes `1 - SS_res / SS_tot` where `SS_tot` uses the observed mean.
 /// R² and NSE are mathematically identical for the (observed, modeled)
 /// formulation — they differ only in naming convention across domains.
+///
+/// # Panics
+///
+/// Panics if `observed` and `modeled` have different lengths.
 #[cfg(not(feature = "barracuda"))]
 pub(super) fn coefficient_of_efficiency(observed: &[f64], modeled: &[f64]) -> f64 {
+    assert_eq!(
+        observed.len(),
+        modeled.len(),
+        "observed and modeled must have equal length"
+    );
     let n = observed.len();
     if n == 0 {
         return 0.0;
@@ -34,8 +43,12 @@ pub(super) fn coefficient_of_efficiency(observed: &[f64], modeled: &[f64]) -> f6
 
 /// GPU-accelerated coefficient of efficiency (R²/NSE) via two
 /// `FusedMapReduceF64::sum_of_squares` dispatches for `SS_res` and `SS_tot`.
+///
+/// Returns `None` if GPU is unavailable (graceful CPU fallback).
+/// Caller must verify length parity before calling.
 #[cfg(feature = "barracuda-gpu")]
 pub(super) fn coefficient_of_efficiency_gpu(observed: &[f64], modeled: &[f64]) -> Option<f64> {
+    debug_assert_eq!(observed.len(), modeled.len());
     if observed.is_empty() {
         return Some(0.0);
     }

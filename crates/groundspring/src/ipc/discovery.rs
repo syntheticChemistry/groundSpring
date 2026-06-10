@@ -11,6 +11,7 @@ use std::path::PathBuf;
 const TARPC_SOCK_SUFFIX: &str = "ipc.sock";
 
 /// Build the tarpc socket filename from primal self-identity.
+#[must_use]
 pub fn tarpc_sock_name() -> String {
     format!("{}-{TARPC_SOCK_SUFFIX}", crate::primal_names::SELF_ID)
 }
@@ -21,6 +22,7 @@ pub fn tarpc_sock_name() -> String {
 /// 1. `GROUNDSPRING_SOCKET` env var
 /// 2. `$XDG_RUNTIME_DIR/biomeos/groundspring-ipc.sock`
 /// 3. `<temp_dir>/groundspring-ipc.sock`
+#[must_use]
 pub fn discover_ipc_socket() -> Option<PathBuf> {
     let env_key = crate::primal_names::socket_env_var(crate::primal_names::SELF_ID);
     if let Ok(explicit) = std::env::var(&env_key) {

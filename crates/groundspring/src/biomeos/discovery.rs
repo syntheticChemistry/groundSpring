@@ -104,9 +104,29 @@ fn scan_directory_for_sockets(dir: &std::path::Path) -> Option<PathBuf> {
 
 /// Get the real UID of the current process via `/proc/self` metadata.
 #[cfg(target_os = "linux")]
-fn proc_self_uid() -> Option<u32> {
+pub(crate) fn proc_self_uid() -> Option<u32> {
     use std::os::unix::fs::MetadataExt;
     std::fs::metadata("/proc/self").ok().map(|m| m.uid())
+}
+
+/// Resolve the biomeOS runtime directory using the standard 3-tier chain:
+/// 1. `$XDG_RUNTIME_DIR/biomeos/`
+/// 2. `/run/user/{uid}/biomeos/` (Linux non-XDG fallback)
+/// 3. `<temp_dir>/biomeos/` (platform-agnostic fallback)
+pub(crate) fn biomeos_runtime_dir() -> PathBuf {
+    if let Ok(xdg) = std::env::var("XDG_RUNTIME_DIR") {
+        return PathBuf::from(xdg).join(crate::primal_names::BIOMEOS_SOCKET_DIR);
+    }
+
+    #[cfg(target_os = "linux")]
+    if let Some(uid) = proc_self_uid() {
+        return PathBuf::from(format!(
+            "/run/user/{uid}/{}",
+            crate::primal_names::BIOMEOS_SOCKET_DIR
+        ));
+    }
+
+    std::env::temp_dir().join(crate::primal_names::BIOMEOS_SOCKET_DIR)
 }
 
 /// Attempt to connect to a live NUCLEUS and return the socket path if healthy.

@@ -36,6 +36,7 @@ static DEVICE: OnceLock<Option<Arc<WgpuDevice>>> = OnceLock::new();
 /// coralReef sovereign compilation path is available).
 ///
 /// Returns `None` if no GPU is available, disabled, or init fails.
+#[must_use]
 pub fn get_device() -> Option<Arc<WgpuDevice>> {
     DEVICE
         .get_or_init(|| get_device_with_env(|k| std::env::var(k).ok()))

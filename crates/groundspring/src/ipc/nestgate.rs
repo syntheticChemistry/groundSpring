@@ -86,7 +86,7 @@ pub fn content_put(
     })
     .to_string();
     let response = crate::biomeos::raw_rpc_call(socket, &request)?;
-    parse_jsonrpc_response(&response)
+    crate::biomeos::protocol::extract_rpc_result(&response)
 }
 
 /// Retrieve content via `NestGate` JSON-RPC (`content.get`).
@@ -111,7 +111,7 @@ pub fn content_get(
     })
     .to_string();
     let response = crate::biomeos::raw_rpc_call(socket, &request)?;
-    parse_jsonrpc_response(&response)
+    crate::biomeos::protocol::extract_rpc_result(&response)
 }
 
 /// Fetch NOAA GHCND daily observations via `NestGate` JSON-RPC.
@@ -144,7 +144,7 @@ pub fn noaa_ghcnd_fetch(
     })
     .to_string();
     let response = crate::biomeos::raw_rpc_call(socket, &request)?;
-    parse_jsonrpc_response(&response)
+    crate::biomeos::protocol::extract_rpc_result(&response)
 }
 
 /// Attempt to discover `NestGate` and fetch NOAA GHCND data.
@@ -309,17 +309,6 @@ fn base64_encode(data: &[u8]) -> String {
         }
     }
     out
-}
-
-/// Extract `result` or `error` from a JSON-RPC 2.0 response.
-#[cfg(feature = "biomeos")]
-fn parse_jsonrpc_response(response: &str) -> crate::biomeos::Result<serde_json::Value> {
-    let parsed: serde_json::Value = serde_json::from_str(response)
-        .map_err(|e| crate::biomeos::BiomeOsError::Protocol(format!("invalid JSON: {e}")))?;
-    if let Some(err) = parsed.get("error") {
-        return Err(crate::biomeos::BiomeOsError::Protocol(err.to_string()));
-    }
-    Ok(parsed.get("result").cloned().unwrap_or(parsed))
 }
 
 #[cfg(test)]

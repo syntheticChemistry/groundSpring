@@ -165,8 +165,16 @@ pub fn announce_or_register(socket: &Path) -> Result<usize> {
                 error = %e,
                 "primal.announce not available — falling back to legacy registration"
             );
-            let cap_count = register_capabilities(socket).unwrap_or(0);
-            let method_count = register_methods(socket).unwrap_or(0);
+            let cap_result = register_capabilities(socket);
+            let method_result = register_methods(socket);
+            let cap_count = cap_result.unwrap_or_else(|e| {
+                tracing::warn!(error = %e, "legacy capability registration failed");
+                0
+            });
+            let method_count = method_result.unwrap_or_else(|e| {
+                tracing::warn!(error = %e, "legacy method registration failed");
+                0
+            });
             let total = cap_count.max(method_count);
             if total == 0 {
                 return Err(BiomeOsError::Registration(
@@ -193,8 +201,9 @@ pub fn deregister_capabilities(socket: &Path) -> Result<usize> {
             "capability": cap,
             "family_id": FAMILY_ID,
         });
-        if capability_call_value(socket, "capability.deregister", &args).is_ok() {
-            deregistered += 1;
+        match capability_call_value(socket, "capability.deregister", &args) {
+            Ok(_) => deregistered += 1,
+            Err(e) => tracing::debug!(capability = cap, error = %e, "deregister skipped"),
         }
     }
     Ok(deregistered)
@@ -254,7 +263,7 @@ pub fn register_with_squirrel() -> Result<()> {
     }
 }
 
-/// Discover the Squirrel UDS path.
+/// Discover the Squirrel UDS path using the standard resolution chain.
 fn discover_squirrel_socket() -> Result<std::path::PathBuf> {
     if let Ok(path) = std::env::var("SQUIRREL_SOCKET") {
         let p = std::path::PathBuf::from(path);
@@ -263,25 +272,9 @@ fn discover_squirrel_socket() -> Result<std::path::PathBuf> {
         }
     }
 
-    let biomeos_dir = if let Ok(xdg) = std::env::var("XDG_RUNTIME_DIR") {
-        std::path::PathBuf::from(xdg).join("biomeos")
-    } else {
-        #[cfg(target_os = "linux")]
-        {
-            if let Ok(meta) = std::fs::metadata("/proc/self") {
-                use std::os::unix::fs::MetadataExt;
-                std::path::PathBuf::from(format!("/run/user/{}/biomeos", meta.uid()))
-            } else {
-                std::env::temp_dir().join("biomeos")
-            }
-        }
-        #[cfg(not(target_os = "linux"))]
-        {
-            std::env::temp_dir().join("biomeos")
-        }
-    };
-
-    let default_path = biomeos_dir.join("squirrel.sock");
+    let biomeos_dir = super::discovery::biomeos_runtime_dir();
+    let squirrel_sock = format!("{}.sock", crate::primal_names::roles::ASSISTANT);
+    let default_path = biomeos_dir.join(squirrel_sock);
     if default_path.exists() {
         return Ok(default_path);
     }

@@ -8,7 +8,7 @@ use serde_json::Value;
 use super::{BiomeOsError, Result};
 
 /// Build a JSON-RPC 2.0 request envelope.
-pub(super) fn build_request(method: &str, params: &Value) -> String {
+pub(crate) fn build_request(method: &str, params: &Value) -> String {
     serde_json::json!({
         "jsonrpc": "2.0",
         "method": method,
@@ -131,7 +131,7 @@ pub(super) fn response_has_error(response: &str) -> Result<()> {
 /// [`BiomeOsError`].
 ///
 /// Absorbed from ludoSpring V23 / healthSpring V30 `extract_rpc_result()`.
-pub(super) fn extract_rpc_result(response: &str) -> Result<Value> {
+pub(crate) fn extract_rpc_result(response: &str) -> Result<Value> {
     let v: Value = serde_json::from_str(response)
         .map_err(|e| BiomeOsError::Protocol(format!("invalid JSON-RPC response: {e}")))?;
 

@@ -385,7 +385,7 @@ pub fn node_compute_dispatch_health(ctx: &mut CompositionContext, v: &mut Valida
 pub fn nest_storage_roundtrip(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     let test_key = "groundspring-guidestone-witness";
     let test_value = "decompose_error(0.5,1.0).bias_fraction=0.25";
-    let family_id = std::env::var("FAMILY_ID").unwrap_or_else(|_| "nucleus01".to_owned());
+    let family_id = crate::primal_names::family_id();
 
     let store_result = ctx
         .call(
@@ -493,7 +493,7 @@ pub fn nucleus_hash_store_retrieve(ctx: &mut CompositionContext, v: &mut Validat
                 &format!("BLAKE3: {}...", &hash_hex[..hash_hex.len().min(16)]),
             );
 
-            let family_id = std::env::var("FAMILY_ID").unwrap_or_else(|_| "nucleus01".to_owned());
+            let family_id = crate::primal_names::family_id();
             let store_key = "groundspring_cross_atomic_hash";
             let store_result = ctx
                 .call(

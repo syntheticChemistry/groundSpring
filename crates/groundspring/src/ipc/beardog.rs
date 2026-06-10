@@ -68,7 +68,7 @@ pub fn crypto_sign(
     })
     .to_string();
     let response = crate::biomeos::raw_rpc_call(socket, &request)?;
-    parse_jsonrpc_response(&response)
+    crate::biomeos::protocol::extract_rpc_result(&response)
 }
 
 /// Compute a BLAKE3 hash via `BearDog` JSON-RPC.
@@ -91,7 +91,7 @@ pub fn crypto_hash_blake3(
     })
     .to_string();
     let response = crate::biomeos::raw_rpc_call(socket, &request)?;
-    parse_jsonrpc_response(&response)
+    crate::biomeos::protocol::extract_rpc_result(&response)
 }
 
 /// Fingerprint a PRNG seed via `BearDog` JSON-RPC.
@@ -114,7 +114,7 @@ pub fn crypto_seed_fingerprint(
     })
     .to_string();
     let response = crate::biomeos::raw_rpc_call(socket, &request)?;
-    parse_jsonrpc_response(&response)
+    crate::biomeos::protocol::extract_rpc_result(&response)
 }
 
 /// Attempt to discover `BearDog` and sign a message.
@@ -148,17 +148,6 @@ pub fn try_crypto_hash_blake3(
         },
         |socket| crypto_hash_blake3(&socket, message_b64).map(Some),
     )
-}
-
-/// Extract `result` or `error` from a JSON-RPC 2.0 response.
-#[cfg(feature = "biomeos")]
-fn parse_jsonrpc_response(response: &str) -> crate::biomeos::Result<serde_json::Value> {
-    let parsed: serde_json::Value = serde_json::from_str(response)
-        .map_err(|e| crate::biomeos::BiomeOsError::Protocol(format!("invalid JSON: {e}")))?;
-    if let Some(err) = parsed.get("error") {
-        return Err(crate::biomeos::BiomeOsError::Protocol(err.to_string()));
-    }
-    Ok(parsed.get("result").cloned().unwrap_or(parsed))
 }
 
 #[cfg(test)]
