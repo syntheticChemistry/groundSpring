@@ -1,8 +1,8 @@
 # groundSpring — IPC Degradation Behavior
 
-**Date**: May 25, 2026
+**Date**: June 10, 2026
 **Version**: V146
-**Gate**: eastGate (12/12 NUCLEUS ALIVE, Songbird federation :7700)
+**Gate**: eastGate (13/13 NUCLEUS ALIVE, Songbird federation :7700)
 **Pattern**: `has_capability()` before `call()`. Never gate science behind primal availability.
 **Reference**: `infra/wateringHole/PROVENANCE_TRIO_INTEGRATION_GUIDE.md`
 

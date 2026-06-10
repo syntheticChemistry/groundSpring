@@ -2,8 +2,8 @@
 
 > groundSpring Rust module → BarraCUDA primitive → WGSL shader → pipeline stage
 
-**Last updated**: May 25, 2026 (V146 — 110 delegations (67 CPU + 43 GPU), 1,123 tests,
-barraCuda v0.4.0, toadStool S158+, coralReef Iteration 55+. guideStone Level 4.
+**Last updated**: June 10, 2026 (V146 — 110 delegations (67 CPU + 43 GPU), 1,123 tests,
+barraCuda v0.4.0, toadStool S158+, coralReef Iteration 55+. guideStone Level 5.
 V131: guidestone modular refactor (833→128L), doctest fix, benchmark coverage 11→28 experiments,
 76 script binary name fixes, Kokkos parity documentation.
 V130: skunkBat IPC module, CI cross-sync 413, plasmidBin release ready.

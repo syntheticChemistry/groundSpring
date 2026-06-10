@@ -1,7 +1,7 @@
 +++
 title = "groundSpring Validation Summary"
-description = "Measurement noise and uncertainty — 1,123 tests, 39 experiments (34 core + 5 LTEE B1–B4, B6), guideStone Level 4, Eukaryotic UniBin, 5 notebooks, 11 validation scenarios"
-date = 2026-05-25
+description = "Measurement noise and uncertainty — 1,123 tests, 39 experiments (34 core + 5 LTEE B1–B4, B6), guideStone Level 5, Eukaryotic UniBin, 5 notebooks, 11 validation scenarios"
+date = 2026-06-10
 
 [taxonomies]
 primals = ["barracuda", "toadstool", "beardog", "songbird", "nestgate"]
@@ -16,7 +16,7 @@ springs = ["groundspring", "hotspring", "wetspring", "neuralspring", "airspring"
 - **461/461 validation checks** (340 core + 55 NUCLEUS + 66 LTEE)
 - **29/29 Python baselines** with math parity proven
 - **110 barraCuda delegations** (67 CPU + 43 GPU)
-- **guideStone Level 4** (eukaryotic UniBin)
+- **guideStone Level 5** (eukaryotic UniBin, bonding model)
 - **Tier 4 IPC-first** — `barracuda` removed from default features; IPC via `CompositionContext` default
 - **biomeOS v3.75** — `composition.status` + `method.register` + cross-gate `capability.call` routing
 - **skunkBat** — `security.audit_log` wired in all 7 deploy graphs
@@ -88,7 +88,7 @@ Publication-grade Python baselines — each experiment as a live, executable not
 | Workload | Purpose |
 |----------|---------|
 | `gs-validate-all` | Run all 39 Rust validators |
-| `gs-guidestone` | Run guideStone Level 4 check |
+| `gs-guidestone` | Run guideStone Level 5 check |
 | `gs-bench-gpu` | Three-mode GPU benchmark |
 | `gs-python-baselines` | Execute 29 Python baselines for provenance |
 

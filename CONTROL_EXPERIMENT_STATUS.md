@@ -1,6 +1,6 @@
 # groundSpring — Control Experiment Status
 
-**Last updated**: May 25, 2026 (V146 — Wave 50 covalent HPC. eastGate 12/12 NUCLEUS ALIVE. Registry 458 (primalSpring v0.9.27). Dark Forest gate on 7 deploy graphs. 11 scenarios. 1,123 tests, ≥92% library coverage, 0 clippy warnings, 0 fmt diff. guideStone Level 4. LTEE B1–B4, B6 complete → `lithoSpore` modules 1–5. 39 experiments, 461/461 checks, 39 validation binaries. 20 IPC methods + 3 signal dispatch paths across 7 primals. Tier 4 IPC-first. barraCuda v0.4.0. primalSpring v0.9.27.)
+**Last updated**: June 10, 2026 (V146 — Wave 107 steady state. eastGate 13/13 NUCLEUS ALIVE. 4-gate mesh LIVE. Registry 458 (primalSpring v0.9.27). Dark Forest gate on 7 deploy graphs. 11 scenarios. 1,123 tests, ≥92% library coverage, 0 clippy warnings, 0 fmt diff. guideStone Level 5 (bonding scaffolded). LTEE B1–B4, B6 complete → `lithoSpore` modules 1–5. 39 experiments, 461/461 checks, 39 validation binaries. 20 IPC methods + 3 signal dispatch paths across 7 primals. Tier 4 IPC-first. barraCuda v0.4.0. primalSpring v0.9.27.)
 
 ## Experiment Register
 

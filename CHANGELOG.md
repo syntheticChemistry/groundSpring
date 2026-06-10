@@ -4,6 +4,33 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V146 Wave 107 Steady State (June 10, 2026)
+
+#### guideStone L5 Bonding Layer
+- New: `certification/bonding.rs` — Layer 5 bonding certification module. Validates
+  ionic bond via `crypto.sign`/`crypto.verify` Ed25519 roundtrip, capability reflection
+  via `capability.list` (measurement.* visibility), method introspection via
+  `method.describe` (barraCuda v0.4.0), and mesh topology via `ipc.resolve` (Songbird
+  Wave 107 MeshRelay endpoints).
+- `MAX_LAYER` raised from 4 → 5. `certify(5)` wires bonding checks after L2-L4.
+- L5 requires live NUCLEUS with BearDog (crypto), Songbird (discovery), and biomeOS.
+
+#### lithoSpore B3+B4 Verification
+- BLAKE3 hashes verified against `LITHOSPORE_INGESTION_MANIFEST.toml`: B3 (`e0a1e4a4…`)
+  and B4 (`b380c739…`) confirmed matching. Supply side complete; lithoSpore Tier 2 PASS.
+
+#### Gap Status Updates
+- GAP-GS-003 (TensorSession): Re-evaluated — blocker no longer upstream stability
+  (barraCuda v0.4.0 stable since Sprint 41). Now spring-side design/work needed.
+  Action: pilot `tensor.batch.submit` on one pipeline.
+- GAP-GS-011 (PRNG Phase 2b): Scaffolded (xoshiro128** + feature gate ready) but
+  rebaseline not executed. 39 benchmarks + 461 checks depend on current Xorshift64
+  sequence. Remains intentionally deferred.
+
+#### Documentation
+- NUCLEUS count: 12/12 → 13/13. Gate mesh: 4-gate collective LIVE per Wave 107.
+- guideStone: L4 → L5 across README, CONTEXT, PRIMAL_GAPS.
+
 ### V146 Wave 63 River Delta (May 30, 2026)
 
 #### Squirrel Composition Integration

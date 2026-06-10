@@ -3,9 +3,9 @@
 **Purpose**: Per-faculty research briefings for groundSpring noise characterization
 reproductions and extensions.
 
-**Last Updated**: May 25, 2026
+**Last Updated**: June 10, 2026
 
-**Validation Summary**: V146 — 461/461 validation checks (340 core + 55 NUCLEUS + 66 LTEE) + 138 metalForge checks, **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.4.0, toadStool S158+, coralReef Iteration 55+**. 1,123 Rust tests + 455 Python provenance tests. ≥92% library line coverage. **guideStone Level 4**. Tier 4 IPC-first. **20 IPC methods + 3 signal dispatch paths across 7 primals** (ToadStool, barraCuda, coralReef, NestGate, BearDog, skunkBat, biomeOS). LTEE B1–B4, B6 complete with BLAKE3 ingestion manifest → `lithoSpore` modules 1–5. NestGate CAS (`content.put`/`content.get`) + `data.noaa_ghcnd` pipeline wired. BearDog crypto JSON-RPC (`crypto.sign`, `crypto.hash_blake3`, `crypto.seed_fingerprint`). NOAA GHCND pipeline scaffolded. `--format json` on all 39 validation binaries. Zero unsafe, zero mocks in production, zero `.unwrap()` in library code. All 39 experiments PASS. **29/29 mathematical parity proven**. 12 domains, 41 modules. Registry 458 (primalSpring v0.9.27). Dark Forest gate. eastGate deployment.
+**Validation Summary**: V146 — 461/461 validation checks (340 core + 55 NUCLEUS + 66 LTEE) + 138 metalForge checks, **110 active delegations (67 CPU + 43 GPU) — barraCuda v0.4.0, toadStool S158+, coralReef Iteration 55+**. 1,123 Rust tests + 455 Python provenance tests. ≥92% library line coverage. **guideStone Level 5**. Tier 4 IPC-first. **20 IPC methods + 3 signal dispatch paths across 7 primals** (ToadStool, barraCuda, coralReef, NestGate, BearDog, skunkBat, biomeOS). LTEE B1–B4, B6 complete with BLAKE3 ingestion manifest → `lithoSpore` modules 1–5. NestGate CAS (`content.put`/`content.get`) + `data.noaa_ghcnd` pipeline wired. BearDog crypto JSON-RPC (`crypto.sign`, `crypto.hash_blake3`, `crypto.seed_fingerprint`). NOAA GHCND pipeline scaffolded. `--format json` on all 39 validation binaries. Zero unsafe, zero mocks in production, zero `.unwrap()` in library code. All 39 experiments PASS. **29/29 mathematical parity proven**. 12 domains, 41 modules. Registry 458 (primalSpring v0.9.27). Dark Forest gate. eastGate deployment.
 
 ---
 

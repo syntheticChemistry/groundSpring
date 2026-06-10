@@ -25,7 +25,7 @@ for noise characterization and uncertainty quantification.
 - **Language:** Rust library + validators, Python Phase 0 baselines + notebooks. Zero C dependencies (`cargo-deny` enforced)
 - **Architecture:** 5-crate workspace (`groundspring` library, `groundspring-validate` binaries, `groundspring-forge` GPU/hardware dispatch, `exp094_composition_parity`, `exp095_measurement_niche`)
 - **Eukaryotic UniBin:** Single binary (`groundspring_unibin`) with `certify`, `validate`, `status`, `version` subcommands via `clap`
-- **Certification organelle:** `certification/` module — Properties 1-5 (bare, Tier 1) + Layers 2-4 (NUCLEUS composition, Tier 2)
+- **Certification organelle:** `certification/` module — Properties 1-5 (bare, Tier 1) + Layers 2-5 (NUCLEUS composition + bonding, Tier 2)
 - **Validation scenarios:** `validation/scenarios/` registry — 11 scenarios across 10 tracks with `ScenarioMeta` (id, track, tier, provenance)
 - **IPC tree:** `src/ipc/` with per-primal modules (`barracuda.rs`, `toadstool.rs`, `nestgate.rs`, `beardog.rs`, `songbird.rs`, `skunkbat.rs`)
 - **Communication:** JSON-RPC 2.0 over Unix domain sockets (behind `biomeos` feature); `tarpc` IPC (behind `tarpc-ipc` feature)
@@ -35,7 +35,7 @@ for noise characterization and uncertainty quantification.
 - **Coverage:** ≥92% library line coverage (`cargo llvm-cov --workspace --lib`)
 - **MSRV:** Rust 1.87 (2024 edition)
 - **Validation checks:** 461/461 PASS across 39 binaries
-- **guideStone:** Level 4 (bare + NUCLEUS composition parity) — modular `guidestone/{bare,tower,node,nest,cross}.rs` layers
+- **guideStone:** Level 5 (bare + NUCLEUS composition parity + bonding model) — modular `guidestone/{bare,tower,node,nest,cross,bonding}.rs` layers
 - **barraCuda delegations:** 110 active (67 CPU + 43 GPU) — `barracuda` is `optional = true`, feature-gated (v0.4.0)
 - **Logging:** Unified `tracing` (zero `log::` calls)
 - **Fossil record:** `fossilRecord/` with 3 dated prokaryotic snapshot READMEs (provenance markers, no source copies)
@@ -94,8 +94,8 @@ When running as a biomeOS primal (`--features biomeos`), groundSpring exposes
 |-------|-------|
 | **Gate** | eastGate |
 | **Hardware** | i9-12900, RTX 4070 + Akida NPU, 32GB DDR5 |
-| **Composition** | Full NUCLEUS (13 primals via plasmidBin) |
-| **NUCLEUS status** | operational (shared with primalSpring) |
+| **Composition** | Full NUCLEUS (13/13 primals via plasmidBin) |
+| **NUCLEUS status** | OPERATIONAL (shared with primalSpring, 4-gate mesh LIVE) |
 | **Songbird federation** | port 7700 |
 | **LAN mesh** | covalently linked (eastGate ↔ ironGate, southGate, biomeGate) |
 | **Cell graph** | `plasmidBin/cells/groundspring_cell.toml` |

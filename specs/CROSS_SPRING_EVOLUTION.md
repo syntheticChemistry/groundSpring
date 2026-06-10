@@ -1,6 +1,6 @@
 # Cross-Spring Shader Evolution
 
-**Last updated**: May 25, 2026 (V146 — 110 active delegations (67 CPU + 43 GPU), 1,123 tests, three-tier parity proven: 29/29 at all 3 tiers, barraCuda v0.4.0, guideStone L4, 20 IPC methods + 3 signal dispatch paths across 7 primals)
+**Last updated**: June 10, 2026 (V146 — 110 active delegations (67 CPU + 43 GPU), 1,123 tests, three-tier parity proven: 29/29 at all 3 tiers, barraCuda v0.4.0, guideStone L5, 20 IPC methods + 3 signal dispatch paths across 7 primals)
 
 The ecoPrimals shader ecosystem evolved organically as each spring
 absorbed domain-specific knowledge, then shared it through barraCuda

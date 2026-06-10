@@ -5,7 +5,7 @@
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
 **Date:** April 27, 2026 (initial)
-**Last audited:** May 30, 2026 (V146 — Wave 63 river delta. Squirrel provider.register wired. domain_profile.toml (measurement-uncertainty). CONTEXT.md clean. 7 deploy graphs, 11 scenarios. Temporal sync tooling verified.)
+**Last audited:** June 10, 2026 (V146 — Wave 107 steady state. L5 bonding scaffolded. B3+B4 BLAKE3 verified. GAP-GS-003 re-evaluated (barraCuda v0.4.0 stable). GAP-GS-011 scaffolded not executed. 13/13 NUCLEUS, 4-gate mesh LIVE.)
 **License:** AGPL-3.0-or-later
 
 ---
@@ -53,14 +53,15 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 
 - **Primal:** barraCuda
 - **Severity:** Low
-- **Status:** Deferred
-- **Description:** barraCuda's `TensorSession` fused multi-op pipeline API
-  is not yet used in groundSpring. The codebase fuses at the individual op
-  level (`FusedMapReduceF64`, seasonal pipeline types). Adopting
-  TensorSession would enable fused GPU dispatch for multi-step measurement
-  pipelines (e.g. decompose + bootstrap + rarefaction as a single session).
-- **Action:** Monitor barraCuda TensorSession stabilization; wire when
-  stable for measurement workloads.
+- **Status:** Open (re-evaluated Wave 107)
+- **Description:** barraCuda v0.4.0 documents `TensorSession` as stable (Sprint 41+).
+  groundSpring still uses per-op delegation (`FusedMapReduceF64`, `StatefulPipeline`,
+  `CompositionContext::call()`). Adopting TensorSession or `tensor.batch.submit` IPC
+  would enable fused GPU dispatch for multi-step measurement pipelines.
+- **Blocker:** No longer upstream stability — spring-side design/work needed.
+- **Action:** Pilot `tensor.batch.submit` on one pipeline (FAO-56 seasonal MC or
+  decompose+bootstrap). Compare latency vs current sequential delegation before
+  broader adoption. Coordinate with airSpring AG-010 (same pattern).
 
 ### GAP-GS-004: Niche YAML Capability Drift
 
@@ -146,13 +147,16 @@ via PRs to `primalSpring/docs/PRIMAL_GAPS.md` and `graphs/downstream/`.
 
 - **Primal:** barraCuda
 - **Severity:** Low
-- **Status:** Tier B — deferred
-- **Description:** groundSpring uses `Xorshift64` PRNG. GPU alignment
-  requires migration to xoshiro128** to match barraCuda's WGSL PRNG.
-  This requires a full rebaseline of all 29 stochastic experiments since
-  determinism tests depend on the current RNG state sequence.
-- **Action:** Coordinate with barraCuda team. Execute rebaseline when
-  PRNG migration is ecosystem-wide priority.
+- **Status:** Scaffolded, not executed (Wave 107)
+- **Description:** groundSpring uses `Xorshift64` PRNG (default). xoshiro128**
+  is fully implemented in `prng.rs` behind `prng-xoshiro-default` feature gate.
+  GPU-aligned `GpuAlignedRng` type exported. Switching default requires full
+  rebaseline of all stochastic experiments (39 benchmarks, 461 checks).
+- **Infrastructure ready:** Feature gate in `Cargo.toml`, dual-type in `prng.rs`,
+  Anderson GPU seed stride documented in `anderson/mod.rs`.
+- **Action:** Enable `prng-xoshiro-default` in staging. Run `regenerate_benchmarks.sh`
+  + full `validate_all`. Fix Anderson GPU seed stride. Coordinate ecosystem-wide
+  with barraCuda team.
 
 ### GAP-GS-013: primalSpring LIVE_SCIENCE_API.md `precision.route` Status Contradiction
 

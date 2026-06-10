@@ -8,7 +8,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 
 ### Status
 
-**Current (V145, May 16, 2026)**:
+**Current (V146, June 10, 2026)**:
 - Phase 0 baselines: **~375 quantitative checks passed** across 33 core experiments, 11 domains (+ 5 LTEE, 1 hydrology = 39 total).
 - Phase 1 Rust validation: **461/461 checks passed** across 39 validation binaries (340 core + 55 NUCLEUS + 66 LTEE).
 - LTEE reproductions: **B1–B4, B6 COMPLETE** (Exp 036–039, 040) → `lithoSpore` modules 1–5.
@@ -16,7 +16,7 @@ This white paper documents groundSpring's systematic approach to quantifying the
 - Performance: **11.6× faster** (Rust vs Python, excl. LAPACK-bound); 5.1× overall. Exp 009: **47.4× from Sturm tridiag**.
 - IPC surface: **20 JSON-RPC methods + 3 signal dispatch paths** across 7 primals.
 - Wave 17 signal adoption: `primal.announce` (single-call registration), `nest.store` (provenance lifecycle collapse).
-- 1,123 tests, zero clippy, zero unsafe, zero mocks. guideStone Level 4. Tier 4 IPC-first.
+- 1,123 tests, zero clippy, zero unsafe, zero mocks. guideStone Level 5. Tier 4 IPC-first. eastGate 13/13 NUCLEUS ALIVE (Wave 107 steady state).
 
 **Version history** (see CHANGELOG.md for details): V94–V124 (Mar 2026): GPU parity, module extraction, tolerance hardening, cast evolution, capability-based discovery, NUCLEUS live connection, primal_names, panic-free production. V125–V131 (Apr–May 2026): UniBin, skunkBat IPC, CI cross-sync, plasmidBin, deploy graphs, guideStone modularization. V134–V138 (May 2026): LTEE B1–B4 reproductions, downstream seeding, `--format json`. V139–V142 (May 2026): Tier 2 IPC convergence (20 methods), NestGate CAS, BearDog crypto, NOAA GHCND, BLAKE3 manifest, compute trio wave. V143 (May 16): Wave 17 signal adoption. V144–V145 (May 16): Wave 20 schema standardization; LTEE B6 BioBrick Burden (`lithoSpore` module 5).
 - V91: Complete ecosystem rewire. 100 delegations (59 CPU + 41 GPU). 807 Rust tests. 91.55% coverage. Zero TODO/FIXME/unsafe/unwrap in production. All files < 1000 lines. 21 benchmark workloads. Cross-spring shader evolution documented.

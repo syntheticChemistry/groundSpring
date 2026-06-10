@@ -4,7 +4,7 @@
 toadStool/barraCuda/coralReef teams, following the ecoPrimals wateringHole
 inter-primal standard.
 
-**Last Updated**: May 25, 2026 (V146 — Wave 50 covalent HPC. eastGate 12/12 NUCLEUS ALIVE. 7 deploy graphs, 11 scenarios. Registry 458, primalSpring v0.9.27. Cross-gate nest.sync.)
+**Last Updated**: June 10, 2026 (V146 — Wave 107 steady state. eastGate 13/13 NUCLEUS ALIVE. 7 deploy graphs, 11 scenarios. Registry 458, primalSpring v0.9.27. Cross-gate nest.sync.)
 
 ## What This Is
 

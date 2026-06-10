@@ -4,8 +4,8 @@
 **Gate**: eastGate
 **Hardware**: i9-12900, RTX 4070 + Akida NPU, 32GB DDR5
 **Co-residents**: primalSpring (coordinator), airSpring
-**NUCLEUS Composition**: Full NUCLEUS (12/12 primals ALIVE) + `groundspring_cell.toml` overlay
-**Status**: OPERATIONAL — Wave 50 covalent HPC, cross-gate nest.sync staged
+**NUCLEUS Composition**: Full NUCLEUS (13/13 primals ALIVE) + `groundspring_cell.toml` overlay
+**Status**: OPERATIONAL — Wave 107 steady state, 4-gate mesh LIVE, cross-gate nest.sync staged
 
 ---
 

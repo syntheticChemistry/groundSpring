@@ -1,7 +1,7 @@
 # groundSpring — Primal-Proof IPC Mapping
 
-**Date**: May 25, 2026
-**groundSpring**: V146 (Wave 46 absorption: registry 458, Dark Forest gate, eastGate deployment. 20 IPC methods + 3 signal dispatch paths across 7 primals)
+**Date**: June 10, 2026
+**groundSpring**: V146 (Wave 107 steady state: registry 458, Dark Forest gate, eastGate 13/13 NUCLEUS. 20 IPC methods + 3 signal dispatch paths across 7 primals)
 **barraCuda**: v0.4.0
 **primalSpring**: v0.9.27
 

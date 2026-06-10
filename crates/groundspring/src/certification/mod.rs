@@ -13,6 +13,8 @@
 //! - **L2 (Atomic Health)**: Liveness probes for all NUCLEUS tiers.
 //! - **L3 (Capability Parity)**: Scalar + vector math, storage round-trip.
 //! - **L4 (Cross-Atomic Pipeline)**: Tower hash → Nest store → retrieve → match.
+//! - **L5 (Bonding Model)**: Crypto sign/verify, capability reflection,
+//!   method introspection, mesh topology awareness.
 //!
 //! # Exit codes
 //!
@@ -21,12 +23,14 @@
 //! - `2` — bare-only mode (no primals discovered)
 
 mod bare;
+mod bonding;
 mod composition;
 
 pub use bare::{
     validate_deterministic, validate_env_agnostic, validate_self_verifying, validate_tolerance,
     validate_traceable,
 };
+pub use bonding::certify_bonding;
 pub use composition::{
     certify_composition, nest_provenance_health, nest_storage_roundtrip,
     node_compute_dispatch_health, node_decompose_e2e, node_scalar_parity, node_shader_capabilities,
@@ -35,7 +39,7 @@ pub use composition::{
 };
 
 /// Maximum certification layer supported by groundSpring.
-pub const MAX_LAYER: u8 = 4;
+pub const MAX_LAYER: u8 = 5;
 
 /// Run the full certification engine up to the specified layer.
 ///
@@ -43,6 +47,7 @@ pub const MAX_LAYER: u8 = 4;
 /// - Layer 2: Atomic health (liveness probes)
 /// - Layer 3: Capability parity (math, storage)
 /// - Layer 4: Cross-atomic pipeline
+/// - Layer 5: Bonding model (crypto, reflection, introspection, mesh)
 ///
 /// Returns the `ValidationResult` after all layers complete.
 #[must_use]
@@ -72,6 +77,12 @@ pub fn certify(max_layer: u8) -> primalspring::validation::ValidationResult {
 
     if max_layer >= 2 {
         certify_composition(&mut v, max_layer);
+    }
+
+    if max_layer >= 5 {
+        let mut ctx =
+            primalspring::composition::CompositionContext::from_live_discovery_with_fallback();
+        certify_bonding(&mut ctx, &mut v);
     }
 
     v.finish();
