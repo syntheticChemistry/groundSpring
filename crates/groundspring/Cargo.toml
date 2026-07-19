@@ -44,7 +44,7 @@ unibin = ["certification", "validation", "dep:clap"]
 [dependencies]
 thiserror = "2"
 barracuda = { path = "../../../../primals/barraCuda/crates/barracuda", optional = true, default-features = false }
-bingocube-nautilus = { path = "../../../primalTools/bingoCube/nautilus", optional = true }
+bingocube-nautilus = { path = "../../../../primals/bingoCube/nautilus", optional = true }
 akida-driver = { path = "../../../../primals/toadStool/crates/neuromorphic/akida-driver", optional = true }
 wgpu = { version = "28", optional = true, default-features = false, features = ["wgsl", "vulkan-portability"] }
 bytemuck = { version = "1", optional = true, features = ["derive"] }
