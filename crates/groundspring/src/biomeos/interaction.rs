@@ -11,11 +11,35 @@
 //! All discovery is runtime-only — groundSpring has no compile-time
 //! knowledge of which primals exist.
 
+use std::sync::{Mutex, OnceLock};
+use std::time::{Duration, Instant};
+
 use serde_json::Value;
 
 use super::protocol::{build_request, parse_rpc_response, response_has_error};
 use super::transport::rpc_call;
 use super::{BiomeOsError, Result};
+
+struct DiscoveryCache {
+    primals: Vec<DiscoveredPrimal>,
+    last_refresh: Instant,
+}
+
+static DISCOVERY_CACHE: OnceLock<Mutex<Option<DiscoveryCache>>> = OnceLock::new();
+
+const DISCOVERY_TTL: Duration = Duration::from_secs(30);
+
+fn discovery_cache() -> &'static Mutex<Option<DiscoveryCache>> {
+    DISCOVERY_CACHE.get_or_init(|| Mutex::new(None))
+}
+
+fn discovery_ttl() -> Duration {
+    std::env::var("GROUNDSPRING_DISCOVERY_TTL_SECS")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .map(Duration::from_secs)
+        .unwrap_or(DISCOVERY_TTL)
+}
 
 /// A primal socket discovered in the biomeOS socket directory.
 #[derive(Debug, Clone)]
@@ -30,8 +54,38 @@ pub struct DiscoveredPrimal {
 ///
 /// Scans `$XDG_RUNTIME_DIR/biomeos/` for `.sock` files and returns
 /// the list of primals found, excluding symlinks and Neural API itself.
+///
+/// Results are cached process-wide for 30 seconds by default (override via
+/// `GROUNDSPRING_DISCOVERY_TTL_SECS`). Call [`refresh_discovered_primals`]
+/// to force a rescan before the TTL expires.
 #[must_use]
 pub fn discover_primals() -> Vec<DiscoveredPrimal> {
+    let ttl = discovery_ttl();
+    {
+        let cache = discovery_cache().lock().expect("discovery cache poisoned");
+        if let Some(ref cached) = *cache {
+            if cached.last_refresh.elapsed() < ttl {
+                return cached.primals.clone();
+            }
+        }
+    }
+
+    refresh_discovered_primals()
+}
+
+/// Force a rescan of the biomeOS socket directory and refresh the discovery cache.
+#[must_use]
+pub fn refresh_discovered_primals() -> Vec<DiscoveredPrimal> {
+    let primals = scan_primals();
+    let mut cache = discovery_cache().lock().expect("discovery cache poisoned");
+    *cache = Some(DiscoveryCache {
+        primals: primals.clone(),
+        last_refresh: Instant::now(),
+    });
+    primals
+}
+
+fn scan_primals() -> Vec<DiscoveredPrimal> {
     let Some(socket_dir) = biomeos_socket_dir() else {
         return Vec::new();
     };
@@ -114,7 +168,7 @@ fn biomeos_socket_dir_with_env(env: impl Fn(&str) -> Option<String>) -> Option<s
 /// Health-check a specific primal by name via its discovered socket.
 ///
 /// Uses the primal-specific health method: `{primal}.health` for most,
-/// `health` for `BearDog` (which responds to the bare method).
+/// `health` for the security provider (which responds to the bare method).
 ///
 /// # Errors
 ///
@@ -208,14 +262,14 @@ pub fn topology(socket: &std::path::Path) -> Result<String> {
 /// Returns `Err` if no primal advertising `capability` is found.
 pub fn discover_by_capability(capability: &str) -> Result<DiscoveredPrimal> {
     let primals = discover_primals();
-    for primal in &primals {
+    for primal in primals {
         let request = build_request("capability.list", &serde_json::json!({}));
         if let Ok(ref response) = rpc_call(&primal.socket, &request)
             && let Ok(body) = parse_rpc_response(response)
         {
             let caps = extract_capabilities(&body);
             if caps.iter().any(|c| c == capability) {
-                return Ok(primal.clone());
+                return Ok(primal);
             }
         }
     }
@@ -237,6 +291,10 @@ fn extract_capabilities(body: &str) -> Vec<String> {
     if let Ok(parsed) = serde_json::from_str::<Value>(&format!("[{body}]")) {
         return extract_capabilities_from_value(&parsed);
     }
+    tracing::debug!(
+        body_len = body.len(),
+        "capability list body unparseable; returning empty capability set"
+    );
     Vec::new()
 }
 
@@ -285,13 +343,13 @@ fn extract_method_name_from_object(obj: &serde_json::Map<String, Value>) -> Opti
     None
 }
 
-// ─── toadStool compute.dispatch.* Direct Dispatch ────────────────────────────
+// ─── compute.dispatch.* Direct Dispatch ─────────────────────────────────────
 
-/// Submit a GPU compute job directly to toadStool via `compute.dispatch.submit`.
+/// Submit a GPU compute job via `compute.dispatch.submit`.
 ///
-/// Discovers the `compute.dispatch.submit` provider at runtime (toadStool)
-/// and submits a workload for GPU execution. Returns a job handle (ID or
-/// inline result depending on toadStool configuration).
+/// Discovers the `compute.dispatch.submit` provider at runtime (the compute
+/// dispatch provider) and submits a workload for GPU execution. Returns a job
+/// handle (ID or inline result depending on provider configuration).
 ///
 /// This bypasses Neural API capability routing for sub-frame latency
 /// on GPU dispatch paths (ludoSpring V22 pattern).
@@ -300,12 +358,15 @@ fn extract_method_name_from_object(obj: &serde_json::Map<String, Value>) -> Opti
 ///
 /// Returns `Err` if no `compute.dispatch.submit` provider is found or the RPC fails.
 /// Callers should fall back to CPU-local computation.
-pub fn dispatch_submit(op: &str, params: &serde_json::Value) -> Result<String> {
+pub fn dispatch_submit(op: &str, params: serde_json::Value) -> Result<String> {
     let provider = discover_by_capability("compute.dispatch.submit")?;
-    let mut args = params.clone();
-    if let Some(obj) = args.as_object_mut() {
-        obj.insert("op".to_string(), Value::String(op.to_string()));
-    }
+    let args = match params {
+        Value::Object(mut obj) => {
+            obj.insert("op".to_string(), Value::String(op.to_string()));
+            Value::Object(obj)
+        }
+        other => serde_json::json!({ "op": op, "params": other }),
+    };
     let request = build_request("compute.dispatch.submit", &args);
     let response = rpc_call(&provider.socket, &request)?;
     parse_rpc_response(&response)

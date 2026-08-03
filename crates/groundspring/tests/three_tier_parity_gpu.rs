@@ -44,7 +44,8 @@ fn gpu_wright_fisher_kimura_agreement() {
     let s = 0.01;
     let p0 = 0.5;
     let n_trials = 500;
-    let fix_count = groundspring::drift::wright_fisher_fixation_batch(n, s, p0, n_trials, 42);
+    let fix_count =
+        groundspring::drift::wright_fisher_fixation_batch(n, s, p0, n_trials, 42).unwrap();
     let kimura = groundspring::drift::kimura_fixation_prob(n, s, p0);
     #[expect(clippy::cast_precision_loss, reason = "count/trials ≤ N ≪ 2^53")]
     let observed = fix_count as f64 / n_trials as f64;

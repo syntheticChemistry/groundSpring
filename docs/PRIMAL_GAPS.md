@@ -1,11 +1,11 @@
 # groundSpring Primal Composition Gaps
 
-**Spring:** groundSpring V146
+**Spring:** groundSpring V147
 **Proto-nucleate:** `downstream_manifest.toml` (spring_name = "groundspring")
 **Particle profile:** balanced (Node + Nest atomic)
 **Domain:** geoscience / measurement
 **Date:** April 27, 2026 (initial)
-**Last audited:** June 10, 2026 (V146 — Wave 107 steady state. L5 bonding scaffolded. B3+B4 BLAKE3 verified. GAP-GS-003 re-evaluated (barraCuda v0.4.0 stable). GAP-GS-011 scaffolded not executed. 13/13 NUCLEUS, 4-gate mesh LIVE.)
+**Last audited:** August 3, 2026 (V147 — Wave 156b deep debt CLEAN. 5 large-file refactors, zero self-knowledge violations, discovery caching, JSON-RPC 2.0 strict, 54 new integration tests. 1,166 Rust tests, zero clippy. westGate Phase 4 READY.)
 **License:** AGPL-3.0-or-later
 
 ---

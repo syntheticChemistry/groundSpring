@@ -3,6 +3,12 @@
 
 [workspace]
 resolver = "2"
+# blake3 is not a direct groundspring dependency; it arrives transitively via optional
+# path deps (primalspring, barracuda, bingocube-nautilus). cc-free builds require
+# `blake3` with `default-features = false, features = ["pure"]` in those upstream
+# workspaces. barraCuda and bingoCube already do; primalSpring sets `features = ["pure"]`
+# but omits `default-features = false`, so `cc` still enters Cargo.lock as a blake3
+# build-dependency. Fix belongs in primalSpring (or a shared ecoPrimals workspace pin).
 members = [
     "crates/groundspring",
     "crates/groundspring-validate",

@@ -53,36 +53,14 @@ fn ci_width(data: &[f64], n_boot: usize, confidence: f64, seed: u64, use_rawr: b
     r.ci_upper - r.ci_lower
 }
 
-fn run() -> i32 {
-    let bench = parse_benchmark(BENCHMARK);
-    let mut h = ValidationHarness::from_args("Rust Validation: Resampling Convergence");
-
-    println!("{}", "=".repeat(72));
-    println!("groundSpring Rust Validation: Resampling Convergence (Exp 013)");
-    println!("{}", "=".repeat(72));
-    print_provenance_header(&bench, "Resampling Convergence");
-
-    let model = &bench["model"];
-    let exp = &bench["expected_results"];
-
-    let data_n = usize_field(model, "data_n");
-    let confidence = f64_field(model, "confidence");
-    let max_rel_change = f64_field(exp, "relative_width_change_5k_to_10k_max");
-
-    let replicate_counts: Vec<usize> = get_array(&bench["model"], "replicate_counts")
-        .or_exit("replicate_counts array")
-        .iter()
-        .map(|v| {
-            #[expect(
-                clippy::cast_possible_truncation,
-                reason = "JSON replicate counts ≤ 10000, fits usize"
-            )]
-            let n = v.as_u64().or_exit("u64 count") as usize;
-            n
-        })
-        .collect();
-
-    // Part 1: Gaussian convergence
+fn validate_gaussian(
+    h: &mut ValidationHarness,
+    model: &serde_json::Value,
+    data_n: usize,
+    confidence: f64,
+    replicate_counts: &[usize],
+    max_rel_change: f64,
+) -> Vec<f64> {
     println!("\n--- Part 1: Gaussian (μ=5.0, σ=2.0) ---");
     let gauss_mu = f64_field(&model["gaussian"], "mu");
     let gauss_sigma = f64_field(&model["gaussian"], "sigma");
@@ -93,7 +71,7 @@ fn run() -> i32 {
     let mut boot_widths: Vec<f64> = Vec::new();
     let mut rawr_widths: Vec<f64> = Vec::new();
 
-    for &n_boot in &replicate_counts {
+    for &n_boot in replicate_counts {
         let seed_offset = n_boot as u64;
         let bw = ci_width(
             &data_gauss,
@@ -134,6 +112,88 @@ fn run() -> i32 {
         h.check_max("Bootstrap converged (5k→10k)", rel_boot, max_rel_change);
         h.check_max("RAWR converged (5k→10k)", rel_rawr, max_rel_change);
     }
+    boot_widths
+}
+
+fn validate_heavy_tail(
+    h: &mut ValidationHarness,
+    model: &serde_json::Value,
+    data_n: usize,
+    confidence: f64,
+    gaussian_final_width: f64,
+) {
+    println!("\n--- Part 3: Heavy-Tailed ---");
+    let ht_seed = get_u64(&model["heavy_tail"], "seed").or_exit("seed");
+    let ht_loc = f64_field(&model["heavy_tail"], "loc");
+    let ht_scale = f64_field(&model["heavy_tail"], "scale");
+    let ht_df = f64_field(&model["heavy_tail"], "df");
+
+    let mut rng_ht = Xorshift64::new(ht_seed);
+    #[expect(
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        reason = "df from JSON positive, t-dist DOF fits usize"
+    )]
+    let df_int = ht_df as usize;
+    let data_ht: Vec<f64> = (0..data_n)
+        .map(|_| {
+            let z = rng_ht.normal(0.0, 1.0);
+            let mut chi2_sum = 0.0;
+            for _ in 0..df_int {
+                let u = rng_ht.normal(0.0, 1.0);
+                chi2_sum += u * u;
+            }
+            let t_val = z / (chi2_sum / ht_df).sqrt();
+            t_val * ht_scale + ht_loc
+        })
+        .collect();
+
+    let bw_ht = ci_width(&data_ht, 10000, confidence, ht_seed + 10000, false);
+    println!("  Heavy-tail width at n=10k: {bw_ht:.4} (Gaussian: {gaussian_final_width:.4})");
+
+    h.check_true(
+        "Heavy-tail wider than Gaussian",
+        bw_ht > gaussian_final_width * HEAVY_TAIL_WIDTH_FACTOR,
+    );
+}
+
+fn run() -> i32 {
+    let bench = parse_benchmark(BENCHMARK);
+    let mut h = ValidationHarness::from_args("Rust Validation: Resampling Convergence");
+
+    println!("{}", "=".repeat(72));
+    println!("groundSpring Rust Validation: Resampling Convergence (Exp 013)");
+    println!("{}", "=".repeat(72));
+    print_provenance_header(&bench, "Resampling Convergence");
+
+    let model = &bench["model"];
+    let exp = &bench["expected_results"];
+
+    let data_n = usize_field(model, "data_n");
+    let confidence = f64_field(model, "confidence");
+    let max_rel_change = f64_field(exp, "relative_width_change_5k_to_10k_max");
+
+    let replicate_counts: Vec<usize> = get_array(&bench["model"], "replicate_counts")
+        .or_exit("replicate_counts array")
+        .iter()
+        .map(|v| {
+            #[expect(
+                clippy::cast_possible_truncation,
+                reason = "JSON replicate counts ≤ 10000, fits usize"
+            )]
+            let n = v.as_u64().or_exit("u64 count") as usize;
+            n
+        })
+        .collect();
+
+    let boot_widths = validate_gaussian(
+        &mut h,
+        model,
+        data_n,
+        confidence,
+        &replicate_counts,
+        max_rel_change,
+    );
 
     // Part 2: Log-normal convergence
     println!("\n--- Part 2: Log-Normal ---");
@@ -162,42 +222,8 @@ fn run() -> i32 {
             <= boot_widths_ln[0] * CONVERGENCE_FACTOR_LOGNORMAL,
     );
 
-    // Part 3: Heavy-tailed convergence (approximate t-distribution using normal)
-    println!("\n--- Part 3: Heavy-Tailed ---");
-    let ht_seed = get_u64(&model["heavy_tail"], "seed").or_exit("seed");
-    let ht_loc = f64_field(&model["heavy_tail"], "loc");
-    let ht_scale = f64_field(&model["heavy_tail"], "scale");
-    let ht_df = f64_field(&model["heavy_tail"], "df");
-
-    // Generate approximate t-distribution via ratio of normals
-    let mut rng_ht = Xorshift64::new(ht_seed);
-    #[expect(
-        clippy::cast_possible_truncation,
-        clippy::cast_sign_loss,
-        reason = "df from JSON positive, t-dist DOF fits usize"
-    )]
-    let df_int = ht_df as usize;
-    let data_ht: Vec<f64> = (0..data_n)
-        .map(|_| {
-            let z = rng_ht.normal(0.0, 1.0);
-            let mut chi2_sum = 0.0;
-            for _ in 0..df_int {
-                let u = rng_ht.normal(0.0, 1.0);
-                chi2_sum += u * u;
-            }
-            let t_val = z / (chi2_sum / ht_df).sqrt();
-            t_val * ht_scale + ht_loc
-        })
-        .collect();
-
-    let bw_ht = ci_width(&data_ht, 10000, confidence, ht_seed + 10000, false);
-    let bw_g = *boot_widths.last().unwrap_or(&1.0);
-    println!("  Heavy-tail width at n=10k: {bw_ht:.4} (Gaussian: {bw_g:.4})");
-
-    h.check_true(
-        "Heavy-tail wider than Gaussian",
-        bw_ht > bw_g * HEAVY_TAIL_WIDTH_FACTOR,
-    );
+    let gaussian_final = *boot_widths.last().unwrap_or(&1.0);
+    validate_heavy_tail(&mut h, model, data_n, confidence, gaussian_final);
 
     // Part 4: Determinism
     println!("\n--- Part 4: Determinism ---");

@@ -180,6 +180,10 @@ fn validate_gillespie_batch_parity(h: &mut Harness) {
     );
 }
 
+#[expect(
+    clippy::unwrap_used,
+    reason = "validation binary — unwrap is acceptable for known-good inputs"
+)]
 fn validate_wright_fisher_batch_parity(h: &mut Harness) {
     println!("\n--- Wright-Fisher Batch Parity (Phase 2b) ---\n");
 
@@ -190,7 +194,8 @@ fn validate_wright_fisher_batch_parity(h: &mut Harness) {
 
     let t0 = Instant::now();
     let fix_count =
-        groundspring::drift::wright_fisher_fixation_batch(pop, selection, freq, n_trials, 42);
+        groundspring::drift::wright_fisher_fixation_batch(pop, selection, freq, n_trials, 42)
+            .unwrap();
     let us = t0.elapsed().as_micros();
 
     let kimura = groundspring::drift::kimura_fixation_prob(pop, selection, freq);
@@ -204,7 +209,8 @@ fn validate_wright_fisher_batch_parity(h: &mut Harness) {
     h.check("WF batch rate near Kimura", (rate - kimura).abs() < 0.15);
 
     let fix2 =
-        groundspring::drift::wright_fisher_fixation_batch(pop, selection, freq, n_trials, 42);
+        groundspring::drift::wright_fisher_fixation_batch(pop, selection, freq, n_trials, 42)
+            .unwrap();
     h.check("WF batch deterministic", fix_count == fix2);
 }
 

@@ -1,11 +1,11 @@
 # LAN HPC Deployment Readiness Checklist
 
-**Date**: May 8, 2026
-**Status**: Eastgate NUCLEUS validated (V145 / guideStone L4), awaiting 10G Cat6a cables
+**Date**: August 3, 2026
+**Status**: Eastgate NUCLEUS validated (V147 / guideStone L4), awaiting 10G Cat6a cables
 
 ---
 
-## Eastgate (Primary NUCLEUS) — VALIDATED (V117)
+## Eastgate (Primary NUCLEUS) — VALIDATED (V147)
 
 | Component | Status | Details |
 |-----------|--------|---------|
@@ -22,13 +22,13 @@
 
 ### V115 Validation Results
 
-- 930+ Rust tests: ALL PASS (default + biomeos features)
+- 1,166 Rust tests: ALL PASS (default + biomeos features)
 
 ### V116 Validation Results
 
-- 1,123 Rust tests: ALL PASS (default + biomeos features)
+- 1,166 Rust tests: ALL PASS (default + biomeos features)
 - 461/461 experiment checks: ALL PASS (340 core + 55 NUCLEUS + 66 LTEE)
-- 44 three-tier parity tests: ALL PASS
+- 126 three-tier parity tests: ALL PASS
 - metalForge GPU: 11/11
 - metalForge spectral: 6/6
 - metalForge mathieu: 7/7
@@ -113,7 +113,7 @@ NODE_ID=northgate ./start.sh
 
 ## What Can Run Now (Before LAN)
 
-With local NUCLEUS on eastGate, groundSpring V117 can execute all Tier 0-1
+With local NUCLEUS on eastGate, groundSpring V147 can execute all Tier 0-1
 dataset extensions without LAN infrastructure:
 
 | Tier | Datasets | Compute | Status |
@@ -126,7 +126,7 @@ Tara Oceans 100GB, HMP 50GB) and Tier 3 (multi-TB SRA surveys).
 
 ---
 
-## Phased Gate Deployment Plan (V117)
+## Phased Gate Deployment Plan (V147)
 
 ### Immediate (Now — Local NUCLEUS on eastGate)
 
@@ -137,7 +137,7 @@ eastGate [Tower + Node + Nest]
   ├── ToadStool (GPU: RTX 4070, 12GB VRAM)
   ├── NestGate (NCBI + NOAA + IRIS + local storage)
   ├── Squirrel (AI: ESN/LSTM classification)
-  └── groundSpring V117 (measurement.* capabilities + health probes)
+  └── groundSpring V147 (measurement.* capabilities + health probes)
 ```
 
 **Actionable now:**
@@ -222,7 +222,7 @@ discovery enables distributed dispatch across all GPU/NPU resources:
 
 ---
 
-## Compute Budget by Tier (V117)
+## Compute Budget by Tier (V147)
 
 | Tier | Data | eastGate (single GPU) | Full LAN | Blocking |
 |------|------|-----------------------|----------|----------|

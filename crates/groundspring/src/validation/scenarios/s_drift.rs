@@ -25,7 +25,16 @@ fn run_scenario(v: &mut ValidationResult, _ctx: &mut CompositionContext) {
     let selection = 0.0;
     let n_trials = 100;
 
-    let fixations = crate::drift::wright_fisher_fixation_batch(n_pop, selection, p0, n_trials, 42);
+    let Ok(fixations) =
+        crate::drift::wright_fisher_fixation_batch(n_pop, selection, p0, n_trials, 42)
+    else {
+        v.check_bool(
+            "drift:batch_simulation",
+            false,
+            "wright_fisher_fixation_batch returned InputError",
+        );
+        return;
+    };
 
     v.check_bool(
         "drift:fixation_count_bounded",

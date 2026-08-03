@@ -111,11 +111,23 @@ where
         .map_err(|e| BiomeOsError::Protocol(format!("invalid JSON-RPC: {e}")))?;
 
     let id = request.get("id").cloned().unwrap_or(Value::Null);
-    let method = request.get("method").and_then(Value::as_str).unwrap_or("");
     let params = request
         .get("params")
         .cloned()
         .unwrap_or_else(|| Value::Object(serde_json::Map::new()));
+
+    let Some(method) = request
+        .get("method")
+        .and_then(Value::as_str)
+        .filter(|m| !m.is_empty())
+    else {
+        let response = serde_json::json!({
+            "jsonrpc": "2.0",
+            "error": { "code": -32600, "message": "Invalid Request" },
+            "id": id,
+        });
+        return write_response(&mut reader, &response);
+    };
 
     let response = match handler(method, &params) {
         Ok(result) => serde_json::json!({
@@ -133,8 +145,17 @@ where
         }
     };
 
+    write_response(&mut reader, &response)
+}
+
+/// Serialize and write a JSON-RPC response line to the connection.
+#[cfg(unix)]
+fn write_response(
+    reader: &mut BufReader<&std::os::unix::net::UnixStream>,
+    response: &Value,
+) -> Result<()> {
     let mut response_bytes =
-        serde_json::to_vec(&response).unwrap_or_else(|_| response.to_string().into_bytes());
+        serde_json::to_vec(response).unwrap_or_else(|_| response.to_string().into_bytes());
     response_bytes.push(b'\n');
 
     let writer = reader.get_mut();

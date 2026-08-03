@@ -55,7 +55,7 @@ pub use health::{CompositionStatus, composition_status, health};
 pub use interaction::{
     DiscoveredPrimal, direct_primal_rpc, discover_by_capability, discover_primals,
     dispatch_capabilities, dispatch_result, dispatch_submit, primal_health, proprioception,
-    topology,
+    refresh_discovered_primals, topology,
 };
 pub use registration::{
     announce_or_register, deregister_capabilities, register_capabilities, register_methods,

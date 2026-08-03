@@ -81,8 +81,11 @@ fn bench_wright_fisher(iters: u32) -> BenchEntry {
 
     let gpu_ms = bench(
         || {
-            let count = groundspring::drift::wright_fisher_fixation_batch(200, 0.01, 0.5, 100, 42);
-            std::hint::black_box(count);
+            if let Ok(count) =
+                groundspring::drift::wright_fisher_fixation_batch(200, 0.01, 0.5, 100, 42)
+            {
+                std::hint::black_box(count);
+            }
         },
         iters,
     );

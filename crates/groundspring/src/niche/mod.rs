@@ -20,6 +20,10 @@
 //! rather than duplicating string literals. groundSpring only knows itself —
 //! it discovers other primals at runtime via capability-based discovery.
 
+pub mod capabilities;
+
+pub use capabilities::{DEPENDENCIES, FEATURE_GATES};
+
 /// Niche identity — used in all JSON-RPC, provenance, and IPC interactions.
 ///
 /// Delegates to [`crate::primal_names::SELF_ID`].
@@ -81,39 +85,6 @@ pub const SEMANTIC_MAPPINGS: &[(&str, &str)] = &[
     ("quasispecies", "measurement.quasispecies"),
 ];
 
-/// Primal dependencies for niche deployment.
-///
-/// Each entry: `(primal_id, required, description)`.
-/// `required = true` means the niche cannot function without it.
-/// `required = false` means graceful degradation is supported.
-pub const DEPENDENCIES: &[(&str, bool, &str)] = &[
-    (
-        crate::primal_names::roles::SECURITY,
-        true,
-        "cryptographic identity and trust",
-    ),
-    (
-        crate::primal_names::roles::DISCOVERY,
-        true,
-        "service discovery and IPC mesh",
-    ),
-    (
-        crate::primal_names::roles::COMPUTE,
-        false,
-        "GPU compute dispatch (sovereign fallback to CPU)",
-    ),
-    (
-        crate::primal_names::roles::STORAGE,
-        false,
-        "data storage and NCBI/NOAA/IRIS providers (sovereign fallback to synthetic)",
-    ),
-    (
-        crate::primal_names::roles::AUDIT,
-        false,
-        "audit event logging via skunkBat (JH-5, fallback: skip)",
-    ),
-];
-
 /// Cost estimates for biomeOS Pathway Learner scheduling.
 ///
 /// Each entry: `(capability, estimated_ms, gpu_beneficial)`.
@@ -140,7 +111,7 @@ pub const COST_ESTIMATES: &[(&str, u32, bool)] = &[
 
 /// Consumed capabilities — what groundSpring calls on other primals.
 ///
-/// groundSpring discovers these at runtime via `Songbird`; it never
+/// groundSpring discovers these at runtime via the discovery provider; it never
 /// hardcodes which primal provides them.
 pub const CONSUMED_CAPABILITIES: &[&str] = &[
     "crypto.sign",
@@ -165,17 +136,6 @@ pub const CONSUMED_CAPABILITIES: &[&str] = &[
 /// primitives (`bootstrap`, `rarefaction`, `drift`, `band_edge`,
 /// `rare_biosphere`, `gillespie`, `bistable`, `quasispecies`).
 pub const DELEGATION_COUNT: (u32, u32) = (67, 43);
-
-/// Feature gates that expand niche capabilities.
-pub const FEATURE_GATES: &[(&str, &str)] = &[
-    ("barracuda", "CPU delegation to barraCuda primitives"),
-    ("barracuda-gpu", "GPU dispatch via barraCuda + toadStool"),
-    (
-        crate::primal_names::roles::ORCHESTRATOR,
-        "biomeOS Neural API integration",
-    ),
-    ("npu", "BrainChip AKD1000 NPU inference"),
-];
 
 // ─── Structured capability metadata (ludoSpring V19 pattern) ────────────────
 

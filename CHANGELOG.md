@@ -4,6 +4,54 @@ All notable changes to groundSpring follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### V147 Wave 156b Deep Debt Evolution (August 3, 2026)
+
+#### Phase 1: Large File Smart Refactoring
+- `pipeline.rs` (647L) → `pipeline/` submodule (types.rs, planner.rs, summary.rs)
+- `atomic.rs` (641L) → `atomic/` submodule (types.rs, tower.rs, node.rs, nest.rs, nucleus.rs)
+- `spectral_recon.rs` (621L) → `spectral_recon/` submodule (kernel.rs, tikhonov.rs, linalg.rs, fft.rs)
+- `esn/brain.rs` (555L) → extracted `esn/uncertainty.rs` + `esn/concepts.rs`
+- `niche.rs` (539L) → `niche/` submodule (capabilities.rs separated)
+
+#### Phase 2: Self-Knowledge Evolution
+- `LEGACY_COMPUTE_PREFIX` renamed to `LEGACY_NAMESPACE_PREFIX` (clarity, not routing)
+- All primal-name check IDs → role-based: `tower:security_alive`, `tower:federation_alive`,
+  `gate:security-ipc`, `gate:gpu-math-ipc`, `gate:compiler-ipc`, `gate:compute-ipc`
+- Doc comments purged of peer names (toadStool → compute dispatch provider, BearDog → security provider)
+- Niche capability descriptions use role-based names
+
+#### Phase 3: Production Stubs Completed
+- `dispatch_submit` takes owned `Value`; non-object params wrapped as `{"op", "params"}`
+- `prng-xoshiro-default` feature doc corrected (switches DefaultRng to Xoshiro128StarStar)
+- Swallowed errors in `biomeos/health.rs` + `interaction.rs` → `tracing::trace!`/`tracing::debug!`
+
+#### Phase 4: Zero-Copy + Allocation Evolution
+- Discovery caching via `OnceLock<Mutex<DiscoveryCache>>` with 30s TTL
+- `discover_primals()` / `discover_by_capability()` now cache-first (avoids repeated FS scans)
+- `refresh_discovered_primals()` added for explicit cache invalidation
+
+#### Phase 5: Dependency Evaluation
+- `blake3` is transitive via primalSpring (not groundSpring's concern). Documented.
+- barraCuda + bingoCube already use `features = ["pure"]`. primalSpring needs `default-features = false`.
+
+#### Phase 6: Coverage Expansion
+- New: `tests/certification_bonding.rs` — 5 bonding harness integration tests
+- New: `tests/validation_scenarios.rs` — 6 scenario registry integration tests
+- New: `tests/fao56_methods.rs` — 22 alternate ET₀ method integration tests
+- New: `tests/tissue_anderson_drug_scoring.rs` — 12 proptest-based property tests
+- New: `tests/wdm_methods.rs` — 9 extrapolation/autocorrelation/block_size integration tests
+
+#### Phase 7: Idiom Modernization
+- `NdjsonSink` → `serde_json::json!()` (correctness over manual format + escape)
+- `wright_fisher_fixation_batch` → `Result<usize, InputError>` (was `usize` hiding errors)
+- `biomeos/server.rs` RPC parsing → strict JSON-RPC 2.0 (-32600 Invalid Request on bad method)
+
+#### Metrics
+- Rust tests: 1,123 → 1,166 (+43 integration/property tests)
+- Zero clippy warnings, zero fmt diff, zero TODOs/FIXMEs
+- All production files under 600 lines (was 5 files over 600L)
+- Self-knowledge violations: 0 (was ~12 literal primal names in check IDs/docs)
+
 ### V146 Wave 107 Steady State (June 10, 2026)
 
 #### guideStone L5 Bonding Layer

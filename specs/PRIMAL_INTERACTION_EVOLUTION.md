@@ -53,9 +53,9 @@ groundSpring
  ├── Direct Primal: Songbird (Network)
  │   └── songbird.sock ──────── TCP :3492 + IPC .............. ✅ LIVE
  │
- ├── Nest (NestGate) — binary version mismatch (no `daemon` subcommand)
- │   ├── storage.put/get ─────── not available in this deploy . ⚠  binary needs update
- │   └── data.* providers ────── not available ................ ⚠  binary needs update
+ ├── Direct Primal: NestGate (Storage)
+ │   ├── storage.put/get ─────── content-addressed blob storage ... ✅ LIVE (aligned)
+ │   └── data.* providers ────── NCBI, NOAA, IRIS pipelines .... ✅ LIVE (aligned)
  │
  └── Sovereign Fallback
      ├── Local Anderson localization .......................... ✅ always works

@@ -18,7 +18,7 @@ impl Inventory {
     #[must_use]
     pub fn discover() -> Self {
         let mut substrates = Vec::new();
-        substrates.extend(probe::probe_gpus());
+        substrates.extend_from_slice(probe::probe_gpus());
         substrates.extend(probe::probe_npus());
         substrates.push(probe::probe_cpu());
         Self { substrates }

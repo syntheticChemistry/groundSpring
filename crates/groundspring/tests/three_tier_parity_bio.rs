@@ -56,14 +56,14 @@ fn drift_wf_parity_deterministic() {
 
 #[test]
 fn wf_batch_parity() {
-    let n1 = groundspring::drift::wright_fisher_fixation_batch(100, 0.01, 0.5, 20, 42);
-    let n2 = groundspring::drift::wright_fisher_fixation_batch(100, 0.01, 0.5, 20, 42);
+    let n1 = groundspring::drift::wright_fisher_fixation_batch(100, 0.01, 0.5, 20, 42).unwrap();
+    let n2 = groundspring::drift::wright_fisher_fixation_batch(100, 0.01, 0.5, 20, 42).unwrap();
     assert_eq!(n1, n2, "same seed → same fixation count");
 }
 
 #[test]
 fn wf_batch_fixation_positive_selection() {
-    let count = groundspring::drift::wright_fisher_fixation_batch(100, 0.05, 0.5, 50, 42);
+    let count = groundspring::drift::wright_fisher_fixation_batch(100, 0.05, 0.5, 50, 42).unwrap();
     assert!(count > 0, "positive selection should fix some trials");
     assert!(count <= 50, "can't fix more than n_trials");
 }
@@ -74,7 +74,8 @@ fn wf_batch_kimura_convergence() {
     let s = 0.01;
     let p0 = 0.5;
     let n_trials = 200;
-    let fix_count = groundspring::drift::wright_fisher_fixation_batch(n, s, p0, n_trials, 42);
+    let fix_count =
+        groundspring::drift::wright_fisher_fixation_batch(n, s, p0, n_trials, 42).unwrap();
     let kimura = groundspring::drift::kimura_fixation_prob(n, s, p0);
     #[expect(clippy::cast_precision_loss, reason = "count/trials ≤ N ≪ 2^53")]
     let observed = fix_count as f64 / n_trials as f64;

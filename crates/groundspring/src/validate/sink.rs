@@ -107,7 +107,14 @@ impl<W: Write> NdjsonSink<W> {
 /// Escape a string for safe embedding inside a JSON string value.
 ///
 /// Handles `"`, `\`, and control characters (including newlines) per RFC 8259.
-/// Intentionally minimal to avoid pulling `serde_json` into the core harness.
+/// Retained for unit tests; [`NdjsonSink`] uses `serde_json` for serialization.
+#[cfg_attr(
+    not(test),
+    expect(
+        dead_code,
+        reason = "exercised by validate::tests::json_escape_handles_control_chars"
+    )
+)]
 pub(super) fn json_escape(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
     for ch in s.chars() {
@@ -129,34 +136,44 @@ pub(super) fn json_escape(s: &str) -> String {
 
 impl<W: Write> ValidationSink for NdjsonSink<W> {
     fn record_pass(&mut self, label: &str, detail: &str) {
-        let l = json_escape(label);
-        let d = json_escape(detail);
-        self.write_json(&format!(
-            r#"{{"type":"check","status":"pass","label":"{l}","detail":"{d}"}}"#
-        ));
+        let obj = serde_json::json!({
+            "type": "check",
+            "status": "pass",
+            "label": label,
+            "detail": detail,
+        });
+        self.write_json(&obj.to_string());
     }
 
     fn record_fail(&mut self, label: &str, detail: &str) {
-        let l = json_escape(label);
-        let d = json_escape(detail);
-        self.write_json(&format!(
-            r#"{{"type":"check","status":"fail","label":"{l}","detail":"{d}"}}"#
-        ));
+        let obj = serde_json::json!({
+            "type": "check",
+            "status": "fail",
+            "label": label,
+            "detail": detail,
+        });
+        self.write_json(&obj.to_string());
     }
 
     fn section(&mut self, name: &str) {
-        let n = json_escape(name);
-        self.write_json(&format!(r#"{{"type":"section","name":"{n}"}}"#));
+        let obj = serde_json::json!({
+            "type": "section",
+            "name": name,
+        });
+        self.write_json(&obj.to_string());
     }
 
     fn write_summary(&mut self, text: &str) {
-        let t = json_escape(text);
-        self.write_json(&format!(r#"{{"type":"summary","text":"{t}"}}"#));
+        let obj = serde_json::json!({
+            "type": "summary",
+            "text": text,
+        });
+        self.write_json(&obj.to_string());
     }
 }
 
 /// Runtime-dispatch sink that selects text or NDJSON output based on
-/// `--format json` CLI flag. Used by [`ValidationHarness::from_args`].
+/// `--format json` CLI flag. Used by [`super::ValidationHarness::from_args`].
 ///
 /// Avoids trait objects by using an enum; projectNUCLEUS Tier 2 ingestion
 /// requires structured JSON output while CLI users keep the human-readable

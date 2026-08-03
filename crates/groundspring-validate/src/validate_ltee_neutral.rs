@@ -23,6 +23,10 @@ fn main() {
     std::process::exit(run());
 }
 
+#[expect(
+    clippy::unwrap_used,
+    reason = "validation uses fixed population parameters that satisfy InputError bounds"
+)]
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::from_args(
@@ -88,7 +92,8 @@ fn run() -> i32 {
         1.0 / usize_f64(pop_size),
         n_trials,
         42,
-    );
+    )
+    .unwrap();
     let obs_rate = usize_f64(fixation_count) / usize_f64(n_trials);
     h.check_true(
         "Wright-Fisher neutral fixation rate reasonable",
@@ -97,7 +102,7 @@ fn run() -> i32 {
 
     // Check 7: Beneficial mutation has higher fixation rate
     let ben_count =
-        groundspring::drift::wright_fisher_fixation_batch(1000, 0.05, 0.01, n_trials, 99);
+        groundspring::drift::wright_fisher_fixation_batch(1000, 0.05, 0.01, n_trials, 99).unwrap();
     let ben_rate = usize_f64(ben_count) / usize_f64(n_trials);
     h.check_true(
         "Beneficial mutation (s=0.05) fixes more often than neutral",
@@ -111,7 +116,8 @@ fn run() -> i32 {
         1.0 / usize_f64(pop_size),
         n_trials,
         42,
-    );
+    )
+    .unwrap();
     h.check_true(
         "Deterministic (same seed → same count)",
         fixation_count == fix_count2,

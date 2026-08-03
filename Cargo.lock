@@ -23,7 +23,7 @@ dependencies = [
 
 [[package]]
 name = "akida-driver"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bytemuck",
  "bytes",
@@ -159,8 +159,28 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
 
 [[package]]
+name = "bingocube-core"
+version = "0.1.1"
+dependencies = [
+ "blake3",
+ "rand 0.8.5",
+ "rand_chacha 0.3.1",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "bingocube-nautilus"
-version = "0.1.0"
+version = "0.1.1"
+dependencies = [
+ "bingocube-core",
+ "blake3",
+ "rand 0.8.5",
+ "rand_chacha 0.3.1",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
 
 [[package]]
 name = "bit-set"
@@ -1516,7 +1536,7 @@ dependencies = [
 
 [[package]]
 name = "primalspring"
-version = "0.9.33"
+version = "0.9.46"
 dependencies = [
  "base64",
  "blake3",
@@ -2389,20 +2409,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "wasm-bindgen-futures"
-version = "0.4.63"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8a89f4650b770e4521aa6573724e2aed4704372151bd0de9d16a3bbabb87441a"
-dependencies = [
- "cfg-if",
- "futures-util",
- "js-sys",
- "once_cell",
- "wasm-bindgen",
- "web-sys",
-]
-
-[[package]]
 name = "wasm-bindgen-macro"
 version = "0.2.113"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2469,16 +2475,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "web-sys"
-version = "0.3.90"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "705eceb4ce901230f8625bd1d665128056ccbe4b7408faa625eec1ba80f59a97"
-dependencies = [
- "js-sys",
- "wasm-bindgen",
-]
-
-[[package]]
 name = "web-time"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2501,7 +2497,6 @@ dependencies = [
  "cfg_aliases",
  "document-features",
  "hashbrown 0.16.1",
- "js-sys",
  "log",
  "naga",
  "portable-atomic",
@@ -2509,9 +2504,6 @@ dependencies = [
  "raw-window-handle",
  "smallvec",
  "static_assertions",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "web-sys",
  "wgpu-core",
  "wgpu-hal",
  "wgpu-types",
@@ -2615,9 +2607,7 @@ checksum = "e18308757e594ed2cd27dddbb16a139c42a683819d32a2e0b1b0167552f5840c"
 dependencies = [
  "bitflags 2.11.0",
  "bytemuck",
- "js-sys",
  "log",
- "web-sys",
 ]
 
 [[package]]

@@ -13,7 +13,7 @@ use primalspring::validation::ValidationResult;
 
 /// Run Layer 5 bonding certification.
 ///
-/// Requires live NUCLEUS with at minimum: BearDog (crypto), Songbird
+/// Requires live NUCLEUS with at minimum: security (crypto), federation
 /// (discovery), and biomeOS orchestrator.
 pub fn certify_bonding(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     v.section("NUCLEUS Layer 5: Bonding Model");
@@ -24,7 +24,7 @@ pub fn certify_bonding(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     bonding_mesh_topology(ctx, v);
 }
 
-/// Ionic bond: sign a challenge via BearDog, verify the signature.
+/// Ionic bond: sign a challenge via security role, verify the signature.
 fn bonding_crypto_sign_verify(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     let challenge = format!(
         "groundspring-bonding-{}",
@@ -49,7 +49,10 @@ fn bonding_crypto_sign_verify(ctx: &mut CompositionContext, v: &mut ValidationRe
             v.check_bool(
                 "bonding:crypto_sign",
                 !signature.is_empty(),
-                &format!("Ed25519 signature: {}...", &signature[..signature.len().min(16)]),
+                &format!(
+                    "Ed25519 signature: {}...",
+                    &signature[..signature.len().min(16)]
+                ),
             );
 
             if !signature.is_empty() {
@@ -86,7 +89,10 @@ fn bonding_crypto_sign_verify(ctx: &mut CompositionContext, v: &mut ValidationRe
             }
         }
         Err(e) if e.is_connection_error() => {
-            v.check_skip("bonding:crypto_sign", &format!("security not available: {e}"));
+            v.check_skip(
+                "bonding:crypto_sign",
+                &format!("security not available: {e}"),
+            );
             v.check_skip("bonding:crypto_verify", "security not available");
         }
         Err(e) => {
@@ -122,11 +128,12 @@ fn bonding_capability_reflection(ctx: &mut CompositionContext, v: &mut Validatio
             if let Some(caps) = capabilities {
                 let cap_strings: Vec<&str> = caps
                     .iter()
-                    .filter_map(|c| c.as_str().or_else(|| c.get("name").and_then(|n| n.as_str())))
+                    .filter_map(|c| {
+                        c.as_str()
+                            .or_else(|| c.get("name").and_then(|n| n.as_str()))
+                    })
                     .collect();
-                let has_measurement = cap_strings
-                    .iter()
-                    .any(|c| c.starts_with("measurement."));
+                let has_measurement = cap_strings.iter().any(|c| c.starts_with("measurement."));
                 v.check_bool(
                     "bonding:measurement_capabilities_visible",
                     has_measurement,
@@ -147,7 +154,10 @@ fn bonding_capability_reflection(ctx: &mut CompositionContext, v: &mut Validatio
                 "bonding:capability_list_populated",
                 &format!("discovery not available: {e}"),
             );
-            v.check_skip("bonding:measurement_capabilities_visible", "discovery not available");
+            v.check_skip(
+                "bonding:measurement_capabilities_visible",
+                "discovery not available",
+            );
         }
         Err(e) => {
             v.check_bool(
@@ -155,12 +165,15 @@ fn bonding_capability_reflection(ctx: &mut CompositionContext, v: &mut Validatio
                 false,
                 &format!("capability.list error: {e}"),
             );
-            v.check_skip("bonding:measurement_capabilities_visible", "prior call failed");
+            v.check_skip(
+                "bonding:measurement_capabilities_visible",
+                "prior call failed",
+            );
         }
     }
 }
 
-/// Method introspection: call `method.describe` (barraCuda v0.4.0+)
+/// Method introspection: call `method.describe` (gpu-math v0.4.0+)
 /// to verify that measurement methods have runtime descriptions.
 fn bonding_method_introspection(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     match ctx.call(
@@ -169,14 +182,15 @@ fn bonding_method_introspection(ctx: &mut CompositionContext, v: &mut Validation
         serde_json::json!({"method": "stats.mean"}),
     ) {
         Ok(result) => {
-            let has_description = result.get("description").is_some()
-                || result.get("name").is_some();
+            let has_description =
+                result.get("description").is_some() || result.get("name").is_some();
             v.check_bool(
                 "bonding:method_describe",
                 has_description,
                 &format!(
                     "stats.mean introspection: {}",
-                    result.get("description")
+                    result
+                        .get("description")
                         .and_then(serde_json::Value::as_str)
                         .unwrap_or("(present)")
                 ),
@@ -199,7 +213,7 @@ fn bonding_method_introspection(ctx: &mut CompositionContext, v: &mut Validation
 }
 
 /// Mesh topology: verify `ipc.resolve` returns topology-aware endpoints
-/// (songBird Wave 107: MeshRelay endpoints).
+/// (federation mesh Wave 107: MeshRelay endpoints).
 fn bonding_mesh_topology(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     match ctx.call(
         crate::primal_names::roles::DISCOVERY,

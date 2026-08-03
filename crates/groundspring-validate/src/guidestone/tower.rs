@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-//! NUCLEUS Layer 3: Tower Atomic — BearDog (security) + Songbird (discovery).
+//! NUCLEUS Layer 3: Tower Atomic — security + federation (discovery).
 
 use groundspring::primal_names::roles;
 use primalspring::composition::CompositionContext;
@@ -9,8 +9,8 @@ use primalspring::validation::ValidationResult;
 /// Liveness probes for Tower primal pair.
 pub fn tower_health(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     for (name, cap) in [
-        ("tower:beardog_alive", roles::SECURITY),
-        ("tower:songbird_alive", roles::DISCOVERY),
+        ("tower:security_alive", roles::SECURITY),
+        ("tower:federation_alive", roles::DISCOVERY),
     ] {
         match ctx.health_check(cap) {
             Ok(alive) => v.check_bool(name, alive, &format!("{cap} health normalized")),
@@ -24,7 +24,7 @@ pub fn tower_health(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     }
 }
 
-/// BLAKE3 hash via BearDog crypto capability.
+/// BLAKE3 hash via security crypto capability.
 pub fn tower_crypto_hash(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     let test_data = b"groundSpring composition parity test";
 
@@ -87,7 +87,7 @@ pub fn tower_crypto_hash(ctx: &mut CompositionContext, v: &mut ValidationResult)
     }
 }
 
-/// Capability resolution via Songbird discovery.
+/// Capability resolution via federation discovery.
 pub fn tower_discovery_resolve(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     for cap in [roles::SECURITY, roles::COMPUTE, roles::STORAGE] {
         let name = format!("tower:resolve_{cap}");
@@ -117,20 +117,20 @@ pub fn tower_discovery_resolve(ctx: &mut CompositionContext, v: &mut ValidationR
             let methods = result.get("methods").and_then(|m| m.as_array());
             let count = methods.map_or(0, Vec::len);
             v.check_bool(
-                "tower:songbird_method_catalog",
+                "tower:federation_method_catalog",
                 count > 10,
-                &format!("Songbird exposes {count} methods"),
+                &format!("federation exposes {count} methods"),
             );
         }
         Err(e) if e.is_connection_error() => {
             v.check_skip(
-                "tower:songbird_method_catalog",
+                "tower:federation_method_catalog",
                 &format!("discovery not available: {e}"),
             );
         }
         Err(e) => {
             v.check_bool(
-                "tower:songbird_method_catalog",
+                "tower:federation_method_catalog",
                 false,
                 &format!("discover error: {e}"),
             );

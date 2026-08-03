@@ -273,7 +273,7 @@ pub(super) fn drift(params: &Value) -> Result<Value, DispatchError> {
         initial_freq,
         n_trials,
         seed,
-    );
+    )?;
     let empirical_prob = crate::cast::usize_f64(n_fixed) / crate::cast::usize_f64(n_trials);
     let kimura = crate::drift::kimura_fixation_prob(pop_size, selection, initial_freq);
 

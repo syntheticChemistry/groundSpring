@@ -43,32 +43,12 @@ fn generate_noisy_pop(gens: &[f64], alpha: f64, beta: f64, sigma: f64, seed: u64
         .collect()
 }
 
-fn run() -> i32 {
-    let bench = parse_benchmark(BENCHMARK);
-    let mut h =
-        ValidationHarness::from_args("Rust Validation: LTEE Fitness Dynamics (Wiser 2013 B2)");
-    print_provenance_header(&bench, "LTEE Fitness Dynamics");
-
-    let model = &bench["model"];
-    let exp = &bench["expected_results"];
-    let n_pop = usize_field(model, "n_populations");
-    let alpha = f64_field(&model["power_law_params"], "alpha");
-    let beta = f64_field(&model["power_law_params"], "beta");
-    let noise_sigma = f64_field(model, "noise_sigma");
-    let seed = model["seed"].as_u64().unwrap_or(42);
-    let exp_range = f64_range(&exp["power_law_exponent_range"]);
-    let jk_se_max = f64_field(exp, "jackknife_exponent_se_max");
-    let pl_r2_min = f64_field(exp, "power_law_r_squared_min");
-
-    let gens: Vec<f64> = model["generations"]
-        .as_array()
-        .unwrap_or(&Vec::new())
-        .iter()
-        .filter_map(serde_json::Value::as_f64)
-        .collect();
-    let gens_pos: Vec<f64> = gens.iter().copied().filter(|&t| t > 0.0).collect();
-
-    // ── Phase 1: Noiseless model selection ──────────────────────────
+fn validate_model_selection(
+    h: &mut ValidationHarness,
+    gens_pos: &[f64],
+    exp_range: (f64, f64),
+    pl_r2_min: f64,
+) {
     let a_coeff: f64 = 0.004;
     let b_exp: f64 = 0.66;
     let noiseless: Vec<f64> = gens_pos
@@ -76,8 +56,8 @@ fn run() -> i32 {
         .map(|&t| a_coeff.mul_add(t.powf(b_exp), 1.0))
         .collect();
 
-    let fits = fit_all(&gens_pos, &noiseless);
-    let comparisons = compare_models(&fits, &gens_pos, &noiseless);
+    let fits = fit_all(gens_pos, &noiseless);
+    let comparisons = compare_models(&fits, gens_pos, &noiseless);
 
     h.check_true(
         "Phase 1: at least 3 models converge",
@@ -91,13 +71,11 @@ fn run() -> i32 {
         );
     }
 
-    let mut by_bic = comparisons.clone();
-    by_bic.sort_by(|a, b| {
+    if let Some(best_bic) = comparisons.iter().min_by(|a, b| {
         a.bic
             .partial_cmp(&b.bic)
             .unwrap_or(std::cmp::Ordering::Equal)
-    });
-    if let Some(best_bic) = by_bic.first() {
+    }) {
         h.check_true(
             "Phase 1: best model by BIC is power_law",
             best_bic.model == "power_law",
@@ -121,7 +99,7 @@ fn run() -> i32 {
         );
     }
 
-    if let Some(pl_fit) = fit_power_law(&gens_pos, &noiseless) {
+    if let Some(pl_fit) = fit_power_law(gens_pos, &noiseless) {
         h.check_true(
             "Phase 1: exponent in expected range",
             pl_fit.params[1] >= exp_range.0 && pl_fit.params[1] <= exp_range.1,
@@ -129,20 +107,34 @@ fn run() -> i32 {
     }
 
     if let (Some(pl_fit), Some(hyp_fit)) = (
-        fit_power_law(&gens_pos, &noiseless),
-        fit_hyperbolic(&gens_pos, &noiseless),
+        fit_power_law(gens_pos, &noiseless),
+        fit_hyperbolic(gens_pos, &noiseless),
     ) {
         h.check_true(
             "Phase 1: power-law R² > hyperbolic R²",
             pl_fit.r_squared > hyp_fit.r_squared,
         );
     }
+}
 
-    // ── Phase 2: Noisy populations + jackknife ──────────────────────
-    let populations: Vec<Vec<f64>> = (0..n_pop)
-        .map(|i| generate_noisy_pop(&gens, alpha, beta, noise_sigma, seed + i as u64))
-        .collect();
+struct JackknifeParams {
+    n_pop: usize,
+    jk_se_max: f64,
+    alpha: f64,
+    beta: f64,
+    noise_sigma: f64,
+    seed: u64,
+}
 
+fn validate_jackknife(
+    h: &mut ValidationHarness,
+    gens: &[f64],
+    gens_pos: &[f64],
+    populations: &[Vec<f64>],
+    params: &JackknifeParams,
+) {
+    let n_pop = params.n_pop;
+    let jk_se_max = params.jk_se_max;
     h.check_true(
         "Phase 2: all populations fitness increasing",
         populations
@@ -170,7 +162,7 @@ fn run() -> i32 {
             .filter(|&(&t, _)| t > 0.0)
             .map(|(&_, &f)| f)
             .collect();
-        if let Some(fit) = fit_power_law(&gens_pos, &sm_pos) {
+        if let Some(fit) = fit_power_law(gens_pos, &sm_pos) {
             jk_exponents.push(fit.params[1]);
         }
     }
@@ -189,7 +181,15 @@ fn run() -> i32 {
     }
 
     let pop2: Vec<Vec<f64>> = (0..n_pop)
-        .map(|i| generate_noisy_pop(&gens, alpha, beta, noise_sigma, seed + i as u64))
+        .map(|i| {
+            generate_noisy_pop(
+                gens,
+                params.alpha,
+                params.beta,
+                params.noise_sigma,
+                params.seed + i as u64,
+            )
+        })
         .collect();
     let n_pop_f = usize_f64(n_pop);
     let mean1: Vec<f64> = (0..gens.len())
@@ -205,6 +205,48 @@ fn run() -> i32 {
             .zip(&mean2)
             .all(|(&a, &b)| (a - b).abs() < 1e-12),
     );
+}
+
+fn run() -> i32 {
+    let bench = parse_benchmark(BENCHMARK);
+    let mut h =
+        ValidationHarness::from_args("Rust Validation: LTEE Fitness Dynamics (Wiser 2013 B2)");
+    print_provenance_header(&bench, "LTEE Fitness Dynamics");
+
+    let model = &bench["model"];
+    let exp = &bench["expected_results"];
+    let n_pop = usize_field(model, "n_populations");
+    let alpha = f64_field(&model["power_law_params"], "alpha");
+    let beta = f64_field(&model["power_law_params"], "beta");
+    let noise_sigma = f64_field(model, "noise_sigma");
+    let seed = model["seed"].as_u64().unwrap_or(42);
+    let exp_range = f64_range(&exp["power_law_exponent_range"]);
+    let jk_se_max = f64_field(exp, "jackknife_exponent_se_max");
+    let pl_r2_min = f64_field(exp, "power_law_r_squared_min");
+
+    let gens: Vec<f64> = model["generations"]
+        .as_array()
+        .unwrap_or(&Vec::new())
+        .iter()
+        .filter_map(serde_json::Value::as_f64)
+        .collect();
+    let gens_pos: Vec<f64> = gens.iter().copied().filter(|&t| t > 0.0).collect();
+
+    validate_model_selection(&mut h, &gens_pos, exp_range, pl_r2_min);
+
+    let populations: Vec<Vec<f64>> = (0..n_pop)
+        .map(|i| generate_noisy_pop(&gens, alpha, beta, noise_sigma, seed + i as u64))
+        .collect();
+
+    let jk_params = JackknifeParams {
+        n_pop,
+        jk_se_max,
+        alpha,
+        beta,
+        noise_sigma,
+        seed,
+    };
+    validate_jackknife(&mut h, &gens, &gens_pos, &populations, &jk_params);
 
     h.summary()
 }

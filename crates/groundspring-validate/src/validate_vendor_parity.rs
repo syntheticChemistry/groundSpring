@@ -44,6 +44,72 @@ fn synthetic_vacf_noisy(
         .collect()
 }
 
+struct ParityMetrics {
+    max_rel_diff: f64,
+    mean_rel_diff: f64,
+    correlation: f64,
+    bias_fraction: f64,
+    max_abs_diff: f64,
+    all_within: bool,
+    chi2_per_dof: f64,
+}
+
+fn compute_parity_metrics(
+    d_vendor_a: &[f64],
+    d_vendor_b: &[f64],
+    max_rel_tol: f64,
+) -> ParityMetrics {
+    let n = d_vendor_a.len();
+    let mut max_rel_diff = 0.0_f64;
+    let mut sum_rel_diff = 0.0_f64;
+    for (da, db) in d_vendor_a.iter().zip(d_vendor_b.iter()) {
+        let d_a_safe = da.abs().max(EPS_SAFE_DIV_STRICT);
+        let rel_diff = (da - db).abs() / d_a_safe;
+        max_rel_diff = max_rel_diff.max(rel_diff);
+        sum_rel_diff += rel_diff;
+    }
+    #[expect(clippy::cast_precision_loss, reason = "n_observables from JSON ≪ 2^53")]
+    let mean_rel_diff = sum_rel_diff / (n as f64);
+
+    let correlation = pearson_r(d_vendor_a, d_vendor_b);
+
+    let mbe = groundspring::stats::mbe(d_vendor_a, d_vendor_b);
+    let rmse = groundspring::stats::rmse(d_vendor_a, d_vendor_b);
+    let decomp = decompose_error(mbe, rmse);
+
+    let max_abs_diff = d_vendor_b
+        .iter()
+        .zip(d_vendor_a.iter())
+        .map(|(db, da)| (db - da).abs())
+        .fold(0.0_f64, f64::max);
+
+    let all_within = d_vendor_a
+        .iter()
+        .zip(d_vendor_b.iter())
+        .all(|(da, db)| (da - db).abs() / da.abs().max(EPS_SAFE_DIV_STRICT) <= max_rel_tol);
+
+    let chi2_sum: f64 = d_vendor_a
+        .iter()
+        .zip(d_vendor_b.iter())
+        .map(|(da, db)| {
+            let denom_chi2 = (da * da).max(EPS_SAFE_DIV_STRICT);
+            (da - db) * (da - db) / denom_chi2
+        })
+        .sum();
+    #[expect(clippy::cast_precision_loss, reason = "n_observables from JSON ≪ 2^53")]
+    let chi2_per_dof = chi2_sum / (n as f64);
+
+    ParityMetrics {
+        max_rel_diff,
+        mean_rel_diff,
+        correlation,
+        bias_fraction: decomp.bias_fraction,
+        max_abs_diff,
+        all_within,
+        chi2_per_dof,
+    }
+}
+
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut harness = ValidationHarness::from_args("Rust Validation: GPU Vendor Parity");
@@ -72,7 +138,6 @@ fn run() -> i32 {
     let mut rng_b = Xorshift64::new(seed_b);
 
     let denom = (n_observables - 1).max(1);
-
     let mut d_vendor_a: Vec<f64> = Vec::with_capacity(n_observables);
     let mut d_vendor_b: Vec<f64> = Vec::with_capacity(n_observables);
 
@@ -92,100 +157,57 @@ fn run() -> i32 {
             .map(|&v| epsilon.mul_add(rng_b.normal(0.0, 1.0), v))
             .collect();
         let integral_b = green_kubo_integrate(&vendor_b_vacf, dt);
-        let d_b = integral_b / d_dim;
-
         d_vendor_a.push(d_a);
-        d_vendor_b.push(d_b);
+        d_vendor_b.push(integral_b / d_dim);
     }
 
-    // Relative differences: |D_A - D_B| / |D_A|
-    // Guard: 1e-20 is well below any physically meaningful diffusion
-    // coefficient (~1e-15 m²/s for molecular diffusion) and prevents
-    // division-by-zero when D_A ≈ 0 at short correlation times.
-    let mut max_rel_diff = 0.0_f64;
-    let mut sum_rel_diff = 0.0_f64;
-    for (da, db) in d_vendor_a.iter().zip(d_vendor_b.iter()) {
-        let d_a_safe = da.abs().max(EPS_SAFE_DIV_STRICT);
-        let rel_diff = (da - db).abs() / d_a_safe;
-        max_rel_diff = max_rel_diff.max(rel_diff);
-        sum_rel_diff += rel_diff;
-    }
-    #[expect(clippy::cast_precision_loss, reason = "n_observables from JSON ≪ 2^53")]
-    let mean_rel_diff = sum_rel_diff / (n_observables as f64);
-
-    // Pearson correlation between D_A and D_B
-    let correlation = pearson_r(&d_vendor_a, &d_vendor_b);
-
-    // Bias-variance decomposition of D_B - D_A
-    let diff: Vec<f64> = d_vendor_b
-        .iter()
-        .zip(d_vendor_a.iter())
-        .map(|(db, da)| db - da)
-        .collect();
-    let mbe = groundspring::stats::mbe(&d_vendor_a, &d_vendor_b);
-    let rmse = groundspring::stats::rmse(&d_vendor_a, &d_vendor_b);
-    let decomp = decompose_error(mbe, rmse);
-    let bias_fraction = decomp.bias_fraction;
-
-    // Max absolute difference
-    let max_abs_diff = diff.iter().map(|d| d.abs()).fold(0.0_f64, f64::max);
-
-    // All within tolerance
     let max_rel_tol = f64_field(exp, "max_relative_difference");
-    let all_within = d_vendor_a
-        .iter()
-        .zip(d_vendor_b.iter())
-        .all(|(da, db)| (da - db).abs() / da.abs().max(EPS_SAFE_DIV_STRICT) <= max_rel_tol); // same guard as above
+    let m = compute_parity_metrics(&d_vendor_a, &d_vendor_b, max_rel_tol);
 
-    // Chi-squared per DOF: sum((D_A - D_B)^2 / max(D_A^2, EPS_SAFE_DIV_STRICT)) / n_observables
-    let chi2_sum: f64 = d_vendor_a
-        .iter()
-        .zip(d_vendor_b.iter())
-        .map(|(da, db)| {
-            let denom_chi2 = (da * da).max(EPS_SAFE_DIV_STRICT); // same guard as relative diff
-            (da - db) * (da - db) / denom_chi2
-        })
-        .sum();
-    #[expect(clippy::cast_precision_loss, reason = "n_observables from JSON ≪ 2^53")]
-    let chi2_per_dof = chi2_sum / (n_observables as f64);
+    println!(
+        "\n  Max relative diff: {:.2e}, mean: {:.2e}",
+        m.max_rel_diff, m.mean_rel_diff
+    );
+    println!("  Vendor correlation: {:.8}", m.correlation);
+    println!(
+        "  Bias fraction: {:.6}, max abs diff: {:.2e}",
+        m.bias_fraction, m.max_abs_diff
+    );
+    println!(
+        "  Chi² per DOF: {:.6}, all within tol: {}",
+        m.chi2_per_dof, m.all_within
+    );
 
-    println!("\n  Max relative diff: {max_rel_diff:.2e}, mean: {mean_rel_diff:.2e}");
-    println!("  Vendor correlation: {correlation:.8}");
-    println!("  Bias fraction: {bias_fraction:.6}, max abs diff: {max_abs_diff:.2e}");
-    println!("  Chi² per DOF: {chi2_per_dof:.6}, all within tol: {all_within}");
-
-    // --- Validation checks (7 total) ---
     println!("\n--- Validation Checks ---");
-
     harness.check_max(
         "Max relative difference bounded",
-        max_rel_diff,
-        f64_field(exp, "max_relative_difference"),
+        m.max_rel_diff,
+        max_rel_tol,
     );
     harness.check_max(
         "Mean relative difference bounded",
-        mean_rel_diff,
+        m.mean_rel_diff,
         f64_field(exp, "mean_relative_difference_max"),
     );
     harness.check_min(
         "Vendor correlation above minimum",
-        correlation,
+        m.correlation,
         f64_field(exp, "vendor_correlation_min"),
     );
     harness.check_max(
         "Bias fraction below maximum",
-        bias_fraction,
+        m.bias_fraction,
         f64_field(exp, "bias_fraction_max"),
     );
     harness.check_max(
         "Max absolute difference bounded",
-        max_abs_diff,
+        m.max_abs_diff,
         f64_field(exp, "max_absolute_difference"),
     );
-    harness.check_true("All observables within tolerance", all_within);
+    harness.check_true("All observables within tolerance", m.all_within);
     harness.check_max(
         "Chi-squared per DOF bounded",
-        chi2_per_dof,
+        m.chi2_per_dof,
         f64_field(exp, "chi2_per_dof_max"),
     );
 

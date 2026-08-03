@@ -40,6 +40,9 @@
 //! This module requires the `barracuda-gpu` feature for ESN GPU inference.
 //! Brain architecture types and rule-based classifiers work without GPU.
 
+pub mod concepts;
+pub mod uncertainty;
+
 mod brain;
 mod classifier;
 

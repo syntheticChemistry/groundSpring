@@ -67,7 +67,6 @@
 | [PAPER_REVIEW_QUEUE.md](PAPER_REVIEW_QUEUE.md) | Active | Papers to review/reproduce, prioritized by tier |
 | [BARRACUDA_REQUIREMENTS.md](BARRACUDA_REQUIREMENTS.md) | Active | GPU kernel requirements and gap analysis |
 | [BARRACUDA_EVOLUTION.md](BARRACUDA_EVOLUTION.md) | Active | Module → GPU promotion mapping (Tier A/B/C) |
-| [PRIMAL_INTERACTION_EVOLUTION.md](PRIMAL_INTERACTION_EVOLUTION.md) | Active | NUCLEUS Neural API evolution (V0–V6), interaction map |
 | [LAN_DEPLOYMENT_READINESS.md](LAN_DEPLOYMENT_READINESS.md) | Active | LAN HPC readiness assessment |
 
 ### NUCLEUS Evolution

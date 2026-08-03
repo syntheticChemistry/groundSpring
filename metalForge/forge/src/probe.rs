@@ -49,9 +49,10 @@ static GPU_PROBE_CACHE: OnceLock<Vec<Substrate>> = OnceLock::new();
 ///
 /// Results are cached in a process-wide `OnceLock` to prevent SIGSEGV
 /// from concurrent `wgpu::Instance` creation in parallel test environments.
+/// Returns a borrowed slice into the process-lifetime cache (zero-copy).
 #[must_use]
-pub fn probe_gpus() -> Vec<Substrate> {
-    GPU_PROBE_CACHE.get_or_init(probe_gpus_inner).clone()
+pub fn probe_gpus() -> &'static [Substrate] {
+    GPU_PROBE_CACHE.get_or_init(probe_gpus_inner)
 }
 
 fn probe_gpus_inner() -> Vec<Substrate> {

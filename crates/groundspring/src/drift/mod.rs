@@ -188,18 +188,22 @@ fn kimura_fixation_prob_cpu(pop_size: usize, selection: f64, initial_freq: f64) 
 /// on the GPU. Falls back to sequential CPU execution otherwise.
 ///
 /// Returns the number of trials in which the advantaged allele fixed.
-#[must_use]
+///
+/// # Errors
+///
+/// Returns [`InputError`](crate::error::InputError) if `pop_size` is zero
+/// or `initial_freq` is outside [0, 1] (propagated from each trial).
 pub fn wright_fisher_fixation_batch(
     pop_size: usize,
     selection: f64,
     initial_freq: f64,
     n_trials: usize,
     base_seed: u64,
-) -> usize {
+) -> Result<usize, crate::error::InputError> {
     #[cfg(feature = "barracuda-gpu")]
     {
         if let Some(count) = wf_batch_gpu(pop_size, selection, initial_freq, n_trials, base_seed) {
-            return count;
+            return Ok(count);
         }
     }
     wf_batch_cpu(pop_size, selection, initial_freq, n_trials, base_seed)
@@ -211,18 +215,19 @@ fn wf_batch_cpu(
     initial_freq: f64,
     n_trials: usize,
     base_seed: u64,
-) -> usize {
-    (0..n_trials)
-        .filter(|&i| {
-            wright_fisher_fixation(
-                pop_size,
-                selection,
-                initial_freq,
-                base_seed.wrapping_add(usize_u64(i)),
-            )
-            .unwrap_or(false)
-        })
-        .count()
+) -> Result<usize, crate::error::InputError> {
+    let mut count = 0;
+    for i in 0..n_trials {
+        if wright_fisher_fixation(
+            pop_size,
+            selection,
+            initial_freq,
+            base_seed.wrapping_add(usize_u64(i)),
+        )? {
+            count += 1;
+        }
+    }
+    Ok(count)
 }
 
 /// Generate xoshiro128**-compatible PRNG state for GPU dispatch.
@@ -518,8 +523,9 @@ mod tests {
         let n_trials = 200;
         let base_seed = 42;
 
-        let batch = wright_fisher_fixation_batch(pop, selection, freq, n_trials, base_seed);
-        let cpu = wf_batch_cpu(pop, selection, freq, n_trials, base_seed);
+        let batch =
+            wright_fisher_fixation_batch(pop, selection, freq, n_trials, base_seed).unwrap();
+        let cpu = wf_batch_cpu(pop, selection, freq, n_trials, base_seed).unwrap();
 
         if cfg!(feature = "barracuda-gpu") {
             let kimura = kimura_fixation_prob(pop, selection, freq);
@@ -537,7 +543,7 @@ mod tests {
     #[test]
     fn wf_batch_fixation_rate_reasonable() {
         let n_trials = 500;
-        let fix_count = wright_fisher_fixation_batch(100, 0.05, 0.5, n_trials, 42);
+        let fix_count = wright_fisher_fixation_batch(100, 0.05, 0.5, n_trials, 42).unwrap();
         let rate = usize_f64(fix_count) / usize_f64(n_trials);
         let kimura = kimura_fixation_prob(100, 0.05, 0.5);
         assert!(

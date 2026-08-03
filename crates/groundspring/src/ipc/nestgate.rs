@@ -224,10 +224,10 @@ pub fn nest_store_dispatch(
         params["metadata"] = m.clone();
     }
 
-    let ctx_result = std::panic::catch_unwind(|| {
+    let ctx_result = std::panic::catch_unwind(move || {
         let mut ctx =
             primalspring::composition::CompositionContext::from_live_discovery_with_fallback();
-        ctx.dispatch("nest.store", params.clone())
+        ctx.dispatch("nest.store", params)
     });
 
     match ctx_result {
@@ -264,10 +264,10 @@ pub fn nest_commit_dispatch(session_id: &str) -> crate::biomeos::Result<Option<s
         "session_id": session_id,
     });
 
-    let ctx_result = std::panic::catch_unwind(|| {
+    let ctx_result = std::panic::catch_unwind(move || {
         let mut ctx =
             primalspring::composition::CompositionContext::from_live_discovery_with_fallback();
-        ctx.dispatch("nest.commit", params.clone())
+        ctx.dispatch("nest.commit", params)
     });
 
     match ctx_result {

@@ -95,11 +95,11 @@ pub fn nest_storage_roundtrip(ctx: &mut CompositionContext, v: &mut ValidationRe
     }
 }
 
-/// Provenance trio liveness (sweetGrass + rhizoCrypt).
+/// Provenance trio liveness (semantic + DAG provenance).
 pub fn nest_provenance_health(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     for (name, cap) in [
-        ("nest:sweetgrass_alive", "commit"),
-        ("nest:rhizocrypt_alive", "dag"),
+        ("nest:provenance_semantic_alive", "commit"),
+        ("nest:provenance_dag_alive", "dag"),
     ] {
         match ctx.health_check(cap) {
             Ok(alive) => v.check_bool(name, alive, &format!("{cap} health normalized")),

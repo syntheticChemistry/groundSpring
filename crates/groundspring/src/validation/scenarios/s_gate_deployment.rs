@@ -2,8 +2,8 @@
 
 //! Scenario: Gate deployment validation — live IPC against proto-nucleate primals.
 //!
-//! Validates that groundSpring can discover and call its 6 required primals
-//! (`BearDog`, `Songbird`, `coralReef`, `ToadStool`, `barraCuda`, `NestGate`) via the
+//! Validates that groundSpring can discover and call its 6 required roles
+//! (security, federation, compiler, compute, gpu-math, storage) via the
 //! covalent gate NUCLEUS composition. Skip-tolerant for offline primals
 //! unless `GROUNDSPRING_GATE_STRICT` is set.
 
@@ -37,29 +37,38 @@ fn run_scenario(v: &mut ValidationResult, _ctx: &mut CompositionContext) {
         .flatten()
         .is_some();
     if !beardog_live && !strict {
-        v.check_skip("gate:beardog-ipc", "primals offline — set GROUNDSPRING_GATE_STRICT for hard fail");
+        v.check_skip(
+            "gate:security-ipc",
+            "primals offline — set GROUNDSPRING_GATE_STRICT for hard fail",
+        );
     } else {
-        v.check_bool("gate:beardog-ipc", beardog_live, "crypto.hash_blake3 reachable");
+        v.check_bool(
+            "gate:security-ipc",
+            beardog_live,
+            "crypto.hash_blake3 reachable",
+        );
     }
 
-    let barracuda_live = barracuda::try_health_version()
-        .ok()
-        .flatten()
-        .is_some();
+    let barracuda_live = barracuda::try_health_version().ok().flatten().is_some();
     if !barracuda_live && !strict {
-        v.check_skip("gate:barracuda-ipc", "primals offline");
+        v.check_skip("gate:gpu-math-ipc", "primals offline");
     } else {
-        v.check_bool("gate:barracuda-ipc", barracuda_live, "health.version reachable");
+        v.check_bool(
+            "gate:gpu-math-ipc",
+            barracuda_live,
+            "health.version reachable",
+        );
     }
 
-    let coralreef_live = coralreef::try_health_version()
-        .ok()
-        .flatten()
-        .is_some();
+    let coralreef_live = coralreef::try_health_version().ok().flatten().is_some();
     if !coralreef_live && !strict {
-        v.check_skip("gate:coralreef-ipc", "primals offline");
+        v.check_skip("gate:compiler-ipc", "primals offline");
     } else {
-        v.check_bool("gate:coralreef-ipc", coralreef_live, "health.version reachable");
+        v.check_bool(
+            "gate:compiler-ipc",
+            coralreef_live,
+            "health.version reachable",
+        );
     }
 
     let toadstool_live = toadstool::try_validate_workload("measurement.noise_decomposition", true)
@@ -67,9 +76,13 @@ fn run_scenario(v: &mut ValidationResult, _ctx: &mut CompositionContext) {
         .flatten()
         .is_some();
     if !toadstool_live && !strict {
-        v.check_skip("gate:toadstool-ipc", "primals offline");
+        v.check_skip("gate:compute-ipc", "primals offline");
     } else {
-        v.check_bool("gate:toadstool-ipc", toadstool_live, "toadstool.validate reachable");
+        v.check_bool(
+            "gate:compute-ipc",
+            toadstool_live,
+            "compute.validate reachable",
+        );
     }
 
     let nestgate_live = nestgate::try_content_get("gate-probe-key", "")
@@ -77,9 +90,9 @@ fn run_scenario(v: &mut ValidationResult, _ctx: &mut CompositionContext) {
         .flatten()
         .is_some();
     if !nestgate_live && !strict {
-        v.check_skip("gate:nestgate-ipc", "primals offline");
+        v.check_skip("gate:storage-ipc", "primals offline");
     } else {
-        v.check_bool("gate:nestgate-ipc", nestgate_live, "content.get reachable");
+        v.check_bool("gate:storage-ipc", nestgate_live, "content.get reachable");
     }
 
     let all_live =

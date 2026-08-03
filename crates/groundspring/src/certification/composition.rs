@@ -60,12 +60,12 @@ pub fn certify_composition(v: &mut ValidationResult, max_layer: u8) {
     }
 }
 
-/// Tower atomic health — BearDog (security) and Songbird (discovery) liveness.
+/// Tower atomic health — security and federation liveness.
 pub fn tower_health(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     for (name, cap) in [
-        ("tower:beardog_alive", crate::primal_names::roles::SECURITY),
+        ("tower:security_alive", crate::primal_names::roles::SECURITY),
         (
-            "tower:songbird_alive",
+            "tower:federation_alive",
             crate::primal_names::roles::DISCOVERY,
         ),
     ] {
@@ -81,7 +81,7 @@ pub fn tower_health(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     }
 }
 
-/// Tower crypto hash — BLAKE3 via BearDog, determinism check.
+/// Tower crypto hash — BLAKE3 via security role, determinism check.
 pub fn tower_crypto_hash(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     let test_data = b"groundSpring composition parity test";
 
@@ -178,20 +178,20 @@ pub fn tower_discovery_resolve(ctx: &mut CompositionContext, v: &mut ValidationR
             let methods = result.get("methods").and_then(|m| m.as_array());
             let count = methods.map_or(0, Vec::len);
             v.check_bool(
-                "tower:songbird_method_catalog",
+                "tower:federation_method_catalog",
                 count > 10,
-                &format!("Songbird exposes {count} methods"),
+                &format!("federation exposes {count} methods"),
             );
         }
         Err(e) if e.is_connection_error() => {
             v.check_skip(
-                "tower:songbird_method_catalog",
+                "tower:federation_method_catalog",
                 &format!("discovery not available: {e}"),
             );
         }
         Err(e) => {
             v.check_bool(
-                "tower:songbird_method_catalog",
+                "tower:federation_method_catalog",
                 false,
                 &format!("discover error: {e}"),
             );
@@ -463,11 +463,11 @@ pub fn nest_storage_roundtrip(ctx: &mut CompositionContext, v: &mut ValidationRe
     }
 }
 
-/// Nest provenance health — sweetGrass (commit) and rhizoCrypt (DAG).
+/// Nest provenance health — semantic provenance (commit) and DAG provenance.
 pub fn nest_provenance_health(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     for (name, cap) in [
-        ("nest:sweetgrass_alive", "commit"),
-        ("nest:rhizocrypt_alive", "dag"),
+        ("nest:provenance_semantic_alive", "commit"),
+        ("nest:provenance_dag_alive", "dag"),
     ] {
         match ctx.health_check(cap) {
             Ok(alive) => v.check_bool(name, alive, &format!("{cap} health normalized")),

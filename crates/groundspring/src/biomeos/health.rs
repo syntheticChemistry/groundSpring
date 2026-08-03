@@ -63,7 +63,9 @@ pub fn health(socket: &Path) -> Result<()> {
                 Ok(DispatchOutcome::ProtocolError { message, .. }) => {
                     tracing::debug!("health {method}: protocol error: {message}");
                 }
-                Err(_) => {}
+                Err(e) => {
+                    tracing::trace!("health {method}: response parse failed: {e}");
+                }
             },
             Err(_) => {
                 return Err(BiomeOsError::Transport(format!(

@@ -20,21 +20,21 @@ default = []
 local = ["barracuda"]
 # Enable barraCuda math primitives as a library dependency (CPU path).
 barracuda = ["dep:barracuda"]
-# Reserved: when activated, switches default PRNG from Xorshift64 to xoshiro128**.
-# Requires full stochastic experiment rebaseline (GAP-GS-011). Currently a no-op.
+# Switches `DefaultRng` from `Xorshift64` to `Xoshiro128StarStar` (GPU-aligned).
+# Requires full stochastic experiment rebaseline (GAP-GS-011).
 prng-xoshiro-default = []
 # Full GPU dispatch: barraCuda library + wgpu adapter + domain-specific GPU kernels (ESN, genomics).
 barracuda-gpu = ["barracuda", "barracuda/gpu", "barracuda/domain-esn", "barracuda/domain-genomics", "dep:wgpu", "dep:bytemuck"]
 # Nautilus stochastic process library (bingocube ecosystem).
 nautilus = ["dep:bingocube-nautilus"]
 # biomeOS integration: JSON-RPC communication, structured logging, socket discovery.
-biomeos = ["dep:serde_json", "dep:tracing", "dep:tracing-subscriber"]
+biomeos = ["dep:tracing", "dep:tracing-subscriber"]
 # BrainChip Akida NPU acceleration for int8-quantized workloads.
 npu = ["dep:akida-driver"]
 # Type-safe tarpc IPC for high-performance primal-to-primal communication.
 tarpc-ipc = ["dep:tarpc", "dep:tokio", "dep:serde"]
 # guideStone certification: NUCLEUS layer validation, deploy graph checks, primalSpring pin.
-certification = ["dep:primalspring", "dep:serde_json", "dep:tracing"]
+certification = ["dep:primalspring", "dep:tracing"]
 # Alias: `validation` and `certification` are synonymous. Both exist for semantic clarity
 # in downstream feature gates (e.g. `required-features = ["validation"]` on validator bins).
 validation = ["certification"]
@@ -49,7 +49,7 @@ akida-driver = { path = "../../../../primals/toadStool/crates/neuromorphic/akida
 wgpu = { version = "28", optional = true, default-features = false, features = ["wgsl", "vulkan-portability"] }
 bytemuck = { version = "1", optional = true, features = ["derive"] }
 primalspring = { path = "../../../primalSpring/ecoPrimal", optional = true }
-serde_json = { version = "1", optional = true }
+serde_json = { version = "1" }
 clap = { version = "4", optional = true, features = ["derive"] }
 tracing = { version = "0.1", optional = true }
 tracing-subscriber = { version = "0.3", optional = true, features = ["fmt", "env-filter"] }
@@ -69,5 +69,6 @@ required-features = ["unibin"]
 
 [dev-dependencies]
 proptest = "1"
+primalspring = { path = "../../../primalSpring/ecoPrimal" }
 temp-env = "0.3.6"
 tempfile = "3.26.0"

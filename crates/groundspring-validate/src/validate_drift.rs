@@ -16,6 +16,7 @@ use groundspring::validate::ValidationHarness;
 use groundspring_validate::{
     OrExit, f64_field, f64_range, parse_benchmark, print_provenance_header, usize_field,
 };
+use serde_json::Value;
 
 const BENCHMARK: &str =
     include_str!("../../../control/drift_selection/benchmark_drift_selection.json");
@@ -24,6 +25,78 @@ const BENCHMARK: &str =
     clippy::expect_used,
     reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
 )]
+fn parse_pop_sizes(bench: &Value) -> Vec<usize> {
+    bench["model"]["population_sizes"]
+        .as_array()
+        .expect("population_sizes")
+        .iter()
+        .map(|v| {
+            #[expect(
+                clippy::cast_possible_truncation,
+                reason = "JSON population sizes ≤ 10000, fits usize"
+            )]
+            let n = v.as_u64().expect("u64") as usize;
+            n
+        })
+        .collect()
+}
+
+fn validate_selection(
+    h: &mut ValidationHarness,
+    pop_sizes: &[usize],
+    fix_rates: &[f64],
+    p0: f64,
+    exp: &Value,
+) {
+    let drift_tol = f64_field(exp, "drift_regime_fixation_near_neutral_tol");
+    h.check_range(
+        &format!("Drift regime (N={}) near neutral", pop_sizes[0]),
+        fix_rates[0],
+        p0 - drift_tol,
+        p0 + drift_tol,
+    );
+
+    let sel_min = f64_field(exp, "strong_selection_fixation_min");
+    h.check_true(
+        &format!(
+            "Selection regime (N={}) > 60%",
+            pop_sizes[pop_sizes.len() - 1]
+        ),
+        *fix_rates.last().unwrap_or(&0.0) >= sel_min,
+    );
+
+    h.check_true(
+        "Fixation increases with N",
+        *fix_rates.last().unwrap_or(&0.0) > fix_rates[0],
+    );
+}
+
+#[expect(
+    clippy::expect_used,
+    reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+)]
+fn validate_diversity(h: &mut ValidationHarness, model: &Value, base_seed: u64) {
+    println!("\n--- Part 4: Neutral Diversity Decay ---");
+    let n_sp = usize_field(model, "n_species_neutral");
+    let n_gen = usize_field(model, "n_generations_diversity");
+
+    let div_small = neutral_diversity_trajectory(n_sp, 50, n_gen, base_seed + 90000)
+        .or_exit("neutral_diversity_trajectory small");
+    let div_large = neutral_diversity_trajectory(n_sp, 500, n_gen, base_seed + 91000)
+        .or_exit("neutral_diversity_trajectory large");
+
+    let h0s = *div_small.first().expect("non-empty small-pop trajectory");
+    let hes = *div_small.last().expect("non-empty small-pop trajectory");
+    let h0l = *div_large.first().expect("non-empty large-pop trajectory");
+    let hel = *div_large.last().expect("non-empty large-pop trajectory");
+
+    println!("  N=50:  H(0)={h0s:.4} → H({n_gen})={hes:.4}");
+    println!("  N=500: H(0)={h0l:.4} → H({n_gen})={hel:.4}");
+
+    h.check_true("Diversity declines (N=50)", hes < h0s);
+    h.check_true("Small pop loses more diversity", hes < hel);
+}
+
 fn run() -> i32 {
     let bench = parse_benchmark(BENCHMARK);
     let mut h = ValidationHarness::from_args("Rust Validation: Drift vs Selection");
@@ -36,21 +109,12 @@ fn run() -> i32 {
     let s_coeff = f64_field(model, "selection_coefficient");
     let p0 = f64_field(model, "initial_frequency");
     let n_trials = usize_field(model, "n_trials");
+    #[expect(
+        clippy::expect_used,
+        reason = "validation harness: malformed benchmark config is a fatal infrastructure error"
+    )]
     let base_seed = model["base_seed"].as_u64().expect("base_seed");
-
-    let pop_sizes: Vec<usize> = bench["model"]["population_sizes"]
-        .as_array()
-        .expect("population_sizes")
-        .iter()
-        .map(|v| {
-            #[expect(
-                clippy::cast_possible_truncation,
-                reason = "JSON population sizes ≤ 10000, fits usize"
-            )]
-            let n = v.as_u64().expect("u64") as usize;
-            n
-        })
-        .collect();
+    let pop_sizes = parse_pop_sizes(&bench);
 
     // Part 1: Neutral fixation
     println!("\n--- Part 1: Neutral Fixation (s=0) ---");
@@ -99,27 +163,7 @@ fn run() -> i32 {
         println!("  N={n_pop:4}, N×s={ns:5.2} ({regime:9}): P_fix={rate:.3} (Kimura={kimura:.3})");
     }
 
-    let drift_tol = f64_field(exp, "drift_regime_fixation_near_neutral_tol");
-    h.check_range(
-        &format!("Drift regime (N={}) near neutral", pop_sizes[0]),
-        fix_rates[0],
-        p0 - drift_tol,
-        p0 + drift_tol,
-    );
-
-    let sel_min = f64_field(exp, "strong_selection_fixation_min");
-    h.check_true(
-        &format!(
-            "Selection regime (N={}) > 60%",
-            pop_sizes[pop_sizes.len() - 1]
-        ),
-        *fix_rates.last().unwrap_or(&0.0) >= sel_min,
-    );
-
-    h.check_true(
-        "Fixation increases with N",
-        *fix_rates.last().unwrap_or(&0.0) > fix_rates[0],
-    );
+    validate_selection(&mut h, &pop_sizes, &fix_rates, p0, exp);
 
     // Part 3: Kimura accuracy
     println!("\n--- Part 3: Kimura Formula ---");
@@ -132,26 +176,7 @@ fn run() -> i32 {
         );
     }
 
-    // Part 4: Neutral diversity decay
-    println!("\n--- Part 4: Neutral Diversity Decay ---");
-    let n_sp = usize_field(model, "n_species_neutral");
-    let n_gen = usize_field(model, "n_generations_diversity");
-
-    let div_small = neutral_diversity_trajectory(n_sp, 50, n_gen, base_seed + 90000)
-        .or_exit("neutral_diversity_trajectory small");
-    let div_large = neutral_diversity_trajectory(n_sp, 500, n_gen, base_seed + 91000)
-        .or_exit("neutral_diversity_trajectory large");
-
-    let h0s = *div_small.first().expect("non-empty small-pop trajectory");
-    let hes = *div_small.last().expect("non-empty small-pop trajectory");
-    let h0l = *div_large.first().expect("non-empty large-pop trajectory");
-    let hel = *div_large.last().expect("non-empty large-pop trajectory");
-
-    println!("  N=50:  H(0)={h0s:.4} → H({n_gen})={hes:.4}");
-    println!("  N=500: H(0)={h0l:.4} → H({n_gen})={hel:.4}");
-
-    h.check_true("Diversity declines (N=50)", hes < h0s);
-    h.check_true("Small pop loses more diversity", hes < hel);
+    validate_diversity(&mut h, model, base_seed);
 
     // Part 5: Determinism
     println!("\n--- Part 5: Determinism ---");

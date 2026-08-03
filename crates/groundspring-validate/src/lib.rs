@@ -315,9 +315,7 @@ mod tests {
             ),
             (
                 "ltee_biobrick",
-                include_str!(
-                    "../../../control/ltee_biobrick_burden/benchmark_ltee_biobrick.json"
-                ),
+                include_str!("../../../control/ltee_biobrick_burden/benchmark_ltee_biobrick.json"),
             ),
         ];
 
