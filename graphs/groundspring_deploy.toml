@@ -8,7 +8,7 @@
 # Composable: other graphs can reference this as a sub-graph via depends_on.
 # biomeOS orchestrates germination order; Songbird provides IPC mesh.
 #
-# STATUS: V145 (May 17, 2026) — barraCuda v0.4.0, nest.commit signal
+# STATUS: V147 (August 3, 2026) — deep debt CLEAN, westGate Phase 4
 # Run: biomeos deploy graphs/groundspring_deploy.toml
 #      biomeos niche deploy groundspring-measurement
 
@@ -18,9 +18,9 @@ description = "groundSpring measurement provider atop Tower Atomic"
 coordination = "Sequential"
 
 [graph.metadata]
-groundspring_version = "V145"
+groundspring_version = "V147"
 domain = "measurement"
-target_node = "eastgate"
+target_node = "westgate"
 secure_by_default = true
 transport = "uds_only"
 trust_model = "MethodGate"
@@ -117,8 +117,9 @@ name = "start"
 
 [nodes.operation.params]
 mode = "server"
-providers = ["ncbi", "noaa_ghcnd", "iris_fdsn"]
+providers = ["ncbi", "noaa_ghcnd", "iris_fdsn", "usgs_earthquake", "usda_nass"]
 storage_backend = "local_fs"
+data_root = "/mnt/nestgate/cold/zfs/data"
 family_id = "${FAMILY_ID}"
 
 [nodes.operation.environment]
@@ -234,7 +235,7 @@ name = "capability_call"
 
 [nodes.operation.params]
 capability = "provenance.session_create"
-params = { agent = "groundspring", experiment_id = "niche_deploy", version = "V125", family_id = "groundspring" }
+params = { agent = "groundspring", experiment_id = "niche_deploy", version = "V147", family_id = "groundspring" }
 
 [nodes.constraints]
 timeout_ms = 10000
@@ -270,7 +271,7 @@ name = "capability_call"
 
 [nodes.operation.params]
 capability = "security.audit_log"
-params = { event = "niche.deploy", primal = "groundspring", version = "V128", family_id = "${FAMILY_ID}", details = { capabilities_registered = 16, deploy_graph = "groundspring_deploy" } }
+params = { event = "niche.deploy", primal = "groundspring", version = "V147", family_id = "${FAMILY_ID}", details = { capabilities_registered = 16, deploy_graph = "groundspring_deploy" } }
 
 [nodes.constraints]
 timeout_ms = 10000
