@@ -165,3 +165,28 @@ pub fn classification_uncertainty(outputs: &[f64]) -> ClassificationUncertainty 
         margin,
     }
 }
+
+#[cfg(test)]
+#[expect(clippy::unwrap_used, reason = "test")]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn classification_uncertainty_bounded() {
+        let u = classification_uncertainty(&[3.0, 1.0, 0.5]);
+        assert!((0.0..=1.0).contains(&u.confidence));
+        assert!(u.entropy >= 0.0);
+        assert!((0.0..=1.0).contains(&u.margin));
+    }
+
+    #[test]
+    fn is_boundary_threshold() {
+        let u = ClassificationUncertainty {
+            confidence: 0.4,
+            entropy: 1.0,
+            margin: 0.1,
+        };
+        assert!(u.is_boundary(0.6, 0.3));
+        assert!(!u.is_boundary(0.3, 0.05));
+    }
+}

@@ -77,3 +77,28 @@ pub fn gaussian_peak(omega: &[f64], center: f64, width: f64, amplitude: f64) -> 
         })
         .collect()
 }
+
+#[cfg(test)]
+#[expect(clippy::unwrap_used, reason = "test")]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn build_kernel_dimensions_and_nonzero() {
+        let tau = [0.1, 0.5, 1.0];
+        let omega = [1.0, 2.0, 3.0, 4.0];
+        let k = build_kernel(&tau, &omega);
+        assert_eq!(k.len(), tau.len() * omega.len());
+        assert!(k.iter().all(|&v| v > 0.0));
+    }
+
+    #[test]
+    fn gaussian_peak_at_known_sigma() {
+        let omega = [0.0, 1.0, 2.0];
+        let sigma = 0.5;
+        let rho = gaussian_peak(&omega, 1.0, sigma, 1.0);
+        let expected_center = 1.0 / (sigma * std::f64::consts::TAU.sqrt());
+        assert!((rho[1] - expected_center).abs() < 1e-10);
+        assert!(rho[1] > rho[0] && rho[1] > rho[2]);
+    }
+}

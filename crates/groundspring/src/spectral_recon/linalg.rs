@@ -88,3 +88,27 @@ pub fn cholesky_solve(a: &[f64], b: &[f64], n: usize) -> Vec<f64> {
 
     x
 }
+
+#[cfg(test)]
+#[expect(clippy::unwrap_used, reason = "test")]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn mat_transpose_mul_2x2() {
+        let a = [1.0, 2.0, 3.0, 4.0];
+        let b = [5.0, 6.0, 7.0, 8.0];
+        let c = mat_transpose_mul(&a, &b, 2, 2, 2);
+        assert!((c[0] - 26.0).abs() < 1e-10);
+        assert!((c[3] - 44.0).abs() < 1e-10);
+    }
+
+    #[test]
+    fn cholesky_solve_identity() {
+        let a = [1.0, 0.0, 0.0, 1.0];
+        let b = [2.0, 3.0];
+        let x = cholesky_solve(&a, &b, 2);
+        assert!((x[0] - 2.0).abs() < 1e-10);
+        assert!((x[1] - 3.0).abs() < 1e-10);
+    }
+}

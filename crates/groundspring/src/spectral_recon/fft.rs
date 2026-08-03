@@ -103,3 +103,35 @@ fn fft_correlator_gpu(correlator: &[f64], n: usize) -> Option<(Vec<f64>, Vec<f64
 
     Some((re, im))
 }
+
+#[cfg(test)]
+#[expect(clippy::unwrap_used, reason = "test")]
+mod tests {
+    use super::*;
+    use crate::cast::usize_f64;
+
+    #[test]
+    fn fft_power_spectrum_sine_peak() {
+        let n = 64;
+        let d_tau = 0.01;
+        let freq_hz = 10.0;
+        let correlator: Vec<f64> = (0..n)
+            .map(|i| {
+                let t = usize_f64(i) * d_tau;
+                (std::f64::consts::TAU * freq_hz * t).sin()
+            })
+            .collect();
+        let (frequencies, power) = fft_power_spectrum(&correlator, d_tau);
+        let peak_idx = power
+            .iter()
+            .enumerate()
+            .max_by(|(_, a), (_, b)| a.total_cmp(b))
+            .unwrap()
+            .0;
+        assert!(
+            (frequencies[peak_idx] - freq_hz).abs() < 2.0 / (usize_f64(n) * d_tau),
+            "peak at {}, expected ~{freq_hz}",
+            frequencies[peak_idx]
+        );
+    }
+}

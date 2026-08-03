@@ -48,7 +48,7 @@ pub fn start_session(socket: &Path, experiment_id: &str) -> Result<String> {
 ///
 /// Returns `Err` if the Provenance Trio is unavailable.
 pub fn commit_session(socket: &Path, session_id: &str, summary_json: &str) -> Result<String> {
-    #[cfg(feature = "biomeos")]
+    #[cfg(all(feature = "biomeos", feature = "tarpc-ipc"))]
     {
         match crate::ipc::nestgate::nest_commit_dispatch(session_id) {
             Ok(Some(result)) => {
@@ -126,7 +126,7 @@ pub fn store_result(socket: &Path, key: &str, result_json: &str) -> Result<()> {
 ///
 /// Returns `Err` if session creation fails (both signal and legacy paths).
 pub fn run_lifecycle(socket: &Path, experiment_id: &str, result_json: &str) -> Result<String> {
-    #[cfg(feature = "biomeos")]
+    #[cfg(all(feature = "biomeos", feature = "tarpc-ipc"))]
     {
         let metadata = serde_json::json!({
             "experiment_id": experiment_id,

@@ -199,3 +199,52 @@ pub fn seed_around_edges(edges: &[ConceptEdge], n_seeds: usize, radius: f64) -> 
     }
     seeds
 }
+
+#[cfg(test)]
+#[expect(clippy::unwrap_used, reason = "test")]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn detect_concept_edges_synthetic_drift() {
+        let disorders: Vec<f64> = (0..12).map(|i| f64::from(i).mul_add(1.5, 1.0)).collect();
+        let features: Vec<[f64; 3]> = disorders
+            .iter()
+            .map(|&w| {
+                let r = if w < 8.0 {
+                    (w - 1.0).mul_add(-0.005, 0.53)
+                } else {
+                    (16.5 - w).mul_add(0.002, 0.39)
+                };
+                [r, w.mul_add(-0.1, 4.0), w.mul_add(0.05, 3.0)]
+            })
+            .collect();
+        let labels: Vec<RegimeLabel> = disorders
+            .iter()
+            .map(|&w| {
+                if w < 6.0 {
+                    RegimeLabel::Extended
+                } else if w < 10.0 {
+                    RegimeLabel::Critical
+                } else {
+                    RegimeLabel::Localized
+                }
+            })
+            .collect();
+        let edges = detect_concept_edges(&disorders, &features, &labels, 0.5);
+        assert!(!edges.is_empty());
+        assert!(edges.iter().all(|e| e.loo_error > 0.5));
+    }
+
+    #[test]
+    fn drift_action_for_edge_valid_actions() {
+        assert_eq!(
+            drift_action_for_edge(1.5, 0.5),
+            DriftAction::IncreaseSelection
+        );
+        assert!(matches!(
+            drift_action_for_edge(0.7, 0.5),
+            DriftAction::IncreasePop { factor: 1.5 }
+        ));
+    }
+}

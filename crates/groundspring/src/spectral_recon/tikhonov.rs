@@ -148,3 +148,34 @@ fn gemm_setup_gpu(
     .ok()?;
     Some((ktk, ktg))
 }
+
+#[cfg(test)]
+#[expect(clippy::unwrap_used, reason = "test")]
+mod tests {
+    use super::*;
+    use crate::spectral_recon::{build_kernel, forward_correlator, gaussian_peak};
+    use crate::cast::usize_f64;
+
+    #[test]
+    fn tikhonov_solve_cpu_recovers_gaussian_peak() {
+        let n_tau = 20;
+        let n_omega = 40;
+        let tau: Vec<f64> = (1..=n_tau)
+            .map(|i| usize_f64(i) * 2.0 / usize_f64(n_tau))
+            .collect();
+        let omega: Vec<f64> = (1..=n_omega)
+            .map(|i| usize_f64(i) * 8.0 / usize_f64(n_omega))
+            .collect();
+        let rho_true = gaussian_peak(&omega, 3.0, 0.5, 1.0);
+        let kernel = build_kernel(&tau, &omega);
+        let g = forward_correlator(&kernel, &rho_true, n_tau, n_omega);
+        let rho_rec = tikhonov_solve_cpu(&kernel, &g, 1e-12, n_tau, n_omega);
+        let peak_idx = rho_rec
+            .iter()
+            .enumerate()
+            .max_by(|(_, a), (_, b)| a.total_cmp(b))
+            .unwrap()
+            .0;
+        assert!((omega[peak_idx] - 3.0).abs() < 1.0);
+    }
+}

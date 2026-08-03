@@ -38,21 +38,21 @@ fn main() {
                 );
 
                 // ── Tower Atomic ─────────────────────────────────────
-                v.section("Tower Atomic (BearDog + Songbird)");
+                v.section("Tower Atomic (security + discovery)");
 
                 tower_health(&mut ctx, v);
                 tower_crypto_hash(&mut ctx, v);
                 tower_discovery_resolve(&mut ctx, v);
 
                 // ── Node Atomic ──────────────────────────────────────
-                v.section("Node Atomic (barraCuda + coralReef + toadStool)");
+                v.section("Node Atomic (GPU math + compiler + compute)");
 
                 node_scalar_parity(&mut ctx, v);
                 node_shader_capabilities(&mut ctx, v);
                 node_compute_dispatch_health(&mut ctx, v);
 
                 // ── Nest Atomic ──────────────────────────────────────
-                v.section("Nest Atomic (NestGate + provenance trio)");
+                v.section("Nest Atomic (storage + provenance trio)");
 
                 nest_storage_roundtrip(&mut ctx, v);
                 nest_provenance_health(&mut ctx, v);
@@ -71,8 +71,8 @@ fn main() {
 
 fn tower_health(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     for (name, cap) in [
-        ("beardog_alive", "security"),
-        ("songbird_alive", "discovery"),
+        ("security_alive", "security"),
+        ("federation_alive", "discovery"),
     ] {
         match ctx.health_check(cap) {
             Ok(alive) => v.check_bool(name, alive, &format!("{cap} health normalized")),
@@ -159,20 +159,20 @@ fn tower_discovery_resolve(ctx: &mut CompositionContext, v: &mut ValidationResul
             let methods = result.get("methods").and_then(|m| m.as_array());
             let count = methods.map_or(0, Vec::len);
             v.check_bool(
-                "songbird_method_catalog",
+                "federation_method_catalog",
                 count > 10,
-                &format!("Songbird exposes {count} methods"),
+                &format!("Federation exposes {count} methods"),
             );
         }
         Err(e) if e.is_connection_error() => {
             v.check_skip(
-                "songbird_method_catalog",
+                "federation_method_catalog",
                 &format!("discovery not available: {e}"),
             );
         }
         Err(e) => {
             v.check_bool(
-                "songbird_method_catalog",
+                "federation_method_catalog",
                 false,
                 &format!("discover error: {e}"),
             );
@@ -241,7 +241,7 @@ fn node_compute_dispatch_health(ctx: &mut CompositionContext, v: &mut Validation
         Ok(alive) => v.check_bool(
             "compute_dispatch_alive",
             alive,
-            "toadStool health normalized",
+            "compute health normalized",
         ),
         Err(e) if e.is_connection_error() => {
             v.check_skip(
@@ -332,7 +332,7 @@ fn nest_storage_roundtrip(ctx: &mut CompositionContext, v: &mut ValidationResult
 }
 
 fn nest_provenance_health(ctx: &mut CompositionContext, v: &mut ValidationResult) {
-    for (name, cap) in [("sweetgrass_alive", "commit"), ("rhizocrypt_alive", "dag")] {
+    for (name, cap) in [("commit_alive", "commit"), ("dag_alive", "dag")] {
         match ctx.health_check(cap) {
             Ok(alive) => v.check_bool(name, alive, &format!("{cap} health normalized")),
             Err(e) if e.is_connection_error() => {

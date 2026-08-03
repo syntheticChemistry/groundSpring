@@ -52,3 +52,25 @@ pub const FEATURE_GATES: &[(&str, &str)] = &[
     ),
     ("npu", "BrainChip AKD1000 NPU inference"),
 ];
+
+#[cfg(test)]
+#[expect(clippy::unwrap_used, reason = "test")]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn dependencies_and_feature_gates_nonempty() {
+        assert!(!DEPENDENCIES.is_empty());
+        assert!(!FEATURE_GATES.is_empty());
+    }
+
+    #[test]
+    fn dependencies_and_feature_gates_expected_keys() {
+        let dep_ids: Vec<&str> = DEPENDENCIES.iter().map(|(id, _, _)| *id).collect();
+        assert!(dep_ids.contains(&crate::primal_names::roles::SECURITY));
+        assert!(dep_ids.contains(&crate::primal_names::roles::DISCOVERY));
+        let gate_ids: Vec<&str> = FEATURE_GATES.iter().map(|(id, _)| *id).collect();
+        assert!(gate_ids.contains(&"barracuda"));
+        assert!(gate_ids.contains(&crate::primal_names::roles::ORCHESTRATOR));
+    }
+}

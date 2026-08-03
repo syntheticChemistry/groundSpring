@@ -4,51 +4,93 @@
 
 //! `NestGate` NCBI data acquisition validation for baseCamp papers.
 //!
-//! Validates the `NestGate` HTTP API and NUCLEUS primal health for:
+//! Validates the `NestGate` UDS/HTTP API and NUCLEUS primal health for:
 //! - Paper 01 (`Anderson-QS`): 16S amplicon metagenome accessions
 //! - Paper 06 (No-Till Anderson): soil microbiome studies (Zuber 2016, Islam 2014)
 //!
 //! Requires: `--features biomeos` and a running NUCLEUS with `NestGate`.
 //!
-//! `NestGate` runs its own HTTP API (port 8090 by default). NCBI queries route
-//! directly to `NestGate`; the Neural API proxy (`rpc_call`) is a biomeOS
-//! evolution item. Primal health checks go through the Unix socket mesh.
+//! `NestGate` exposes a Unix domain socket in the biomeOS mesh (`nestgate.sock`)
+//! and optionally a legacy HTTP API. NCBI queries route directly to `NestGate`;
+//! the Neural API proxy (`rpc_call`) is a biomeOS evolution item. Primal health
+//! checks go through the Unix socket mesh.
 
 use groundspring_forge::nucleus::{NucleusHarness as Harness, biomeos_socket_dir};
 use std::io::{BufRead, BufReader, Read, Write};
 use std::net::TcpStream;
 use std::time::Duration;
 
-/// NestGate default HTTP port (used when `NESTGATE_HOST` is set without
-/// `NESTGATE_PORT`). Matches the NestGate primal's default listen address.
-///
-/// Overridable via `NESTGATE_PORT` env var.
-const NESTGATE_DEFAULT_PORT: u16 = 8090;
+/// Legacy HTTP fallback port — used only when no UDS socket is discovered and
+/// no env override supplies a port (e.g. `NESTGATE_HOST` without `NESTGATE_PORT`).
+const LEGACY_HTTP_FALLBACK_PORT: u16 = 8090;
 
-/// Default loopback host for when only `NESTGATE_PORT` is set.
-const DEFAULT_LOOPBACK: &str = "127.0.0.1";
+/// Legacy HTTP fallback host — used only when no UDS socket is discovered and
+/// only `NESTGATE_PORT` is set without `NESTGATE_HOST`.
+const LEGACY_HTTP_FALLBACK_HOST: &str = "127.0.0.1";
 
-/// Discover the `NestGate` URL via capability-based env chain.
+/// How the validator reaches `NestGate`.
 ///
-/// Priority (first success wins):
-/// 1. `NESTGATE_URL` — full URL override
-/// 2. `NESTGATE_ADDRESS` — `host:port` pair (HTTP assumed)
-/// 3. `NESTGATE_HOST` + `NESTGATE_PORT` — individual overrides
-/// 4. biomeOS socket registry lookup (future: JSON-RPC capability query)
+/// UDS is preferred when a live socket is discovered; HTTP remains for env
+/// overrides and as a last-resort legacy fallback.
+enum NestGateEndpoint {
+    Unix(String),
+    Http { url: String, legacy_fallback: bool },
+}
+
+impl NestGateEndpoint {
+    fn display_label(&self) -> String {
+        match self {
+            Self::Unix(path) => format!("UDS {path}"),
+            Self::Http { url, legacy_fallback: true } => {
+                format!("HTTP {url} (legacy fallback — no UDS socket found)")
+            }
+            Self::Http { url, legacy_fallback: false } => format!("HTTP {url}"),
+        }
+    }
+}
+
+/// Discover how to reach `NestGate`.
 ///
-/// Fails with a descriptive message if no discovery path succeeds,
-/// rather than silently falling back to a hardcoded address.
-fn nestgate_url() -> Result<String, String> {
+/// Discovery hierarchy (first match wins):
+///
+/// 1. **Environment overrides (HTTP)** — explicit operator intent:
+///    `NESTGATE_URL`, `NESTGATE_ADDRESS`, or `NESTGATE_HOST` + `NESTGATE_PORT`.
+/// 2. **biomeOS socket scan (UDS, preferred)** — scan
+///    `$XDG_RUNTIME_DIR/biomeos/nestgate*.sock` (via [`biomeos_socket_dir`]).
+/// 3. **Legacy HTTP fallback** — `127.0.0.1:8090` when nothing else is found.
+///
+/// UDS is the modern path; raw TCP/HTTP is retained for env overrides and
+/// deployments that still expose the legacy HTTP listener.
+fn discover_nestgate() -> NestGateEndpoint {
+    if let Some(url) = nestgate_url_from_env() {
+        return NestGateEndpoint::Http {
+            url,
+            legacy_fallback: false,
+        };
+    }
+
+    if let Some(path) = discover_nestgate_socket(&biomeos_socket_dir()) {
+        return NestGateEndpoint::Unix(path);
+    }
+
+    NestGateEndpoint::Http {
+        url: format!("http://{LEGACY_HTTP_FALLBACK_HOST}:{LEGACY_HTTP_FALLBACK_PORT}"),
+        legacy_fallback: true,
+    }
+}
+
+/// Resolve an HTTP URL from NestGate env overrides, if any are set.
+fn nestgate_url_from_env() -> Option<String> {
     if let Ok(url) = std::env::var("NESTGATE_URL")
         && !url.is_empty()
     {
-        return Ok(url);
+        return Some(url);
     }
 
     if let Ok(addr) = std::env::var("NESTGATE_ADDRESS")
         && !addr.is_empty()
     {
-        return Ok(format!("http://{addr}"));
+        return Some(format!("http://{addr}"));
     }
 
     let host = std::env::var("NESTGATE_HOST")
@@ -59,47 +101,105 @@ fn nestgate_url() -> Result<String, String> {
         .and_then(|p| p.parse::<u16>().ok());
 
     match (host, port) {
-        (Some(h), Some(p)) => return Ok(format!("http://{h}:{p}")),
-        (Some(h), None) => return Ok(format!("http://{h}:{NESTGATE_DEFAULT_PORT}")),
-        (None, Some(p)) => return Ok(format!("http://{DEFAULT_LOOPBACK}:{p}")),
-        (None, None) => {}
+        (Some(h), Some(p)) => Some(format!("http://{h}:{p}")),
+        (Some(h), None) => Some(format!("http://{h}:{LEGACY_HTTP_FALLBACK_PORT}")),
+        (None, Some(p)) => Some(format!("http://{LEGACY_HTTP_FALLBACK_HOST}:{p}")),
+        (None, None) => None,
     }
-
-    let sock_dir = biomeos_socket_dir();
-    let registry = format!("{sock_dir}/socket-registry.json");
-    if let Ok(contents) = std::fs::read_to_string(&registry)
-        && let Some(addr) = contents
-            .lines()
-            .find(|l| l.contains(groundspring::primal_names::roles::STORAGE))
-            .and_then(|l| l.split('"').nth(3))
-        && !addr.is_empty()
-    {
-        return Ok(if addr.starts_with("http") {
-            addr.to_string()
-        } else {
-            format!("http://{addr}")
-        });
-    }
-
-    Err(
-        "NestGate discovery failed. Set one of: NESTGATE_URL, NESTGATE_ADDRESS, \
-         NESTGATE_HOST+NESTGATE_PORT, or ensure the biomeOS socket registry \
-         is populated."
-            .to_string(),
-    )
 }
 
-fn nestgate_health(base_url: &str) -> Result<String, String> {
-    http_get(&format!("{base_url}/health"))
+/// Scan the biomeOS socket directory for a live `nestgate*.sock` endpoint.
+fn discover_nestgate_socket(socket_dir: &str) -> Option<String> {
+    let dir = std::path::Path::new(socket_dir);
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return None;
+    };
+
+    let mut candidates = Vec::new();
+    for entry in entries.flatten() {
+        let name = entry.file_name();
+        let name_str = name.to_string_lossy();
+        if !name_str.starts_with("nestgate") || !name_str.ends_with(".sock") {
+            continue;
+        }
+        let path = entry.path();
+        if path.exists() {
+            candidates.push((nestgate_socket_priority(&name_str), path.to_string_lossy().to_string()));
+        }
+    }
+
+    candidates.sort_by(|a, b| a.0.cmp(&b.0).then_with(|| a.1.cmp(&b.1)));
+    candidates.into_iter().map(|(_, path)| path).next()
 }
 
-fn nestgate_storage_metrics(base_url: &str) -> Result<String, String> {
-    http_get(&format!("{base_url}/api/v1/storage/metrics"))
+fn nestgate_socket_priority(name: &str) -> u8 {
+    match name {
+        "nestgate.sock" => 0,
+        "nestgate.jsonrpc.sock" => 1,
+        _ => 2,
+    }
+}
+
+fn nestgate_health(endpoint: &NestGateEndpoint) -> Result<String, String> {
+    match endpoint {
+        NestGateEndpoint::Unix(path) => nestgate_jsonrpc(
+            path,
+            "nestgate.health",
+            r#"{"check_providers":true,"check_storage":true}"#,
+        ),
+        NestGateEndpoint::Http { url, .. } => http_get(&format!("{url}/health")),
+    }
+}
+
+fn nestgate_storage_metrics(endpoint: &NestGateEndpoint) -> Result<String, String> {
+    match endpoint {
+        NestGateEndpoint::Unix(path) => {
+            // Prefer dedicated storage metrics; fall back to health payload fields.
+            nestgate_jsonrpc(path, "storage.metrics", "{}").or_else(|_| {
+                nestgate_jsonrpc(
+                    path,
+                    "nestgate.health",
+                    r#"{"check_providers":false,"check_storage":true}"#,
+                )
+            })
+        }
+        NestGateEndpoint::Http { url, .. } => {
+            http_get(&format!("{url}/api/v1/storage/metrics"))
+        }
+    }
+}
+
+fn nestgate_capabilities(endpoint: &NestGateEndpoint) -> Result<String, String> {
+    match endpoint {
+        NestGateEndpoint::Unix(path) => nestgate_jsonrpc(path, "protocol.capabilities", "{}")
+            .or_else(|_| nestgate_jsonrpc(path, "capabilities.list", "{}")),
+        NestGateEndpoint::Http { url, .. } => {
+            http_get(&format!("{url}/api/v1/protocol/capabilities"))
+        }
+    }
+}
+
+fn nestgate_jsonrpc(socket_path: &str, method: &str, params: &str) -> Result<String, String> {
+    let stream = std::os::unix::net::UnixStream::connect(socket_path)
+        .map_err(|e| format!("connect {socket_path}: {e}"))?;
+    stream.set_read_timeout(Some(Duration::from_secs(10))).ok();
+    stream.set_write_timeout(Some(Duration::from_secs(10))).ok();
+    let request = format!("{{\"jsonrpc\":\"2.0\",\"method\":\"{method}\",\"params\":{params},\"id\":1}}\n");
+    (&stream)
+        .write_all(request.as_bytes())
+        .map_err(|e| format!("write: {e}"))?;
+    let mut reader = BufReader::new(&stream);
+    let mut response = String::new();
+    reader
+        .read_line(&mut response)
+        .map_err(|e| format!("read: {e}"))?;
+    Ok(response)
 }
 
 /// Cap HTTP response bodies to avoid unbounded memory on large NCBI payloads.
 const MAX_BODY_BYTES: u64 = 4 * 1024 * 1024; // 4 MiB
 
+/// Raw HTTP GET — legacy transport only. Prefer UDS via [`discover_nestgate`].
 fn http_get(url: &str) -> Result<String, String> {
     let (host, port, path) = parse_url(url)?;
     let addr = format!("{host}:{port}");
@@ -159,6 +259,14 @@ fn parse_url(url: &str) -> Result<(String, u16, String), String> {
             (h, p.parse().unwrap_or(DEFAULT_HTTP_PORT))
         });
     Ok((host.to_string(), port, path))
+}
+
+/// Unwrap a JSON-RPC `result` field when present; otherwise return the raw body.
+fn nestgate_payload(body: &str) -> serde_json::Value {
+    let Ok(v) = serde_json::from_str::<serde_json::Value>(body) else {
+        return serde_json::Value::Null;
+    };
+    v.get("result").cloned().unwrap_or(v)
 }
 
 /// Discover primal sockets by scanning the biomeOS socket directory.
@@ -223,22 +331,15 @@ fn main() {
 
     println!("Provenance: NestGate live-infrastructure + NCBI accession catalog validation.");
     println!("  Paper 01: Anderson-QS; Paper 06: No-Till Anderson (Zuber 2016 PRJNA305091).");
-    println!("  No benchmark JSON — pass/fail based on HTTP API and primal health contracts.\n");
+    println!("  No benchmark JSON — pass/fail based on UDS/HTTP API and primal health contracts.\n");
 
     let mut harness = Harness::new();
-    let base_url = match nestgate_url() {
-        Ok(url) => url,
-        Err(msg) => {
-            eprintln!("NestGate discovery failed: {msg}");
-            eprintln!("Skipping NestGate validation (hardware/infrastructure unavailable).");
-            std::process::exit(2);
-        }
-    };
-    println!("NestGate URL: {base_url}");
+    let endpoint = discover_nestgate();
+    println!("NestGate endpoint: {}", endpoint.display_label());
     println!();
 
     validate_nucleus_health(&mut harness);
-    validate_nestgate_api(&base_url, &mut harness);
+    validate_nestgate_api(&endpoint, &mut harness);
     validate_accession_catalog(&mut harness);
 
     let all_passed = harness.finish();
@@ -287,12 +388,20 @@ fn validate_nucleus_health(harness: &mut Harness) {
     println!();
 }
 
-fn validate_nestgate_api(base_url: &str, harness: &mut Harness) {
-    println!("--- NestGate HTTP API ---");
+fn validate_nestgate_api(endpoint: &NestGateEndpoint, harness: &mut Harness) {
+    let transport = match endpoint {
+        NestGateEndpoint::Unix(_) => "UDS",
+        NestGateEndpoint::Http { .. } => "HTTP",
+    };
+    println!("--- NestGate {transport} API ---");
     println!();
 
-    match nestgate_health(base_url) {
-        Ok(body) if body.contains("\"status\":\"ok\"") => {
+    match nestgate_health(endpoint) {
+        Ok(body)
+            if body.contains("\"status\":\"ok\"")
+                || body.contains("healthy")
+                || body.contains("\"healthy\":true") =>
+        {
             harness.check("NestGate health endpoint", true);
         }
         Ok(body) => {
@@ -305,12 +414,13 @@ fn validate_nestgate_api(base_url: &str, harness: &mut Harness) {
         }
     }
 
-    match nestgate_storage_metrics(base_url) {
-        Ok(body) if body.contains("total_pools") => {
+    match nestgate_storage_metrics(endpoint) {
+        Ok(body) if body.contains("total_pools") || body.contains("available_storage") => {
             harness.check("NestGate storage metrics available", true);
-            if let Ok(v) = serde_json::from_str::<serde_json::Value>(&body) {
-                let pools = v["total_pools"].as_u64().unwrap_or(0);
-                let avail = v["available_storage"].as_u64().unwrap_or(0);
+            let v = nestgate_payload(&body);
+            let pools = v["total_pools"].as_u64().unwrap_or(0);
+            let avail = v["available_storage"].as_u64().unwrap_or(0);
+            if pools > 0 || avail > 0 {
                 println!("  Pools: {pools}, Available: {} GB", avail / 1_000_000_000);
             }
         }
@@ -324,8 +434,8 @@ fn validate_nestgate_api(base_url: &str, harness: &mut Harness) {
         }
     }
 
-    match http_get(&format!("{base_url}/api/v1/protocol/capabilities")) {
-        Ok(body) if body.contains("\"storage\"") => {
+    match nestgate_capabilities(endpoint) {
+        Ok(body) if body.contains("\"storage\"") || body.contains("storage.") => {
             harness.check("NestGate capabilities include storage", true);
         }
         Ok(body) => {

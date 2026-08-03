@@ -27,7 +27,7 @@ use primalspring::validation::ValidationResult;
 fn nucleus_base(ctx: &mut CompositionContext, v: &mut ValidationResult) {
     v.section("Tower (Security + Discovery)");
     match ctx.health_check("security") {
-        Ok(alive) => v.check_bool("tower_security_alive", alive, "BearDog health"),
+        Ok(alive) => v.check_bool("tower_security_alive", alive, "security health"),
         Err(e) if e.is_connection_error() => {
             v.check_skip("tower_security_alive", &format!("{e}"));
         }

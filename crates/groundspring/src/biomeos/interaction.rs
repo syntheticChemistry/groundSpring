@@ -62,7 +62,7 @@ pub struct DiscoveredPrimal {
 pub fn discover_primals() -> Vec<DiscoveredPrimal> {
     let ttl = discovery_ttl();
     {
-        let cache = discovery_cache().lock().expect("discovery cache poisoned");
+        let cache = discovery_cache().lock().unwrap_or_else(|e| e.into_inner());
         if let Some(ref cached) = *cache {
             if cached.last_refresh.elapsed() < ttl {
                 return cached.primals.clone();
@@ -77,7 +77,7 @@ pub fn discover_primals() -> Vec<DiscoveredPrimal> {
 #[must_use]
 pub fn refresh_discovered_primals() -> Vec<DiscoveredPrimal> {
     let primals = scan_primals();
-    let mut cache = discovery_cache().lock().expect("discovery cache poisoned");
+    let mut cache = discovery_cache().lock().unwrap_or_else(|e| e.into_inner());
     *cache = Some(DiscoveryCache {
         primals: primals.clone(),
         last_refresh: Instant::now(),
