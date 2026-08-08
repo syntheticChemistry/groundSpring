@@ -1,0 +1,24 @@
+# groundSpring — geochemistry + sensor validation
+# Validates inverse problems, soil/ag models, noise-to-signal processing
+# 16 measurement.* JSON-RPC methods, 110 barraCuda delegations
+
+[metadata]
+name = "groundspring-geochemistry-validation"
+description = "Geochemistry validation — inverse problems, soil models, sensor calibration, 395/395 experiment PASS"
+version = "0.1.0"
+
+[execution]
+type = "native"
+command = "$SPRINGS_ROOT/groundSpring/target/release/groundspring_unibin validate --format json"
+working_dir = "$SPRINGS_ROOT/groundSpring"
+
+[output]
+format = "json"
+schema = "toadstool-validate-v1"
+
+[resources]
+max_memory_bytes = 4294967296
+max_cpu_percent = 80.0
+
+[security]
+isolation_level = "None"
